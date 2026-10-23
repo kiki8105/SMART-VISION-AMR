@@ -4,6 +4,31 @@ Ubuntu 22.04 / ROS 2 Humble용 첫 버전입니다. Raspberry Pi의 TurtleBot3 b
 Linux PC의 Nav2를 사용합니다. 첨부받은 `classroom_map.yaml` 및 `.pgm`을 포함합니다.
 Gazebo, 카메라, ArUco 기능은 포함하지 않습니다.
 
+## 실행 명령 한눈에 보기
+
+최초 설치와 빌드를 마친 후, **Pi 터미널**과 **Linux PC 터미널**에서 각각 실행합니다.
+
+```bash
+# Raspberry Pi: 로봇 센서와 모터
+source /opt/ros/humble/setup.bash
+source ~/turtlebot3_ws/install/setup.bash  # 해당 워크스페이스에 설치한 경우
+export TURTLEBOT3_MODEL=waffle_pi LDS_MODEL=LDS-03 ROS_DOMAIN_ID=30
+ros2 launch turtlebot3_bringup robot.launch.py use_sim_time:=false
+```
+
+```bash
+# Linux PC: 지도, Nav2, A*, 가벼운 RViz
+source /opt/ros/humble/setup.bash
+source ~/SMART-VISION-AMR/ros2_ws/install/setup.bash
+export TURTLEBOT3_MODEL=waffle_pi ROS_DOMAIN_ID=30
+ros2 launch smart_vision_amr hardware.launch.py
+```
+
+Pi에서 이미 bringup이 실행 중이면 PC 명령만 실행합니다. 설치 위치가 다르면
+`source` 경로를 바꾸고, `ROS_DOMAIN_ID`는 두 장비에서 기존에 맞춰 둔 값을
+그대로 사용하세요. RViz 화면에서 **2D Pose Estimate**로 시작 위치를 잡고
+**2D Goal Pose**로 도착지를 지정합니다.
+
 ## 구성
 
 `/smart_vision_amr/goal` → A* (`/smart_vision_amr/path`) → Nav2 `/follow_path`
@@ -14,16 +39,27 @@ Gazebo, 카메라, ArUco 기능은 포함하지 않습니다.
 ## 1. 로봇 Raspberry Pi
 
 이미 하드웨어 bringup과 PC 간 ROS 토픽 공유가 된 환경에서 실행합니다.
+Pi의 `turtlebot3_bringup`과 LDS-03용 `coin_d4_driver`가 설치돼 있어야 합니다.
+없다면 [ROBOTIS의 Ubuntu 22.04/Humble SBC 설치 안내](https://emanual.robotis.com/docs/en/platform/turtlebot3/sbc_setup/)에
+따라 Pi에 TurtleBot3 `humble` 브랜치와 `coin_d4_driver`를 설치합니다.
+PC와 Pi는 같은 네트워크 및 같은 `ROS_DOMAIN_ID`를 사용하세요.
 
 ```bash
 source /opt/ros/humble/setup.bash
+source ~/turtlebot3_ws/install/setup.bash  # 이 경로에 ROBOTIS 패키지를 빌드한 경우
 export TURTLEBOT3_MODEL=waffle_pi
 export LDS_MODEL=LDS-03
+export ROS_DOMAIN_ID=30  # PC에도 같은 값을 설정; 이미 다른 값을 쓰고 있다면 그 값 유지
+ros2 pkg prefix turtlebot3_bringup
+ros2 pkg prefix coin_d4_driver
 ros2 launch turtlebot3_bringup robot.launch.py use_sim_time:=false
 ```
 
 Pi에서 `/scan`, `/odom`, `/tf`, `/cmd_vel`이 존재해야 합니다. LDS-03 드라이버는
 설치된 ROBOTIS TurtleBot3 bringup의 `LDS_MODEL=LDS-03` 지원을 사용합니다.
+기본 장치 경로는 OpenCR `/dev/ttyACM0`, LDS-03 `/dev/ttyUSB0`입니다.
+장치 연결이 다르면 포트와 권한을 확인하세요. ROS 패키지가 이미 시스템에
+설치되어 `~/turtlebot3_ws`가 없다면 위 `source` 줄은 생략합니다.
 
 ## 2. Linux PC 설치 및 실행
 
@@ -33,16 +69,23 @@ TurtleBot3 navigation 패키지가 설치되어 있어야 합니다.
 ```bash
 sudo apt update
 sudo apt install ros-humble-desktop ros-humble-navigation2 ros-humble-nav2-bringup \
-  ros-humble-turtlebot3-navigation2 python3-colcon-common-extensions python3-rosdep
+  ros-humble-turtlebot3-navigation2 ros-humble-rviz2 \
+  python3-colcon-common-extensions python3-rosdep
 git clone https://github.com/waterhyunsu/SMART-VISION-AMR.git
 cd SMART-VISION-AMR/ros2_ws
 source /opt/ros/humble/setup.bash
+export ROS_DOMAIN_ID=30  # Pi와 동일한 값
 rosdep install --from-paths src --ignore-src -r -y
 colcon build --symlink-install
 source install/setup.bash
 export TURTLEBOT3_MODEL=waffle_pi
 ros2 launch smart_vision_amr hardware.launch.py
 ```
+
+이 launch는 가벼운 RViz 화면도 함께 엽니다. 지도, 로봇 위치 축, A* 경로만
+표시하며 화면 갱신을 10 FPS로 제한합니다. LaserScan 점군, 로봇 3D 모델,
+Nav2 costmap 화면은 표시하지 않습니다. GUI가 필요 없는 진단 실행은
+`ros2 launch smart_vision_amr hardware.launch.py use_rviz:=false`입니다.
 
 기본 Nav2 설정은 설치된 `turtlebot3_navigation2/param/humble/waffle_pi.yaml`을
 사용합니다. 지도는 저장소에 포함된 교실 지도입니다. 실제 지도와 로봇 위치가
@@ -61,14 +104,20 @@ ros2 action list | grep follow_path
 ros2 lifecycle get /controller_server
 ```
 
-RViz에서 실제 위치에 맞춰 **2D Pose Estimate**를 지정한 뒤
+자동으로 열린 RViz에서 실제 위치에 맞춰 **2D Pose Estimate**를 지정한 뒤
 `ros2 run tf2_ros tf2_echo map base_footprint`가 연속적으로 출력되는지
 확인합니다. 지도와 위치 추정이 맞지 않으면 목표를 보내지 마세요.
 
 ## 4. 첫 목표
 
-지도 안의 가깝고 비어 있는 지점을 먼저 선택합니다. 좌표는 예시가 아니며
-실제 로봇 위치와 지도에서 확인한 값으로 바꿔야 합니다.
+RViz 상단의 **2D Goal Pose**를 선택해 지도 안의 가깝고 비어 있는 지점을
+클릭하고 방향으로 드래그합니다. 이 버튼은 `/smart_vision_amr/goal`로
+직접 발행하도록 설정되어 있어 A* 경로가 사용됩니다. 지도 위의 시작 위치는
+**2D Pose Estimate**로 지정합니다. PC의 launch를 실행해도 Pi에서 로봇
+bringup은 별도로 실행되어 있어야 합니다.
+
+클릭 대신 터미널로 목표를 보낼 수도 있습니다. 아래 좌표는 실제 지도에서
+확인한 자유 공간 좌표로 바꿔야 합니다.
 
 ```bash
 ros2 topic pub --once /smart_vision_amr/goal geometry_msgs/msg/PoseStamped \

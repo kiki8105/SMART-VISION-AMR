@@ -2,6 +2,7 @@
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -16,12 +17,14 @@ def generate_launch_description():
     map_default = PathJoinSubstitution([own, 'maps', 'classroom_map.yaml'])
     params_default = PathJoinSubstitution([tb3, 'param', 'humble', 'waffle_pi.yaml'])
     nodes = PathJoinSubstitution([own, 'config', 'nodes.yaml'])
+    rviz_config = PathJoinSubstitution([own, 'rviz', 'minimal.rviz'])
     memory_default = '~/.ros/smart_vision_amr/classroom_memory.json'
     return LaunchDescription([
         DeclareLaunchArgument('map', default_value=map_default),
         DeclareLaunchArgument('params_file', default_value=params_default),
         DeclareLaunchArgument('memory_enabled', default_value='false'),
         DeclareLaunchArgument('memory_path', default_value=memory_default),
+        DeclareLaunchArgument('use_rviz', default_value='true'),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(PathJoinSubstitution([nav2, 'launch', 'bringup_launch.py'])),
             launch_arguments={
@@ -40,4 +43,7 @@ def generate_launch_description():
                                  'memory_enabled': ParameterValue(
                                      LaunchConfiguration('memory_enabled'), value_type=bool),
                                  'memory_path': LaunchConfiguration('memory_path')}], output='screen'),
+        Node(package='rviz2', executable='rviz2', name='rviz2',
+             arguments=['-d', rviz_config], parameters=[{'use_sim_time': False}],
+             condition=IfCondition(LaunchConfiguration('use_rviz')), output='screen'),
     ])
