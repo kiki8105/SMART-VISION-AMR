@@ -12,7 +12,7 @@ Gazebo, 카메라, ArUco 기능은 포함하지 않습니다.
 # Raspberry Pi: 로봇 센서와 모터
 source /opt/ros/humble/setup.bash
 source ~/turtlebot3_ws/install/setup.bash  # 해당 워크스페이스에 설치한 경우
-export TURTLEBOT3_MODEL=waffle_pi LDS_MODEL=LDS-03 ROS_DOMAIN_ID=30
+export TURTLEBOT3_MODEL=waffle_pi LDS_MODEL=LDS-03 ROS_DOMAIN_ID=16
 ros2 launch turtlebot3_bringup robot.launch.py use_sim_time:=false
 ```
 
@@ -20,7 +20,7 @@ ros2 launch turtlebot3_bringup robot.launch.py use_sim_time:=false
 # Linux PC: 지도, Nav2, A*, 가벼운 RViz
 source /opt/ros/humble/setup.bash
 source ~/SMART-VISION-AMR/ros2_ws/install/setup.bash
-export TURTLEBOT3_MODEL=waffle_pi ROS_DOMAIN_ID=30
+export TURTLEBOT3_MODEL=waffle_pi ROS_DOMAIN_ID=16
 ros2 launch smart_vision_amr hardware.launch.py
 ```
 
@@ -49,7 +49,7 @@ source /opt/ros/humble/setup.bash
 source ~/turtlebot3_ws/install/setup.bash  # 이 경로에 ROBOTIS 패키지를 빌드한 경우
 export TURTLEBOT3_MODEL=waffle_pi
 export LDS_MODEL=LDS-03
-export ROS_DOMAIN_ID=30  # PC에도 같은 값을 설정; 이미 다른 값을 쓰고 있다면 그 값 유지
+export ROS_DOMAIN_ID=16  # PC에도 같은 값을 설정; 이미 다른 값을 쓰고 있다면 그 값 유지
 ros2 pkg prefix turtlebot3_bringup
 ros2 pkg prefix coin_d4_driver
 ros2 launch turtlebot3_bringup robot.launch.py use_sim_time:=false
@@ -74,7 +74,7 @@ sudo apt install ros-humble-desktop ros-humble-navigation2 ros-humble-nav2-bring
 git clone https://github.com/waterhyunsu/SMART-VISION-AMR.git
 cd SMART-VISION-AMR/ros2_ws
 source /opt/ros/humble/setup.bash
-export ROS_DOMAIN_ID=30  # Pi와 동일한 값
+export ROS_DOMAIN_ID=16  # Pi와 동일한 값
 rosdep install --from-paths src --ignore-src -r -y
 colcon build --symlink-install
 source install/setup.bash
