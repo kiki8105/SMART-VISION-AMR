@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "mode": "ekf_independent",
+  "estimate_topic": "/odom",
+  "truth_topic": "/gazebo/get_entity_state",
+  "truth_model": "waffle_pi",
+  "trial_status": "COMPLETE",
+  "failure": null,
+  "completed_stages": 8,
+  "total_stages": 8,
+  "route_completion_fraction": 1.0,
+  "position": {
+    "sample_count": 275,
+    "position_rmse_m": 0.0028255156606654787,
+    "position_p95_m": 0.004288189706371382,
+    "heading_rmse_deg": 0.13109494281529493,
+    "heading_p95_deg": 0.22229047801478727
+  },
+  "raw_odom_in_overlay": null,
+  "truth_distance_m": 2.273182258403437,
+  "truth_updates_during_run": 383,
+  "final_truth_distance_from_start_m": 0.11010093548960274,
+  "final_truth_heading_from_start_deg": 12.66914783797351,
+  "tf_odom_base_count": 409,
+  "tf_odom_base_rate_hz": 10.0,
+  "tf_max_gap_s": 0.105,
+  "tf_duplicate_stamp_count": 0,
+  "tf_conflict_count": 0,
+  "tf_stale_sample_count": 0,
+  "odom_publishers": [
+    "/ekf_independent"
+  ],
+  "tf_publishers": [
+    "/amcl",
+    "/ekf_independent",
+    "/robot_state_publisher"
+  ],
+  "graph_authority_ok": true,
+  "graph_authority_limit": "TFMessage has no publisher ID; unexpected third-party nodes publishing the same frame cannot be excluded from message content alone",
+  "max_interpolation_side_s": 0.1,
+  "max_interpolation_span_s": 0.105,
+  "command_count": 410,
+  "sim_duration_s": 38.4,
+  "wall_active_duration_s": 38.45760505600083,
+  "sim_realtime_factor": 0.998502115357497,
+  "matched_sample_rate_hz": 7.161458333333334,
+  "match_attempt_count": 384,
+  "matched_sample_fraction": 0.7161458333333334,
+  "last_matched_age_s": 0.099,
+  "estimate_header_lag_median_s": 0.003,
+  "estimate_header_lag_p95_s": 0.104,
+  "wall_duration_s": 41.07501808500092
+}

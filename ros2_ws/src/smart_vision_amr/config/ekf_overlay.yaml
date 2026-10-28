@@ -1,0 +1,24 @@
+# Diagnostic EKF only. Nav/SLAM continue to use the unchanged Gazebo /odom and
+# Gazebo's odom->base_footprint TF. This input already includes wheel/physics
+# information; adding /imu is intentionally the "EKF added" comparison.
+ekf_overlay:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 0.2
+    two_d_mode: true
+    publish_tf: false
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_footprint
+    world_frame: odom
+    odom0: /odom
+    odom0_config: [true, true, false, false, false, true,
+                   true, false, false, false, false, true,
+                   false, false, false]
+    odom0_queue_size: 10
+    imu0: /imu
+    imu0_config: [false, false, false, false, false, true,
+                  false, false, false, false, false, true,
+                  false, false, false]
+    imu0_queue_size: 20
+    imu0_remove_gravitational_acceleration: false

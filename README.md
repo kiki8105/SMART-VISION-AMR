@@ -54,6 +54,12 @@ SLAM 터미널에서 `Ctrl+C`를 누르면 `Team2_workspace/maps/slam_날짜_시
 실행 스크립트가 시뮬레이션용 ROS domain 76과 localhost 통신을 설정합니다.
 [상세 실행·검증·팀원 연동 방법](docs/GAZEBO.md)을 참고하세요.
 
+오도메트리 정확도는 기존 Gazebo 방식, 기존 `/odom`에 EKF를 추가한 진단 방식,
+휠 조인트와 IMU 각속도를 중복 없이 융합한 EKF 방식으로 비교할 수 있습니다.
+[세 모드의 구조](docs/ekf_modes.md)와 [반복 시험 방법](docs/ekf_benchmark.md)을 참고하세요.
+[2026-10-28 비교 결과](docs/ekf_results_2026-10-28.md)에 따라 기본 실행 모드는
+`baseline`이며 실차 설정은 별도로 유지합니다.
+
 ArUco ID 0~3이 배치된 미로에서 새로 매핑하려면
 `./scripts/run_sim_aruco.sh`와 다른 터미널의 `./scripts/run_sim_controller.sh`를
 실행합니다. 미로 실행은 기본적으로 SLAM 모드이며 Ctrl+C로 지도를 자동 저장합니다.

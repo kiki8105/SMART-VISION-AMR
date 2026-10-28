@@ -1,17 +1,61 @@
 """Gazebo Waffle Pi: fresh SLAM mapping or AMCL + the team's A* navigation."""
 
 from pathlib import Path
+import shutil
+import tempfile
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
     AppendEnvironmentVariable, DeclareLaunchArgument, IncludeLaunchDescription,
+    OpaqueFunction, RegisterEventHandler,
 )
-from launch.conditions import IfCondition, UnlessCondition
+from launch.conditions import IfCondition, LaunchConfigurationEquals, UnlessCondition
+from launch.event_handlers import OnShutdown
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
+from smart_vision_amr.gazebo_model_variant import make_independent_ekf_model
+
+
+LOCALIZATION_MODES = ('baseline', 'ekf_overlay', 'ekf_independent')
+
+
+def _validate_localization_mode(context):
+    mode = LaunchConfiguration('localization_mode').perform(context)
+    if mode not in LOCALIZATION_MODES:
+        raise ValueError(f'localization_mode must be one of {LOCALIZATION_MODES}; got {mode!r}')
+    return []
+
+
+def _spawn_robot(context, source_model):
+    mode = LaunchConfiguration('localization_mode').perform(context)
+    model = source_model
+    actions = []
+    if mode == 'ekf_independent':
+        # Keep the upstream model untouched. Only this trial disables the
+        # Gazebo odom TF and moves its world-derived odom off /odom.
+        temporary_dir = Path(tempfile.mkdtemp(prefix='smart_vision_amr_ekf_'))
+        model = temporary_dir / 'model.sdf'
+        try:
+            make_independent_ekf_model(source_model, model)
+        except Exception:
+            shutil.rmtree(temporary_dir, ignore_errors=True)
+            raise
+
+        def cleanup(_context):
+            shutil.rmtree(temporary_dir, ignore_errors=True)
+            return []
+
+        actions.append(RegisterEventHandler(
+            OnShutdown(on_shutdown=[OpaqueFunction(function=cleanup)])))
+    actions.append(Node(
+        package='gazebo_ros', executable='spawn_entity.py', output='screen',
+        arguments=['-entity', 'waffle_pi', '-file', str(model),
+                   '-x', LaunchConfiguration('x_pose'), '-y', LaunchConfiguration('y_pose'),
+                   '-Y', LaunchConfiguration('yaw'), '-z', '0.01']))
+    return actions
 
 
 def generate_launch_description():
@@ -46,8 +90,11 @@ def generate_launch_description():
         DeclareLaunchArgument('use_rviz', default_value='true'),
         DeclareLaunchArgument('use_motion_mux', default_value='true',
                               description='Disable only when the web service owns the velocity mux'),
+        DeclareLaunchArgument('localization_mode', default_value='baseline',
+                              description='baseline, ekf_overlay (diagnostic), or ekf_independent'),
         DeclareLaunchArgument('memory_enabled', default_value='false'),
         DeclareLaunchArgument('memory_path', default_value='~/.ros/smart_vision_amr/simulation_memory.json'),
+        OpaqueFunction(function=_validate_localization_mode),
         AppendEnvironmentVariable('GAZEBO_MODEL_PATH', str(tb3 / 'models')),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(str(gazebo / 'launch/gzserver.launch.py')),
@@ -57,11 +104,18 @@ def generate_launch_description():
             condition=IfCondition(LaunchConfiguration('gui'))),
         Node(package='robot_state_publisher', executable='robot_state_publisher',
              parameters=[sim, {'robot_description': robot_description}], output='screen'),
-        Node(package='gazebo_ros', executable='spawn_entity.py', output='screen',
-             arguments=['-entity', 'waffle_pi', '-file',
-                        str(tb3 / 'models/turtlebot3_waffle_pi/model.sdf'),
-                        '-x', LaunchConfiguration('x_pose'), '-y', LaunchConfiguration('y_pose'),
-                        '-Y', LaunchConfiguration('yaw'), '-z', '0.01']),
+        OpaqueFunction(function=_spawn_robot,
+                       args=[tb3 / 'models/turtlebot3_waffle_pi/model.sdf']),
+        Node(package='robot_localization', executable='ekf_node', name='ekf_overlay',
+             parameters=[str(own / 'config/ekf_overlay.yaml'), sim], output='screen',
+             condition=LaunchConfigurationEquals('localization_mode', 'ekf_overlay')),
+        Node(package='smart_vision_amr', executable='wheel_joint_odometry',
+             name='wheel_joint_odometry', parameters=[sim], output='screen',
+             condition=LaunchConfigurationEquals('localization_mode', 'ekf_independent')),
+        Node(package='robot_localization', executable='ekf_node', name='ekf_independent',
+             parameters=[str(own / 'config/ekf_independent.yaml'), sim], output='screen',
+             remappings=[('odometry/filtered', '/odom')],
+             condition=LaunchConfigurationEquals('localization_mode', 'ekf_independent')),
         Node(package='slam_toolbox', executable='async_slam_toolbox_node', name='slam_toolbox',
              parameters=[LaunchConfiguration('slam_params_file'), sim], output='screen',
              condition=IfCondition(LaunchConfiguration('slam'))),

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "mode": "ekf_overlay",
+  "estimate_topic": "/odometry/filtered",
+  "truth_topic": "/gazebo/get_entity_state",
+  "truth_model": "waffle_pi",
+  "trial_status": "COMPLETE",
+  "failure": null,
+  "completed_stages": 8,
+  "total_stages": 8,
+  "route_completion_fraction": 1.0,
+  "position": {
+    "sample_count": 300,
+    "position_rmse_m": 0.00017339996282654004,
+    "position_p95_m": 0.00016014093227926387,
+    "heading_rmse_deg": 0.01278391660629173,
+    "heading_p95_deg": 0.020869700160991267
+  },
+  "raw_odom_in_overlay": {
+    "sample_count": 300,
+    "position_rmse_m": 7.180464613478774e-05,
+    "position_p95_m": 0.00012009530977501884,
+    "heading_rmse_deg": 0.011969727726309986,
+    "heading_p95_deg": 0.019993403828757146
+  },
+  "truth_distance_m": 2.2751714315937064,
+  "truth_updates_during_run": 383,
+  "final_truth_distance_from_start_m": 0.10129969270176672,
+  "final_truth_heading_from_start_deg": 12.116002796040318,
+  "tf_odom_base_count": 1191,
+  "tf_odom_base_rate_hz": 29.349722649027317,
+  "tf_max_gap_s": 0.034,
+  "tf_duplicate_stamp_count": 0,
+  "tf_conflict_count": 0,
+  "tf_stale_sample_count": 0,
+  "odom_publishers": [
+    "/turtlebot3_diff_drive"
+  ],
+  "tf_publishers": [
+    "/amcl",
+    "/ekf_overlay",
+    "/robot_state_publisher",
+    "/turtlebot3_diff_drive"
+  ],
+  "graph_authority_ok": true,
+  "graph_authority_limit": "TFMessage has no publisher ID; unexpected third-party nodes publishing the same frame cannot be excluded from message content alone",
+  "max_interpolation_side_s": 0.098,
+  "max_interpolation_span_s": 0.102,
+  "command_count": 410,
+  "sim_duration_s": 38.399,
+  "wall_active_duration_s": 38.580429634999746,
+  "sim_realtime_factor": 0.9952973661331351,
+  "matched_sample_rate_hz": 7.812703455819162,
+  "match_attempt_count": 384,
+  "matched_sample_fraction": 0.78125,
+  "last_matched_age_s": 0.098,
+  "estimate_header_lag_median_s": 0.004,
+  "estimate_header_lag_p95_s": 0.103,
+  "wall_duration_s": 40.909016679999695
+}

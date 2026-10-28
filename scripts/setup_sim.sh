@@ -40,7 +40,8 @@ run() {
 
 APT_PACKAGES=(git cmake python3-colcon-common-extensions gazebo
   ros-humble-desktop ros-humble-gazebo-ros-pkgs ros-humble-nav2-bringup
-  ros-humble-xacro ros-humble-slam-toolbox python3-pyqt5 python3-numpy
+  ros-humble-xacro ros-humble-slam-toolbox ros-humble-robot-localization
+  python3-pyqt5 python3-numpy
   python3-yaml python3-pil)
 
 missing_dependencies() {

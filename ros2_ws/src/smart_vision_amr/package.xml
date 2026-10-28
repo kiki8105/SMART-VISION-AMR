@@ -10,12 +10,14 @@
   <exec_depend>gazebo_ros</exec_depend><exec_depend>gazebo_plugins</exec_depend>
   <exec_depend>turtlebot3_gazebo</exec_depend><exec_depend>turtlebot3_description</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
   <exec_depend>slam_toolbox</exec_depend>
   <exec_depend>nav2_map_server</exec_depend><exec_depend>nav2_amcl</exec_depend>
   <exec_depend>nav2_controller</exec_depend><exec_depend>nav2_lifecycle_manager</exec_depend>
   <exec_depend>nav2_bringup</exec_depend><exec_depend>turtlebot3_navigation2</exec_depend>
   <exec_depend>nav2_msgs</exec_depend><exec_depend>action_msgs</exec_depend>
   <exec_depend>geometry_msgs</exec_depend><exec_depend>nav_msgs</exec_depend>
+  <exec_depend>gazebo_msgs</exec_depend><exec_depend>tf2_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend><exec_depend>std_msgs</exec_depend>
   <exec_depend>std_srvs</exec_depend><exec_depend>tf2_ros</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>

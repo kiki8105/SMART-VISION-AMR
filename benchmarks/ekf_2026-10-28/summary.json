@@ -1,0 +1,59 @@
+{
+  "minimum_trials_per_mode": 3,
+  "modes": {
+    "baseline": {
+      "trial_count": 3,
+      "valid_trial_count": 3,
+      "completion_rate": 1.0,
+      "median_position_rmse_m": 6.66826048058476e-05,
+      "median_heading_rmse_deg": 0.010108120392121245,
+      "median_tf_max_gap_s": 0.034,
+      "median_truth_distance_m": 2.2751797394226174,
+      "median_matched_sample_rate_hz": 7.780882007363116,
+      "median_matched_sample_fraction": 0.7760416666666666,
+      "median_estimate_header_lag_p95_s": 0.031,
+      "median_wall_duration_s": 40.694869869001195,
+      "median_sim_realtime_factor": 0.9956780970516065,
+      "median_raw_odom_position_rmse_m": null,
+      "median_raw_odom_heading_rmse_deg": null,
+      "failures": []
+    },
+    "ekf_overlay": {
+      "trial_count": 3,
+      "valid_trial_count": 3,
+      "completion_rate": 1.0,
+      "median_position_rmse_m": 0.00015396389709127,
+      "median_heading_rmse_deg": 0.01278391660629173,
+      "median_tf_max_gap_s": 0.034,
+      "median_truth_distance_m": 2.2751714315937064,
+      "median_matched_sample_rate_hz": 7.786458333333334,
+      "median_matched_sample_fraction": 0.7786458333333334,
+      "median_estimate_header_lag_p95_s": 0.103,
+      "median_wall_duration_s": 41.59744189400044,
+      "median_sim_realtime_factor": 0.9958047389988247,
+      "median_raw_odom_position_rmse_m": 7.180464613478774e-05,
+      "median_raw_odom_heading_rmse_deg": 0.011969727726309986,
+      "failures": []
+    },
+    "ekf_independent": {
+      "trial_count": 3,
+      "valid_trial_count": 3,
+      "completion_rate": 1.0,
+      "median_position_rmse_m": 0.0025921100287579183,
+      "median_heading_rmse_deg": 0.11909026468157966,
+      "median_tf_max_gap_s": 0.105,
+      "median_truth_distance_m": 2.275046842655674,
+      "median_matched_sample_rate_hz": 7.161458333333334,
+      "median_matched_sample_fraction": 0.7161458333333334,
+      "median_estimate_header_lag_p95_s": 0.104,
+      "median_wall_duration_s": 41.07501808500092,
+      "median_sim_realtime_factor": 0.9973033182663202,
+      "median_raw_odom_position_rmse_m": null,
+      "median_raw_odom_heading_rmse_deg": null,
+      "failures": []
+    }
+  },
+  "simulation_recommendation": "baseline",
+  "reason": "Independent EKF did not meet the prespecified improvement criterion in these simulated trials",
+  "hardware_caution": "Gazebo diff-drive odometry may be world-derived. A simulation winner is not validated for the real TurtleBot3; repeat with an external reference and safe physical course."
+}

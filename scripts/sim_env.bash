@@ -32,6 +32,25 @@ _smart_vision_sim_env() {
   printf '+ source %q\n' "$workspace_root/install/local_setup.bash"
   source "$workspace_root/install/local_setup.bash" || return
 
+  # Optional user-space ROS package for local experiments. Normal installations
+  # already live under /opt/ros/humble and need neither override.
+  if [[ -n "${SMART_VISION_EXTRA_ROS_PREFIX:-}" ]]; then
+    if [[ ! -d "$SMART_VISION_EXTRA_ROS_PREFIX/share/ament_index/resource_index/packages" ]]; then
+      printf 'Invalid extra ROS prefix: %s\n' "$SMART_VISION_EXTRA_ROS_PREFIX" >&2
+      return 1
+    fi
+    export AMENT_PREFIX_PATH="$SMART_VISION_EXTRA_ROS_PREFIX:$AMENT_PREFIX_PATH"
+    export CMAKE_PREFIX_PATH="$SMART_VISION_EXTRA_ROS_PREFIX:$CMAKE_PREFIX_PATH"
+    export LD_LIBRARY_PATH="$SMART_VISION_EXTRA_ROS_PREFIX/lib:$LD_LIBRARY_PATH"
+  fi
+  if [[ -n "${SMART_VISION_EXTRA_LIBRARY_DIR:-}" ]]; then
+    if [[ ! -d "$SMART_VISION_EXTRA_LIBRARY_DIR" ]]; then
+      printf 'Invalid extra library directory: %s\n' "$SMART_VISION_EXTRA_LIBRARY_DIR" >&2
+      return 1
+    fi
+    export LD_LIBRARY_PATH="$SMART_VISION_EXTRA_LIBRARY_DIR:$LD_LIBRARY_PATH"
+  fi
+
   # Replace inherited hardware settings, including the user's Humble domain64 alias.
   export ROS_DOMAIN_ID=76
   export ROS_LOCALHOST_ONLY=1

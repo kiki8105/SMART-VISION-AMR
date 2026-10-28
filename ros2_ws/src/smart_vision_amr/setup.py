@@ -23,5 +23,6 @@ setup(
         'change_memory = smart_vision_amr.change_memory:main',
         'web_mission_server = smart_vision_amr.web_mission_server:main',
         'motion_mux = smart_vision_amr.motion_mux:main',
+        'wheel_joint_odometry = smart_vision_amr.wheel_joint_odometry:main',
     ]},
 )
