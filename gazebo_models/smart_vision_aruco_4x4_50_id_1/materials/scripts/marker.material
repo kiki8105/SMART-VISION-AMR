@@ -1,0 +1,16 @@
+material SmartVision/smart_vision_aruco_4x4_50_id_1
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+      texture_unit
+      {
+        texture smart_vision_aruco_4x4_50_id_1.png
+        tex_address_mode clamp
+        filtering none
+      }
+    }
+  }
+}

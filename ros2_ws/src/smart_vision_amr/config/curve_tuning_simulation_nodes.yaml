@@ -1,0 +1,33 @@
+# Curve trial: A* wall clearance 6 cells = 0.30 m at 0.05 m/cell.
+/astar_planner:
+  ros__parameters:
+    map_topic: /map
+    map_frame: map
+    base_frame: base_footprint
+    occupied_threshold: 65
+    obstacle_inflation_cells: 6
+    # Physical footprint; start-only egress never crosses raw obstacles/unknown.
+    robot_radius: 0.22
+    start_egress_enabled: true
+    # Extra clearance in metres; half-cell diagonal is added automatically.
+    start_egress_clearance_margin: 0.02
+    # Max initial recovery length: 7 cells = 0.35 m on this map.
+    start_egress_max_cells: 7
+/path_follower:
+  ros__parameters:
+    action_name: /follow_path
+    controller_id: FollowPath
+    goal_checker_id: general_goal_checker
+/change_memory:
+  ros__parameters:
+    map_topic: /map
+    scan_topic: /scan
+    map_frame: map
+    base_frame: base_footprint
+    occupied_threshold: 65
+    confirm_observations: 5
+    clear_observations: 5
+    confirm_min_duration_sec: 2.0
+    clear_min_duration_sec: 2.0
+    min_observation_interval_sec: 0.25
+    save_every_scans: 5

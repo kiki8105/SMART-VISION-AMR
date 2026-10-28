@@ -1,0 +1,24 @@
+[Unit]
+Description=SMART VISION AMR classroom website (ROS domain 16)
+After=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=exec
+WorkingDirectory=@REPO_DIR@
+ExecStart=@WEB_SCRIPT@
+Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+RestartSec=5
+# Stop only the web server and children belonging to this service.
+KillMode=control-group
+KillSignal=SIGINT
+TimeoutStopSec=20
+SendSIGKILL=yes
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=smart-vision-classroom-web
+
+[Install]
+WantedBy=default.target

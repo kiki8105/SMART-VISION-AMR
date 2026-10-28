@@ -1,0 +1,311 @@
+--- a/cmd_vel_controller.py
++++ b/cmd_vel_controller.py
+@@ -127,13 +127,14 @@
+ class Controller(QtWidgets.QWidget):
+     vehicleRequested = QtCore.pyqtSignal(str)
+     def __init__(self, publisher, domain_id=None, settings=None, camera=None,
+-                 node=None, camera_topic=None):
++                 node=None, camera_topic=None, navigation_cancel_service=None):
+         super().__init__()
+         self.publisher = publisher
+         self.camera = camera
+         self.ros_node = node
+         self.vehicle_namespace = node.get_namespace().rstrip('/') if node is not None else ''
+-        self.bridge = RosBridge(node) if node is not None else None
++        self.bridge = (RosBridge(node, cancel_service=navigation_cancel_service)
++                       if node is not None else None)
+         self.settings = settings if settings is not None else domain_settings()
+         self.domain_id = initial_domain(self.settings) if domain_id is None else domain_id
+         self.keys = set()
+@@ -574,13 +575,19 @@
+         return 1
+     # Own SIGINT/SIGTERM so a stop can be sent before the ROS context is destroyed.
+     from rclpy.signals import SignalHandlerOptions
+-    settings = domain_settings()
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument('--domain-id', type=int, choices=range(233), metavar='0..232',
+                         help='저장된 ID보다 우선하여 이번 실행의 ROS Domain 지정')
+     parser.add_argument('--robot-namespace', help='연결할 차량 namespace (예: /robot1)')
+     parser.add_argument('--camera-topic', help='시작 시 연결할 ROS Image 토픽')
++    parser.add_argument('--settings-file', help='이번 조종기의 별도 INI 설정 파일')
++    parser.add_argument('--use-sim-time', action=argparse.BooleanOptionalAction,
++                        default=None, help='ROS /clock 사용 여부 (기본: Domain 64만 사용)')
++    parser.add_argument('--navigation-cancel-service',
++                        help='주행 계획까지 지우는 선택적 std_srvs/Trigger 서비스')
+     options, ros_args = parser.parse_known_args()
++    settings = (domain_settings(os.path.abspath(os.path.expanduser(options.settings_file)))
++                if options.settings_file else domain_settings())
+     domain_id = initial_domain(settings) if options.domain_id is None else options.domain_id
+     os.environ['ROS_DOMAIN_ID'] = str(domain_id)
+     rclpy.init(args=ros_args, signal_handler_options=SignalHandlerOptions.NO)
+@@ -590,7 +597,9 @@
+                '-r', '/tf_static:='+namespace.rstrip('/')+'/tf_static',
+                '-r', '/controller_shared_tf:=/tf', '-r', '/controller_shared_tf_static:=/tf_static']
+     node = Node('turtlebot3_pyqt_controller', namespace=namespace, cli_args=tf_args,
+-                parameter_overrides=[Parameter('use_sim_time', value=(domain_id == 64))])
++                parameter_overrides=[Parameter(
++                    'use_sim_time', value=(domain_id == 64 if options.use_sim_time is None
++                                           else options.use_sim_time))])
+     publisher = node.create_publisher(Twist, 'cmd_vel', 1)
+     app = QtWidgets.QApplication([sys.argv[0]])
+     app.setQuitOnLastWindowClosed(False)
+@@ -602,6 +611,7 @@
+         camera,
+         node,
+         camera_topic=options.camera_topic,
++        navigation_cancel_service=options.navigation_cancel_service,
+     )
+     # RosBridge가 /map 등의 구독과 Qt signal 연결을 모두 만든 뒤 executor를
+     # 시작한다. 먼저 spin하면 durable /map이 패널 연결 전에 한 번 도착해
+@@ -669,6 +679,12 @@
+         ]
+         if options.camera_topic:
+             restart_args.extend(['--camera-topic', options.camera_topic])
++        if options.settings_file:
++            restart_args.extend(['--settings-file', options.settings_file])
++        if options.use_sim_time is not None:
++            restart_args.append('--use-sim-time' if options.use_sim_time else '--no-use-sim-time')
++        if options.navigation_cancel_service:
++            restart_args.extend(['--navigation-cancel-service', options.navigation_cancel_service])
+         os.execv(sys.executable, restart_args + ros_args)
+     return result
+ 
+--- a/navigation_panels.py
++++ b/navigation_panels.py
+@@ -26,6 +26,11 @@
+ from rcl_interfaces.msg import Parameter as ParameterMsg, ParameterEvent
+ from tf2_ros import Buffer, TransformListener, TransformException
+ from tf2_msgs.msg import TFMessage
++from std_srvs.srv import Trigger
++
++
++NAVIGATION_ACTIONS = ('navigate_to_pose', 'navigate_through_poses',
++                      'follow_waypoints', 'follow_path')
+ 
+ 
+ def yaw_of(q):
+@@ -194,7 +199,7 @@
+     navStatus = QtCore.pyqtSignal(str)
+     driverStateReceived = QtCore.pyqtSignal(str, object)
+ 
+-    def __init__(self, node):
++    def __init__(self, node, cancel_service=None):
+         super().__init__()
+         self.node = node
+         self.namespace = node.get_namespace().rstrip('/')
+@@ -202,6 +207,8 @@
+         self.goal = None
+         self.pending_goal = False
+         self.cancel_requested = False
++        self.cancel_service = cancel_service
++        self.cancel_service_pending = False
+         self.maintenance = False
+         self.external_active = {}
+         self.autonomous_drivers = {}
+@@ -240,7 +247,7 @@
+                              lambda msg: self.shared_tf(msg, False), 100))
+             self.subs.append(node.create_subscription(TFMessage, '/controller_shared_tf_static',
+                              lambda msg: self.shared_tf(msg, True), durable))
+-        for name in ('navigate_to_pose', 'navigate_through_poses', 'follow_waypoints'):
++        for name in NAVIGATION_ACTIONS:
+             self.subs.append(node.create_subscription(GoalStatusArray, self.endpoint(name+'/_action/status'),
+                 lambda m, name=name: self.on_action_status(name, m), durable))
+         self.timer = QtCore.QTimer(self)
+@@ -264,7 +271,8 @@
+ 
+     @property
+     def nav_busy(self):
+-        return self.maintenance or self.pending_goal or self.goal is not None or any(self.external_active.values())
++        return (self.maintenance or self.cancel_service_pending or self.pending_goal
++                or self.goal is not None or any(self.external_active.values()))
+ 
+     @property
+     def custom_drive_busy(self):
+@@ -642,6 +650,22 @@
+ 
+     def cancel(self):
+         driver_requested = self.disable_autonomous_drive()
++        services = dict(self.node.get_service_names_and_types())
++        cancel_service_available = bool(self.cancel_service and
++            'std_srvs/srv/Trigger' in services.get(self.cancel_service, ()))
++        if (self.cancel_service and not self.cancel_service_pending
++                and (cancel_service_available or self.nav_busy)):
++            # Clear the planner/follower queue as well as the active action so
++            # a queued replan cannot restart motion after manual takeover.
++            self.cancel_service_pending = True
++
++            def cleared(result, error):
++                self.cancel_service_pending = False
++                if error or not result or not result.success:
++                    self.navStatus.emit('주행 계획 취소 실패: '+(
++                        error or (result.message if result else '응답 없음')))
++
++            self.call(Trigger, self.cancel_service, Trigger.Request(), cleared, timeout=3)
+         if not self.nav_busy:
+             if not driver_requested:
+                 self.navStatus.emit('활성 이동 명령이 없습니다.')
+@@ -649,8 +673,15 @@
+         self.cancel_requested = True
+         self.navStatus.emit(
+             'Nav2 취소 요청 중 — 종료 확인 전 수동 이동 잠금')
+-        for name in ('navigate_to_pose', 'navigate_through_poses', 'follow_waypoints'):
+-            self.call(CancelGoal, self.endpoint(name+'/_action/cancel_goal'), CancelGoal.Request(),
++        for name in NAVIGATION_ACTIONS:
++            endpoint = self.endpoint(name+'/_action/cancel_goal')
++            active = self.external_active.get(name, False) or (
++                name == 'follow_waypoints' and (self.pending_goal or self.goal is not None))
++            # A partial Nav2 stack need not provide every action family. Still
++            # try active actions if their service graph entry has gone stale.
++            if not active and 'action_msgs/srv/CancelGoal' not in services.get(endpoint, ()):
++                continue
++            self.call(CancelGoal, endpoint, CancelGoal.Request(),
+                       lambda result, error: self.navStatus.emit('취소 응답: '+error) if error else None)
+ 
+ 
+--- a/test_cmd_vel_controller.py
++++ b/test_cmd_vel_controller.py
+@@ -1,4 +1,5 @@
+ import copy
++import os
+ import unittest
+ import tempfile
+ from types import SimpleNamespace
+@@ -9,6 +10,7 @@
+     RosBridge,
+     domain_settings,
+     initial_domain,
++    main,
+ )
+ 
+ 
+@@ -18,6 +20,46 @@
+         self.messages = []
+     def publish(self, msg):
+         self.messages.append(copy.deepcopy(msg))
++
++
++class StartupOptionsTests(unittest.TestCase):
++    def test_simulation_time_can_be_selected_independently_of_domain(self):
++        for domain, flag, expected in [
++                (76, '--use-sim-time', True),
++                (64, '--no-use-sim-time', False),
++                (64, None, True), (76, None, False)]:
++            with self.subTest(domain=domain, flag=flag):
++                args = ['cmd_vel_controller.py', '--domain-id', str(domain)]
++                if flag:
++                    args.append(flag)
++                with (patch.dict('os.environ', {'DISPLAY': ':test'}),
++                      patch('sys.argv', args),
++                      patch('cmd_vel_controller.rclpy.init'),
++                      patch('cmd_vel_controller.Node',
++                            side_effect=RuntimeError('capture startup')) as node):
++                    with self.assertRaisesRegex(RuntimeError, 'capture startup'):
++                        main()
++                overrides = node.call_args.kwargs['parameter_overrides']
++                self.assertEqual(overrides[0].name, 'use_sim_time')
++                self.assertEqual(overrides[0].value, expected)
++
++    def test_separate_settings_select_domain_and_vehicle(self):
++        with tempfile.TemporaryDirectory() as directory:
++            filename = directory + '/simulation.ini'
++            settings = domain_settings(filename)
++            settings.setValue('ros/domain_id', 97)
++            settings.setValue('vehicles/domain_97/namespace', '/simulation')
++            settings.sync()
++            with (patch.dict('os.environ', {'DISPLAY': ':test', 'ROS_DOMAIN_ID': '64'}),
++                  patch('sys.argv', ['cmd_vel_controller.py', '--settings-file', filename]),
++                  patch('cmd_vel_controller.rclpy.init') as initialize,
++                  patch('cmd_vel_controller.Node',
++                        side_effect=RuntimeError('capture startup')) as node):
++                with self.assertRaisesRegex(RuntimeError, 'capture startup'):
++                    main()
++                self.assertEqual(os.environ['ROS_DOMAIN_ID'], '97')
++                initialize.assert_called_once()
++                self.assertEqual(node.call_args.kwargs['namespace'], '/simulation')
+ 
+ 
+ class ControllerTests(unittest.TestCase):
+--- a/test_navigation_panels.py
++++ b/test_navigation_panels.py
+@@ -13,12 +13,13 @@
+ from PIL import Image
+ from PyQt5 import QtCore, QtWidgets
+ import rclpy
+-from rclpy.action import ActionServer, CancelResponse, GoalResponse
++from rclpy.action import ActionClient, ActionServer, CancelResponse, GoalResponse
+ from rclpy.executors import SingleThreadedExecutor, MultiThreadedExecutor
+ from rclpy.callback_groups import ReentrantCallbackGroup
+ from rclpy.parameter import Parameter
+-from nav2_msgs.action import FollowWaypoints
++from nav2_msgs.action import FollowWaypoints, FollowPath
+ from nav2_msgs.srv import LoadMap
++from std_srvs.srv import Trigger
+ from rcl_interfaces.srv import GetParameters
+ from geometry_msgs.msg import PoseStamped, TransformStamped, Twist
+ from tf2_ros import TransformBroadcaster
+@@ -507,6 +508,65 @@
+         self.until(lambda:'이동 취소 완료' in messages)
+         self.until(lambda:not self.bridge.busy)
+ 
++    def test_cancel_ignores_absent_actions_but_retries_active_stale_graph(self):
++        self.bridge.external_active['follow_path'] = True
++        with (patch.object(self.node, 'get_service_names_and_types', return_value=[
++                ('/navigate_to_pose/_action/cancel_goal', ['action_msgs/srv/CancelGoal'])]),
++              patch.object(self.bridge, 'call') as call):
++            self.bridge.cancel()
++
++        endpoints = {entry.args[1] for entry in call.call_args_list}
++        self.assertEqual(endpoints, {'/navigate_to_pose/_action/cancel_goal',
++                                     '/follow_path/_action/cancel_goal'})
++
++    def test_follow_path_cancel_clears_planner_before_manual_unlock(self):
++        from action_msgs.msg import GoalStatus
++
++        cleared = []
++        def clear_navigation(request, response):
++            cleared.append(True)
++            response.success = True
++            return response
++
++        service = self.server.create_service(
++            Trigger, '/panel_test_cancel_navigation', clear_navigation)
++        self.addCleanup(lambda: self.server.destroy_service(service))
++        self.bridge.cancel_service = '/panel_test_cancel_navigation'
++
++        def execute(handle):
++            end = time.monotonic() + 4
++            while time.monotonic() < end:
++                if handle.is_cancel_requested:
++                    handle.canceled()
++                    return FollowPath.Result()
++                time.sleep(.02)
++            handle.succeed()
++            return FollowPath.Result()
++
++        action = ActionServer(
++            self.server, FollowPath, '/follow_path', execute,
++            callback_group=ReentrantCallbackGroup(),
++            cancel_callback=lambda request: CancelResponse.ACCEPT)
++        self.addCleanup(action.destroy)
++        client = ActionClient(self.node, FollowPath, '/follow_path')
++        self.addCleanup(client.destroy)
++        self.until(client.server_is_ready)
++        sent = client.send_goal_async(FollowPath.Goal())
++        self.until(sent.done)
++        goal = sent.result()
++        self.assertTrue(goal.accepted)
++        result = goal.get_result_async()
++        self.until(lambda: self.bridge.external_active.get('follow_path', False))
++
++        self.bridge.cancel()
++
++        self.assertTrue(self.bridge.busy)
++        self.assertTrue(self.bridge.cancel_service_pending)
++        self.until(lambda: bool(cleared) and result.done())
++        self.assertEqual(result.result().status, GoalStatus.STATUS_CANCELED)
++        self.until(lambda: not self.bridge.busy)
++        self.assertEqual(cleared, [True])
++
+     def test_goal_pose_without_subscriber_is_rejected(self):
+         messages=[]
+         self.bridge.navStatus.connect(messages.append)

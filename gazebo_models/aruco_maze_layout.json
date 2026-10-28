@@ -1,0 +1,116 @@
+{
+  "dictionary": "DICT_4X4_50",
+  "marker_length_m": 0.2,
+  "world": "simulation_maze_aruco.world",
+  "spawn": [
+    -3.0,
+    -2.0,
+    0
+  ],
+  "roles_are_labels_only_not_automatic_navigation": true,
+  "minimum_usable_side_gap_m": 1.44,
+  "markers": [
+    {
+      "id": 0,
+      "role": "start",
+      "pose": [
+        -2.0621,
+        -2.0,
+        0.22,
+        0,
+        0,
+        0
+      ],
+      "observation_pose": [
+        -3.0,
+        -2.0,
+        0
+      ]
+    },
+    {
+      "id": 1,
+      "role": "waypoint_1",
+      "pose": [
+        0.2379,
+        3.0,
+        0.22,
+        0,
+        0,
+        0
+      ],
+      "observation_pose": [
+        -1.0,
+        3.0,
+        0
+      ]
+    },
+    {
+      "id": 2,
+      "role": "waypoint_2",
+      "pose": [
+        2.5379,
+        -2.8,
+        0.22,
+        0,
+        0,
+        0
+      ],
+      "observation_pose": [
+        1.4,
+        -2.8,
+        0
+      ]
+    },
+    {
+      "id": 3,
+      "role": "goal",
+      "pose": [
+        4.99,
+        -2.5,
+        0.22,
+        0,
+        0,
+        0
+      ],
+      "observation_pose": [
+        3.9,
+        -2.5,
+        0
+      ]
+    }
+  ],
+  "route_hints_xy": [
+    [
+      -3,
+      -2
+    ],
+    [
+      -3,
+      3
+    ],
+    [
+      -1,
+      3
+    ],
+    [
+      -1,
+      -3
+    ],
+    [
+      1.4,
+      -3
+    ],
+    [
+      1.6,
+      3
+    ],
+    [
+      3.7,
+      3
+    ],
+    [
+      3.9,
+      -2.5
+    ]
+  ]
+}

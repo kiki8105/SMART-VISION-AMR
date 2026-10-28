@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-27",
+  "timezone": "Asia/Seoul",
+  "domain": 16,
+  "use_sim_time": false,
+  "map": {
+    "width": 84,
+    "height": 136,
+    "resolution": 0.05,
+    "origin": {
+      "x": -1.53,
+      "y": -5.69,
+      "yaw": 0.0
+    },
+    "frame_id": "map",
+    "version": 1,
+    "preview": true,
+    "source": "saved_preview",
+    "configured_match": null
+  },
+  "markers": [
+    {
+      "id": 0,
+      "name": "홈",
+      "x": -0.11,
+      "y": -0.79,
+      "yaw": 3.141592653589793
+    },
+    {
+      "id": 1,
+      "name": "Sector 1",
+      "x": 1.6,
+      "y": 0.08,
+      "yaw": 0.0
+    },
+    {
+      "id": 2,
+      "name": "Sector 2",
+      "x": 1.71,
+      "y": -3.31,
+      "yaw": -1.5707963267948966
+    },
+    {
+      "id": 3,
+      "name": "Sector 3",
+      "x": -0.105,
+      "y": -2.965,
+      "yaw": 1.5707963267948966
+    }
+  ],
+  "home": {
+    "x": -0.11,
+    "y": -0.79,
+    "yaw": 3.141592653589793
+  },
+  "state": "IDLE",
+  "real_motion_tested": false,
+  "full_regression_tests_passed": 192,
+  "map_server_threshold_check": {
+    "domain": 221,
+    "localhost_only": true,
+    "gray205_at_free_threshold_0_25": "free",
+    "gray205_at_free_threshold_0_196": "unknown",
+    "unknown_cells": 6876
+  },
+  "offline_classroom_paths": {
+    "all_six_pairs_reachable": true,
+    "inflation_cells": 5,
+    "minimum_clearance_m": 0.275,
+    "robot_radius_m": 0.22,
+    "margin_m": 0.02
+  },
+  "combined_bringup_camera_mock_checks": [
+    "SIGINT: exit130, no orphan",
+    "SIGHUP: exit129, no orphan",
+    "early failure: exit7, no orphan"
+  ],
+  "robot_camera_integration_tested": false,
+  "browser_check": [
+    "domain16 real time",
+    "configured classroom floorplan visible",
+    "home and Sector labels visible",
+    "raw/plan toggle verified",
+    "authored straight-wall classroom plan visible",
+    "uniform wall strips and rectangular central fixture verified",
+    "Home left, Sector 1 right, Sector 2 down, Sector 3 up observation arrows verified"
+  ],
+  "screenshot": "docs/classroom_marker_headings_16.png",
+  "display_floorplan": {
+    "config": "ros2_ws/src/smart_vision_amr/config/classroom_floorplan.yaml",
+    "style": "architectural",
+    "wall_width_m": 0.08,
+    "axis_aligned_walls": 9,
+    "rectangular_obstacles": 1,
+    "original_raster_unchanged": true,
+    "screenshot": "docs/classroom_orthogonal_floorplan_16.png"
+  },
+  "heading_validation": {
+    "classroom_path_tests_passed": 2,
+    "package_build": "success",
+    "web_api_and_saved_home_match": true,
+    "real_motion_tested": false,
+    "screenshot": "docs/classroom_marker_headings_16.png"
+  }
+}

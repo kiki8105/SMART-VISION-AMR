@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f6f8">
+  <meta name="description" content="SMART VISION AMR 재고 부족 요청 접수 및 운송 관제">
+  <title>SMART VISION · 재고 운송 관제</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <script src="/power.js" defer></script>
+  <script src="/joystick.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <svg class="symbols" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+    <symbol id="bot" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 3v4M2 12v4m20-4v4M9 12v2m6-2v2m-6 3h6"/></symbol>
+    <symbol id="play" viewBox="0 0 24 24"><path d="m8 4 13 8-13 8Z"/></symbol>
+    <symbol id="pause" viewBox="0 0 24 24"><path d="M8 4v16M16 4v16"/></symbol>
+    <symbol id="stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></symbol>
+    <symbol id="home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8M5 9v12h14V9M9 21v-8h6v8"/></symbol>
+    <symbol id="camera" viewBox="0 0 24 24"><path d="M4 7h4l2-3h4l2 3h4v13H4Z"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="route" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 6h7a4 4 0 0 1 0 8H8a4 4 0 0 0 0 8"/></symbol>
+    <symbol id="chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="up" viewBox="0 0 24 24"><path d="m5 15 7-7 7 7"/></symbol>
+    <symbol id="down" viewBox="0 0 24 24"><path d="m5 9 7 7 7-7"/></symbol>
+    <symbol id="close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></symbol>
+    <symbol id="scan" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M5 12h14"/></symbol>
+    <symbol id="alert" viewBox="0 0 24 24"><path d="m12 3 10 18H2ZM12 9v5m0 3v1"/></symbol>
+  </defs></svg>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand-icon"><svg class="icon"><use href="#bot"/></svg></span><span>SMART VISION <small>/ AMR</small></span></div>
+      <div class="topbar-actions"><div id="vehicle-power" class="power-status" data-status="waiting" tabindex="0" aria-label="차량 전원 신호 수신 대기"><span class="power-dot" aria-hidden="true"></span><span class="power-state">전원 신호 대기</span><strong class="power-voltage tabular">— V</strong></div><button id="connection-open" class="connection-button" type="button"><span id="connection-dot" class="status-dot"></span><span id="domain-label">Domain —</span><span id="clock-label" class="secondary">—</span><svg class="icon"><use href="#settings"/></svg></button></div>
+    </header>
+    <section class="page-heading"><div><div class="role-label">사용자 0 · 로봇 운용자</div><h1>재고 운송 관제</h1><p>부족 요청 확인 → 물품 적재 → 순서대로 배송 → Homepoint 대기</p></div><span class="state-pill" id="state-pill">연결 확인 중</span></section>
+    <div id="connection-banner" class="notice" role="status">ROS와 웹 서버의 연결을 확인하고 있습니다.</div>
+    <section class="panel dispatch-panel" aria-label="재고 부족 요청과 운송">
+      <div class="panel-title"><div><h2>재고 부족 요청 <span id="request-count" class="count-badge">0</span></h2><p class="panel-subtitle" id="dispatch-description">재고 관리자의 요청을 기다리고 있습니다.</p></div><a class="plain-link" href="/inventory" target="_blank" rel="noopener">재고 관리자 페이지 ↗</a></div>
+      <div class="delivery-overview"><div class="home-summary"><span class="home-dot">H</span><div><strong id="delivery-home-state">Homepoint 확인 중</strong><p id="delivery-home-position" class="tabular secondary">대기 위치를 한 번 지정하세요.</p></div><div class="home-actions"><button id="reset-home" type="button" title="지도에 등록된 홈 좌표로 복원합니다. 차량이 이동하거나 현재 위치가 변경되지는 않습니다." disabled>등록된 홈으로 복원</button><button id="set-home" type="button" title="현재 추정 위치가 실제 차량 위치와 일치할 때만 사용하세요." disabled>현재 위치를 Homepoint로 설정</button></div></div><div id="trip-status" class="trip-status">배송 대기</div></div>
+      <div id="request-empty" class="request-empty">아직 접수된 재고 부족 요청이 없습니다.</div>
+      <ol id="delivery-requests" class="delivery-requests" aria-label="재고 부족 요청 목록"></ol>
+      <div class="dispatch-actions"><label class="checkbox"><input id="load-confirmed" type="checkbox">접수된 요청의 물품을 로봇에 적재했습니다.</label><div class="dispatch-buttons"><button id="delivery-resume" type="button" hidden>배송 재개</button><button id="dispatch-start" type="button" class="primary" disabled><svg class="icon"><use href="#play"/></svg>적재 완료 · 출발</button></div></div>
+      <div id="dispatch-readiness" class="dispatch-readiness" role="status" aria-live="polite"><strong id="dispatch-readiness-title">출발 조건 확인 중</strong><ul id="dispatch-blockers"></ul></div>
+      <div class="dispatch-policy" id="delivery-policy">Homepoint에서 적재를 확인하면 출발합니다. 운송 중 추가된 요청은 접수 순서대로 이어서 방문하며, 모든 목표 완료 후 Homepoint로 돌아옵니다.</div>
+    </section>
+    <div class="workspace">
+      <section class="panel map-panel" aria-label="지도와 주행 경로">
+        <div class="panel-title map-panel-title"><div><span class="map-eyebrow">FLOOR PLAN</span><h2>운용 지도</h2></div><div class="map-view-controls" role="group" aria-label="지도 표시 방식"><button id="map-view-plan" type="button" aria-pressed="true" disabled>도면</button><button id="map-view-raw" type="button" aria-pressed="false" disabled>원본</button></div></div>
+        <div id="map-area" class="map-area"><svg id="map-svg" role="img" aria-label="실제 지도 기반 도면과 홈, 구역, 로봇 위치 및 계획 경로"></svg><span id="map-view-state" class="map-view-state" hidden></span><span id="map-localization-state" class="map-localization-state" hidden>저장 지도 · 위치 추정 대기</span><div id="map-empty" class="empty-state"><svg class="icon"><use href="#route"/></svg><strong>지도를 기다리고 있습니다</strong><span>차량 연결 후 저장 지도와 위치 추정을 실행하세요.</span></div><span id="path-label" class="map-badge" hidden>재계획 대기 · 이전 경로</span></div>
+        <div class="map-footer"><div class="legend"><span><b class="route-line"></b>주행 경로</span><span><b class="robot-dot"></b>로봇</span><span><b class="home-dot">0</b>홈</span></div><span id="map-label" class="tabular secondary">지도 대기</span><span id="pose-label" class="tabular secondary">위치 수신 대기</span></div>
+        <div class="localization-control" aria-label="라이다로 현재 위치 확인">
+          <div class="localization-heading"><div><strong>자세 초기화 · 라이다 위치 확인</strong><span id="localization-state" class="localization-state" role="status">준비 상태 확인 중</span></div><div class="localization-actions"><button id="localization-start-home" type="button" title="차량이 실제 등록 홈에 정지해 있을 때만 사용하세요. 등록 홈을 초기 가설로 넣고 라이다로 검증합니다." disabled><svg class="icon"><use href="#home"/></svg>자세 초기화</button><button id="localization-start" type="button" disabled><svg class="icon"><use href="#scan"/></svg>일반 위치 확인</button><button id="localization-stop" type="button" hidden>회전 중지</button></div></div>
+          <p class="localization-help">처음 켰을 때 로봇이 실제 등록 홈에 있으면 <b>자세 초기화</b>를 누르세요. 홈 좌표를 초기 가설로 쓰고 저속 회전하며 라이다와 저장 지도를 대조합니다. 홈이 아니거나 확실하지 않으면 일반 위치 확인을 사용하세요. 대칭 구조에서는 위치가 모호할 수 있습니다. 조이스틱이 우선하며 완료 후 자동 출발하지 않습니다.</p>
+          <progress id="localization-progress" max="1" value="0" aria-label="위치 확인 진행률" hidden></progress>
+          <p id="localization-reason" class="localization-reason" aria-live="polite">차량·지도·위치 추정 노드의 준비 상태를 확인합니다.</p>
+          <p id="localization-accuracy" class="localization-accuracy tabular" hidden></p>
+        </div>
+      </section>
+      <aside class="mission-column">
+        <details class="panel mission-panel manual-practice"><summary>수동 마커 임무 · 실습용 <span class="secondary">펼치기</span></summary><div class="manual-lock-note" id="manual-lock-note" hidden>재고 배송 중에는 수동 경유 순서를 변경하거나 시작할 수 없습니다.</div>
+          <div class="panel-title"><h2>마커 방문 순서</h2><svg class="icon secondary"><use href="#route"/></svg></div>
+          <div class="route-toolbar"><span class="secondary">추가할 마커</span><div class="add-markers" id="add-markers"></div></div>
+          <ol id="route-editor" class="route-editor" aria-label="마커 방문 순서"></ol>
+          <div id="route-empty" class="route-empty" hidden>위의 위치 이름을 눌러 방문 순서에 추가하세요.</div>
+          <div class="route-save-row"><span id="route-save-status" class="secondary" aria-live="polite">저장 상태 확인 중</span><button id="save-route" type="button" disabled>순서 저장</button></div>
+          <div class="check-note"><svg class="icon"><use href="#scan"/></svg><span>관측 위치 도착과 표식 확인 후 다음 마커로 이동</span></div>
+          <div id="pending-note" class="pending-note" hidden>새 순서가 저장되었습니다. 현재 임무를 멈춘 뒤 새 순서로 시작할 수 있습니다.</div>
+        </details>
+        <section class="panel camera-panel" aria-label="전방 및 후방 카메라와 ArUco 검출">
+          <div class="panel-title"><h2>전방 · 후방 카메라</h2><span class="secondary">실시간 영상</span></div>
+          <div class="camera-feed"><div class="camera-feed-heading"><strong>전방</strong><span id="front-camera-age" class="secondary">수신 대기</span></div><div class="camera-view"><img id="front-camera-image" alt="터틀봇 전방 카메라 실시간 영상" hidden><div id="front-camera-empty" class="empty-state"><svg class="icon"><use href="#camera"/></svg><span>전방 영상 대기 · /camera/front/image_raw</span></div></div></div>
+          <div class="camera-feed"><div class="camera-feed-heading"><strong>후방 · 홈 표식</strong><span id="camera-age" class="secondary">수신 대기</span></div><div class="camera-view"><img id="camera-image" alt="터틀봇 후방 카메라 실시간 영상" hidden><div id="camera-empty" class="empty-state"><svg class="icon"><use href="#camera"/></svg><span>후방 영상 대기</span></div></div></div>
+          <div class="camera-footer"><span id="expected-id">확인 대상 —</span><span id="detected-ids" class="secondary">검출 없음</span></div><div id="confirmation-status" class="confirmation-status">표식 확인 대기</div>
+        </section>
+        <section class="panel joystick-panel" aria-label="수동 우선 조이스틱">
+          <div class="panel-title"><h2>수동 조종</h2><span id="manual-state" class="manual-state" data-state="waiting" role="status">연결 대기</span></div>
+          <div class="joystick-body">
+            <button id="manual-pad" class="joystick-pad" type="button" disabled aria-label="조이스틱. 누른 채 움직이거나 화살표 키를 누르세요. 놓으면 기존 임무를 재개합니다." aria-describedby="manual-help manual-reason">
+              <span class="joystick-axis joystick-axis-x" aria-hidden="true"></span><span class="joystick-axis joystick-axis-y" aria-hidden="true"></span>
+              <span class="joystick-direction forward" aria-hidden="true">전진</span><span class="joystick-direction backward" aria-hidden="true">후진</span><span class="joystick-direction left" aria-hidden="true">좌</span><span class="joystick-direction right" aria-hidden="true">우</span>
+              <span id="manual-knob" class="joystick-knob" aria-hidden="true"><svg class="icon"><use href="#bot"/></svg></span>
+            </button>
+            <div class="joystick-telemetry"><div><span>선속도</span><strong id="manual-linear" class="tabular">0.00 <small>m/s</small></strong></div><div><span>각속도</span><strong id="manual-angular" class="tabular">0.00 <small>rad/s</small></strong></div><p id="manual-limits" class="tabular">최대 0.12 m/s · 0.60 rad/s</p></div>
+          </div>
+          <p id="manual-help" class="joystick-help">누른 채 움직이면 수동 우선 · 놓으면 기존 임무 재개<br>PC에서는 조이스틱에 초점을 두고 화살표 키로 조종하세요.</p>
+          <p id="manual-reason" class="joystick-reason" aria-live="polite">차량의 조종 준비 상태를 확인합니다.</p>
+        </section>
+      </aside>
+    </div>
+    <section class="mission-status" aria-label="현재 임무 상태"><div class="status-content"><svg class="icon"><use href="#route"/></svg><div><strong id="mission-title">임무 대기</strong><p id="mission-reason" aria-live="polite">연결을 확인하고 있습니다.</p><p id="home-position" class="tabular">Homepoint: 미설정</p></div></div><span id="mission-progress" class="tabular secondary">0 / 0</span></section>
+    <details class="event-panel"><summary>최근 기록 <span id="event-count" class="secondary">0</span></summary><ol id="event-list"></ol></details>
+    <footer class="control-bar"><div class="main-actions"><button id="start-mission" class="primary" type="button" disabled><svg class="icon"><use href="#play"/></svg><span>수동 임무 시작</span></button><button id="pause-mission" type="button" disabled><svg class="icon"><use href="#pause"/></svg><span>일시정지</span></button><button id="return-home" type="button" title="현재 운송을 종료하고 저장된 Homepoint로 복귀합니다." disabled><svg class="icon"><use href="#home"/></svg><span>홈 복귀</span></button><button id="cancel-mission" type="button" title="미완료 요청을 접수 상태로 되돌리고 Homepoint로 복귀합니다." disabled>임무 취소 · 복귀</button></div><button id="emergency-stop" class="danger" type="button" disabled><svg class="icon"><use href="#stop"/></svg><span>비상정지</span></button></footer>
+    <p class="bottom-note">Homepoint는 고정 대기 위치입니다. 취소 시 미완료 요청을 보류하고 복귀합니다. 제자리 정지는 일시정지 또는 비상정지를 누르세요.</p>
+  </main>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <dialog id="connection-dialog"><form id="connection-form"><div class="dialog-title"><h2>차량 연결</h2><button type="button" class="icon-button" data-close-dialog="connection-dialog" aria-label="연결 창 닫기"><svg class="icon"><use href="#close"/></svg></button></div><label class="field">ROS Domain ID<input id="domain-input" type="number" min="0" max="232" required inputmode="numeric"></label><label class="checkbox"><input id="sim-time-input" type="checkbox">시뮬레이션 시간 사용 (/clock)</label><p class="field-help">진행 중인 임무가 없을 때 연결을 변경할 수 있습니다.</p><div id="phone-access" class="phone-access" hidden><strong>휴대폰에서 접속</strong><p>같은 Wi-Fi에서 아래 주소를 여세요.</p><div id="lan-links"></div><p id="phone-domain-row" hidden>ROS Domain ID <b id="phone-domain" class="tabular">—</b>로 연결하세요.</p><p id="pairing-code-row">접속 코드 <b id="pairing-code" class="pairing-code tabular">—</b></p></div><div id="inventory-access" class="phone-access" hidden><strong>재고 관리자 1–99 접속</strong><p>관리자는 아래 전용 페이지에서 부족 요청만 등록할 수 있습니다.</p><div id="inventory-links"></div><p id="inventory-domain-row" hidden>사용자 번호와 ROS Domain ID <b id="inventory-domain" class="tabular">—</b>로 연결하세요.</p><p id="inventory-code-row">관리자 접속 코드 <b id="inventory-join-code" class="pairing-code tabular">—</b></p></div><p id="connection-error" class="form-error" role="alert"></p><div class="dialog-actions"><button type="button" data-close-dialog="connection-dialog">닫기</button><button class="primary" type="submit">저장·연결</button></div></form></dialog>
+  <dialog id="pair-dialog"><form id="pair-form"><div class="dialog-title"><h2 id="pair-title">PC에 연결</h2><svg class="icon secondary"><use href="#bot"/></svg></div><p id="pair-intro">웹 서버를 실행한 PC에 표시된 접속 코드를 입력하세요.</p><label class="field"><span id="pair-credential-label">접속 코드</span><input id="pair-code-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="16" required></label><p id="pair-error" class="form-error" role="alert"></p><div class="dialog-actions"><button class="primary" type="submit">연결</button></div></form></dialog>
+  <dialog id="reset-dialog"><div class="dialog-title"><h2>비상정지 해제</h2></div><p>주변이 안전하고 다른 조종기의 입력이 멈췄는지 확인하세요. 해제 후에도 임무는 자동으로 시작하지 않습니다.</p><div class="dialog-actions"><button type="button" data-close-dialog="reset-dialog">닫기</button><button id="confirm-reset" class="primary" type="button">확인·해제</button></div></dialog>
+  <dialog id="replace-dialog"><div class="dialog-title"><h2>새 순서로 시작</h2></div><p>현재 임무를 취소하고, 저장한 새 순서를 현재 위치에서 시작합니다.</p><div class="dialog-actions"><button type="button" data-close-dialog="replace-dialog">닫기</button><button id="confirm-replace" class="primary" type="button">새 순서로 시작</button></div></dialog>
+</body>
+</html>

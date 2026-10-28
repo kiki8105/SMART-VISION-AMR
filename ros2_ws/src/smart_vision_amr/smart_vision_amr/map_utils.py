@@ -63,6 +63,27 @@ def inflate_cells(cells, width, height, radius):
     return result
 
 
+def split_mapped_wall_returns(cells, raw_static_grid, tolerance_cells):
+    """Separate dynamic returns from near-coincident mapped wall returns.
+
+    A LiDAR endpoint a cell or two away from a mapped wall can be caused by
+    localization/rasterization error. Inflating that endpoint *again* can close
+    a narrow corridor already protected by static map inflation. Only the A*
+    overlay consumes this filtered set; the raw LaserScan is still available to
+    Nav2's local costmap for collision avoidance.
+    """
+    tolerance = max(0, int(tolerance_cells))
+    dynamic, mapped_wall = set(), set()
+    for x, y in cells:
+        near_mapped_wall = any(
+            raw_static_grid.is_static_obstacle((x + dx, y + dy))
+            for dy in range(-tolerance, tolerance + 1)
+            for dx in range(-tolerance, tolerance + 1)
+        )
+        (mapped_wall if near_mapped_wall else dynamic).add((x, y))
+    return dynamic, mapped_wall
+
+
 def bresenham(start, end):
     """Yield integer cells from start through end, inclusive."""
     x0, y0 = start

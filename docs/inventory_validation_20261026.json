@@ -1,0 +1,601 @@
+{
+  "domain": 83,
+  "passed": true,
+  "elapsed_seconds": 479.0,
+  "operator_loaded_confirmation": true,
+  "manager_ids": [
+    1,
+    2,
+    99
+  ],
+  "route": [
+    2,
+    3,
+    3
+  ],
+  "homepoint": {
+    "x": -3.000799585626671,
+    "y": -2.0010944835652884,
+    "yaw": 0.0008724678696151052
+  },
+  "position_error_m": 0.17833079508405322,
+  "yaw_error_rad": 0.24143345803653224,
+  "robot_pose": {
+    "x": -3.1020685884528167,
+    "y": -1.8543073535371124,
+    "yaw": -0.24056099016691712
+  },
+  "history": [
+    {
+      "seconds": 22.7,
+      "state": "NAVIGATING",
+      "statuses": [
+        "IN_PROGRESS",
+        "QUEUED"
+      ],
+      "route": [
+        2,
+        3
+      ]
+    },
+    {
+      "seconds": 89.1,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "IN_PROGRESS",
+        "QUEUED"
+      ],
+      "route": [
+        2,
+        3
+      ]
+    },
+    {
+      "seconds": 89.5,
+      "state": "NAVIGATING",
+      "statuses": [
+        "IN_PROGRESS",
+        "QUEUED"
+      ],
+      "route": [
+        2,
+        3
+      ]
+    },
+    {
+      "seconds": 136.5,
+      "state": "CONFIRMING",
+      "statuses": [
+        "IN_PROGRESS",
+        "QUEUED"
+      ],
+      "route": [
+        2,
+        3
+      ]
+    },
+    {
+      "seconds": 136.9,
+      "state": "NAVIGATING",
+      "statuses": [
+        "DELIVERED",
+        "IN_PROGRESS"
+      ],
+      "route": [
+        2,
+        3
+      ]
+    },
+    {
+      "seconds": 144.7,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "IN_PROGRESS"
+      ],
+      "route": [
+        2,
+        3
+      ]
+    },
+    {
+      "seconds": 146.4,
+      "state": "NAVIGATING",
+      "statuses": [
+        "DELIVERED",
+        "IN_PROGRESS"
+      ],
+      "route": [
+        2,
+        3
+      ]
+    },
+    {
+      "seconds": 205.4,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "IN_PROGRESS"
+      ],
+      "route": [
+        2,
+        3
+      ]
+    },
+    {
+      "seconds": 207.1,
+      "state": "NAVIGATING",
+      "statuses": [
+        "DELIVERED",
+        "IN_PROGRESS"
+      ],
+      "route": [
+        2,
+        3
+      ]
+    },
+    {
+      "seconds": 249.2,
+      "state": "CONFIRMING",
+      "statuses": [
+        "DELIVERED",
+        "IN_PROGRESS"
+      ],
+      "route": [
+        2,
+        3
+      ]
+    },
+    {
+      "seconds": 249.6,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3
+      ]
+    },
+    {
+      "seconds": 250.0,
+      "state": "NAVIGATING",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "IN_PROGRESS"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 250.7,
+      "state": "CONFIRMING",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "IN_PROGRESS"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 251.1,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 268.5,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 271.0,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 283.5,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 283.8,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 320.6,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 323.1,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 323.8,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 325.2,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 325.9,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 327.0,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 329.8,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 330.2,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 333.4,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 333.7,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 334.1,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 335.5,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 352.9,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 353.3,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 358.3,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 358.6,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 359.3,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 360.8,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 375.7,
+      "state": "WAIT_REPLAN",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 376.0,
+      "state": "RETURNING_HOME",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "seconds": 479.0,
+      "state": "HOME_REACHED",
+      "statuses": [
+        "DELIVERED",
+        "DELIVERED",
+        "DELIVERED"
+      ],
+      "route": [
+        2,
+        3,
+        3
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "marker_id": 2,
+      "item": "배송 시험 부품 A",
+      "quantity": 2,
+      "note": "가제보 검증",
+      "client_request_id": "sim-20261026-user1",
+      "id": 1,
+      "user_id": 1,
+      "created_at": 1793001628.3681042,
+      "updated_at": 1793001765.1150668,
+      "status": "DELIVERED",
+      "trip_id": 1
+    },
+    {
+      "marker_id": 3,
+      "item": "배송 시험 부품 B",
+      "quantity": 1,
+      "note": "주행 도중 추가",
+      "client_request_id": "sim-20261026-user2",
+      "id": 2,
+      "user_id": 2,
+      "created_at": 1793001650.9856029,
+      "updated_at": 1793001877.796436,
+      "status": "DELIVERED",
+      "trip_id": 1
+    },
+    {
+      "marker_id": 3,
+      "item": "복귀 중 추가 부품 C",
+      "quantity": 1,
+      "note": "자동 홈 복귀 중 추가",
+      "client_request_id": "sim-20261026-user99",
+      "id": 3,
+      "user_id": 99,
+      "created_at": 1793001877.9175014,
+      "updated_at": 1793001879.270754,
+      "status": "DELIVERED",
+      "trip_id": 1
+    }
+  ],
+  "real_robot_tested": false,
+  "date": "2026-10-26",
+  "regression_tests": 148,
+  "manager_form_submission_and_cancel_verified": true,
+  "operator_start_clicked_in_browser": true,
+  "operator_code_separate_from_inventory_code": true
+}

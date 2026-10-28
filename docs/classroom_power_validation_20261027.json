@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-27",
+  "domain": 16,
+  "topic": "/battery_state",
+  "message": "sensor_msgs/msg/BatteryState",
+  "unit": "V",
+  "stale_after_seconds": 5,
+  "power": {
+    "status": "waiting",
+    "voltage": null,
+    "percentage": null,
+    "age": null,
+    "source": "/battery_state"
+  },
+  "operator_and_inventory_api": true,
+  "isolated_tests_passed": 14,
+  "regression_tests_passed": 43,
+  "ui_state_mock_checks": 5,
+  "build": "passed",
+  "real_vehicle_voltage_received": false,
+  "mission_started": false
+}

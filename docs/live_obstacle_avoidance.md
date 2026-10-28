@@ -1,0 +1,19 @@
+# 저장 지도에 없는 실제 장애물
+
+실차 도메인 16의 `run_classroom_navigation_16.sh`는 저장한 강의실 지도와 실시간 `/scan`을 함께 사용한다. `memory_enabled:=false`는 장애물의 영구 기록을 끄는 설정이며, 실시간 장애물 감지는 계속 동작한다.
+
+1. `change_memory`가 최신 LiDAR와 지도→센서 TF로 장애물 셀을 계산하여 `/smart_vision_amr/observed_obstacles`에 발행한다.
+2. A*가 현재 경로와 겹치는 장애물을 발견하면 빈 Path로 기존 주행을 취소하고, 같은 목표를 유지하며 우회 경로를 재계획한다.
+3. 우회로가 없으면 정지한 채 2초 간격으로 재시도한다. 장애물이 옮겨지거나 사라지면 최신 자유 공간 관측을 이용해 같은 목표로 다시 계획한다.
+4. Nav2의 로컬 장애물·voxel 계층은 별도로 `/scan`을 받아 5Hz로 근거리 충돌 회피를 수행한다.
+
+실시간 셀은 유효한 자유 공간 레이가 통과하면 즉시 해제한다. 모든 레이가 정상인 스캔에서는 잠시 가려진 셀을 최대 2초 동안 유지한다. 일부 레이가 잘못되거나 빠진 스캔에서는 기존 장애물을 시간 초과만으로 해제하지 않고, 유효한 자유 공간 관측을 기다린다. NaN, 측정 최소거리 미만, 오래된/중복 스캔 및 오래된 TF는 자유 공간의 증거로 쓰지 않는다. 도메인 16 설정에서는 관측 계층 갱신이 2초 동안 끊기면 A*가 주행 경로를 취소하고 같은 목표를 유지한 채 최신 관측을 기다린다.
+
+설정은 `ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml`에 있다.
+
+- `/astar_planner.live_obstacle_layer_required`: 실시간 관측을 필수 조건으로 사용한다.
+- `/astar_planner.live_obstacle_timeout`: 관측 중단 후 정지 판정 시간, 기본 2초.
+- `/change_memory.live_obstacle_ttl_sec`: 정상 스캔에서 가려진 장애물의 임시 유지 시간, 기본 2초. 잘못된 레이는 장애물 해제 근거로 사용하지 않는다.
+- `/change_memory.live_scan_max_age_sec`, `live_transform_max_age_sec`: 사용 가능한 스캔·TF의 최대 시각 차이, 기본 1초.
+
+저장된 SLAM PGM/YAML은 변경하지 않는다. 기존 정적 지도 인플레이션, 차체 반경, 속도 및 조향 튜닝도 유지한다. LiDAR 높이보다 낮거나 센서가 실제로 관측하지 못하는 장애물은 이 계층으로 검출할 수 없다.

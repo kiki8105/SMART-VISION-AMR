@@ -1,0 +1,351 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.6">
+  <world name="simulation_maze_aruco">
+    <gravity>0 0 -9.81</gravity>
+    <physics name="default_physics" default="true" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+    <scene>
+      <ambient>0.55 0.55 0.55 1</ambient>
+      <background>0.80 0.85 0.90 1</background>
+      <shadows>true</shadows>
+    </scene>
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.80 0.80 0.80 1</diffuse>
+      <specular>0.20 0.20 0.20 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.3 0.1 -0.9</direction>
+    </light>
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="ground">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1</mu>
+                <mu2>1</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.88 0.87 0.82 1</ambient>
+            <diffuse>0.88 0.87 0.82 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="west_wall">
+      <static>true</static>
+      <pose>-5.050 0.000 0.500 0 0 0</pose>
+      <link name="body">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.100 8.200 1.000</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.100 8.200 1.000</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.66 0.70 0.76 1</ambient>
+            <diffuse>0.66 0.70 0.76 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="east_wall">
+      <static>true</static>
+      <pose>5.050 0.000 0.500 0 0 0</pose>
+      <link name="body">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.100 8.200 1.000</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.100 8.200 1.000</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.66 0.70 0.76 1</ambient>
+            <diffuse>0.66 0.70 0.76 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="south_wall">
+      <static>true</static>
+      <pose>0.000 -4.050 0.500 0 0 0</pose>
+      <link name="body">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>10.000 0.100 1.000</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>10.000 0.100 1.000</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.66 0.70 0.76 1</ambient>
+            <diffuse>0.66 0.70 0.76 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="north_wall">
+      <static>true</static>
+      <pose>0.000 4.050 0.500 0 0 0</pose>
+      <link name="body">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>10.000 0.100 1.000</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>10.000 0.100 1.000</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.66 0.70 0.76 1</ambient>
+            <diffuse>0.66 0.70 0.76 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <gui fullscreen="false">
+      <camera name="overview">
+        <pose>7 -9 11 0 0.75 2.25</pose>
+      </camera>
+    </gui>
+    <model name="maze_partition_west">
+      <static>true</static>
+      <pose>-2.0 -1.0 0.5 0 0 0</pose>
+      <link name="wall">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.1200000000000001 6.0 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.1200000000000001 6.0 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.55 .65 .75 1</ambient>
+            <diffuse>.55 .65 .75 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="maze_partition_middle">
+      <static>true</static>
+      <pose>0.3 1.0 0.5 0 0 0</pose>
+      <link name="wall">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.12 6.0 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.12 6.0 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.55 .65 .75 1</ambient>
+            <diffuse>.55 .65 .75 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="maze_partition_east">
+      <static>true</static>
+      <pose>2.6 -1.0 0.5 0 0 0</pose>
+      <link name="wall">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.1200000000000001 6.0 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.1200000000000001 6.0 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.55 .65 .75 1</ambient>
+            <diffuse>.55 .65 .75 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="maze_west_side_branch">
+      <static>true</static>
+      <pose>-4.45 0.4 0.5 0 0 0</pose>
+      <link name="wall">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>1.1 0.12 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.1 0.12 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.55 .65 .75 1</ambient>
+            <diffuse>.55 .65 .75 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="maze_middle_side_branch">
+      <static>true</static>
+      <pose>-0.1 0.0 0.5 0 0 0</pose>
+      <link name="wall">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.8 0.12 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8 0.12 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.55 .65 .75 1</ambient>
+            <diffuse>.55 .65 .75 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="maze_east_side_branch">
+      <static>true</static>
+      <pose>0.7000000000000001 0.6000000000000001 0.5 0 0 0</pose>
+      <link name="wall">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.8 0.12 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8 0.12 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.55 .65 .75 1</ambient>
+            <diffuse>.55 .65 .75 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="maze_final_side_branch">
+      <static>true</static>
+      <pose>4.55 0.6000000000000001 0.5 0 0 0</pose>
+      <link name="wall">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.9000000000000004 0.12 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9000000000000004 0.12 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.55 .65 .75 1</ambient>
+            <diffuse>.55 .65 .75 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <include>
+      <uri>model://smart_vision_aruco_4x4_50_id_0</uri>
+      <name>aruco_start_id_0</name>
+      <pose>-2.0621 -2.0 0.22 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://smart_vision_aruco_4x4_50_id_1</uri>
+      <name>aruco_waypoint_1_id_1</name>
+      <pose>0.2379 3.0 0.22 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://smart_vision_aruco_4x4_50_id_2</uri>
+      <name>aruco_waypoint_2_id_2</name>
+      <pose>2.5379 -2.8 0.22 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://smart_vision_aruco_4x4_50_id_3</uri>
+      <name>aruco_goal_id_3</name>
+      <pose>4.99 -2.5 0.22 0 0 0</pose>
+    </include>
+  </world>
+</sdf>

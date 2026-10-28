@@ -1,0 +1,32 @@
+# Display-only orthogonal drawing for the physical classroom map.
+# Pixel-edge coordinates: top-left (0,0), x right, y down.
+# World x = -1.53 + pixel_x * 0.05; world y = 1.11 - pixel_y * 0.05.
+# Wall strips have a constant 1.6 px (0.08 m) thickness.
+# This file never changes the saved PGM, costmaps, or collision checks.
+map:
+  width: 84
+  height: 136
+  resolution: 0.05
+  origin: [-1.53, -5.69, 0.0]
+style: architectural
+label: 강의실 평면도
+free_paths:
+  - [[19.0, 14.0], [73.0, 14.0], [73.0, 98.0], [19.0, 98.0]]
+occupied_paths:
+  # Left and right outer walls, with the scan spikes removed from the drawing.
+  - [[18.2, 13.2], [19.8, 13.2], [19.8, 98.8], [18.2, 98.8]]
+  - [[72.2, 13.2], [73.8, 13.2], [73.8, 98.8], [72.2, 98.8]]
+  # Top wall segments: retain the measured openings rather than sealing them.
+  - [[26.0, 13.2], [62.0, 13.2], [62.0, 14.8], [26.0, 14.8]]
+  - [[69.0, 13.2], [73.8, 13.2], [73.8, 14.8], [69.0, 14.8]]
+  # Bottom perimeter with the existing right-hand entrance left open.
+  - [[18.2, 97.2], [64.0, 97.2], [64.0, 98.8], [18.2, 98.8]]
+  - [[72.0, 97.2], [73.8, 97.2], [73.8, 98.8], [72.0, 98.8]]
+  # Lower-left room: keep the opening below the L-shaped partition.
+  - [[18.2, 61.2], [37.8, 61.2], [37.8, 62.8], [18.2, 62.8]]
+  - [[36.2, 61.2], [37.8, 61.2], [37.8, 76.0], [36.2, 76.0]]
+  # Lower middle partition.
+  - [[54.7, 61.2], [56.3, 61.2], [56.3, 98.8], [54.7, 98.8]]
+obstacle_paths:
+  # The central object is one regular solid fixture, not an open room.
+  - [[45.5, 28.0], [62.0, 28.0], [62.0, 42.0], [45.5, 42.0]]

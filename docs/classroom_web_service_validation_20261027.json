@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-27",
+  "domain": 16,
+  "access_mode": "domain",
+  "service_properties": [
+    "NRestarts=1",
+    "ActiveState=active",
+    "SubState=running",
+    "UnitFileState=enabled"
+  ],
+  "linger": true,
+  "restart_verified": {
+    "before_pid": 11116,
+    "after_pid": 11314
+  },
+  "lan_api_checks": {
+    "operator_domain_join": true,
+    "inventory_domain_join": true,
+    "role_isolation": true,
+    "no_mission_started": true
+  },
+  "regression_tests_passed": 88,
+  "build": "passed",
+  "browser_visual_check": "Blocked by browser URL policy; no workaround attempted."
+}

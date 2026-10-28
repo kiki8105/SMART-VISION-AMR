@@ -1,0 +1,785 @@
+{
+  "domain": 16,
+  "home": {
+    "x": -0.11,
+    "y": -0.79,
+    "yaw": 3.141592653589793
+  },
+  "initial_pose_published": true,
+  "navigation_lifecycle": {
+    "bt_navigator": "active",
+    "velocity_smoother": "active",
+    "waypoint_follower": "active",
+    "amcl": "active",
+    "map_server": "active",
+    "behavior_server": "active",
+    "controller_server": "active",
+    "planner_server": "active"
+  },
+  "observed_cmd_vel": [
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "linear": 0.0,
+      "angular": 0.0
+    }
+  ],
+  "drive_goal_sent": false,
+  "web_state_after_recovery": {
+    "connection": {
+      "domain_id": 16,
+      "connected": true,
+      "access_mode": "domain",
+      "use_sim_time": false,
+      "error": "",
+      "reconnecting": false,
+      "lan_urls": [
+        "http://192.168.0.110:8790"
+      ]
+    },
+    "mission": {
+      "state": "IDLE",
+      "route": [
+        3,
+        2,
+        1,
+        0
+      ],
+      "pending_route": null,
+      "current_index": 0,
+      "current_marker_id": 3,
+      "completed_ids": [],
+      "reason": "경유 순서를 확인한 뒤 임무를 시작하세요.",
+      "can_resume": false,
+      "estop_latched": false,
+      "home": {
+        "x": -0.11,
+        "y": -0.79,
+        "yaw": 3.141592653589793
+      },
+      "returning_home": false,
+      "auto_return_home": false,
+      "auto_returning_home": false,
+      "can_return_home": true
+    },
+    "manual": {
+      "state": "IDLE",
+      "active": false,
+      "owner": false,
+      "available": true,
+      "reason": "조작 중 수동 우선, 놓으면 기존 임무를 이어갑니다.",
+      "linear": 0.0,
+      "angular": 0.0,
+      "expires_in": 0.0,
+      "limits": {
+        "max_linear": 0.12,
+        "max_angular": 0.6
+      }
+    },
+    "localization": {
+      "state": "IDLE",
+      "active": false,
+      "reason": "주변 회전 공간을 확보하세요. 라이다와 저장 지도를 대조해 위치를 추정합니다.",
+      "angular": 0.0,
+      "rotation_degrees": 0.0,
+      "progress": 0.0,
+      "elapsed": 0.0,
+      "estimate": null,
+      "good_estimates": 0,
+      "quality_ok": false,
+      "available": true,
+      "clearance": 0.38822747711113725,
+      "scan_match": null,
+      "mode": "global",
+      "mode_label": "지도 전체 위치 탐색",
+      "use_existing_pose": false,
+      "rotated_degrees": 0.0,
+      "angular_velocity": 0.0,
+      "position_std": null,
+      "yaw_std_degrees": null
+    },
+    "delivery": {
+      "requests": [
+        {
+          "marker_id": 2,
+          "item": "test1",
+          "quantity": 1,
+          "note": "",
+          "client_request_id": "b65683a2e10b69c817927b27c55be5cf",
+          "id": 1,
+          "user_id": 1,
+          "created_at": 1793087035.0531788,
+          "updated_at": 1793088303.3957474,
+          "status": "PENDING",
+          "trip_id": null
+        },
+        {
+          "marker_id": 3,
+          "item": "test1",
+          "quantity": 1,
+          "note": "",
+          "client_request_id": "149aebc4d2af4d5fca8fcb5fed109ed7",
+          "id": 2,
+          "user_id": 1,
+          "created_at": 1793087863.1995437,
+          "updated_at": 1793088303.3957474,
+          "status": "PENDING",
+          "trip_id": null
+        }
+      ],
+      "active_trip": null,
+      "homepoint": {
+        "x": -0.11,
+        "y": -0.79,
+        "yaw": 3.141592653589793
+      },
+      "home_ready": false,
+      "registered_homepoint": {
+        "x": -0.11,
+        "y": -0.79,
+        "yaw": 3.141592653589793
+      },
+      "homepoint_custom": false,
+      "homepoint_valid": true,
+      "homepoint_error": "",
+      "dispatch_ready": false,
+      "dispatch_missing": [
+        "최신 map→base TF"
+      ],
+      "active": false,
+      "accepting_updates": false,
+      "pending_count": 2,
+      "operator_id": 0,
+      "error": "",
+      "inventory_urls": [
+        "http://192.168.0.110:8790/inventory"
+      ]
+    },
+    "markers": [
+      {
+        "id": 0,
+        "name": "홈",
+        "x": -0.11,
+        "y": -0.79,
+        "yaw": 3.141592653589793
+      },
+      {
+        "id": 1,
+        "name": "Sector 1",
+        "x": 1.6,
+        "y": 0.08,
+        "yaw": 0.0
+      },
+      {
+        "id": 2,
+        "name": "Sector 2",
+        "x": 1.71,
+        "y": -3.31,
+        "yaw": -1.5707963267948966
+      },
+      {
+        "id": 3,
+        "name": "Sector 3",
+        "x": -0.105,
+        "y": -2.965,
+        "yaw": 1.5707963267948966
+      }
+    ],
+    "robot": {
+      "pose": null,
+      "pose_age": null,
+      "speed": {
+        "linear": 0.0,
+        "angular": -0.00023200506492095948
+      },
+      "scan_age": 0.01,
+      "camera_age": 0.07,
+      "odom_age": 0.01,
+      "power": {
+        "status": "online",
+        "voltage": 11.029999732971191,
+        "percentage": null,
+        "age": 0.01,
+        "source": "/battery_state"
+      }
+    },
+    "map": {
+      "width": 84,
+      "height": 136,
+      "resolution": 0.05000000074505806,
+      "origin": {
+        "x": -1.53,
+        "y": -5.69,
+        "yaw": 0.0
+      },
+      "frame_id": "map",
+      "version": 3,
+      "preview": false,
+      "source": "ros",
+      "configured_match": true
+    },
+    "map_version": 3,
+    "path": [],
+    "detection": {
+      "ids": [],
+      "expected_id": 3,
+      "confirmations": 0,
+      "required": 3,
+      "confirmed": false
+    },
+    "navigation": {
+      "status": "IDLE",
+      "planner_status": "IDLE",
+      "message": ""
+    },
+    "health": {
+      "ready": false,
+      "missing": [
+        "최신 map→base TF"
+      ],
+      "map": {
+        "preview": false,
+        "configured_file": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/maps/classroom_20261027_cleaned.yaml",
+        "configured_match": true,
+        "received": {
+          "width": 84,
+          "height": 136,
+          "resolution": 0.05000000074505806,
+          "origin": {
+            "x": -1.53,
+            "y": -5.69,
+            "yaw": 0.0
+          },
+          "frame_id": "map"
+        }
+      }
+    },
+    "events": [
+      {
+        "at": 1793088500.2820134,
+        "level": "info",
+        "message": "ROS 도메인 16에 연결했습니다."
+      }
+    ],
+    "revision": 1
+  },
+  "drive_goal_sent_by_codex": false,
+  "final_web_state": {
+    "connection": {
+      "domain_id": 16,
+      "connected": true,
+      "access_mode": "domain",
+      "use_sim_time": false,
+      "error": "",
+      "reconnecting": false,
+      "lan_urls": [
+        "http://192.168.0.110:8790"
+      ]
+    },
+    "mission": {
+      "state": "IDLE",
+      "route": [
+        3,
+        2,
+        1,
+        0
+      ],
+      "pending_route": null,
+      "current_index": 0,
+      "current_marker_id": 3,
+      "completed_ids": [],
+      "reason": "경유 순서를 확인한 뒤 임무를 시작하세요.",
+      "can_resume": false,
+      "estop_latched": false,
+      "home": {
+        "x": -0.11,
+        "y": -0.79,
+        "yaw": 3.141592653589793
+      },
+      "returning_home": false,
+      "auto_return_home": false,
+      "auto_returning_home": false,
+      "can_return_home": true
+    },
+    "manual": {
+      "state": "IDLE",
+      "active": false,
+      "owner": false,
+      "available": false,
+      "reason": "최신 LiDAR와 오도메트리 수신이 필요합니다.",
+      "linear": 0.0,
+      "angular": 0.0,
+      "expires_in": 0.0,
+      "limits": {
+        "max_linear": 0.12,
+        "max_angular": 0.6
+      }
+    },
+    "localization": {
+      "state": "IDLE",
+      "active": false,
+      "reason": "최신 LiDAR와 오도메트리 수신이 필요합니다.",
+      "angular": 0.0,
+      "rotation_degrees": 0.0,
+      "progress": 0.0,
+      "elapsed": 0.0,
+      "estimate": null,
+      "good_estimates": 0,
+      "quality_ok": false,
+      "available": false,
+      "clearance": 0.3872298523964567,
+      "scan_match": null,
+      "mode": "global",
+      "mode_label": "지도 전체 위치 탐색",
+      "use_existing_pose": false,
+      "rotated_degrees": 0.0,
+      "angular_velocity": 0.0,
+      "position_std": null,
+      "yaw_std_degrees": null
+    },
+    "delivery": {
+      "requests": [
+        {
+          "marker_id": 2,
+          "item": "test1",
+          "quantity": 1,
+          "note": "",
+          "client_request_id": "b65683a2e10b69c817927b27c55be5cf",
+          "id": 1,
+          "user_id": 1,
+          "created_at": 1793087035.0531788,
+          "updated_at": 1793088303.3957474,
+          "status": "PENDING",
+          "trip_id": null
+        },
+        {
+          "marker_id": 3,
+          "item": "test1",
+          "quantity": 1,
+          "note": "",
+          "client_request_id": "149aebc4d2af4d5fca8fcb5fed109ed7",
+          "id": 2,
+          "user_id": 1,
+          "created_at": 1793087863.1995437,
+          "updated_at": 1793088303.3957474,
+          "status": "PENDING",
+          "trip_id": null
+        }
+      ],
+      "active_trip": null,
+      "homepoint": {
+        "x": -0.11,
+        "y": -0.79,
+        "yaw": 3.141592653589793
+      },
+      "home_ready": false,
+      "registered_homepoint": {
+        "x": -0.11,
+        "y": -0.79,
+        "yaw": 3.141592653589793
+      },
+      "homepoint_custom": false,
+      "homepoint_valid": true,
+      "homepoint_error": "",
+      "dispatch_ready": false,
+      "dispatch_missing": [
+        "최신 map→base TF",
+        "최신 /odom"
+      ],
+      "active": false,
+      "accepting_updates": false,
+      "pending_count": 2,
+      "operator_id": 0,
+      "error": "",
+      "inventory_urls": [
+        "http://192.168.0.110:8790/inventory"
+      ]
+    },
+    "markers": [
+      {
+        "id": 0,
+        "name": "홈",
+        "x": -0.11,
+        "y": -0.79,
+        "yaw": 3.141592653589793
+      },
+      {
+        "id": 1,
+        "name": "Sector 1",
+        "x": 1.6,
+        "y": 0.08,
+        "yaw": 0.0
+      },
+      {
+        "id": 2,
+        "name": "Sector 2",
+        "x": 1.71,
+        "y": -3.31,
+        "yaw": -1.5707963267948966
+      },
+      {
+        "id": 3,
+        "name": "Sector 3",
+        "x": -0.105,
+        "y": -2.965,
+        "yaw": 1.5707963267948966
+      }
+    ],
+    "robot": {
+      "pose": null,
+      "pose_age": 23.81,
+      "speed": {
+        "linear": 0.0,
+        "angular": 0.0
+      },
+      "scan_age": 0.06,
+      "camera_age": 0.11,
+      "odom_age": 25.53,
+      "power": {
+        "status": "stale",
+        "voltage": 11.010000228881836,
+        "percentage": null,
+        "age": 25.51,
+        "source": "/battery_state"
+      }
+    },
+    "map": {
+      "width": 84,
+      "height": 136,
+      "resolution": 0.05000000074505806,
+      "origin": {
+        "x": -1.53,
+        "y": -5.69,
+        "yaw": 0.0
+      },
+      "frame_id": "map",
+      "version": 3,
+      "preview": false,
+      "source": "ros",
+      "configured_match": true
+    },
+    "map_version": 3,
+    "path": [],
+    "detection": {
+      "ids": [],
+      "expected_id": 3,
+      "confirmations": 0,
+      "required": 3,
+      "confirmed": false
+    },
+    "navigation": {
+      "status": "IDLE",
+      "planner_status": "IDLE",
+      "message": ""
+    },
+    "health": {
+      "ready": false,
+      "missing": [
+        "최신 map→base TF",
+        "최신 /odom"
+      ],
+      "map": {
+        "preview": false,
+        "configured_file": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/maps/classroom_20261027_cleaned.yaml",
+        "configured_match": true,
+        "received": {
+          "width": 84,
+          "height": 136,
+          "resolution": 0.05000000074505806,
+          "origin": {
+            "x": -1.53,
+            "y": -5.69,
+            "yaw": 0.0
+          },
+          "frame_id": "map"
+        }
+      }
+    },
+    "events": [
+      {
+        "at": 1793088500.2820134,
+        "level": "info",
+        "message": "ROS 도메인 16에 연결했습니다."
+      }
+    ],
+    "revision": 1
+  },
+  "final_live_route_check": {
+    "domain": 16,
+    "start": [
+      28,
+      98
+    ],
+    "raw_obstacle_count": 151,
+    "routes": [
+      {
+        "id": 0,
+        "name": "홈",
+        "goal": [
+          28,
+          97
+        ],
+        "static_goal_blocked": false,
+        "raw_observed_goal": false,
+        "observed_goal_blocked": false,
+        "path_cells": 2,
+        "reachable": true
+      },
+      {
+        "id": 1,
+        "name": "Sector 1",
+        "goal": [
+          62,
+          115
+        ],
+        "static_goal_blocked": false,
+        "raw_observed_goal": true,
+        "observed_goal_blocked": true,
+        "path_cells": 0,
+        "reachable": false
+      },
+      {
+        "id": 2,
+        "name": "Sector 2",
+        "goal": [
+          64,
+          47
+        ],
+        "static_goal_blocked": false,
+        "raw_observed_goal": false,
+        "observed_goal_blocked": false,
+        "path_cells": 69,
+        "reachable": true
+      },
+      {
+        "id": 3,
+        "name": "Sector 3",
+        "goal": [
+          28,
+          54
+        ],
+        "static_goal_blocked": false,
+        "raw_observed_goal": false,
+        "observed_goal_blocked": false,
+        "path_cells": 67,
+        "reachable": true
+      }
+    ],
+    "drive_goal_sent": false
+  },
+  "full_regression_passed": 428
+}

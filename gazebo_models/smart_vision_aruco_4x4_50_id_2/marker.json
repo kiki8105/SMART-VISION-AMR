@@ -1,0 +1,18 @@
+{
+  "dictionary": "DICT_4X4_50",
+  "id": 2,
+  "marker_length_m": 0.2,
+  "white_margin_m": 0.04,
+  "board_length_m": 0.28,
+  "marker_pixels": 600,
+  "texture_pixels": 840,
+  "border_bits": 1,
+  "texture_file": "materials/textures/smart_vision_aruco_4x4_50_id_2.png",
+  "front_normal": [
+    -1,
+    0,
+    0
+  ],
+  "pose_estimation_length_excludes_white_margin": true,
+  "generator_reference": "https://chev.me/arucogen/"
+}

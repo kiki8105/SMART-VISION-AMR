@@ -1,0 +1,84 @@
+[
+  {
+    "page": 1,
+    "raster_size": [
+      2481,
+      3508
+    ],
+    "decoded_ids": [
+      0,
+      1
+    ],
+    "markers": [
+      {
+        "id": 0,
+        "black_bbox_pixels": [
+          768,
+          602,
+          945,
+          945
+        ],
+        "mm_from_300dpi": [
+          80.01,
+          80.01
+        ],
+        "pattern_exact_at_cell_centres": true
+      },
+      {
+        "id": 1,
+        "black_bbox_pixels": [
+          768,
+          2197,
+          945,
+          945
+        ],
+        "mm_from_300dpi": [
+          80.01,
+          80.01
+        ],
+        "pattern_exact_at_cell_centres": true
+      }
+    ]
+  },
+  {
+    "page": 2,
+    "raster_size": [
+      2481,
+      3508
+    ],
+    "decoded_ids": [
+      2,
+      3
+    ],
+    "markers": [
+      {
+        "id": 2,
+        "black_bbox_pixels": [
+          650,
+          484,
+          1181,
+          1181
+        ],
+        "mm_from_300dpi": [
+          99.99133333333333,
+          99.99133333333333
+        ],
+        "pattern_exact_at_cell_centres": true
+      },
+      {
+        "id": 3,
+        "black_bbox_pixels": [
+          650,
+          2079,
+          1181,
+          1181
+        ],
+        "mm_from_300dpi": [
+          99.99133333333333,
+          99.99133333333333
+        ],
+        "pattern_exact_at_cell_centres": true
+      }
+    ]
+  }
+]

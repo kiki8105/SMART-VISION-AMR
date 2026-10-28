@@ -1,8 +1,63 @@
-# SMART-VISION-AMR — TurtleBot3 Waffle Pi 실기 A* 주행
+# SMART-VISION-AMR — TurtleBot3 Waffle Pi A* 주행
 
-Ubuntu 22.04 / ROS 2 Humble용 첫 버전입니다. Raspberry Pi의 TurtleBot3 bringup과
+Ubuntu 22.04 / ROS 2 Humble용입니다. 실기는 Raspberry Pi의 TurtleBot3 bringup과
 Linux PC의 Nav2를 사용합니다. 첨부받은 `classroom_map.yaml` 및 `.pgm`을 포함합니다.
-Gazebo, 카메라, ArUco 기능은 포함하지 않습니다.
+Gazebo Classic 11에서 동일한 A* → Nav2 FollowPath 코드를 검증하는 환경도 제공합니다.
+실제 카메라의 ArUco 표식을 확인하며 사용자가 지정한 순서로 주행하는 웹 관제를 제공합니다.
+
+## 웹 재고 요청과 배송 관제
+
+운용자 0번은 `/`에서 부족 요청을 확인하고 적재 완료 후 배송을 출발시킵니다.
+재고 관리자 1~99번은 별도 `/inventory`에서 위치·품목·수량을 요청합니다.
+운행 중 요청은 접수 순서대로 추가하고, 모두 처리하면 고정 Homepoint로 복귀해
+다음 적재를 기다립니다. 자세한 절차는 [재고 배송 안내](docs/inventory_delivery.md)를 참고하세요.
+
+### 수동 ArUco 실습
+
+PC와 휴대폰 브라우저에서 지도·카메라를 보며 마커 방문 순서를 편집하고
+주행을 시작·일시정지하고, 홈으로 복귀할 수 있습니다. 임무 취소도 남은
+경유지를 취소한 뒤 저장된 Homepoint로 복귀합니다. 예제 `2 → 3` 외에 등록한 마커를
+원하는 순서로 추가·삭제·이동하거나 반복해서 방문할 수 있습니다.
+
+```bash
+# 터미널 1: ArUco 미로 + 저장 지도 + A* / Nav2
+./scripts/run_web_mission_sim.sh
+
+# 터미널 2: 웹 서버 (PC / 휴대폰 공용)
+./scripts/run_web_mission.sh
+```
+
+PC 주소는 `http://localhost:8790`, 휴대폰 주소는 같은 Wi-Fi에서
+`http://PC의_IP:8790`입니다. 강의실 실차 웹은 별도 접속 코드 대신
+ROS Domain ID `16`으로 접속합니다. 새 노드가 추가되었으므로 최초 한 번 빌드가 필요합니다.
+설치·빌드·순서 저장·실차 연결은 [웹 임무 안내](docs/web_mission.md)를 참고하세요.
+
+경로가 막히면 목표를 유지하고 정지 상태에서 기본 2초 간격으로 재계획합니다.
+일시정지와 비상정지는 자동 재계획으로 해제하지 않습니다.
+
+## Gazebo에서 먼저 검증하기
+
+현재 PC의 워크스페이스는 `/home/kiki/Team2_workspace`입니다.
+
+```bash
+cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
+./scripts/setup_sim.sh  # 최초 준비 / 코드 수정 후 재빌드
+./scripts/run_sim.sh   # Gazebo + RViz + 위치 추정 + 기존 주행 노드
+```
+
+다른 터미널에서 `./scripts/check_sim.sh`를 실행하면 경로 생성, 속도 명령, 실제 이동, 목표 도착을 자동 확인합니다.
+새 SLAM 지도부터 만들려면 `./scripts/run_sim.sh slam:=true`를 실행하고,
+다른 터미널에서 `./scripts/run_sim_controller.sh`로 기존 `~/turtlebot3/tools/` 조종기를 연결합니다.
+SLAM 터미널에서 `Ctrl+C`를 누르면 `Team2_workspace/maps/slam_날짜_시간_실행번호/map.yaml`과
+`map.pgm`을 자동 저장한 뒤 종료합니다. 저장 실패 시 SLAM을 유지하며 `Ctrl+C`로 재시도합니다.
+`./scripts/check_slam.sh`는 조종기 주행·정지·지도 작성·저장을 자동 검증합니다.
+실행 스크립트가 시뮬레이션용 ROS domain 76과 localhost 통신을 설정합니다.
+[상세 실행·검증·팀원 연동 방법](docs/GAZEBO.md)을 참고하세요.
+
+ArUco ID 0~3이 배치된 미로에서 새로 매핑하려면
+`./scripts/run_sim_aruco.sh`와 다른 터미널의 `./scripts/run_sim_controller.sh`를
+실행합니다. 미로 실행은 기본적으로 SLAM 모드이며 Ctrl+C로 지도를 자동 저장합니다.
+[마커 규격·위치·생성 방법](docs/ARUCO.md)을 참고하세요.
 
 ## 실행 명령 한눈에 보기
 
@@ -71,7 +126,7 @@ sudo apt update
 sudo apt install ros-humble-desktop ros-humble-navigation2 ros-humble-nav2-bringup \
   ros-humble-turtlebot3-navigation2 ros-humble-rviz2 \
   python3-colcon-common-extensions python3-rosdep
-git clone https://github.com/waterhyunsu/SMART-VISION-AMR.git
+git clone https://github.com/kiki8105/SMART-VISION-AMR.git
 cd SMART-VISION-AMR/ros2_ws
 source /opt/ros/humble/setup.bash
 export ROS_DOMAIN_ID=16  # Pi와 동일한 값

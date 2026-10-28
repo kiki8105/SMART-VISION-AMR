@@ -1,0 +1,62 @@
+{
+  "domain": 82,
+  "real_robot_tested": false,
+  "restored_route": [
+    2,
+    3,
+    1
+  ],
+  "results": [
+    {
+      "endpoint": "/api/mission/cancel",
+      "home": {
+        "x": -0.9492796423756038,
+        "y": 2.823316633510785,
+        "yaw": 0.2848036794173748
+      },
+      "departure_m": 0.5611811037839107,
+      "states": [
+        "RETURNING_HOME",
+        "HOME_REACHED"
+      ],
+      "elapsed_seconds": 14.36,
+      "passed": true,
+      "final_pose": {
+        "x": -1.0011140755034784,
+        "y": 2.6977155613849617,
+        "yaw": 0.5149461976578809
+      },
+      "position_error_m": 0.13587655344776867,
+      "yaw_error_rad": 0.23014251824050605
+    },
+    {
+      "endpoint": "/api/mission/home",
+      "home": {
+        "x": -1.0011140755034784,
+        "y": 2.6977155613849617,
+        "yaw": 0.5149461976578809
+      },
+      "departure_m": 0.593071062808448,
+      "states": [
+        "RETURNING_HOME",
+        "HOME_REACHED"
+      ],
+      "elapsed_seconds": 27.9,
+      "passed": true,
+      "final_pose": {
+        "x": -0.9236093051989787,
+        "y": 2.5511844431582937,
+        "yaw": 0.7535716016618619
+      },
+      "position_error_m": 0.1657659736758754,
+      "yaw_error_rad": 0.23862540400398102
+    }
+  ],
+  "date": "2026-10-26",
+  "regression_tests": 88,
+  "paused_return_with_staged_route_resumed_to_home": true,
+  "ui_home_button_tested": true,
+  "mobile_two_by_two_controls": true,
+  "mobile_horizontal_overflow": false,
+  "source_guard_loaded": true
+}

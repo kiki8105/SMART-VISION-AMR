@@ -1,0 +1,2 @@
+# A unified diff needs a leading space on blank context lines.
+*.patch whitespace=-trailing-space

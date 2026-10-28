@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-27",
+  "domain": 16,
+  "full_regression_tests_passed": 285,
+  "ui_dom_mock_checks": "passed",
+  "build": "passed",
+  "launch_arguments_checked": [
+    "hardware",
+    "simulation"
+  ],
+  "priority": [
+    "emergency stop",
+    "manual joystick",
+    "navigation"
+  ],
+  "manual_lease_seconds": 0.5,
+  "linear_limit_mps": 0.12,
+  "angular_limit_radps": 0.6,
+  "route_goal_and_progress_preserved": true,
+  "actual_nonzero_vehicle_commands_sent": false,
+  "runtime_manual": {
+    "state": "IDLE",
+    "active": false,
+    "owner": false,
+    "available": false,
+    "reason": "속도 출력 연결을 확인하세요: Unmanaged /cmd_vel publisher: /behavior_server, /behavior_server, /behavior_server, /behavior_server, /velocity_smoother, /motion_mux",
+    "linear": 0.0,
+    "angular": 0.0,
+    "expires_in": 0.0,
+    "limits": {
+      "max_linear": 0.12,
+      "max_angular": 0.6
+    }
+  },
+  "navigation_restart_needed": true,
+  "runtime_mission": "IDLE"
+}

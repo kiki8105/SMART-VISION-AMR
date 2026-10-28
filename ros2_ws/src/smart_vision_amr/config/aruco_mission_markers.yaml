@@ -1,0 +1,25 @@
+# DICT_4X4_50, IDs 0..3. Coordinates are ROBOT OBSERVATION poses, not wall poses.
+# Registered against maps/maze_aruco_20261026/map.yaml (metres, yaw in radians).
+# At yaw=0 the TurtleBot camera looks toward +X and sees the marker's front.
+# Replace these registrations when using a different map or physical layout.
+markers:
+  - id: 0
+    name: start
+    x: -3.000799585626671
+    y: -2.0010944835652884
+    yaw: 0.0008724678696151052
+  - id: 1
+    name: waypoint_1
+    x: -1.0051626856214462
+    y: 3.00064854895223
+    yaw: 0.0008724678696151052
+  - id: 2
+    name: waypoint_2
+    x: 1.399896713940174
+    y: -2.797255320945951
+    yaw: 0.0008724678696151052
+  - id: 3
+    name: goal
+    x: 3.8996340221123265
+    y: -2.4950742657286513
+    yaw: 0.0008724678696151052

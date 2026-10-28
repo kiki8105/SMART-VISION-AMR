@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-26",
+  "environment": "Gazebo Classic / ROS 2 Humble, isolated ROS domain82, master11382",
+  "map": "maze_aruco_20261026",
+  "route": [
+    2,
+    3
+  ],
+  "completed": true,
+  "elapsed_seconds": 228.2,
+  "completed_ids": [
+    2,
+    3
+  ],
+  "camera_source": "TurtleBot3 Gazebo /camera/image_raw; OpenCV DICT_4X4_50; three fresh frames after correlated arrival",
+  "transitions": [
+    {
+      "elapsed": 0.0,
+      "state": "NAVIGATING",
+      "index": 0
+    },
+    {
+      "elapsed": 73.3,
+      "state": "WAIT_REPLAN",
+      "index": 0
+    },
+    {
+      "elapsed": 76.1,
+      "state": "NAVIGATING",
+      "index": 0
+    },
+    {
+      "elapsed": 116.2,
+      "state": "CONFIRMING",
+      "index": 0
+    },
+    {
+      "elapsed": 116.9,
+      "state": "NAVIGATING",
+      "index": 1
+    },
+    {
+      "elapsed": 133.1,
+      "state": "WAIT_REPLAN",
+      "index": 1
+    },
+    {
+      "elapsed": 135.2,
+      "state": "NAVIGATING",
+      "index": 1
+    },
+    {
+      "elapsed": 151.4,
+      "state": "WAIT_REPLAN",
+      "index": 1
+    },
+    {
+      "elapsed": 153.5,
+      "state": "NAVIGATING",
+      "index": 1
+    },
+    {
+      "elapsed": 227.5,
+      "state": "CONFIRMING",
+      "index": 1
+    },
+    {
+      "elapsed": 228.2,
+      "state": "COMPLETED",
+      "index": 2
+    }
+  ],
+  "final_pose": {
+    "x": 3.854592602857746,
+    "y": -2.3950535023568396,
+    "yaw": -0.23226253350470122
+  },
+  "actual_duplicate_marker_route": [
+    3,
+    3
+  ],
+  "duplicate_route_passed": true,
+  "lan_http_auth": "192.168.0.110:8790 unauthenticated401, paired session accepted, PIN omitted from remote state",
+  "hardware_tested": false,
+  "regression_tests_passed": 73,
+  "phone_viewport": {
+    "width": 390,
+    "overflow": false,
+    "pairing_and_route_edit": "passed in browser through LAN IP"
+  },
+  "installed_web_assets": "HTTP200 all4 assets androot from ament share with colcon symlinks"
+}

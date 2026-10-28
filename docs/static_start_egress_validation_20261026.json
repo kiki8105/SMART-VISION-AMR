@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-26",
+  "start": [
+    56,
+    129
+  ],
+  "goal": [
+    40,
+    42
+  ],
+  "raw_start_value": 0,
+  "inflation_cells": 6,
+  "resolution_m": 0.05,
+  "robot_radius_m": 0.22,
+  "margin_m": 0.02,
+  "half_cell_diagonal_added": true,
+  "before_path_length": 0,
+  "after_path_length": 94,
+  "egress_prefix": [
+    [
+      56,
+      129
+    ],
+    [
+      56,
+      130
+    ]
+  ],
+  "elapsed_ms": 91.0,
+  "regression_tests": 167,
+  "validation": "offline exact saved-map reproduction; live planner still needs restart"
+}

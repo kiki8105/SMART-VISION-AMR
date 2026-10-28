@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f6f8">
+  <meta name="description" content="재고 관리자 전용 부족 요청 접수 및 배송 상태 확인">
+  <title>SMART VISION · 재고 부족 요청</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/inventory.css">
+  <script src="/power.js" defer></script>
+  <script src="/inventory.js" defer></script>
+</head>
+<body>
+  <main class="inventory-app">
+    <header class="topbar"><div class="brand"><span class="brand-icon">SV</span><span>SMART VISION <small>/ 재고 요청</small></span></div><div class="topbar-actions"><div id="vehicle-power" class="power-status" data-status="waiting" tabindex="0" aria-label="차량 전원 신호 수신 대기" hidden><span class="power-dot" aria-hidden="true"></span><span class="power-state">전원 신호 대기</span><strong class="power-voltage tabular">— V</strong></div><div id="identity" class="inventory-identity" hidden><span id="user-label"></span><button id="logout" type="button">사용자 변경</button></div></div></header>
+    <section class="page-heading"><div><div class="role-label">사용자 1–99 · 재고 관리자</div><h1>재고가 부족합니다</h1><p>필요한 물품과 위치를 전달하고, 배송 상태를 확인하세요.</p></div><span id="service-state" class="state-pill">연결 확인 중</span></section>
+    <div id="connection-notice" class="notice" role="status">웹 서버 연결을 확인하고 있습니다.</div>
+    <section id="signin-panel" class="panel signin-panel" hidden>
+      <div class="panel-title"><h2>재고 관리자 연결</h2></div>
+      <form id="signin-form" class="inventory-form">
+        <p id="signin-intro" class="form-intro">운용자가 안내한 재고 관리자 접속 코드를 입력하세요. 사용자 0은 로봇 운용자 전용입니다.</p>
+        <label class="field">내 사용자 번호<input id="user-id" type="number" min="1" max="99" step="1" inputmode="numeric" value="1" required></label>
+        <label class="field"><span id="join-credential-label">재고 관리자 접속 코드</span><input id="join-code" type="text" maxlength="16" inputmode="numeric" autocomplete="one-time-code" required></label>
+        <p id="signin-error" class="form-error" role="alert"></p>
+        <button type="submit" class="primary">연결하기</button>
+      </form>
+    </section>
+    <div id="manager-workspace" class="inventory-workspace" hidden>
+      <section class="panel request-form-panel">
+        <div class="panel-title"><h2>새 부족 요청</h2><span class="secondary">위치는 사용자 번호와 별도입니다</span></div>
+        <form id="request-form" class="inventory-form">
+          <label class="field">부족한 위치<select id="marker-id" required><option value="">위치를 선택하세요</option></select></label>
+          <label class="field">필요한 물품<input id="item" type="text" maxlength="80" placeholder="예: 볼트 세트" required></label>
+          <label class="field">필요 수량<input id="quantity" type="number" min="1" max="9999" step="1" inputmode="numeric" value="1" required></label>
+          <label class="field">전달 메모 <span class="secondary">선택</span><textarea id="note" rows="3" maxlength="300" placeholder="운용자에게 전달할 내용을 입력하세요."></textarea></label>
+          <p id="request-error" class="form-error" role="alert"></p>
+          <button id="submit-request" type="submit" class="primary">재고 부족 요청 보내기</button>
+          <p class="field-help">접수 후 운용자가 물품을 적재하고 출발합니다. 운송 중 추가 요청은 현재 목표 뒤에 이어집니다.</p>
+        </form>
+      </section>
+      <section class="panel request-history-panel" aria-label="내 요청 내역">
+        <div class="panel-title"><h2>내 요청 내역</h2><span id="history-count" class="secondary">0건</span></div>
+        <div id="history-empty" class="request-empty">아직 요청한 내역이 없습니다.</div>
+        <ol id="request-history" class="inventory-history"></ol>
+        <div class="history-policy">접수 상태의 요청만 취소할 수 있습니다. 대기·운송 중 요청은 운용자에게 문의하세요.</div>
+        <div class="history-actions"><span class="secondary">완료·취소 기록을 정리하고 차량의 홈 복귀를 요청합니다. 운행 중 기록은 홈 도착 확인 후 자동 정리하며 미완료 요청은 유지됩니다.</span><button id="clear-history" type="button" class="danger" disabled>전체 배송 기록 초기화 · 홈 복귀</button></div>
+        <p id="clear-history-result" class="history-result" role="status" aria-live="polite" hidden></p>
+      </section>
+    </div>
+    <p class="bottom-note">이 페이지에서는 재고 요청과 내 배송 내역만 확인할 수 있습니다.</p>
+  </main>
+  <dialog id="clear-history-dialog" aria-labelledby="clear-history-title" aria-describedby="clear-history-description">
+    <div class="dialog-title"><h2 id="clear-history-title">배송 기록을 초기화하고 홈 복귀를 요청할까요?</h2></div>
+    <p id="clear-history-description" class="form-intro">모든 관리자의 완료·취소 기록 중 <strong id="clear-history-count">0건</strong>을 즉시 삭제합니다. 현재 운행에 연결된 완료·취소 기록 <strong id="clear-history-deferred-count">0건</strong>은 안전한 홈 도착이 확인되면 자동 삭제합니다. 이미 홈이면 즉시 정리됩니다. 접수·대기 요청은 유지되며, 운송 중 미완료 요청은 홈 복귀 시 다시 대기합니다. 차량이 연결되지 않았거나 출발 조건을 충족하지 못하면 기록만 초기화되고 홈 복귀는 시작되지 않습니다.</p>
+    <div class="dialog-actions"><button id="clear-history-cancel" type="button">돌아가기</button><button id="clear-history-confirm" type="button" class="danger">초기화 · 홈 복귀</button></div>
+  </dialog>
+  <dialog id="request-action-dialog" aria-labelledby="request-action-title" aria-describedby="request-action-description">
+    <div class="dialog-title"><h2 id="request-action-title"></h2></div>
+    <p id="request-action-description" class="form-intro"></p>
+    <div class="dialog-actions"><button id="request-action-cancel" type="button">돌아가기</button><button id="request-action-confirm" type="button" class="danger">확인</button></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

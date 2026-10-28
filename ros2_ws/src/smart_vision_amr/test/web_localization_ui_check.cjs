@@ -1,0 +1,40 @@
+// Render the real operator handlers with a small DOM stub; no ROS or vehicle I/O.
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const app=fs.readFileSync('ros2_ws/src/smart_vision_amr/web/app.js','utf8');
+const controls=app.slice(app.indexOf('  function renderControls(){'),app.indexOf('  function renderStatus(){'));
+const status=app.slice(app.indexOf('  function renderStatus(){'),app.indexOf('  const requestStates='));
+const handlers=app.slice(app.indexOf("  $('#localization-start').addEventListener"),app.indexOf("  $('#dispatch-start').addEventListener"));
+const els=new Map(),listeners=new Map(),joystickSnapshots=[],calls=[];
+function element(){return{disabled:false,hidden:false,checked:true,textContent:'',title:'',value:0,classList:{toggle(){}},replaceChildren(){},append(){},addEventListener(name,handler){listeners.set(this.selector+':'+name,handler);}};}
+const $=selector=>{if(!els.has(selector)){const el=element();el.selector=selector;els.set(selector,el);}return els.get(selector);};
+const sandbox={$,document:{querySelectorAll:()=>[],createElement:element},ManualJoystick:{setState(data){joystickSnapshots.push(data);}},VehiclePower:{render(){}},initialized:true,disconnected:false,busy:false,localizationStarting:false,draft:[1],dirty:false,lastPath:[],terminal:new Set(['IDLE','COMPLETED','CANCELED','ERROR','HOME_REACHED']),states:{IDLE:'임무 대기',PAUSED:'일시정지',ESTOP:'비상정지'},currentMission:()=>sandbox.snapshot.mission,delivery:()=>sandbox.snapshot.delivery,homepoint:()=>null,markerLabel:id=>'Sector '+id,Math,Date,Number,String,Array,async action(path,body,message){calls.push({path,body,message,starting:sandbox.localizationStarting});return true;},async api(path,body){calls.push({path,body});return{};},async refresh(){},notify(){}};
+vm.createContext(sandbox);vm.runInContext(controls+'\n'+status+'\n'+handlers+'\nglobalThis.check=()=>{renderControls();renderStatus();};',sandbox);
+function fixture(state='IDLE',active=false){return{connection:{connected:true},health:{ready:true},localization:{state,active,available:true,startup_home_available:true,startup_home_reason:'실제 홈 확인',reason:'라이다 위치 추정',progress:.35,rotated_degrees:126,position_std:.12,yaw_std_degrees:5.2},manual:{state:'IDLE',available:true,owner:false,active:false},mission:{state:'PAUSED',estop_latched:false,can_return_home:true,current_index:0,current_marker_id:1,route:[1],completed_ids:[]},delivery:{active:false,home_ready:true,pending_count:1},robot:{speed:{linear:0,angular:0},pose:{x:0,y:0},pose_age:.1,scan_age:.1,odom_age:.1},events:[]};}
+for(const phase of ['ACQUIRING','INITIALIZING','ROTATING','SETTLING']){
+ sandbox.snapshot=fixture(phase,true);sandbox.check();
+ for(const id of ['#start-mission','#dispatch-start','#set-home','#delivery-resume','#confirm-replace','#domain-input','#sim-time-input','#connection-form button[type=submit]'])assert.equal($(id).disabled,true,id+' '+phase);
+ for(const id of ['#pause-mission','#return-home','#cancel-mission','#emergency-stop','#localization-stop'])assert.equal($(id).disabled,false,'operator intervention remains usable '+id+' '+phase);
+ assert.equal($('#localization-start').disabled,true);assert.equal($('#localization-start-home').disabled,true);assert.equal($('#localization-stop').hidden,false);assert.equal($('#localization-progress').hidden,false);assert.equal($('#localization-progress').value,.35);
+ assert.equal(joystickSnapshots.at(-1),sandbox.snapshot,'original joystick availability is preserved');assert.equal(joystickSnapshots.at(-1).manual.available,true,'joystick stays highest priority');
+ assert.equal($('#state-pill').textContent,'라이다 위치 확인 중');
+ assert.match($('#localization-accuracy').textContent,/126°.*0\.12 m.*5\.2°/);
+}
+for(const phase of ['IDLE','SUCCEEDED','FAILED','CANCELED']){
+ sandbox.snapshot=fixture(phase,false);sandbox.check();assert.equal($('#localization-stop').hidden,true);assert.equal($('#localization-start').disabled,false);assert.equal($('#localization-start-home').disabled,false);assert.equal($('#localization-progress').hidden,true);
+}
+sandbox.snapshot=fixture('SUCCEEDED');sandbox.snapshot.localization.reason='';sandbox.snapshot.localization.position_std=null;sandbox.snapshot.localization.yaw_std_degrees=null;sandbox.check();assert.equal($('#localization-state').textContent,'위치 추정 완료');assert.equal($('#localization-accuracy').hidden,true);assert.match($('#localization-reason').textContent,/실제 위치.*임무 출발은 별도/);
+sandbox.snapshot=fixture();sandbox.snapshot.manual.state='ACTIVE';sandbox.check();assert.equal($('#localization-start').disabled,true,'no localization start during manual input');
+sandbox.snapshot=fixture();sandbox.snapshot.localization.available=false;sandbox.check();assert.equal($('#localization-start').disabled,true,'readiness is required');
+sandbox.snapshot=fixture('ROTATING',true);sandbox.snapshot.mission.estop_latched=true;sandbox.check();assert.equal($('#state-pill').textContent,'비상정지','estop display takes precedence');assert.equal($('#emergency-stop').disabled,false);
+sandbox.snapshot=fixture('ROTATING',true);sandbox.busy=true;sandbox.check();assert.equal($('#localization-stop').disabled,false,'stop never waits on the generic action lock');assert.equal($('#emergency-stop').disabled,false);sandbox.busy=false;
+sandbox.snapshot=fixture();sandbox.disconnected=true;sandbox.check();assert.equal($('#localization-start').disabled,true);sandbox.disconnected=false;
+sandbox.snapshot=fixture();sandbox.snapshot.detection={expected_camera:'front',front_ids:[2],ids:[0],expected_id:2};sandbox.snapshot.robot.front_camera_age=.2;sandbox.check();assert.match($('#detected-ids').textContent,/전방 · 검출 2/);assert.match($('#front-camera-age').textContent,/0\.2초 전/);
+sandbox.snapshot=fixture();sandbox.snapshot.map={preview:true,configured_match:false,resolution:.05};sandbox.snapshot.health={ready:false,missing:['/map','설정 지도와 다른 /map','최신 map→base TF'],map:{configured_file:'/maps/classroom_20261027_cleaned.yaml'}};sandbox.check();assert.match($('#connection-banner').textContent,/지도 확인 필요/);assert.match($('#connection-banner').textContent,/SLAM·다른 지도 발행을 종료/);assert.doesNotMatch($('#connection-banner').textContent,/운용 지도 \/map 대기/);assert.match($('#map-label').textContent,/설정 지도 불일치/);
+sandbox.snapshot=fixture();sandbox.check();
+(async()=>{
+ await listeners.get('#localization-start:click')();assert.equal(calls.at(-1).path,'/api/localization/start');assert.equal(calls.at(-1).starting,true,'mission launch controls lock before the start request');assert.equal(sandbox.localizationStarting,false);
+ await listeners.get('#localization-start-home:click')();assert.equal(calls.at(-1).path,'/api/localization/start-home');assert.equal(calls.at(-1).starting,true,'startup pose initialization locks mission controls');assert.equal(sandbox.localizationStarting,false);
+ sandbox.snapshot=fixture('ROTATING',true);sandbox.busy=true;sandbox.check();await listeners.get('#localization-stop:click')();assert.equal(calls.at(-1).path,'/api/localization/stop');
+ const html=fs.readFileSync('ros2_ws/src/smart_vision_amr/web/index.html','utf8');assert.match(html,/대칭 구조/);assert.match(html,/조이스틱이 우선/);assert.match(html,/자동 출발하지 않습니다/);assert.match(html,/front-camera-image/);assert.match(html,/자세 초기화/);
+ console.log('PASS: localization states, confidence values, mission interlocks, retained joystick priority, intervention buttons, start/stop API handlers and explanatory copy.');
+})().catch(error=>{console.error(error);process.exitCode=1;});

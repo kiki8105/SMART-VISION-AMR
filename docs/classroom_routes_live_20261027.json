@@ -1,0 +1,63 @@
+{
+  "domain": 16,
+  "start": [
+    28,
+    98
+  ],
+  "raw_obstacle_count": 151,
+  "routes": [
+    {
+      "id": 0,
+      "name": "홈",
+      "goal": [
+        28,
+        97
+      ],
+      "static_goal_blocked": false,
+      "raw_observed_goal": false,
+      "observed_goal_blocked": false,
+      "path_cells": 2,
+      "reachable": true
+    },
+    {
+      "id": 1,
+      "name": "Sector 1",
+      "goal": [
+        62,
+        115
+      ],
+      "static_goal_blocked": false,
+      "raw_observed_goal": true,
+      "observed_goal_blocked": true,
+      "path_cells": 0,
+      "reachable": false
+    },
+    {
+      "id": 2,
+      "name": "Sector 2",
+      "goal": [
+        64,
+        47
+      ],
+      "static_goal_blocked": false,
+      "raw_observed_goal": false,
+      "observed_goal_blocked": false,
+      "path_cells": 69,
+      "reachable": true
+    },
+    {
+      "id": 3,
+      "name": "Sector 3",
+      "goal": [
+        28,
+        54
+      ],
+      "static_goal_blocked": false,
+      "raw_observed_goal": false,
+      "observed_goal_blocked": false,
+      "path_cells": 67,
+      "reachable": true
+    }
+  ],
+  "drive_goal_sent": false
+}
