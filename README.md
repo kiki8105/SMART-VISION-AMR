@@ -59,6 +59,7 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 `check_sim.sh`는 **실제로 시뮬레이션 로봇을 움직여** 경로 생성부터 도착까지
 검사합니다. 종료할 때는 각 실행 터미널에서 `Ctrl+C`를 누르세요.
 스크립트가 시뮬레이션용 `ROS_DOMAIN_ID=76`을 설정하므로 별도 `export`는 필요 없습니다.
+Gazebo 기본 위치 추정은 기존 오도메트리(`baseline`)를 사용합니다.
 
 ## 새 지도 만들기
 
@@ -96,12 +97,15 @@ ArUco 웹 미로는 **별도로 저장한 미로 지도**가 필요하므로 처
 실제 로봇은 Raspberry Pi에서 센서·모터 bringup을, PC에서 위치 추정·경로 계획을
 실행합니다. 두 장치 모두 같은 Wi-Fi와 `ROS_DOMAIN_ID=16`을 사용합니다.
 시뮬레이션의 76번 도메인과 혼용하지 마세요.
+실차의 기본 실행 스크립트는 **독립 바퀴·IMU EKF**를 켭니다. Pi에 EKF launch
+파일도 복사해야 하며, 기존 방식으로 돌아갈 때는 두 장치 모두 `_baseline.sh`
+스크립트를 사용합니다.
 
 - [팀원용 설치·실행 순서](docs/collaboration_handoff.md)
 - [실차 터미널별 실행 순서](docs/classroom_navigation_startup.md)
 - [재고 요청·배송 웹 사용법](docs/inventory_delivery.md)
 - [ArUco 마커 준비](docs/ARUCO.md)
-- [독립 바퀴·IMU EKF 설정과 원래 구성으로 복귀](docs/hardware_ekf.md)
+- [실차 기본 EKF 실행과 기존 구성으로 복귀](docs/hardware_ekf.md)
 
 진행 흐름은 `목표 → A* 경로 → Nav2 FollowPath → /cmd_vel → 로봇`입니다.
 

@@ -73,11 +73,11 @@ PC에서는 마우스로 드래그하거나 조이스틱에 초점을 둔 뒤 �
 출력합니다. 강의실 웹 서비스에 mux가 포함되므로 브링업과 LiDAR·오도메트리가 준비되면
 위치 추정이나 A* 없이도 수동으로 조종할 수 있습니다. 자동 임무에는 기존 주행 구성이
 계속 필요합니다. 일반 시뮬레이션·하드웨어 런치는 기본적으로 mux를 함께 실행하고,
-`nav_classroom_16`은 웹 서비스의 mux를 사용하도록 중복 실행을 끕니다.
+`scripts/run_classroom_navigation_16.sh`는 웹 서비스의 mux를 사용하도록 중복 실행을 끕니다.
 
 업데이트 전 실행한 Nav2나 기존 Qt 조종기가 `/cmd_vel`에 직접 발행 중이면 새 mux는
 정지 명령도 끼워 넣지 않고 출력을 보류하며 UI에 충돌 사유를 표시합니다.
-이전 주행 터미널을 Ctrl+C로 종료한 뒤 `nav_classroom_16`을 다시 실행하고,
+이전 주행 터미널을 Ctrl+C로 종료한 뒤 `scripts/run_classroom_navigation_16.sh`를 다시 실행하고,
 기존 Qt 조종기는 종료한 상태에서 웹을 사용합니다. 부팅 시 웹은 임무를 자동 출발시키지 않습니다.
 
 ## 실행
@@ -181,7 +181,7 @@ PC에서 아래 명령을 각각 다른 터미널에서 실행합니다. 로봇 
 도메인 16으로 실행하고, SLAM은 종료한 상태를 사용합니다.
 
 ```bash
-/home/kiki/turtlebot3/scripts/nav_classroom_16
+/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_classroom_navigation_16.sh
 ```
 
 ```bash
@@ -189,7 +189,7 @@ PC에서 아래 명령을 각각 다른 터미널에서 실행합니다. 로봇 
 ```
 
 ```bash
-/home/kiki/turtlebot3/scripts/web_16
+/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_classroom_web_16.sh
 ```
 
 조종기의 **초기 위치 지정**으로 실제 로봇 위치와 방향을 먼저 지정합니다.
@@ -219,46 +219,46 @@ Sector 1 좌표를 유지하면서 경로가 생기도록 장애물 팽창을 5�
 
 ## 로봇 Bringup과 카메라를 함께 실행
 
-로봇용 실행 파일은 `scripts/robot_bringup_camera_16.sh`입니다. PC에서 로봇으로 복사합니다.
+로봇용 기본 실행 파일은 `scripts/robot_bringup_camera_16.sh`이며 독립 바퀴·IMU
+EKF 입력을 발행합니다. PC에서 로봇으로 스크립트와 EKF launch 파일을 복사합니다.
 
 ```bash
-scp /home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/robot_bringup_camera_16.sh robot@192.168.0.187:~/turtlebot16
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+scp scripts/robot_bringup_camera_16.sh scripts/robot_bringup_camera_16_baseline.sh \
+  scripts/ros_camera_compressed.py \
+  ros2_ws/src/smart_vision_amr/launch/hardware_robot_ekf.launch.py \
+  robot@192.168.0.187:~/
 ```
 
 로봇 SSH 터미널에서 기존 Bringup·카메라를 Ctrl+C로 종료한 뒤 실행합니다.
 
 ```bash
-chmod +x ~/turtlebot16
-~/turtlebot16
+chmod +x ~/robot_bringup_camera_16.sh ~/robot_bringup_camera_16_baseline.sh
+~/robot_bringup_camera_16.sh
 ```
 
-기본 워크스페이스는 `~/turtlebot3_ws`, 도메인은 16, 모델은 waffle_pi입니다.
-`LDS_MODEL` 환경값을 유지하며 미설정일 때 LDS-02를 사용합니다. 현재 실물 라이다와
-일치시켜야 합니다. 카메라 기본 장치는 실차에서 확인한 후방 웹캠의 고정 경로
-`/dev/v4l/by-id/usb-BY-5640-200408_Webcam_01.00.00-video-index0`입니다.
-재부팅 후 `/dev/video0` 번호가 바뀌더라도 이 경로로 같은 웹캠을 선택합니다.
-해당 경로가 사라지면 다른 카메라를 임의로 사용하지 않고 오류로 종료합니다.
-웹캠을 교체했다면 `CAMERA_DEVICE=/dev/v4l/by-id/새_웹캠-video-index0 ~/turtlebot16`처럼
-명시합니다. 현재 웹캠은 YUYV 640×480, 최대 30fps를 지원하며 영상과 카메라
-정보를 `/camera/image_raw`, `/camera/camera_info`로 발행합니다. 전방 CSI 카메라는
-실행 시 V4L2 이름 `camera0`인 장치를 찾아 번호가 바뀌어도 선택하며, 지원하는
-YUYV 640×480 또는 320×240 모드로 `/camera/front/image_raw`와
-`/camera/front/camera_info`를 발행합니다. 전방 카메라가 없거나 지원 형식이
-확인되지 않으면 후방 카메라와 Bringup은 계속 실행되지만 Sector 1~3의 전방
-마커 확인은 완료할 수 없습니다. 실행 후 두 영상이 실제 각 방향을 보여주는지
-확인합니다. 웹 서비스는 거꾸로 장착된 후방 카메라를
-ArUco 검출과 웹 영상 표시 전에 180° 회전합니다. 원본 ROS `/camera/image_raw`는
-회전하지 않으므로 다른 뷰어에서 사용할 때는 별도로 방향을 맞춰야 합니다.
+기본 워크스페이스는 `~/turtlebot3_ws`, 도메인은 16, 모델은 waffle_pi,
+`LDS_MODEL` 기본값은 LDS-03입니다. 실제 라이다 모델과 일치하는지 확인합니다.
+후방 웹캠은 재부팅 후에도 유지되는 `/dev/v4l/by-id/...-video-index0` 경로를
+사용합니다. 웹캠을 교체했다면 `CAMERA_DEVICE`로 새 경로를 지정합니다.
+기본 카메라 백엔드는 통신량을 줄인 5 FPS JPEG이며
+`/camera/image_raw/compressed`를 발행합니다. 원본 영상 토픽도 필요한 경우
+`CAMERA_BACKEND=v4l2 ~/robot_bringup_camera_16.sh`로 실행합니다.
+전방 카메라는 기본적으로 꺼져 있습니다. 활성화할 경우 실제 전방 영상과
+ArUco 검출을 다시 확인해야 합니다. 웹 서비스는 거꾸로 장착된 후방 카메라를
+ArUco 검출과 표시 전에 180° 회전합니다.
 
-`v4l2_camera`가 없으면 로봇에서 `sudo apt install ros-humble-v4l2-camera`로 설치합니다.
+`v4l2` 백엔드가 필요하지만 `v4l2_camera`가 없다면 로봇에서
+`sudo apt install ros-humble-v4l2-camera`로 설치합니다.
 전방 카메라 지원 형식 확인에는 `v4l2-ctl`이 필요하며, 없으면
 `sudo apt install v4l-utils`로 설치합니다.
 시작 전 장치 점유를 확인하며 기존 프로세스를 강제 종료하지 않습니다.
 Ctrl+C 또는 필수 Bringup·후방 카메라 프로세스의 종료 시 이 파일이 시작한
 프로세스를 모두 정리합니다. 전방 카메라만 종료되면 후방·Bringup은 유지합니다.
-Ctrl+C·SSH 연결 종료·초기 프로세스 실패의 세 경우를 실제 실행 파일과 가짜 ROS 명령으로
-검사해 남은 자식 프로세스가 없음을 확인했습니다. 실제 로봇에서의 통합 실행은 아직
-검증하지 않았습니다. 전방 카메라 영상과 전방 ArUco 배송 확인도 실차에서 검증해야 합니다.
+전방 카메라 영상과 전방 ArUco 배송 확인은 실차에서 검증해야 합니다. PC에서는
+`./scripts/run_classroom_navigation_16.sh`를 함께 실행해야 하며, EKF 센서 점검 후
+웹의 비상정지 해제·임무 시작을 별도로 진행합니다. 기존 방식으로 돌아가는
+명령과 주의사항은 [실차 EKF 안내](hardware_ekf.md)를 참고합니다.
 
 ## Homepoint와 출발
 

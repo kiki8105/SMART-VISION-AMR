@@ -50,7 +50,7 @@ def test_composition_choice_reaches_the_nav2_include(value, expected):
     assert PythonExpression(['not ', normalized]).perform(context) == str(expected == 'False')
 
 
-def test_classroom_wrapper_uses_separate_processes_and_preserves_overrides(tmp_path):
+def test_classroom_wrapper_defaults_to_ekf_and_preserves_overrides(tmp_path):
     # Exercise the real wrapper while replacing its downstream launcher with
     # an argument recorder. No ROS launch, service call, or publisher is started.
     scripts = tmp_path/'scripts'
@@ -67,7 +67,19 @@ def test_classroom_wrapper_uses_separate_processes_and_preserves_overrides(tmp_p
     assert arguments[0] == '16'
     assert 'use_composition:=false' in arguments
     assert 'use_motion_mux:=false' in arguments
-    assert arguments[-1] == 'use_rviz:=true'
+    assert 'use_rviz:=true' in arguments
+    assert arguments.count('localization_mode:=ekf_independent') == 1
+
+    # Explicit rollback must not be overwritten by the new default. Passing
+    # both modes to ros2 launch leaves the actual selected value ambiguous.
+    rollback = subprocess.run(['bash', str(wrapper), 'localization_mode:=baseline',
+                               'use_rviz:=true'],
+                              cwd=tmp_path, text=True, capture_output=True,
+                              check=True, timeout=5)
+    rollback_arguments = rollback.stdout.splitlines()
+    assert rollback_arguments.count('localization_mode:=baseline') == 1
+    assert 'localization_mode:=ekf_independent' not in rollback_arguments
+    assert 'use_rviz:=true' in rollback_arguments
 
 
 def test_hardware_launch_exposes_composition_in_show_args():
@@ -78,9 +90,7 @@ def test_hardware_launch_exposes_composition_in_show_args():
     assert 'false uses separate processes' in result.stdout
 
 
-def test_ekf_robot_wrapper_selects_independent_mode_without_replacing_baseline(tmp_path):
-    # The Pi wrapper selects the EKF profile only for this process. The old
-    # executable remains callable and defaults to its original baseline mode.
+def test_ekf_robot_wrapper_selects_independent_mode(tmp_path):
     scripts = tmp_path/'scripts'
     scripts.mkdir()
     shutil.copyfile(REPO/'scripts/robot_bringup_camera_16_ekf.sh',
@@ -100,6 +110,80 @@ def test_ekf_robot_wrapper_selects_independent_mode_without_replacing_baseline(t
     assert override.stdout.splitlines() == ['ekf_independent', 'v4l2']
 
 
+def test_robot_bringup_defaults_to_ekf_but_explicit_baseline_skips_ekf_preflight(tmp_path):
+    # Run only the initial validation path of the actual script. The copied
+    # script deliberately lacks the EKF launch file and camera, so it cannot
+    # start ROS or touch a physical device.
+    scripts = tmp_path/'scripts'
+    scripts.mkdir()
+    wrapper = scripts/'robot_bringup_camera_16.sh'
+    shutil.copyfile(REPO/'scripts/robot_bringup_camera_16.sh', wrapper)
+    env = os.environ.copy()
+    env.pop('TURTLEBOT3_LOCALIZATION_MODE', None)
+    env['CAMERA_DEVICE'] = str(tmp_path/'missing_camera')
+    default = subprocess.run(['bash', str(wrapper)], text=True,
+                             capture_output=True, timeout=5, env=env)
+    assert default.returncode == 2
+    assert 'Independent EKF bringup is missing' in default.stderr
+
+    env['TURTLEBOT3_LOCALIZATION_MODE'] = 'baseline'
+    rollback = subprocess.run(['bash', str(wrapper)], text=True,
+                              capture_output=True, timeout=5, env=env)
+    assert rollback.returncode == 2
+    assert 'Camera device is missing' in rollback.stderr
+    assert 'Independent EKF bringup is missing' not in rollback.stderr
+
+
+def test_explicit_robot_baseline_keeps_v4l2_camera_default(tmp_path):
+    # A fake workspace setup puts a harmless ros2 stub first in PATH. The
+    # baseline branch should request v4l2_camera, then stop before launch.
+    scripts = tmp_path/'scripts'
+    scripts.mkdir()
+    wrapper = scripts/'robot_bringup_camera_16.sh'
+    shutil.copyfile(REPO/'scripts/robot_bringup_camera_16.sh', wrapper)
+    workspace = tmp_path/'robot_ws'
+    install = workspace/'install'
+    install.mkdir(parents=True)
+    bin_dir = tmp_path/'bin'
+    bin_dir.mkdir()
+    (install/'setup.bash').write_text(f'export PATH="{bin_dir}:$PATH"\n')
+    ros2 = bin_dir/'ros2'
+    ros2.write_text('#!/usr/bin/env bash\n'
+                    'if [[ "$*" == "pkg prefix turtlebot3_bringup" ]]; then exit 0; fi\n'
+                    'if [[ "$*" == "pkg prefix v4l2_camera" ]]; then exit 1; fi\n'
+                    'exit 99\n')
+    ros2.chmod(0o755)
+    camera = tmp_path/'fake_camera'
+    camera.touch()
+    env = os.environ.copy()
+    env['TURTLEBOT3_LOCALIZATION_MODE'] = 'baseline'
+    env.pop('CAMERA_BACKEND', None)
+    env['TURTLEBOT3_WORKSPACE'] = str(workspace)
+    env['CAMERA_DEVICE'] = str(camera)
+    result = subprocess.run(['bash', str(wrapper)], text=True,
+                            capture_output=True, timeout=10, env=env)
+    assert result.returncode == 2
+    assert 'Install the camera driver' in result.stderr
+    assert 'Rate-limited camera node is missing' not in result.stderr
+
+
+def test_baseline_robot_wrapper_forces_stock_mode(tmp_path):
+    scripts = tmp_path/'scripts'
+    scripts.mkdir()
+    shutil.copyfile(REPO/'scripts/robot_bringup_camera_16_baseline.sh',
+                    scripts/'robot_bringup_camera_16_baseline.sh')
+    base = scripts/'robot_bringup_camera_16.sh'
+    base.write_text('#!/usr/bin/env bash\nprintf "%s\\n" '
+                    '"$TURTLEBOT3_LOCALIZATION_MODE" "$@"\n')
+    base.chmod(0o755)
+    env = os.environ.copy()
+    env['TURTLEBOT3_LOCALIZATION_MODE'] = 'ekf_independent'
+    result = subprocess.run(['bash', str(scripts/'robot_bringup_camera_16_baseline.sh'),
+                             'test=1'], text=True, capture_output=True,
+                            check=True, timeout=5, env=env)
+    assert result.stdout.splitlines() == ['baseline', 'test=1']
+
+
 def test_ekf_pc_wrapper_passes_localization_mode_and_user_options(tmp_path):
     scripts = tmp_path/'scripts'
     scripts.mkdir()
@@ -113,3 +197,18 @@ def test_ekf_pc_wrapper_passes_localization_mode_and_user_options(tmp_path):
                             check=True, timeout=5)
     assert result.stdout.splitlines() == ['use_rviz:=true',
                                           'localization_mode:=ekf_independent']
+
+
+def test_baseline_pc_wrapper_forces_stock_mode(tmp_path):
+    scripts = tmp_path/'scripts'
+    scripts.mkdir()
+    shutil.copyfile(REPO/'scripts/run_classroom_navigation_16_baseline.sh',
+                    scripts/'run_classroom_navigation_16_baseline.sh')
+    base = scripts/'run_classroom_navigation_16.sh'
+    base.write_text('#!/usr/bin/env bash\nprintf "%s\\n" "$@"\n')
+    base.chmod(0o755)
+    result = subprocess.run(['bash', str(scripts/'run_classroom_navigation_16_baseline.sh'),
+                             'use_rviz:=true'], text=True, capture_output=True,
+                            check=True, timeout=5)
+    assert result.stdout.splitlines() == ['use_rviz:=true',
+                                          'localization_mode:=baseline']

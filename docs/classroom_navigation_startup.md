@@ -2,7 +2,13 @@
 
 `scripts/run_classroom_navigation_16.sh`는 Nav2를 `use_composition:=false`로
 실행한다. 지도 서버, AMCL, 제어기와 수명주기 관리자가 각각 별도 프로세스로
-시작되며, 웹 서비스의 속도 mux를 그대로 사용한다.
+시작되며, 웹 서비스의 속도 mux를 그대로 사용한다. 이 스크립트의 실차 기본 위치
+추정은 독립 바퀴·IMU EKF다. 로봇 쪽 `~/robot_bringup_camera_16.sh`도 같은
+EKF 모드로 켜야 하며, `hardware_robot_ekf.launch.py`가 로봇에서 그 스크립트와
+같은 폴더에 있어야 한다. 기존 오도메트리로 복귀할 때는 로봇의
+`~/robot_bringup_camera_16_baseline.sh`와 PC의
+`./scripts/run_classroom_navigation_16_baseline.sh`를 함께 사용한다.
+설치·사전 검사와 정지 해제 순서는 [실차 EKF 안내](hardware_ekf.md)를 따른다.
 
 2026-10-27 실제 PC에서 기존 공유 컨테이너 방식은 제어기 구성 도중
 `Failed to change state for node: controller_server`로 시작을 중단했다.

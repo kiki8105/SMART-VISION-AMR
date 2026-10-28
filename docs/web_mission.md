@@ -154,8 +154,10 @@ ros2_ws/src/smart_vision_amr/config/aruco_mission_markers.yaml
 기본 마커 좌표는 미로 시뮬레이션 지도의 좌표입니다. 실차에서는 새로 만든
 실차 지도에 각 마커의 관측 위치와 **차체 전방 yaw**를 등록한 YAML을 사용합니다.
 지도 화살표도 차체 전방을 가리키며, 마커는 실차의 후방 카메라에 보여야 합니다.
-후방 카메라 토픽은 `/camera/image_raw`이고, 전방 영상은
-`/camera/front/image_raw`로 별도 표시한다. 웹 서버의 `--camera-topic`은 후방,
+실차 기본 EKF 브링업의 후방 카메라 토픽은 `/camera/image_raw/compressed`다.
+전방 카메라를 활성화하면 `/camera/front/image_raw/compressed`로 별도 표시한다.
+원본 `v4l2` 백엔드를 선택한 경우에는 각 토픽의 `/compressed` 접미사를 뺀
+원본 영상도 발행한다. 웹 서버의 `--camera-topic`은 후방,
 `--front-camera-topic`은 전방 영상 토픽을 지정한다. 전방 영상이 없으면 전방
 칸에 수신 대기가 표시되며, 후방 영상과 LiDAR 기반 위치 확인은 계속 사용할 수 있다.
 실차용 `scripts/robot_bringup_camera_16.sh`는 매 실행마다 이름이 `camera0`인

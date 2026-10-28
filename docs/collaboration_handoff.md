@@ -3,7 +3,8 @@
 이 저장소의 ROS 2 Humble 패키지는 `ros2_ws/src/smart_vision_amr`에 있다. 저장소를
 `<작업공간>/src/SMART-VISION-AMR`에 두고 `<작업공간>`에서 빌드한다. Gazebo는
 기본 ROS 도메인 76과 로컬 통신을, 강의실 실차는 도메인 16과 네트워크 통신을
-사용한다. 웹 서버는 PC에서 실행하며, 브라우저는 PC의 HTTP 포트 8790에 접속한다.
+사용한다. 강의실 실차의 기존 이름 실행 스크립트는 독립 바퀴·IMU EKF를 기본으로 켠다.
+웹 서버는 PC에서 실행하며, 브라우저는 PC의 HTTP 포트 8790에 접속한다.
 브라우저에 ROS를 설치할 필요는 없다.
 
 ## 팀원 PC에서 처음 준비
@@ -71,37 +72,48 @@ ArUco 미로 실습은 `./scripts/run_sim_aruco.sh`로 새 SLAM을 시작할 수
 `/map_server` 하나여야 한다. 로봇이 홈에 실제로 있는지, 후방 카메라가
 0번 마커를 보는지도 위치 초기화 전에 확인한다.
 
-로봇(`robot@192.168.0.187`)에는 브링업·카메라 스크립트 **두 파일**을 복사한다.
+로봇(`robot@192.168.0.187`)에는 브링업·카메라 스크립트와 EKF launch 파일을 복사한다.
 주소가 바뀌면 현재 로봇 주소로 바꾼다. 카메라 장치 경로와 포맷은 현장 장치에
 따라 확인한다.
 
 ```bash
 # PC에서 복사
-scp scripts/robot_bringup_camera_16.sh scripts/ros_camera_compressed.py \
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+scp scripts/robot_bringup_camera_16.sh scripts/robot_bringup_camera_16_baseline.sh \
+  scripts/ros_camera_compressed.py \
+  ros2_ws/src/smart_vision_amr/launch/hardware_robot_ekf.launch.py \
   robot@192.168.0.187:~/
 
 # 로봇 SSH 터미널에서. 기존 bringup/카메라가 있으면 먼저 해당 터미널에서 종료.
-chmod +x ~/robot_bringup_camera_16.sh
-ENABLE_FRONT_CAMERA=false CAMERA_BACKEND=v4l2 REAR_CAMERA_SIZE=320x240 \
+chmod +x ~/robot_bringup_camera_16.sh ~/robot_bringup_camera_16_baseline.sh
+ENABLE_FRONT_CAMERA=false REAR_CAMERA_SIZE=320x240 \
   FASTDDS_BUILTIN_TRANSPORTS=UDPv4 ~/robot_bringup_camera_16.sh
 ```
 
-위 명령은 **후방 단독 시험** 구성이며, 현재 스크립트의 기본값도 후방 단독
-`v4l2`다. 후방은 고정 장치 경로를, 전방은 `camera0` 장치를 사용한다.
-`v4l2` 백엔드는 `/camera/image_raw`와 `/camera/image_raw/compressed`를
-함께 발행한다. `CAMERA_BACKEND=rate_limited`를 명시하면 각 카메라가
+위 명령은 후방 단독 EKF 구성이다. 기본 카메라 백엔드 `rate_limited`는
 압축 토픽에 최대 5 FPS, 320×240, JPEG 품질 60으로 발행하며 **원본 Image
-토픽은 발행하지 않는다**. 원본 토픽을 필요로 하는 별도 PyQt 조종기에는
-`v4l2` 설정을 사용한다. 스크립트는 로봇의 `~/turtlebot3_ws`
+토픽은 발행하지 않는다**. 후방은 고정 장치 경로를, 전방은 `camera0` 장치를
+사용한다. 원본 토픽을 필요로 하는 별도 PyQt 조종기에는
+`CAMERA_BACKEND=v4l2`를 명시한다. 이 백엔드는 `/camera/image_raw`와
+`/camera/image_raw/compressed`를 함께 발행한다. 스크립트는 로봇의 `~/turtlebot3_ws`
 설치본과 `LDS_MODEL=LDS-03` 기본값을 사용한다. 두 카메라 동시 기동은 아래
 제한 사항을 확인하고 전송 지연 원인을 조사할 때만 시도한다.
 
-PC에서 다른 터미널로 Nav2·A*를 시작한다. 이 명령은 Gazebo를 켜지 않는다.
+PC에서 다른 터미널로 독립 EKF·Nav2·A*를 시작한다. 이 명령은 Gazebo를 켜지
+않는다. 위 Pi 스크립트와 PC 스크립트를 **함께** 실행해야 한다. 기존 오도메트리
+구성으로 돌아가려면 두 장치의 실행 터미널을 종료하고 각각
+`~/robot_bringup_camera_16_baseline.sh`와
+`./scripts/run_classroom_navigation_16_baseline.sh`를 실행한다.
 
 ```bash
 cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/run_classroom_navigation_16.sh
 ```
+
+EKF 실행은 센서 상태를 확인할 때까지 비상정지로 시작한다. `/wheel/odom`,
+`/imu/ekf`, `/scan`, `/odom`과 지도 위치가 정상인지 확인한 뒤 웹에서 **비상정지 해제**,
+**임무 시작/재개**를 순서대로 누른다. 자세한 사전 검사와 복귀 절차는
+[실차 EKF 실행 안내](hardware_ekf.md)에 있다.
 
 웹을 직접 실행하려면 별도 PC 터미널에서 다음을 사용한다. 이미 사용자 서비스가
 포트 8790을 사용 중이면 그 서비스를 먼저 중지한다.

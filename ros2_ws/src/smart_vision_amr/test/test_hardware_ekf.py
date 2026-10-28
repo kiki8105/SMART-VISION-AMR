@@ -1,4 +1,4 @@
-"""Regressions for the opt-in physical EKF path; no robot is driven."""
+"""Regressions for physical EKF and direct-launch rollback; no robot is driven."""
 
 import importlib.util
 import math
@@ -132,7 +132,7 @@ def test_hardware_ekf_owns_only_odom_tf_and_nonoverlapping_sensor_axes():
     assert parameters['imu0_twist_rejection_threshold'] > 0
 
 
-def test_pc_ekf_is_opt_in_and_baseline_rolls_back_all_ekf_nodes():
+def test_direct_hardware_launch_defaults_to_baseline_and_can_enable_ekf_nodes():
     module = pc_module()
     description = module.generate_launch_description()
     declaration = next(action for action in description.entities

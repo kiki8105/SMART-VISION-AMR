@@ -1,6 +1,6 @@
-# 실차 독립 EKF 적용과 복귀
+# 실차 기본 EKF 실행과 기존 구성으로 복귀
 
-도메인 16 실차에서만 선택하는 오도메트리 모드입니다. 기존 Gazebo와 실차 기본 실행은 그대로 유지합니다. **Pi와 PC를 같은 모드로 실행**해야 합니다. 두 모드의 bringup 또는 Nav2를 동시에 켜면 `/odom`과 `odom→base_footprint`가 중복되므로, 전환할 때는 기존 터미널을 `Ctrl+C`로 종료하고 새 모드를 시작합니다.
+도메인 16 실차의 기본 실행은 독립 바퀴·IMU EKF입니다. Gazebo 실행은 그대로입니다. **Pi와 PC를 같은 모드로 실행**해야 합니다. 두 모드의 bringup 또는 Nav2를 동시에 켜면 `/odom`과 `odom→base_footprint`가 중복되므로, 전환할 때는 기존 터미널을 `Ctrl+C`로 종료하고 새 모드를 시작합니다.
 
 | 모드 | Pi의 바퀴·IMU 처리 | PC의 `/odom`·TF 소유자 |
 | --- | --- | --- |
@@ -11,17 +11,18 @@
 
 ## 실행
 
-Pi에는 저장소의 `hardware_robot_ekf.launch.py`를 **`robot_bringup_camera_16.sh`와 같은 폴더**에 복사합니다. 기존 스크립트도 새 버전으로 교체하고, `robot_bringup_camera_16_ekf.sh`와 `ros_camera_compressed.py`를 같은 곳에 둡니다. EKF launch는 Pi에 **이미 설치된** Waffle Pi YAML에서 실행 시 바퀴 전용 임시 설정을 만들므로, 로봇마다 다른 OpenCR·바퀴 설정을 저장소 값으로 덮어쓰지 않습니다. EKF용 Pi 래퍼는 기본적으로 카메라를 5 FPS JPEG로 제한해 Wi-Fi의 센서 데이터 전송 지연을 줄이며, 필요하면 `CAMERA_BACKEND` 등 기존 환경변수로 바꿀 수 있습니다. PC에는 `robot_localization`과 빌드된 `smart_vision_amr` 패키지가 필요합니다.
+Pi에는 저장소의 `hardware_robot_ekf.launch.py`를 **`robot_bringup_camera_16.sh`와 같은 폴더**에 복사합니다. 기존 스크립트를 새 버전으로 교체하고, 기존 방식으로 되돌릴 `robot_bringup_camera_16_baseline.sh`와 `ros_camera_compressed.py`도 같은 곳에 둡니다. EKF launch는 Pi에 **이미 설치된** Waffle Pi YAML에서 실행 시 바퀴 전용 임시 설정을 만들므로, 로봇마다 다른 OpenCR·바퀴 설정을 저장소 값으로 덮어쓰지 않습니다. EKF 기본 실행은 카메라를 5 FPS JPEG로 제한해 Wi-Fi의 센서 데이터 전송 지연을 줄입니다. 원본 영상이 필요한 환경에서는 `CAMERA_BACKEND=v4l2`를 명시할 수 있습니다. PC에는 `robot_localization`과 빌드된 `smart_vision_amr` 패키지가 필요합니다.
 
 ```bash
 # PC에서 실행: Pi에 프로필 파일만 복사 (Pi 주소가 바뀌었다면 수정)
 cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
-scp scripts/robot_bringup_camera_16.sh scripts/robot_bringup_camera_16_ekf.sh \
+scp scripts/robot_bringup_camera_16.sh scripts/robot_bringup_camera_16_baseline.sh \
+  scripts/robot_bringup_camera_16_ekf.sh \
   scripts/ros_camera_compressed.py \
   ros2_ws/src/smart_vision_amr/launch/hardware_robot_ekf.launch.py \
   robot@192.168.0.187:/home/robot/
 ssh robot@192.168.0.187 \
-  'chmod +x /home/robot/robot_bringup_camera_16.sh /home/robot/robot_bringup_camera_16_ekf.sh'
+  'chmod +x /home/robot/robot_bringup_camera_16.sh /home/robot/robot_bringup_camera_16_baseline.sh /home/robot/robot_bringup_camera_16_ekf.sh'
 
 # PC에서 새 노드와 launch 파일 빌드
 cd /home/kiki/Team2_workspace
@@ -30,14 +31,14 @@ colcon build --packages-select smart_vision_amr --symlink-install
 
 ```bash
 # Pi 터미널: 기존 bringup을 먼저 Ctrl+C로 종료
-~/robot_bringup_camera_16_ekf.sh
+~/robot_bringup_camera_16.sh
 
 # PC 터미널: 기존 Nav2를 먼저 Ctrl+C로 종료
 cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
-./scripts/run_classroom_navigation_16_ekf.sh
+./scripts/run_classroom_navigation_16.sh
 ```
 
-실차 EKF는 반드시 위의 `./scripts/run_classroom_navigation_16_ekf.sh`로 시작합니다. `ros2 launch smart_vision_amr hardware.launch.py localization_mode:=ekf_independent`를 직접 실행하면 Pi 모드·중복 발행자·센서 타임스탬프 사전 검사를 건너뛰므로 실차 운용에는 지원하지 않습니다.
+위의 기존 이름 두 스크립트가 이제 EKF 기본 실행입니다. 이전의 `*_ekf.sh` 파일도 동일한 EKF 모드를 명시적으로 실행하는 용도로 남겨 둡니다. 실차 EKF는 반드시 PC 실행 스크립트로 시작합니다. `ros2 launch smart_vision_amr hardware.launch.py localization_mode:=ekf_independent`를 직접 실행하면 Pi 모드·중복 발행자·센서 타임스탬프 사전 검사를 건너뛰므로 실차 운용에는 지원하지 않습니다.
 
 웹 관제와 조종의 `motion_mux`도 실행되어 있어야 합니다. 기존 웹 서비스가 꺼져 있다면 별도 PC 터미널에서 `./scripts/run_classroom_web_16.sh`를 시작합니다. EKF 모드를 켜면 안전 감시가 **시작 직후 비상정지를 걸어 둡니다.** 로봇을 정지 상태로 유지하고 센서 흐름과 AMCL 위치를 확인한 뒤, `/wheel/odom`, `/imu/ekf`, `/scan`이 2초 이상 연속 정상일 때 웹에서 **비상정지 해제**를 누릅니다. 그 후 **임무 시작/재개**를 별도로 누릅니다. 센서가 정상이라는 이유만으로 자동 출발하지 않습니다.
 
@@ -69,17 +70,17 @@ EKF 모드 전용 `ekf_sensor_guard`는 `/wheel/odom`, `/imu/ekf`, `/scan`의 **
 
 EKF, 바퀴 오도메트리, IMU 보정기 또는 안전 감시 노드가 비정상 종료되면 실차 EKF용 PC launch 전체를 종료하도록 구성합니다. 원인을 확인하고 새로 실행한 뒤에도 시작 단계의 비상정지 해제 절차를 다시 밟습니다.
 
-## 즉시 기존 구성으로 복귀
+## 기존 구성으로 복귀
 
-Pi와 PC의 EKF 실행 터미널을 각각 `Ctrl+C`로 종료한 다음, **기존 스크립트**를 실행합니다. 설치된 ROBOTIS YAML을 변경하지 않았으므로 파일 복원 작업은 없습니다.
+Pi와 PC의 EKF 실행 터미널을 각각 `Ctrl+C`로 종료한 다음, **`_baseline.sh` 스크립트**를 실행합니다. 설치된 ROBOTIS YAML을 변경하지 않았으므로 파일 복원 작업은 없습니다.
 
 ```bash
 # Pi 터미널
-~/robot_bringup_camera_16.sh
+~/robot_bringup_camera_16_baseline.sh
 
 # PC 터미널
 cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
-./scripts/run_classroom_navigation_16.sh
+./scripts/run_classroom_navigation_16_baseline.sh
 ```
 
 EKF 안전 감시가 웹 `motion_mux`에 비상정지를 잠가 둔 상태일 수 있습니다. EKF 감시 노드가 종료된 뒤 기본 모드의 센서·TF가 정상인지 확인하고, 웹에서 **비상정지 해제**와 **임무 재개**를 명시적으로 실행합니다. 안전 감시가 아직 실행 중일 때는 해제하지 않습니다.

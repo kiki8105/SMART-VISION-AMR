@@ -6,9 +6,24 @@ REPO_DIR=$(cd -- "$SCRIPT_DIR/.." && pwd)
 CONFIG_DIR=$REPO_DIR/ros2_ws/src/smart_vision_amr/config
 MAP_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/maps/classroom_20261027_cleaned.yaml
 export TURTLEBOT3_TUNING_DOMAIN_ID=16
+LOCALIZATION_MODE=ekf_independent
+LAUNCH_ARGUMENTS=()
+for argument in "$@"; do
+  case "$argument" in
+    localization_mode:=baseline|localization_mode:=ekf_independent)
+      LOCALIZATION_MODE=${argument#localization_mode:=}
+      ;;
+    localization_mode:=*)
+      printf 'localization_mode must be baseline or ekf_independent.\n' >&2
+      exit 2
+      ;;
+    *) LAUNCH_ARGUMENTS+=("$argument") ;;
+  esac
+done
 exec "$SCRIPT_DIR/run_hardware_tuning.sh" "$MAP_FILE" \
   nodes_file:="$CONFIG_DIR/classroom_hardware_nodes.yaml" \
   use_composition:=false \
   lifecycle_bond_timeout:=15.0 \
   use_motion_mux:=false \
-  memory_enabled:=false "$@"
+  memory_enabled:=false "${LAUNCH_ARGUMENTS[@]}" \
+  localization_mode:="$LOCALIZATION_MODE"

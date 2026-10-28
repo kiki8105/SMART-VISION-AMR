@@ -14,12 +14,16 @@ REAR_CAMERA_SIZE=${REAR_CAMERA_SIZE:-320x240}
 FRONT_CAMERA_SIZE=${FRONT_CAMERA_SIZE:-320x240}
 CAMERA_JPEG_QUALITY=${CAMERA_JPEG_QUALITY:-60}
 CAMERA_PUBLISH_FPS=${CAMERA_PUBLISH_FPS:-5}
-CAMERA_BACKEND=${CAMERA_BACKEND:-v4l2}
-LOCALIZATION_MODE=${TURTLEBOT3_LOCALIZATION_MODE:-baseline}
+LOCALIZATION_MODE=${TURTLEBOT3_LOCALIZATION_MODE:-ekf_independent}
 case "$LOCALIZATION_MODE" in
   baseline|ekf_independent) ;;
   *) printf 'TURTLEBOT3_LOCALIZATION_MODE must be baseline or ekf_independent.\n' >&2; exit 2 ;;
 esac
+if [[ "$LOCALIZATION_MODE" == ekf_independent ]]; then
+  CAMERA_BACKEND=${CAMERA_BACKEND:-rate_limited}
+else
+  CAMERA_BACKEND=${CAMERA_BACKEND:-v4l2}
+fi
 if [[ "$LOCALIZATION_MODE" == ekf_independent
       && ! -f "$SCRIPT_DIR/hardware_robot_ekf.launch.py" ]]; then
   printf 'Independent EKF bringup is missing: %s/hardware_robot_ekf.launch.py\n' "$SCRIPT_DIR" >&2

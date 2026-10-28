@@ -20,7 +20,7 @@ cd /home/kiki/Team2_workspace
 colcon build --packages-select smart_vision_amr --symlink-install
 ```
 
-같은 지도와 경로에서 모드를 한 번에 하나씩 실행합니다. 실행 사이에는 Gazebo·ROS 노드를 모두 종료합니다. 실차의 별도 선택 모드와 복귀 방법은 [실차 EKF 안내](hardware_ekf.md)를 참고하세요.
+같은 지도와 경로에서 모드를 한 번에 하나씩 실행합니다. 실행 사이에는 Gazebo·ROS 노드를 모두 종료합니다. 실차에서는 독립 EKF가 기본 실행이며 복귀 방법은 [실차 EKF 안내](hardware_ekf.md)를 참고하세요.
 
 ```bash
 ./src/SMART-VISION-AMR/scripts/run_sim.sh localization_mode:=baseline
