@@ -15,6 +15,11 @@ class MotionMuxCore:
 
     MODES = frozenset({'manual', 'hold', 'auto', 'estop', 'reset'})
     RECOVERY_SAFETY_SOURCE = 'path_follower_recovery_safety'
+    EKF_SENSOR_SAFETY_SOURCE = 'ekf_sensor_safety'
+    SAFETY_REASONS = {
+        RECOVERY_SAFETY_SOURCE: 'Reverse recovery safety stop',
+        EKF_SENSOR_SAFETY_SOURCE: 'EKF wheel, IMU, or LiDAR input lost',
+    }
 
     def __init__(self, clock=time.monotonic, manual_timeout=.5, auto_timeout=.5,
                  max_linear_velocity=.25, max_angular_velocity=1.0):
@@ -86,7 +91,7 @@ class MotionMuxCore:
         if (not isinstance(source, str) or not source or len(source) > 128
                 or type(seq) is not int or seq < 0
                 or not isinstance(mode, str) or mode not in self.MODES
-                or (source == self.RECOVERY_SAFETY_SOURCE and mode != 'estop')
+                or (source in self.SAFETY_REASONS and mode != 'estop')
                 or type(stamp) is not int or stamp < 0
                 or type(ros_now_ns) is not int
                 or abs(ros_now_ns-stamp) > 1_000_000_000
@@ -98,13 +103,13 @@ class MotionMuxCore:
                                       payload.get('angular', 0.0))
         except ValueError:
             return False
-        if source == self.RECOVERY_SAFETY_SOURCE:
-            # A reverse-action watchdog must be able to stop motion even if
-            # Nav2 never acknowledges cancellation. Keep the web bridge as the
-            # owner so its existing explicit emergency-reset button still works.
+        if source in self.SAFETY_REASONS:
+            # Independent safety watchdogs can stop even a live manual lease.
+            # Keep the web bridge as owner so its explicit emergency-reset
+            # button remains the only way to clear the latched stop.
             self.sequences[source] = seq
             self.estop_latched = True
-            self.mode, self.reason = 'estop', 'Reverse recovery safety stop'
+            self.mode, self.reason = 'estop', self.SAFETY_REASONS[source]
             self.manual_velocity, self.auto_at = (0.0, 0.0), None
             return True
         if self.estop_latched and mode not in {'reset', 'estop'}:

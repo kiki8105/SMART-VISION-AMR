@@ -1,0 +1,32 @@
+# Physical Waffle Pi only. TurtleBot3's stock wheel/IMU odom is remapped to
+# /wheel/odom_raw with its TF disabled by hardware_robot_ekf.launch.py on Pi.
+# The PC joint integrator provides /wheel/odom with nonzero covariance.
+# Fuse wheel forward speed and the differential-drive zero lateral speed;
+# fuse ONLY bias-corrected IMU yaw rate. Never fuse wheel yaw/yaw-rate here.
+# AMCL continues to own map->odom, limiting map-frame drift. This local
+# odom-frame EKF cannot remove unbounded dead-reckoning drift by itself.
+ekf_hardware:
+  ros__parameters:
+    frequency: 20.0
+    sensor_timeout: 0.35
+    two_d_mode: true
+    publish_tf: true
+    reset_on_time_jump: true
+    print_diagnostics: true
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_footprint
+    world_frame: odom
+    odom0: /wheel/odom
+    odom0_config: [false, false, false, false, false, false,
+                   true, true, false, false, false, false,
+                   false, false, false]
+    odom0_queue_size: 20
+    odom0_twist_rejection_threshold: 5.0
+    imu0: /imu/ekf
+    imu0_config: [false, false, false, false, false, false,
+                  false, false, false, false, false, true,
+                  false, false, false]
+    imu0_queue_size: 30
+    imu0_twist_rejection_threshold: 5.0
+    imu0_remove_gravitational_acceleration: false

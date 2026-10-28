@@ -24,5 +24,7 @@ setup(
         'web_mission_server = smart_vision_amr.web_mission_server:main',
         'motion_mux = smart_vision_amr.motion_mux:main',
         'wheel_joint_odometry = smart_vision_amr.wheel_joint_odometry:main',
+        'imu_ekf_conditioner = smart_vision_amr.imu_ekf_conditioner:main',
+        'ekf_sensor_guard = smart_vision_amr.ekf_sensor_guard:main',
     ]},
 )

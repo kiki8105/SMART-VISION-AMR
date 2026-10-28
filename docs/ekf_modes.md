@@ -20,7 +20,7 @@ cd /home/kiki/Team2_workspace
 colcon build --packages-select smart_vision_amr --symlink-install
 ```
 
-같은 지도와 경로에서 모드를 한 번에 하나씩 실행합니다. 실행 사이에는 Gazebo·ROS 노드를 모두 종료합니다.
+같은 지도와 경로에서 모드를 한 번에 하나씩 실행합니다. 실행 사이에는 Gazebo·ROS 노드를 모두 종료합니다. 실차의 별도 선택 모드와 복귀 방법은 [실차 EKF 안내](hardware_ekf.md)를 참고하세요.
 
 ```bash
 ./src/SMART-VISION-AMR/scripts/run_sim.sh localization_mode:=baseline
@@ -28,4 +28,4 @@ colcon build --packages-select smart_vision_amr --symlink-install
 ./src/SMART-VISION-AMR/scripts/run_sim.sh localization_mode:=ekf_independent
 ```
 
-각 실행에서 `/odom`, `/tf`, `/imu`, `/wheel/odom`, `/odometry/filtered`의 발행자를 확인합니다. `ekf_overlay`에서 `/odometry/filtered`만 새로 생기고, `ekf_independent`에서 `/odom`과 `odom→base_footprint`의 발행자가 각각 하나인지 확인해야 합니다. [반복 위치 추정 시험](ekf_benchmark.md)은 실제 Gazebo 위치 대비 오차와 TF 공백을 측정합니다. 경로 오차, 도착률, 회복 횟수와 소요 시간은 같은 A*/Nav2 임무를 다시 실행해 별도로 비교해야 합니다. 현재 Gazebo 기본 오도메트리는 실제 하드웨어보다 정확할 수 있으므로, 시뮬레이션 우승 모드를 실차에 그대로 적용하지 않습니다. 실차에서는 OpenCR의 `use_imu: true`와 `publish_tf: true`를 포함한 기존 설정을 별도로 검토하고, 동일 토픽·TF 이중 발행이 없도록 구성한 뒤 검증해야 합니다.
+각 실행에서 `/odom`, `/tf`, `/imu`, `/wheel/odom`, `/odometry/filtered`의 발행자를 확인합니다. `ekf_overlay`에서 `/odometry/filtered`만 새로 생기고, `ekf_independent`에서 `/odom`과 `odom→base_footprint`의 발행자가 각각 하나인지 확인해야 합니다. [반복 위치 추정 시험](ekf_benchmark.md)은 실제 Gazebo 위치 대비 오차와 TF 공백을 측정합니다. 경로 오차, 도착률, 회복 횟수와 소요 시간은 같은 A*/Nav2 임무를 다시 실행해 별도로 비교해야 합니다. 현재 Gazebo 기본 오도메트리는 실제 하드웨어보다 정확할 수 있으므로, 시뮬레이션 우승 모드를 실차에 그대로 적용하지 않습니다. 실차에서는 OpenCR의 기본 `use_imu: true`와 `publish_tf: true`가 독립 EKF와 동시에 켜지지 않도록 별도 실행 모드로 분리합니다.

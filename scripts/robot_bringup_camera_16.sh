@@ -15,6 +15,17 @@ FRONT_CAMERA_SIZE=${FRONT_CAMERA_SIZE:-320x240}
 CAMERA_JPEG_QUALITY=${CAMERA_JPEG_QUALITY:-60}
 CAMERA_PUBLISH_FPS=${CAMERA_PUBLISH_FPS:-5}
 CAMERA_BACKEND=${CAMERA_BACKEND:-v4l2}
+LOCALIZATION_MODE=${TURTLEBOT3_LOCALIZATION_MODE:-baseline}
+case "$LOCALIZATION_MODE" in
+  baseline|ekf_independent) ;;
+  *) printf 'TURTLEBOT3_LOCALIZATION_MODE must be baseline or ekf_independent.\n' >&2; exit 2 ;;
+esac
+if [[ "$LOCALIZATION_MODE" == ekf_independent
+      && ! -f "$SCRIPT_DIR/hardware_robot_ekf.launch.py" ]]; then
+  printf 'Independent EKF bringup is missing: %s/hardware_robot_ekf.launch.py\n' "$SCRIPT_DIR" >&2
+  printf 'Copy the launch file beside this script before starting the robot.\n' >&2
+  exit 2
+fi
 case "$CAMERA_BACKEND" in
   rate_limited|v4l2) ;;
   *) printf 'CAMERA_BACKEND must be rate_limited or v4l2.\n' >&2; exit 2 ;;
@@ -185,8 +196,8 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 trap 'exit 129' HUP
 
-printf 'Robot bringup + camera: domain=16 model=%s lidar=%s rear=%s (%sx%s), backend=%s, fps=%s\n' \
-  "$TURTLEBOT3_MODEL" "$LDS_MODEL" "$CAMERA_DEVICE" "$rear_width" "$rear_height" "$CAMERA_BACKEND" "$CAMERA_PUBLISH_FPS"
+printf 'Robot bringup + camera: domain=16 model=%s lidar=%s rear=%s (%sx%s), backend=%s, fps=%s, localization=%s\n' \
+  "$TURTLEBOT3_MODEL" "$LDS_MODEL" "$CAMERA_DEVICE" "$rear_width" "$rear_height" "$CAMERA_BACKEND" "$CAMERA_PUBLISH_FPS" "$LOCALIZATION_MODE"
 if [[ "$front_camera_enabled" == true ]]; then
   printf 'Front camera: %s -> /camera/front/image_raw (%sx%s YUYV)\n' \
     "$FRONT_CAMERA_DEVICE" "${front_size[0]}" "${front_size[1]}"
@@ -194,7 +205,11 @@ else
   printf 'Front camera: disabled or unavailable; /camera/front/image_raw will remain offline.\n' >&2
 fi
 printf 'Ctrl+C stops the robot bringup and cameras.\n'
-setsid ros2 launch turtlebot3_bringup robot.launch.py use_sim_time:=false &
+if [[ "$LOCALIZATION_MODE" == ekf_independent ]]; then
+  setsid ros2 launch "$SCRIPT_DIR/hardware_robot_ekf.launch.py" &
+else
+  setsid ros2 launch turtlebot3_bringup robot.launch.py use_sim_time:=false &
+fi
 children+=("$!")
 required_children+=("$!")
 # ROS remapping matches the full topic name: remapping image_raw does not also

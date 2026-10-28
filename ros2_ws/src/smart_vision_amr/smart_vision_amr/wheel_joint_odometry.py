@@ -13,6 +13,8 @@ from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 
+from smart_vision_amr.sensor_stamp_guard import SensorStampGuard
+
 
 class WheelIntegrator:
     def __init__(self, radius=0.033, separation=0.287, max_wheel_speed=30.0):
@@ -56,9 +58,18 @@ class WheelJointOdometry(Node):
         super().__init__('wheel_joint_odometry')
         self.declare_parameter('wheel_radius', 0.033)
         self.declare_parameter('wheel_separation', 0.287)
+        self.declare_parameter('max_wheel_speed', 30.0)
+        self.declare_parameter('reject_stale_stamps', False)
+        self.declare_parameter('max_stamp_age_sec', 1.0)
+        self.declare_parameter('future_stamp_tolerance_sec', 0.25)
         self.integrator = WheelIntegrator(
             radius=float(self.get_parameter('wheel_radius').value),
-            separation=float(self.get_parameter('wheel_separation').value))
+            separation=float(self.get_parameter('wheel_separation').value),
+            max_wheel_speed=float(self.get_parameter('max_wheel_speed').value))
+        self.reject_stale_stamps = bool(self.get_parameter('reject_stale_stamps').value)
+        self.stamp_guard = SensorStampGuard(
+            max_age_sec=float(self.get_parameter('max_stamp_age_sec').value),
+            future_tolerance_sec=float(self.get_parameter('future_stamp_tolerance_sec').value))
         self.publisher = self.create_publisher(Odometry, '/wheel/odom', 10)
         self.subscription = self.create_subscription(
             JointState, '/joint_states', self.on_joints, 10)
@@ -71,6 +82,14 @@ class WheelJointOdometry(Node):
             return
         stamp = message.header.stamp
         stamp_ns = stamp.sec * 1_000_000_000 + stamp.nanosec
+        if self.reject_stale_stamps:
+            now_ns = self.get_clock().now().nanoseconds
+            if not self.stamp_guard.accept(stamp_ns, now_ns):
+                self.get_logger().warning(
+                    f'JointState timestamp rejected (age={(now_ns-stamp_ns)/1e9:.2f}s); '
+                    'check Pi/PC clock sync and sensor order',
+                    throttle_duration_sec=5.0)
+                return
         state = self.integrator.update(stamp_ns, left, right)
         if state is None:
             return

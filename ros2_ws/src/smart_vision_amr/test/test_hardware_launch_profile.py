@@ -1,5 +1,6 @@
 """Check the physical classroom's separate-process Nav2 launch wiring, without driving."""
 import importlib.util
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -75,3 +76,40 @@ def test_hardware_launch_exposes_composition_in_show_args():
                             text=True, capture_output=True, check=True, timeout=20)
     assert "'use_composition':" in result.stdout
     assert 'false uses separate processes' in result.stdout
+
+
+def test_ekf_robot_wrapper_selects_independent_mode_without_replacing_baseline(tmp_path):
+    # The Pi wrapper selects the EKF profile only for this process. The old
+    # executable remains callable and defaults to its original baseline mode.
+    scripts = tmp_path/'scripts'
+    scripts.mkdir()
+    shutil.copyfile(REPO/'scripts/robot_bringup_camera_16_ekf.sh',
+                    scripts/'robot_bringup_camera_16_ekf.sh')
+    baseline = scripts/'robot_bringup_camera_16.sh'
+    baseline.write_text('#!/usr/bin/env bash\nprintf "%s\\n" '
+                        '"$TURTLEBOT3_LOCALIZATION_MODE" "$CAMERA_BACKEND" "$@"\n')
+    baseline.chmod(0o755)
+    env = os.environ.copy()
+    env.pop('CAMERA_BACKEND', None)
+    result = subprocess.run(['bash', str(scripts/'robot_bringup_camera_16_ekf.sh'), 'test=1'],
+                            text=True, capture_output=True, check=True, timeout=5, env=env)
+    assert result.stdout.splitlines() == ['ekf_independent', 'rate_limited', 'test=1']
+    env['CAMERA_BACKEND'] = 'v4l2'
+    override = subprocess.run(['bash', str(scripts/'robot_bringup_camera_16_ekf.sh')],
+                              text=True, capture_output=True, check=True, timeout=5, env=env)
+    assert override.stdout.splitlines() == ['ekf_independent', 'v4l2']
+
+
+def test_ekf_pc_wrapper_passes_localization_mode_and_user_options(tmp_path):
+    scripts = tmp_path/'scripts'
+    scripts.mkdir()
+    shutil.copyfile(REPO/'scripts/run_classroom_navigation_16_ekf.sh',
+                    scripts/'run_classroom_navigation_16_ekf.sh')
+    baseline = scripts/'run_classroom_navigation_16.sh'
+    baseline.write_text('#!/usr/bin/env bash\nprintf "%s\\n" "$@"\n')
+    baseline.chmod(0o755)
+    result = subprocess.run(['bash', str(scripts/'run_classroom_navigation_16_ekf.sh'),
+                             'use_rviz:=true'], text=True, capture_output=True,
+                            check=True, timeout=5)
+    assert result.stdout.splitlines() == ['use_rviz:=true',
+                                          'localization_mode:=ekf_independent']

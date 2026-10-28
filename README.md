@@ -58,7 +58,8 @@ SLAM 터미널에서 `Ctrl+C`를 누르면 `Team2_workspace/maps/slam_날짜_시
 휠 조인트와 IMU 각속도를 중복 없이 융합한 EKF 방식으로 비교할 수 있습니다.
 [세 모드의 구조](docs/ekf_modes.md)와 [반복 시험 방법](docs/ekf_benchmark.md)을 참고하세요.
 [2026-10-28 비교 결과](docs/ekf_results_2026-10-28.md)에 따라 기본 실행 모드는
-`baseline`이며 실차 설정은 별도로 유지합니다.
+`baseline`입니다. 실차에서 독립 바퀴·IMU EKF를 선택하는 절차와 기존 구성으로
+돌리는 방법은 [실차 EKF 안내](docs/hardware_ekf.md)에 정리했습니다.
 
 ArUco ID 0~3이 배치된 미로에서 새로 매핑하려면
 `./scripts/run_sim_aruco.sh`와 다른 터미널의 `./scripts/run_sim_controller.sh`를

@@ -42,6 +42,32 @@ source /opt/ros/humble/setup.bash
 # shellcheck disable=SC1091
 source "$WORKSPACE_ROOT/install/local_setup.bash"
 export ROS_DOMAIN_ID="$DOMAIN_ID" ROS_LOCALHOST_ONLY=0 TURTLEBOT3_MODEL=waffle_pi
+# An EKF run needs robot_localization on the PC. Reuse the non-root Humble
+# package used by our benchmark when the host apt installation is absent.
+needs_ekf=false
+for arg in "$@"; do
+  if [[ "$arg" == localization_mode:=ekf_independent ]]; then needs_ekf=true; fi
+done
+if [[ "$needs_ekf" == true ]] && ! ros2 pkg prefix robot_localization >/dev/null 2>&1; then
+  local_ekf_root=$HOME/.local/opt/robot_localization/extracted
+  local_ekf_prefix=$local_ekf_root/opt/ros/humble
+  local_ekf_lib=$local_ekf_root/usr/lib/x86_64-linux-gnu
+  if [[ -d "$local_ekf_prefix/share/ament_index/resource_index/packages"
+        && -d "$local_ekf_lib" ]]; then
+    export AMENT_PREFIX_PATH="$local_ekf_prefix:$AMENT_PREFIX_PATH"
+    export CMAKE_PREFIX_PATH="$local_ekf_prefix:$CMAKE_PREFIX_PATH"
+    export LD_LIBRARY_PATH="$local_ekf_lib:$local_ekf_prefix/lib:$LD_LIBRARY_PATH"
+  fi
+fi
+if [[ "$needs_ekf" == true ]] && ! ros2 pkg prefix robot_localization >/dev/null 2>&1; then
+  printf 'Independent EKF requires ros-humble-robot-localization on the PC.\n' >&2
+  exit 2
+fi
+if [[ "$needs_ekf" == true ]] && ! timeout 12s /usr/bin/python3 \
+    "$SCRIPT_DIR/check_ekf_robot_preflight.py" --timeout 8; then
+  printf 'Robot must run the independent EKF bringup before PC navigation starts.\n' >&2
+  exit 2
+fi
 # Also catch a Nav2 stack started directly, outside this script/lock. Query the
 # live graph rather than the ROS daemon cache, which can retain old node names.
 if ! EXISTING_NODES=$(timeout 10s ros2 node list --no-daemon --spin-time 2); then
