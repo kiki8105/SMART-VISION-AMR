@@ -225,9 +225,11 @@ class AStarPlannerNode(Node):
             return False
         raw = self.raw_static_grid or occupancy_to_grid(self.map[0],
                         self.get_parameter("occupied_threshold").value, 0)
-        # Do not ask a user to remove mapped walls because of raster/AMCL noise.
-        hits, _ = split_mapped_wall_returns(self.observed | self.remembered, raw,
-            max(2, int(self.get_parameter("mapped_wall_return_tolerance_cells").value)))
+        # Observed hits already passed the sensor's range-based wall classifier.
+        # Preserve real near-wall objects and confirmed memory; only an actual
+        # occupied/unknown map cell cannot be a removable dynamic blocker.
+        hits = {cell for cell in self.observed | self.remembered
+                if not raw.is_static_obstacle(cell)}
         centers = {cell: cell_to_world(self.map[0].info, cell) for cell in hits}
         if reference_cells is not None:
             info = self.map[0].info
@@ -810,9 +812,10 @@ class AStarPlannerNode(Node):
             self.observed = updated
             # Laser scans vary at sensor frequency. Stop on a newly blocked
             # route, and rate-limit recovery even when no planned cells remain.
+            # The publisher already classified static wall echoes by beam range.
             if self._goal_is_active() and (self.waiting_for_replan
-                    or self._changes_block_path(added, filter_near_wall=True)):
-                if self._changes_block_path(added, filter_near_wall=True):
+                    or self._changes_block_path(added)):
+                if self._changes_block_path(added):
                     if self._count_blocked_published_path():
                         return
                     self._invalidate_path("Observed obstacle intersects the route")
@@ -1122,11 +1125,11 @@ class AStarPlannerNode(Node):
         end = world_to_cell(map_msg.info, goal.pose.position.x, goal.pose.position.y)
         width, height = map_msg.info.width, map_msg.info.height
         inflation = self.get_parameter("obstacle_inflation_cells").value
-        # Confirmed memory represents repeated observations and remains a hard
-        # obstacle even if it happens to be adjacent to a mapped wall. Only
-        # transient LiDAR edge returns may be treated as duplicate wall hits.
+        # Both layers contain range-classified dynamic hits. A second proximity
+        # filter here could hide a real object beside a mapped wall. Confirmed
+        # memory also retains full inflation wherever it was observed.
         remembered_effective = self.remembered
-        observed_effective, observed_wall = self._split_mapped_wall_returns(self.observed)
+        observed_effective, observed_wall = self.observed, set()
         remembered_blocked = inflate_cells(remembered_effective, width, height, inflation)
         observed_blocked = inflate_cells(observed_effective, width, height, inflation)
         blocked = remembered_blocked | observed_blocked
@@ -1146,7 +1149,10 @@ class AStarPlannerNode(Node):
         # hard failures, while Nav2's local costmap retains its collision safety.
         escape_cells = self._dynamic_escape_halo(
             start, observed_blocked | remembered_blocked, observed_effective, remembered_effective,
-            grid, inflation)
+            grid, raw_grid, inflation,
+            self.get_parameter("robot_radius").value / map_msg.info.resolution,
+            (self.get_parameter("start_egress_clearance_margin").value
+             / map_msg.info.resolution + sqrt(2.0) / 2.0))
         allow_dynamic_escape = bool(escape_cells)
         egress_steps = 0
         try:
@@ -1314,14 +1320,40 @@ class AStarPlannerNode(Node):
             return []
 
     @staticmethod
-    def _dynamic_escape_halo(start, soft_blocked, raw_observed, raw_remembered, grid, inflation):
+    def _dynamic_escape_halo(start, soft_blocked, raw_observed, raw_remembered,
+                             grid, raw_grid, inflation, radius_cells, margin_cells):
         """Allow egress from a soft inflation halo around observed/remembered cells.
 
         Raw occupied returns, confirmed memory cells, and static map obstacles remain
-        hard blocks. Only the bounded inflated border may be crossed on egress.
+        hard blocks. Only the bounded inflated border may be crossed on egress
+        when the complete circular robot footprint clears raw occupied cells.
         """
+        required_clearance = float(radius_cells) + float(margin_cells)
+        if not isfinite(required_clearance) or required_clearance < 0:
+            return set()
+        raw_blocked = raw_observed | raw_remembered
+
+        def footprint_clear(cell):
+            x, y = cell
+            if not raw_grid.contains(cell):
+                return False
+            if min(x + .5, raw_grid.width - x - .5,
+                   y + .5, raw_grid.height - y - .5) < required_clearance:
+                return False
+            reach = int(required_clearance + 1.5)
+            for oy in range(max(0, y - reach), min(raw_grid.height, y + reach + 1)):
+                for ox in range(max(0, x - reach), min(raw_grid.width, x + reach + 1)):
+                    obstacle = (ox, oy)
+                    if (raw_grid.is_static_obstacle(obstacle) or obstacle in raw_blocked):
+                        distance = hypot(max(abs(x - ox) - .5, 0.0),
+                                         max(abs(y - oy) - .5, 0.0))
+                        if distance + 1e-9 < required_clearance:
+                            return False
+            return True
+
         if (start not in soft_blocked or start in raw_observed
-                or start in raw_remembered or grid.is_static_obstacle(start)):
+                or start in raw_remembered or grid.is_static_obstacle(start)
+                or not footprint_clear(start)):
             return set()
         limit = max(1, int(inflation) + 1)
         escaped = {start}
@@ -1336,7 +1368,8 @@ class AStarPlannerNode(Node):
                 if neighbor in escaped or neighbor not in soft_blocked:
                     continue
                 if (neighbor in raw_observed or neighbor in raw_remembered
-                        or grid.is_static_obstacle(neighbor)):
+                        or grid.is_static_obstacle(neighbor)
+                        or not footprint_clear(neighbor)):
                     continue
                 escaped.add(neighbor)
                 queue.append((neighbor, depth + 1))

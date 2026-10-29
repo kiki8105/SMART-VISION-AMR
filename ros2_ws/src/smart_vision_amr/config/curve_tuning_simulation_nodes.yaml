@@ -68,6 +68,8 @@
     map_frame: map
     base_frame: base_footprint
     occupied_threshold: 65
+    # Suppress only returns matching the first mapped wall along that beam.
+    mapped_wall_range_tolerance_m: 0.05  # m; closer objects remain live obstacles.
     confirm_observations: 5
     clear_observations: 5
     confirm_min_duration_sec: 2.0

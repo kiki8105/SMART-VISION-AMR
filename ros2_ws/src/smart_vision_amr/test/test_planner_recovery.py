@@ -564,7 +564,7 @@ class PlannerRecoveryTests(unittest.TestCase):
         goal.pose.position.x, goal.pose.position.y = .375, .925
         return goal
 
-    def test_near_wall_lidar_returns_do_not_double_inflate_shut_corridor(self):
+    def test_classified_near_wall_obstacles_keep_full_inflation(self):
         goal = self.narrow_corridor()
         self.node.observed = {(2, 10), (13, 10)}
         self.node.on_goal(goal)
@@ -577,19 +577,21 @@ class PlannerRecoveryTests(unittest.TestCase):
         self.node.params['mapped_wall_return_tolerance_cells'] = 2
         self.now.return_value = 102.1
         self.node.retry_transform()
-        self.assertTrue(self.node.planned_cells)
+        self.assertFalse(self.node.planned_cells)
+        self.assertTrue(self.node.waiting_for_replan)
         self.assertIs(self.node.last_goal, goal)
         self.assertEqual(self.node.observed, {(2, 10), (13, 10)})
         self.assertEqual(self.node.params['obstacle_inflation_cells'], 5)
 
-    def test_wall_match_does_not_hide_new_obstacle_in_corridor(self):
+    def test_legacy_wall_tolerance_cannot_hide_new_classified_obstacle(self):
         goal = self.narrow_corridor()
         self.node.params['mapped_wall_return_tolerance_cells'] = 2
         self.node.on_goal(goal)
         self.assertTrue(self.node.planned_cells)
         self.now.return_value = 100.1
         self.node.on_observed(Int32MultiArray(data=[10 * 16 + 2, 10 * 16 + 13]))
-        self.assertTrue(self.node.planned_cells)
+        self.assertFalse(self.node.planned_cells)
+        self.assertTrue(self.node.waiting_for_replan)
         self.node.on_observed(Int32MultiArray(data=[10 * 16 + 8]))
         self.assertFalse(self.node.planned_cells)
         self.now.return_value = 102.1

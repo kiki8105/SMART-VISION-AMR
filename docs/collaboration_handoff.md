@@ -1,5 +1,7 @@
 # 팀원 설치·실행 인계
 
+클론·설치와 매일 실행할 명령을 한 문서로 보려면 [팀원용 최종 매뉴얼](TEAM_QUICKSTART.md)을 사용하세요.
+
 Ubuntu 22.04 / ROS 2 Humble 기준입니다. **PC는 `<작업공간>/src/SMART-VISION-AMR`에 클론**, 실차 로봇은 기존 `~/turtlebot3_ws`를 유지하고 별도 runtime을 설치합니다. Gazebo는 기본 도메인 76·로컬 통신, 강의실 실차는 도메인 16·Wi-Fi 통신입니다. 휴대폰·브라우저에는 ROS 설치가 필요 없습니다.
 
 ## 1. 팀원 PC 처음 준비

@@ -19,7 +19,8 @@ from std_srvs.srv import Trigger
 from tf2_ros import Buffer, TransformException, TransformListener
 
 from smart_vision_amr.obstacle_memory import ObstacleMemory
-from smart_vision_amr.map_utils import bresenham, cell_to_world, world_to_cell
+from smart_vision_amr.map_utils import (bresenham, cell_to_world, world_to_cell,
+                                       occupancy_to_grid, first_static_obstacle_distance)
 
 
 class ChangeMemoryNode(Node):
@@ -32,6 +33,8 @@ class ChangeMemoryNode(Node):
         self.declare_parameter("odom_frame", "odom")
         self.declare_parameter("memory_path", "~/.ros/smart_vision_amr/environment_memory.json")
         self.declare_parameter("occupied_threshold", 65)
+        # Compare measured range with the first known wall, not wall proximity.
+        self.declare_parameter("mapped_wall_range_tolerance_m", 0.05)
         self.declare_parameter("confirm_observations", 5)
         self.declare_parameter("clear_observations", 5)
         self.declare_parameter("confirm_min_duration_sec", 2.0)
@@ -49,6 +52,7 @@ class ChangeMemoryNode(Node):
         self.declare_parameter("scan_future_tolerance_sec", 0.15)
         self.declare_parameter("live_localization_jump_distance", 0.25)
         self.declare_parameter("live_localization_jump_angle", 0.25)
+        self.raw_static_grid = None
         self.map = None
         self.memory = None
         self.live_obstacles = {}
@@ -96,6 +100,9 @@ class ChangeMemoryNode(Node):
         if self.map is not None and signature == self.map["signature"]:
             return
         self.map = {"message": msg, "signature": signature}
+        self.raw_static_grid = occupancy_to_grid(
+            msg, self.get_parameter("occupied_threshold").value,
+            unknown_is_obstacle=False)
         self.live_obstacles.clear()
         self.last_scan_stamp_ns = None
         self.last_map_to_odom = None
@@ -282,6 +289,9 @@ class ChangeMemoryNode(Node):
         occupied_cells, free_cells = set(), set()
         invalid_angles = []
         valid_beams = 0
+        wall_tolerance = float(self.get_parameter("mapped_wall_range_tolerance_m").value)
+        # Invalid tolerance must never discard actual obstacles.
+        wall_tolerance = max(0., wall_tolerance) if math.isfinite(wall_tolerance) else 0.
         for index, distance in enumerate(scan.ranges):
             angle = yaw + scan.angle_min + index * scan.angle_increment
             # NaN, zero/below-minimum and out-of-range packets are not evidence
@@ -301,8 +311,16 @@ class ChangeMemoryNode(Node):
             for cell in ray[:-1] if valid_hit else ray:
                 if self._is_free_in_base_map(cell):
                     free_cells.add(cell)
-            if valid_hit and self._is_free_in_base_map(end_cell):
-                occupied_cells.add(end_cell)
+            if valid_hit and self.raw_static_grid.contains(end_cell):
+                wall_distance = first_static_obstacle_distance(
+                    info, self.raw_static_grid, tf.transform.translation.x,
+                    tf.transform.translation.y, angle, scan.range_max)
+                # A nearby object in front of a wall remains a dynamic hit.
+                # Unknown cells are not evidence of a mapped wall.
+                wall_echo = (wall_distance is not None
+                             and abs(wall_distance-distance) <= wall_tolerance)
+                if not wall_echo:
+                    occupied_cells.add(end_cell)
         if not valid_beams:
             return True
         self.last_scan_stamp_ns = stamp_ns
@@ -316,7 +334,7 @@ class ChangeMemoryNode(Node):
         # Neither TTL nor relocalization edits the saved SLAM grid.
         sensor_xy = (tf.transform.translation.x, tf.transform.translation.y)
         self.live_obstacles = {cell: seen for cell, seen in self.live_obstacles.items()
-                               if self._is_free_in_base_map(cell) and cell not in free_cells
+                               if self.raw_static_grid.contains(cell) and cell not in free_cells
                                and (now-seen < ttl or self.cell_in_unknown_sector(
                                    cell, info, sensor_xy, invalid_angles, scan.angle_increment))}
         self.live_obstacles.update((cell, now) for cell in occupied_cells)
@@ -345,7 +363,10 @@ class ChangeMemoryNode(Node):
         for cell in free_cells:
             changed = self.memory.observe_free(cell, observed_at) or changed
         for cell in occupied_cells:
-            changed = self.memory.observe_occupied(cell, observed_at) or changed
+            # Live returns may include raw occupied/unknown cells; persistent
+            # changes only describe additions to known free cells of the map.
+            if self._is_free_in_base_map(cell):
+                changed = self.memory.observe_occupied(cell, observed_at) or changed
         self.scans_since_save += 1
         if changed:
             self.publish_overlay()

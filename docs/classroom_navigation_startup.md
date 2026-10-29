@@ -1,5 +1,7 @@
 # 강의실 도메인 16 시작 순서
 
+처음 클론부터 준비한다면 [팀원용 최종 매뉴얼](TEAM_QUICKSTART.md)을 먼저 따르세요.
+
 새 팀원은 [실차 설치·실행 안내](hardware_ekf.md)의 로봇 `setup_robot_runtime.sh`를 먼저 실행합니다. 기본 구조는 로봇이 EKF·안전 감시·최종 속도 mux, PC가 지도·AMCL·A*·Nav2·웹을 담당합니다.
 실행 스크립트는 기본 LAN UDP 프로필을 적용합니다. 다른 RMW나 사용자의 DDS 프로필은 유지합니다. 기존 기본 통신 설정으로 비교할 때는 양쪽 실행 명령 앞에 `SMART_VISION_DDS_TRANSPORT=default`를 붙입니다. [통신 설정 설명](UPGRADE_20261029.md)을 참고하세요.
 

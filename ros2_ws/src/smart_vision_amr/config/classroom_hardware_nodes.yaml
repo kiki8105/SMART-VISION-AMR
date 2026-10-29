@@ -7,9 +7,8 @@
     # 5 cells * 0.05 m = 0.25 m. Keeps the supplied Sector 1 coordinate valid.
     # Offline paths retain >=0.275 m from raw occupied/unknown cell areas.
     obstacle_inflation_cells: 5
-    # A LiDAR hit at a mapped wall or within 2 cells (0.10 m) of it is
-    # treated as the same wall for A* planning. This prevents double inflation
-    # from closing narrow passages; Nav2 still receives every raw /scan hit.
+    # Legacy API setting; live observations are range-classified by change_memory.
+    # Do not discard a real obstacle merely because it is close to a mapped wall.
     mapped_wall_return_tolerance_cells: 2
     robot_radius: 0.22
     start_egress_enabled: true
@@ -87,6 +86,8 @@
     map_frame: map
     base_frame: base_footprint
     occupied_threshold: 65
+    # Suppress only returns matching the first mapped wall along that beam.
+    mapped_wall_range_tolerance_m: 0.05  # m; closer objects remain live obstacles.
     confirm_observations: 5
     clear_observations: 5
     confirm_min_duration_sec: 2.0

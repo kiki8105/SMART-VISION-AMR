@@ -7,10 +7,10 @@ import hashlib
 import uuid
 
 import rclpy
-from geometry_msgs.msg import PoseStamped, Twist
+from geometry_msgs.msg import PolygonStamped, PoseStamped, Twist
 from nav2_msgs.action import BackUp, FollowPath
 from nav2_msgs.msg import SpeedLimit
-from nav_msgs.msg import Odometry, Path
+from nav_msgs.msg import OccupancyGrid, Odometry, Path
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
@@ -40,6 +40,13 @@ class PathFollower(Node):
         self.declare_parameter("controller_id", "")
         self.declare_parameter("goal_checker_id", "")
         self.declare_parameter("resume_goal_tolerance", 0.1)
+        self.declare_parameter("navigation_inputs_required", True)
+        self.declare_parameter("navigation_footprint_topic", "/local_costmap/published_footprint")
+        self.declare_parameter("navigation_costmap_topic", "/local_costmap/costmap")
+        self.navigation_inputs_required = bool(self.get_parameter("navigation_inputs_required").value)
+        self.navigation_input_fault = None
+        self.navigation_input_cutoff_ns = None
+        self.navigation_footprint_reference = None
         for name, default in (("follow_request_timeout", 5.0),
                               ("follow_feedback_timeout", 5.0),
                               ("follow_cancel_timeout", 3.0),
@@ -159,6 +166,8 @@ class PathFollower(Node):
         self.latest_scan_at = None
         self.latest_odom = None
         self.latest_odom_at = None
+        self.latest_footprint = self.latest_costmap = None
+        self.latest_footprint_at = self.latest_costmap_at = None
         self.motion_status = None
         self.motion_status_at = None
         self.tf_buffer = Buffer()
@@ -171,6 +180,14 @@ class PathFollower(Node):
                                  self.on_recovery_request, 10)
         self.create_subscription(LaserScan, "/scan", self.on_scan, qos_profile_sensor_data)
         self.create_subscription(Odometry, "/odom", self.on_odom, qos_profile_sensor_data)
+        # Nav2 publishes the full local grid and an oriented polygon, including
+        # when robot_radius (rather than an explicit footprint) is configured.
+        volatile = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
+                              durability=DurabilityPolicy.VOLATILE)
+        self.create_subscription(PolygonStamped, self.get_parameter("navigation_footprint_topic").value,
+                                 self.on_footprint, volatile)
+        self.create_subscription(OccupancyGrid, self.get_parameter("navigation_costmap_topic").value,
+                                 self.on_costmap, volatile)
         self.create_subscription(Twist, '/smart_vision_amr/navigation_cmd_vel',
                                  self.on_navigation_command, 1)
         durable = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
@@ -198,6 +215,8 @@ class PathFollower(Node):
         self.stop_stamp_ns = max(now_ns, accepted_ns, self.stop_stamp_ns or 0)
         self.goal_generation += 1
         self.navigation_suspended = True
+        self.navigation_input_fault = None
+        self.navigation_input_cutoff_ns = None
         self.require_goal_match = True
         self.requested_goal = None
         self.pending_recovery_request = None
@@ -233,6 +252,8 @@ class PathFollower(Node):
         self._abort_recovery()
         self.requested_goal = goal
         self.navigation_suspended = False
+        self.navigation_input_fault = None
+        self.navigation_input_cutoff_ns = None
         self.require_goal_match = True
         self.path_invalidated = False
         self.recovery_cancel_path_cutoff_ns = None
@@ -295,6 +316,15 @@ class PathFollower(Node):
     def on_path(self, path):
         if self.navigation_suspended:
             self.suspended_paths.append(path)
+            return
+        if (path.poses and getattr(self, 'navigation_input_fault', None) is not None
+                and (self.active_goal is not None or self.goal_request_pending)):
+            # Sensor recovery does not prove the old action has stopped. Ask
+            # for a newly planned route after its terminal result instead.
+            return
+        input_cutoff = getattr(self, 'navigation_input_cutoff_ns', None)
+        if (path.poses and input_cutoff is not None
+                and path.header.stamp.sec*1_000_000_000+path.header.stamp.nanosec <= input_cutoff):
             return
         if (getattr(self, 'pending_execution_failure', None) is not None
                 or getattr(self, 'execution_discarded_reason', None) is not None) and path.poses:
@@ -420,6 +450,19 @@ class PathFollower(Node):
         if (self.navigation_suspended or self.recovery_request is not None
                 or self.backup_goal_request_pending or self.backup_goal is not None):
             return
+        if getattr(self, 'navigation_inputs_required', False):
+            issue = self._navigation_input_error()
+            if issue is not None:
+                self.latest_path_key = None
+                if self.requested_goal is None:
+                    # DDS does not order /goal and /path callbacks.
+                    self.suspended_paths.append(path)
+                    self.require_goal_match = True
+                else:
+                    self._hold_navigation_inputs(issue, self._goal_context(path), force_status=True)
+                return
+            self.navigation_input_fault = None
+            self.navigation_input_cutoff_ns = None
         if not self.client.wait_for_server(timeout_sec=2.0):
             self.get_logger().error("Nav2 FollowPath action is unavailable")
             self.latest_path_key = None
@@ -469,7 +512,12 @@ class PathFollower(Node):
             self.latest_path_key = None
             if (self.pending_path is None and self._context_is_current(context)
                     and not self.navigation_suspended):
-                self.publish_status("FAILED", "Nav2 rejected FollowPath goal", context=context)
+                if getattr(self, 'navigation_input_fault', None) is not None:
+                    self.navigation_input_cutoff_ns = self.get_clock().now().nanoseconds
+                    self.publish_status('WAIT_REPLAN', 'Navigation request ended during sensor hold',
+                                        context=context, route_failure=False, input_hold=True)
+                else:
+                    self.publish_status("FAILED", "Nav2 rejected FollowPath goal", context=context)
             self.cancel_when_accepted = False
             self._clear_follow_watch()
             self._publish_speed_limit(0.0)
@@ -537,6 +585,12 @@ class PathFollower(Node):
             self._hold_unconfirmed_follow(f"FollowPath result is unconfirmed: {exc}")
             return
         self.get_logger().info(f"FollowPath finished: {detail}")
+        if (status == 'SUCCEEDED' and getattr(self, 'navigation_input_fault', None) is not None
+                and self._context_is_current(context) and not self.navigation_suspended):
+            # A confirmed terminal success wins a transient input/cancel race,
+            # just as it wins an unconfirmed execution-failure diagnosis below.
+            self.navigation_input_fault = self.navigation_input_cutoff_ns = None
+            self.path_invalidated = False
         failure_detection_enabled = bool(self.get_parameter('execution_failure_enabled').value)
         if not failure_detection_enabled:
             self._discard_execution_diagnosis('Execution failure detection disabled')
@@ -624,6 +678,10 @@ class PathFollower(Node):
         elif discarded_reason is not None and status != 'SUCCEEDED' and not self.navigation_suspended:
             self.publish_status('WAIT_REPLAN', 'Execution diagnosis discarded: '+discarded_reason,
                                 context=context, route_failure=False)
+        if getattr(self, 'navigation_input_fault', None) is not None and not self.navigation_suspended:
+            self.navigation_input_cutoff_ns = self.get_clock().now().nanoseconds
+            self.publish_status('WAIT_REPLAN', 'Navigation stopped; waiting for fresh navigation inputs',
+                                context=context, route_failure=False, input_hold=True)
         if watchdog_fault and not self.navigation_suspended:
             # Routes computed before stop confirmation start at an uncertain
             # pose. Ask the retained-goal planner for a fresh start instead.
@@ -683,6 +741,7 @@ class PathFollower(Node):
                                 cancel_acknowledged=self.follow_cancel_acknowledged)
 
     def _monitor_follow_path(self):
+        self._watch_navigation_inputs()
         now = time.monotonic()
         self._update_controller_speed(now)
         requested = self.follow_requested_at
@@ -784,6 +843,9 @@ class PathFollower(Node):
 
     def _execution_observation(self, *, require_intent=True):
         if getattr(self, 'execution_progress', None) is None or self.active_path is None:
+            return None
+        if (getattr(self, 'navigation_inputs_required', False)
+                and self._navigation_input_error() is not None):
             return None
         now = time.monotonic()
         timeout = max(.2, float(self.get_parameter('execution_evidence_timeout').value))
@@ -1097,6 +1159,181 @@ class PathFollower(Node):
     def on_odom(self, message):
         self.latest_odom = message
         self.latest_odom_at = time.monotonic()
+
+    def on_footprint(self, message):
+        self.latest_footprint = message
+        self.latest_footprint_at = time.monotonic()
+
+    def on_costmap(self, message):
+        self.latest_costmap = message
+        self.latest_costmap_at = time.monotonic()
+
+    @staticmethod
+    def _navigation_pose(position, orientation):
+        values = (position.x, position.y, position.z,
+                  orientation.x, orientation.y, orientation.z, orientation.w)
+        norm = sum(value*value for value in values[3:])
+        if (not all(isfinite(value) for value in values) or not .8 <= norm <= 1.2
+                or abs(orientation.x) > .05 or abs(orientation.y) > .05):
+            raise ValueError('Invalid planar pose')
+        yaw = atan2(2*(orientation.w*orientation.z+orientation.x*orientation.y),
+                    norm-2*(orientation.y**2+orientation.z**2))
+        return position.x, position.y, yaw
+
+    def _navigation_transform(self, target, source, now):
+        if not target or not source:
+            raise ValueError('Missing navigation frame')
+        if target == source:
+            return 0., 0., 0.
+        transform = self.tf_buffer.lookup_transform(target, source, rclpy.time.Time())
+        stamp = transform.header.stamp
+        stamp_seconds = stamp.sec+stamp.nanosec*1e-9
+        # A zero stamp is valid for a wholly static TF chain.
+        if stamp_seconds != 0 and not -.25 <= now-stamp_seconds < 1.0:
+            raise ValueError('Stale navigation frame transform')
+        return self._navigation_pose(transform.transform.translation, transform.transform.rotation)
+
+    @staticmethod
+    def _navigation_point(point, transform):
+        x, y, yaw = transform
+        return x+cos(yaw)*point[0]-sin(yaw)*point[1], y+sin(yaw)*point[0]+cos(yaw)*point[1]
+
+    def _navigation_input_error(self):
+        """Validate current Nav2 geometry without trusting a footprint's old stamp."""
+        now = self.get_clock().now().nanoseconds*1e-9
+        received_now = time.monotonic()
+        footprint_fresh_header = False
+        for label, message, received_at, timeout in (
+                ('scan', self.latest_scan, self.latest_scan_at, .75),
+                ('odom', self.latest_odom, self.latest_odom_at, .75),
+                ('local costmap', self.latest_costmap, self.latest_costmap_at, 2.),
+                ('footprint', self.latest_footprint, self.latest_footprint_at, 1.5)):
+            if message is None:
+                return 'Missing '+label
+            if (received_at is None or not isfinite(received_at)
+                    or not 0 <= received_now-received_at < timeout):
+                return 'Stale '+label+' receipt'
+            stamp = message.header.stamp
+            stamp_seconds = stamp.sec+stamp.nanosec*1e-9
+            age = now-stamp_seconds
+            if not isfinite(age) or age < -.25:
+                return 'Invalid '+label+' timestamp'
+            fresh_header = stamp_seconds > 0 and age < timeout
+            if label == 'footprint':
+                footprint_fresh_header = fresh_header
+            elif not fresh_header:
+                return 'Stale '+label+' header'
+        scan, odom, costmap = self.latest_scan, self.latest_odom, self.latest_costmap
+        if (len(scan.ranges) < 2 or not all(isfinite(value) for value in
+                (scan.angle_min, scan.angle_increment, scan.range_min, scan.range_max))
+                or scan.angle_increment == 0 or not 0 <= scan.range_min < scan.range_max
+                or sum((isfinite(value) and scan.range_min <= value <= scan.range_max)
+                       or value == float('inf') for value in scan.ranges)/len(scan.ranges) < .8):
+            return 'Invalid scan geometry or ranges'
+        try:
+            x, y, yaw = self._navigation_pose(odom.pose.pose.position, odom.pose.pose.orientation)
+            if not all(isfinite(value) for value in (
+                    odom.twist.twist.linear.x, odom.twist.twist.linear.y, odom.twist.twist.linear.z,
+                    odom.twist.twist.angular.x, odom.twist.twist.angular.y, odom.twist.twist.angular.z,
+                    *odom.pose.covariance, *odom.twist.covariance)):
+                return 'Invalid odometry values'
+            base = odom.child_frame_id or self.get_parameter('curve_base_frame').value
+            if not scan.header.frame_id:
+                return 'Missing scan frame'
+            if scan.header.frame_id != self.get_parameter('recovery_scan_frame').value:
+                self._navigation_transform(base, scan.header.frame_id, now)
+            info = costmap.info
+            if (info.width <= 0 or info.height <= 0 or not isfinite(info.resolution)
+                    or info.resolution <= 0 or len(costmap.data) != info.width*info.height
+                    or any(value < -1 or value > 100 for value in costmap.data)):
+                return 'Invalid local costmap dimensions or data'
+            origin = self._navigation_pose(info.origin.position, info.origin.orientation)
+            center = self._navigation_point((info.width*info.resolution/2,
+                                             info.height*info.resolution/2), origin)
+            center = self._navigation_point(center, self._navigation_transform(
+                odom.header.frame_id, costmap.header.frame_id, now))
+            if hypot(x-center[0], y-center[1]) > .35:
+                return 'Local costmap is not centered on odometry'
+            footprint_transform = self._navigation_transform(
+                odom.header.frame_id, self.latest_footprint.header.frame_id, now)
+        except (TransformException, ValueError, AttributeError):
+            return 'Invalid navigation pose or unavailable frame transform'
+        points = self.latest_footprint.polygon.points
+        if any(not all(isfinite(value) for value in (point.x, point.y, point.z)) for point in points):
+            return 'Invalid footprint coordinates'
+        polygon = [self._navigation_point((point.x, point.y), footprint_transform) for point in points]
+        if len(polygon) > 1 and polygon[0] == polygon[-1]:
+            polygon.pop()
+        if len(polygon) < 3 or len(set(polygon)) != len(polygon):
+            return 'Invalid footprint polygon'
+        edges = list(zip(polygon, polygon[1:]+polygon[:1]))
+        def cross(a, b, c):
+            return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+        for first, (a, b) in enumerate(edges):
+            for second in range(first+2, len(edges)):
+                if first == 0 and second == len(edges)-1:
+                    continue
+                c, d = edges[second]
+                if (cross(a, b, c)*cross(a, b, d) <= 0 and cross(c, d, a)*cross(c, d, b) <= 0
+                        and max(min(a[0], b[0]), min(c[0], d[0])) <= min(max(a[0], b[0]), max(c[0], d[0]))
+                        and max(min(a[1], b[1]), min(c[1], d[1])) <= min(max(a[1], b[1]), max(c[1], d[1]))):
+                    return 'Self-intersecting footprint polygon'
+        twice_area = sum(a[0]*b[1]-b[0]*a[1] for a, b in edges)
+        radius = float(self.get_parameter('recovery_robot_radius').value)
+        if not isfinite(radius) or radius <= 0 or abs(twice_area)/2 < .1*radius**2:
+            return 'Footprint area is too small'
+        center_x = sum((a[0]+b[0])*(a[0]*b[1]-b[0]*a[1]) for a, b in edges)/(3*twice_area)
+        center_y = sum((a[1]+b[1])*(a[0]*b[1]-b[0]*a[1]) for a, b in edges)/(3*twice_area)
+        centered = [(px-center_x, py-center_y) for px, py in polygon]
+        radii = [hypot(px, py) for px, py in centered]
+        if not .5*radius <= max(radii) <= 2*radius+.05:
+            return 'Footprint size differs from the robot'
+        if hypot(x-center_x, y-center_y) > .10:
+            return 'Footprint disagrees with current odometry'
+        body = tuple(self._navigation_point(point, (0., 0., -yaw)) for point in centered)
+        angles = sorted(atan2(py, px) for px, py in centered)
+        gaps = [b-a for a, b in zip(angles, angles[1:]+[angles[0]+2*pi])]
+        circular = (len(polygon) >= 8 and max(gaps) <= pi/3
+                    and max(radii)-min(radii) <= .05*radius
+                    and .8*radius <= sum(radii)/len(radii) <= radius+.08)
+        reference = getattr(self, 'navigation_footprint_reference', None)
+        if not footprint_fresh_header and not circular:
+            if reference is None or reference[0] != (odom.header.frame_id, base):
+                return 'Old asymmetric footprint has no current body-frame reference'
+            previous = reference[1]
+            mismatch = max(max(min(hypot(a[0]-b[0], a[1]-b[1]) for b in other) for a in shape)
+                           for shape, other in ((body, previous), (previous, body)))
+            if mismatch > .05:
+                return 'Old footprint orientation or shape disagrees with odometry'
+        if footprint_fresh_header:
+            self.navigation_footprint_reference = ((odom.header.frame_id, base), body)
+        return None
+
+    def _hold_navigation_inputs(self, issue, context, *, force_status=False):
+        changed = getattr(self, 'navigation_input_fault', None) != issue
+        self.navigation_input_fault = issue
+        self.navigation_input_cutoff_ns = self.get_clock().now().nanoseconds
+        self._reset_execution_progress(clear_pending=True)
+        self.path_invalidated = True
+        self.latest_path_key = None
+        self.pending_path = None
+        self._cancel_active_goal()
+        if changed or force_status:
+            # Each rejected planner retry must re-arm its retained-goal loop;
+            # steady watchdog ticks only report a newly changed fault.
+            self.publish_status('WAIT_REPLAN', 'Navigation input unavailable: '+issue,
+                                context=context, route_failure=False, input_hold=True)
+
+    def _watch_navigation_inputs(self):
+        if (not getattr(self, 'navigation_inputs_required', False) or self.navigation_suspended
+                or self.recovery_request is not None or self.backup_goal is not None
+                or self.backup_goal_request_pending
+                or (self.active_goal is None and not self.goal_request_pending)):
+            return
+        issue = self._navigation_input_error()
+        if issue is not None:
+            context = self.active_context or self.request_context or self._goal_context(self.active_path)
+            self._hold_navigation_inputs(issue, context)
 
     def on_motion_status(self, message):
         try:
@@ -1437,6 +1674,10 @@ class PathFollower(Node):
                 and nearest > required), nearest
 
     def _recovery_preflight(self, request, *, require_stationary):
+        if getattr(self, 'navigation_inputs_required', False):
+            issue = self._navigation_input_error()
+            if issue is not None:
+                return 'Navigation input unavailable: '+issue
         status = self.motion_status
         if (status is None or self.motion_status_at is None
                 or time.monotonic() - self.motion_status_at >= 1.0

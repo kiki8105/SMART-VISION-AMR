@@ -17,7 +17,8 @@ class ScanHarness(ChangeMemoryNode):
     def __init__(self):
         self.params = {'memory_enabled': False, 'map_frame': 'map', 'base_frame': 'base_footprint',
                        'odom_frame': 'odom',
-                       'occupied_threshold': 65, 'confirm_observations': 5,
+                       'occupied_threshold': 65, 'mapped_wall_range_tolerance_m': .05,
+                       'confirm_observations': 5,
                        'clear_observations': 5, 'confirm_min_duration_sec': 2.,
                        'clear_min_duration_sec': 2., 'min_observation_interval_sec': .25,
                        'live_obstacle_ttl_sec': 2., 'live_scan_max_age_sec': 1.,

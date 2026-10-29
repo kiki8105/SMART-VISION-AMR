@@ -197,7 +197,7 @@ def test_mapped_wall_hits_do_not_arm_a_remove_the_wall_wait(prepared):
     changed = copy.deepcopy(node.map[0])
     changed.data[15*changed.info.width+10] = 100
     node.on_map(changed)
-    node.observed = {(10, 15), (10, 16)}
+    node.observed = {(10, 15)}  # Only the mapped occupied cell is a wall echo.
     for now in (101., 102., 103., 104.):
         ready(node, now)
         assert not node._register_obstacle_failure(.55, 1.55)
