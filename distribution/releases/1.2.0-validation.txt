@@ -1,0 +1,17 @@
+SMART-VISION-AMR 1.2.0 validation (2026-10-29)
+Source commit: f550738 (navigation/localization/arrival confirmation changes in 306bc00)
+
+PASS: 800 ROS Python tests; 59 controller tests; 5 JavaScript UI checks.
+PASS: isolated Gazebo navigation, independent EKF return, compressed video + GUI.
+PASS: sensor/clock freeze stop and no automatic restart after recovery.
+PASS: actual Gazebo ArUco search -> horizontal alignment -> stopped confirmation.
+
+DEB: dpkg metadata validation; includes DDS helper and both DDS profiles.
+ZIP: 380 extracted-file SHA256 checks; CRC check; required new modules/assets.
+ZIP relocated clean build: all 4 included ROS packages built from /tmp.
+ZIP relocated import and aruco_lab.launch.py --show-args: PASS.
+
+Gazebo command limits are not measured physical speed/braking guarantees.
+No physical robot trial or deliberate moving-obstacle insertion was performed.
+Detailed functional results: benchmarks/upgrade_20261029/README.md and results.json.
+Old 1.1.0 files and pre-upgrade commit c21ca7a are retained for rollback.
