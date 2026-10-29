@@ -1,0 +1,8 @@
+Inserted actual unseen collision/LiDAR obstacle
+{"elapsed": 10.0, "pose": [-2.3581822201961917, -1.713259895142545], "paths_after": 2, "last_status": {"status": "MOVING", "message": "Following A* route", "goal": {"x": -0.5, "y": -2.0, "frame_id": "map"}, "goal_stamp": {"sec": 3, "nanosec": 700000000}, "manual_stop": false, "stop_stamp": null}, "execution_failure_events": 0}
+{"elapsed": 20.0, "pose": [-2.3570795802845033, -1.6937276714011544], "paths_after": 2, "last_status": {"status": "MOVING", "message": "Following A* route", "goal": {"x": -0.5, "y": -2.0, "frame_id": "map"}, "goal_stamp": {"sec": 3, "nanosec": 700000000}, "manual_stop": false, "stop_stamp": null}, "execution_failure_events": 0}
+Observed actual OBSTACLE_HOLD; checking stopped output and odometry
+{"elapsed": 30.0, "pose": [-2.361057329736405, -1.6492623323936704], "paths_after": 2, "last_status": {"status": "FAILED", "message": "Stopped; replan while avoiding failed approach", "goal": {"x": -0.5, "y": -2.0, "frame_id": "map"}, "goal_stamp": {"sec": 3, "nanosec": 700000000}, "manual_stop": false, "stop_stamp": null, "route_failure": true, "execution_failure_id": "73eacd1fe2d549749e00e0c7cf3ddccc", "execution_failure_reason": "controller_aborted"}, "execution_failure_events": 1}
+Stopped hold verified; deleted actual obstacle, awaiting live-scan clear and same-goal resume
+{"elapsed": 40.0, "pose": [-2.125748906176799, -1.63865906851062], "paths_after": 3, "last_status": {"status": "MOVING", "message": "Following A* route", "goal": {"x": -0.5, "y": -2.0, "frame_id": "map"}, "goal_stamp": {"sec": 3, "nanosec": 700000000}, "manual_stop": false, "stop_stamp": null}, "execution_failure_events": 1}
+FAIL benchmarks/failure_memory_20261029/obstacle_hold_remove_callbacks_trial.json

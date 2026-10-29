@@ -267,14 +267,35 @@
     events.forEach(event=>{const li=document.createElement('li');li.className=String(event.level||'').toLowerCase();const time=document.createElement('time');const stamp=typeof event.at==='number'?new Date(event.at*1000):new Date(event.at);time.textContent=Number.isNaN(stamp.getTime())?'—':stamp.toLocaleTimeString('ko-KR',{hour12:false});const text=document.createElement('span');text.textContent=event.message;li.append(time,text);eventList.append(li);});
   }
   const requestStates={PENDING:'접수',QUEUED:'대기',IN_PROGRESS:'운송 중',DELIVERED:'배송 완료',CANCELED:'취소'};
+  function failureReason(value){
+    return {execution_no_progress:'이동 명령에도 진행되지 않음',execution_oscillation:'같은 위치에서 좌우 선회 반복',controller_aborted:'주행 제어 중단 · 다른 접근 검토'}[value]||value||'';
+  }
+  function renderFailureMemory(){
+    const f=snapshot.failure_memory,m=currentMission(),panel=$('#failure-memory');
+    const phases={AVOIDING:'실패 접근 회피 · 재계획',WAIT_ALTERNATIVE:'목표 유지 · 대체 경로 대기',RECOVERING:'안전 후진 중',REJOINING:'새 경로 진입 확인 중',SENSOR_HOLD:'센서 회복 대기',OBSTACLE_HOLD:'장애물 해소 대기'};
+    const valid=!!f&&f.available===true&&['NAVIGATING','RETURNING_HOME','WAIT_REPLAN','PAUSED','ESTOP'].includes(m.state);
+    const records=valid&&Array.isArray(f.active)?f.active:[];
+    panel.hidden=!valid||(!phases[f.state]&&!records.length);
+    if(panel.hidden)return;
+    const held=m.estop_latched||snapshot.safety?.latched;
+    const manual=snapshot.manual?.active||['ACQUIRING','ACTIVE','RELEASING','WAIT_REPLAN'].includes(snapshot.manual?.state);
+    $('#failure-memory-phase').textContent=held?'비상정지 · 실패 접근 기억 유지':manual?'수동 조종 우선 · 실패 접근 기억 유지':m.state==='PAUSED'?'일시정지 · 실패 접근 기억 유지':phases[f.state]||'실패 접근 기억 유지';
+    const retry=Number.isInteger(f.retry_count)&&Number.isInteger(f.retry_limit)&&f.retry_limit>0?` · 재시도 ${f.retry_count}/${f.retry_limit}회`:'';
+    $('#failure-memory-count').textContent=`회피 기억 ${records.length}건${retry}`;
+    $('#failure-memory-reason').textContent=f.state==='OBSTACLE_HOLD'?'장애물이 있어 경로 주행을 잠시 멈춥니다. 장애물을 치우면 경로를 재개합니다.':failureReason(f.reason)||'같은 실패 구간·진입 방향의 반복을 줄입니다.';
+    const list=$('#failure-memory-records');list.replaceChildren();
+    records.slice(0,100).forEach(item=>{const li=document.createElement('li');const ttl=typeof item.expires_in==='number'&&Number.isFinite(item.expires_in)?`${Math.max(0,Math.ceil(item.expires_in))}초 후 재평가`:'유지 시간 확인 중';const position=Number.isFinite(item.x)&&Number.isFinite(item.y)?`(${item.x.toFixed(2)}, ${item.y.toFixed(2)}) · `:'';li.textContent=`${position}${failureReason(item.reason)||'실패 접근'} · ${ttl}`;list.append(li);});
+    if(!records.length){const li=document.createElement('li');li.textContent=f.state==='SENSOR_HOLD'?'센서 단절은 경로 실패로 기록하지 않습니다.':f.state==='OBSTACLE_HOLD'?'현재 목표를 유지하고 실제 장애물 해소를 기다립니다.':'현재 남아 있는 실패 접근 제한은 없습니다.';list.append(li);}
+  }
   function renderOperation(){
+    renderFailureMemory();
     const o=snapshot.operation;if(!o)return;
     $('#state-pill').textContent=o.label||'임무 대기';
     $('#state-pill').classList.toggle('warning',o.level==='warning');
     $('#state-pill').classList.toggle('error',o.level==='critical');
     $('#operation-summary').dataset.level=o.level||'info';
     $('#operation-phase').textContent=o.label||'임무 대기';
-    $('#operation-detail').textContent=o.detail||'';
+    $('#operation-detail').textContent=failureReason(o.detail);
     $('#operation-action-title').textContent=o.next_action?.title||'다음 조치';
     $('#operation-action').textContent=o.next_action?.action||'';
     const target=o.next_action?.target,button=$('#operation-action-button');

@@ -72,7 +72,10 @@ class LocalizationHealth(Node):
             name: float(self.get_parameter(name).value) for name in defaults})
         for name, value in {'base_frame': 'base_footprint', 'map_frame': 'map',
                             'odom_frame': 'odom', 'agreement_tolerance': 0.18,
-                            'jump_distance_m': 0.65, 'jump_yaw_rad': 0.8}.items():
+                            'jump_distance_m': 0.65, 'jump_yaw_rad': 0.8,
+                            'nomotion_update_interval': 2.0,
+                            'nomotion_update_trigger_age': 1.0,
+                            'nomotion_request_timeout': 1.0}.items():
             self.declare_parameter(name, value)
         self.base_frame = str(self.get_parameter('base_frame').value)
         self.map_frame = str(self.get_parameter('map_frame').value)
@@ -99,7 +102,10 @@ class LocalizationHealth(Node):
         self.last_level = None
         self.no_motion_client = self.create_client(Empty, '/request_nomotion_update')
         self.no_motion_future = None
+        self.no_motion_started_at = None
         self.last_no_motion_at = None
+        self.no_motion_requests = self.no_motion_responses = self.no_motion_timeouts = 0
+        self.no_motion_errors = 0
         self.stamps = {name: SensorStampGuard(self.core.sensor_timeout, 0.25)
                        for name in ('scan', 'odom')}
         durable = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
@@ -283,6 +289,10 @@ class LocalizationHealth(Node):
             'scan_map_agreement': self.agreement,
             'agreement_age_seconds': None if self.agreement_at is None else now-self.agreement_at,
             'map_tf_age_seconds': None, 'odom_tf_valid': False,
+            'amcl_update_requests': self.no_motion_requests,
+            'amcl_update_responses': self.no_motion_responses,
+            'amcl_update_timeouts': self.no_motion_timeouts,
+            'amcl_update_errors': self.no_motion_errors,
         }
         for name in ('odom', 'scan'):
             received, raw_stamp = self.last_received_at[name], self.last_received_stamp[name]
@@ -322,23 +332,99 @@ class LocalizationHealth(Node):
         self.publisher.publish(message)
 
     def request_initial_covariance(self, now):
-        """Request a filter-only laser update if AMCL has not emitted its pose.
+        """Request a real filter-only laser update without weakening the guard.
 
         AMCL may otherwise wait for motion before refreshing covariance, while
         the safety mux correctly waits for covariance before allowing motion.
-        This service moves neither the robot nor its initial pose hypothesis.
+        Once localized, slow movement can stay below AMCL's update thresholds
+        and exhaust the motion watchdog. Ask for an actual filter update then,
+        too. A request/response never refreshes the AMCL observation epoch;
+        only ``on_amcl`` may do that. A failed service cannot stall evaluation.
         """
+        def setting(name, default):
+            getter = getattr(self, 'get_parameter', None)
+            try:
+                value = getter(name).value if callable(getter) else default
+                return float(value) if not isinstance(value, bool) and math.isfinite(value) and value > 0 else default
+            except (AttributeError, KeyError, TypeError, ValueError):
+                return default
+        # Never permit a runtime typo to flood AMCL or indefinitely retain a
+        # pending request. The separate four-second motion watchdog is unchanged.
+        interval = max(2., setting('nomotion_update_interval', 2.))
+        trigger_age = max(.1, setting('nomotion_update_trigger_age', 1.))
+        deadline = min(1., max(.1, setting('nomotion_request_timeout', 1.)))
         if self.no_motion_future is not None:
-            if not self.no_motion_future.done():
-                return
+            future = self.no_motion_future
+            started = getattr(self, 'no_motion_started_at', self.last_no_motion_at)
+            if not future.done():
+                if started is None:
+                    self.no_motion_started_at = now
+                    return
+                if now-started < deadline:
+                    return
+                try:
+                    future.cancel()
+                    self.no_motion_client.remove_pending_request(future)
+                except Exception:
+                    pass
+                self.no_motion_timeouts = getattr(self, 'no_motion_timeouts', 0)+1
+            elif callable(getattr(future, 'result', None)):
+                try:
+                    future.result()
+                    self.no_motion_responses = getattr(self, 'no_motion_responses', 0)+1
+                except Exception:
+                    self.no_motion_errors = getattr(self, 'no_motion_errors', 0)+1
             self.no_motion_future = None
-        if (self.position_std is not None or self.scan is None or self.map_distance is None
+            self.no_motion_started_at = None
+        if (self.scan is None or self.map_distance is None
                 or self.scan_at is None or now-self.scan_at > self.core.sensor_timeout
-                or (self.last_no_motion_at is not None and now-self.last_no_motion_at < 2.0)
+                or (self.last_no_motion_at is not None and now-self.last_no_motion_at < interval)
                 or not self.no_motion_client.service_is_ready()):
             return
+        if self.position_std is not None and not LocalizationHealth._moving_update_ready(self, now, trigger_age):
+            return
         self.last_no_motion_at = now
-        self.no_motion_future = self.no_motion_client.call_async(Empty.Request())
+        try:
+            self.no_motion_future = self.no_motion_client.call_async(Empty.Request())
+            self.no_motion_started_at = now
+            self.no_motion_requests = getattr(self, 'no_motion_requests', 0)+1
+        except Exception:
+            self.no_motion_future = None
+            self.no_motion_started_at = None
+            self.no_motion_errors = getattr(self, 'no_motion_errors', 0)+1
+
+    def _moving_update_ready(self, now, trigger_age=1.):
+        """Only healthy, measured slow motion can request periodic AMCL work."""
+        amcl_at, amcl_stamp = getattr(self, 'amcl_at', None), getattr(self, 'last_amcl_stamp_ns', None)
+        odom, odom_at = getattr(self, 'odom', None), getattr(self, 'odom_at', None)
+        if (amcl_at is None or now-amcl_at < trigger_age or amcl_stamp is None
+                or odom is None or odom_at is None or not 0 <= now-odom_at <= self.core.sensor_timeout
+                or not getattr(self, 'scan_valid', False) or not getattr(self, 'odom_valid', False)):
+            return False
+        ros_ns = self.get_clock().now().nanoseconds
+        if (ros_ns <= 0 or ros_ns-amcl_stamp < trigger_age*1e9
+                or not 0 <= now-self.scan_at <= self.core.sensor_timeout):
+            return False
+        for sample in (self.scan, odom):
+            age = (ros_ns-stamp_ns(sample.header))/1e9
+            if not -.25 <= age <= self.core.sensor_timeout:
+                return False
+        linear, angular = odom.twist.twist.linear.x, odom.twist.twist.angular.z
+        if (not math.isfinite(linear) or not math.isfinite(angular)
+                or (abs(linear) <= .015 and abs(angular) <= .05)):
+            return False
+        try:
+            for target in (self.map_frame, self.odom_frame):
+                transform = self._tf(target, self.base_frame)
+                age = (ros_ns-stamp_ns(transform.header))/1e9
+                quaternion_yaw(transform.transform.rotation)
+                if (not -.25 <= age <= self.core.tf_timeout
+                        or not all(math.isfinite(value) for value in (
+                            transform.transform.translation.x, transform.transform.translation.y))):
+                    return False
+        except (TransformException, ValueError, AttributeError):
+            return False
+        return True
 
     def publish_estop(self, now):
         self.safety_seq = max(self.safety_seq+1, time.monotonic_ns())

@@ -231,6 +231,8 @@ class FlightRecorder(Node):
         for topic in ('/smart_vision_amr/planner_status', '/smart_vision_amr/navigation_status',
                       '/smart_vision_amr/motion_status', '/smart_vision_amr/localization_health',
                       '/smart_vision_amr/scan_projection_status',
+                      '/smart_vision_amr/execution_failure',
+                      '/smart_vision_amr/failure_memory_status',
                       '/smart_vision_amr/navigation_control'):
             self.periods[topic] = max(.02, float(value('status_sample_period')))
             self.create_subscription(String, topic,
@@ -243,6 +245,9 @@ class FlightRecorder(Node):
     def trigger_signature(topic, message):
         if not isinstance(message, dict):
             return None
+        if (topic.endswith('/execution_failure')
+                and message.get('terminal_confirmed') is True):
+            return 'EXECUTION_FAILURE:'+str(message.get('event_id', ''))[:128]
         status = str(message.get('status', '')).upper()
         level = str(message.get('level', message.get('severity', ''))).upper()
         if topic.endswith('/motion_status') and message.get('estop_latched') is True:

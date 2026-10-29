@@ -1,0 +1,3 @@
+Inserted actual unseen collision/LiDAR obstacle
+{"elapsed": 10.0, "pose": [-0.9381309797532202, -2.0022052577219123], "paths_after": 0, "last_status": {"status": "MOVING", "message": "Following A* route", "goal": {"x": -0.5, "y": -2.0, "frame_id": "map"}, "goal_stamp": {"sec": 4, "nanosec": 200000000}, "manual_stop": false, "stop_stamp": null, "distance_remaining": 2.4788014993106797, "controller_distance_remaining": 2.456874370574951, "measured_speed": 0.20842105150222778, "curve_speed_limit": 0.0}, "execution_failure_events": 0}
+PASS benchmarks/failure_memory_20261029/unrelated_obstacle_final_trial.json

@@ -1,5 +1,79 @@
 """Operator-facing state and next actions, derived from actual backend state."""
 
+from math import isfinite
+
+
+_FAILURE_PHASES = {
+    'AVOIDING': ('failure_avoiding', '실패 접근 회피 · 경로 재계획'),
+    'WAIT_ALTERNATIVE': ('failure_wait', '목표 유지 · 대체 경로 대기'),
+    'RECOVERING': ('failure_reversing', '안전 후진 · 재진입 준비'),
+    'REJOINING': ('failure_rejoining', '새 경로 진입 확인 중'),
+    'SENSOR_HOLD': ('sensor_hold', '센서 회복 대기 · 정지 유지'),
+    'OBSTACLE_HOLD': ('obstacle_hold', '장애물 해소 대기'),
+}
+
+OBSTACLE_HOLD_MESSAGE = '장애물이 있어 경로 주행을 잠시 멈춥니다. 장애물을 치우면 경로를 재개합니다.'
+
+
+def failure_memory_snapshot(payload, goal_stamp, mission_state, age):
+    """Expose only this goal's fresh status; display code cannot clear memory.
+
+    Durable ROS messages may predate a new mission or a bridge reconnection.
+    Match the exact goal, bound the data and age the TTL without changing the
+    planner's memory. A missing/stale message must never look like recovery.
+    """
+    empty = {'state': 'CLEAR', 'count': 0, 'active': [], 'available': False}
+    if (not isinstance(payload, dict) or not isfinite(age) or not 0. <= age < 2.
+            or mission_state not in {'NAVIGATING', 'RETURNING_HOME', 'WAIT_REPLAN', 'PAUSED', 'ESTOP'}):
+        return empty
+
+    def stamp(value):
+        if isinstance(value, dict):
+            value = (value.get('sec'), value.get('nanosec'))
+        if (not isinstance(value, (tuple, list)) or len(value) != 2
+                or any(type(item) is not int for item in value)
+                or value[0] < 0 or not 0 <= value[1] < 1000000000):
+            return None
+        return tuple(value)
+
+    current = stamp(goal_stamp)
+    if current is None or stamp(payload.get('goal_stamp')) != current:
+        return empty
+    state = payload.get('state')
+    if state not in _FAILURE_PHASES and state != 'CLEAR':
+        return empty
+    active = []
+    for item in (payload.get('active') if isinstance(payload.get('active'), list) else [])[:100]:
+        if not isinstance(item, dict):
+            continue
+        values = [item.get('x'), item.get('y'), item.get('yaw', item.get('approach_heading')),
+                  item.get('expires_in')]
+        if any(type(value) not in (int, float) or not isfinite(value) for value in values):
+            continue
+        remaining = max(0., float(values[3])-age)
+        if remaining <= 0.:
+            continue
+        failures = item.get('failures', 1)
+        active.append({'id': str(item.get('id', ''))[:128],
+                       'x': float(values[0]), 'y': float(values[1]), 'yaw': float(values[2]),
+                       'reason': str(item.get('reason', ''))[:240], 'expires_in': round(remaining, 1),
+                       'failures': min(100000, max(1, failures)) if type(failures) is int else 1})
+    attempts = payload.get('recovery_attempts', 0)
+    result = {'state': state, 'reason': str(payload.get('reason', ''))[:480],
+            'count': len(active), 'active': active, 'available': True,
+            'last_failure_id': str(payload.get('last_failure_id') or '')[:128],
+            'rejoin_verified': payload.get('rejoin_verified') is True,
+            'recovery_attempts': min(100000, max(0, attempts)) if type(attempts) is int else 0,
+            'goal_stamp': {'sec': current[0], 'nanosec': current[1]}}
+    for key in ('retry_count', 'retry_limit', 'blocked_obstacle_count'):
+        value = payload.get(key)
+        if type(value) is int and value >= 0:
+            result[key] = min(100000, value)
+    wait = payload.get('clear_wait_seconds')
+    if type(wait) in (int, float) and isfinite(wait) and wait >= 0:
+        result['clear_wait_seconds'] = min(3600., float(wait))
+    return result
+
 _LOCALIZATION_REASONS = {
     'initializing': '초기 위치 검증 중', 'operator_reset_required': '원인 확인 후 비상정지 해제 필요',
     'scan_unavailable': '라이다 수신·수치 확인 필요', 'odom_unavailable': '오도메트리 수신·수치 확인 필요',
@@ -58,6 +132,7 @@ def operation_summary(snapshot):
     connection = snapshot.get('connection') or {}
     nav = snapshot.get('navigation') or {}
     alignment = snapshot.get('marker_alignment') or {}
+    failure_memory = snapshot.get('failure_memory') or {}
     if (alignment.get('marker_id') is not None
             and mission.get('current_marker_id') is not None
             and alignment['marker_id'] != mission['current_marker_id']):
@@ -90,6 +165,20 @@ def operation_summary(snapshot):
     elif manual.get('active') or manual.get('state') in {'ACQUIRING', 'ACTIVE', 'RELEASING', 'WAIT_REPLAN'}:
         phase, label = 'manual', '수동 조종 우선'
         detail = manual.get('reason') or '조이스틱을 놓으면 같은 목표로 재개를 준비합니다.'
+    elif (mission.get('state') in {'NAVIGATING', 'RETURNING_HOME', 'WAIT_REPLAN'}
+          and failure_memory.get('available') is True
+          and failure_memory.get('state') in _FAILURE_PHASES):
+        phase, label = _FAILURE_PHASES[failure_memory['state']]
+        level = 'warning'
+        detail = (OBSTACLE_HOLD_MESSAGE if failure_memory['state'] == 'OBSTACLE_HOLD' else
+                  failure_memory.get('reason') or '현재 목표를 유지하며 같은 실패 접근의 반복을 피합니다.')
+        action = {'title': '복구 상태 확인', 'detail': detail,
+                  'action': ('장애물을 치운 뒤 경로가 열리는지 확인하세요. 조이스틱·일시정지·비상정지가 우선합니다.'
+                             if failure_memory['state'] == 'OBSTACLE_HOLD' else
+                             '센서가 회복될 때까지 정지합니다. 수신 상태와 위치 신뢰도를 확인하세요.'
+                             if failure_memory['state'] == 'SENSOR_HOLD' else
+                             '후진 공간과 새 경로를 확인하세요. 대체 경로가 없으면 목표를 유지하고 기다립니다. 조이스틱과 비상정지가 우선합니다.'),
+                  'target': 'diagnostics', 'conditions': health.get('missing', [])}
     elif (mission.get('state') == 'WAIT_REPLAN' or
           (mission.get('state') in {'NAVIGATING', 'RETURNING_HOME'}
            and nav.get('planner_status') == 'WAIT_REPLAN')):

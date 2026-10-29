@@ -368,6 +368,51 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.context.shutdown()
         self.temp.cleanup()
 
+    def test_failure_memory_subscriber_rejects_stale_foreign_and_replayed_status(self):
+        self.app.mission.state = 'NAVIGATING'
+        self.app.mission.goal_stamp = (8, 9)
+        stamp = self.node.get_clock().now().nanoseconds
+        payload = {'state': 'RECOVERING', 'goal_stamp': {'sec': 8, 'nanosec': 9},
+                   'sent_at_ns': stamp, 'active': [], 'reason': '안전 후진'}
+        self.node.on_failure_memory(SimpleNamespace(data=json.dumps(payload)))
+        self.assertEqual(self.app.failure_memory_status['state'], 'RECOVERING')
+
+        received_at = self.app.failure_memory_at
+        self.now += .2
+        # Same source timestamp cannot refresh the receipt age or replace state.
+        self.node.on_failure_memory(SimpleNamespace(data=json.dumps(dict(payload, state='REJOINING'))))
+        self.assertEqual(self.app.failure_memory_at, received_at)
+        self.assertEqual(self.app.failure_memory_status['state'], 'RECOVERING')
+        for change in ({'sent_at_ns': stamp-3000000000},
+                       {'sent_at_ns': stamp+3000000000},
+                       {'goal_stamp': {'sec': 8, 'nanosec': 10}},
+                       {'state': 'UNRECOGNIZED'}, {'sent_at_ns': True}):
+            self.node.on_failure_memory(SimpleNamespace(data=json.dumps(dict(payload, **change))))
+            self.assertEqual(self.app.failure_memory_status['state'], 'RECOVERING')
+        self.node.on_failure_memory(SimpleNamespace(data='[]'))
+        self.node.on_failure_memory(SimpleNamespace(data='{'))
+        self.assertEqual(self.app.failure_memory_status['state'], 'RECOVERING')
+
+    def test_obstacle_hold_status_is_goal_scoped_fresh_and_does_not_publish_motion(self):
+        self.app.mission.state = 'NAVIGATING'
+        self.app.mission.goal_stamp = (8, 9)
+        stamp = self.node.get_clock().now().nanoseconds
+        payload = {'state': 'OBSTACLE_HOLD', 'goal_stamp': {'sec': 8, 'nanosec': 9},
+                   'sent_at_ns': stamp, 'active': [], 'retry_count': 3, 'retry_limit': 3}
+        self.node.on_failure_memory(SimpleNamespace(data=json.dumps(payload)))
+        status = self.app.state()['failure_memory']
+        self.assertEqual(status['state'], 'OBSTACLE_HOLD')
+        self.assertEqual(status['retry_count'], 3)
+        self.assertEqual(self.app.state()['operation']['phase'], 'obstacle_hold')
+        self.assertFalse(self.controls.messages)
+        self.assertFalse(self.goals.messages)
+        self.now += 3.
+        self.assertFalse(self.app.state()['failure_memory']['available'])
+        self.app.mission.goal_stamp = (9, 0)
+        payload['sent_at_ns'] = self.node.get_clock().now().nanoseconds
+        self.node.on_failure_memory(SimpleNamespace(data=json.dumps(payload)))
+        self.assertFalse(self.app.state()['failure_memory']['available'])
+
     def refresh(self):
         ready_application(self.app, self.now)
         self.app.manual_mux_status = {'mode': 'hold', 'source_id': self.node.motion_source}

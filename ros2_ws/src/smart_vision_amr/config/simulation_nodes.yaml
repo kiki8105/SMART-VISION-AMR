@@ -10,8 +10,29 @@
     path_smoothing_iterations: 2
     path_smoothing_shortcut_distance: 0.80  # m; larger values anticipate wider corners.
     path_resample_spacing: 0.05  # m between tracking poses at most.
+    # Temporary failed-approach memory; never writes cells into the saved/SLAM map.
+    failure_memory_enabled: true
+    obstacle_hold_enabled: true
+    obstacle_retry_limit: 3  # failed published approaches/execution/no-path, not individual scan packets.
+    obstacle_clear_duration: 2.0  # s of positive fresh free-ray evidence before automatic resume.
+    failure_memory_ttl: 120.0  # s; same bad approach becomes eligible after expiry.
+    failure_memory_radius: 0.25  # m around a failed route segment.
+    failure_memory_heading_tolerance: 1.0471975511965976  # rad (60 deg); reverse remains legal.
+    failure_memory_max_entries: 64
+    failure_memory_penalty: 2.0  # nonnegative A* step cost around the restricted approach.
+    failure_event_max_age: 3.0  # s; reject stale/replayed execution reports.
+    rejoin_progress_distance: 0.35  # m; map+independent odom must confirm actual progress.
+    rejoin_cross_track_tolerance: 0.20  # m from the replacement route.
+    recovery_turn_heading_threshold: 0.65  # rad; larger first turn needs full sweep clearance.
+    recovery_turn_clearance_margin: 0.03  # m beyond robot_radius, without relaxing occupancy.
 /path_follower:
   ros__parameters:
+    # Detect attempted movement without progress; sensor/manual/cancel faults are excluded.
+    execution_failure_enabled: true
+    execution_progress_window: 6.0  # s of valid motion evidence, unaffected by equivalent paths.
+    execution_min_progress: 0.05  # m; smaller progress may indicate a blocked chassis.
+    execution_heading_progress: 0.15  # rad; normal in-place alignment counts as progress.
+    execution_evidence_timeout: 1.0  # s; fresh TF, scan, odom, localization and mux required.
     action_name: /follow_path
     controller_id: FollowPath
     goal_checker_id: general_goal_checker

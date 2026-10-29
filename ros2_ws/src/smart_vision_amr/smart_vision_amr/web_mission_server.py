@@ -34,7 +34,8 @@ from smart_vision_amr.delivery_service import DeliveryService
 from smart_vision_amr.manual_control import ManualOverride
 from smart_vision_amr.assisted_localization import AssistedLocalization
 from smart_vision_amr.localization_geometry import rotation_clearance, scan_points, occupied_distance, scan_map_agreement
-from smart_vision_amr.operation_status import operation_summary, route_preview, localization_explanations
+from smart_vision_amr.operation_status import (operation_summary, route_preview, localization_explanations,
+                                             failure_memory_snapshot)
 from smart_vision_amr.navigation_graph import goal_consumers_ready
 from smart_vision_amr.marker_alignment import MarkerAlignment
 
@@ -352,6 +353,8 @@ class MissionApplication:
         self.manual_mux_status = {}
         self.localization_health = {}
         self.localization_health_at = 0.
+        self.failure_memory_status = {}
+        self.failure_memory_at = 0.
         self.require_localization_health = False
         self.safety_request = None
         self.safety_result = ''
@@ -594,6 +597,9 @@ class MissionApplication:
             snapshot['localization_health'] = (deepcopy(self.localization_health)
                 if now-self.localization_health_at < 1.5 else {'level': 'unknown', 'reasons': ['추정 상태 수신 대기']})
             snapshot['localization_health']['explanations'] = localization_explanations(snapshot['localization_health'])
+            snapshot['failure_memory'] = failure_memory_snapshot(
+                self.failure_memory_status, self.mission.goal_stamp, self.mission.state,
+                now-self.failure_memory_at)
             snapshot['operation'] = operation_summary(snapshot)
             snapshot['route_preview'] = route_preview(snapshot)
             return snapshot
@@ -1290,6 +1296,8 @@ def create_ros_bridge(app, options, context):
             self.create_subscription(String, '/smart_vision_amr/planner_status', self.on_planner, durable)
             self.create_subscription(String, '/smart_vision_amr/motion_status', self.on_motion, durable)
             self.create_subscription(String, '/smart_vision_amr/localization_health', self.on_health, durable)
+            self.create_subscription(String, '/smart_vision_amr/failure_memory_status',
+                                     self.on_failure_memory, durable)
             # A wall/steady timer keeps the joystick dead-man alive even if /clock pauses.
             from rclpy.clock import Clock, ClockType
             self.create_timer(.1, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
@@ -1668,6 +1676,32 @@ def create_ros_bridge(app, options, context):
                     return
                 with app.lock:
                     app.localization_health, app.localization_health_at = payload, time.monotonic()
+            except (ValueError, TypeError, AttributeError):
+                return
+
+        def on_failure_memory(self, message):
+            try:
+                payload = json.loads(message.data)
+                if not isinstance(payload, dict):
+                    return
+                stamp = payload.get('sent_at_ns')
+                if type(stamp) is not int or stamp <= 0:
+                    return
+                age = (self.get_clock().now().nanoseconds-stamp)/1e9
+                if not -.25 <= age < 2.:
+                    return
+                with app.lock:
+                    normalized = failure_memory_snapshot(payload, app.mission.goal_stamp,
+                                                         app.mission.state, max(0., age))
+                    if not normalized['available']:
+                        return
+                    previous_stamp = app.failure_memory_status.get('sent_at_ns', 0)
+                    if (app.failure_memory_status.get('goal_stamp') == normalized['goal_stamp']
+                            and stamp <= previous_stamp):
+                        return  # Delayed/replayed statuses must not revive an expired display.
+                    payload['goal_stamp'] = normalized['goal_stamp']
+                    app.failure_memory_status = payload
+                    app.failure_memory_at = time.monotonic()-max(0., age)
             except (ValueError, TypeError, AttributeError):
                 return
 

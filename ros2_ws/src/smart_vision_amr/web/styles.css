@@ -50,3 +50,4 @@
 .marker-alignment.failed{background:var(--amberbg)}.marker-alignment.failed .marker-alignment-heading{color:var(--amber)}
 .marker-alignment.confirmed{background:var(--tint)}.marker-alignment.confirmed .marker-alignment-heading{color:var(--accent)}
 .marker-alignment.stopped .marker-alignment-heading{color:var(--red)}
+.failure-memory{grid-column:1/-1;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--soft);font-size:12px}.failure-memory strong{font-weight:600}.failure-memory-count{margin-left:10px;color:var(--muted);white-space:nowrap}.operation-summary .failure-memory p{font-size:12px;margin:6px 0}.failure-memory details{margin-top:6px}.failure-memory li{line-height:1.6;overflow-wrap:anywhere}

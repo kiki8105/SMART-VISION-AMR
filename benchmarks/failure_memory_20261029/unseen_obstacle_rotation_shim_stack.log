@@ -1,0 +1,343 @@
+[INFO] [launch]: All log files can be found below /home/kiki/.ros/log/2026-10-29-12-10-11-076507-kiki-89840
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [gzserver-1]: process started with pid [89863]
+[INFO] [robot_state_publisher-2]: process started with pid [89865]
+[INFO] [spawn_entity.py-3]: process started with pid [89867]
+[INFO] [map_server-4]: process started with pid [89869]
+[INFO] [amcl-5]: process started with pid [89871]
+[INFO] [controller_server-6]: process started with pid [89873]
+[INFO] [behavior_server-7]: process started with pid [89875]
+[INFO] [motion_mux-8]: process started with pid [89877]
+[INFO] [command_stamper-9]: process started with pid [89879]
+[INFO] [localization_health-10]: process started with pid [89881]
+[INFO] [lifecycle_manager-11]: process started with pid [89885]
+[INFO] [astar_planner-12]: process started with pid [89889]
+[INFO] [path_follower-13]: process started with pid [89899]
+[INFO] [change_memory-14]: process started with pid [89913]
+[robot_state_publisher-2] [INFO] [1793243412.712823297] [robot_state_publisher]: got segment base_footprint
+[robot_state_publisher-2] [INFO] [1793243412.712966334] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-2] [INFO] [1793243412.712982865] [robot_state_publisher]: got segment base_scan
+[robot_state_publisher-2] [INFO] [1793243412.712992117] [robot_state_publisher]: got segment camera_link
+[robot_state_publisher-2] [INFO] [1793243412.713001069] [robot_state_publisher]: got segment camera_rgb_frame
+[robot_state_publisher-2] [INFO] [1793243412.713009523] [robot_state_publisher]: got segment camera_rgb_optical_frame
+[robot_state_publisher-2] [INFO] [1793243412.713018320] [robot_state_publisher]: got segment caster_back_left_link
+[robot_state_publisher-2] [INFO] [1793243412.713027067] [robot_state_publisher]: got segment caster_back_right_link
+[robot_state_publisher-2] [INFO] [1793243412.713035675] [robot_state_publisher]: got segment imu_link
+[robot_state_publisher-2] [INFO] [1793243412.713044541] [robot_state_publisher]: got segment wheel_left_link
+[robot_state_publisher-2] [INFO] [1793243412.713053254] [robot_state_publisher]: got segment wheel_right_link
+[controller_server-6] [INFO] [1793243412.782161222] [controller_server]: 
+[controller_server-6] 	controller_server lifecycle node launched. 
+[controller_server-6] 	Waiting on external lifecycle transitions to activate
+[controller_server-6] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-6] [INFO] [1793243412.846042685] [controller_server]: Creating controller server
+[lifecycle_manager-11] [INFO] [1793243412.855940794] [lifecycle_manager_simulation]: Creating
+[lifecycle_manager-11] [INFO] [1793243412.867481089] [lifecycle_manager_simulation]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[map_server-4] [INFO] [1793243412.868942703] [map_server]: 
+[map_server-4] 	map_server lifecycle node launched. 
+[map_server-4] 	Waiting on external lifecycle transitions to activate
+[map_server-4] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[map_server-4] [INFO] [1793243412.869123849] [map_server]: Creating
+[amcl-5] [INFO] [1793243412.871968121] [amcl]: 
+[amcl-5] 	amcl lifecycle node launched. 
+[amcl-5] 	Waiting on external lifecycle transitions to activate
+[amcl-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[amcl-5] [INFO] [1793243412.877534992] [amcl]: Creating
+[behavior_server-7] [INFO] [1793243412.880778497] [behavior_server]: 
+[behavior_server-7] 	behavior_server lifecycle node launched. 
+[behavior_server-7] 	Waiting on external lifecycle transitions to activate
+[behavior_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[lifecycle_manager-11] [INFO] [1793243412.928879373] [lifecycle_manager_simulation]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-11] [INFO] [1793243412.928988281] [lifecycle_manager_simulation]: [34m[1mConfiguring map_server[0m[0m
+[map_server-4] [INFO] [1793243412.930678704] [map_server]: Configuring
+[map_server-4] [INFO] [1793243412.930764356] [map_io]: Loading yaml file: /tmp/smart-vision-failure-install/smart_vision_amr/share/smart_vision_amr/maps/simulation_room.yaml
+[map_server-4] [INFO] [1793243412.931133604] [map_io]: resolution: 0.05
+[map_server-4] [INFO] [1793243412.931151967] [map_io]: origin[0]: -5.1
+[map_server-4] [INFO] [1793243412.931161424] [map_io]: origin[1]: -4.1
+[map_server-4] [INFO] [1793243412.931171899] [map_io]: origin[2]: 0
+[map_server-4] [INFO] [1793243412.931181366] [map_io]: free_thresh: 0.25
+[map_server-4] [INFO] [1793243412.931189259] [map_io]: occupied_thresh: 0.65
+[map_server-4] [INFO] [1793243412.931198713] [map_io]: mode: trinary
+[map_server-4] [INFO] [1793243412.931207350] [map_io]: negate: 0
+[map_server-4] [INFO] [1793243412.931483051] [map_io]: Loading image_file: /tmp/smart-vision-failure-install/smart_vision_amr/share/smart_vision_amr/maps/simulation_room.pgm
+[controller_server-6] [INFO] [1793243412.935172913] [local_costmap.local_costmap]: 
+[controller_server-6] 	local_costmap lifecycle node launched. 
+[controller_server-6] 	Waiting on external lifecycle transitions to activate
+[controller_server-6] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-6] [INFO] [1793243412.936437391] [local_costmap.local_costmap]: Creating Costmap
+[map_server-4] [INFO] [1793243412.958557282] [map_io]: Read map /tmp/smart-vision-failure-install/smart_vision_amr/share/smart_vision_amr/maps/simulation_room.pgm: 204 X 164 map @ 0.05 m/cell
+[lifecycle_manager-11] [INFO] [1793243412.992890367] [lifecycle_manager_simulation]: [34m[1mConfiguring amcl[0m[0m
+[amcl-5] [INFO] [1793243412.994062437] [amcl]: Configuring
+[amcl-5] [INFO] [1793243412.994183548] [amcl]: initTransforms
+[amcl-5] [INFO] [1793243413.032764560] [amcl]: initPubSub
+[amcl-5] [INFO] [1793243413.045525182] [amcl]: Subscribed to map topic.
+[lifecycle_manager-11] [INFO] [1793243413.059588038] [lifecycle_manager_simulation]: [34m[1mConfiguring controller_server[0m[0m
+[controller_server-6] [INFO] [1793243413.064479738] [controller_server]: Configuring controller interface
+[controller_server-6] [INFO] [1793243413.064665903] [controller_server]: getting goal checker plugins..
+[controller_server-6] [INFO] [1793243413.064736815] [controller_server]: Controller frequency set to 10.0000Hz
+[controller_server-6] [INFO] [1793243413.064776477] [local_costmap.local_costmap]: Configuring
+[controller_server-6] [INFO] [1793243413.096827534] [local_costmap.local_costmap]: Using plugin "obstacle_layer"
+[controller_server-6] [INFO] [1793243413.110291661] [local_costmap.local_costmap]: Subscribed to Topics: scan
+[controller_server-6] [INFO] [1793243413.122394906] [local_costmap.local_costmap]: Initialized plugin "obstacle_layer"
+[controller_server-6] [INFO] [1793243413.122449961] [local_costmap.local_costmap]: Using plugin "inflation_layer"
+[controller_server-6] [INFO] [1793243413.122944894] [local_costmap.local_costmap]: Initialized plugin "inflation_layer"
+[controller_server-6] [INFO] [1793243413.174090299] [controller_server]: Created progress_checker : progress_checker of type nav2_controller::SimpleProgressChecker
+[controller_server-6] [INFO] [1793243413.178963886] [controller_server]: Created goal checker : general_goal_checker of type nav2_controller::SimpleGoalChecker
+[controller_server-6] [INFO] [1793243413.179526132] [controller_server]: Controller Server has general_goal_checker  goal checkers available.
+[controller_server-6] [INFO] [1793243413.221815463] [controller_server]: Created controller : FollowPath of type nav2_rotation_shim_controller::RotationShimController
+[controller_server-6] [INFO] [1793243413.236895418] [controller_server]: Created internal controller for rotation shimming: FollowPath of type dwb_core::DWBLocalPlanner
+[controller_server-6] [INFO] [1793243413.240976488] [controller_server]: Setting transform_tolerance to 0.300000
+[controller_server-6] [INFO] [1793243413.312761275] [controller_server]: Using critic "RotateToGoal" (dwb_critics::RotateToGoalCritic)
+[controller_server-6] [INFO] [1793243413.315457008] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243413.315579588] [controller_server]: Using critic "Oscillation" (dwb_critics::OscillationCritic)
+[controller_server-6] [INFO] [1793243413.315769757] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243413.315839691] [controller_server]: Using critic "BaseObstacle" (dwb_critics::BaseObstacleCritic)
+[controller_server-6] [INFO] [1793243413.315934360] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243413.316013833] [controller_server]: Using critic "GoalAlign" (dwb_critics::GoalAlignCritic)
+[controller_server-6] [INFO] [1793243413.316228866] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243413.316319879] [controller_server]: Using critic "PathAlign" (dwb_critics::PathAlignCritic)
+[controller_server-6] [INFO] [1793243413.316497744] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243413.316574683] [controller_server]: Using critic "PathDist" (dwb_critics::PathDistCritic)
+[controller_server-6] [INFO] [1793243413.316724544] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243413.316801049] [controller_server]: Using critic "GoalDist" (dwb_critics::GoalDistCritic)
+[controller_server-6] [INFO] [1793243413.316955828] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243413.316985445] [controller_server]: Controller Server has FollowPath  controllers available.
+[lifecycle_manager-11] [INFO] [1793243413.359081135] [lifecycle_manager_simulation]: [34m[1mConfiguring behavior_server[0m[0m
+[behavior_server-7] [INFO] [1793243413.359427802] [behavior_server]: Configuring
+[behavior_server-7] [INFO] [1793243413.412681428] [behavior_server]: Creating behavior plugin backup of type nav2_behaviors/BackUp
+[behavior_server-7] [INFO] [1793243413.415250300] [behavior_server]: Configuring backup
+[lifecycle_manager-11] [INFO] [1793243413.443331789] [lifecycle_manager_simulation]: [34m[1mActivating map_server[0m[0m
+[map_server-4] [INFO] [1793243413.444531824] [map_server]: Activating
+[map_server-4] [INFO] [1793243413.444833349] [map_server]: Creating bond (map_server) to lifecycle manager.
+[amcl-5] [INFO] [1793243413.446389064] [amcl]: Received a 204 X 164 map @ 0.050 m/pix
+[lifecycle_manager-11] [INFO] [1793243413.559166744] [lifecycle_manager_simulation]: Server map_server connected with bond.
+[lifecycle_manager-11] [INFO] [1793243413.559217715] [lifecycle_manager_simulation]: [34m[1mActivating amcl[0m[0m
+[amcl-5] [INFO] [1793243413.560053303] [amcl]: Activating
+[amcl-5] [INFO] [1793243413.560102530] [amcl]: initialPoseReceived
+[amcl-5] [INFO] [1793243413.560192803] [amcl]: Setting pose (0.000000): -3.000 -2.000 0.000
+[amcl-5] [INFO] [1793243413.562154280] [amcl]: Creating bond (amcl) to lifecycle manager.
+[lifecycle_manager-11] [INFO] [1793243413.679627625] [lifecycle_manager_simulation]: Server amcl connected with bond.
+[lifecycle_manager-11] [INFO] [1793243413.679682111] [lifecycle_manager_simulation]: [34m[1mActivating controller_server[0m[0m
+[controller_server-6] [INFO] [1793243413.679920559] [controller_server]: Activating
+[controller_server-6] [INFO] [1793243413.679963984] [local_costmap.local_costmap]: Activating
+[controller_server-6] [INFO] [1793243413.679982579] [local_costmap.local_costmap]: Checking transform
+[controller_server-6] [INFO] [1793243413.680014505] [local_costmap.local_costmap]: Timed out waiting for transform from base_footprint to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-6] [INFO] [1793243414.180072227] [local_costmap.local_costmap]: Timed out waiting for transform from base_footprint to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[change_memory-14] [INFO] [1793243414.200147136] [change_memory]: Persistent environment memory disabled for baseline condition
+[spawn_entity.py-3] [INFO] [1793243414.225482955] [spawn_entity]: Spawn Entity started
+[spawn_entity.py-3] [INFO] [1793243414.226258339] [spawn_entity]: Loading entity XML from file /tmp/smart_vision_amr_model_eab30tzj/model.sdf
+[spawn_entity.py-3] [INFO] [1793243414.228077577] [spawn_entity]: Waiting for service /spawn_entity, timeout = 30
+[spawn_entity.py-3] [INFO] [1793243414.228834760] [spawn_entity]: Waiting for service /spawn_entity
+[controller_server-6] [INFO] [1793243414.680072310] [local_costmap.local_costmap]: Timed out waiting for transform from base_footprint to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[localization_health-10] [INFO] [1793243414.993937500] [localization_health]: Localization health: warning ['amcl_covariance_unavailable', 'map_tf_unavailable', 'odom_tf_unavailable', 'odom_unavailable', 'scan_map_check_unavailable', 'scan_unavailable', 'initializing']
+[spawn_entity.py-3] [INFO] [1793243414.994335843] [spawn_entity]: Calling service /spawn_entity
+[controller_server-6] [INFO] [1793243415.180247330] [local_costmap.local_costmap]: Timed out waiting for transform from base_footprint to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[gzserver-1] [INFO] [1793243415.397800754] [turtlebot3_imu]: <initial_orientation_as_reference> is unset, using default value of false to comply with REP 145 (world as orientation reference)
+[change_memory-14] [WARN] [1793243415.625272160] [change_memory]: Waiting for scan-stamped TF: "map" passed to lookupTransform argument target_frame does not exist. 
+[spawn_entity.py-3] [INFO] [1793243415.628729225] [spawn_entity]: Spawn status: SpawnEntity: Successfully spawned entity [waffle_pi]
+[controller_server-6] [INFO] [1793243415.680075292] [local_costmap.local_costmap]: Timed out waiting for transform from base_footprint to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[amcl-5] [INFO] [1793243415.695864436] [amcl]: Requesting no-motion update
+[INFO] [spawn_entity.py-3]: process has finished cleanly [pid 89867]
+[change_memory-14] [WARN] [1793243415.841694870] [change_memory]: LiDAR projection rejected: measurement_tf_timeout
+[gzserver-1] [INFO] [1793243415.907197747] [camera_driver]: Publishing camera info to [/camera/camera_info]
+[gzserver-1] [INFO] [1793243415.967638597] [turtlebot3_diff_drive]: Wheel pair 1 separation set to [0.287000m]
+[gzserver-1] [INFO] [1793243415.967706537] [turtlebot3_diff_drive]: Wheel pair 1 diameter set to [0.066000m]
+[gzserver-1] [INFO] [1793243415.969854391] [turtlebot3_diff_drive]: Subscribed to [/cmd_vel]
+[gzserver-1] [INFO] [1793243415.975190661] [turtlebot3_diff_drive]: Advertise odometry on [/odom]
+[gzserver-1] [INFO] [1793243415.979655233] [turtlebot3_diff_drive]: Publishing odom transforms between [odom] and [base_footprint]
+[gzserver-1] [INFO] [1793243416.001158560] [turtlebot3_joint_state]: Going to publish joint [wheel_left_joint]
+[gzserver-1] [INFO] [1793243416.001211478] [turtlebot3_joint_state]: Going to publish joint [wheel_right_joint]
+[controller_server-6] [INFO] [1793243416.180167557] [local_costmap.local_costmap]: start
+[amcl-5] [INFO] [1793243416.204272205] [amcl]: createLaserObject
+[controller_server-6] [INFO] [1793243416.383476413] [controller_server]: Activating controller: FollowPath of type nav2_rotation_shim_controller::RotationShimController
+[controller_server-6] [INFO] [1793243416.383623398] [controller_server]: Creating bond (controller_server) to lifecycle manager.
+[lifecycle_manager-11] [INFO] [1793243416.489147603] [lifecycle_manager_simulation]: Server controller_server connected with bond.
+[lifecycle_manager-11] [INFO] [1793243416.489184914] [lifecycle_manager_simulation]: [34m[1mActivating behavior_server[0m[0m
+[behavior_server-7] [INFO] [1793243416.489456850] [behavior_server]: Activating
+[behavior_server-7] [INFO] [1793243416.489480824] [behavior_server]: Activating backup
+[behavior_server-7] [INFO] [1793243416.489507329] [behavior_server]: Creating bond (behavior_server) to lifecycle manager.
+[lifecycle_manager-11] [INFO] [1793243416.596212885] [lifecycle_manager_simulation]: Server behavior_server connected with bond.
+[lifecycle_manager-11] [INFO] [1793243416.596263126] [lifecycle_manager_simulation]: [34m[1mManaged nodes are active[0m[0m
+[lifecycle_manager-11] [INFO] [1793243416.596278775] [lifecycle_manager_simulation]: [34m[1mCreating bond timer...[0m[0m
+[localization_health-10] [INFO] [1793243419.457547660] [localization_health]: Localization health: ok []
+[controller_server-6] [INFO] [1793243419.534435718] [controller_server]: Received a goal, begin computing control effort.
+[astar_planner-12] [INFO] [1793243419.564871200] [astar_planner]: Published A* path with 57 poses
+[path_follower-13] [INFO] [1793243419.568225380] [path_follower]: Sent path with 57 poses to Nav2
+[change_memory-14] [WARN] [1793243420.815482764] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 5.110000 but the latest data is at time 5.104000, when looking up transform from frame [base_scan] to frame [map]
+[path_follower-13] [WARN] [1793243421.163431204] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243421.234766170] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243421.234828839] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243421.236602309] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243421.574953099] [astar_planner]: Published A* path with 49 poses
+[controller_server-6] [INFO] [1793243421.581506771] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243421.582456853] [path_follower]: Sent path with 49 poses to Nav2
+[path_follower-13] [WARN] [1793243421.935161284] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243421.981745994] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243421.981832213] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243421.983702383] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243423.577107578] [astar_planner]: Published A* path with 50 poses
+[controller_server-6] [INFO] [1793243423.583303726] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243423.584450168] [path_follower]: Sent path with 50 poses to Nav2
+[path_follower-13] [WARN] [1793243423.958606301] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243423.983481003] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243423.983542539] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243423.984971858] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243425.591046460] [astar_planner]: Published A* path with 49 poses
+[controller_server-6] [INFO] [1793243425.596616997] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243425.597235970] [path_follower]: Sent path with 49 poses to Nav2
+[path_follower-13] [WARN] [1793243425.772595255] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243425.796785964] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243425.796832243] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243425.799479939] [path_follower]: FollowPath finished: Nav2 status 5
+[change_memory-14] [WARN] [1793243425.888213504] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 10.110000 but the latest data is at time 10.102000, when looking up transform from frame [base_scan] to frame [map]
+[astar_planner-12] [INFO] [1793243427.607682408] [astar_planner]: Published A* path with 49 poses
+[controller_server-6] [INFO] [1793243427.613470979] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243427.615061063] [path_follower]: Sent path with 49 poses to Nav2
+[path_follower-13] [WARN] [1793243427.617537979] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243427.713671385] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243427.713727406] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243427.715453130] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243429.617783816] [astar_planner]: Published A* path with 50 poses
+[controller_server-6] [INFO] [1793243429.624383909] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243429.625126487] [path_follower]: Sent path with 50 poses to Nav2
+[change_memory-14] [WARN] [1793243430.909661389] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 15.110000 but the latest data is at time 15.100000, when looking up transform from frame [base_scan] to frame [map]
+[path_follower-13] [WARN] [1793243431.774448480] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243431.824539539] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243431.824582673] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243431.826057639] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243431.830919059] [astar_planner]: Published A* path with 50 poses
+[controller_server-6] [INFO] [1793243431.839093911] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243431.840034752] [path_follower]: Sent path with 50 poses to Nav2
+[change_memory-14] [WARN] [1793243435.935286868] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 20.110000 but the latest data is at time 20.098000, when looking up transform from frame [base_scan] to frame [map]
+[path_follower-13] [WARN] [1793243439.439334336] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[astar_planner-12] [INFO] [1793243439.496582771] [astar_planner]: Published A* path with 44 poses
+[controller_server-6] [INFO] [1793243439.539355203] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243439.539449435] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243439.542877105] [path_follower]: FollowPath finished: Nav2 status 5
+[controller_server-6] [INFO] [1793243439.545440733] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243439.546568604] [path_follower]: Sent path with 44 poses to Nav2
+[path_follower-13] [WARN] [1793243439.632933873] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243439.645904798] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243439.645995739] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243439.648079281] [path_follower]: FollowPath finished: Nav2 status 5
+[change_memory-14] [WARN] [1793243440.961881157] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 25.110000 but the latest data is at time 25.096000, when looking up transform from frame [base_scan] to frame [map]
+[astar_planner-12] [INFO] [1793243441.505167396] [astar_planner]: Published A* path with 44 poses
+[controller_server-6] [INFO] [1793243441.510652900] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243441.511775774] [path_follower]: Sent path with 44 poses to Nav2
+[path_follower-13] [WARN] [1793243443.439921572] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243443.510869254] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243443.510924979] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243443.513335831] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243443.748110087] [astar_planner]: Published A* path with 45 poses
+[controller_server-6] [INFO] [1793243443.754285447] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243443.755559831] [path_follower]: Sent path with 45 poses to Nav2
+[change_memory-14] [WARN] [1793243445.999169697] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 30.110000 but the latest data is at time 30.094000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243451.031516977] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 35.110000 but the latest data is at time 35.092000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243456.106478981] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 40.110000 but the latest data is at time 40.090000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243461.142481161] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 45.110000 but the latest data is at time 45.088000, when looking up transform from frame [base_scan] to frame [map]
+[path_follower-13] [WARN] [1793243462.415015802] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243462.454447757] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243462.454493375] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243462.456525437] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243462.479582495] [astar_planner]: Published A* path with 46 poses
+[controller_server-6] [INFO] [1793243462.486949604] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243462.487966689] [path_follower]: Sent path with 46 poses to Nav2
+[path_follower-13] [WARN] [1793243462.615587453] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243462.687222561] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243462.687262131] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243462.688953395] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243464.601067924] [astar_planner]: Published A* path with 45 poses
+[controller_server-6] [INFO] [1793243464.607068000] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243464.608667587] [path_follower]: Sent path with 45 poses to Nav2
+[change_memory-14] [WARN] [1793243466.159636782] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 50.110000 but the latest data is at time 50.086000, when looking up transform from frame [base_scan] to frame [map]
+[path_follower-13] [WARN] [1793243468.448922196] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[astar_planner-12] [INFO] [1793243468.506054699] [astar_planner]: Published A* path with 46 poses
+[controller_server-6] [INFO] [1793243468.507306971] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243468.507364496] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243468.510669551] [path_follower]: FollowPath finished: Nav2 status 5
+[controller_server-6] [INFO] [1793243468.512981447] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243468.513795119] [path_follower]: Sent path with 46 poses to Nav2
+[path_follower-13] [WARN] [1793243468.654798520] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243468.713198585] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243468.713252568] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243468.715208608] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243470.528698741] [astar_planner]: Published A* path with 45 poses
+[controller_server-6] [INFO] [1793243470.534817897] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243470.535682961] [path_follower]: Sent path with 45 poses to Nav2
+[change_memory-14] [WARN] [1793243471.181515306] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 55.110000 but the latest data is at time 55.084000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243476.202586681] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 60.110000 but the latest data is at time 60.082000, when looking up transform from frame [base_scan] to frame [map]
+[controller_server-6] [INFO] [1793243476.935045570] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243476.935131422] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243476.936851185] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243477.019670761] [astar_planner]: Published A* path with 56 poses
+[controller_server-6] [INFO] [1793243477.029610609] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243477.030872860] [path_follower]: Sent path with 56 poses to Nav2
+[path_follower-13] [WARN] [1793243480.522023485] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243480.529872393] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243480.529918733] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243480.533199093] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243480.602187006] [astar_planner]: Published A* path with 56 poses
+[path_follower-13] [INFO] [1793243480.611855479] [path_follower]: Sent path with 56 poses to Nav2
+[controller_server-6] [INFO] [1793243480.613534201] [controller_server]: Received a goal, begin computing control effort.
+[change_memory-14] [WARN] [1793243481.224737680] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 65.110000 but the latest data is at time 65.080000, when looking up transform from frame [base_scan] to frame [map]
+[path_follower-13] [WARN] [1793243485.110361933] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243485.113672464] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243485.113715772] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243485.115695190] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243485.182136101] [astar_planner]: Published A* path with 52 poses
+[controller_server-6] [INFO] [1793243485.190576155] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243485.192433477] [path_follower]: Sent path with 52 poses to Nav2
+[change_memory-14] [WARN] [1793243486.245575197] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 70.110000 but the latest data is at time 70.078000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243491.468881521] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 75.310000 but the latest data is at time 75.280000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243496.500288760] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 80.310000 but the latest data is at time 80.278000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243501.520889746] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 85.311000 but the latest data is at time 85.310000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243506.546703463] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 90.311000 but the latest data is at time 90.308000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243511.566582075] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 95.310000 but the latest data is at time 95.306000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243516.588041373] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 100.310000 but the latest data is at time 100.304000, when looking up transform from frame [base_scan] to frame [map]
+[controller_server-6] [ERROR] [1793243518.291537286] [controller_server]: Failed to make progress
+[controller_server-6] [WARN] [1793243518.291694901] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[path_follower-13] [INFO] [1793243518.293206885] [path_follower]: FollowPath finished: Nav2 status 6
+[astar_planner-12] [INFO] [1793243518.380475817] [astar_planner]: Published A* path with 66 poses
+[controller_server-6] [INFO] [1793243518.389500256] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243518.390579675] [path_follower]: Sent path with 66 poses to Nav2
+[path_follower-13] [WARN] [1793243519.063959701] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243519.089719673] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243519.089780079] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243519.091839694] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243520.551247813] [astar_planner]: Published A* path with 66 poses
+[controller_server-6] [INFO] [1793243520.558217089] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243520.559432041] [path_follower]: Sent path with 66 poses to Nav2
+[change_memory-14] [WARN] [1793243521.606780117] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 105.310000 but the latest data is at time 105.302000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243526.633745751] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 110.310000 but the latest data is at time 110.300000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243531.648744403] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 115.310000 but the latest data is at time 115.298000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243536.667810504] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 120.310000 but the latest data is at time 120.296000, when looking up transform from frame [base_scan] to frame [map]
+[controller_server-6] [ERROR] [1793243540.658704150] [controller_server]: Failed to make progress
+[controller_server-6] [WARN] [1793243540.658894950] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[path_follower-13] [INFO] [1793243540.661943609] [path_follower]: FollowPath finished: Nav2 status 6
+[astar_planner-12] [INFO] [1793243540.781868942] [astar_planner]: Published A* path with 70 poses
+[controller_server-6] [INFO] [1793243540.792530371] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243540.793683020] [path_follower]: Sent path with 70 poses to Nav2
+[path_follower-13] [WARN] [1793243541.372414228] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243541.392748925] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243541.392796391] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243541.396374988] [path_follower]: FollowPath finished: Nav2 status 5
+[change_memory-14] [WARN] [1793243541.686342626] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 125.310000 but the latest data is at time 125.294000, when looking up transform from frame [base_scan] to frame [map]
+[astar_planner-12] [INFO] [1793243542.893505984] [astar_planner]: Published A* path with 70 poses
+[controller_server-6] [INFO] [1793243542.901201838] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243542.902191574] [path_follower]: Sent path with 70 poses to Nav2
+[change_memory-14] [WARN] [1793243546.731814605] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 130.311000 but the latest data is at time 130.292000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243551.759102164] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 135.310000 but the latest data is at time 135.290000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243556.796769366] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 140.310000 but the latest data is at time 140.288000, when looking up transform from frame [base_scan] to frame [map]
+[path_follower-13] [WARN] [1793243558.894580730] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793243558.901398824] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243558.901464939] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243558.904116834] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-12] [INFO] [1793243559.001685279] [astar_planner]: Published A* path with 68 poses
+[controller_server-6] [INFO] [1793243559.014916115] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-13] [INFO] [1793243559.016532500] [path_follower]: Sent path with 68 poses to Nav2
+[change_memory-14] [WARN] [1793243561.835877570] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 145.310000 but the latest data is at time 145.286000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243566.854458402] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 150.310000 but the latest data is at time 150.284000, when looking up transform from frame [base_scan] to frame [map]
+[controller_server-6] [INFO] [1793243569.616646309] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793243569.616722841] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-13] [INFO] [1793243569.619157546] [path_follower]: FollowPath finished: Nav2 status 5
+[change_memory-14] [WARN] [1793243571.873105085] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 155.310000 but the latest data is at time 155.282000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243576.883965758] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 160.310000 but the latest data is at time 160.280000, when looking up transform from frame [base_scan] to frame [map]

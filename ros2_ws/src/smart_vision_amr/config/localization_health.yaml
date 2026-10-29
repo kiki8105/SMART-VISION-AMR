@@ -25,6 +25,11 @@ localization_health:
     # Accumulated moving time since the last new AMCL sample, excluding idle.
     # Stops do not reset the budget, so repeated stop/go cannot bypass it.
     amcl_moving_timeout: 4.0
+    # Ask AMCL for a real laser-filter update during slow/short reversing turns.
+    # Requests/responses never count as a new pose; the 4 s watchdog remains.
+    nomotion_update_interval: 2.0  # s; rate is capped at one request per 2 s.
+    nomotion_update_trigger_age: 1.0  # s since the last actual AMCL pose.
+    nomotion_request_timeout: 1.0  # s; one pending request, then local cleanup.
     motion_dt_limit: 1.0  # Bound one integration step after scheduler stalls.
     jump_distance_m: 0.65  # AMCL displacement residual relative to wheel/IMU odom.
     jump_yaw_rad: 0.8

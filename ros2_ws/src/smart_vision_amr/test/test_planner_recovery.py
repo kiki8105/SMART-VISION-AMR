@@ -13,7 +13,7 @@ from std_msgs.msg import Int32MultiArray, String
 from tf2_ros import TransformException
 
 from smart_vision_amr.astar import AStarPlanner
-from smart_vision_amr.astar_planner import AStarPlannerNode
+from smart_vision_amr.astar_planner import AStarPlannerNode, FAILURE_DEFAULTS
 from smart_vision_amr.map_utils import occupancy_to_grid
 
 
@@ -38,6 +38,8 @@ class PlannerHarness(AStarPlannerNode):
                             "reverse_recovery_clearance_margin": 0.02,
                             "reverse_recovery_speed": 0.04,
                             "reverse_recovery_max_attempts": 3})
+        self.params.update(FAILURE_DEFAULTS)
+        self._init_failure_state()
         self.map = None
         self.remembered = set()
         self.observed = set()

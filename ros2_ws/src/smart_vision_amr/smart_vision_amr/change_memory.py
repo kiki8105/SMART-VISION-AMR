@@ -67,6 +67,8 @@ class ChangeMemoryNode(Node):
         self.overlay_pub = self.create_publisher(Int32MultiArray, "/smart_vision_amr/remembered_cells", latched)
         self.observation_pub = self.create_publisher(
             Int32MultiArray, "/smart_vision_amr/observed_obstacles", 10)
+        self.visibility_pub = self.create_publisher(
+            OccupancyGrid, "/smart_vision_amr/observed_visibility", qos_profile_sensor_data)
         self.projection_status_pub = self.create_publisher(
             String, "/smart_vision_amr/scan_projection_status", latched)
         self.create_subscription(OccupancyGrid, self.get_parameter("map_topic").value, self.on_map, latched)
@@ -321,6 +323,20 @@ class ChangeMemoryNode(Node):
         observed = Int32MultiArray()
         observed.data = sorted(y * self.memory.width + x for x, y in self.live_obstacles)
         self.observation_pub.publish(observed)
+        # A missing hit/TTL expiry is not removal evidence. Publish exactly
+        # which cells this measurement's valid rays traversed, with its stamp.
+        if hasattr(self, "visibility_pub"):
+            visibility = OccupancyGrid()
+            visibility.header.frame_id = target_frame
+            visibility.header.stamp = scan.header.stamp
+            visibility.info = info
+            data = [-1] * (info.width*info.height)
+            for x, y in free_cells:
+                data[y*info.width+x] = 0
+            for x, y in occupied_cells:
+                data[y*info.width+x] = 100
+            visibility.data = data
+            self.visibility_pub.publish(visibility)
         self._projection_diagnostic("VALID", "measurement_transform_applied", scan, skew_ms)
         if not self.get_parameter("memory_enabled").value:
             return True

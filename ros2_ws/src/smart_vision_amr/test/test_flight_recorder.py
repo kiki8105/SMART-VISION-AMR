@@ -130,6 +130,17 @@ def test_failure_health_and_estop_triggers_are_distinguished_from_normal_status(
         {'level': 'WARNING'}) is None
 
 
+def test_execution_failure_capture_waits_for_confirmed_terminal_result():
+    topic = '/smart_vision_amr/execution_failure'
+    event = {'event_id': 'unique-execution', 'reason': 'execution_no_progress',
+             'terminal_confirmed': False}
+    assert FlightRecorder.trigger_signature(topic, event) is None
+    event['terminal_confirmed'] = True
+    assert FlightRecorder.trigger_signature(topic, event) == 'EXECUTION_FAILURE:unique-execution'
+    assert FlightRecorder.trigger_signature('/smart_vision_amr/failure_memory_status',
+        {'state': 'REJOINING', 'count': 1}) is None
+
+
 def test_invalid_bounds_are_rejected():
     with pytest.raises(ValueError):
         IncidentBuffer(pre_seconds=float('nan'))

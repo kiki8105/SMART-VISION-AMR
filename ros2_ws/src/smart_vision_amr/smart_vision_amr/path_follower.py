@@ -3,9 +3,11 @@
 from collections import deque
 from math import atan2, cos, hypot, isfinite, pi, radians, sin
 import time
+import hashlib
+import uuid
 
 import rclpy
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Twist
 from nav2_msgs.action import BackUp, FollowPath
 from nav2_msgs.msg import SpeedLimit
 from nav_msgs.msg import Odometry, Path
@@ -22,6 +24,7 @@ import json
 
 from smart_vision_amr.path_geometry import (curvature_speed_limit, path_length, path_progress,
                                            paths_are_equivalent, point_at_progress, upcoming_curvature)
+from smart_vision_amr.execution_progress import ExecutionProgress, ProgressSample
 
 
 class PathFollower(Node):
@@ -53,6 +56,27 @@ class PathFollower(Node):
                               ("curve_max_angular_velocity", 0.35),
                               ("curve_max_lateral_acceleration", 0.10)):
             self.declare_parameter(name, default)
+        for name, default in (("execution_failure_enabled", True),
+                              ("execution_progress_window", 6.0),
+                              ("execution_min_progress", 0.05),
+                              ("execution_heading_progress", 0.15),
+                              ("execution_evidence_timeout", 1.0)):
+            self.declare_parameter(name, default)
+        self.execution_progress = ExecutionProgress(
+            window=float(self.get_parameter('execution_progress_window').value),
+            min_progress=float(self.get_parameter('execution_min_progress').value),
+            heading_progress=float(self.get_parameter('execution_heading_progress').value))
+        self.execution_reference = None
+        self.execution_route_id = None
+        self.pending_execution_failure = None
+        self.execution_discarded_reason = None
+        self.execution_replan_cutoff_ns = None
+        self.latest_navigation_command = None
+        self.latest_navigation_command_at = None
+        self.localization_health = None
+        self.localization_health_at = None
+        self.execution_last_ros_ns = None
+        self.execution_clock_advanced_at = None
         self.resume_goal_tolerance = self.get_parameter("resume_goal_tolerance").value
         self.client = ActionClient(self, FollowPath, self.get_parameter("action_name").value)
         self.backup_client = ActionClient(self, BackUp, "/backup")
@@ -71,6 +95,8 @@ class PathFollower(Node):
                               ("recovery_scan_frame", "base_scan")):
             self.declare_parameter(name, default)
         self.status_pub = self.create_publisher(String, "/smart_vision_amr/navigation_status", 10)
+        self.execution_failure_pub = self.create_publisher(
+            String, '/smart_vision_amr/execution_failure', 10)
         self.safety_control_pub = self.create_publisher(
             String, "/smart_vision_amr/manual_control", 1)
         self.safety_control_seq = 0
@@ -78,6 +104,8 @@ class PathFollower(Node):
             SpeedLimit, self.get_parameter("curve_speed_limit_topic").value, 1)
         self.follow_requested_at = None
         self.follow_feedback_at = None
+        self.follow_has_feedback = False
+        self.last_executed_intent = None
         self.follow_cancel_since = None
         self.follow_last_cancel_at = None
         self.follow_cancel_acknowledged = False
@@ -143,10 +171,14 @@ class PathFollower(Node):
                                  self.on_recovery_request, 10)
         self.create_subscription(LaserScan, "/scan", self.on_scan, qos_profile_sensor_data)
         self.create_subscription(Odometry, "/odom", self.on_odom, qos_profile_sensor_data)
+        self.create_subscription(Twist, '/smart_vision_amr/navigation_cmd_vel',
+                                 self.on_navigation_command, 1)
         durable = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                              durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.create_subscription(String, "/smart_vision_amr/motion_status",
                                  self.on_motion_status, durable)
+        self.create_subscription(String, '/smart_vision_amr/localization_health',
+                                 self.on_localization_health, durable)
         self.create_service(Trigger, "/smart_vision_amr/cancel_navigation", self.cancel_navigation)
         # Steady time still detects stale sensors when Gazebo /clock is paused.
         from rclpy.clock import Clock, ClockType
@@ -157,6 +189,7 @@ class PathFollower(Node):
         # A planner may keep publishing obstacle-driven replans for its last goal.
         # Only a new explicit goal may resume navigation after a manual stop.
         context = self._goal_context()
+        self._reset_execution_progress(clear_pending=True)
         now = self.get_clock().now().to_msg()
         now_ns = now.sec * 1_000_000_000 + now.nanosec
         accepted_stamp = context.get("goal_stamp") or {}
@@ -196,6 +229,7 @@ class PathFollower(Node):
                                 context={"goal": None, "goal_stamp": None})
             return
         self.goal_generation += 1
+        self._reset_execution_progress(clear_pending=True)
         self._abort_recovery()
         self.requested_goal = goal
         self.navigation_suspended = False
@@ -262,9 +296,22 @@ class PathFollower(Node):
         if self.navigation_suspended:
             self.suspended_paths.append(path)
             return
+        if (getattr(self, 'pending_execution_failure', None) is not None
+                or getattr(self, 'execution_discarded_reason', None) is not None) and path.poses:
+            # The failed FollowPath still owns motion until its terminal result.
+            # No intermediate copy of the old path may bypass that barrier.
+            return
         if self.require_goal_match and not self._path_matches_goal(path):
             self.suspended_paths.append(path)
             return
+        cutoff = getattr(self, 'execution_replan_cutoff_ns', None)
+        if path.poses and cutoff is not None:
+            stamp_ns = path.header.stamp.sec*1_000_000_000+path.header.stamp.nanosec
+            if stamp_ns <= cutoff:
+                # A delayed route that predates the failure event must not
+                # restart while the planner is still consuming that event.
+                return
+            self.execution_replan_cutoff_ns = None
         if path.poses and self.recovery_cancel_path_cutoff_ns is not None:
             stamp = path.header.stamp
             path_ns = stamp.sec * 1_000_000_000 + stamp.nanosec
@@ -383,11 +430,14 @@ class PathFollower(Node):
         goal.controller_id = self.get_parameter("controller_id").value
         goal.goal_checker_id = self.get_parameter("goal_checker_id").value
         self.active_path = path
+        self._select_execution_reference(path)
         context = self._goal_context(path)
         self.request_context = context
         self.goal_request_pending = True
         self.follow_requested_at = time.monotonic()
         self.follow_feedback_at = None
+        self.follow_has_feedback = False
+        self.last_executed_intent = None
         self.follow_distance_remaining = path_length(self._points(path))
         self.follow_request_seq += 1
         sequence = self.follow_request_seq
@@ -454,6 +504,7 @@ class PathFollower(Node):
         if not isfinite(remaining) or remaining < 0 or not isfinite(speed):
             return
         self.follow_feedback_at = time.monotonic()
+        self.follow_has_feedback = True
         self.follow_distance_remaining = remaining
         self._publish_curve_limit()
         if (self.last_follow_diagnostic_at is None or
@@ -486,6 +537,67 @@ class PathFollower(Node):
             self._hold_unconfirmed_follow(f"FollowPath result is unconfirmed: {exc}")
             return
         self.get_logger().info(f"FollowPath finished: {detail}")
+        failure_detection_enabled = bool(self.get_parameter('execution_failure_enabled').value)
+        if not failure_detection_enabled:
+            self._discard_execution_diagnosis('Execution failure detection disabled')
+        failure_event = None
+        pending_failure = getattr(self, 'pending_execution_failure', None)
+        discarded_reason = getattr(self, 'execution_discarded_reason', None)
+        self.execution_discarded_reason = None
+        if pending_failure is not None and status == 'SUCCEEDED':
+            # The goal can finish just before a cancellation reaches Nav2.
+            # A confirmed success disproves the pending stuck diagnosis; it
+            # must not poison an otherwise successfully traversed approach.
+            self.pending_execution_failure = None
+            pending_failure = None
+            if self._context_is_current(context) and not self.navigation_suspended:
+                self.path_invalidated = False
+        if discarded_reason is not None and status == 'SUCCEEDED':
+            # Success also wins a pending diagnosis invalidated by a transient
+            # condition; explicit operator stop still suspends the goal below.
+            if self._context_is_current(context) and not self.navigation_suspended:
+                self.path_invalidated = False
+        # Only confirmed server-side ABORTED results with fresh spatial evidence
+        # qualify. Cancellations, watchdogs and unavailable sensors never do.
+        if (failure_detection_enabled and pending_failure is None and status == 'FAILED' and not self.cancel_requested
+                and not self.follow_watchdog_fault and not self.navigation_suspended
+                and not self.path_invalidated and self.recovery_request is None
+                and getattr(self, 'follow_has_feedback', False)
+                and self._context_is_current(context)):
+            observation = self._execution_observation(require_intent=True)
+            if observation is None:
+                # Nav2 commonly publishes zero immediately before ABORTED.
+                # A bounded command actually accepted during this same action
+                # remains evidence, provided every spatial prerequisite is
+                # still healthy now. Never infer intent from an arbitrary abort.
+                observation = self._execution_observation(require_intent=False)
+                recent = getattr(self, 'last_executed_intent', None)
+                horizon = max(6., self.execution_progress.window*2.) if getattr(self, 'execution_progress', None) else 6.
+                if (observation is None or recent is None
+                        or recent['request_seq'] != self.follow_request_seq
+                        or not self._execution_command_is_fresh(time.monotonic())
+                        or not 0 <= time.monotonic()-recent['at'] <= horizon):
+                    observation = None
+            if observation is not None:
+                pending_failure = self._execution_payload(
+                    'controller_aborted', observation, {'terminal_status': int(result.status)})
+        if pending_failure is not None:
+            # Recheck after cancellation: a sensor/TF fault that appeared while
+            # stopping invalidates the spatial diagnosis; retain no route memory.
+            if (self._context_is_current(context) and not self.navigation_suspended
+                    and not self.follow_watchdog_fault
+                    and self._execution_observation(require_intent=False) is not None):
+                failure_event = pending_failure
+                failure_event['terminal_confirmed'] = True
+                failure_event['created_at_ns'] = self.get_clock().now().nanoseconds
+                self.execution_replan_cutoff_ns = failure_event['created_at_ns']
+                packet = String()
+                packet.data = json.dumps(failure_event, allow_nan=False)
+                self.execution_failure_pub.publish(packet)
+            self.pending_execution_failure = None
+            self.pending_path = None
+            self.latest_path_key = None
+            self.path_invalidated = True
         if status != "SUCCEEDED":
             # Failure must not permanently deduplicate the same safe replacement route.
             self.latest_path_key = None
@@ -501,6 +613,17 @@ class PathFollower(Node):
         watchdog_fault = self.follow_watchdog_fault
         self._clear_follow_watch()
         self._publish_speed_limit(0.0)
+        if failure_event is not None:
+            self.publish_status('FAILED', 'Stopped; replan while avoiding failed approach',
+                                context=context, route_failure=True,
+                                execution_failure_id=failure_event['event_id'],
+                                execution_failure_reason=failure_event['reason'])
+        elif pending_failure is not None and not self.navigation_suspended:
+            self.publish_status('WAIT_REPLAN', 'Execution diagnosis discarded: fresh sensor/TF evidence unavailable',
+                                context=context, route_failure=False)
+        elif discarded_reason is not None and status != 'SUCCEEDED' and not self.navigation_suspended:
+            self.publish_status('WAIT_REPLAN', 'Execution diagnosis discarded: '+discarded_reason,
+                                context=context, route_failure=False)
         if watchdog_fault and not self.navigation_suspended:
             # Routes computed before stop confirmation start at an uncertain
             # pose. Ask the retained-goal planner for a fresh start instead.
@@ -520,6 +643,8 @@ class PathFollower(Node):
 
     def _clear_follow_watch(self):
         self.follow_requested_at = self.follow_feedback_at = None
+        self.follow_has_feedback = False
+        self.last_executed_intent = None
         self.follow_cancel_since = self.follow_last_cancel_at = None
         self.follow_cancel_acknowledged = False
         self.follow_watchdog_fault = None
@@ -531,6 +656,7 @@ class PathFollower(Node):
     def _hold_unconfirmed_follow(self, reason):
         """Retain the handle/request barrier until Nav2 proves the action ended."""
         self.follow_watchdog_fault = reason
+        self._reset_execution_progress(clear_pending=True)
         self.latest_path_key = None
         self.pending_path = None
         self.path_invalidated = True
@@ -591,6 +717,249 @@ class PathFollower(Node):
         elif (self.active_goal is not None or self.goal_request_pending) and not self.cancel_requested:
             if self.last_speed_limit_at is None or now-self.last_speed_limit_at >= .2:
                 self._publish_curve_limit()
+        self._monitor_execution_progress()
+
+    def _reset_execution_progress(self, *, clear_pending=False):
+        detector = getattr(self, 'execution_progress', None)
+        if detector is not None:
+            detector.reset()
+        self.execution_reference = None
+        self.execution_route_id = None
+        if clear_pending:
+            self.pending_execution_failure = None
+            self.execution_replan_cutoff_ns = None
+            self.last_executed_intent = None
+            self.execution_discarded_reason = None
+
+    def _discard_execution_diagnosis(self, reason):
+        """A transient safety/ownership interruption breaks spatial causality."""
+        self.last_executed_intent = None
+        detector = getattr(self, 'execution_progress', None)
+        if detector is not None:
+            detector.reset(getattr(self, 'execution_route_id', None))
+        if getattr(self, 'pending_execution_failure', None) is not None:
+            self.pending_execution_failure = None
+            self.execution_discarded_reason = reason
+            self.pending_path = None
+            self.latest_path_key = None
+            self.path_invalidated = True
+
+    def _select_execution_reference(self, path):
+        detector = getattr(self, 'execution_progress', None)
+        if detector is None:
+            return
+        if not self.get_parameter('execution_failure_enabled').value:
+            self._discard_execution_diagnosis('Execution failure detection disabled')
+            return
+        points = self._points(path)
+        reference = getattr(self, 'execution_reference', None)
+        if reference is None or not paths_are_equivalent(reference, points):
+            self.execution_reference = points
+            self.execution_route_id = uuid.uuid4().hex
+            detector.reset(self.execution_route_id)
+
+    def on_navigation_command(self, message):
+        self.latest_navigation_command = message
+        self.latest_navigation_command_at = time.monotonic()
+
+    def on_localization_health(self, message):
+        try:
+            health = json.loads(message.data)
+        except (TypeError, ValueError):
+            return
+        if isinstance(health, dict):
+            self.localization_health = health
+            self.localization_health_at = time.monotonic()
+            if (health.get('level') != 'ok' or health.get('autonomous_allowed') is not True
+                    or health.get('stop_latched') is True):
+                self._discard_execution_diagnosis('Localization quality interrupted')
+
+    def _execution_command_is_fresh(self, now):
+        command = getattr(self, 'latest_navigation_command', None)
+        arrival = getattr(self, 'latest_navigation_command_at', None)
+        timeout = max(.2, float(self.get_parameter('execution_evidence_timeout').value))
+        return (command is not None and arrival is not None and 0 <= now-arrival < timeout
+                and self.follow_requested_at is not None and arrival >= self.follow_requested_at
+                and all(isfinite(v) for v in (command.linear.x, command.angular.z)))
+
+    def _execution_observation(self, *, require_intent=True):
+        if getattr(self, 'execution_progress', None) is None or self.active_path is None:
+            return None
+        now = time.monotonic()
+        timeout = max(.2, float(self.get_parameter('execution_evidence_timeout').value))
+        ros_ns = self.get_clock().now().nanoseconds
+        if now < getattr(self, 'execution_clock_fault_until', float('-inf')):
+            return None
+        if ros_ns != getattr(self, 'execution_last_ros_ns', None):
+            previous_ros = getattr(self, 'execution_last_ros_ns', None)
+            self.execution_last_ros_ns = ros_ns
+            self.execution_clock_advanced_at = now
+            if previous_ros is not None and ros_ns < previous_ros:
+                self.execution_clock_fault_until = now+.5
+                return None
+        if (ros_ns <= 0 or self.execution_clock_advanced_at is None
+                or now-self.execution_clock_advanced_at > .5):
+            return None
+        if not (self._source_is_fresh(self.latest_scan, self.latest_scan_at)
+                and self._source_is_fresh(self.latest_odom, self.latest_odom_at)):
+            return None
+        health = getattr(self, 'localization_health', None) or {}
+        health_at = getattr(self, 'localization_health_at', None)
+        health_stamp = health.get('sent_at_ns')
+        if (health_at is None or now-health_at >= timeout
+                or not isinstance(health_stamp, int) or isinstance(health_stamp, bool)
+                or not -.25e9 <= ros_ns-health_stamp < timeout*1e9
+                or health.get('autonomous_allowed') is not True
+                or health.get('level') != 'ok' or health.get('stop_latched') is True):
+            return None
+        motion = self.motion_status or {}
+        motion_stamp = motion.get('sent_at_ns')
+        if (self.motion_status_at is None or now-self.motion_status_at >= timeout
+                or not isinstance(motion_stamp, int) or isinstance(motion_stamp, bool)
+                or not -.25e9 <= ros_ns-motion_stamp < timeout*1e9
+                or motion.get('mode') != 'auto' or motion.get('available') is not True
+                or motion.get('estop_latched') is True or motion.get('reset_pending') is True
+                or motion.get('autonomous_allowed') is not True):
+            return None
+        command = getattr(self, 'latest_navigation_command', None)
+        command_at = getattr(self, 'latest_navigation_command_at', None)
+        if require_intent and (command is None or command_at is None or now-command_at >= timeout):
+            return None
+        if require_intent and (self.follow_requested_at is None
+                or command_at < self.follow_requested_at
+                or self.motion_status_at < self.follow_requested_at):
+            return None
+        linear = motion.get('output_linear', 0.)
+        angular = motion.get('output_angular', 0.)
+        if any(isinstance(v, bool) or not isinstance(v, (int, float)) for v in (linear, angular)):
+            return None
+        if not isfinite(linear) or not isfinite(angular):
+            return None
+        if require_intent:
+            raw = (command.linear.x, command.angular.z)
+            if not all(isfinite(v) for v in raw):
+                return None
+            detector = self.execution_progress
+            if ((abs(linear) < detector.min_linear and abs(angular) < detector.min_angular)
+                    or (abs(raw[0]) < detector.min_linear and abs(raw[1]) < detector.min_angular)):
+                return None
+        # A valid message age is insufficient when the numeric payload is corrupt.
+        odom = self.latest_odom
+        odom_q = odom.pose.pose.orientation
+        if not all(isfinite(v) for v in (odom.pose.pose.position.x, odom.pose.pose.position.y,
+                odom.twist.twist.linear.x, odom.twist.twist.angular.z,
+                odom_q.x, odom_q.y, odom_q.z, odom_q.w,
+                *odom.pose.covariance, *odom.twist.covariance)):
+            return None
+        if not .8 <= odom_q.x**2+odom_q.y**2+odom_q.z**2+odom_q.w**2 <= 1.2:
+            return None
+        scan = self.latest_scan
+        if (not scan.ranges or not isfinite(scan.angle_min)
+                or not isfinite(scan.angle_increment) or scan.angle_increment == 0
+                or not isfinite(scan.range_max) or scan.range_max <= 0
+                or not isfinite(scan.range_min) or not 0 <= scan.range_min < scan.range_max
+                or sum((isfinite(v) and scan.range_min <= v <= scan.range_max)
+                       or v == float('inf') for v in scan.ranges)/len(scan.ranges) < .8):
+            return None
+        try:
+            transform = self.tf_buffer.lookup_transform(
+                self.active_path.header.frame_id or 'map',
+                self.get_parameter('curve_base_frame').value, rclpy.time.Time())
+        except (TransformException, ValueError):
+            return None
+        stamp = transform.header.stamp
+        tf_ns = stamp.sec*1_000_000_000+stamp.nanosec
+        p, q = transform.transform.translation, transform.transform.rotation
+        if (tf_ns <= 0 or not -.25e9 <= ros_ns-tf_ns < timeout*1e9
+                or not all(isfinite(v) for v in (p.x, p.y, q.x, q.y, q.z, q.w))
+                or not .8 <= q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w <= 1.2):
+            return None
+        yaw = atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))
+        points = self._points(self.active_path)
+        if len(points) < 2:
+            return None
+        progress = path_progress(points, (p.x, p.y))
+        a = point_at_progress(points, progress)
+        b = point_at_progress(points, min(path_length(points), progress+.22))
+        heading = atan2(b[1]-a[1], b[0]-a[0])
+        if hypot(p.x-points[-1][0], p.y-points[-1][1]) <= .30:
+            final_q = self.active_path.poses[-1].pose.orientation
+            heading = atan2(2*(final_q.w*final_q.z+final_q.x*final_q.y),
+                            1-2*(final_q.y*final_q.y+final_q.z*final_q.z))
+        error = atan2(sin(heading-yaw), cos(heading-yaw))
+        stable_points = self.execution_reference or points
+        if require_intent:
+            self.last_executed_intent = {'at': now, 'request_seq': self.follow_request_seq,
+                                         'linear': linear, 'angular': angular}
+        return {'at': now, 'ros_ns': ros_ns, 'pose': {'x': p.x, 'y': p.y, 'yaw': yaw},
+                'segment': {'start': {'x': a[0], 'y': a[1]},
+                            'end': {'x': b[0], 'y': b[1]}, 'heading': heading},
+                'progress': path_progress(stable_points, (p.x, p.y)),
+                'yaw_error': error, 'linear': linear, 'angular': angular}
+
+    def _execution_payload(self, reason, observation, evidence):
+        context = self.active_context or self._goal_context(self.active_path)
+        fingerprint = hashlib.sha256(repr(self._path_key(self.active_path)).encode()).hexdigest()[:24]
+        return {'schema_version': 1, 'event_id': uuid.uuid4().hex,
+                'created_at_ns': observation['ros_ns'], 'detected_at_ns': observation['ros_ns'],
+                'goal': context.get('goal'), 'goal_stamp': context.get('goal_stamp'),
+                'pose': observation['pose'], 'segment': observation['segment'],
+                'reason': reason, 'path_fingerprint': fingerprint, 'evidence': evidence,
+                'terminal_confirmed': False}
+
+    def _monitor_execution_progress(self):
+        detector = getattr(self, 'execution_progress', None)
+        if detector is None:
+            return
+        if not self.get_parameter('execution_failure_enabled').value:
+            self._discard_execution_diagnosis('Execution failure detection disabled')
+            return
+        # Runtime tuning must affect the detector as well as ROS's parameter
+        # list. Reset evidence on a changed window to avoid mixing thresholds.
+        try:
+            limits = (float(self.get_parameter('execution_progress_window').value),
+                      float(self.get_parameter('execution_min_progress').value),
+                      float(self.get_parameter('execution_heading_progress').value))
+            if limits != (detector.window, detector.min_progress, detector.heading_progress):
+                detector = ExecutionProgress(window=limits[0], min_progress=limits[1],
+                                             heading_progress=limits[2])
+                self.execution_progress = detector
+        except (TypeError, ValueError):
+            detector.reset(self.execution_route_id)
+            self.get_logger().warning('Invalid execution detection limits; route memory detection suspended',
+                                      throttle_duration_sec=10.)
+            return
+        if (not self.get_parameter('execution_failure_enabled').value
+                or self.active_goal is None or self.cancel_requested
+                or self.navigation_suspended or self.path_invalidated
+                or self.recovery_request is not None or self.follow_watchdog_fault
+                or getattr(self, 'pending_execution_failure', None) is not None):
+            detector.reset(self.execution_route_id)
+            return
+        observation = self._execution_observation()
+        if observation is None:
+            observation = self._execution_observation(require_intent=False)
+            if observation is None or not self._execution_command_is_fresh(time.monotonic()):
+                # A health/sensor/clock ownership fault breaks continuity, so
+                # an earlier command can no longer explain a later abort.
+                self.last_executed_intent = None
+                detector.reset(self.execution_route_id)
+                return
+        sample = ProgressSample(observation['at'], observation['ros_ns'],
+            observation['pose']['x'], observation['pose']['y'], observation['yaw_error'],
+            observation['progress'], observation['linear'], observation['angular'])
+        decision = detector.observe(sample, self.execution_route_id)
+        if decision is None:
+            return
+        reason, evidence = decision
+        self.pending_execution_failure = self._execution_payload(reason, observation, evidence)
+        self.pending_path = None
+        self.latest_path_key = None
+        self.path_invalidated = True
+        self._cancel_active_goal()
+        self.publish_status('WAIT_CANCEL', 'No execution progress; awaiting confirmed stop before replanning',
+                            context=self.active_context, route_failure_pending=True,
+                            execution_failure_reason=reason)
 
     def _publish_speed_limit(self, speed):
         self.follow_speed_limit = speed
@@ -738,6 +1107,10 @@ class PathFollower(Node):
             return
         self.motion_status = status
         self.motion_status_at = time.monotonic()
+        if (status.get('mode') != 'auto' or status.get('available') is not True
+                or status.get('autonomous_allowed') is not True
+                or status.get('estop_latched') is True or status.get('reset_pending') is True):
+            self._discard_execution_diagnosis('Manual, hold, safety stop or unavailable motion output')
         if (self.recovery_request is not None
                 and (status.get("mode") != "auto"
                      or status.get("available") is not True

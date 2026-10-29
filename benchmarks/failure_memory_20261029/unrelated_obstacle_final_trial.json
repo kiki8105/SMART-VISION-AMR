@@ -1,0 +1,1125 @@
+{
+  "trial": "actual_unseen_collision_lidar_box",
+  "domain": 185,
+  "goal": [
+    -0.5,
+    -2.0,
+    0.0
+  ],
+  "obstacle": {
+    "name": "unseen_obstacle_trial_e4d203f4f2af",
+    "xy": [
+      -2.2,
+      -0.3
+    ],
+    "size": [
+      0.5,
+      0.9,
+      1.0
+    ]
+  },
+  "failure_events_injected": false,
+  "scenario": "unrelated",
+  "passed": true,
+  "original_obstacle_cell_occupancy": 0,
+  "obstacle_spawn_elapsed_seconds": 1.5474165639989224,
+  "robot_map_xy_at_spawn": [
+    -2.73243591523849,
+    -1.9999948305328692
+  ],
+  "unrelated_path_publication_count": 0,
+  "path_records": [
+    {
+      "after_obstacle": false,
+      "after_removal": false,
+      "stamp_ns": 4200000000,
+      "points": [
+        [
+          -3.02499996908009,
+          -1.974999968335032
+        ],
+        [
+          -2.9781249683815982,
+          -1.974999968335032
+        ],
+        [
+          -2.9312499676831063,
+          -1.974999968335032
+        ],
+        [
+          -2.8843749669846144,
+          -1.974999968335032
+        ],
+        [
+          -2.8374999662861224,
+          -1.974999968335032
+        ],
+        [
+          -2.7906249655876305,
+          -1.974999968335032
+        ],
+        [
+          -2.7437499648891386,
+          -1.974999968335032
+        ],
+        [
+          -2.6968749641906467,
+          -1.974999968335032
+        ],
+        [
+          -2.6499999634921547,
+          -1.974999968335032
+        ],
+        [
+          -2.603124962793663,
+          -1.974999968335032
+        ],
+        [
+          -2.556249962095171,
+          -1.974999968335032
+        ],
+        [
+          -2.509374961396679,
+          -1.974999968335032
+        ],
+        [
+          -2.462499960698187,
+          -1.974999968335032
+        ],
+        [
+          -2.415624959999695,
+          -1.974999968335032
+        ],
+        [
+          -2.368749959301203,
+          -1.974999968335032
+        ],
+        [
+          -2.321874958602711,
+          -1.974999968335032
+        ],
+        [
+          -2.2749999579042193,
+          -1.974999968335032
+        ],
+        [
+          -2.2281249572057273,
+          -1.974999968335032
+        ],
+        [
+          -2.1812499565072354,
+          -1.974999968335032
+        ],
+        [
+          -2.1343749558087435,
+          -1.974999968335032
+        ],
+        [
+          -2.0874999551102515,
+          -1.974999968335032
+        ],
+        [
+          -2.0406249544117596,
+          -1.974999968335032
+        ],
+        [
+          -1.9937499537132677,
+          -1.974999968335032
+        ],
+        [
+          -1.9468749530147758,
+          -1.974999968335032
+        ],
+        [
+          -1.8999999523162838,
+          -1.974999968335032
+        ],
+        [
+          -1.853124951617792,
+          -1.974999968335032
+        ],
+        [
+          -1.8062499509193,
+          -1.974999968335032
+        ],
+        [
+          -1.759374950220808,
+          -1.974999968335032
+        ],
+        [
+          -1.712499949522316,
+          -1.974999968335032
+        ],
+        [
+          -1.6656249488238242,
+          -1.974999968335032
+        ],
+        [
+          -1.6187499481253322,
+          -1.974999968335032
+        ],
+        [
+          -1.5718749474268403,
+          -1.974999968335032
+        ],
+        [
+          -1.5249999467283484,
+          -1.974999968335032
+        ],
+        [
+          -1.4781249460298564,
+          -1.974999968335032
+        ],
+        [
+          -1.4312499453313645,
+          -1.974999968335032
+        ],
+        [
+          -1.3843749446328726,
+          -1.974999968335032
+        ],
+        [
+          -1.3374999439343807,
+          -1.974999968335032
+        ],
+        [
+          -1.2906249432358887,
+          -1.974999968335032
+        ],
+        [
+          -1.2437499425373968,
+          -1.974999968335032
+        ],
+        [
+          -1.1968749418389049,
+          -1.974999968335032
+        ],
+        [
+          -1.149999941140413,
+          -1.974999968335032
+        ],
+        [
+          -1.103124940441921,
+          -1.974999968335032
+        ],
+        [
+          -1.056249939743429,
+          -1.974999968335032
+        ],
+        [
+          -1.0171874391613525,
+          -1.9757812183466736
+        ],
+        [
+          -0.9781249385792758,
+          -1.9765624683583152
+        ],
+        [
+          -0.9390624379971992,
+          -1.9773437183699567
+        ],
+        [
+          -0.8999999374151226,
+          -1.9781249683815982
+        ],
+        [
+          -0.8583332701275745,
+          -1.9802083017459755
+        ],
+        [
+          -0.8166666028400256,
+          -1.9822916351103532
+        ],
+        [
+          -0.7749999355524775,
+          -1.9843749684747305
+        ],
+        [
+          -0.7281249348539856,
+          -1.9890624685445797
+        ],
+        [
+          -0.6812499341554936,
+          -1.9937499686144289
+        ],
+        [
+          -0.6499999336898323,
+          -1.9999999687075611
+        ],
+        [
+          -0.618749933224171,
+          -2.0062499688006934
+        ],
+        [
+          -0.5718749325256791,
+          -2.015624968940392
+        ],
+        [
+          -0.5406249320600178,
+          -2.021874969033524
+        ],
+        [
+          -0.5249999318271872,
+          -2.02499996908009
+        ]
+      ],
+      "raw_intersection_cells": 0,
+      "inflated_intersection_cells": 0
+    }
+  ],
+  "actual_obstacle_raw_cell_count": 180,
+  "actual_obstacle_inflation_cells": 6,
+  "actual_obstacle_inflation_m": 0.30000000447034836,
+  "checks": {
+    "real_obstacle_spawned": true,
+    "original_route_existed_before_obstacle": true,
+    "same_explicit_goal_retained": true,
+    "actual_motion_observed": true,
+    "navigation_succeeded": true,
+    "estimated_goal_error_under_0_35m": true,
+    "every_path_retained_original_goal_endpoint": true,
+    "unrelated_route_remained_equivalent": true,
+    "unrelated_obstacle_no_large_detour": true,
+    "unrelated_obstacle_no_execution_failure_or_reverse": true
+  },
+  "final_map_xy": [
+    -0.7209303231991004,
+    -2.0109538445123554
+  ],
+  "estimated_goal_distance_m": 0.22120170527927635,
+  "path_publications_before": 1,
+  "path_publications_after": 0,
+  "maximum_odom_displacement_m": 2.241803050478991,
+  "wall_elapsed_seconds": 11.407,
+  "navigation_statuses": [
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null,
+      "distance_remaining": 2.4788014993106797,
+      "controller_distance_remaining": 2.456874370574951,
+      "measured_speed": 0.20842105150222778,
+      "curve_speed_limit": 0.0
+    },
+    {
+      "status": "SUCCEEDED",
+      "message": "Nav2 status 4",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    }
+  ],
+  "planner_statuses": [
+    {
+      "status": "PLANNING",
+      "message": "Planning to retained goal",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      }
+    },
+    {
+      "status": "READY",
+      "message": "A* route ready: 57 poses; collision-checked smoothing",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      }
+    },
+    {
+      "status": "IDLE",
+      "message": "Goal completed",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      }
+    }
+  ],
+  "estimated_map_xy_trace": [
+    [
+      0.002,
+      -3.0000498369504114,
+      -1.9999998612823937
+    ],
+    [
+      0.207,
+      -2.996595396853242,
+      -1.9999998837581903
+    ],
+    [
+      0.408,
+      -2.961625753266033,
+      -2.000000916727481
+    ],
+    [
+      0.608,
+      -2.9253179985429836,
+      -1.9999986589726397
+    ],
+    [
+      0.81,
+      -2.883502411072245,
+      -1.9999974387504302
+    ],
+    [
+      1.018,
+      -2.8338140031469314,
+      -1.99999842550599
+    ],
+    [
+      1.223,
+      -2.7917063398406334,
+      -1.9999981918823673
+    ],
+    [
+      1.428,
+      -2.747245043660856,
+      -1.9999909579500308
+    ],
+    [
+      1.629,
+      -2.7109327518172814,
+      -1.999992711860272
+    ],
+    [
+      1.832,
+      -2.6671448063913896,
+      -2.000149960964195
+    ],
+    [
+      2.037,
+      -2.621816603570985,
+      -2.00043470347704
+    ],
+    [
+      2.242,
+      -2.585363395695258,
+      -2.0004778924903577
+    ],
+    [
+      2.445,
+      -2.543038236963222,
+      -2.0009186766297486
+    ],
+    [
+      2.649,
+      -2.496265245094228,
+      -2.002450978010723
+    ],
+    [
+      2.852,
+      -2.452867961494046,
+      -2.0025959267316953
+    ],
+    [
+      3.052,
+      -2.408660670672344,
+      -2.00316984509588
+    ],
+    [
+      3.252,
+      -2.3613908427501045,
+      -2.004119199667032
+    ],
+    [
+      3.469,
+      -2.318140216751157,
+      -2.004234840362815
+    ],
+    [
+      3.678,
+      -2.278147642179153,
+      -2.0047813330527244
+    ],
+    [
+      3.88,
+      -2.2294196551980017,
+      -2.005461290636125
+    ],
+    [
+      4.085,
+      -2.1860220291345063,
+      -2.005490759090583
+    ],
+    [
+      4.29,
+      -2.1452465465289303,
+      -2.007517570504224
+    ],
+    [
+      4.492,
+      -2.1107055397658847,
+      -2.0089453359914975
+    ],
+    [
+      4.7,
+      -2.060220798434702,
+      -2.0093401739686687
+    ],
+    [
+      4.902,
+      -2.029825651860089,
+      -2.010120841529813
+    ],
+    [
+      5.103,
+      -1.9900692590945497,
+      -2.0110330095749682
+    ],
+    [
+      5.306,
+      -1.9466705565266382,
+      -2.011481985235799
+    ],
+    [
+      5.515,
+      -1.9052224579770902,
+      -2.0105328113384595
+    ],
+    [
+      5.723,
+      -1.8554090159610648,
+      -2.010070569703252
+    ],
+    [
+      5.926,
+      -1.8120084843152062,
+      -2.0105316420109642
+    ],
+    [
+      6.131,
+      -1.7687187855707518,
+      -2.009320080996814
+    ],
+    [
+      6.335,
+      -1.725064793339929,
+      -2.009612678438999
+    ],
+    [
+      6.54,
+      -1.6887523977161696,
+      -2.010182559098183
+    ],
+    [
+      6.741,
+      -1.6472233593258203,
+      -2.0090203202761474
+    ],
+    [
+      6.952,
+      -1.5962811355577335,
+      -2.009047393257772
+    ],
+    [
+      7.153,
+      -1.5536678844639222,
+      -2.009725033093425
+    ],
+    [
+      7.359,
+      -1.5090083051114453,
+      -2.0087450585273943
+    ],
+    [
+      7.563,
+      -1.472391931107751,
+      -2.0090512897329544
+    ],
+    [
+      7.767,
+      -1.4220459918684998,
+      -2.009651269765566
+    ],
+    [
+      7.975,
+      -1.3732059278038242,
+      -2.0076646349340455
+    ],
+    [
+      8.175,
+      -1.3372089883129208,
+      -2.0077487989796103
+    ],
+    [
+      8.375,
+      -1.2938019806992402,
+      -2.00787968068846
+    ],
+    [
+      8.576,
+      -1.2402428709777875,
+      -2.006036585904962
+    ],
+    [
+      8.782,
+      -1.196132335303775,
+      -2.005927736355788
+    ],
+    [
+      8.983,
+      -1.1527243963360991,
+      -2.0060783193022154
+    ],
+    [
+      9.199,
+      -1.1011616445289156,
+      -2.001853923527702
+    ],
+    [
+      9.402,
+      -1.0648372882749297,
+      -2.0016137413457913
+    ],
+    [
+      9.602,
+      -1.0214233092502978,
+      -2.0013364196823957
+    ],
+    [
+      9.802,
+      -0.9811631515678603,
+      -2.0019760146455376
+    ],
+    [
+      10.002,
+      -0.9381309797532202,
+      -2.0022052577219123
+    ],
+    [
+      10.202,
+      -0.8944623285060649,
+      -2.0028155946914046
+    ],
+    [
+      10.402,
+      -0.8491217431878616,
+      -2.0014794762410766
+    ],
+    [
+      10.602,
+      -0.8147563058903715,
+      -2.0024177885236014
+    ],
+    [
+      10.803,
+      -0.7889215127822763,
+      -2.003382970429483
+    ],
+    [
+      11.01,
+      -0.7513132117160889,
+      -2.00899787591953
+    ],
+    [
+      11.212,
+      -0.7317953503645764,
+      -2.0102001769529405
+    ]
+  ],
+  "execution_failure_events": [],
+  "failure_memory_states": [
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 4500000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 5000000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 5500000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 5980000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 6480000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 6960000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 7460000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 7960000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 8460000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 8960000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 9460000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 9960000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 10460000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 10960000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 11460000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 11960000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 12460000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 12960000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 13440000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 13940000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 14440000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 14940000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 4,
+        "nanosec": 200000000
+      },
+      "sent_at_ns": 15440000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    }
+  ],
+  "recovery_requests": [],
+  "final_localization_health": {
+    "level": "ok",
+    "reasons": [],
+    "metrics": {
+      "map_available": true,
+      "scan_age_seconds": 0.046457934000500245,
+      "odom_age_seconds": 0.017548198000440607,
+      "scan_header_age_seconds": 0.027,
+      "odom_header_age_seconds": -0.001,
+      "scan_valid": true,
+      "odom_valid": true,
+      "position_std_m": 0.17102037405467652,
+      "yaw_std_rad": 0.12239740643524044,
+      "amcl_age_seconds": 0.6282864160002646,
+      "amcl_update_epoch": 11922.738575099,
+      "amcl_header_age_seconds": 0.627,
+      "moving": true,
+      "pose_jump": false,
+      "scan_map_agreement": 0.875,
+      "agreement_age_seconds": 0.0,
+      "map_tf_age_seconds": -0.001,
+      "odom_tf_valid": true,
+      "amcl_update_requests": 2,
+      "amcl_update_responses": 2,
+      "amcl_update_timeouts": 0,
+      "amcl_update_errors": 0,
+      "odom_last_received_age_seconds": 0.017548198000440607,
+      "odom_raw_header_age_seconds": -0.001,
+      "odom_rejected_count": 0,
+      "odom_rejection_reason": "",
+      "odom_last_rejection_reason": "",
+      "scan_last_received_age_seconds": 0.046457934000500245,
+      "scan_raw_header_age_seconds": 0.027,
+      "scan_rejected_count": 0,
+      "scan_rejection_reason": "",
+      "scan_last_rejection_reason": "",
+      "amcl_motion_without_update_seconds": 0.6282864160002646,
+      "amcl_motion_dt_clamped": 0
+    },
+    "stop_latched": false,
+    "autonomous_allowed": true,
+    "allow_localization": true,
+    "reinitialization_requested": false,
+    "stable_seconds": 13.250126983999508,
+    "stamp_ns": 15360000000,
+    "sent_at_ns": 15360000000
+  },
+  "obstacle_removed": false,
+  "obstacle_removed_ros_ns": null,
+  "hold_state_snapshot": null,
+  "hold_stationary_samples": [],
+  "hold_command_samples": [],
+  "obstacle_removed_elapsed_seconds": null,
+  "removal_to_motion_seconds": null
+}

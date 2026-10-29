@@ -1,0 +1,4752 @@
+{
+  "trial": "actual_unseen_collision_lidar_box",
+  "domain": 185,
+  "goal": [
+    -0.5,
+    -2.0,
+    0.0
+  ],
+  "obstacle": {
+    "name": "unseen_obstacle_trial_26dd4a9fae12",
+    "xy": [
+      -1.6,
+      -2.0
+    ],
+    "size": [
+      0.5,
+      0.9,
+      1.0
+    ]
+  },
+  "failure_events_injected": false,
+  "passed": false,
+  "original_obstacle_cell_occupancy": 0,
+  "obstacle_spawn_elapsed_seconds": 1.5800935520001076,
+  "robot_map_xy_at_spawn": [
+    -2.7275227737978924,
+    -1.9999814049284705
+  ],
+  "checks": {
+    "real_obstacle_spawned": true,
+    "original_route_existed_before_obstacle": true,
+    "alternative_path_around_obstacle": true,
+    "same_explicit_goal_retained": true,
+    "actual_motion_observed": true,
+    "navigation_succeeded": false,
+    "estimated_goal_error_under_0_35m": false
+  },
+  "final_map_xy": [
+    -2.3029879250085377,
+    -2.4099278185875788
+  ],
+  "estimated_goal_distance_m": 1.849001426224048,
+  "path_publications_before": 1,
+  "path_publications_after": 11,
+  "maximum_odom_displacement_m": 0.7931373229227877,
+  "wall_elapsed_seconds": 150.006,
+  "navigation_statuses": [
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null,
+      "distance_remaining": 2.480391936903719,
+      "controller_distance_remaining": 2.503749370574951,
+      "measured_speed": 0.20842105150222778,
+      "curve_speed_limit": 0.0
+    },
+    {
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "FAILED",
+      "message": "Nav2 status 6",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "FAILED",
+      "message": "Nav2 status 6",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "FAILED",
+      "message": "Nav2 status 6",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "FAILED",
+      "message": "Nav2 status 6",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "FAILED",
+      "message": "Nav2 status 6",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    },
+    {
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": {
+        "x": -0.5,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 199,
+        "nanosec": 840000000
+      }
+    }
+  ],
+  "execution_failure_events": [],
+  "failure_memory_states": [
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 51440000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 51940000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 52440000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 52940000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 53400000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 53900000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 54400000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 54900000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 55380000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 55880000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 56380000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 56880000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 57380000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 57880000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 58360000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 58860000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 59360000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 59860000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 60360000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 60860000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 61360000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 61840000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 62340000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 62840000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 63340000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 63840000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 64320000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 64820000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 65320000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 65820000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 66320000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 66820000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 67320000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 67820000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 68300000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 68800000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 69300000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 69800000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 70300000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 70800000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 71300000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 71780000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 72280000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 72780000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 73280000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 73780000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 74280000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 74780000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 75280000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 75780000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 76280000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 76760000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 77260000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 77760000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 78260000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 78740000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 79240000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 79740000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 80240000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 80740000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 81240000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 81740000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 82240000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 82740000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 83220000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 83720000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 84220000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 84720000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 85220000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 85720000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 86220000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 86720000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 87220000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 87680000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 88200000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 88700000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 89180000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 89680000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 90180000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 90680000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 91180000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 91680000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 92180000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 92680000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 93180000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 93660000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 94160000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 94660000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 95160000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 95660000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 96160000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 96660000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 97160000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 97640000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 98140000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 98640000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 99140000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 99640000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 100140000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 100640000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 101140000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 101640000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 102120000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 102620000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 103120000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 103620000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 104120000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 104620000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 105120000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 105620000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 106120000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 106600000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 107100000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 107600000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 108100000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 108600000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 109100000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 109600000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 110100000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 110600000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 111100000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 111560000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 112020000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 112200000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 112700000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 113180000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 113620000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 114100000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 114600000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 115100000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 115520000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 116000000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 116500000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 117000000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 117500000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 117980000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 118440000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 118920000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 119420000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 119900000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 120380000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 120880000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 121360000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 121860000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 122360000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 122860000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 123360000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 123860000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 124360000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 124840000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 125340000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 125840000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 126340000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 126840000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 127340000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 127840000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 128340000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 128840000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 129320000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 129820000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 130320000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 130820000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 131300000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 131800000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 132300000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 132800000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 133300000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 133800000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 134280000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 134780000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 135260000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 135760000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 136260000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 136740000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 137260000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 137760000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 138260000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 138760000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 139240000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 139740000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 140240000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 140740000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 141240000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 141740000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 142240000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 142740000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 143220000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 143700000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 144200000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 144700000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 145200000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 145680000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 146180000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 146680000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 147160000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 147660000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 148160000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 148660000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 149160000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 149660000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 150160000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 150660000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 151160000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 151640000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 152140000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 152640000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 153140000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 153640000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 154140000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 154640000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 155120000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 155620000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 156120000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 156620000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 157120000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 157620000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 158120000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 158620000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 159120000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 159620000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 160100000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 160600000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 161100000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 161600000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 162100000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 162600000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 163080000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 163580000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 164080000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 164580000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 165080000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 165580000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 166080000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 166580000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 167060000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 167560000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 168060000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 168560000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 169040000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 169540000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 170020000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 170540000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 171040000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 171540000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 172020000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 172520000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 173020000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 173520000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 174020000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 174520000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 175020000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 175500000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 176000000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 176500000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 177000000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 177500000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 178000000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 178500000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 179000000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 179500000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 180000000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 180480000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 180980000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 181480000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 181980000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 182460000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 182960000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 183460000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 183960000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 184460000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 184960000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 185440000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 185940000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 186440000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 186940000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 187420000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 187920000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 188420000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 188920000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 189400000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 189900000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 190400000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 190880000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 191400000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 191900000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 192400000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 192900000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 193400000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 193880000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 194380000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 194880000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 195380000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 195880000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 196360000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 196860000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 197360000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 197840000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 198340000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 198840000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 199340000000
+    },
+    {
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 51,
+        "nanosec": 440000000
+      },
+      "sent_at_ns": 199820000000
+    }
+  ],
+  "recovery_requests": [],
+  "final_localization_health": {
+    "level": "ok",
+    "reasons": [],
+    "metrics": {
+      "map_available": true,
+      "scan_age_seconds": 0.00042472600034670904,
+      "odom_age_seconds": 0.027500079000674305,
+      "scan_header_age_seconds": -0.015,
+      "odom_header_age_seconds": 0.011,
+      "scan_valid": true,
+      "odom_valid": true,
+      "position_std_m": 0.11347020195006918,
+      "yaw_std_rad": 0.07943139463231737,
+      "amcl_age_seconds": 1.3961731880008301,
+      "amcl_update_epoch": 10163.95098367,
+      "amcl_header_age_seconds": 1.385,
+      "moving": true,
+      "pose_jump": false,
+      "scan_map_agreement": 0.74375,
+      "agreement_age_seconds": 0.2503298450010334,
+      "map_tf_age_seconds": 0.011,
+      "odom_tf_valid": true,
+      "odom_last_received_age_seconds": 0.027500079000674305,
+      "odom_raw_header_age_seconds": 0.011,
+      "odom_rejected_count": 0,
+      "odom_rejection_reason": "",
+      "odom_last_rejection_reason": "",
+      "scan_last_received_age_seconds": 0.00042472600034670904,
+      "scan_raw_header_age_seconds": -0.015,
+      "scan_rejected_count": 0,
+      "scan_rejection_reason": "",
+      "scan_last_rejection_reason": "",
+      "amcl_motion_without_update_seconds": 1.198226529000749,
+      "amcl_motion_dt_clamped": 0
+    },
+    "stop_latched": false,
+    "autonomous_allowed": true,
+    "allow_localization": true,
+    "reinitialization_requested": false,
+    "stable_seconds": 200.25041324500125,
+    "stamp_ns": 199660000000,
+    "sent_at_ns": 199660000000
+  }
+}

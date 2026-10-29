@@ -40,6 +40,7 @@
     <section id="operation-summary" class="panel operation-summary" aria-label="현재 운용 단계">
       <div><span class="secondary">현재 단계</span><h2 id="operation-phase" aria-live="polite">연결 확인 중</h2><p id="operation-detail"></p></div>
       <div><strong id="operation-action-title">다음 조치</strong><p id="operation-action"></p><button id="operation-action-button" type="button" hidden>확인하기</button></div>
+      <div id="failure-memory" class="failure-memory" role="status" aria-live="polite" hidden><strong id="failure-memory-phase"></strong><span id="failure-memory-count" class="failure-memory-count tabular"></span><p id="failure-memory-reason"></p><details><summary>실패 접근 기억 보기</summary><ul id="failure-memory-records"></ul><p class="secondary">운용 지도는 변경하지 않습니다. 표시된 임시 제한은 주행 계획에만 적용됩니다.</p></details></div>
       <details><summary>센서·정지 제어 상태</summary><ul id="operation-diagnostics"></ul><p id="safety-ack" role="status"></p></details>
       <ol id="active-route" class="active-route" aria-label="실제 방문 순서와 최종 홈 복귀"></ol>
     </section>

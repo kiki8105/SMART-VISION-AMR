@@ -1,0 +1,169 @@
+[INFO] [launch]: All log files can be found below /home/kiki/.ros/log/2026-10-29-12-09-30-569808-kiki-89353
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [gzserver-1]: process started with pid [89381]
+[INFO] [robot_state_publisher-2]: process started with pid [89383]
+[INFO] [spawn_entity.py-3]: process started with pid [89385]
+[INFO] [map_server-4]: process started with pid [89387]
+[INFO] [amcl-5]: process started with pid [89389]
+[INFO] [controller_server-6]: process started with pid [89391]
+[INFO] [behavior_server-7]: process started with pid [89393]
+[INFO] [motion_mux-8]: process started with pid [89395]
+[INFO] [command_stamper-9]: process started with pid [89397]
+[INFO] [localization_health-10]: process started with pid [89399]
+[INFO] [lifecycle_manager-11]: process started with pid [89403]
+[INFO] [astar_planner-12]: process started with pid [89405]
+[INFO] [path_follower-13]: process started with pid [89417]
+[INFO] [change_memory-14]: process started with pid [89423]
+[robot_state_publisher-2] [INFO] [1793243372.170796455] [robot_state_publisher]: got segment base_footprint
+[robot_state_publisher-2] [INFO] [1793243372.170991716] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-2] [INFO] [1793243372.171051713] [robot_state_publisher]: got segment base_scan
+[robot_state_publisher-2] [INFO] [1793243372.171062398] [robot_state_publisher]: got segment camera_link
+[robot_state_publisher-2] [INFO] [1793243372.171070972] [robot_state_publisher]: got segment camera_rgb_frame
+[robot_state_publisher-2] [INFO] [1793243372.171078315] [robot_state_publisher]: got segment camera_rgb_optical_frame
+[robot_state_publisher-2] [INFO] [1793243372.171085680] [robot_state_publisher]: got segment caster_back_left_link
+[robot_state_publisher-2] [INFO] [1793243372.171092708] [robot_state_publisher]: got segment caster_back_right_link
+[robot_state_publisher-2] [INFO] [1793243372.171100199] [robot_state_publisher]: got segment imu_link
+[robot_state_publisher-2] [INFO] [1793243372.171107940] [robot_state_publisher]: got segment wheel_left_link
+[robot_state_publisher-2] [INFO] [1793243372.171115519] [robot_state_publisher]: got segment wheel_right_link
+[map_server-4] [INFO] [1793243372.256936032] [map_server]: 
+[map_server-4] 	map_server lifecycle node launched. 
+[map_server-4] 	Waiting on external lifecycle transitions to activate
+[map_server-4] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[map_server-4] [INFO] [1793243372.257097801] [map_server]: Creating
+[lifecycle_manager-11] [INFO] [1793243372.279479561] [lifecycle_manager_simulation]: Creating
+[behavior_server-7] [INFO] [1793243372.288700343] [behavior_server]: 
+[behavior_server-7] 	behavior_server lifecycle node launched. 
+[behavior_server-7] 	Waiting on external lifecycle transitions to activate
+[behavior_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[amcl-5] [INFO] [1793243372.294624622] [amcl]: 
+[amcl-5] 	amcl lifecycle node launched. 
+[amcl-5] 	Waiting on external lifecycle transitions to activate
+[amcl-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[amcl-5] [INFO] [1793243372.295742791] [amcl]: Creating
+[lifecycle_manager-11] [INFO] [1793243372.295631933] [lifecycle_manager_simulation]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[controller_server-6] [INFO] [1793243372.325040087] [controller_server]: 
+[controller_server-6] 	controller_server lifecycle node launched. 
+[controller_server-6] 	Waiting on external lifecycle transitions to activate
+[controller_server-6] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-6] [INFO] [1793243372.375980416] [controller_server]: Creating controller server
+[lifecycle_manager-11] [INFO] [1793243372.377444246] [lifecycle_manager_simulation]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-11] [INFO] [1793243372.377517194] [lifecycle_manager_simulation]: [34m[1mConfiguring map_server[0m[0m
+[map_server-4] [INFO] [1793243372.377947900] [map_server]: Configuring
+[map_server-4] [INFO] [1793243372.378031733] [map_io]: Loading yaml file: /tmp/smart-vision-failure-install/smart_vision_amr/share/smart_vision_amr/maps/simulation_room.yaml
+[map_server-4] [INFO] [1793243372.378408007] [map_io]: resolution: 0.05
+[map_server-4] [INFO] [1793243372.378430223] [map_io]: origin[0]: -5.1
+[map_server-4] [INFO] [1793243372.378444958] [map_io]: origin[1]: -4.1
+[map_server-4] [INFO] [1793243372.378456708] [map_io]: origin[2]: 0
+[map_server-4] [INFO] [1793243372.378465010] [map_io]: free_thresh: 0.25
+[map_server-4] [INFO] [1793243372.378475612] [map_io]: occupied_thresh: 0.65
+[map_server-4] [INFO] [1793243372.378487549] [map_io]: mode: trinary
+[map_server-4] [INFO] [1793243372.378562099] [map_io]: negate: 0
+[map_server-4] [INFO] [1793243372.378842517] [map_io]: Loading image_file: /tmp/smart-vision-failure-install/smart_vision_amr/share/smart_vision_amr/maps/simulation_room.pgm
+[map_server-4] [INFO] [1793243372.414449812] [map_io]: Read map /tmp/smart-vision-failure-install/smart_vision_amr/share/smart_vision_amr/maps/simulation_room.pgm: 204 X 164 map @ 0.05 m/cell
+[controller_server-6] [INFO] [1793243372.425904737] [local_costmap.local_costmap]: 
+[controller_server-6] 	local_costmap lifecycle node launched. 
+[controller_server-6] 	Waiting on external lifecycle transitions to activate
+[controller_server-6] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-6] [INFO] [1793243372.427339632] [local_costmap.local_costmap]: Creating Costmap
+[lifecycle_manager-11] [INFO] [1793243372.437103579] [lifecycle_manager_simulation]: [34m[1mConfiguring amcl[0m[0m
+[amcl-5] [INFO] [1793243372.437457544] [amcl]: Configuring
+[amcl-5] [INFO] [1793243372.437548186] [amcl]: initTransforms
+[amcl-5] [INFO] [1793243372.471179217] [amcl]: initPubSub
+[amcl-5] [INFO] [1793243372.479547946] [amcl]: Subscribed to map topic.
+[lifecycle_manager-11] [INFO] [1793243372.493375760] [lifecycle_manager_simulation]: [34m[1mConfiguring controller_server[0m[0m
+[controller_server-6] [INFO] [1793243373.012850429] [controller_server]: Configuring controller interface
+[controller_server-6] [INFO] [1793243373.013103313] [controller_server]: getting goal checker plugins..
+[controller_server-6] [INFO] [1793243373.013189985] [controller_server]: Controller frequency set to 10.0000Hz
+[controller_server-6] [INFO] [1793243373.013241063] [local_costmap.local_costmap]: Configuring
+[controller_server-6] [INFO] [1793243373.031402926] [local_costmap.local_costmap]: Using plugin "obstacle_layer"
+[controller_server-6] [INFO] [1793243373.040847539] [local_costmap.local_costmap]: Subscribed to Topics: scan
+[controller_server-6] [INFO] [1793243373.053367833] [local_costmap.local_costmap]: Initialized plugin "obstacle_layer"
+[controller_server-6] [INFO] [1793243373.053417528] [local_costmap.local_costmap]: Using plugin "inflation_layer"
+[controller_server-6] [INFO] [1793243373.054620300] [local_costmap.local_costmap]: Initialized plugin "inflation_layer"
+[controller_server-6] [INFO] [1793243373.080339881] [controller_server]: Created progress_checker : progress_checker of type nav2_controller::SimpleProgressChecker
+[controller_server-6] [INFO] [1793243373.084214944] [controller_server]: Created goal checker : general_goal_checker of type nav2_controller::SimpleGoalChecker
+[controller_server-6] [INFO] [1793243373.084498916] [controller_server]: Controller Server has general_goal_checker  goal checkers available.
+[controller_server-6] [INFO] [1793243373.091014684] [controller_server]: Created controller : FollowPath of type dwb_core::DWBLocalPlanner
+[controller_server-6] [INFO] [1793243373.100632769] [controller_server]: Setting transform_tolerance to 0.300000
+[controller_server-6] [INFO] [1793243373.124502654] [controller_server]: Using critic "RotateToGoal" (dwb_critics::RotateToGoalCritic)
+[controller_server-6] [INFO] [1793243373.125560636] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243373.125811746] [controller_server]: Using critic "Oscillation" (dwb_critics::OscillationCritic)
+[controller_server-6] [INFO] [1793243373.126638702] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243373.126842977] [controller_server]: Using critic "BaseObstacle" (dwb_critics::BaseObstacleCritic)
+[controller_server-6] [INFO] [1793243373.127162398] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243373.127369215] [controller_server]: Using critic "GoalAlign" (dwb_critics::GoalAlignCritic)
+[controller_server-6] [INFO] [1793243373.127940355] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243373.128155685] [controller_server]: Using critic "PathAlign" (dwb_critics::PathAlignCritic)
+[controller_server-6] [INFO] [1793243373.128654271] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243373.128769125] [controller_server]: Using critic "PathDist" (dwb_critics::PathDistCritic)
+[controller_server-6] [INFO] [1793243373.128984833] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243373.129102548] [controller_server]: Using critic "GoalDist" (dwb_critics::GoalDistCritic)
+[controller_server-6] [INFO] [1793243373.129305458] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793243373.129339236] [controller_server]: Controller Server has FollowPath  controllers available.
+[lifecycle_manager-11] [INFO] [1793243373.141935309] [lifecycle_manager_simulation]: [34m[1mConfiguring behavior_server[0m[0m
+[behavior_server-7] [INFO] [1793243373.142323588] [behavior_server]: Configuring
+[spawn_entity.py-3] [INFO] [1793243373.265803850] [spawn_entity]: Spawn Entity started
+[spawn_entity.py-3] [INFO] [1793243373.266729349] [spawn_entity]: Loading entity XML from file /tmp/smart_vision_amr_model_99ip3nka/model.sdf
+[spawn_entity.py-3] [INFO] [1793243373.269079843] [spawn_entity]: Waiting for service /spawn_entity, timeout = 30
+[spawn_entity.py-3] [INFO] [1793243373.269989556] [spawn_entity]: Waiting for service /spawn_entity
+[behavior_server-7] [INFO] [1793243373.520819791] [behavior_server]: Creating behavior plugin backup of type nav2_behaviors/BackUp
+[behavior_server-7] [INFO] [1793243373.526883589] [behavior_server]: Configuring backup
+[lifecycle_manager-11] [INFO] [1793243373.639399290] [lifecycle_manager_simulation]: [34m[1mActivating map_server[0m[0m
+[map_server-4] [INFO] [1793243373.640315598] [map_server]: Activating
+[map_server-4] [INFO] [1793243373.647083053] [map_server]: Creating bond (map_server) to lifecycle manager.
+[amcl-5] [INFO] [1793243373.648503717] [amcl]: Received a 204 X 164 map @ 0.050 m/pix
+[lifecycle_manager-11] [INFO] [1793243373.780418255] [lifecycle_manager_simulation]: Server map_server connected with bond.
+[lifecycle_manager-11] [INFO] [1793243373.780473393] [lifecycle_manager_simulation]: [34m[1mActivating amcl[0m[0m
+[amcl-5] [INFO] [1793243373.780874559] [amcl]: Activating
+[amcl-5] [INFO] [1793243373.780945079] [amcl]: initialPoseReceived
+[amcl-5] [INFO] [1793243373.781077339] [amcl]: Setting pose (0.000000): -3.000 -2.000 0.000
+[amcl-5] [INFO] [1793243373.785435875] [amcl]: Creating bond (amcl) to lifecycle manager.
+[change_memory-14] [INFO] [1793243373.876513633] [change_memory]: Persistent environment memory disabled for baseline condition
+[lifecycle_manager-11] [INFO] [1793243373.919456245] [lifecycle_manager_simulation]: Server amcl connected with bond.
+[lifecycle_manager-11] [INFO] [1793243373.919507315] [lifecycle_manager_simulation]: [34m[1mActivating controller_server[0m[0m
+[controller_server-6] [INFO] [1793243373.920765126] [controller_server]: Activating
+[controller_server-6] [INFO] [1793243373.920814483] [local_costmap.local_costmap]: Activating
+[controller_server-6] [INFO] [1793243373.920832853] [local_costmap.local_costmap]: Checking transform
+[controller_server-6] [INFO] [1793243373.920865999] [local_costmap.local_costmap]: Timed out waiting for transform from base_footprint to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[localization_health-10] [INFO] [1793243374.239906327] [localization_health]: Localization health: warning ['amcl_covariance_unavailable', 'map_tf_unavailable', 'odom_tf_unavailable', 'odom_unavailable', 'scan_map_check_unavailable', 'scan_unavailable', 'initializing']
+[spawn_entity.py-3] [INFO] [1793243374.279671102] [spawn_entity]: Calling service /spawn_entity
+[controller_server-6] [INFO] [1793243374.420945109] [local_costmap.local_costmap]: Timed out waiting for transform from base_footprint to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[gzserver-1] [INFO] [1793243374.541463106] [turtlebot3_imu]: <initial_orientation_as_reference> is unset, using default value of false to comply with REP 145 (world as orientation reference)
+[change_memory-14] [WARN] [1793243374.723855544] [change_memory]: Waiting for scan-stamped TF: "map" passed to lookupTransform argument target_frame does not exist. 
+[spawn_entity.py-3] [INFO] [1793243374.731478249] [spawn_entity]: Spawn status: SpawnEntity: Successfully spawned entity [waffle_pi]
+[INFO] [spawn_entity.py-3]: process has finished cleanly [pid 89385]
+[controller_server-6] [INFO] [1793243374.920964204] [local_costmap.local_costmap]: Timed out waiting for transform from base_footprint to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[change_memory-14] [WARN] [1793243374.933840403] [change_memory]: LiDAR projection rejected: measurement_tf_timeout
+[amcl-5] [INFO] [1793243374.960359459] [amcl]: Requesting no-motion update
+[gzserver-1] [INFO] [1793243374.964772043] [camera_driver]: Publishing camera info to [/camera/camera_info]
+[gzserver-1] [INFO] [1793243375.060059448] [turtlebot3_diff_drive]: Wheel pair 1 separation set to [0.287000m]
+[gzserver-1] [INFO] [1793243375.060138309] [turtlebot3_diff_drive]: Wheel pair 1 diameter set to [0.066000m]
+[gzserver-1] [INFO] [1793243375.062502065] [turtlebot3_diff_drive]: Subscribed to [/cmd_vel]
+[gzserver-1] [INFO] [1793243375.067823238] [turtlebot3_diff_drive]: Advertise odometry on [/odom]
+[gzserver-1] [INFO] [1793243375.072854130] [turtlebot3_diff_drive]: Publishing odom transforms between [odom] and [base_footprint]
+[gzserver-1] [INFO] [1793243375.096007005] [turtlebot3_joint_state]: Going to publish joint [wheel_left_joint]
+[gzserver-1] [INFO] [1793243375.096062381] [turtlebot3_joint_state]: Going to publish joint [wheel_right_joint]
+[amcl-5] [INFO] [1793243375.300487634] [amcl]: createLaserObject
+[controller_server-6] [INFO] [1793243375.421070574] [local_costmap.local_costmap]: start
+[controller_server-6] [INFO] [1793243375.622759445] [controller_server]: Creating bond (controller_server) to lifecycle manager.
+[lifecycle_manager-11] [INFO] [1793243375.727785808] [lifecycle_manager_simulation]: Server controller_server connected with bond.
+[lifecycle_manager-11] [INFO] [1793243375.727858044] [lifecycle_manager_simulation]: [34m[1mActivating behavior_server[0m[0m
+[behavior_server-7] [INFO] [1793243375.728501599] [behavior_server]: Activating
+[behavior_server-7] [INFO] [1793243375.728538810] [behavior_server]: Activating backup
+[behavior_server-7] [INFO] [1793243375.728559639] [behavior_server]: Creating bond (behavior_server) to lifecycle manager.
+[lifecycle_manager-11] [INFO] [1793243375.834635332] [lifecycle_manager_simulation]: Server behavior_server connected with bond.
+[lifecycle_manager-11] [INFO] [1793243375.834707373] [lifecycle_manager_simulation]: [34m[1mManaged nodes are active[0m[0m
+[lifecycle_manager-11] [INFO] [1793243375.834720882] [lifecycle_manager_simulation]: [34m[1mCreating bond timer...[0m[0m
+[localization_health-10] [INFO] [1793243378.724782416] [localization_health]: Localization health: ok []
+[controller_server-6] [INFO] [1793243378.815900060] [controller_server]: Received a goal, begin computing control effort.
+[astar_planner-12] [INFO] [1793243378.859298349] [astar_planner]: Published A* path with 57 poses
+[path_follower-13] [INFO] [1793243378.869695914] [path_follower]: Sent path with 57 poses to Nav2
+[change_memory-14] [WARN] [1793243379.727067190] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 4.942000 but the latest data is at time 4.930000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243384.780085173] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 9.942000 but the latest data is at time 9.928000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243389.832468050] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 14.942000 but the latest data is at time 14.926000, when looking up transform from frame [base_scan] to frame [map]
+[controller_server-6] [INFO] [1793243389.920470579] [controller_server]: Reached the goal!
+[path_follower-13] [INFO] [1793243389.922798763] [path_follower]: FollowPath finished: Nav2 status 4
+[change_memory-14] [WARN] [1793243394.848385783] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 19.942000 but the latest data is at time 19.924000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243399.864204603] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 24.942000 but the latest data is at time 24.922000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243404.880886888] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 29.942000 but the latest data is at time 29.920000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-14] [WARN] [1793243409.897342514] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 34.942000 but the latest data is at time 34.918000, when looking up transform from frame [base_scan] to frame [map]

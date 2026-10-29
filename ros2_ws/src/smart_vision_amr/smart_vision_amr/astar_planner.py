@@ -2,26 +2,44 @@
 
 import json
 import time
-from math import cos, hypot, isfinite, pi, sin, sqrt
+from math import atan2, ceil, cos, hypot, isfinite, pi, sin, sqrt
 
 import rclpy
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import OccupancyGrid, Odometry, Path
 from rclpy.node import Node
+from rclpy.clock import Clock, ClockType
 from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy, qos_profile_sensor_data
 from std_msgs.msg import Int32MultiArray, String
+from sensor_msgs.msg import LaserScan
 from tf2_ros import Buffer, TransformException, TransformListener
 from collections import deque
 
 from smart_vision_amr.astar import AStarPlanner
 from smart_vision_amr.clearance_cost import clearance_penalties
 from smart_vision_amr.grid import Grid
+from smart_vision_amr.failure_memory import FailureMemory, EXECUTION_FAILURE_REASONS
+from smart_vision_amr.obstacle_hold import ObstacleHold
+from smart_vision_amr.localization_geometry import rotation_clearance
 from smart_vision_amr.map_utils import (cell_to_world, inflate_cells, occupancy_to_grid,
                                         split_mapped_wall_returns, world_to_cell,
                                         yaw_from_quaternion)
 from smart_vision_amr.reverse_recovery import (Breadcrumb, GridGeometry,
                                                select_reverse_egress)
-from smart_vision_amr.path_geometry import route_cells, smooth_grid_path
+from smart_vision_amr.path_geometry import (route_cells, smooth_grid_path, path_progress,
+                                           point_at_progress, path_length)
+
+
+FAILURE_DEFAULTS = {
+    "failure_memory_enabled": True, "failure_memory_ttl": 120.0,
+    "failure_memory_radius": .25, "failure_memory_heading_tolerance": pi/3,
+    "failure_memory_max_entries": 64, "failure_memory_penalty": 2.0,
+    "failure_event_max_age": 3.0, "rejoin_progress_distance": .35,
+    "rejoin_cross_track_tolerance": .20, "recovery_turn_heading_threshold": .65,
+    "recovery_turn_clearance_margin": .03,
+    "obstacle_hold_enabled": True, "obstacle_retry_limit": 3,
+    "obstacle_clear_duration": 2.0,
+}
 
 
 class AStarPlannerNode(Node):
@@ -52,6 +70,8 @@ class AStarPlannerNode(Node):
         self.declare_parameter("reverse_recovery_clearance_margin", 0.02)
         self.declare_parameter("reverse_recovery_speed", 0.04)
         self.declare_parameter("reverse_recovery_max_attempts", 3)
+        for name, value in FAILURE_DEFAULTS.items():
+            self.declare_parameter(name, value)
         self.map = None
         self.raw_static_grid = None
         self.map_signature = None
@@ -78,6 +98,7 @@ class AStarPlannerNode(Node):
         self.recovery_cancel_due_map_change = False
         self.recovery_attempts = 0
         self.recovery_attempted_cells = set()
+        self._init_failure_state()
         self.planner = AStarPlanner()
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -86,6 +107,8 @@ class AStarPlannerNode(Node):
         self.path_pub = self.create_publisher(Path, "/smart_vision_amr/path", 10)
         self.status_pub = self.create_publisher(String, "/smart_vision_amr/planner_status", latched)
         self.recovery_pub = self.create_publisher(String, "/smart_vision_amr/recovery_request", 10)
+        self.failure_status_pub = self.create_publisher(
+            String, "/smart_vision_amr/failure_memory_status", latched)
         self.create_subscription(OccupancyGrid, self.get_parameter("map_topic").value, self.on_map, latched)
         self.create_subscription(Int32MultiArray, "/smart_vision_amr/remembered_cells", self.on_memory, latched)
         self.create_subscription(Int32MultiArray, "/smart_vision_amr/observed_obstacles",
@@ -94,7 +117,18 @@ class AStarPlannerNode(Node):
         self.create_subscription(Odometry, "/odom", self.on_odom, qos_profile_sensor_data)
         self.create_subscription(String, "/smart_vision_amr/navigation_status",
                                  self.on_navigation_status, 10)
+        self.create_subscription(String, "/smart_vision_amr/execution_failure",
+                                 self.on_execution_failure, 10)
+        self.create_subscription(String, "/smart_vision_amr/localization_health",
+                                 self.on_localization_health, latched)
+        self.create_subscription(String, "/smart_vision_amr/motion_status",
+                                 self.on_motion_status, latched)
+        self.create_subscription(LaserScan, "/scan", self.on_scan, qos_profile_sensor_data)
+        self.create_subscription(OccupancyGrid, "/smart_vision_amr/observed_visibility",
+                                 self.on_visibility, qos_profile_sensor_data)
         self.create_timer(0.25, self.retry_transform)
+        self.create_timer(.5, self.publish_failure_status,
+                          clock=Clock(clock_type=ClockType.STEADY_TIME))
         self.publish_status("IDLE", "Waiting for an explicit goal")
 
     def on_map(self, msg):
@@ -136,7 +170,7 @@ class AStarPlannerNode(Node):
                     self.invalid_path_published = False
                     self._invalidate_path("Map changed during reverse recovery; canceling reverse")
                 return
-            if any(self.map[1].is_static_obstacle(cell) for cell in self.planned_cells):
+            if any(self.map[1].is_static_obstacle(cell) for cell in self._remaining_path_cells()):
                 self._invalidate_path("Updated map blocks the active route")
             self._request_replan("Map updated")
 
@@ -144,12 +178,416 @@ class AStarPlannerNode(Node):
         return (self.last_goal is not None and not self.navigation_suspended
                 and not self.goal_completed)
 
+    def _init_failure_state(self):
+        self.failure_memory = FailureMemory()
+        self.failure_state, self.failure_reason = "CLEAR", ""
+        self.last_failure_id = None
+        self.last_failure_event_stamp_ns = 0
+        self.seen_failure_ids = deque(maxlen=256)
+        self.pending_failure_id = None
+        self.pending_failure_since = None
+        self.localization_health = self.latest_health_at = None
+        self.latest_scan = self.latest_scan_at = None
+        self.planned_world_points = []
+        self.rejoin_anchor = None
+        self.rejoin_verified = False
+        self.navigation_progress_at = None
+        self.obstacle_hold = ObstacleHold()
+        self.obstacle_episode_failure_ids = set()
+        self.obstacle_failure_cells = {}
+        self.last_visibility_at = None
+        self.last_visibility_stamp_ns = 0
+        self.latest_motion_status = self.latest_motion_status_at = None
+
+    def on_motion_status(self, msg):
+        try:
+            value = json.loads(msg.data)
+            if isinstance(value, dict):
+                self.latest_motion_status, self.latest_motion_status_at = value, time.monotonic()
+        except (ValueError, TypeError):
+            pass
+
+    def _automatic_resume_allowed(self):
+        status = self.latest_motion_status or {}
+        stamp = status.get("sent_at_ns")
+        return (self.latest_motion_status_at is not None
+                and 0 <= time.monotonic()-self.latest_motion_status_at < 1.0
+                and type(stamp) is int
+                and -.25e9 <= self.get_clock().now().nanoseconds-stamp < 1e9
+                and status.get("mode") == "auto" and status.get("available") is True
+                and status.get("autonomous_allowed") is True
+                and status.get("estop_latched") is not True
+                and status.get("reset_pending") is not True)
+
+    def _register_obstacle_failure(self, x, y, reference_cells=None, *, failure_id=None):
+        """Only nearby unmapped physical hits can arm automatic obstacle waiting."""
+        if not self.get_parameter("obstacle_hold_enabled").value or self.map is None:
+            return False
+        raw = self.raw_static_grid or occupancy_to_grid(self.map[0],
+                        self.get_parameter("occupied_threshold").value, 0)
+        # Do not ask a user to remove mapped walls because of raster/AMCL noise.
+        hits, _ = split_mapped_wall_returns(self.observed | self.remembered, raw,
+            max(2, int(self.get_parameter("mapped_wall_return_tolerance_cells").value)))
+        centers = {cell: cell_to_world(self.map[0].info, cell) for cell in hits}
+        if reference_cells is not None:
+            info = self.map[0].info
+            corridor = inflate_cells(set(reference_cells), info.width, info.height,
+                                    int(self.get_parameter("obstacle_inflation_cells").value)+1)
+            nearby = hits & corridor
+        else:
+            nearby = {cell for cell, p in centers.items() if hypot(p[0]-x, p[1]-y) < 1.5}
+        if not nearby:
+            return False
+        closest = min(nearby, key=lambda cell: hypot(centers[cell][0]-x, centers[cell][1]-y))
+        cx, cy = centers[closest]
+        # Track the locally blocking object rather than unrelated room objects.
+        tracked = {cell for cell in nearby if hypot(centers[cell][0]-cx, centers[cell][1]-cy) <= .60}
+        # The retry budget belongs to the retained goal, but removal evidence
+        # belongs to its current blocker. A previously passed object behind the
+        # robot must not make the current object's removal impossible to prove.
+        self.obstacle_hold.blocked_cells.intersection_update(tracked)
+        if failure_id is not None:
+            self.obstacle_failure_cells[failure_id] = set(tracked)
+        live_ids = {entry["id"] for entry in self.failure_memory.snapshot(
+            now=time.monotonic())["entries"]}
+        self.obstacle_failure_cells = {key: cells for key, cells in self.obstacle_failure_cells.items()
+                                       if key in live_ids}
+        info = self.map[0].info
+        neighborhood = inflate_cells(tracked, info.width, info.height,
+                                     max(1, ceil(.15/info.resolution)))
+        self.obstacle_episode_failure_ids = {key for key, cells in self.obstacle_failure_cells.items()
+                                            if cells & neighborhood}
+        self.obstacle_hold.retry_limit = max(1, int(self.get_parameter("obstacle_retry_limit").value))
+        self.obstacle_hold.clear_duration = max(.5, float(self.get_parameter("obstacle_clear_duration").value))
+        if not self.obstacle_hold.register_failure(tracked, now=time.monotonic()):
+            return False
+        self.failure_state, self.failure_reason = "OBSTACLE_HOLD", (
+            "장애물이 있어 경로 주행을 잠시 멈춥니다. 장애물을 치우면 경로를 재개합니다.")
+        self._invalidate_path(self.failure_reason)
+        return True
+
+    def on_visibility(self, msg):
+        if not self.obstacle_hold.holding or not self._goal_is_active() or self.map is None:
+            return
+        now = time.monotonic()
+        stamp = msg.header.stamp.sec*1_000_000_000+msg.header.stamp.nanosec
+        current = self.map[0]
+        matching = (msg.header.frame_id == current.header.frame_id
+                    and msg.info.width == current.info.width and msg.info.height == current.info.height
+                    and msg.info.resolution == current.info.resolution
+                    and msg.info.origin == current.info.origin
+                    and len(msg.data) == current.info.width*current.info.height)
+        fresh = (matching and stamp > self.last_visibility_stamp_ns and stamp > 0
+                 and -.25e9 <= self.get_clock().now().nanoseconds-stamp < .75e9
+                 and self._fresh_motion_pose() is not None and self._automatic_resume_allowed())
+        if not fresh:
+            self.obstacle_hold.observe_free(set(), set(), fresh=False, now=now)
+            return
+        self.last_visibility_stamp_ns, self.last_visibility_at = stamp, now
+        width = msg.info.width
+        # Only inspect the bounded tracked object, not an entire map-sized set.
+        tracked = set(self.obstacle_hold.blocked_cells)
+        if any(not self.map[1].contains(cell) for cell in tracked):
+            self.obstacle_hold.observe_free(set(), set(), fresh=False, now=now)
+            return
+        free = {cell for cell in tracked if msg.data[cell[1]*width+cell[0]] == 0}
+        # Small ordinary AMCL/raster shifts cannot make a nearby stationary
+        # object appear removed merely by moving its endpoint to the next cell.
+        radius = max(1, ceil(.10/msg.info.resolution))
+        neighbors = inflate_cells(tracked, width, msg.info.height, radius)
+        near_hits = {cell for cell in neighbors if msg.data[cell[1]*width+cell[0]] > 0}
+        occupied = tracked if near_hits else set()
+        if not self.obstacle_hold.observe_free(free, occupied, fresh=True, now=now):
+            return
+        # These cells were positively traversed by fresh valid LiDAR rays for
+        # two seconds. Clear only failure IDs associated with this same object.
+        self.failure_memory.release_verified(self.obstacle_episode_failure_ids, now=now)
+        for key in self.obstacle_episode_failure_ids:
+            self.obstacle_failure_cells.pop(key, None)
+        self.obstacle_episode_failure_ids.clear()
+        self.observed.difference_update(free)
+        self.remembered.difference_update(free)
+        self.recovery_attempts, self.recovery_attempted_cells = 0, set()
+        self.rejoin_anchor, self.rejoin_verified = None, False
+        self.failure_state, self.failure_reason = "CLEAR", "장애물 제거 확인 · 기존 목표로 경로를 재생성합니다."
+        self.last_plan_time = float("-inf")
+        self._request_replan(self.failure_reason)
+
+    def _memory_scopes(self):
+        if self.map is None or self.last_goal is None:
+            return "", ""
+        msg, _ = self.map
+        origin = msg.info.origin
+        # Map updates do not erase a failed approach. Geometry/frame changes
+        # naturally isolate it; goal resends use coordinates, not request stamps.
+        map_scope = repr((msg.header.frame_id, msg.info.width, msg.info.height,
+                          msg.info.resolution, origin.position.x, origin.position.y,
+                          origin.orientation.x, origin.orientation.y,
+                          origin.orientation.z, origin.orientation.w))
+        goal = self.last_goal
+        return map_scope, repr((goal.header.frame_id or self.get_parameter("map_frame").value,
+                                goal.pose.position.x, goal.pose.position.y))
+
+    def _failure_constraints(self, grid):
+        if not self.get_parameter("failure_memory_enabled").value:
+            return set(), {}
+        info = self.map[0].info
+        geometry = GridGeometry(info.resolution, info.origin.position.x,
+                                info.origin.position.y, yaw_from_quaternion(info.origin.orientation))
+        map_scope, goal_scope = self._memory_scopes()
+        return self.failure_memory.constraints(grid, geometry, now=time.monotonic(),
+                                                map_scope=map_scope, goal_scope=goal_scope)
+
+    def on_localization_health(self, msg):
+        try:
+            payload = json.loads(msg.data)
+            if isinstance(payload, dict):
+                self.localization_health, self.latest_health_at = payload, time.monotonic()
+        except (ValueError, TypeError):
+            pass
+
+    def on_scan(self, msg):
+        self.latest_scan, self.latest_scan_at = msg, time.monotonic()
+
+    def _fresh_motion_pose(self):
+        """Independent receipt/source age checks; a replay is not fresh motion."""
+        now, ros_ns = time.monotonic(), self.get_clock().now().nanoseconds
+        health, odom, scan = self.localization_health or {}, self.latest_odom, self.latest_scan
+        sent = health.get("sent_at_ns")
+        scan_stamp = (0 if scan is None else scan.header.stamp.sec*1_000_000_000
+                      + scan.header.stamp.nanosec)
+        if (self.latest_health_at is None or not 0 <= now-self.latest_health_at < 1.0
+                or isinstance(sent, bool) or not isinstance(sent, int)
+                or not -.25e9 <= ros_ns-sent < 1e9
+                or health.get("level") != "ok" or health.get("autonomous_allowed") is not True
+                or health.get("stop_latched") is True or odom is None
+                or not 0 <= now-odom[0] < .75 or not -.25e9 <= ros_ns-odom[1] < 1e9
+                or scan is None or self.latest_scan_at is None
+                or not 0 <= now-self.latest_scan_at < .75
+                or scan_stamp <= 0 or not -.25e9 <= ros_ns-scan_stamp < 1e9
+                or not scan.ranges or not isfinite(scan.range_max) or scan.range_max <= 0
+                or not isfinite(scan.range_min) or not 0 <= scan.range_min < scan.range_max
+                or not isfinite(scan.angle_min) or not isfinite(scan.angle_increment)
+                or scan.angle_increment == 0
+                or sum((isfinite(v) and scan.range_min <= v <= scan.range_max)
+                       or v == float("inf") for v in scan.ranges)/len(scan.ranges) < .8):
+            return None
+        try:
+            tf = self.tf_buffer.lookup_transform(self.get_parameter("map_frame").value,
+                    self.get_parameter("base_frame").value, rclpy.time.Time())
+            stamp = tf.header.stamp.sec*1_000_000_000 + tf.header.stamp.nanosec
+            p, q = tf.transform.translation, tf.transform.rotation
+            if (stamp <= 0 or not -.25e9 <= ros_ns-stamp < 1e9
+                    or not all(isfinite(v) for v in (p.x, p.y, q.x, q.y, q.z, q.w))
+                    or not .8 <= q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w <= 1.2):
+                return None
+            return float(p.x), float(p.y), yaw_from_quaternion(q)
+        except (TransformException, ValueError, AttributeError):
+            return None
+
+    def on_execution_failure(self, msg):
+        if not self._goal_is_active() or not self.get_parameter("failure_memory_enabled").value:
+            return
+        try:
+            data = json.loads(msg.data)
+            event_id, created = data.get("event_id"), data.get("created_at_ns")
+            if (type(data.get("schema_version")) is not int or data["schema_version"] != 1
+                    or data.get("terminal_confirmed") is not True
+                    or not isinstance(event_id, str) or not 1 <= len(event_id) <= 128
+                    or event_id in self.seen_failure_ids or not self._status_matches_goal(data)
+                    or data.get("reason") not in EXECUTION_FAILURE_REASONS
+                    or isinstance(created, bool) or not isinstance(created, int)
+                    or not -.25e9 <= self.get_clock().now().nanoseconds-created
+                    <= float(self.get_parameter("failure_event_max_age").value)*1e9):
+                return
+            pose, segment = data["pose"], data["segment"]
+            values = (pose["x"], pose["y"], pose["yaw"], segment["heading"],
+                      segment["start"]["x"], segment["start"]["y"],
+                      segment["end"]["x"], segment["end"]["y"])
+            if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not isfinite(v)
+                   for v in values):
+                return
+            current = self._fresh_motion_pose()
+            if current is None or hypot(current[0]-pose["x"], current[1]-pose["y"]) > .35:
+                self.failure_state, self.failure_reason = "SENSOR_HOLD", "Failure evidence is not fresh"
+                return
+        except (ValueError, TypeError, KeyError, AttributeError):
+            return
+        # Place the restriction ahead of the stopped body, along the attempted
+        # route. Retreat and departure in a different direction remain possible.
+        heading = segment["heading"]
+        map_scope, goal_scope = self._memory_scopes()
+        self.last_failure_id = self.failure_memory.record_failure(
+            x=pose["x"]+.20*cos(heading), y=pose["y"]+.20*sin(heading),
+            approach_heading=heading, reason=data["reason"], now=time.monotonic(),
+            map_scope=map_scope, goal_scope=goal_scope, failure_id=event_id)
+        self.seen_failure_ids.append(event_id)
+        self.last_failure_event_stamp_ns = created
+        self.pending_failure_id = self.pending_failure_since = None
+        self.rejoin_anchor, self.rejoin_verified = None, False
+        self.failure_state, self.failure_reason = "AVOIDING", data["reason"]
+        self._invalidate_path("Execution failure remembered; seeking a different approach")
+        if self._register_obstacle_failure(pose["x"], pose["y"], failure_id=self.last_failure_id):
+            return
+        self.last_plan_time = float("-inf")
+        self._request_replan("Execution failure recorded")
+
+    def _remaining_path_cells(self):
+        """Only newly blocked *remaining* route cancels a healthy active action."""
+        points = self.planned_world_points
+        if len(points) < 2 or self.map is None:
+            return self.planned_cells
+        try:
+            tf = self.tf_buffer.lookup_transform(self.get_parameter("map_frame").value,
+                    self.get_parameter("base_frame").value, rclpy.time.Time())
+            stamp = tf.header.stamp.sec*1_000_000_000 + tf.header.stamp.nanosec
+            if not -.25e9 <= self.get_clock().now().nanoseconds-stamp < 1e9:
+                return self.planned_cells
+            p = tf.transform.translation
+            progress = max(0., path_progress(points, (p.x, p.y))
+                           -float(self.get_parameter("robot_radius").value)-.05)
+            remaining = [point_at_progress(points, progress)]
+            traveled = 0.
+            for a, b in zip(points, points[1:]):
+                traveled += hypot(b[0]-a[0], b[1]-a[1])
+                if traveled >= progress:
+                    remaining.append(b)
+            info = self.map[0].info
+            c, s = cos(yaw_from_quaternion(info.origin.orientation)), sin(yaw_from_quaternion(info.origin.orientation))
+            def local(point):
+                x, y = point[0]-info.origin.position.x, point[1]-info.origin.position.y
+                return ((c*x+s*y)/info.resolution, (-s*x+c*y)/info.resolution)
+            return list(route_cells([local(point) for point in remaining]))
+        except (TransformException, AttributeError, ValueError):
+            return self.planned_cells
+
+    def _turn_ready(self, world_points, pose):
+        if len(world_points) < 2:
+            return True
+        target = point_at_progress(world_points, .30)
+        heading = atan2(target[1]-pose[1], target[0]-pose[0])
+        if abs(self._angle_delta(heading, pose[2])) < float(self.get_parameter("recovery_turn_heading_threshold").value):
+            return True
+        scan, now = self.latest_scan, time.monotonic()
+        if scan is None or self.latest_scan_at is None or now-self.latest_scan_at > .75:
+            return None
+        stamp = scan.header.stamp.sec*1_000_000_000+scan.header.stamp.nanosec
+        if not -.25e9 <= self.get_clock().now().nanoseconds-stamp < 1e9:
+            return None
+        try:
+            tf = self.tf_buffer.lookup_transform(self.get_parameter("base_frame").value,
+                      scan.header.frame_id, rclpy.time.Time.from_msg(scan.header.stamp))
+            p, q = tf.transform.translation, tf.transform.rotation
+            safe, clearance = rotation_clearance(scan, (p.x, p.y, yaw_from_quaternion(q)),
+                radius=float(self.get_parameter("robot_radius").value)
+                      +float(self.get_parameter("recovery_turn_clearance_margin").value))
+            # Unknown angular coverage cannot authorize a reverse manoeuvre.
+            return safe if clearance is not None else None
+        except (TransformException, ValueError):
+            return None
+
+    def _update_rejoin(self):
+        anchor = self.rejoin_anchor
+        if anchor is None or self.rejoin_verified or not self._goal_is_active():
+            return
+        pose = self._fresh_motion_pose()
+        if pose is None:
+            return
+        points, odom = anchor["points"], self.latest_odom
+        if len(points) < 2 or odom[5] != anchor["odom"][5]:
+            return
+        progress = path_progress(points, pose[:2])
+        projection = point_at_progress(points, progress)
+        distance = float(self.get_parameter("rejoin_progress_distance").value)
+        # Compare a chassis displacement in both coordinate systems; neither
+        # an AMCL correction nor an odometry reset alone proves a safe rejoin.
+        ox, oy = odom[2]-anchor["odom"][2], odom[3]-anchor["odom"][3]
+        rotation = anchor["pose"][2]-anchor["odom"][4]
+        ex, ey = cos(rotation)*ox-sin(rotation)*oy, sin(rotation)*ox+cos(rotation)*oy
+        error = hypot(pose[0]-anchor["pose"][0]-ex, pose[1]-anchor["pose"][1]-ey)
+        if (progress-anchor["progress"] >= distance
+                and hypot(odom[2]-anchor["odom"][2], odom[3]-anchor["odom"][3]) >= min(.25, distance)
+                and odom[1] > anchor["odom"][1]
+                and error <= .05+.20*hypot(ox, oy)
+                and self.navigation_progress_at is not None
+                and time.monotonic()-self.navigation_progress_at < 1.0
+                and hypot(pose[0]-projection[0], pose[1]-projection[1])
+                    <= float(self.get_parameter("rejoin_cross_track_tolerance").value)):
+            self.rejoin_verified = True
+            self.recovery_attempts, self.recovery_attempted_cells = 0, set()
+            self.failure_state, self.failure_reason = "AVOIDING", "Alternative route progress verified"
+
+    def publish_failure_status(self):
+        # Steady heartbeat also expires memory while simulation /clock is paused.
+        try:
+            settings = dict(ttl_sec=float(self.get_parameter("failure_memory_ttl").value),
+                radius_m=float(self.get_parameter("failure_memory_radius").value),
+                heading_tolerance_rad=float(self.get_parameter("failure_memory_heading_tolerance").value),
+                max_entries=int(self.get_parameter("failure_memory_max_entries").value),
+                penalty_cost=float(self.get_parameter("failure_memory_penalty").value))
+            validated = FailureMemory(**settings)
+            for name in settings:
+                setattr(self.failure_memory, name, getattr(validated, name))
+            map_scope, goal_scope = self._memory_scopes()
+            snapshot = self.failure_memory.snapshot(now=time.monotonic(),
+                map_scope=map_scope, goal_scope=goal_scope)
+            self._update_rejoin()
+            active = [{**entry, "expires_in": entry["expires_in_sec"],
+                       "failures": entry["occurrences"]} for entry in snapshot["entries"]]
+            state = self.failure_state
+            if not self._goal_is_active() or not self.get_parameter("failure_memory_enabled").value:
+                state = "CLEAR"
+                active = []
+            elif active and self._fresh_motion_pose() is None:
+                state = "SENSOR_HOLD"
+            elif self.recovery_active:
+                state = "RECOVERING"
+            elif self.obstacle_hold.holding:
+                state = "OBSTACLE_HOLD" if self._fresh_motion_pose() is not None else "SENSOR_HOLD"
+            elif (not active and self.rejoin_anchor is None
+                  and state in ("CLEAR", "AVOIDING")):
+                state = "CLEAR"
+            packet = String()
+            goal = self.last_goal
+            packet.data = json.dumps({"state": state, "reason": self.failure_reason,
+                "count": len(active), "active": active, "last_failure_id": self.last_failure_id,
+                "rejoin_verified": self.rejoin_verified, "recovery_attempts": self.recovery_attempts,
+                "goal_stamp": None if goal is None else {"sec": goal.header.stamp.sec,
+                                                         "nanosec": goal.header.stamp.nanosec},
+                "sent_at_ns": self.get_clock().now().nanoseconds})
+            detail = json.loads(packet.data)
+            hold = self.obstacle_hold.snapshot(now=time.monotonic())
+            detail.update(retry_count=hold["attempts"], retry_limit=hold["retry_limit"],
+                blocked_obstacle_count=hold["tracked_cell_count"],
+                clear_wait_seconds=max(0., hold["clear_duration"]-hold["clear_elapsed"]))
+            packet.data = json.dumps(detail)
+            self.failure_status_pub.publish(packet)
+        except (ValueError, TypeError):
+            self.get_logger().warning("Invalid failure-memory limits; keeping last valid settings",
+                                      throttle_duration_sec=5.)
+
     def _retry_period(self):
         # Keep retry rate bounded even if a mistaken runtime parameter is zero.
         return max(0.25, float(self.get_parameter("replan_retry_period").value))
 
     def retry_transform(self):
         """Retry no-path, missing-map and missing-TF conditions without losing the goal."""
+        if self.obstacle_hold.holding:
+            if (self.last_visibility_at is None or time.monotonic()-self.last_visibility_at > .5
+                    or self._fresh_motion_pose() is None or not self._automatic_resume_allowed()):
+                self.obstacle_hold.observe_free(set(), set(), fresh=False, now=time.monotonic())
+            return
+        if self.pending_failure_id is not None:
+            # FAILED and the reliable event use different topics. Never retry
+            # the old route while its spatial evidence is still uncorrelated.
+            if (self.pending_failure_since is None
+                    or time.monotonic()-self.pending_failure_since < 3.0
+                    or self._fresh_motion_pose() is None):
+                return
+            # Lost/rejected evidence cannot poison the map or permanently lose
+            # the mission. Retry once sensors recover, without inventing memory.
+            self.pending_failure_id = self.pending_failure_since = None
+            self.failure_state, self.failure_reason = "WAIT_ALTERNATIVE", "Unconfirmed failure; retrying with fresh sensors"
         if self.map is not None:
             signature = (self.get_parameter("occupied_threshold").value,
                          self.get_parameter("obstacle_inflation_cells").value,
@@ -193,7 +631,8 @@ class AStarPlannerNode(Node):
                 and time.monotonic()-self.last_observation_time < timeout)
 
     def _request_replan(self, reason):
-        if not self._goal_is_active() or getattr(self, "recovery_active", False):
+        if (not self._goal_is_active() or getattr(self, "recovery_active", False)
+                or self.pending_failure_id is not None or self.obstacle_hold.holding):
             return
         self.waiting_for_replan = True
         if time.monotonic() - self.last_plan_time >= self._retry_period():
@@ -203,6 +642,7 @@ class AStarPlannerNode(Node):
         # One empty Path cancels the unsafe action. Repeated retries must not
         # continuously cancel a replacement action or flood navigation_status.
         self.planned_cells = []
+        self.planned_world_points = []
         if not self.invalid_path_published:
             path = Path()
             path.header.frame_id = self.get_parameter("map_frame").value
@@ -229,6 +669,8 @@ class AStarPlannerNode(Node):
             payload = json.loads(msg.data)
         except (ValueError, TypeError):
             return
+        if not isinstance(payload, dict):
+            return
         if payload.get("manual_stop"):
             stopped = payload.get("stop_stamp") or {}
             if "sec" not in stopped or "nanosec" not in stopped:
@@ -247,10 +689,17 @@ class AStarPlannerNode(Node):
                 self.recovery_cancel_due_map_change = False
                 self._clear_breadcrumbs()
                 self.waiting_for_replan = False
+                self.pending_failure_id = None
+                self.rejoin_anchor = None
+                self.obstacle_hold.reset()
+                self.obstacle_episode_failure_ids.clear()
+                self.obstacle_failure_cells.clear()
                 self.publish_status("IDLE", "Manually stopped; send a newly ROS-stamped goal to resume")
             return
         if self.last_goal is None or not self._status_matches_goal(payload):
             return
+        if payload.get("status") == "MOVING":
+            self.navigation_progress_at = time.monotonic()
         recovery_status = payload.get("status")
         if recovery_status == "RECOVERING":
             self.publish_status("RECOVERING", "Verified short reverse is in progress")
@@ -287,15 +736,39 @@ class AStarPlannerNode(Node):
         if payload.get("status") == "SUCCEEDED":
             self.goal_completed = True
             self.waiting_for_replan = False
+            self.pending_failure_id = None
+            self.rejoin_anchor = None
+            self.failure_state = "CLEAR"
+            self.obstacle_hold.reset()
+            self.obstacle_episode_failure_ids.clear()
+            self.obstacle_failure_cells.clear()
             self.publish_status("IDLE", "Goal completed")
         elif payload.get("status") == "FAILED" and self._goal_is_active():
             # Nav2 may abort while the geometric route is unchanged. Retry the
             # retained goal; the follower discards its failed duplicate cache.
+            if payload.get("route_failure") is True:
+                event_id = payload.get("execution_failure_id")
+                if event_id in self.seen_failure_ids:
+                    return  # Correlated event already replanned this goal.
+                if isinstance(event_id, str) and event_id:
+                    self.pending_failure_id = event_id
+                    self.pending_failure_since = time.monotonic()
+                    self.failure_state, self.failure_reason = "WAIT_ALTERNATIVE", "Waiting for terminal failure evidence"
             self._invalidate_path("Controller failed; waiting to replan retained goal")
+            self.last_plan_time = time.monotonic()
+        elif (payload.get("status") == "WAIT_REPLAN" and payload.get("route_failure") is False
+              and self._goal_is_active()):
+            # A sensor fault during terminal cancellation disproves the stored
+            # motion diagnosis, but must not strand the retained mission goal.
+            self.pending_failure_id = self.pending_failure_since = None
+            self.failure_state, self.failure_reason = "SENSOR_HOLD", "Sensor recovery required; no failure recorded"
+            self._invalidate_path(self.failure_reason)
             self.last_plan_time = time.monotonic()
 
     def _status_matches_goal(self, payload):
         target = payload.get("goal") or {}
+        if not isinstance(target, dict):
+            return False
         goal = self.last_goal
         frame = goal.header.frame_id or self.get_parameter("map_frame").value
         if (target.get("frame_id") != frame
@@ -320,6 +793,8 @@ class AStarPlannerNode(Node):
             if self._goal_is_active() and (self.waiting_for_replan
                     or self._changes_block_path(added) or self._changes_block_path(removed)):
                 if self._changes_block_path(added):
+                    if self._count_blocked_published_path():
+                        return
                     self._invalidate_path("Remembered obstacle intersects the route")
                 self._request_replan("Remembered obstacles changed")
 
@@ -338,11 +813,23 @@ class AStarPlannerNode(Node):
             if self._goal_is_active() and (self.waiting_for_replan
                     or self._changes_block_path(added, filter_near_wall=True)):
                 if self._changes_block_path(added, filter_near_wall=True):
+                    if self._count_blocked_published_path():
+                        return
                     self._invalidate_path("Observed obstacle intersects the route")
                 self._request_replan("Observed obstacles changed")
         elif self.waiting_for_replan and self._goal_is_active():
             # Fresh empty/unchanged scans also recover a stale-sensor hold.
             self._request_replan("LiDAR obstacle observations restored")
+
+    def _count_blocked_published_path(self):
+        # One attempted published approach, never individual sensor packets:
+        # invalidation clears planned_cells immediately after the first hit.
+        # This also bounds paths canceled too quickly for the 6 s detector.
+        if not self.planned_cells or not self._automatic_resume_allowed():
+            return False
+        pose = self._fresh_motion_pose()
+        return (pose is not None and self._register_obstacle_failure(
+            pose[0], pose[1], self._remaining_path_cells()))
 
     def _changes_block_path(self, cells, *, filter_near_wall=False):
         if not cells or not self.planned_cells:
@@ -352,7 +839,7 @@ class AStarPlannerNode(Node):
         effective = (self._split_mapped_wall_returns(cells)[0]
                      if filter_near_wall else cells)
         blocked = inflate_cells(effective, width, height, inflation)
-        return any(cell in blocked for cell in self.planned_cells)
+        return any(cell in blocked for cell in self._remaining_path_cells())
 
     def _split_mapped_wall_returns(self, cells):
         raw_grid = getattr(self, "raw_static_grid", None)
@@ -378,6 +865,26 @@ class AStarPlannerNode(Node):
         if self.recovery_active:
             self._clear_breadcrumbs()
         self.last_goal = goal
+        self.navigation_suspended = False
+        self.goal_completed = False
+        self.obstacle_hold.ensure_goal_scope(repr(self._memory_scopes()))
+        self.last_visibility_at = None
+        if self.obstacle_hold.holding:
+            self.failure_state = "OBSTACLE_HOLD"
+            self.invalid_path_published = False
+            self._invalidate_path(self.failure_reason)
+            return
+        if self.obstacle_hold.attempts == 0:
+            self.obstacle_episode_failure_ids.clear()
+            self.obstacle_failure_cells.clear()
+        self.pending_failure_id = None
+        self.pending_failure_since = None
+        self.rejoin_anchor, self.rejoin_verified = None, False
+        self.navigation_progress_at = None
+        self.last_failure_id = None
+        self.last_failure_event_stamp_ns = 0
+        self.failure_state, self.failure_reason = "CLEAR", ""
+        self.planned_world_points = []
         self.navigation_suspended = False
         self.goal_completed = False
         self.recovery_active = False
@@ -528,9 +1035,12 @@ class AStarPlannerNode(Node):
         geometry = GridGeometry(map_msg.info.resolution, origin.position.x,
                                 origin.position.y, yaw_from_quaternion(origin.orientation))
 
+        failure_edges, failure_costs = self._failure_constraints(grid)
+
         def can_reach_retained_goal(candidate_cell):
             return bool(self.planner.plan(grid, candidate_cell, end, inflated_dynamic,
-                                          cell_penalty=cell_penalty))
+                                          cell_penalty=cell_penalty,
+                                          blocked_edges=failure_edges, edge_penalty=failure_costs))
 
         candidate = select_reverse_egress(
             tuple(self.breadcrumbs), raw_with_live, inflated_with_live, geometry,
@@ -547,6 +1057,7 @@ class AStarPlannerNode(Node):
         self.recovery_attempted_cells.add(start)
         self.recovery_active = True
         self.recovery_requested_at = time.monotonic()
+        self.failure_state, self.failure_reason = "RECOVERING", "Verified recent track retreat"
         goal = self.last_goal
         request = String()
         request.data = json.dumps({
@@ -563,7 +1074,11 @@ class AStarPlannerNode(Node):
         return True
 
     def plan_to(self, goal):
-        if getattr(self, "recovery_active", False):
+        if (getattr(self, "recovery_active", False) or self.pending_failure_id is not None
+                or self.obstacle_hold.holding):
+            return
+        if self.failure_state == "SENSOR_HOLD" and self._fresh_motion_pose() is None:
+            self._invalidate_path("Waiting for fresh independent sensor evidence before retry")
             return
         self.last_plan_time = time.monotonic()
         self.geometry_signature = tuple(self.get_parameter(name).value for name in (
@@ -620,6 +1135,11 @@ class AStarPlannerNode(Node):
             map_msg.info.resolution,
             float(self.get_parameter("preferred_clearance").value),
             float(self.get_parameter("clearance_penalty_gain").value))
+        failure_edges, failure_costs = self._failure_constraints(grid)
+        if failure_edges and self._fresh_motion_pose() is None:
+            self.failure_state, self.failure_reason = "SENSOR_HOLD", "Fresh motion evidence required for failure recovery"
+            self._invalidate_path(self.failure_reason)
+            return
         # A scan obstacle can enter the inflation band around the robot itself
         # even when the footprint is still clear. Permit the A* search to leave
         # that one dynamic cell; static-map and confirmed-memory collisions stay
@@ -642,7 +1162,7 @@ class AStarPlannerNode(Node):
                     margin_cells=margin/resolution,
                     max_egress_cells=min(int(inflation)+1, int(self.get_parameter("start_egress_max_cells").value)),
                     allow_blocked_start=allow_dynamic_escape, escape_cells=escape_cells,
-                    cell_penalty=cell_penalty)
+                    cell_penalty=cell_penalty, blocked_edges=failure_edges, edge_penalty=failure_costs)
                 if cells:
                     egress_steps = next((index for index, cell in enumerate(cells)
                                          if not grid.is_static_obstacle(cell)), 0)
@@ -650,7 +1170,8 @@ class AStarPlannerNode(Node):
                 cells = self.planner.plan(grid, start, end, blocked,
                                           allow_blocked_start=allow_dynamic_escape,
                                           escape_cells=escape_cells,
-                                          cell_penalty=cell_penalty)
+                                          cell_penalty=cell_penalty,
+                                          blocked_edges=failure_edges, edge_penalty=failure_costs)
         except ValueError:
             self._invalidate_path(f"Robot or goal lies outside the map: {start} -> {end}")
             return
@@ -681,6 +1202,10 @@ class AStarPlannerNode(Node):
                 f"first_blocked_reference_cells={reference_hits[:8]})",
                 throttle_duration_sec=10.0)
             self._invalidate_path(f"No safe A* route from {start} to {end}; retrying")
+            self.failure_state, self.failure_reason = "WAIT_ALTERNATIVE", "No safe alternative; goal retained"
+            if (not grid.is_static_obstacle(end) and self._register_obstacle_failure(
+                    tf.transform.translation.x, tf.transform.translation.y, reference_path)):
+                return
             self._maybe_request_reverse(start, end, map_msg, grid, raw_grid,
                                         observed_effective | remembered_effective,
                                         blocked, cell_penalty, trail_verified)
@@ -689,7 +1214,12 @@ class AStarPlannerNode(Node):
         self.invalid_path_published = False
         path = Path()
         path.header.frame_id = frame
-        path.header.stamp = self.get_clock().now().to_msg()
+        now = self.get_clock().now()
+        # Cross-topic ordering has no DDS guarantee. A replacement must be
+        # strictly newer than the failed request even within one /clock tick.
+        cutoff = self.last_failure_event_stamp_ns
+        path.header.stamp = (rclpy.time.Time(nanoseconds=max(now.nanoseconds, cutoff+1)).to_msg()
+                             if cutoff else now.to_msg())
         from math import atan2, sin, cos, isfinite
         points = [(x + .5, y + .5) for x, y in cells]
         smoothed = False
@@ -705,6 +1235,36 @@ class AStarPlannerNode(Node):
         # Nav2, including all crossed cells, rather than only the old A* cells.
         self.planned_cells = list(cells) + sorted(route_cells(points) - set(cells))
         world_points = [cell_to_world(map_msg.info, (x-.5, y-.5)) for x, y in points]
+        if failure_edges:
+            map_scope, goal_scope = self._memory_scopes()
+            if any(self.failure_memory.segment_blocked(a, b, now=time.monotonic(),
+                    map_scope=map_scope, goal_scope=goal_scope)
+                   for a, b in zip(world_points, world_points[1:])):
+                # Occupancy-only shortcuts could otherwise undo A*'s directed
+                # constraints. The original certified grid path honours both.
+                points = [(x+.5, y+.5) for x, y in cells]
+                world_points = [cell_to_world(map_msg.info, cell) for cell in cells]
+                smoothed = False
+                self.planned_cells = list(cells)
+            current = self._fresh_motion_pose()
+            turn_ready = self._turn_ready(world_points, current) if current is not None else None
+            if turn_ready is not True:
+                self._invalidate_path("Alternative requires more turn clearance" if turn_ready is False
+                                      else "Waiting for fresh 360-degree turn clearance")
+                self.failure_state = "WAIT_ALTERNATIVE" if turn_ready is False else "SENSOR_HOLD"
+                if turn_ready is False:
+                    self._maybe_request_reverse(start, end, map_msg, grid, raw_grid,
+                        observed_effective | remembered_effective, blocked, cell_penalty, trail_verified)
+                return
+            self.failure_state, self.failure_reason = "REJOINING", "Following a different approach; verifying progress"
+            if self.rejoin_anchor is None:
+                self.rejoin_anchor = {"progress": path_progress(world_points, current[:2]),
+                                      "odom": self.latest_odom, "points": world_points,
+                                      "pose": current}
+                self.rejoin_verified = False
+        self.planned_world_points = world_points
+        if not failure_edges:
+            self.failure_state, self.failure_reason = "CLEAR", ""
         for index, point in enumerate(world_points):
             pose = PoseStamped()
             pose.header = path.header
