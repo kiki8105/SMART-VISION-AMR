@@ -1,4 +1,4 @@
-# 팀원 실행·검증 인계 (2026-10-28)
+# 팀원 실행·검증 인계 (2026-10-29)
 
 이 저장소의 ROS 2 Humble 패키지는 `ros2_ws/src/smart_vision_amr`에 있다. 저장소를
 `<작업공간>/src/SMART-VISION-AMR`에 두고 `<작업공간>`에서 빌드한다. Gazebo는
@@ -42,26 +42,31 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 ```
 
 ```bash
-# 터미널 2: 기존 PyQt 조종기 (해당 파일을 설치한 PC에서)
+# 터미널 2: 저장소에 포함된 PyQt 지도·Goal·파라미터 화면
 cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/run_sim_controller.sh
 ```
 
-PyQt 조종기 경로의 기본값은 `/home/kiki/turtlebot3/tools/cmd_vel_controller.py`다.
-다른 PC에서는 해당 파일을 별도 설치하고
+PyQt 조종기와 지도·파라미터 패널은 저장소의 `tools/`에 포함되어 있다.
+실행 스크립트가 해당 파일을 자동으로 찾으므로 별도 조종기 소스를 복사하지 않는다.
+명시적으로 다른 조종기를 쓰려는 경우에만
 `SMART_VISION_CONTROLLER_SCRIPT=/절대경로/cmd_vel_controller.py`로 지정한다.
+저장 지도 주행에서는 PyQt의 지도·Goal·파라미터 기능을 사용한다.
+PyQt는 화면만 열었을 때 속도 발행자를 만들지 않아 기본 mux와 충돌하지 않는다.
+웹 mux가 `/cmd_vel`을 담당하면 PyQt 방향 버튼은 잠기며 웹 조이스틱을 안내한다.
+수동 조작은 웹 조이스틱을 사용하거나, 아래 수동 SLAM처럼 mux를 끄고
+`./scripts/run_sim_controller.sh`를 추가 인자 없이 실행한다.
 로봇과 지도·경로·속도 토픽의 자동 검사는 다른 터미널에서
 `./scripts/check_sim.sh`로 실행한다. 새 지도를 만들 때는 터미널 1에
-`./scripts/run_sim.sh slam:=true`를 사용한다. 그 터미널에서 `Ctrl+C`를 누르면
+`./scripts/run_sim.sh slam:=true use_motion_mux:=false`를 사용한다. 그 터미널에서 `Ctrl+C`를 누르면
 `~/Team2_workspace/maps/slam_날짜_시간_실행번호/map.yaml`과 `.pgm`을 저장한다.
 
-ArUco 미로 실습은 `./scripts/run_sim_aruco.sh`로 새 SLAM을 시작할 수 있다.
-이 스크립트는 먼저 `./scripts/generate_aruco_models.py --ids 0 1 2 3`으로
-모델을 등록해야 한다. 저장 지도 기반 미로 웹 임무용
-`./scripts/run_web_mission_sim.sh`는 별도
-`~/Team2_workspace/maps/maze_aruco_20261026/map.yaml`을 요구한다. 이 지도는
-저장소가 아니라 기존 실습 결과이므로, 다른 PC에서는 자기 SLAM 지도를
-생성하거나 해당 파일을 별도로 준비해야 한다.
+ArUco 미로 새 SLAM은 `./scripts/run_sim_aruco.sh use_motion_mux:=false`로 시작한다.
+마커 0~3의 모델·재질·이미지는 `gazebo_models/`에 포함되어 자동으로 로드된다.
+저장 지도 기반 미로 웹 실습은 `./scripts/run_web_mission_sim.sh`와
+`./scripts/run_web_mission.sh`를 별도 터미널에서 실행한다.
+해당 지도도 `ros2_ws/src/smart_vision_amr/maps/maze_aruco_20261026.yaml` 및
+`.pgm`으로 포함되어 있으므로 첫 실행 전 재매핑이나 별도 지도 복사가 필요 없다.
 
 ## 강의실 실차 도메인 16
 
@@ -93,9 +98,10 @@ ENABLE_FRONT_CAMERA=false REAR_CAMERA_SIZE=320x240 \
 위 명령은 후방 단독 EKF 구성이다. 기본 카메라 백엔드 `rate_limited`는
 압축 토픽에 최대 5 FPS, 320×240, JPEG 품질 60으로 발행하며 **원본 Image
 토픽은 발행하지 않는다**. 후방은 고정 장치 경로를, 전방은 `camera0` 장치를
-사용한다. 원본 토픽을 필요로 하는 별도 PyQt 조종기에는
-`CAMERA_BACKEND=v4l2`를 명시한다. 이 백엔드는 `/camera/image_raw`와
-`/camera/image_raw/compressed`를 함께 발행한다. 스크립트는 로봇의 `~/turtlebot3_ws`
+사용한다. 포함된 PyQt 조종기의 `run_classroom_controller_16.sh`도 압축 영상을
+기본으로 구독한다. 원본 토픽이 필요한 별도 구성에서는 `CAMERA_BACKEND=v4l2`를
+명시한다. 이 백엔드는 `/camera/image_raw`와 `/camera/image_raw/compressed`를
+함께 발행한다. 스크립트는 로봇의 `~/turtlebot3_ws`
 설치본과 `LDS_MODEL=LDS-03` 기본값을 사용한다. 두 카메라 동시 기동은 아래
 제한 사항을 확인하고 전송 지연 원인을 조사할 때만 시도한다.
 

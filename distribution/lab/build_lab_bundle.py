@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import tempfile
 import xml.etree.ElementTree as ET
+import zipfile
 
 
 PINNED = {
@@ -77,14 +78,19 @@ def build(args):
         if dirty:
             raise RuntimeError(f'Pinned upstream package has local changes: {name}\n{dirty}')
     world = project / 'ros2_ws/src/smart_vision_amr/worlds/simulation_maze_aruco.world'
-    measured = workspace / 'maps/maze_aruco_20261026'
-    info = json.loads((measured / 'mapping_info.json').read_text())
+    package_maps = project / 'ros2_ws/src/smart_vision_amr/maps'
+    map_stem = 'maze_aruco_20261026'
+    map_yaml_source = package_maps / f'{map_stem}.yaml'
+    map_image_source = package_maps / f'{map_stem}.pgm'
+    map_info_source = package_maps / f'{map_stem}_mapping_info.json'
+    info = json.loads(map_info_source.read_text())
     if info['world_sha256'] != digest(world):
         raise RuntimeError('Measured map world hash differs from current maze world')
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = Path(tempfile.mkdtemp(prefix=output.name + '.tmp-', dir=output.parent))
     try:
         copy_tree(templates, temporary)
+        copy_tree(project / 'tools', temporary / 'tools/controller')
         # The launch template belongs to the ROS package, not the bundle root.
         launch_template = temporary / 'aruco_lab.launch.py'
         src = temporary / 'ros2_ws/src'
@@ -117,28 +123,28 @@ def build(args):
         ET.parse(temporary / 'worlds/maze.world')
         map_target = temporary / 'maps/maze_aruco_20261026'
         map_target.mkdir(parents=True)
-        for name in ('map.yaml', 'map.pgm', 'map_preview.png'):
-            shutil.copyfile(measured / name, map_target / name)
+        shutil.copyfile(map_image_source, map_target / 'map.pgm')
+        (map_target / 'map.yaml').write_text(map_yaml_source.read_text().replace(
+            f'image: {map_stem}.pgm', 'image: map.pgm'))
+        preview = package_maps / f'{map_stem}_preview.png'
+        if preview.is_file():
+            shutil.copyfile(preview, map_target / 'map_preview.png')
         # Replace only the producer's absolute source path with its packaged location.
         info['world'] = 'worlds/maze.world'
         (map_target / 'mapping_info.json').write_text(json.dumps(info, indent=2) + '\n')
-        package_maps = src / 'smart_vision_amr/maps'
-        shutil.copyfile(measured / 'map.pgm', package_maps / 'maze_aruco_20261026.pgm')
-        map_yaml = (measured / 'map.yaml').read_text().replace('image: map.pgm', 'image: maze_aruco_20261026.pgm')
-        (package_maps / 'maze_aruco_20261026.yaml').write_text(map_yaml.rstrip() + '\n')
         (temporary / 'deb').mkdir()
         if args.deb:
             deb = args.deb.resolve()
             if not deb.is_file() or deb.suffix != '.deb':
                 raise RuntimeError(f'Missing controller DEB: {deb}')
             shutil.copyfile(deb, temporary / 'deb' / deb.name)
-            installer = args.installer.resolve()
-            bootstrap = args.ros_apt_deb.resolve()
-            if not installer.is_file() or not bootstrap.is_file():
-                raise RuntimeError('Controller installer and official ROS apt bootstrap DEB are required with --deb')
-            shutil.copyfile(installer, temporary / 'install_controller.sh')
-            (temporary / 'deps').mkdir()
-            shutil.copyfile(bootstrap, temporary / 'deps' / bootstrap.name)
+            # Source execution is always available. The DEB is an optional
+            # desktop-menu convenience, not a prerequisite for this lab.
+            (temporary / 'install_controller.sh').write_text(
+                '#!/usr/bin/env bash\nset -eo pipefail\n'
+                'LAB_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)\n'
+                'sudo apt-get update\n'
+                f'sudo apt-get install -y "$LAB_DIR/deb/{deb.name}"\n')
         manifest = {
             'format_version': 1,
             'target': {'os': 'Ubuntu 22.04', 'ros': 'Humble', 'simulator': 'Gazebo Classic 11'},
@@ -152,12 +158,13 @@ def build(args):
             'team_source_note': 'Local working-tree source copied; SHA256SUMS records exact distributed content.',
             'team_package_declared_license': 'MIT (as declared in package.xml/setup.py; no separate license text in source)',
             'maze_world_sha256': digest(world),
-            'map_pgm_sha256': digest(measured / 'map.pgm'),
-            'original_mapping_info_sha256': digest(measured / 'mapping_info.json'),
+            'map_pgm_sha256': digest(map_image_source),
+            'original_mapping_info_sha256': digest(map_info_source),
             'map_metadata_portability_change': 'world field rewritten to worlds/maze.world; measured values preserved',
             'marker_layout_portability_change': 'world field rewritten to worlds/maze.world; all marker and observation poses preserved',
             'marker_dictionary': 'DICT_4X4_50', 'marker_ids': [0, 1, 2, 3], 'marker_length_m': 0.2,
-            'runtime_aruco_detector_included': False,
+            'runtime_aruco_detector_included': True,
+            'controller_source_included': True,
         }
         (temporary / 'source_manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
         for path in temporary.rglob('*'):
@@ -172,6 +179,15 @@ def build(args):
         raise
     print(f'Assembled {output}')
     print(f'Files: {sum(path.is_file() for path in output.rglob("*"))}')
+    if args.zip:
+        archive = output.with_suffix('.zip')
+        with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as bundle:
+            for path in sorted(output.rglob('*')):
+                if path.is_file():
+                    bundle.write(path, Path(output.name) / path.relative_to(output))
+        checksum = digest(archive)
+        archive.with_suffix('.zip.sha256').write_text(f'{checksum}  {archive.name}\n')
+        print(f'Archive: {archive}\nSHA256 {checksum}')
     return 0
 
 
@@ -181,11 +197,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--project-root', type=Path, default=project)
     parser.add_argument('--team-workspace', type=Path, default=workspace)
-    parser.add_argument('--output', type=Path, default=workspace / 'distribution/staging/turtlebot3-aruco-lab')
+    parser.add_argument('--output', type=Path, default=project / 'distribution/staging/turtlebot3-aruco-lab')
     parser.add_argument('--deb', type=Path, help='Include an already built controller DEB')
-    parser.add_argument('--installer', type=Path, default=workspace / 'distribution/install_controller.sh')
-    parser.add_argument('--ros-apt-deb', type=Path,
-                        default=workspace / 'distribution/deps/ros2-apt-source_1.3.0.jammy_all.deb')
+    parser.add_argument('--zip', action='store_true', help='Create OUTPUT.zip and its SHA-256 beside the staging tree')
     parser.add_argument('--replace', action='store_true', help='Recreate the specified staging directory')
     return build(parser.parse_args())
 

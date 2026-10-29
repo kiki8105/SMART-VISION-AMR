@@ -38,10 +38,10 @@ run() {
   "$@"
 }
 
-APT_PACKAGES=(git cmake python3-colcon-common-extensions gazebo
+APT_PACKAGES=(git build-essential cmake python3-colcon-common-extensions gazebo
   ros-humble-desktop ros-humble-gazebo-ros-pkgs ros-humble-nav2-bringup
   ros-humble-xacro ros-humble-slam-toolbox ros-humble-robot-localization
-  python3-pyqt5 python3-numpy
+  ros-humble-teleop-twist-keyboard python3-opencv python3-pyqt5 python3-numpy
   python3-yaml python3-pil)
 
 missing_dependencies() {
@@ -69,14 +69,14 @@ for tool in git cmake colcon gazebo ros2; do
   fi
 done
 for package in ament_cmake ament_package gazebo_ros gazebo_plugins nav2_bringup \
-  xacro robot_state_publisher rviz2 slam_toolbox; do
+  xacro robot_state_publisher rviz2 slam_toolbox robot_localization; do
   if ! ros2 pkg prefix "$package" >/dev/null 2>&1; then
     printf 'Missing ROS package: %s\n' "$package" >&2
     MISSING=true
   fi
 done
-if ! /usr/bin/python3 -c 'from PyQt5 import QtWidgets; import numpy, yaml; from PIL import Image'; then
-  printf 'Missing Python dependencies for the existing controller/SLAM verification.\n' >&2
+if ! /usr/bin/python3 -c 'from PyQt5 import QtWidgets; import cv2, numpy, yaml; from PIL import Image; assert hasattr(cv2, "aruco"), "OpenCV ArUco is required"'; then
+  printf 'Missing Python dependencies for the bundled controller, ArUco, or SLAM verification.\n' >&2
   MISSING=true
 fi
 if "$MISSING"; then missing_dependencies; fi

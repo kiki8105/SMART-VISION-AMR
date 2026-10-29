@@ -57,7 +57,7 @@ save_and_stop() {
   printf '지도 저장 실패: SLAM을 유지합니다. Ctrl+C로 다시 저장하세요.\n' >&2
   trap save_and_stop INT TERM
 }
-setsid ros2 launch smart_vision_amr aruco_lab.launch.py mode:=slam \
+setsid ros2 launch smart_vision_amr aruco_lab.launch.py mode:=slam use_motion_mux:=false \
   "world:=$LAB_DIR/worlds/maze.world" \
   "slam_params_file:=$LAB_DIR/ros2_ws/src/smart_vision_amr/config/slam_simulation.yaml" "$@" &
 LAUNCH_PID=$!

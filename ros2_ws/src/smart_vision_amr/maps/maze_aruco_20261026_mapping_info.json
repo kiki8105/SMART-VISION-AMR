@@ -1,0 +1,65 @@
+{
+  "world": "ros2_ws/src/smart_vision_amr/worlds/simulation_maze_aruco.world",
+  "world_sha256": "041fe80dfc7725433592f35d62e6cdc4d61469f8fe823748b3928d90ffcc68d1",
+  "map_source": "Live Gazebo LaserScan + slam_toolbox during cmd_vel driving; no synthesized world occupancy",
+  "mapping_date_local": "2026-10-26",
+  "mapping_settings_override": {
+    "do_loop_closing": false
+  },
+  "survey_complete": true,
+  "reached_survey_waypoints": 17,
+  "final_survey_odom_pose": [
+    -2.9988550584119893,
+    -1.9254204622096889,
+    -1.5861422843445934
+  ],
+  "initial_map_pose_x_y_yaw": [
+    -3.000799585626671,
+    -2.0010944835652884,
+    0.0008724678696151052
+  ],
+  "map_to_odom_x_y_yaw": [
+    -0.0025456629447297503,
+    0.001522158511360453,
+    0.0008724678696151052
+  ],
+  "posegraph_serialization_result": 0,
+  "marker_observation_map_poses": [
+    {
+      "id": 0,
+      "role": "start",
+      "pose": [
+        -3.000799585626671,
+        -2.0010944835652884,
+        0.0008724678696151052
+      ]
+    },
+    {
+      "id": 1,
+      "role": "waypoint_1",
+      "pose": [
+        -1.0051626856214462,
+        3.00064854895223,
+        0.0008724678696151052
+      ]
+    },
+    {
+      "id": 2,
+      "role": "waypoint_2",
+      "pose": [
+        1.399896713940174,
+        -2.797255320945951,
+        0.0008724678696151052
+      ]
+    },
+    {
+      "id": 3,
+      "role": "goal",
+      "pose": [
+        3.8996340221123265,
+        -2.4950742657286513,
+        0.0008724678696151052
+      ]
+    }
+  ]
+}

@@ -8,12 +8,16 @@ WORKSPACE_ROOT=${SMART_VISION_WEB_WORKSPACE:-$(cd -- "$REPO_DIR/../.." && pwd)}
 DOMAIN_ID=${SMART_VISION_WEB_DOMAIN_ID:-76}
 CONFIG_DIR=$REPO_DIR/ros2_ws/src/smart_vision_amr/config
 WORLD=$REPO_DIR/ros2_ws/src/smart_vision_amr/worlds/simulation_maze_aruco.world
+MAP_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/maps/maze_aruco_20261026.yaml
+NAV_PARAMS=$CONFIG_DIR/curve_tuning_simulation.yaml
+NODES_PARAMS=$CONFIG_DIR/curve_tuning_simulation_nodes.yaml
 LAUNCH_ARGUMENTS=()
 
 usage() {
   cat <<'EOF'
 Usage: run_web_mission_sim.sh [--domain-id N] [--workspace PATH] [LAUNCH_ARGUMENT:=VALUE ...]
 Start the four-marker maze, saved measured map, AMCL, A*, and Nav2 controller.
+The saved map and marker models are included in this repository.
 Default: domain76, localhost ROS, Gazebo port11376, Gazebo GUI on, RViz off.
 The Gazebo port is 11300 + the selected domain. No build runs here.
 
@@ -50,9 +54,28 @@ DOMAIN_ID=$((10#$DOMAIN_ID))
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/sim_env.bash" "$WORKSPACE_ROOT"
 WORKSPACE_ROOT=$SMART_VISION_SIM_WORKSPACE
-MAP_FILE=$WORKSPACE_ROOT/maps/maze_aruco_20261026/map.yaml
-for required in "$WORLD" "$MAP_FILE" "$CONFIG_DIR/curve_tuning_simulation.yaml" \
-                "$CONFIG_DIR/curve_tuning_simulation_nodes.yaml"; do
+# ROS launch accepts repeated arguments; the last value wins. Validate that
+# chosen input so an override does not depend on an unrelated default file.
+SELECTED_WORLD=$WORLD
+SELECTED_MAP=$MAP_FILE
+SELECTED_NAV_PARAMS=$NAV_PARAMS
+SELECTED_NODES_PARAMS=$NODES_PARAMS
+SELECTED_SLAM=false
+for argument in "${LAUNCH_ARGUMENTS[@]}"; do
+  case "$argument" in
+    world:=*) SELECTED_WORLD=${argument#world:=} ;;
+    map:=*) SELECTED_MAP=${argument#map:=} ;;
+    nav_params_file:=*) SELECTED_NAV_PARAMS=${argument#nav_params_file:=} ;;
+    nodes_params_file:=*) SELECTED_NODES_PARAMS=${argument#nodes_params_file:=} ;;
+    slam:=*) SELECTED_SLAM=${argument#slam:=} ;;
+  esac
+done
+REQUIRED_INPUTS=("$SELECTED_WORLD" "$SELECTED_NAV_PARAMS" "$SELECTED_NODES_PARAMS")
+case "$SELECTED_SLAM" in
+  true|True|TRUE|1) ;;
+  *) REQUIRED_INPUTS+=("$SELECTED_MAP") ;;
+esac
+for required in "${REQUIRED_INPUTS[@]}"; do
   if [[ ! -f "$required" ]]; then
     printf 'Simulation input is missing: %s\n' "$required" >&2
     exit 2
@@ -69,13 +92,12 @@ done
 export ROS_DOMAIN_ID="$DOMAIN_ID"
 export ROS_LOCALHOST_ONLY=1
 export GAZEBO_MASTER_URI="http://127.0.0.1:$((11300 + DOMAIN_ID))"
-export GAZEBO_MODEL_PATH="$REPO_DIR/gazebo_models${GAZEBO_MODEL_PATH:+:$GAZEBO_MODEL_PATH}"
 printf 'Web mission simulator: domain=%s localhost_only=%s Gazebo=%s\n' \
   "$ROS_DOMAIN_ID" "$ROS_LOCALHOST_ONLY" "$GAZEBO_MASTER_URI"
 exec ros2 launch smart_vision_amr simulation.launch.py \
   world:="$WORLD" map:="$MAP_FILE" \
-  nav_params_file:="$CONFIG_DIR/curve_tuning_simulation.yaml" \
-  nodes_params_file:="$CONFIG_DIR/curve_tuning_simulation_nodes.yaml" \
+  nav_params_file:="$NAV_PARAMS" \
+  nodes_params_file:="$NODES_PARAMS" \
   slam:=false gui:=true use_rviz:=false memory_enabled:=false \
   x_pose:=-3.0 y_pose:=-2.0 yaw:=0.0 \
   initial_x:=-3.000799585626671 initial_y:=-2.0010944835652884 \

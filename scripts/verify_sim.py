@@ -34,7 +34,7 @@ def parse_args():
                         help="Send the goal through the actual PyQt controller map panel; "
                              "also verify its live map, robot pose and displayed A* path.")
     parser.add_argument("--controller", type=FilePath,
-                        default=FilePath("/home/kiki/turtlebot3/tools/cmd_vel_controller.py"),
+                        default=FilePath(__file__).resolve().parents[1] / "tools" / "cmd_vel_controller.py",
                         help="Controller source used by --via-controller.")
     parser.add_argument("--controller-screenshot", type=FilePath,
                         help="Optional new PNG path for the verified controller window.")
@@ -354,7 +354,7 @@ def run_verification(args):
             settings = QtCore.QSettings(str(FilePath(temporary_settings.name) / "controller.ini"),
                                        QtCore.QSettings.IniFormat)
             window = program.Controller(
-                node.create_publisher(Twist, "/cmd_vel", 1), domain_id=76,
+                program.LazyVelocityPublisher(node), domain_id=76,
                 settings=settings, node=node, camera=None,
                 navigation_cancel_service="/smart_vision_amr/cancel_navigation")
 

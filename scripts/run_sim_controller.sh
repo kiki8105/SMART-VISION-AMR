@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Connect the existing TurtleBot3 GUI to this workspace's isolated simulation.
+# Connect the bundled TurtleBot3 GUI to this workspace's isolated simulation.
 set -eo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 REPO_DIR=$(cd -- "$SCRIPT_DIR/.." && pwd)
 WORKSPACE_ROOT=$(cd -- "$REPO_DIR/../.." && pwd)
-CONTROLLER_SCRIPT=${SMART_VISION_CONTROLLER_SCRIPT:-/home/kiki/turtlebot3/tools/cmd_vel_controller.py}
+CONTROLLER_SCRIPT=${SMART_VISION_CONTROLLER_SCRIPT:-$REPO_DIR/tools/cmd_vel_controller.py}
 SETTINGS_FILE=${HOME}/.config/turtlebot3/cmd_vel_controller_simulation.ini
 CAMERA_TOPIC=/camera/image_raw
 NAV_PARAMS_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/config/simulation.yaml
@@ -15,7 +15,7 @@ usage() {
   cat <<'EOF'
 Usage: run_sim_controller.sh [OPTIONS] [-- ROS_ARGUMENTS ...]
 
-Open the existing /home/kiki/turtlebot3/tools controller against Gazebo or SLAM.
+Open the repository's bundled PyQt controller against Gazebo or SLAM.
   --workspace PATH        Built Team2 workspace
   --controller-script PATH  Alternate cmd_vel_controller.py
   --settings-file PATH    Separate simulation preferences INI

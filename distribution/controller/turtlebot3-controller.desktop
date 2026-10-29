@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TurtleBot3 Controller
+Name[ko]=터틀봇3 조종기
+Comment=Camera, map, parameters, and robot driving over ROS 2
+Comment[ko]=ROS 2 카메라·지도·파라미터·주행 조종기
+Exec=turtlebot3-controller
+Icon=turtlebot3-controller
+Terminal=false
+StartupNotify=true
+Categories=Education;Science;
+Keywords=ROS;ROS2;TurtleBot;Robot;Camera;SLAM;

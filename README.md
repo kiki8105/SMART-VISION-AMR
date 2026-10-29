@@ -13,11 +13,11 @@ Gazebo에서 먼저 시험하고, 실제 로봇과 웹 배송 관제로 이어�
 
 ```bash
 sudo apt update
-sudo apt install -y git cmake python3-colcon-common-extensions gazebo \
+sudo apt install -y git build-essential cmake python3-colcon-common-extensions gazebo \
   ros-humble-desktop ros-humble-gazebo-ros-pkgs ros-humble-nav2-bringup \
   ros-humble-xacro ros-humble-slam-toolbox ros-humble-robot-localization \
   ros-humble-teleop-twist-keyboard \
-  python3-pyqt5 python3-numpy python3-yaml python3-pil
+  python3-opencv python3-pyqt5 python3-numpy python3-yaml python3-pil
 ```
 
 **2. GitHub에서 코드 받기**
@@ -61,6 +61,37 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 스크립트가 시뮬레이션용 `ROS_DOMAIN_ID=76`을 설정하므로 별도 `export`는 필요 없습니다.
 Gazebo 기본 위치 추정은 기존 오도메트리(`baseline`)를 사용합니다.
 
+카메라·지도·파라미터를 PyQt 조종기로 보려면 별도 터미널에서 실행합니다.
+조종기 소스는 저장소의 `tools/`에 포함되어 있습니다.
+
+```bash
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+./scripts/run_sim_controller.sh
+```
+
+자동주행의 속도 중재기(`motion_mux`)가 실행 중이면 수동 조작은 웹 조이스틱을
+사용합니다. 아래 수동 SLAM에서는 PyQt 조종기로 직접 운전할 수 있습니다.
+
+## ArUco 미로와 웹 조종기
+
+미로 월드·마커 4개·저장 지도·웹 파일이 모두 포함되어 있습니다.
+설치·빌드 후 각각 다른 터미널에서 실행하세요.
+
+```bash
+# 터미널 1: Gazebo 미로 + 저장 지도 + 주행 노드
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+./scripts/run_web_mission_sim.sh
+```
+
+```bash
+# 터미널 2: 웹 관제·재고 요청 사이트
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+./scripts/run_web_mission.sh
+```
+
+PC는 `http://localhost:8790/`, 같은 Wi-Fi의 휴대폰은 `http://PC의_IP:8790/`으로
+접속합니다. 재고 요청 화면은 주소 뒤에 `/inventory`를 붙입니다.
+
 ## 새 지도 만들기
 
 `SLAM` 모드에서는 경로 계획을 끄고 직접 조종하며 지도를 만듭니다.
@@ -90,7 +121,8 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
 매핑 조종 방법과 ArUco 미로 준비는 [Gazebo 실습 안내](docs/GAZEBO.md)에 있습니다.
-ArUco 웹 미로는 **별도로 저장한 미로 지도**가 필요하므로 처음 설치 직후의 실행 예제와는 구분합니다.
+키보드 대신 같은 터미널에서 `./scripts/run_sim_controller.sh`로 PyQt 조종기를
+사용할 수도 있습니다.
 
 ## 실제 로봇·웹 관제
 
@@ -106,6 +138,7 @@ ArUco 웹 미로는 **별도로 저장한 미로 지도**가 필요하므로 처
 - [재고 요청·배송 웹 사용법](docs/inventory_delivery.md)
 - [ArUco 마커 준비](docs/ARUCO.md)
 - [실차 기본 EKF 실행과 기존 구성으로 복귀](docs/hardware_ekf.md)
+- [조종기 DEB 설치와 실습 ZIP 생성](distribution/README.md)
 
 진행 흐름은 `목표 → A* 경로 → Nav2 FollowPath → /cmd_vel → 로봇`입니다.
 

@@ -7,7 +7,7 @@ WORKSPACE_ROOT=$(cd -- "$REPO_DIR/../.." && pwd)
 PARAMS_FILE=${TURTLEBOT3_TUNING_PARAMS_FILE:-$REPO_DIR/ros2_ws/src/smart_vision_amr/config/curve_tuning_waffle_pi.yaml}
 NODES_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/config/nodes.yaml
 DOMAIN_ID=${TURTLEBOT3_TUNING_DOMAIN_ID:-16}
-CONTROLLER=${SMART_VISION_CONTROLLER_SCRIPT:-/home/kiki/turtlebot3/tools/cmd_vel_controller.py}
+CONTROLLER=${SMART_VISION_CONTROLLER_SCRIPT:-$REPO_DIR/tools/cmd_vel_controller.py}
 if [[ "${1:-}" == --help || "${1:-}" == -h ]]; then
   cat <<'EOF'
 Usage: run_hardware_tuning_controller.sh [CONTROLLER_ARGUMENTS ...]

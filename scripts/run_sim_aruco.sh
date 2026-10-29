@@ -9,6 +9,7 @@ if [[ "${1:-}" == --help || "${1:-}" == -h ]]; then
   cat <<'EOF'
 Usage: run_sim_aruco.sh [LAUNCH_ARGUMENT:=VALUE ...]
 Default: four-marker maze, fresh SLAM, Gazebo GUI, no RViz.
+The four marker models are included; no marker-generation step is required.
 Ctrl+C: save the new map under Team2_workspace/maps, then stop.
 Controller in another terminal: scripts/run_sim_controller.sh
 After mapping: run_sim_aruco.sh slam:=false map:=/absolute/path/new_map.yaml
@@ -22,9 +23,9 @@ if [[ ! -f "$WORLD" ]]; then
 fi
 for marker_id in 0 1 2 3; do
   model="smart_vision_aruco_4x4_50_id_$marker_id"
-  if [[ ! -f "$HOME/.gazebo/models/$model/model.sdf" ]]; then
-    printf 'Register the four marker models first:\n/usr/bin/python3 %q --ids 0 1 2 3\n' \
-      "$SCRIPT_DIR/generate_aruco_models.py" >&2
+  if [[ ! -f "$REPO_DIR/gazebo_models/$model/model.sdf" ]]; then
+    printf 'Bundled marker model is missing: %s\nRestore this repository file before launching.\n' \
+      "$REPO_DIR/gazebo_models/$model/model.sdf" >&2
     exit 1
   fi
 done

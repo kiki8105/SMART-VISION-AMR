@@ -1,0 +1,13 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: TurtleBot3 Controller
+Source: https://github.com/kiki8105/SMART-VISION-AMR
+
+Files: *
+Copyright: 2026 kiki and project contributors
+License: project-specified
+ This package contains the project owner's controller source and distribution
+ files. No additional open-source license is assigned by this package build.
+ Refer to the source project owner for the project's licensing terms.
+ .
+ ROS 2, PyQt5, NumPy, Pillow and PyYAML are system dependencies, not bundled
+ copies. Their respective copyright files are provided by their own packages.

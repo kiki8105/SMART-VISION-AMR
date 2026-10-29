@@ -31,6 +31,9 @@ _smart_vision_sim_env() {
   # local_setup avoids replaying other workspaces captured by setup.bash.
   printf '+ source %q\n' "$workspace_root/install/local_setup.bash"
   source "$workspace_root/install/local_setup.bash" || return
+  # Marker meshes and textures are versioned with the project; no per-user
+  # ~/.gazebo/models registration is needed after cloning the repository.
+  export GAZEBO_MODEL_PATH="$repo_dir/gazebo_models${GAZEBO_MODEL_PATH:+:$GAZEBO_MODEL_PATH}"
 
   # Optional user-space ROS package for local experiments. Normal installations
   # already live under /opt/ros/humble and need neither override.

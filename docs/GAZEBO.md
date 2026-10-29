@@ -7,13 +7,14 @@ Ubuntu 22.04 / ROS 2 Humble / Gazebo Classic 11용입니다. Gazebo Waffle Pi가
 터미널 1은 저장한 ArUco 미로 지도와 별도 튜닝 YAML을 사용합니다.
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_curve_tuning_sim.sh
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_curve_tuning_sim.sh
 ```
 
 터미널 2의 조종기는 같은 튜닝 YAML을 기본값 저장 대상으로 연결합니다.
+이 구성에서는 지도·Goal·파라미터 기능을 사용하고, 수동 주행은 웹 조이스틱으로 합니다.
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_curve_tuning_sim_controller.sh
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_curve_tuning_sim_controller.sh
 ```
 
 `값 적용`으로 노드가 수락한 값을 `기본값 저장`하면 해당 원본 YAML이 갱신되고
@@ -54,7 +55,7 @@ A* 팽창 6 cells를 유지하면서 두 pruning 거리만 0.25/0.75 m로 바꾼
 ## 작업 위치와 빌드
 
 ```text
-/home/kiki/Team2_workspace/
+~/Team2_workspace/
 ├── src/
 │   ├── SMART-VISION-AMR/           # 팀 코드와 시뮬레이션 설정
 │   │   └── ros2_ws/src/smart_vision_amr/
@@ -68,7 +69,7 @@ A* 팽창 6 cells를 유지하면서 두 pruning 거리만 0.25/0.75 m로 바꾼
 빌드 루트는 `Team2_workspace`입니다. 저장소 안의 `ros2_ws`에서 중복 빌드할 필요가 없습니다. 기존 `~/turtlebot3`, UAV 등 다른 워크스페이스를 source하지 않습니다.
 
 ```bash
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
+cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/setup_sim.sh
 ```
 
@@ -82,7 +83,7 @@ cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
 ## 실행과 목표 지정
 
 ```bash
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
+cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/run_sim.sh
 ```
 
@@ -97,7 +98,7 @@ GUI 없는 실행:
 다른 터미널에서 ROS 명령을 사용할 때는 환경을 먼저 불러옵니다.
 
 ```bash
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
+cd ~/Team2_workspace/src/SMART-VISION-AMR
 source scripts/sim_env.bash
 ros2 topic pub --once /smart_vision_amr/goal geometry_msgs/msg/PoseStamped \
   '{header: {frame_id: map}, pose: {position: {x: -1.0, y: -2.0}, orientation: {w: 1.0}}}'
@@ -118,7 +119,7 @@ ros2 service call /smart_vision_amr/cancel_navigation std_srvs/srv/Trigger '{}'
 터미널 1에서 시뮬레이션을 실행한 상태로 터미널 2에서 실행합니다. 가상 로봇에 목표를 보내 실제로 이동시킵니다.
 
 ```bash
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
+cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/check_sim.sh
 ```
 
@@ -132,19 +133,19 @@ cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
 
 준비 제한 시간은 기본 120초, 주행 제한 시간은 기본 150초이며 실제 시간 기준입니다. `--ready-timeout`, `--timeout`으로 조정합니다. 목표는 지도 안의 충분히 넓은 자유 공간을 지정합니다.
 
-## 기존 조종기로 SLAM을 처음부터 다시 하기
+## 포함된 PyQt 조종기로 SLAM을 처음부터 다시 하기
 
 실행 중인 시뮬레이션을 `Ctrl+C`로 종료한 후 터미널 1에서 시작합니다.
 
 ```bash
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
-./scripts/run_sim.sh slam:=true
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+./scripts/run_sim.sh slam:=true use_motion_mux:=false
 ```
 
 매 실행마다 새 SLAM 지도와 pose graph를 만듭니다. 이 모드는 Gazebo, 로봇 TF, `slam_toolbox`, RViz를 실행합니다. 수동 주행 중 속도 명령이 겹치지 않도록 AMCL·고정 지도 서버·A*·Nav2 controller는 실행하지 않습니다.
 
 SLAM 터미널에서 **Ctrl+C로 종료하면 지도를 먼저 자동 저장한 뒤 Gazebo와 SLAM을 종료합니다.**
-기본 경로는 `/home/kiki/Team2_workspace/maps/slam_날짜_시간_실행번호/map.yaml` 및
+기본 경로는 `~/Team2_workspace/maps/slam_날짜_시간_실행번호/map.yaml` 및
 `map.pgm`이며 시작할 때와 저장 완료 시 터미널에 실제 경로를 출력합니다. 이전 지도는 덮어쓰지 않습니다.
 저장 실패 시 SLAM을 유지하고, 다시 Ctrl+C를 누르면 저장을 재시도합니다.
 저장 중 Ctrl+C를 여러 번 눌러도 현재 저장이 완료될 때까지 기다립니다.
@@ -153,16 +154,16 @@ SLAM 터미널에서 **Ctrl+C로 종료하면 지도를 먼저 자동 저장한 
 자동 저장 위치를 직접 지정하려면 확장자를 제외한 절대경로를 사용합니다.
 
 ```bash
-./scripts/run_sim.sh --map-prefix /home/kiki/Team2_workspace/maps/team2_slam slam:=true
+./scripts/run_sim.sh --map-prefix ~/Team2_workspace/maps/team2_slam slam:=true use_motion_mux:=false
 ```
 
 기존 출력 파일이 있으면 실행 전에 알려 주므로 새 경로를 지정합니다. 강제 종료나 SLAM 프로세스 자체의 오류 종료는
 정상적인 종료 요청과 달리 저장 시점에 `/map`이 사라질 수 있으므로 자동 저장을 보장할 수 없습니다.
 
-터미널 2에서 **기존 `/home/kiki/turtlebot3/tools/cmd_vel_controller.py`**를 연결합니다.
+터미널 2에서 저장소에 포함된 **`tools/cmd_vel_controller.py`**를 연결합니다.
 
 ```bash
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
+cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/run_sim_controller.sh
 ```
 
@@ -178,20 +179,27 @@ cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
 방 외곽만 돌면 목표 주변에 미확인 셀이 남을 수 있습니다. 기본 우회 목표 `(3, 2)`를 검증하려면 `(2.2, 2.8) → (2.2, 1.2) → (3.8, 1.2) → (3.8, 2.8)`의 열린 공간도 돌아 여러 방향에서 관측합니다. 목표 셀뿐 아니라 주변도 자유 공간이어야 합니다. A*는 미확인·장애물 영역을 0.30 m 팽창시키므로, 빈 셀을 선택해도 주변 미확인 영역 때문에 경로가 거부될 수 있습니다.
 시작점 주변도 관측해야 합니다. 기본 시작점으로 돌아온 뒤 `(-2, -2)`까지 전진하고 `(-3, -2)`로 돌아오면 시작점 주변을 반대쪽에서도 스캔할 수 있습니다. 자동 검증 경로에는 이 왕복이 포함됩니다.
 
-조종기 소스는 외부 경로에 있으므로 이 저장소를 다른 PC에 복사했다면 `./scripts/run_sim_controller.sh --help`에서 경로 지정 방법을 확인하세요. 기존 `~/turtlebot3/install/setup.bash`를 추가로 source할 필요는 없습니다.
+조종기와 지도·파라미터 패널 모듈은 모두 저장소의 `tools/`에 포함되어 있습니다.
+별도 파일 복사나 patch 적용 없이 실행하며, 기존 `~/turtlebot3/install/setup.bash`를
+추가로 source할 필요는 없습니다. 다른 조종기를 쓰려는 경우에만
+`SMART_VISION_CONTROLLER_SCRIPT=/절대경로/cmd_vel_controller.py` 또는
+`--controller-script /절대경로/cmd_vel_controller.py`로 바꿉니다.
 
-현재 PC의 `tools/`에는 시뮬레이션 시계·별도 설정·FollowPath 취소 연결을 적용했습니다. 같은 원본 조종기를 다른 PC에 배치할 때는 이 변경을 포함한 `scripts/controller_simulation.patch`를 한 번 적용합니다. 현재 PC에는 재적용하지 않습니다.
-
-```bash
-patch --forward -p1 -d /home/kiki/turtlebot3/tools < scripts/controller_simulation.patch
-```
+PyQt 수동 조종은 `/cmd_vel`을 직접 발행합니다. 수동 SLAM 실습에서는
+위 예시처럼 `use_motion_mux:=false`를 지정합니다. 저장 지도 주행은 기본 mux를
+유지하고 `./scripts/run_sim_controller.sh`로 PyQt의 지도·Goal·파라미터 기능을
+사용합니다. 조종기는 화면을 열거나 정지 상태일 때 속도 발행자를 만들지 않습니다.
+웹 mux가 `/cmd_vel`을 담당하면 PyQt 방향 버튼은 잠기고 웹 조이스틱을 안내합니다.
+이때 수동 조작은
+[웹 임무 안내](web_mission.md)의 웹 조이스틱을 사용하고 PyQt 방향 버튼과
+동시에 사용하지 않습니다.
 
 종료 전 중간 지도를 따로 저장하려면 주행을 멈춘 상태에서 터미널 3으로 아래 명령을 실행합니다.
 출력 경로는 확장자를 제외한 절대경로이며 기존 파일은 덮어쓰지 않습니다. Ctrl+C 자동 저장도 그대로 작동합니다.
 
 ```bash
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
-./scripts/save_sim_map.sh /home/kiki/Team2_workspace/maps/my_slam
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+./scripts/save_sim_map.sh ~/Team2_workspace/maps/my_slam
 ```
 
 `my_slam.yaml`과 `my_slam.pgm`이 생성됩니다. 이 파일은 AMCL 주행용 지도이며 SLAM 세션을 이어 만드는 pose graph 저장과는 별개입니다.
@@ -209,7 +217,7 @@ python3 scripts/test_run_sim_autosave.py -v
 조종기와 SLAM 실행을 종료한 뒤 새 시뮬레이션을 저장 지도와 함께 실행합니다. 기본 월드의 시작 위치를 그대로 사용한 경우:
 
 ```bash
-./scripts/run_sim.sh map:=/home/kiki/Team2_workspace/maps/my_slam.yaml
+./scripts/run_sim.sh map:="$HOME/Team2_workspace/maps/my_slam.yaml"
 ```
 
 SLAM에서 사용한 시작 좌표계가 다르면 Gazebo의 실제 spawn 좌표 `x_pose/y_pose/yaw`와 지도 안의 초기 위치 `initial_x/initial_y/initial_yaw`를 각각 지정합니다. 이 PC의 기본 월드에서는 SLAM 시작 위치가 지도에서도 약 `(-3, -2, 0)`임을 TF로 확인했습니다. 임의로 `(0, 0)`을 초기 위치로 지정하지 마세요. RViz **2D Pose Estimate**로 위치를 보정할 수도 있습니다.
@@ -220,15 +228,18 @@ SLAM에서 사용한 시작 좌표계가 다르면 Gazebo의 실제 spawn 좌표
 ./scripts/check_sim.sh --goal-x -1 --goal-y -2
 # 새 실행에서 중앙 장애물 우회
 ./scripts/check_sim.sh --goal-x 3 --goal-y 2 --timeout 240
-# 조종기의 실제 지도 Goal 버튼 경유까지 함께 검증
-./scripts/check_sim.sh --via-controller --goal-x 3 --goal-y 2 --timeout 240
 ```
 
-조종기를 다시 실행하면 지도·로봇·계획 경로를 볼 수 있습니다. 지도에서 단일 Goal을 선택해 보내면 기존 A* 목표로 연결됩니다. **이동 취소/정지**는 FollowPath를 취소하고, 취소가 완료된 뒤 수동 조종이 가능합니다. 이 구성의 주행 인터페이스는 단일 목표이며 웨이포인트 action 서버는 제공하지 않습니다.
+조종기를 다시 실행하면 지도·로봇·계획 경로를 볼 수 있습니다.
+지도에서 단일 Goal을 선택해 보내면 기존 A* 목표로 연결됩니다.
+**이동 취소/정지**는 FollowPath를 취소합니다. 기본 mux가 실행 중인 저장 지도
+주행에서는 PyQt 방향 버튼을 사용하지 않습니다. 이 구성의 주행 인터페이스는
+단일 목표이며 웨이포인트 action 서버는 제공하지 않습니다.
 
 ### SLAM + 기존 조종기 자동 검증
 
-기본 월드에서 `./scripts/run_sim.sh slam:=true`를 새로 실행한 직후, GUI 조종기를 닫은 상태로 아래 명령을 실행합니다.
+기본 월드에서 `./scripts/run_sim.sh slam:=true use_motion_mux:=false`를 새로 실행한 직후,
+GUI 조종기를 닫은 상태로 아래 명령을 실행합니다.
 
 ```bash
 ./scripts/check_slam.sh

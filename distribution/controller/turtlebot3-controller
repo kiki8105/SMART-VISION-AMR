@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# Desktop entry point. Does not source the user's shell or a robot workspace.
+set -eo pipefail
+APP_VERSION=1.1.0
+BIN_DIR=$(cd -- "$(dirname -- "$(realpath -- "$0")")" && pwd)
+APP_DIR=$(cd -- "$BIN_DIR/../lib/turtlebot3-controller" && pwd)
+STATE_DIR=${XDG_STATE_HOME:-$HOME/.local/state}/turtlebot3-controller
+LOG_FILE=$STATE_DIR/controller.log
+
+if [[ "${1:-}" == --version ]]; then printf 'TurtleBot3 Controller %s\n' "$APP_VERSION"; exit 0; fi
+
+show_error() {
+  printf '%s\n' "$1" >&2
+  if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" && "${1:-}" != --check ]]; then
+    /usr/bin/python3 - "$1" <<'PY' || true
+import sys
+from PyQt5 import QtWidgets
+app = QtWidgets.QApplication(['turtlebot3-controller-error'])
+QtWidgets.QMessageBox.critical(None, 'TurtleBot3 Controller', sys.argv[1])
+PY
+  fi
+}
+
+if [[ ! -f /opt/ros/humble/setup.bash ]]; then
+  if [[ "${1:-}" == --check ]]; then
+    printf 'ROS 2 Humble runtime is missing: /opt/ros/humble/setup.bash\n' >&2
+  else
+    show_error 'ROS 2 Humble 실행 환경이 없습니다. 배포 ZIP의 install_controller.sh로 설치하세요.'
+  fi
+  exit 1
+fi
+
+# Rebuild Python/ROS paths from the installed Humble runtime, avoiding an
+# activated venv, stale colcon overlay, or developer-specific library path.
+unset AMENT_PREFIX_PATH CMAKE_PREFIX_PATH COLCON_PREFIX_PATH ROS_PACKAGE_PATH PYTHONPATH LD_LIBRARY_PATH PYTHONHOME
+export PYTHONNOUSERSITE=1
+export ROS_LOCALHOST_ONLY=${TURTLEBOT3_CONTROLLER_LOCALHOST_ONLY:-0}
+# shellcheck disable=SC1091
+source /opt/ros/humble/setup.bash
+
+if [[ "${1:-}" == --check ]]; then
+  APP_DIR="$APP_DIR" /usr/bin/python3 - <<'PY'
+import os, sys
+sys.path.insert(0, os.environ['APP_DIR'])
+import rclpy
+from PyQt5 import QtWidgets
+import numpy, yaml
+from PIL import Image
+import cmd_vel_controller, navigation_panels, parameter_defaults
+print('OK: installed controller modules, Qt, Python libraries, and ROS 2 Humble')
+print('ROS_LOCALHOST_ONLY=' + os.environ['ROS_LOCALHOST_ONLY'])
+print('No TurtleBot3 workspace is required on the controller PC.')
+PY
+  exit $?
+fi
+if [[ "${1:-}" == --help || "${1:-}" == -h ]]; then
+  exec /usr/bin/python3 "$APP_DIR/cmd_vel_controller.py" "$@"
+fi
+
+mkdir -p -- "$STATE_DIR"
+chmod 700 -- "$STATE_DIR"
+if [[ -f "$LOG_FILE" && $(stat -c %s -- "$LOG_FILE") -gt 2097152 ]]; then
+  mv -f -- "$LOG_FILE" "$LOG_FILE.1"
+fi
+if /usr/bin/python3 "$APP_DIR/cmd_vel_controller.py" "$@" >>"$LOG_FILE" 2>&1; then
+  exit 0
+else
+  app_status=$?
+  show_error "조종기 실행이 종료되었습니다 (코드 $app_status). 로그: $LOG_FILE"
+  exit "$app_status"
+fi

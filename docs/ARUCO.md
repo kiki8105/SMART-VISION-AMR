@@ -4,13 +4,18 @@
 기존 A*·Nav2 주행 코드는 그대로 사용합니다. 마커를 배치하는 것만으로
 마커 검출이나 정지·도킹 같은 제어 동작이 추가되지는 않습니다.
 
-## 1. 모델 생성
+## 1. 포함된 모델과 새 모델 생성
 
-현재 PC의 시스템 Python에는 `cv2.aruco`가 설치되어 있습니다.
-가상환경을 켜 두었더라도 아래처럼 `/usr/bin/python3`로 실행합니다.
+마커 ID `0~3`의 SDF·메시·재질·PNG와 미로 월드가 저장소에 포함되어 있습니다.
+제공 실행 스크립트는 `gazebo_models/`를 Gazebo 모델 경로로 지정하므로
+처음 클론한 PC에서도 모델 생성이나 `~/.gazebo/models` 등록 없이 실행합니다.
+같은 미로를 바로 주행하려면 [웹 임무 안내](web_mission.md)를 사용합니다.
+
+다른 ID나 크기의 모델을 생성할 때만 OpenCV ArUco 지원을 설치하고 생성기를 실행합니다.
 
 ```bash
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+sudo apt install -y python3-opencv
 /usr/bin/python3 scripts/generate_aruco_models.py --ids 0 1 2 3
 ```
 
@@ -27,7 +32,7 @@ cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
 여러 ID를 한 번에 만들 수도 있습니다. `DICT_4X4_50`의 ID 범위는 `0~49`입니다.
 
 ```bash
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
+cd ~/Team2_workspace/src/SMART-VISION-AMR
 /usr/bin/python3 scripts/generate_aruco_models.py \
   --ids 0 1 2 \
   --marker-size 0.20
@@ -39,12 +44,12 @@ cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
 
 같은 결과로 재실행할 수 있지만 기존 모델과 결과가 다르면 덮어쓰지 않고
 중단합니다. 크기·여백을 바꿔 시험할 때는 다른 `--output-dir`를 지정하고
-`--no-register`로 별도 생성합니다. 현재 ID `0~3`은 이미 생성·등록되어
-있으므로 아래 미로 실행부터 진행할 수 있습니다.
+`--no-register`로 별도 생성합니다. 제공 모델 ID `0~3`으로 실습할 때는
+생성기를 실행하지 않고 아래 미로 실행부터 진행할 수 있습니다.
 
 ```text
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/gazebo_models/smart_vision_aruco_4x4_50_id_0
-/home/kiki/.gazebo/models/smart_vision_aruco_4x4_50_id_0
+~/Team2_workspace/src/SMART-VISION-AMR/gazebo_models/smart_vision_aruco_4x4_50_id_0
+~/.gazebo/models/smart_vision_aruco_4x4_50_id_0
 ```
 
 [온라인 마커 생성기](https://chev.me/arucogen/)에서 직접 만들 경우에도 사전
@@ -60,18 +65,19 @@ cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
 터미널 1:
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_sim_aruco.sh
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_sim_aruco.sh use_motion_mux:=false
 ```
 
-이 스크립트는 **이미 생성한 마커 모델 4개와 미로 월드가 있는지 확인한 뒤**
-**기본적으로 `slam:=true`로 실행**합니다. 모델을 자동 생성하지는 않습니다.
-예전에 방 월드에서 저장한 지도를 사용하지 않으므로, 컨트롤러로 직접
-주행하면서 새 미로 지도를 만듭니다.
+이 스크립트는 저장소의 마커 모델 4개와 미로 월드를 확인한 뒤
+**기본적으로 `slam:=true`로 실행**합니다. PyQt 수동 조종을 위해 mux를 끕니다.
+예전에 저장한 지도를 사용하지 않으므로, 컨트롤러로 직접 주행하면서 새 지도를 만듭니다.
+이미 포함된 저장 지도로 실행하려면 별도 매핑 없이 `scripts/run_web_mission_sim.sh`를
+사용합니다. 기본 지도는 `ros2_ws/src/smart_vision_amr/maps/maze_aruco_20261026.yaml`입니다.
 
 터미널 2:
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_sim_controller.sh
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_sim_controller.sh
 ```
 
 매핑을 마친 뒤 **터미널 1에서 `Ctrl+C`**를 누르면 지도 저장 후 종료합니다.
@@ -79,17 +85,17 @@ cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
 다음 저장 지도 주행에서 사용합니다.
 
 ```text
-/home/kiki/Team2_workspace/maps/slam_날짜_시간_실행번호/map.yaml
-/home/kiki/Team2_workspace/maps/slam_날짜_시간_실행번호/map.pgm
+~/Team2_workspace/maps/slam_날짜_시간_실행번호/map.yaml
+~/Team2_workspace/maps/slam_날짜_시간_실행번호/map.pgm
 ```
 
 저장 후 같은 미로에서 A* 주행을 시험하려면 아래처럼 새 지도를 지정합니다.
 `map:=` 뒤는 실제 저장된 경로로 바꿉니다.
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_sim_aruco.sh \
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_sim_aruco.sh \
   slam:=false \
-  map:=/home/kiki/Team2_workspace/maps/실제_저장_폴더/map.yaml
+  map:="$HOME/Team2_workspace/maps/실제_저장_폴더/map.yaml"
 ```
 
 마커 위치와 카메라로 정면 관측하기 좋은 로봇 위치는 서로 다릅니다.
@@ -118,14 +124,14 @@ cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
 사용하던 `map:=/절대경로/map.yaml` 인자를 함께 지정합니다.
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_sim.sh
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_sim.sh
 ```
 
 다른 터미널에서 아래 명령으로 로봇 전방에 마커를 놓을 수 있습니다.
 이 스크립트도 시뮬레이션의 ROS domain 76과 Gazebo 포트 11376을 사용합니다.
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/spawn_aruco.sh \
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/spawn_aruco.sh \
   --id 0 --dictionary DICT_4X4_50 \
   --x -2.0 --y -2.0 --z 0.20 --yaw 0
 ```
@@ -141,10 +147,12 @@ cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
 마커 정면을 로봇 카메라 쪽으로 향하게 배치하고, 로봇·벽·기존 물체와
 겹치지 않도록 합니다.
 
-터미널 2에서는 기존 컨트롤러로 카메라 영상을 확인할 수 있습니다.
+카메라 영상과 마커 확인은 [웹 임무 안내](web_mission.md)의 웹 화면에서 진행할 수 있습니다.
+PyQt로 수동 SLAM을 진행할 때는 터미널 1을 `slam:=true use_motion_mux:=false`로
+시작하고 터미널 2에서 포함된 조종기를 사용합니다.
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_sim_controller.sh
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_sim_controller.sh
 ```
 
 모델을 실행 중인 월드에 추가한 배치는 Gazebo를 끄면 사라집니다.

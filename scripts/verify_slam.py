@@ -39,8 +39,8 @@ CORE_CHECKS = ("real_controller_drives_robot", "all_waypoints_reached", "release
 def arguments():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--controller", type=Path,
-                        default=Path("/home/kiki/turtlebot3/tools/cmd_vel_controller.py"),
-                        help="Existing controller source, imported without copying it.")
+                        default=Path(__file__).resolve().parents[1] / "tools" / "cmd_vel_controller.py",
+                        help="Bundled controller source, or an explicit alternative.")
     parser.add_argument("--output", type=Path,
                         help="New map prefix; default WORKSPACE/log/slam_validation/TIMESTAMP/map.")
     parser.add_argument("--continue-from", type=Path, metavar="FAILED_REPORT.json",

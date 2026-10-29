@@ -16,7 +16,7 @@
 
 ```bash
 sudo apt install python3-opencv python3-numpy python3-pil python3-yaml
-cd /home/kiki/Team2_workspace
+cd ~/Team2_workspace
 source /opt/ros/humble/setup.bash
 colcon build --packages-select smart_vision_amr --symlink-install
 source install/local_setup.bash
@@ -30,13 +30,19 @@ source install/local_setup.bash
 ## 터미널 1: 미로 시뮬레이션과 지도 주행
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_web_mission_sim.sh
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_web_mission_sim.sh
 ```
 
 마커 4개가 있는 미로 월드, 저장된 실측 지도, AMCL, 팀 A*, Nav2 경로 추종을
 함께 시작합니다. Gazebo 창은 켜고 RViz는 켜지 않습니다. Gazebo 화면이
 필요 없으면 명령 뒤에 `gui:=false`를 붙입니다. 새 SLAM을 수행하지 않고
-`Team2_workspace/maps/maze_aruco_20261026/map.yaml`을 사용합니다.
+저장소에 포함된 `ros2_ws/src/smart_vision_amr/maps/maze_aruco_20261026.yaml`과
+`.pgm`을 사용합니다. 마커 0~3의 모델·재질·이미지도 `gazebo_models/`에 포함되어
+있으므로 지도 복사나 모델 등록을 따로 하지 않습니다.
+
+웹 조이스틱은 motion mux를 통해 수동 조작을 우선합니다. 제공 시뮬레이션의
+기본 `use_motion_mux:=true`를 유지하고, `/cmd_vel`을 직접 발행하는 PyQt 방향
+버튼이나 별도 키보드 조종기를 같은 시뮬레이션에 동시에 연결하지 않습니다.
 
 기본 통신은 `ROS_DOMAIN_ID=76`, `ROS_LOCALHOST_ONLY=1`, Gazebo 포트 `11376`입니다.
 기존 셸의 실차 도메인을 이어받아 연결하지 않습니다. 별도 도메인에서
@@ -44,13 +50,13 @@ source install/local_setup.bash
 도메인 82, Gazebo 포트 11382에서 실행합니다.
 
 ```bash
-SMART_VISION_WEB_DOMAIN_ID=82 /home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_web_mission_sim.sh gui:=false
+SMART_VISION_WEB_DOMAIN_ID=82 ~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_web_mission_sim.sh gui:=false
 ```
 
 ## 터미널 2: 웹 화면과 ROS 연결
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_web_mission.sh
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_web_mission.sh
 ```
 
 PC에서 `http://localhost:8790`을 열면 바로 연결됩니다. 휴대전화는 PC와 같은 Wi-Fi에 연결하고
@@ -63,7 +69,7 @@ PC에서 `http://localhost:8790`을 열면 바로 연결됩니다. 휴대전화�
 도메인 82로 실행한 시뮬레이션에는 다음과 같이 연결합니다.
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_web_mission.sh --domain-id 82
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_web_mission.sh --domain-id 82
 ```
 
 다른 HTTP 포트는 `--port 8792`로 지정합니다. 웹 포트와 ROS 도메인은 서로
@@ -146,7 +152,7 @@ ros2_ws/src/smart_vision_amr/config/aruco_mission_markers.yaml
 연결합니다. 다음 명령은 시뮬레이션을 실행하지 않습니다.
 
 ```bash
-/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_web_mission.sh \
+~/Team2_workspace/src/SMART-VISION-AMR/scripts/run_web_mission.sh \
   --domain-id 16 --no-use-sim-time \
   --markers-file /절대경로/실차_지도에_등록한_마커.yaml
 ```
