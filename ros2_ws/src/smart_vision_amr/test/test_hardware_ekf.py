@@ -153,6 +153,7 @@ def test_direct_hardware_launch_defaults_to_baseline_and_can_enable_ekf_nodes():
     for mode, active in (('baseline', False), ('ekf_independent', True)):
         context = LaunchContext()
         context.launch_configurations['localization_mode'] = mode
+        context.launch_configurations['estimation_location'] = 'pc'
         assert all(node.condition.evaluate(context) is active for node in ekf_nodes)
     invalid = LaunchContext()
     invalid.launch_configurations['localization_mode'] = 'hybrid'
@@ -186,6 +187,18 @@ def test_robot_preflight_requires_fresh_sensor_samples_and_matching_clocks():
     assert '/joint_states' in old and '+1.200s' in old and 'clock sync' in old
     future = '; '.join(assess({**fresh, '/imu': now_ns+500_000_000}, now_ns))
     assert '/imu' in future and '-0.500s' in future and 'clock sync' in future
+
+
+def test_robot_local_preflight_rejects_stock_odom_in_ekf_mode():
+    assess = preflight_module().assess_runtime_owners
+    ready = {'/odom': ['ekf_hardware'], '/wheel/odom': ['wheel_joint_odometry'],
+             '/imu/ekf': ['imu_ekf_conditioner'], '/cmd_vel': ['motion_mux'],
+             '/smart_vision_amr/motion_status': ['motion_mux'],
+             '/smart_vision_amr/localization_health': ['localization_health']}
+    assert assess(ready) == []
+    assert '/odom' in '; '.join(assess({**ready, '/odom': ['turtlebot3_node']}))
+    assert '/cmd_vel' in '; '.join(assess({**ready, '/cmd_vel': ['motion_mux', 'legacy']}))
+    assert assess({**ready, '/odom': ['turtlebot3_node']}, 'baseline') == []
 
 
 def test_stationary_gyro_calibration_reduces_bias_but_does_not_learn_motion():

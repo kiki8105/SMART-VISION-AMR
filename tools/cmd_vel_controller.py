@@ -12,6 +12,7 @@ import signal
 import sys
 import time
 import threading
+import math
 
 from sensor_msgs.msg import Image, CompressedImage
 from rclpy.qos import QoSProfile, ReliabilityPolicy
@@ -22,6 +23,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.parameter import Parameter
+from std_srvs.srv import Trigger
 from navigation_panels import RosBridge, MapPanel, ParameterPanel
 
 
@@ -36,6 +38,7 @@ class LazyVelocityPublisher:
         self.topic_name = node.resolve_topic_name(topic)
         self.publisher = None
         self.blocked_reason = ''
+        self.mux_owns_output = False
 
     def manual_available(self):
         try:
@@ -44,14 +47,17 @@ class LazyVelocityPublisher:
                 item.node_name == 'motion_mux' or item.node_name.endswith('_motion_mux')
                 for item in endpoints)
         except Exception:
+            self.mux_owns_output = None
             self.blocked_reason = '속도 토픽 소유권 확인 실패 · 연결 상태를 확인하세요.'
             self.close()
             return False
         if mux_owns_output:
+            self.mux_owns_output = True
             self.blocked_reason = '웹 조이스틱이 수동 조종을 담당합니다. PyQt 방향 버튼은 잠겨 있습니다.'
             self.close()
             return False
         self.blocked_reason = ''
+        self.mux_owns_output = False
         return True
 
     def publish(self, message):
@@ -142,18 +148,46 @@ def decode_camera_image(msg):
 
 class CameraFeed:
     """Decode in a dedicated ROS thread; GUI only consumes the latest frame."""
-    def __init__(self):
+    def __init__(self, max_fps=8.0, start_thread=True, clock=time.monotonic):
+        if not math.isfinite(max_fps) or max_fps <= 0:
+            raise ValueError('Camera preview frame rate must be finite and positive')
+        # This is only a display consumer. Upstream ROS images are untouched.
+        self.frame_interval = 1.0/min(float(max_fps), 10.0)
+        self.clock = clock
+        self.last_decode_at = -math.inf
+        self.skipped_frames = 0
         self.request = None
         self.latest = None
         self.status = '카메라 연결 대기'
         self.closed = threading.Event()
-        self.thread = threading.Thread(target=self.run, daemon=True)
-        self.thread.start()
+        self.thread = None
+        if start_thread:
+            self.thread = threading.Thread(target=self.run, daemon=True)
+            self.thread.start()
 
     def connect(self, topic, compressed):
         self.latest = None
         self.request = (topic, compressed)
+        self.last_decode_at = -math.inf
         self.status = '영상 수신 대기'
+
+    def receive(self, message, token):
+        """Drop old-topic/excess frames before JPEG decode or raw-image copy."""
+        now = self.clock()
+        if token != self.request or now-self.last_decode_at < self.frame_interval:
+            self.skipped_frames += 1
+            return False
+        self.last_decode_at = now
+        try:
+            frame = decode_camera_image(message)
+            if token != self.request:
+                return False
+            self.latest = (frame, now)
+            self.status = f'{frame.width()} × {frame.height()}'
+            return True
+        except Exception as exc:
+            self.status = f'영상 변환 오류: {exc}'
+            return False
 
     def run(self):
         node = Node('turtlebot3_controller_camera')
@@ -171,14 +205,7 @@ class CameraFeed:
                     if active:
                         topic, compressed = active
                         def receive(msg, token=active):
-                            try:
-                                frame = decode_camera_image(msg)
-                                w, h = frame.width(), frame.height()
-                                if token == self.request:
-                                    self.latest = (frame, time.monotonic())
-                                    self.status = f'{w} × {h}'
-                            except Exception as exc:
-                                self.status = f'영상 변환 오류: {exc}'
+                            self.receive(msg, token)
                         try:
                             sub = node.create_subscription(
                                 CompressedImage if compressed else Image, topic, receive,
@@ -194,7 +221,8 @@ class CameraFeed:
 
     def close(self):
         self.closed.set()
-        self.thread.join(timeout=2)
+        if self.thread is not None:
+            self.thread.join(timeout=2)
 
 
 class Controller(QtWidgets.QWidget):
@@ -221,6 +249,9 @@ class Controller(QtWidgets.QWidget):
         self.manual_override_active = False
         self.direction = (0, 0)
         self.stop_ticks = 0
+        self.safety_clients = {}
+        self.safety_request = None
+        self.last_safety_ack_at = None
         self.setWindowTitle('TurtleBot3 · 카메라 / 파라미터 / 지도 / 조종')
         # Keep the application usable on smaller displays.  The dashboard below
         # owns its natural minimum size, so a compact window gets scroll bars
@@ -303,7 +334,8 @@ class Controller(QtWidgets.QWidget):
         self.resize(1280, 960)
         self.video_timer = QtCore.QTimer(self)
         self.video_timer.timeout.connect(self.render_camera)
-        self.video_timer.start(66)
+        self.video_timer.start(125)
+        self._rendered_camera = None
         if camera is not None:
             QtCore.QTimer.singleShot(0, self.connect_camera)
         title = QtWidgets.QLabel('TurtleBot3 수동 조종')
@@ -392,10 +424,15 @@ class Controller(QtWidgets.QWidget):
         stop_button.pressed.connect(self.emergency_stop)
         grid.addWidget(stop_button, 1, 1)
         layout.addLayout(grid)
+        self.emergency_reset_button = QtWidgets.QPushButton('비상정지 해제 · 출발 대기 유지')
+        self.emergency_reset_button.clicked.connect(self.reset_emergency_stop)
+        self.emergency_reset_button.setToolTip(
+            '차량의 공통 안전 제어기에 해제를 요청합니다. 센서가 정상일 때만 해제되며 자동 출발하지 않습니다.')
+        layout.addWidget(self.emergency_reset_button)
         self.status = QtWidgets.QLabel('정지')
         self.status.setAlignment(QtCore.Qt.AlignCenter)
         layout.addWidget(self.status)
-        hint = QtWidgets.QLabel('좌·우: 제자리 회전 | ↑+←/→ 또는 모서리 버튼: 선회 | Space / Esc: 정지 + Nav2 취소\n자동주행 중 수동 이동 잠금. 수동 조종에는 장애물 회피가 없습니다.')
+        hint = QtWidgets.QLabel('좌·우: 제자리 회전 | ↑+←/→ 또는 모서리 버튼: 선회 | Space / Esc: 비상정지 + Nav2 취소\n공통 안전 제어기 연결 시 정지 확인 응답을 표시합니다. 수동 조종에는 장애물 회피가 없습니다.')
         hint.setWordWrap(True)
         hint.setStyleSheet('font-size: 13px; color: black;')
         layout.addWidget(hint)
@@ -533,10 +570,14 @@ class Controller(QtWidgets.QWidget):
             return
         latest = self.camera.latest
         if latest is not None and time.monotonic()-latest[1] < 2:
-            self.video.setPixmap(QtGui.QPixmap.fromImage(latest[0]).scaled(
-                self.video.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+            display_key = (id(latest[0]), latest[1], self.video.width(), self.video.height())
+            if display_key != self._rendered_camera:
+                self.video.setPixmap(QtGui.QPixmap.fromImage(latest[0]).scaled(
+                    self.video.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+                self._rendered_camera = display_key
             self.camera_status.setText('수신 중 · ' + self.camera.status)
         else:
+            self._rendered_camera = None
             self.video.clear()
             self.video.setText('영상 미수신' if latest is None else '영상 수신 끊김')
             self.camera_status.setText(self.camera.status + ' · 토픽 / Domain / 카메라 실행 확인')
@@ -594,6 +635,75 @@ class Controller(QtWidgets.QWidget):
         self.manual_override_active = False
         self.stop()
         self.publish()
+        self.request_mux_safety(reset=False)
+
+    def reset_emergency_stop(self):
+        self.request_mux_safety(reset=True)
+
+    def request_mux_safety(self, reset=False):
+        """Use the same robot-side latched stop as web, never a competing Twist.
+
+        In standalone sessions the existing cancel/zero behavior remains. A
+        discovered mux must acknowledge the service; unavailable transport is
+        reported as unconfirmed rather than showing a misleading 'stopped'.
+        """
+        node = self.ros_node or getattr(self.publisher, 'node', None)
+        available = getattr(self.publisher, 'manual_available', None)
+        if callable(available):
+            available()
+        mux_present = getattr(self.publisher, 'mux_owns_output', False)
+        if mux_present is False:
+            if reset:
+                self.status.setText('공통 안전 제어기 미연결 · 해제할 비상정지 없음')
+            return False
+        if node is None or not hasattr(node, 'create_client'):
+            self.status.setText('비상정지 미확인 · 차량 안전 제어기 연결 확인 필요')
+            return False
+        # An emergency stop supersedes an in-flight reset request locally too.
+        if self.safety_request is not None:
+            if not reset and not self.safety_request[2]:
+                return True
+            self.safety_request[0].cancel()
+            self.safety_request = None
+        name = '/smart_vision_amr/'+('reset_emergency_stop' if reset else 'emergency_stop')
+        try:
+            client = self.safety_clients.get(name)
+            if client is None:
+                client = node.create_client(Trigger, name)
+                self.safety_clients[name] = client
+            if not client.service_is_ready():
+                self.status.setText('비상정지 미확인 · 차량 안전 서비스에 연결되지 않음')
+                return False
+            future = client.call_async(Trigger.Request())
+            self.safety_request = (future, time.monotonic(), reset)
+            self.status.setText('비상정지 해제 확인 중…' if reset else '비상정지 요청 중 · 차량 응답 대기…')
+            return True
+        except Exception as exc:
+            self.status.setText('비상정지 미확인 · '+str(exc))
+            return False
+
+    def poll_mux_safety(self):
+        pending = self.safety_request
+        if pending is None:
+            return
+        future, started, reset = pending
+        if future.done():
+            self.safety_request = None
+            try:
+                result = future.result()
+                if result is None or not result.success:
+                    self.status.setText('비상정지 해제 거부 · '+str(getattr(result, 'message', '응답 없음'))
+                                        if reset else '비상정지 미확인 · '+str(getattr(result, 'message', '응답 없음')))
+                else:
+                    self.last_safety_ack_at = None if reset else time.monotonic()
+                    self.status.setText('비상정지 해제 확인 · 출발 대기' if reset else
+                                        '비상정지 확인 · 차량 제어기 정지 잠금 및 0속도 출력')
+            except Exception as exc:
+                self.status.setText('비상정지 미확인 · '+str(exc))
+        elif time.monotonic()-started > 3.0:
+            future.cancel()
+            self.safety_request = None
+            self.status.setText('비상정지 미확인 · 차량 응답 시간 초과')
 
     def manual_drive_ready(self):
         """Reserve /cmd_vel for manual control before accepting one input."""
@@ -652,6 +762,7 @@ class Controller(QtWidgets.QWidget):
                 enable()
 
     def tick(self):
+        self.poll_mux_safety()
         available = getattr(self.publisher, 'manual_available', None)
         if callable(available) and not available():
             was_manual = bool(self.keys or self.active is not None)
@@ -694,7 +805,14 @@ class Controller(QtWidgets.QWidget):
     def closeEvent(self, event):
         # Discover and stop a custom driver before deciding that the window is
         # idle.  It may not have appeared in the periodic graph poll yet.
-        self.emergency_stop()
+        acknowledged = (self.last_safety_ack_at is not None
+                        and time.monotonic()-self.last_safety_ack_at < 2.0)
+        if not acknowledged:
+            self.emergency_stop()
+        if self.safety_request is not None:
+            self.status.setText('차량 비상정지 확인 중 · 응답 후 창을 닫으세요.')
+            event.ignore()
+            return
         if self.bridge and self.bridge.busy:
             self.status.setText(
                 '자동/Nav2 주행 정지 요청 중입니다. 완료 후 창을 닫으세요.')
@@ -780,6 +898,10 @@ def main():
         started = time.monotonic()
         def finish_when_idle():
             nonlocal shutting_down
+            window.poll_mux_safety()
+            if window.safety_request is not None:
+                QtCore.QTimer.singleShot(50, finish_when_idle)
+                return
             if window.bridge and window.bridge.busy:
                 if time.monotonic()-started > 8:
                     window.show()

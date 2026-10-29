@@ -1563,6 +1563,10 @@ class ParameterPanel(QtWidgets.QGroupBox):
         self.records = {}
         self.generation = 0
         self.refresh_id = 0
+        self.autoload_pending = bool(bridge and autoload)
+        self.groups_refresh_timer = QtCore.QTimer(self)
+        self.groups_refresh_timer.setSingleShot(True)
+        self.groups_refresh_timer.timeout.connect(self.rebuild_groups)
         self.loading = False
         self.write_pending = False
         self.resetting = False
@@ -1667,7 +1671,19 @@ class ParameterPanel(QtWidgets.QGroupBox):
         self.name_box.currentTextChanged.connect(self.selection_changed)
         self.rebuild_groups()
         if bridge and autoload:
-            QtCore.QTimer.singleShot(1200, self.refresh_all)
+            QtCore.QTimer.singleShot(1200, self.autoload_parameters)
+
+    def autoload_parameters(self):
+        # Opening a passive map/controller window must not flood a robot that
+        # is already following a route. Explicit Refresh remains available for
+        # deliberate live tuning; normal first-load waits for an idle vehicle.
+        if not self.autoload_pending:
+            return
+        if self.bridge and self.bridge.busy:
+            self.status.setText('주행 중에는 자동 파라미터 조회를 대기합니다. 필요하면 새로고침을 누르세요.')
+            QtCore.QTimer.singleShot(1000, self.autoload_parameters)
+            return
+        self.refresh_all(automatic=True)
 
     def selection_changed(self):
         self.generation += 1
@@ -1690,9 +1706,12 @@ class ParameterPanel(QtWidgets.QGroupBox):
             self.manager_box.setCurrentIndex(index)
         self.reset_button.setEnabled(bool(names) and not self.resetting)
 
-    def refresh_all(self):
+    def refresh_all(self, automatic=False):
         if not self.bridge or self.resetting or self.write_pending:
             return
+        self.autoload_pending = False
+        self.automatic_refresh = bool(automatic)
+        self.groups_refresh_timer.stop()
         self.refresh_id += 1
         token = self.refresh_id
         self.loading = True
@@ -1714,9 +1733,13 @@ class ParameterPanel(QtWidgets.QGroupBox):
         def next_node():
             if token != self.refresh_id:
                 return
+            if self.automatic_refresh and self.bridge.busy:
+                QtCore.QTimer.singleShot(500, next_node)
+                return
             if not nodes:
                 self.loading = False
                 self.refresh_button.setEnabled(True)
+                self.groups_refresh_timer.stop()
                 self.rebuild_groups()
                 suffix = f' / 조회 실패 {len(self.node_errors)}개: '+ '; '.join(self.node_errors) if self.node_errors else ''
                 self.status.setText(f'{len(self.records)}개 파라미터 조회 완료'+suffix if self.records else '파라미터가 없습니다. 로봇/Nav2 실행과 Domain을 확인하고 새로고침하세요.'+suffix)
@@ -1740,8 +1763,15 @@ class ParameterPanel(QtWidgets.QGroupBox):
     def fetch_chunks(self, node, names, token, finished):
         if token != self.refresh_id:
             return
+        if getattr(self, 'automatic_refresh', False) and self.bridge.busy:
+            QtCore.QTimer.singleShot(500, lambda: self.fetch_chunks(node, names, token, finished))
+            return
         if not names:
-            self.rebuild_groups()
+            # Rebuilding thousands of QTableWidget cells after every node can
+            # consume a full CPU core while the parameter stream is loading.
+            # Coalesce intermediate UI work; the final node flushes immediately.
+            if not self.groups_refresh_timer.isActive():
+                self.groups_refresh_timer.start(1000)
             finished()
             return
         chunk, rest = names[:64], names[64:]

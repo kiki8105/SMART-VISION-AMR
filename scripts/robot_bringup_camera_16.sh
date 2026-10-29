@@ -15,6 +15,16 @@ FRONT_CAMERA_SIZE=${FRONT_CAMERA_SIZE:-320x240}
 CAMERA_JPEG_QUALITY=${CAMERA_JPEG_QUALITY:-60}
 CAMERA_PUBLISH_FPS=${CAMERA_PUBLISH_FPS:-5}
 LOCALIZATION_MODE=${TURTLEBOT3_LOCALIZATION_MODE:-ekf_independent}
+ESTIMATION_LOCATION=${SMART_VISION_ESTIMATION_LOCATION:-robot}
+RUNTIME_WORKSPACE=${SMART_VISION_RUNTIME_WORKSPACE:-$HOME/smart_vision_runtime_ws}
+LEGACY_EKF_LAUNCH=${SMART_VISION_ROBOT_EKF_LAUNCH:-$SCRIPT_DIR/hardware_robot_ekf.launch.py}
+if [[ ! -f "$LEGACY_EKF_LAUNCH" && -f "$SCRIPT_DIR/../ros2_ws/src/smart_vision_amr/launch/hardware_robot_ekf.launch.py" ]]; then
+  LEGACY_EKF_LAUNCH=$SCRIPT_DIR/../ros2_ws/src/smart_vision_amr/launch/hardware_robot_ekf.launch.py
+fi
+case "$ESTIMATION_LOCATION" in
+  pc|robot) ;;
+  *) printf 'SMART_VISION_ESTIMATION_LOCATION must be pc or robot.\n' >&2; exit 2 ;;
+esac
 case "$LOCALIZATION_MODE" in
   baseline|ekf_independent) ;;
   *) printf 'TURTLEBOT3_LOCALIZATION_MODE must be baseline or ekf_independent.\n' >&2; exit 2 ;;
@@ -24,9 +34,9 @@ if [[ "$LOCALIZATION_MODE" == ekf_independent ]]; then
 else
   CAMERA_BACKEND=${CAMERA_BACKEND:-v4l2}
 fi
-if [[ "$LOCALIZATION_MODE" == ekf_independent
-      && ! -f "$SCRIPT_DIR/hardware_robot_ekf.launch.py" ]]; then
-  printf 'Independent EKF bringup is missing: %s/hardware_robot_ekf.launch.py\n' "$SCRIPT_DIR" >&2
+if [[ "$ESTIMATION_LOCATION" == pc && "$LOCALIZATION_MODE" == ekf_independent
+      && ! -f "$LEGACY_EKF_LAUNCH" ]]; then
+  printf 'Independent EKF bringup is missing: %s\n' "$LEGACY_EKF_LAUNCH" >&2
   printf 'Copy the launch file beside this script before starting the robot.\n' >&2
   exit 2
 fi
@@ -66,8 +76,36 @@ if [[ ! -f /opt/ros/humble/setup.bash || ! -f "$WORKSPACE/install/setup.bash" ]]
 fi
 source /opt/ros/humble/setup.bash
 source "$WORKSPACE/install/setup.bash"
+if [[ "$ESTIMATION_LOCATION" == robot ]]; then
+  if [[ ! -f "$RUNTIME_WORKSPACE/install/local_setup.bash" ]]; then
+    printf 'Robot-local runtime is not built. Run scripts/setup_robot_runtime.sh on the robot first.\n' >&2
+    printf 'Previous deployment: SMART_VISION_ESTIMATION_LOCATION=pc (set it on robot AND PC).\n' >&2
+    exit 2
+  fi
+  source "$RUNTIME_WORKSPACE/install/local_setup.bash"
+  if ! ros2 pkg prefix robot_localization >/dev/null 2>&1; then
+    printf 'Robot runtime dependency missing: run scripts/setup_robot_runtime.sh on the robot.\n' >&2
+    exit 2
+  fi
+  if ! RUNTIME_PREFIX=$(ros2 pkg prefix smart_vision_amr); then
+    printf 'Robot runtime package missing: rebuild with scripts/setup_robot_runtime.sh.\n' >&2
+    exit 2
+  fi
+  if [[ ! -f "$RUNTIME_PREFIX/share/smart_vision_amr/launch/hardware_robot_runtime.launch.py"
+        || ! -x "$RUNTIME_PREFIX/lib/smart_vision_amr/motion_mux"
+        || ! -x "$RUNTIME_PREFIX/lib/smart_vision_amr/localization_health" ]]; then
+    printf 'Robot runtime overlay is outdated: rerun scripts/setup_robot_runtime.sh.\n' >&2
+    exit 2
+  fi
+fi
 export ROS_DOMAIN_ID=16 ROS_LOCALHOST_ONLY=0 TURTLEBOT3_MODEL=waffle_pi
 export LDS_MODEL=${LDS_MODEL:-LDS-03}
+if [[ -f "$SCRIPT_DIR/dds_env.bash" ]]; then
+  source "$SCRIPT_DIR/dds_env.bash"
+elif [[ "${SMART_VISION_DDS_TRANSPORT:-udp}" == udp ]]; then
+  printf 'Copy scripts/dds_env.bash beside this wrapper before enabling UDP transport.\n' >&2
+  exit 2
+fi
 
 command -v setsid >/dev/null
 ros2 pkg prefix turtlebot3_bringup >/dev/null
@@ -209,10 +247,14 @@ else
   printf 'Front camera: disabled or unavailable; /camera/front/image_raw will remain offline.\n' >&2
 fi
 printf 'Ctrl+C stops the robot bringup and cameras.\n'
-if [[ "$LOCALIZATION_MODE" == ekf_independent ]]; then
-  setsid ros2 launch "$SCRIPT_DIR/hardware_robot_ekf.launch.py" &
+if [[ "$ESTIMATION_LOCATION" == robot ]]; then
+  setsid ros2 launch smart_vision_amr hardware_robot_runtime.launch.py \
+    localization_mode:="$LOCALIZATION_MODE" usb_port:="$OPENCR_DEVICE" \
+    wheel_radius:="${WHEEL_RADIUS:-}" wheel_separation:="${WHEEL_SEPARATION:-}" &
+elif [[ "$LOCALIZATION_MODE" == ekf_independent ]]; then
+  setsid ros2 launch "$LEGACY_EKF_LAUNCH" usb_port:="$OPENCR_DEVICE" &
 else
-  setsid ros2 launch turtlebot3_bringup robot.launch.py use_sim_time:=false &
+  setsid ros2 launch turtlebot3_bringup robot.launch.py use_sim_time:=false usb_port:="$OPENCR_DEVICE" &
 fi
 children+=("$!")
 required_children+=("$!")

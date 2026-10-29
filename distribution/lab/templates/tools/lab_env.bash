@@ -24,6 +24,7 @@ _turtlebot3_lab_env() {
   export TURTLEBOT3_LAB_ROOT="$lab_dir"
   export ROS_DOMAIN_ID="$domain"
   export ROS_LOCALHOST_ONLY="${ROS_LOCALHOST_ONLY:-1}"
+  source "$helper_dir/dds_env.bash" "$lab_dir/ros2_ws/src/smart_vision_amr/config" || return
   export GAZEBO_MASTER_URI="${TURTLEBOT3_LAB_GAZEBO_MASTER_URI:-http://127.0.0.1:$port}"
   export TURTLEBOT3_MODEL=waffle_pi
   # All assets resolve directly from the bundle; no ~/.gazebo model registration.

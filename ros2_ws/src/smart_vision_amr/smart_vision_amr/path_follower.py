@@ -7,6 +7,7 @@ import time
 import rclpy
 from geometry_msgs.msg import PoseStamped
 from nav2_msgs.action import BackUp, FollowPath
+from nav2_msgs.msg import SpeedLimit
 from nav_msgs.msg import Odometry, Path
 from rclpy.action import ActionClient
 from rclpy.node import Node
@@ -14,9 +15,13 @@ from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy, qos_profi
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
+from tf2_ros import Buffer, TransformException, TransformListener
+from rcl_interfaces.msg import ParameterEvent, ParameterType
+from rcl_interfaces.srv import GetParameters
 import json
 
-from smart_vision_amr.path_geometry import paths_are_equivalent
+from smart_vision_amr.path_geometry import (curvature_speed_limit, path_length, path_progress,
+                                           paths_are_equivalent, point_at_progress, upcoming_curvature)
 
 
 class PathFollower(Node):
@@ -32,6 +37,22 @@ class PathFollower(Node):
         self.declare_parameter("controller_id", "")
         self.declare_parameter("goal_checker_id", "")
         self.declare_parameter("resume_goal_tolerance", 0.1)
+        for name, default in (("follow_request_timeout", 5.0),
+                              ("follow_feedback_timeout", 5.0),
+                              ("follow_cancel_timeout", 3.0),
+                              ("follow_cancel_retry_period", 0.5),
+                              ("curve_speed_limit_enabled", True),
+                              ("curve_speed_limit_topic", "/speed_limit"),
+                              ("curve_preview_distance", 0.75),
+                              ("curve_base_frame", "base_footprint"),
+                              ("curve_pose_timeout", 1.0),
+                              ("curve_minimum_chord", 0.15),
+                              ("curve_alignment_angle", 0.65),
+                              ("curve_goal_heading_distance", 0.30),
+                              ("curve_max_linear_velocity", 0.25),
+                              ("curve_max_angular_velocity", 0.35),
+                              ("curve_max_lateral_acceleration", 0.10)):
+            self.declare_parameter(name, default)
         self.resume_goal_tolerance = self.get_parameter("resume_goal_tolerance").value
         self.client = ActionClient(self, FollowPath, self.get_parameter("action_name").value)
         self.backup_client = ActionClient(self, BackUp, "/backup")
@@ -53,6 +74,28 @@ class PathFollower(Node):
         self.safety_control_pub = self.create_publisher(
             String, "/smart_vision_amr/manual_control", 1)
         self.safety_control_seq = 0
+        self.speed_limit_pub = self.create_publisher(
+            SpeedLimit, self.get_parameter("curve_speed_limit_topic").value, 1)
+        self.follow_requested_at = None
+        self.follow_feedback_at = None
+        self.follow_cancel_since = None
+        self.follow_last_cancel_at = None
+        self.follow_cancel_acknowledged = False
+        self.follow_watchdog_fault = None
+        self.follow_estop_sent = False
+        self.follow_last_estop_at = None
+        self.follow_distance_remaining = None
+        self.follow_path_progress = None
+        self.follow_request_seq = 0
+        self.follow_speed_limit = 0.0
+        self.controller_base_speed = None
+        self.controller_speed_future = None
+        self.controller_speed_requested_at = None
+        self.controller_speed_event_at = float('-inf')
+        self.controller_speed_next_request = float('-inf')
+        self.controller_speed_query_index = 0
+        self.last_speed_limit_at = None
+        self.last_follow_diagnostic_at = None
         self.active_goal = None
         self.goal_request_pending = False
         self.pending_path = None
@@ -90,6 +133,10 @@ class PathFollower(Node):
         self.latest_odom_at = None
         self.motion_status = None
         self.motion_status_at = None
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.controller_speed_client = self.create_client(GetParameters, '/controller_server/get_parameters')
+        self.create_subscription(ParameterEvent, '/parameter_events', self.on_controller_parameters, 10)
         self.create_subscription(Path, "/smart_vision_amr/path", self.on_path, 10)
         self.create_subscription(PoseStamped, "/smart_vision_amr/goal", self.on_goal, 10)
         self.create_subscription(String, "/smart_vision_amr/recovery_request",
@@ -293,9 +340,34 @@ class PathFollower(Node):
         return [(p.pose.position.x, p.pose.position.y) for p in path.poses]
 
     def _cancel_active_goal(self):
+        if (self.active_goal is not None or self.goal_request_pending) and self.follow_cancel_since is None:
+            self.follow_cancel_since = time.monotonic()
+        if self.goal_request_pending:
+            self.cancel_when_accepted = True
         if self.active_goal is not None and not self.cancel_requested:
             self.cancel_requested = True
-            self.active_goal.cancel_goal_async()
+            self._send_follow_cancel()
+
+    def _send_follow_cancel(self):
+        handle = self.active_goal
+        if handle is None:
+            return
+        self.follow_last_cancel_at = time.monotonic()
+        try:
+            handle.cancel_goal_async().add_done_callback(
+                lambda future, accepted=handle: self._on_follow_cancel_response(future, accepted))
+        except Exception as exc:
+            self.get_logger().error(f"FollowPath cancel request failed: {exc}")
+
+    def _on_follow_cancel_response(self, future, handle):
+        if handle is not self.active_goal:
+            return
+        try:
+            response = future.result()
+            # A cancellation acknowledgment is not a terminal action result.
+            self.follow_cancel_acknowledged = bool(response.goals_canceling)
+        except Exception as exc:
+            self.get_logger().warning(f"FollowPath cancellation is not acknowledged: {exc}")
 
     def _send_path(self, path):
         if (self.navigation_suspended or self.recovery_request is not None
@@ -314,24 +386,34 @@ class PathFollower(Node):
         context = self._goal_context(path)
         self.request_context = context
         self.goal_request_pending = True
-        future = self.client.send_goal_async(goal, feedback_callback=self.on_feedback)
-        future.add_done_callback(lambda result, sent=context: self.on_goal_response(result, sent))
+        self.follow_requested_at = time.monotonic()
+        self.follow_feedback_at = None
+        self.follow_distance_remaining = path_length(self._points(path))
+        self.follow_request_seq += 1
+        sequence = self.follow_request_seq
+        try:
+            future = self.client.send_goal_async(
+                goal, feedback_callback=lambda feedback, sent=sequence: self.on_feedback(feedback, sent))
+            future.add_done_callback(lambda result, sent=context, seq=sequence:
+                                     self.on_goal_response(result, sent, seq))
+        except Exception as exc:
+            # Send errors do not prove the server never accepted the request.
+            self._hold_unconfirmed_follow(f"FollowPath acceptance is unconfirmed: {exc}")
+            return
+        self._publish_curve_limit()
         self.get_logger().info(f"Sent path with {len(path.poses)} poses to Nav2")
 
-    def on_goal_response(self, future, context=None):
+    def on_goal_response(self, future, context=None, sequence=None):
+        if sequence is not None and sequence != self.follow_request_seq:
+            return
         context = context or self.request_context or self._goal_context(self.active_path)
-        self.goal_request_pending = False
-        self.request_context = None
         try:
             goal_handle = future.result()
         except Exception as exc:
-            self.latest_path_key = None
-            if self._context_is_current(context) and not self.navigation_suspended:
-                self.publish_status("FAILED", f"FollowPath request failed: {exc}", context=context)
-            self.cancel_when_accepted = False
-            self._try_start_recovery()
-            self._send_pending_path()
+            self._hold_unconfirmed_follow(f"FollowPath acceptance is unconfirmed: {exc}")
             return
+        self.goal_request_pending = False
+        self.request_context = None
         if not goal_handle.accepted:
             self.get_logger().error("Nav2 rejected FollowPath goal")
             self.latest_path_key = None
@@ -339,33 +421,70 @@ class PathFollower(Node):
                     and not self.navigation_suspended):
                 self.publish_status("FAILED", "Nav2 rejected FollowPath goal", context=context)
             self.cancel_when_accepted = False
+            self._clear_follow_watch()
+            self._publish_speed_limit(0.0)
             self._try_start_recovery()
             self._send_pending_path()
             return
         self.active_goal = goal_handle
         self.active_context = context
+        self.follow_feedback_at = time.monotonic()
         if (self.navigation_suspended or self.pending_path is not None
                 or self.cancel_when_accepted or self.recovery_request is not None
                 or not self._context_is_current(context)):
             self._cancel_active_goal()
         else:
             self.publish_status("MOVING", "Following A* route", context=context)
-        goal_handle.get_result_async().add_done_callback(
-            lambda result, sent=context: self.on_result(result, sent))
+        try:
+            goal_handle.get_result_async().add_done_callback(
+                lambda result, sent=context, accepted=goal_handle: self.on_result(result, sent, accepted))
+        except Exception as exc:
+            self._hold_unconfirmed_follow(f"FollowPath result is unavailable: {exc}")
 
-    def on_feedback(self, feedback):
-        pass
+    def on_feedback(self, feedback, sequence=None):
+        if sequence is not None and sequence != self.follow_request_seq:
+            return
+        if self.active_goal is None and not self.goal_request_pending:
+            return
+        try:
+            remaining = float(feedback.feedback.distance_to_goal)
+            speed = float(feedback.feedback.speed)
+        except (AttributeError, TypeError, ValueError):
+            return
+        if not isfinite(remaining) or remaining < 0 or not isfinite(speed):
+            return
+        self.follow_feedback_at = time.monotonic()
+        self.follow_distance_remaining = remaining
+        self._publish_curve_limit()
+        if (self.last_follow_diagnostic_at is None or
+                time.monotonic()-self.last_follow_diagnostic_at >= 1.0):
+            self.last_follow_diagnostic_at = time.monotonic()
+            if not self.cancel_requested and not self.navigation_suspended:
+                self.publish_status("MOVING", "Following A* route", context=self.active_context,
+                                    distance_remaining=(max(0., path_length(self._points(self.active_path))-
+                                                            self.follow_path_progress)
+                                                        if self.active_path is not None and
+                                                        self.follow_path_progress is not None else None),
+                                    controller_distance_remaining=remaining, measured_speed=speed,
+                                    curve_speed_limit=self.follow_speed_limit)
 
-    def on_result(self, future, context=None):
+    def on_result(self, future, context=None, handle=None):
+        if handle is not None and handle is not self.active_goal:
+            return
         context = context or self.active_context or self._goal_context(self.active_path)
         from action_msgs.msg import GoalStatus
         try:
             result = future.result()
+            if result.status not in (GoalStatus.STATUS_SUCCEEDED, GoalStatus.STATUS_CANCELED,
+                                      GoalStatus.STATUS_ABORTED):
+                self._hold_unconfirmed_follow(f"FollowPath returned nonterminal status {result.status}")
+                return
             status = {GoalStatus.STATUS_SUCCEEDED: "SUCCEEDED",
                       GoalStatus.STATUS_CANCELED: "CANCELED"}.get(result.status, "FAILED")
             detail = f"Nav2 status {result.status}"
         except Exception as exc:
-            status, detail = "FAILED", f"FollowPath result failed: {exc}"
+            self._hold_unconfirmed_follow(f"FollowPath result is unconfirmed: {exc}")
+            return
         self.get_logger().info(f"FollowPath finished: {detail}")
         if status != "SUCCEEDED":
             # Failure must not permanently deduplicate the same safe replacement route.
@@ -379,6 +498,14 @@ class PathFollower(Node):
         self.active_path = None
         self.cancel_requested = False
         self.cancel_when_accepted = False
+        watchdog_fault = self.follow_watchdog_fault
+        self._clear_follow_watch()
+        self._publish_speed_limit(0.0)
+        if watchdog_fault and not self.navigation_suspended:
+            # Routes computed before stop confirmation start at an uncertain
+            # pose. Ask the retained-goal planner for a fresh start instead.
+            self.pending_path = None
+            self.publish_status("FAILED", f"FollowPath stopped after watchdog: {watchdog_fault}", context=context)
         self._try_start_recovery()
         self._send_pending_path()
 
@@ -390,6 +517,209 @@ class PathFollower(Node):
             return
         path, self.pending_path = self.pending_path, None
         self._send_path(path)
+
+    def _clear_follow_watch(self):
+        self.follow_requested_at = self.follow_feedback_at = None
+        self.follow_cancel_since = self.follow_last_cancel_at = None
+        self.follow_cancel_acknowledged = False
+        self.follow_watchdog_fault = None
+        self.follow_estop_sent = False
+        self.follow_last_estop_at = None
+        self.follow_distance_remaining = None
+        self.follow_path_progress = None
+
+    def _hold_unconfirmed_follow(self, reason):
+        """Retain the handle/request barrier until Nav2 proves the action ended."""
+        self.follow_watchdog_fault = reason
+        self.latest_path_key = None
+        self.pending_path = None
+        self.path_invalidated = True
+        if self.follow_cancel_since is None:
+            self.follow_cancel_since = time.monotonic()
+        self._cancel_active_goal()
+        self._send_follow_safety_estop()
+
+    def _send_follow_safety_estop(self):
+        self.safety_control_seq = max(self.safety_control_seq + 1, time.monotonic_ns())
+        packet = String()
+        packet.data = json.dumps({"source_id": self.SAFETY_CONTROL_SOURCE,
+            "seq": self.safety_control_seq, "sent_at_ns": self.get_clock().now().nanoseconds,
+            "mode": "estop", "linear": 0.0, "angular": 0.0})
+        self.safety_control_pub.publish(packet)
+        first = not self.follow_estop_sent
+        self.follow_estop_sent = True
+        self.follow_last_estop_at = time.monotonic()
+        if first:
+            reason = self.follow_watchdog_fault or "FollowPath cancellation is unconfirmed"
+            self.get_logger().error(reason + "; requesting latched safety stop")
+            self.cancel_navigation(Trigger.Request(), Trigger.Response())
+            self.publish_status("SAFETY_STOP", reason,
+                                cancel_acknowledged=self.follow_cancel_acknowledged)
+
+    def _monitor_follow_path(self):
+        now = time.monotonic()
+        self._update_controller_speed(now)
+        requested = self.follow_requested_at
+        if (self.goal_request_pending and requested is not None
+                and now-requested >= max(.5, float(self.get_parameter("follow_request_timeout").value))
+                and not self.follow_estop_sent):
+            self._hold_unconfirmed_follow("FollowPath goal acceptance timed out")
+        if self.active_goal is not None and not self.cancel_requested:
+            last = self.follow_feedback_at
+            if (last is not None and now-last >= max(.5, float(self.get_parameter("follow_feedback_timeout").value))):
+                self.follow_watchdog_fault = "FollowPath feedback timed out"
+                self.latest_path_key = None
+                self.path_invalidated = True
+                self._cancel_active_goal()
+                self.publish_status("WAIT_CANCEL", self.follow_watchdog_fault,
+                                    feedback_age_sec=now-last)
+        if self.follow_cancel_since is not None:
+            retry = max(.1, float(self.get_parameter("follow_cancel_retry_period").value))
+            if self.active_goal is not None and (self.follow_last_cancel_at is None
+                                                  or now-self.follow_last_cancel_at >= retry):
+                self._send_follow_cancel()
+            if (now-self.follow_cancel_since >= max(.5, float(self.get_parameter("follow_cancel_timeout").value))
+                    and not self.follow_estop_sent):
+                self.follow_watchdog_fault = self.follow_watchdog_fault or "FollowPath cancellation/result timed out"
+                self._send_follow_safety_estop()
+        if self.follow_estop_sent:
+            status = self.motion_status or {}
+            acknowledged = (self.motion_status_at is not None and now-self.motion_status_at < 1.
+                            and status.get("estop_latched") is True)
+            if not acknowledged and (self.follow_last_estop_at is None or now-self.follow_last_estop_at >= .5):
+                self._send_follow_safety_estop()
+        elif (self.active_goal is not None or self.goal_request_pending) and not self.cancel_requested:
+            if self.last_speed_limit_at is None or now-self.last_speed_limit_at >= .2:
+                self._publish_curve_limit()
+
+    def _publish_speed_limit(self, speed):
+        self.follow_speed_limit = speed
+        message = SpeedLimit()
+        message.header.stamp = self.get_clock().now().to_msg()
+        message.percentage = False
+        # Nav2 defines 0.0 as "restore configured speed", not a stop command.
+        message.speed_limit = float(speed)
+        self.speed_limit_pub.publish(message)
+        self.last_speed_limit_at = time.monotonic()
+
+    def _publish_curve_limit(self):
+        if not self.get_parameter("curve_speed_limit_enabled").value:
+            if self.follow_speed_limit:
+                self._publish_speed_limit(0.)
+            return
+        if self.active_path is None or len(self.active_path.poses) < 2:
+            return
+        points = self._points(self.active_path)
+        length = path_length(points)
+        progress = None
+        alignment = False
+        final_heading = False
+        if getattr(self, 'tf_buffer', None) is not None:
+            try:
+                transform = self.tf_buffer.lookup_transform(
+                    self.active_path.header.frame_id or 'map',
+                    self.get_parameter('curve_base_frame').value, rclpy.time.Time())
+                stamp = transform.header.stamp
+                age = (self.get_clock().now().nanoseconds-stamp.sec*1_000_000_000-stamp.nanosec)/1e9
+                if -.25 <= age < max(.1, float(self.get_parameter('curve_pose_timeout').value)):
+                    position = transform.transform.translation
+                    progress = path_progress(points, (position.x, position.y))
+                    final_heading = hypot(position.x-points[-1][0], position.y-points[-1][1]) <= float(
+                        self.get_parameter('curve_goal_heading_distance').value)
+                    q = transform.transform.rotation
+                    if q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w > .5:
+                        yaw = atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))
+                        target = point_at_progress(points, progress+.25)
+                        alpha = atan2(target[1]-position.y, target[0]-position.x)-yaw
+                        alignment = abs(atan2(sin(alpha), cos(alpha))) > float(
+                            self.get_parameter('curve_alignment_angle').value)
+            except (TransformException, ValueError):
+                pass
+        self.follow_path_progress = progress
+        if alignment or final_heading:
+            # DWB scales angular limits together with linear speed. Restore its
+            # configured limits for in-place path/final-yaw alignment; Nav2's
+            # collision checking and the final mux still own all actual motion.
+            self._publish_speed_limit(0.)
+            return
+        # Humble FollowPath feedback can report distance_to_goal=0 throughout
+        # a valid route. Use actual map pose for progress; missing pose retains
+        # the worst remaining-route curvature cap instead of releasing it early.
+        horizon = (length if progress is None else
+                   max(.1, float(self.get_parameter('curve_preview_distance').value)))
+        curvature = upcoming_curvature(points, progress or 0., horizon,
+            max(.05, float(self.get_parameter('curve_minimum_chord').value)))
+        try:
+            speed = curvature_speed_limit(curvature,
+                float(self.get_parameter("curve_max_linear_velocity").value),
+                float(self.get_parameter("curve_max_angular_velocity").value),
+                float(self.get_parameter("curve_max_lateral_acceleration").value))
+        except ValueError as exc:
+            self.get_logger().error(f"Invalid curve speed configuration: {exc}")
+            self._hold_unconfirmed_follow("Invalid curve speed limit configuration")
+            return
+        base = self.controller_base_speed
+        # Humble DWB ignores an absolute limit >= its configured maximum,
+        # leaving an older low limit in place. Its explicit reset value is 0.
+        # While the asynchronous maximum query is pending, straight sections
+        # still reset at the declared cap; lower curved caps stay conservative.
+        if base is not None:
+            self._publish_speed_limit(0. if speed >= base-1e-6 else max(1e-6, speed))
+        else:
+            self._publish_speed_limit(0. if speed >= float(self.get_parameter(
+                'curve_max_linear_velocity').value)-1e-6 else max(1e-6, speed))
+
+    def _controller_speed_names(self):
+        plugin = self.get_parameter('controller_id').value or 'FollowPath'
+        return [plugin+'.max_speed_xy', plugin+'.desired_linear_vel']
+
+    def on_controller_parameters(self, event):
+        if event.node.rstrip('/') != '/controller_server':
+            return
+        names = self._controller_speed_names()
+        for parameter in list(event.new_parameters)+list(event.changed_parameters):
+            if (parameter.name in names and parameter.value.type == ParameterType.PARAMETER_DOUBLE
+                    and isfinite(parameter.value.double_value) and parameter.value.double_value > 0):
+                self.controller_base_speed = parameter.value.double_value
+                self.controller_speed_event_at = time.monotonic()
+
+    def _update_controller_speed(self, now):
+        # Test harnesses and older deployments may omit the optional service.
+        if getattr(self, 'controller_speed_client', None) is None:
+            return
+        future = self.controller_speed_future
+        if future is not None:
+            if future.done():
+                try:
+                    response = future.result()
+                    if self.controller_speed_event_at <= self.controller_speed_requested_at:
+                        found = False
+                        for value in response.values:
+                            if (value.type == ParameterType.PARAMETER_DOUBLE
+                                    and isfinite(value.double_value) and value.double_value > 0):
+                                self.controller_base_speed = value.double_value
+                                found = True
+                                break
+                        if not found:
+                            self.controller_speed_query_index = (getattr(
+                                self, 'controller_speed_query_index', 0)+1) % 2
+                except Exception as exc:
+                    self.get_logger().warning(f'Controller speed query failed: {exc}')
+                self.controller_speed_future = None
+            elif now-self.controller_speed_requested_at > 3.:
+                future.cancel()
+                self.controller_speed_future = None
+            return
+        if (self.controller_base_speed is None and now >= self.controller_speed_next_request
+                and self.controller_speed_client.service_is_ready()):
+            self.controller_speed_next_request = now+2.
+            self.controller_speed_requested_at = now
+            request = GetParameters.Request()
+            # Humble's parameter service may reject the entire request when
+            # any one requested plugin-specific parameter is undeclared.
+            request.names = [self._controller_speed_names()[getattr(
+                self, 'controller_speed_query_index', 0)]]
+            self.controller_speed_future = self.controller_speed_client.call_async(request)
 
     def on_scan(self, message):
         self.latest_scan = message
@@ -886,6 +1216,7 @@ class PathFollower(Node):
         self._send_pending_path()
 
     def _monitor_recovery(self):
+        self._monitor_follow_path()
         self._monitor_backup_cancellation()
         pending = getattr(self, "pending_recovery_request", None)
         if (pending is not None and time.monotonic() - pending["received_at"]
@@ -930,7 +1261,7 @@ class PathFollower(Node):
     def _context_is_current(self, context):
         return context.get("generation") == self.goal_generation
 
-    def publish_status(self, status, message_text, context=None, manual_stop=False):
+    def publish_status(self, status, message_text, context=None, manual_stop=False, **metrics):
         context = context or self._goal_context()
         message = String()
         message.data = json.dumps({"status": status, "message": message_text,
@@ -939,7 +1270,8 @@ class PathFollower(Node):
                                    "manual_stop": manual_stop,
                                    "stop_stamp": ({"sec": self.stop_stamp_ns // 1_000_000_000,
                                                    "nanosec": self.stop_stamp_ns % 1_000_000_000}
-                                                  if self.stop_stamp_ns is not None else None)})
+                                                  if self.stop_stamp_ns is not None else None),
+                                   **metrics})
         self.status_pub.publish(message)
 
 

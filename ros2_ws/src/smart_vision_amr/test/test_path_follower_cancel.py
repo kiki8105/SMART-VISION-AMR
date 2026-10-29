@@ -29,6 +29,22 @@ class FollowerHarness(PathFollower):
         self.status_pub = Mock()
         self.safety_control_pub = Mock()
         self.safety_control_seq = 0
+        self.speed_limit_pub = Mock()
+        self.follow_requested_at = None
+        self.follow_feedback_at = None
+        self.follow_cancel_since = None
+        self.follow_last_cancel_at = None
+        self.follow_cancel_acknowledged = False
+        self.follow_watchdog_fault = None
+        self.follow_estop_sent = False
+        self.follow_last_estop_at = None
+        self.follow_distance_remaining = None
+        self.follow_path_progress = None
+        self.follow_request_seq = 0
+        self.follow_speed_limit = 0.
+        self.controller_base_speed = None
+        self.last_speed_limit_at = None
+        self.last_follow_diagnostic_at = None
         self.active_goal = None
         self.goal_request_pending = False
         self.pending_path = None
@@ -68,6 +84,12 @@ class FollowerHarness(PathFollower):
         self.motion_status_at = None
         self.clock_seconds = 5
         self.parameters = {
+            "follow_request_timeout": 5., "follow_feedback_timeout": 5.,
+            "follow_cancel_timeout": 3., "follow_cancel_retry_period": .5,
+            "curve_speed_limit_enabled": True, "curve_preview_distance": .75,
+            "curve_max_linear_velocity": .25, "curve_max_angular_velocity": .35,
+            "curve_max_lateral_acceleration": .10, "curve_minimum_chord": .15,
+            "curve_alignment_angle": .65, "curve_goal_heading_distance": .30,
             "recovery_min_distance": 0.10, "recovery_max_distance": 0.35,
             "recovery_min_speed": 0.03, "recovery_max_speed": 0.07,
             "recovery_robot_radius": 0.22, "recovery_rear_margin": 0.05,

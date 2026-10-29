@@ -16,6 +16,7 @@ sudo apt update
 sudo apt install -y git build-essential cmake python3-colcon-common-extensions gazebo \
   ros-humble-desktop ros-humble-gazebo-ros-pkgs ros-humble-nav2-bringup \
   ros-humble-xacro ros-humble-slam-toolbox ros-humble-robot-localization \
+  ros-humble-compressed-image-transport \
   ros-humble-teleop-twist-keyboard \
   python3-opencv python3-pyqt5 python3-numpy python3-yaml python3-pil
 ```
@@ -60,6 +61,8 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 검사합니다. 종료할 때는 각 실행 터미널에서 `Ctrl+C`를 누르세요.
 스크립트가 시뮬레이션용 `ROS_DOMAIN_ID=76`을 설정하므로 별도 `export`는 필요 없습니다.
 Gazebo 기본 위치 추정은 기존 오도메트리(`baseline`)를 사용합니다.
+시뮬레이션은 로컬 통신으로 격리합니다. 실행 스크립트의 DDS 프로필 기본값과
+이전 설정으로 복귀하는 방법은 [운용 보완 안내](docs/UPGRADE_20261029.md)에 있습니다.
 
 카메라·지도·파라미터를 PyQt 조종기로 보려면 별도 터미널에서 실행합니다.
 조종기 소스는 저장소의 `tools/`에 포함되어 있습니다.
@@ -126,12 +129,14 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 
 ## 실제 로봇·웹 관제
 
-실제 로봇은 Raspberry Pi에서 센서·모터 bringup을, PC에서 위치 추정·경로 계획을
-실행합니다. 두 장치 모두 같은 Wi-Fi와 `ROS_DOMAIN_ID=16`을 사용합니다.
+실제 로봇은 Raspberry Pi에서 센서·모터 bringup·독립 EKF·정지 감시·속도 중재를,
+PC에서 AMCL·경로 계획·웹을 실행합니다. 두 장치 모두 같은 Wi-Fi와 `ROS_DOMAIN_ID=16`을 사용합니다.
 시뮬레이션의 76번 도메인과 혼용하지 마세요.
-실차의 기본 실행 스크립트는 **독립 바퀴·IMU EKF**를 켭니다. Pi에 EKF launch
-파일도 복사해야 하며, 기존 방식으로 돌아갈 때는 두 장치 모두 `_baseline.sh`
-스크립트를 사용합니다.
+실차의 기본 실행 스크립트는 **독립 바퀴·IMU EKF**를 켭니다.
+처음에는 로봇에서 저장소를 받고 `./scripts/setup_robot_runtime.sh`로 로봇용 런타임을
+빌드하세요. 자세한 명령은 아래 실차 시작 안내에 있습니다.
+이전 PC EKF 구성으로 복귀할 때는 양쪽에서 `SMART_VISION_ESTIMATION_LOCATION=pc`를 사용합니다.
+EKF 자체를 끄는 기존 오도메트리 구성은 양쪽의 `_baseline.sh`로 선택합니다.
 
 - [팀원용 설치·실행 순서](docs/collaboration_handoff.md)
 - [실차 터미널별 실행 순서](docs/classroom_navigation_startup.md)
@@ -139,6 +144,8 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 - [ArUco 마커 준비](docs/ARUCO.md)
 - [실차 기본 EKF 실행과 기존 구성으로 복귀](docs/hardware_ekf.md)
 - [조종기 DEB 설치와 실습 ZIP 생성](distribution/README.md)
+- [주행·화면·안전·기록 보완 내용](docs/UPGRADE_20261029.md)
+- [튜닝 전후 동일 경로 반복 시험](docs/NAVIGATION_BENCHMARK.md)
 
 진행 흐름은 `목표 → A* 경로 → Nav2 FollowPath → /cmd_vel → 로봇`입니다.
 

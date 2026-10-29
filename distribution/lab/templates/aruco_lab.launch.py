@@ -34,7 +34,8 @@ def start_lab(context):
     actions = [
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(str(gazebo / 'launch/gzserver.launch.py')),
-            launch_arguments={'world': get('world')}.items()),
+            launch_arguments={'world': get('world'),
+                              'params_file': str(own/'config/gazebo_clock.yaml')}.items()),
         Node(package='robot_state_publisher', executable='robot_state_publisher',
              parameters=[sim, {'robot_description': (tb3 / 'urdf/turtlebot3_waffle_pi.urdf').read_text()}],
              output='screen'),

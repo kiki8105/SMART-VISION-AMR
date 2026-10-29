@@ -1,0 +1,148 @@
+{
+  "elapsed": 208.75838830200064,
+  "counts": {
+    "/smart_vision_amr/motion_status": 1404,
+    "/smart_vision_amr/incident_status": 1,
+    "/cmd_vel": 4914,
+    "/smart_vision_amr/localization_health": 819,
+    "/smart_vision_amr/scan_projection_status": 985,
+    "/smart_vision_amr/planner_status": 51,
+    "/smart_vision_amr/navigation_control": 1393,
+    "/speed_limit": 1409,
+    "/smart_vision_amr/navigation_status": 166
+  },
+  "latest": {
+    "/smart_vision_amr/motion_status": {
+      "mode": "auto",
+      "available": true,
+      "reason": "Navigation control",
+      "source_id": null,
+      "estop_latched": false,
+      "auto_source_id": "nav:b86d5e57b73f4dc9a67fab54647215af",
+      "auto_rejected_reason": "",
+      "output_owner": "auto",
+      "localization_speed_factor": 1.0,
+      "autonomous_allowed": true,
+      "localization_reason": "",
+      "output_linear": 0.0,
+      "output_angular": 0.0,
+      "status_seq": 1404,
+      "sent_at_ns": 195920000000,
+      "mux_instance_id": "mux-service:2186996167b84e70bf66b0eeb5d2c37e",
+      "output_publishers": 1,
+      "stop_acknowledged": false,
+      "reset_pending": false
+    },
+    "/smart_vision_amr/incident_status": {
+      "status": "BUFFERING",
+      "message": "Waiting for incident triggers",
+      "output_directory": "~/.ros/smart_vision_amr/incidents",
+      "last_capture": null,
+      "buffer_samples": 0,
+      "buffer_bytes": 0,
+      "capturing": false
+    },
+    "/smart_vision_amr/localization_health": {
+      "level": "ok",
+      "reasons": [],
+      "metrics": {
+        "map_available": true,
+        "scan_age_seconds": 0.11172570199960319,
+        "odom_age_seconds": 0.0005934329992669518,
+        "scan_header_age_seconds": 0.109,
+        "odom_header_age_seconds": 0.003,
+        "scan_valid": true,
+        "odom_valid": true,
+        "position_std_m": 0.11871705684292636,
+        "yaw_std_rad": 0.08977171656407247,
+        "amcl_age_seconds": 24.507534594999925,
+        "moving": false,
+        "pose_jump": false,
+        "scan_map_agreement": 1.0,
+        "agreement_age_seconds": 0.0,
+        "map_tf_age_seconds": 0.003,
+        "odom_tf_valid": true,
+        "odom_last_received_age_seconds": 0.0005934329992669518,
+        "odom_raw_header_age_seconds": 0.003,
+        "odom_rejected_count": 0,
+        "odom_rejection_reason": "",
+        "odom_last_rejection_reason": "",
+        "scan_last_received_age_seconds": 0.11172570199960319,
+        "scan_raw_header_age_seconds": 0.109,
+        "scan_rejected_count": 0,
+        "scan_rejection_reason": "",
+        "scan_last_rejection_reason": ""
+      },
+      "stop_latched": false,
+      "autonomous_allowed": true,
+      "allow_localization": true,
+      "reinitialization_requested": false,
+      "stable_seconds": 92.75010963299974,
+      "stamp_ns": 195980000000,
+      "sent_at_ns": 195980000000
+    },
+    "/smart_vision_amr/scan_projection_status": {
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 195871000000,
+      "scan_age_ms": -11.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 972,
+      "dropped_scans": 6
+    },
+    "/smart_vision_amr/planner_status": {
+      "status": "IDLE",
+      "message": "Goal completed",
+      "goal": {
+        "x": -3.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 105,
+        "nanosec": 600000000
+      }
+    },
+    "/smart_vision_amr/navigation_control": {
+      "source_id": "nav:b86d5e57b73f4dc9a67fab54647215af",
+      "seq": 1393,
+      "sent_at_ns": 172300000000,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    "/speed_limit": {
+      "speed_limit": 0.0,
+      "percentage": false
+    },
+    "/smart_vision_amr/navigation_status": {
+      "status": "SUCCEEDED",
+      "message": "Nav2 status 4",
+      "goal": {
+        "x": -3.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 105,
+        "nanosec": 600000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    }
+  },
+  "invalid_navigation_sequences": 0,
+  "max_forwarded_nav_speed": 0.21999999999999997,
+  "max_cmd_speed": 0.21999999999999997,
+  "navigation_age_max": 0.02,
+  "min_positive_curve_limit": 0.08300978981636219,
+  "max_curve_limit": 0.1683096130476329,
+  "health_levels": {
+    "warning": 22,
+    "ok": 797
+  },
+  "last_odom": [
+    0.049035058663739625,
+    0.03767283728347276
+  ]
+}

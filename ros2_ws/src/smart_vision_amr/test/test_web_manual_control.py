@@ -295,7 +295,7 @@ class ManualMissionBookkeepingTests(unittest.TestCase):
             {'status': 'SUCCEEDED', 'goal_stamp': stamp},
             pose=mission.markers[2], stationary=True))
         for frame in range(5):
-            mission.observe(frame, [2], mission.markers[2], True, time.monotonic())
+            mission.observe(frame, [2], mission.markers[2], True, time.monotonic(), alignment_verified=True)
         self.assertEqual(mission.current_index, 1)
         self.assertEqual(mission.completed_ids, [1])
         self.assertEqual(mission.state, 'PAUSED')
@@ -569,6 +569,10 @@ class ManualBridgeTests(unittest.TestCase):
         self.node.count_publishers = lambda topic: 1 if topic in {
             '/smart_vision_amr/planner_status', '/smart_vision_amr/navigation_cmd_vel'} else 0
         self.node.get_publishers_info_by_topic = lambda _: []
+        self.node.get_subscriptions_info_by_topic = lambda topic: [
+            SimpleNamespace(node_name=name)
+            for name in ('astar_planner', 'path_follower')
+        ] if topic == '/smart_vision_amr/goal' else []
 
         def no_transform(*_args, **_kwargs):
             raise TransformException('No live transforms in this isolated test')

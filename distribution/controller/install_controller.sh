@@ -9,7 +9,7 @@ if [[ "${1:-}" == --help || "${1:-}" == -h ]]; then
   exit 0
 fi
 if (( $# > 1 )); then printf 'Expected at most one DEB path.\n' >&2; exit 2; fi
-CONTROLLER_DEB=${1:-$SCRIPT_DIR/../releases/turtlebot3-controller_1.1.0_all.deb}
+CONTROLLER_DEB=${1:-$SCRIPT_DIR/../releases/turtlebot3-controller_1.2.0_all.deb}
 if [[ ! -f "$CONTROLLER_DEB" ]]; then
   printf 'Controller DEB not found: %s\nBuild it with: python3 distribution/controller/build_deb.py\n' "$CONTROLLER_DEB" >&2
   exit 1

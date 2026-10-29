@@ -352,19 +352,27 @@ class MarkerMission:
         self.observation_since = None
         self.event(self.reason)
 
-    def observe(self, frame_id, ids, pose, stationary, frame_time, camera_fresh=True):
-        """Only a new, post-arrival camera frame can acknowledge the current marker."""
+    def observe(self, frame_id, ids, pose, stationary, frame_time, camera_fresh=True,
+                alignment_verified=False):
+        """A post-arrival frame needs explicit stable visual alignment proof.
+
+        The adapter verifies horizontal camera centering separately. That
+        visual yaw supersedes the nominal waypoint yaw, while fresh pose,
+        positional tolerance, stop and expected marker ID remain mandatory.
+        """
         if self.state != 'CONFIRMING' or self.observation_since is None:
             return False
         if frame_id == self.last_frame or frame_time < self.observation_since:
             return False
         self.last_frame = frame_id
         target = self.markers[self.expected_id]
-        pose_ok = pose is not None and hypot(pose['x']-target['x'], pose['y']-target['y']) <= self.pose_tolerance
-        if pose_ok:
-            delta = atan2(sin(pose['yaw']-target['yaw']), cos(pose['yaw']-target['yaw']))
-            pose_ok = abs(delta) <= self.yaw_tolerance
-        valid = camera_fresh and stationary and pose_ok and self.expected_id in ids
+        try:
+            pose_ok = (pose is not None and all(isfinite(pose[name]) for name in ('x', 'y', 'yaw'))
+                       and hypot(pose['x']-target['x'], pose['y']-target['y']) <= self.pose_tolerance)
+        except (TypeError, ValueError, KeyError):
+            pose_ok = False
+        valid = (alignment_verified is True and camera_fresh and stationary
+                 and pose_ok and self.expected_id in ids)
         self.confirmations = self.confirmations + 1 if valid else 0
         if self.confirmations >= self.required_confirmations:
             confirmed = self.expected_id

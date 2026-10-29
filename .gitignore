@@ -6,3 +6,5 @@ __pycache__/
 .pytest_cache/
 .ros/
 tmp/
+.parameter-history/
+*.yaml.bak-*

@@ -1,88 +1,123 @@
-# 실차 기본 EKF 실행과 기존 구성으로 복귀
+# 실차 EKF 설치·실행·복귀
 
-도메인 16 실차의 기본 실행은 독립 바퀴·IMU EKF입니다. Gazebo 실행은 그대로입니다. **Pi와 PC를 같은 모드로 실행**해야 합니다. 두 모드의 bringup 또는 Nav2를 동시에 켜면 `/odom`과 `odom→base_footprint`가 중복되므로, 전환할 때는 기존 터미널을 `Ctrl+C`로 종료하고 새 모드를 시작합니다.
+도메인 16 실차는 **로봇에서 바퀴·IMU EKF와 최종 속도 제어**, **PC에서 지도·AMCL·A*·Nav2·웹**을 실행합니다. 웹이나 영상 처리가 지연돼도 로봇의 명령 타임아웃 감시는 별도 프로세스에서 동작합니다. 실차 주행 정확도 개선은 아직 측정 전입니다.
 
-| 모드 | Pi의 바퀴·IMU 처리 | PC의 `/odom`·TF 소유자 |
-| --- | --- | --- |
-| 기존 `baseline` | ROBOTIS 기본 오도메트리 (`use_imu=true`, `publish_tf=true`) | Pi의 TurtleBot3 노드 |
-| `ekf_independent` | 원본 바퀴 각도는 `/joint_states`로 전달. TurtleBot3가 만든 바퀴 전용 오도메트리는 `/wheel/odom_raw`로 분리하고 TF 발행은 끔 | PC의 `robot_localization` EKF만 `/odom`과 `odom→base_footprint` 발행 |
+| 위치 | 실행 내용 |
+|---|---|
+| 로봇 | Bringup, 카메라, 바퀴 적분, IMU 바이어스 보정, EKF, 센서·위치 신뢰도 감시, 최종 `motion_mux` |
+| PC | 저장 지도, AMCL, A*·Nav2, 명령 시각 부여, 사고 기록, 웹 |
+| TF 소유자 | EKF가 `odom→base_footprint`, AMCL이 `map→odom` |
 
-독립 모드에서 PC의 `wheel_joint_odometry`는 `/joint_states`의 좌·우 바퀴 각도로 `/wheel/odom`을 만듭니다. EKF는 여기서 **전진속도와 차동구동의 측면속도 0 제약**만 취하고, IMU에서는 **z축 각속도**만 취합니다. 바퀴 회전각과 IMU 방향각을 다시 넣지 않아 같은 회전 정보를 중복 융합하지 않습니다. Pi의 기존 `/odom`은 EKF 입력으로 사용하지 않습니다.
+EKF 입력은 바퀴의 **전진속도·측면속도 0 제약**과 IMU의 **z축 각속도**입니다. 바퀴 회전각과 IMU 방향각을 함께 중복 융합하지 않습니다. ROBOTIS 기존 오도메트리는 `/wheel/odom_raw`로 분리하며 EKF 입력으로 사용하지 않습니다.
 
-## 실행
+## 1. 로봇에 처음 설치하기
 
-Pi에는 저장소의 `hardware_robot_ekf.launch.py`를 **`robot_bringup_camera_16.sh`와 같은 폴더**에 복사합니다. 기존 스크립트를 새 버전으로 교체하고, 기존 방식으로 되돌릴 `robot_bringup_camera_16_baseline.sh`와 `ros_camera_compressed.py`도 같은 곳에 둡니다. EKF launch는 Pi에 **이미 설치된** Waffle Pi YAML에서 실행 시 바퀴 전용 임시 설정을 만들므로, 로봇마다 다른 OpenCR·바퀴 설정을 저장소 값으로 덮어쓰지 않습니다. EKF 기본 실행은 카메라를 5 FPS JPEG로 제한해 Wi-Fi의 센서 데이터 전송 지연을 줄입니다. 원본 영상이 필요한 환경에서는 `CAMERA_BACKEND=v4l2`를 명시할 수 있습니다. PC에는 `robot_localization`과 빌드된 `smart_vision_amr` 패키지가 필요합니다.
+Ubuntu 22.04, ROS 2 Humble, 기존 `~/turtlebot3_ws`가 설치된 로봇 기준입니다. PC에서 SSH로 접속합니다. 주소/계정은 실제 장치에 맞게 바꾸세요.
 
 ```bash
-# PC에서 실행: Pi에 프로필 파일만 복사 (Pi 주소가 바뀌었다면 수정)
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
-scp scripts/robot_bringup_camera_16.sh scripts/robot_bringup_camera_16_baseline.sh \
-  scripts/robot_bringup_camera_16_ekf.sh \
-  scripts/ros_camera_compressed.py \
-  ros2_ws/src/smart_vision_amr/launch/hardware_robot_ekf.launch.py \
-  robot@192.168.0.187:/home/robot/
-ssh robot@192.168.0.187 \
-  'chmod +x /home/robot/robot_bringup_camera_16.sh /home/robot/robot_bringup_camera_16_baseline.sh /home/robot/robot_bringup_camera_16_ekf.sh'
-
-# PC에서 새 노드와 launch 파일 빌드
-cd /home/kiki/Team2_workspace
-colcon build --packages-select smart_vision_amr --symlink-install
+ssh robot@192.168.0.187
 ```
 
-```bash
-# Pi 터미널: 기존 bringup을 먼저 Ctrl+C로 종료
-~/robot_bringup_camera_16.sh
+접속한 **로봇 터미널**에서:
 
-# PC 터미널: 기존 Nav2를 먼저 Ctrl+C로 종료
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
+```bash
+cd ~
+git clone https://github.com/kiki8105/SMART-VISION-AMR.git
+cd ~/SMART-VISION-AMR
+./scripts/setup_robot_runtime.sh
+```
+
+이미 클론했다면 `git clone` 대신 해당 폴더에서 `git pull --ff-only`를 실행합니다. 설치 스크립트는 `~/smart_vision_runtime_ws`에 로봇용 패키지만 빌드하며 기존 TurtleBot3 작업공간은 유지합니다. 설치만 하고 로봇이나 카메라를 켜지는 않습니다.
+
+## 2. 터미널별 실행
+
+전환 전 기존 Bringup·카메라·Nav2를 각 실행 터미널에서 `Ctrl+C`로 종료합니다. 저장 지도 주행에서는 SLAM/Cartographer도 종료합니다.
+
+**터미널 1 — 로봇 SSH: Bringup·카메라·EKF·제어**
+
+```bash
+cd ~/SMART-VISION-AMR
+ENABLE_FRONT_CAMERA=true ./scripts/robot_bringup_camera_16.sh
+```
+
+강의실 Sector 1~3은 전방 카메라로 마커를 확인하므로 위 명령은 전방을 활성화합니다. 스크립트 자체의 기본 전방 설정은 꺼짐입니다. 전방이 없는 장치는 마커 설정의 카메라 지정도 실제 장치에 맞춰야 합니다. 기본 후방 장치는 고정 `by-id` 경로의 웹캠이며 320×240 JPEG, 최대 5 FPS로 전송합니다. 다른 웹캠은 `CAMERA_DEVICE=/dev/v4l/by-id/실제장치`로 지정합니다. LiDAR 종류가 기본 `LDS-03`과 다르면 `LDS_MODEL=LDS-02 ./scripts/robot_bringup_camera_16.sh`처럼 실제 모델을 지정합니다. 새 로봇은 카메라 장치와 LiDAR 모델을 먼저 확인하세요.
+
+**터미널 2 — PC: 저장 지도·AMCL·A*·Nav2**
+
+PC 설치·빌드는 [README](../README.md)를 먼저 따릅니다.
+
+```bash
+cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/run_classroom_navigation_16.sh
 ```
 
-위의 기존 이름 두 스크립트가 이제 EKF 기본 실행입니다. 이전의 `*_ekf.sh` 파일도 동일한 EKF 모드를 명시적으로 실행하는 용도로 남겨 둡니다. 실차 EKF는 반드시 PC 실행 스크립트로 시작합니다. `ros2 launch smart_vision_amr hardware.launch.py localization_mode:=ekf_independent`를 직접 실행하면 Pi 모드·중복 발행자·센서 타임스탬프 사전 검사를 건너뛰므로 실차 운용에는 지원하지 않습니다.
-
-웹 관제와 조종의 `motion_mux`도 실행되어 있어야 합니다. 기존 웹 서비스가 꺼져 있다면 별도 PC 터미널에서 `./scripts/run_classroom_web_16.sh`를 시작합니다. EKF 모드를 켜면 안전 감시가 **시작 직후 비상정지를 걸어 둡니다.** 로봇을 정지 상태로 유지하고 센서 흐름과 AMCL 위치를 확인한 뒤, `/wheel/odom`, `/imu/ekf`, `/scan`이 2초 이상 연속 정상일 때 웹에서 **비상정지 해제**를 누릅니다. 그 후 **임무 시작/재개**를 별도로 누릅니다. 센서가 정상이라는 이유만으로 자동 출발하지 않습니다.
-
-PC 스크립트는 시작할 때 ROS daemon 캐시 대신 실제 DDS 발행자를 조회합니다. `/wheel/odom_raw`, `/joint_states`, `/imu`, `/scan` 발행자가 **각각 정확히 한 개**이고, 아직 `/odom` 발행자가 없어야 EKF를 켭니다. 세 센서의 **실제 메시지**도 각각 받아 타임스탬프가 PC 시각보다 1초 넘게 오래되거나 0.25초 넘게 미래가 아닌지 확인합니다. 이 검사는 서로 다른 모드의 Pi·PC 실행과 시각 불일치를 막습니다. 출발 전에 `/imu/ekf`, `/wheel/odom`, `/odom`과 두 TF(`odom→base_footprint`, `map→odom`)의 갱신을 확인합니다. EKF를 켠 경우 `/odom` 발행자는 **하나**여야 합니다. AMCL의 초기 위치는 실제 로봇 위치와 지도의 홈이 일치할 때만 입력합니다. 이 확인이 끝나기 전에는 임무를 시작하지 않습니다.
-
-Pi와 PC의 시스템 시각도 맞아야 합니다. 이번 모드의 바퀴·IMU 타임스탬프 검사는 PC 시각과 비교하므로 두 장치의 시계가 어긋나면 새 데이터도 오래되거나 미래의 데이터로 판단될 수 있습니다. 두 장치에서 `date -u`를 비교하고 시각 동기화를 확인합니다.
-
-Pi를 재부팅하거나 bringup을 다시 켠 경우, PC의 EKF/Nav2도 종료하고 다시 시작합니다. 바퀴 각도의 적분 기준과 `odom`의 연속성이 재부팅 전후로 달라질 수 있기 때문입니다. 재시작 뒤 실제 로봇 위치에서 AMCL 초기 위치도 다시 설정합니다.
+**터미널 3 — PC: 웹**
 
 ```bash
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+./scripts/run_classroom_web_16.sh
+```
+
+이미 상시 웹 서비스가 켜졌다면 터미널 3을 중복 실행하지 않습니다. PC는 `http://127.0.0.1:8790/`, 같은 Wi-Fi의 다른 기기는 `http://PC의_IP:8790/`에 접속합니다. 기본 구성에서 PC의 Nav2·웹은 `/cmd_vel`을 직접 발행하지 않으며 로봇의 `motion_mux`가 유일한 최종 발행자입니다.
+
+## 3. 출발 전 초기화
+
+1. 로봇을 최소 2초 정지시켜 IMU 바이어스 측정을 마칩니다. `/imu/ekf`가 나와야 합니다.
+2. 웹에서 **비상정지 해제**를 누릅니다. 로컬 센서·EKF 출력이 안정적이어야 해제됩니다. 자동 출발하지 않습니다.
+3. 실제 등록 홈 위치·방향이 맞으면 **자세 초기화**를 실행합니다. 홈이 아니면 지도에서 실제 위치를 지정합니다.
+4. 위치 신뢰도가 준비된 뒤 물품 적재를 확인하고 **임무 시작/재개**를 누릅니다.
+
+부팅 직후 지도·AMCL이 없을 때는 `초기화 중` 경고로 표시하며 자동주행을 차단합니다. 최신 LiDAR·odom·odom TF가 있으면 명시적인 저속 위치 확인 회전은 허용합니다. 이미 위치를 잡은 뒤 신뢰도를 잃으면 비상정지를 잠급니다. 다시 위치를 잡아야 한다면 **초기 위치 지정 → 로컬 센서 안정 확인 → 비상정지 해제 → 위치 확인 회전** 순서로 진행합니다. 초기 위치 지정만으로 비상정지가 풀리지 않습니다.
+
+비상정지 때문에 자세 초기화 버튼을 누를 수 없다면 **비상정지 해제 창 → 실제 등록 홈 위치·방향 확인란 → 등록 홈 초기 위치만 입력**을 사용합니다. 최신 센서·정지 상태·저장 지도·등록 홈에서의 LiDAR 일치 검사를 통과해야 하며, 이 버튼은 회전·목표 전송·비상정지 해제를 하지 않습니다. 센서가 안정된 뒤 같은 창에서 해제하고 자세 초기화를 실행하세요. 실제 홈이 아니라면 지도 조종기에서 현재 위치를 지정해야 합니다.
+
+## 확인 명령
+
+PC의 별도 터미널에서 아래 명령을 **한 개씩** 실행합니다. 계속 출력되는 명령은 `Ctrl+C`로 마칩니다.
+
+```bash
+source /opt/ros/humble/setup.bash
+source ~/Team2_workspace/install/local_setup.bash
 export ROS_DOMAIN_ID=16 ROS_LOCALHOST_ONLY=0
+
 ros2 topic info /odom -v
-ros2 topic hz /joint_states
-ros2 topic hz /imu
 ros2 topic hz /imu/ekf
 ros2 topic hz /wheel/odom
 ros2 topic hz /odom
-ros2 run tf2_ros tf2_echo odom base_footprint
 ros2 run tf2_ros tf2_echo map base_footprint
+ros2 topic echo /smart_vision_amr/localization_health --once
 ```
 
-## 오차 누적의 한계와 대응
+`/odom` 발행자는 EKF 하나, `/cmd_vel` 발행자는 로봇 mux 하나여야 합니다. PC 사전 검사는 실제 DDS 발행자와 메시지 시각을 확인합니다. 로봇 실행을 다시 켰다면 PC Nav2도 재시작하고 실제 위치에 맞게 초기화합니다. 두 장치의 시계가 어긋나면 정상 센서도 오래된 데이터로 판정하므로 시간 동기화를 확인합니다.
 
-바퀴와 IMU만으로는 **절대 위치를 복원할 수 없습니다.** 바퀴 미끄럼과 IMU 바이어스가 생기면 EKF의 `odom` 기준 위치도 시간이 지나며 누적 오차가 납니다. 지도와 LiDAR를 비교하는 AMCL이 별도의 `map→odom`을 갱신하여 **지도 기준 위치**를 보정합니다. 따라서 지도·LiDAR·AMCL이 끊기면 자동으로 정확한 위치가 유지된다고 보장할 수 없습니다.
+## 오차 누적과 설정
 
-이번 모드에는 누적 오차를 *줄이기 위한* 장치를 넣었습니다. 출발 전 바퀴가 정지한 상태에서 IMU 각속도 25개 이상을 2초 이상 모아 바이어스를 추정하고, 이후에도 바퀴가 정지했다고 판단될 때만 천천히 바이어스를 갱신합니다. 비정상적으로 큰 각속도, 시간상 오래된 바퀴 측정값, 바퀴 각도의 갑작스러운 점프는 입력에서 제외합니다. EKF는 센서 타임아웃과 이상치 거부 설정을 사용합니다. 실제 출발 전에는 `/imu/ekf`가 발행되도록 로봇을 최소 2초 이상 정지시켜 두고, 지도 기준 위치가 맞는지 확인합니다.
+바퀴·IMU만으로 절대 위치를 복원할 수 없습니다. AMCL이 저장 지도·LiDAR를 대조해 지도 기준 누적 오차를 보정합니다. `ekf_sensor_guard`는 입력 세 흐름뿐 아니라 **실제 `/odom` 출력과 `odom→base` TF, 수치·공분산**도 감시합니다. `localization_health`는 AMCL 불확실성·odom 대비 위치 점프·측정 시각 TF로 투영한 LiDAR와 지도 일치도를 감시합니다. 정지 중 AMCL 메시지가 뜸한 것은 정상으로 취급합니다.
 
-EKF 모드 전용 `ekf_sensor_guard`는 `/wheel/odom`, `/imu/ekf`, `/scan`의 **도착 시각과 메시지 시각**을 확인합니다. 시작 직후에도 정지 상태를 잠그며, 정상 입력이 2초간 이어지고 운용자가 웹에서 명시적으로 해제해야 주행이 가능합니다. 시작 후 하나라도 1초 이상 끊기면 웹 조종보다 우선하는 비상정지를 다시 겁니다. 센서가 회복되어도 자동 해제·출발하지 않습니다. 세 흐름이 다시 2초 이상 안정적일 때 웹에서 **비상정지 해제**를 누르고 임무를 별도로 재개합니다. 안전 감시는 웹의 해제 요청을 직접 확인하므로 웹이나 조종 노드의 재시작만으로 정지 잠금이 풀리지 않습니다. 감시 노드의 비상정지 메시지는 웹이 소유한 `motion_mux`로 전달됩니다. 이 감시는 센서 단절에 대한 정지 장치이지, 살아 있지만 잘못된 센서 측정이나 바퀴 미끄럼으로 생기는 위치 오차를 제거하는 장치는 아닙니다.
+- EKF·전처리·감시 설정: `ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml`
+- 위치 신뢰도 설정: `ros2_ws/src/smart_vision_amr/config/localization_health.yaml`
+- 실제 바퀴 치수는 로봇에 설치된 ROBOTIS YAML에서 읽습니다. 반복된 `/**` 블록도 보존하며 모호한 설정은 거부합니다.
+- 바퀴 치수·센서 오차 후보 추출: `python3 scripts/calibrate_wheel_imu_reference.py --help`
+- 동일 경로 반복 기록: [주행 비교 도구](NAVIGATION_BENCHMARK.md)
 
-EKF, 바퀴 오도메트리, IMU 보정기 또는 안전 감시 노드가 비정상 종료되면 실차 EKF용 PC launch 전체를 종료하도록 구성합니다. 원인을 확인하고 새로 실행한 뒤에도 시작 단계의 비상정지 해제 절차를 다시 밟습니다.
+교정한 치수를 시험할 때는 robot runtime launch의 `wheel_radius:=0.033`과 `wheel_separation:=0.287` 인자로 명시적으로 덮어쓸 수 있습니다. 숫자는 예시이며 실측값으로 바꾸세요. 비워두면 설치된 ROBOTIS 치수를 사용합니다. 기존 vendor YAML을 수정할 필요는 없습니다.
 
-## 기존 구성으로 복귀
+현재 공분산·임계값은 초기 설정입니다. 실차 측정을 완료한 값으로 간주하면 안 됩니다. 필터·감시·최종 mux 노드가 종료되면 로봇 runtime 전체를 종료합니다. PC 명령이 끊기면 로봇 mux가 오래된 명령을 버리고 정지합니다.
 
-Pi와 PC의 EKF 실행 터미널을 각각 `Ctrl+C`로 종료한 다음, **`_baseline.sh` 스크립트**를 실행합니다. 설치된 ROBOTIS YAML을 변경하지 않았으므로 파일 복원 작업은 없습니다.
+## 기존 오도메트리로 복귀
+
+Pi·PC 실행을 종료한 뒤 양쪽에서 baseline을 선택합니다. 로봇의 별도 최종 mux·신뢰도 감시는 유지하며 EKF 융합만 끕니다.
 
 ```bash
-# Pi 터미널
-~/robot_bringup_camera_16_baseline.sh
+# 로봇 터미널
+cd ~/SMART-VISION-AMR
+ENABLE_FRONT_CAMERA=true CAMERA_BACKEND=rate_limited ./scripts/robot_bringup_camera_16_baseline.sh
+```
 
+```bash
 # PC 터미널
-cd /home/kiki/Team2_workspace/src/SMART-VISION-AMR
+cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/run_classroom_navigation_16_baseline.sh
 ```
 
-EKF 안전 감시가 웹 `motion_mux`에 비상정지를 잠가 둔 상태일 수 있습니다. EKF 감시 노드가 종료된 뒤 기본 모드의 센서·TF가 정상인지 확인하고, 웹에서 **비상정지 해제**와 **임무 재개**를 명시적으로 실행합니다. 안전 감시가 아직 실행 중일 때는 해제하지 않습니다.
-
-Gazebo에서 독립 EKF가 동작한 것은 확인했지만 이 실차 모드의 주행 정확도는 아직 측정하지 않았습니다. 동일한 실차 경로에서 기본 모드와 EKF 모드의 도착 오차, 추정 위치 끊김, TF 지연을 기록한 후 성능을 판단해야 합니다.
+로봇 runtime 설치 전의 **PC 처리 구조**까지 되돌리는 경우에는 Pi·PC 양쪽의 해당 명령 앞에 `SMART_VISION_ESTIMATION_LOCATION=pc`를 붙입니다. PC 웹에도 같은 변수를 붙여야 웹이 mux를 소유합니다. 예를 들어 Pi는 `SMART_VISION_ESTIMATION_LOCATION=pc ./scripts/robot_bringup_camera_16_baseline.sh`, PC는 같은 변수로 navigation/web baseline을 실행합니다. 다른 배치 방식의 mux를 동시에 켜지 않습니다.

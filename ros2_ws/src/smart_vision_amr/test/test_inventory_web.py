@@ -114,7 +114,7 @@ class InventoryWebTests(unittest.TestCase):
             'sec': stamp[0], 'nanosec': stamp[1]}})
         frame_time = time.monotonic()+.01
         for frame in range(mission.required_confirmations):
-            mission.observe(frame+(stamp[1]*10), [marker_id], pose, True, frame_time)
+            mission.observe(frame+(stamp[1]*10), [marker_id], pose, True, frame_time, alignment_verified=True)
             self.app.sync_delivery()
 
     def verified_home(self, stamp=(20, 0)):
@@ -605,7 +605,7 @@ class InventoryWebTests(unittest.TestCase):
         mission = self.app.mission
         pose = {key: mission.markers[2][key] for key in ('x', 'y', 'yaw')}
         for frame in range(5):
-            mission.observe(frame, [2], pose, True, time.monotonic()+1.)
+            mission.observe(frame, [2], pose, True, time.monotonic()+1., alignment_verified=True)
         self.app.sync_delivery()
         self.assertEqual(self.records()[0]['status'], 'IN_PROGRESS')
         mission.goal_dispatched((40, 1))
@@ -620,11 +620,11 @@ class InventoryWebTests(unittest.TestCase):
                 (11, 3, pose, True, time.monotonic()+1.),
                 (12, 2, pose, False, time.monotonic()+1.),
                 (13, 2, dict(pose, x=100.), True, time.monotonic()+1.)):
-            mission.observe(frame, [marker], where, stationary, captured)
+            mission.observe(frame, [marker], where, stationary, captured, alignment_verified=True)
             self.app.sync_delivery()
             self.assertEqual(self.records()[0]['status'], 'IN_PROGRESS')
         for frame in (20, 21, 22):
-            mission.observe(frame, [2], pose, True, time.monotonic()+1.)
+            mission.observe(frame, [2], pose, True, time.monotonic()+1., alignment_verified=True)
             self.app.sync_delivery()
         self.assertEqual(self.records()[0]['status'], 'DELIVERED')
         self.assertEqual(mission.state, 'RETURNING_HOME')
@@ -683,7 +683,12 @@ class InventoryWebTests(unittest.TestCase):
         self.assertEqual(self.app.mission.state, 'ESTOP')
         self.assertFalse(self.app.delivery.snapshot()['accepting_updates'])
         self.assertFalse(any(kind == 'goal' for kind, _ in self.app.mission.commands))
-        self.request('POST', '/api/emergency-stop', {'reset': True}, self.operator)
+        self.app.manual_mux_at = time.monotonic()
+        self.app.manual_mux_status = {'estop_latched': True, 'stop_acknowledged': True}
+        status, _, _ = self.request('POST', '/api/emergency-stop', {'reset': True}, self.operator)
+        self.assertEqual(status, 200)
+        self.assertEqual(self.app.mission.state, 'ESTOP')
+        self.app.complete_safety_result('reset', True, 'Robot safety reset acknowledged')
         self.app.sync_delivery()
         self.assertEqual(self.app.mission.state, 'CANCELED')
         self.assertFalse(any(kind == 'goal' for kind, _ in self.app.mission.commands))

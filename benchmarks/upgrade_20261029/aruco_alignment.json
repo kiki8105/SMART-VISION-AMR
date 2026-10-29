@@ -1,0 +1,82 @@
+{
+  "result": "PASS",
+  "checks": {
+    "navigation_succeeded": true,
+    "searching": true,
+    "centering": true,
+    "settling": true,
+    "confirmed": true,
+    "target_0_recorded_complete": true,
+    "zero_linear_during_alignment": true,
+    "alignment_yaw_within_0_15": true,
+    "confirmed_image_center_within_tolerance": true,
+    "final_zero_command": true
+  },
+  "phases": [
+    "IDLE",
+    "SEARCHING",
+    "CENTERING",
+    "SETTLING",
+    "CONFIRMED"
+  ],
+  "terminal_state": "HOME_REACHED",
+  "terminal_classification_note": "Existing web mission API always sets auto_return_home=True. The route target completed, then naturally finished HOME_REACHED rather than the test harness originally assumed COMPLETED.",
+  "intentional_idle_seconds": 6.0,
+  "initial_pose": {
+    "x": -3.0010653257698707,
+    "y": -2.0012070960552997,
+    "yaw": 0.40075233259717125
+  },
+  "initial_amcl_wall_age": 8.972231327999907,
+  "initial_amcl_motion_budget": 0.0,
+  "first_confirmed_alignment": {
+    "state": "CONFIRMED",
+    "reason": "목표 마커의 가로 중앙 정렬과 정지·연속 영상 확인을 완료했습니다.",
+    "marker_id": 0,
+    "camera": "rear",
+    "center_error": 0.06406249999999991,
+    "center_tolerance": 0.08,
+    "frames": 5,
+    "required_frames": 3,
+    "linear": 0.0,
+    "angular": 0.0,
+    "rotation_degrees": 137.09860713540996,
+    "max_seconds": 45.0,
+    "elapsed": 21.800241081000422,
+    "required": 3
+  },
+  "max_commanded_angular_during_alignment": 0.15,
+  "max_commanded_linear_during_alignment": 0.0,
+  "quality_levels": [
+    "ok"
+  ],
+  "actual_odom_angular_max": 0.2567173660940784,
+  "image_evidence": {
+    "initial": {
+      "path": "evidence/aruco_alignment185_initial.jpg",
+      "bytes": 17666,
+      "sha256": "910a903bbee80c477300a9bc94524dfb4bba82d89053b11c3838643f55745cde"
+    },
+    "confirmed": {
+      "path": "evidence/aruco_alignment185_confirmed.jpg",
+      "bytes": 18451,
+      "sha256": "44cf6a666f9dc0afe43b3aec155f4f02ec421f87eb774c934ded7762e572386e"
+    }
+  },
+  "actual_odom_angular_max_during_alignment": 0.2567173660940784,
+  "alignment_sample_window": [
+    15.193608299001426,
+    37.36124512200149
+  ],
+  "initial_harness_note": "Mission did not complete before deadline",
+  "actual_odom_peak_context": "Peak0.2567rad/s occurred in SEARCHING at sweep reversal (t24.198s, command-0.12rad/s), before visual centering or HOME navigation. The0.15rad/s bound is a command bound, not a guaranteed physical or EKF-estimated bound.",
+  "verifier_log": "/tmp/aruco_alignment185_verifier.log",
+  "cleanup_process_groups": [
+    69743,
+    69744
+  ],
+  "cleanup_complete": true,
+  "isolated_web_closed": true,
+  "source_changes_during_runtime_validation": false,
+  "raw_local_trace_note": "5.4MB local raw trace retained on test host; condensed checks and actual images distributed here."
+}

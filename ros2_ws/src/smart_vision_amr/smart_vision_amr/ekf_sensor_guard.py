@@ -9,6 +9,7 @@ data alone never resets the mux.
 """
 
 import json
+import math
 import time
 
 import rclpy
@@ -20,6 +21,7 @@ from rclpy.qos import (DurabilityPolicy, QoSProfile, ReliabilityPolicy,
                        qos_profile_sensor_data)
 from sensor_msgs.msg import Imu, LaserScan
 from std_msgs.msg import String
+from tf2_ros import Buffer, TransformException, TransformListener
 
 from smart_vision_amr.sensor_stamp_guard import SensorStampGuard
 
@@ -38,8 +40,42 @@ def publisher_issues(get_publishers, expected_publishers):
     return issues
 
 
+def odometry_issues(message, *, max_position_variance=0.0,
+                    max_yaw_variance=0.0, max_linear_velocity_variance=0.25,
+                    max_angular_velocity_variance=1.0, base_frame='base_footprint'):
+    """Validate the filter's actual output, not merely its ROS publisher."""
+    pose, twist = message.pose.pose, message.twist.twist
+    q = pose.orientation
+    values = (pose.position.x, pose.position.y, pose.position.z,
+              q.x, q.y, q.z, q.w, twist.linear.x, twist.linear.y,
+              twist.linear.z, twist.angular.x, twist.angular.y, twist.angular.z)
+    if not all(math.isfinite(value) for value in values):
+        return ['nonfinite odometry value']
+    if not 0.95 <= sum(value*value for value in (q.x, q.y, q.z, q.w)) <= 1.05:
+        return ['invalid odometry quaternion']
+    if message.header.frame_id != 'odom' or message.child_frame_id != base_frame:
+        return ['unexpected odometry frames']
+    for covariance in (message.pose.covariance, message.twist.covariance):
+        if (not all(math.isfinite(value) for value in covariance)
+                or any(covariance[index] < 0.0 for index in (0, 7, 35))):
+            return ['invalid odometry covariance']
+    # Local absolute x/y/yaw are unobservable from velocity + gyro alone:
+    # their covariance legitimately grows even while AMCL keeps map pose
+    # accurate. Only opt into a local-pose magnitude limit explicitly.
+    if (max_position_variance > 0.0 and
+            max(message.pose.covariance[0], message.pose.covariance[7]) > max_position_variance):
+        return ['odometry position covariance too large']
+    if max_yaw_variance > 0.0 and message.pose.covariance[35] > max_yaw_variance:
+        return ['odometry yaw covariance too large']
+    if max(message.twist.covariance[0], message.twist.covariance[7]) > max_linear_velocity_variance:
+        return ['odometry linear velocity covariance too large']
+    if message.twist.covariance[35] > max_angular_velocity_variance:
+        return ['odometry angular velocity covariance too large']
+    return []
+
+
 class EkfSensorGuardCore:
-    REQUIRED = ('wheel', 'imu', 'scan')
+    REQUIRED = ('wheel', 'imu', 'scan', 'odom', 'odom_tf')
 
     def __init__(self, arm_seconds=2.0, stale_seconds=1.0,
                  max_header_age_seconds=1.0, future_tolerance_seconds=0.25):
@@ -51,6 +87,7 @@ class EkfSensorGuardCore:
                                              future_tolerance_seconds)
                        for name in self.REQUIRED}
         self.last_seen = {name: None for name in self.REQUIRED}
+        self.value_issues = {}
         self.graph_issues = ['ROS publisher graph not yet checked']
         self.graph_checked_at = None
         self.healthy_since = None
@@ -64,10 +101,16 @@ class EkfSensorGuardCore:
         if not self.stamps[name].accept(stamp_ns, wall_ns):
             return False
         self.last_seen[name] = monotonic_seconds
+        self.value_issues.pop(name, None)
         return True
 
+    def reject(self, name, issues):
+        self.last_seen[name] = None
+        self.value_issues[name] = ', '.join(issues)
+
     def missing(self, monotonic_seconds):
-        missing = [name for name in self.REQUIRED
+        missing = [f'{name}: {self.value_issues[name]}' if name in self.value_issues else name
+                   for name in self.REQUIRED
                    if self.last_seen[name] is None or
                    monotonic_seconds - self.last_seen[name] >= self.stale_seconds]
         if (self.graph_checked_at is None or
@@ -132,6 +175,14 @@ class EkfSensorGuard(Node):
         super().__init__('ekf_sensor_guard')
         self.declare_parameter('arm_seconds', 2.0)
         self.declare_parameter('stale_seconds', 1.0)
+        self.declare_parameter('max_position_variance', 0.0)
+        self.declare_parameter('max_yaw_variance', 0.0)
+        self.declare_parameter('max_linear_velocity_variance', 0.25)
+        self.declare_parameter('max_angular_velocity_variance', 1.0)
+        self.declare_parameter('base_frame', 'base_footprint')
+        self.base_frame = str(self.get_parameter('base_frame').value)
+        self.tf_buffer = Buffer(node=self)
+        self.tf_listener = TransformListener(self.tf_buffer, self)
         self.core = EkfSensorGuardCore(
             arm_seconds=float(self.get_parameter('arm_seconds').value),
             stale_seconds=float(self.get_parameter('stale_seconds').value))
@@ -152,6 +203,8 @@ class EkfSensorGuard(Node):
         self.create_subscription(LaserScan, '/scan',
                                  lambda msg: self.on_sensor('scan', msg),
                                  qos_profile_sensor_data)
+        self.create_subscription(Odometry, '/odom', self.on_odom,
+                                 qos_profile_sensor_data)
         durable = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                              durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.create_subscription(String, '/smart_vision_amr/motion_status',
@@ -162,7 +215,7 @@ class EkfSensorGuard(Node):
                           clock=Clock(clock_type=ClockType.STEADY_TIME))
         self._publish_estop(time.monotonic())
         self.get_logger().warning(
-            'EKF motion held until wheel, IMU, LiDAR, and sole EKF /odom '
+            'EKF motion held until wheel, IMU, LiDAR, /odom output, odom TF and sole EKF /odom '
             'publisher are healthy for 2 s and the operator explicitly resets')
 
     def on_sensor(self, name, message):
@@ -171,11 +224,40 @@ class EkfSensorGuard(Node):
         self.core.observe(name, stamp_ns, self.get_clock().now().nanoseconds,
                           time.monotonic())
 
+    def on_odom(self, message):
+        issues = odometry_issues(
+            message, base_frame=self.base_frame,
+            max_position_variance=float(self.get_parameter('max_position_variance').value),
+            max_yaw_variance=float(self.get_parameter('max_yaw_variance').value),
+            max_linear_velocity_variance=float(self.get_parameter('max_linear_velocity_variance').value),
+            max_angular_velocity_variance=float(self.get_parameter('max_angular_velocity_variance').value))
+        if issues:
+            self.core.reject('odom', issues)
+        else:
+            self.on_sensor('odom', message)
+
+    def update_tf(self, now):
+        try:
+            transform = self.tf_buffer.lookup_transform(
+                'odom', self.base_frame, rclpy.time.Time())
+            t, q = transform.transform.translation, transform.transform.rotation
+            values = (t.x, t.y, t.z, q.x, q.y, q.z, q.w)
+            if (not all(math.isfinite(value) for value in values)
+                    or not 0.95 <= sum(value*value for value in (q.x, q.y, q.z, q.w)) <= 1.05):
+                self.core.reject('odom_tf', ['invalid TF values'])
+                return
+            stamp = transform.header.stamp
+            self.core.observe('odom_tf', stamp.sec*1_000_000_000+stamp.nanosec,
+                              self.get_clock().now().nanoseconds, now)
+        except TransformException:
+            self.core.reject('odom_tf', ['odom to base TF unavailable'])
+
     def on_tick(self):
         now = time.monotonic()
         if (self.last_owner_check_at is None or
                 now - self.last_owner_check_at >= 0.5):
             self.last_owner_check_at = now
+            self.update_tf(now)
             try:
                 issues = publisher_issues(self.get_publishers_info_by_topic,
                                           self.EXPECTED_PUBLISHERS)
@@ -220,7 +302,8 @@ class EkfSensorGuard(Node):
         stamp_ns = payload.get('sent_at_ns')
         now_ns = self.get_clock().now().nanoseconds
         if (not isinstance(source, str) or not source or
-                source in ('ekf_sensor_safety', 'path_follower_recovery_safety') or
+                source in ('ekf_sensor_safety', 'path_follower_recovery_safety',
+                           'localization_safety') or
                 type(seq) is not int or seq <= self.last_reset_seq.get(source, -1) or
                 type(stamp_ns) is not int or abs(now_ns - stamp_ns) > 1_000_000_000):
             return

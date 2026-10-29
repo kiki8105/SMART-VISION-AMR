@@ -13,11 +13,33 @@
     start_egress_clearance_margin: 0.02
     # Max initial recovery length: 7 cells = 0.35 m on this map.
     start_egress_max_cells: 7
+    # Round corners only if every segment remains clear of inflated/unknown cells.
+    path_smoothing_enabled: true
+    path_smoothing_iterations: 2
+    path_smoothing_shortcut_distance: 0.80  # m; larger values anticipate wider corners.
+    path_resample_spacing: 0.05  # m between tracking poses at most.
 /path_follower:
   ros__parameters:
     action_name: /follow_path
     controller_id: FollowPath
     goal_checker_id: general_goal_checker
+    # Await the terminal action result, retry cancel, then latch stop if unresolved.
+    follow_request_timeout: 5.0
+    follow_feedback_timeout: 5.0
+    follow_cancel_timeout: 3.0
+    follow_cancel_retry_period: 0.5
+    # These are upper bounds; Nav2 retains its lower configured speed limits.
+    curve_speed_limit_enabled: true
+    curve_speed_limit_topic: /speed_limit
+    curve_preview_distance: 0.75  # m ahead along the path.
+    curve_base_frame: base_footprint
+    curve_pose_timeout: 1.0  # s; stale pose keeps the conservative whole-route cap.
+    curve_minimum_chord: 0.15  # m; avoids curvature spikes from dense tracking poses.
+    curve_alignment_angle: 0.65  # rad; restore Nav2 angular range for in-place alignment.
+    curve_goal_heading_distance: 0.30  # m; do not restrict final yaw alignment.
+    curve_max_linear_velocity: 0.25  # m/s
+    curve_max_angular_velocity: 0.35  # rad/s
+    curve_max_lateral_acceleration: 0.10  # m/s^2
 /change_memory:
   ros__parameters:
     map_topic: /map
@@ -31,3 +53,8 @@
     clear_min_duration_sec: 2.0
     min_observation_interval_sec: 0.25
     save_every_scans: 5
+    # Wait briefly for TF at the laser measurement stamp; never use latest TF.
+    scan_tf_wait_sec: 0.20
+    scan_tf_queue_size: 5
+    scan_tf_stamp_tolerance_sec: 0.02
+    scan_future_tolerance_sec: 0.15

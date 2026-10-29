@@ -17,6 +17,7 @@ done
 APT_PACKAGES=(build-essential cmake python3-colcon-common-extensions gazebo
   ros-humble-gazebo-ros-pkgs ros-humble-nav2-bringup ros-humble-xacro
   ros-humble-slam-toolbox ros-humble-robot-localization
+  ros-humble-compressed-image-transport
   ros-humble-robot-state-publisher ros-humble-rviz2
   python3-pyqt5 python3-numpy python3-yaml python3-pil python3-opencv)
 if "$INSTALL_DEPS"; then
@@ -35,7 +36,7 @@ else
     if ! command -v "$tool" >/dev/null; then printf 'Missing executable: %s\n' "$tool" >&2; missing=true; fi
   done
   for package in ament_cmake ament_package gazebo_ros gazebo_plugins nav2_bringup \
-    xacro robot_state_publisher rviz2 slam_toolbox robot_localization; do
+    xacro robot_state_publisher rviz2 slam_toolbox robot_localization compressed_image_transport; do
     if ! ros2 pkg prefix "$package" >/dev/null 2>&1; then
       printf 'Missing ROS package: %s\n' "$package" >&2; missing=true
     fi

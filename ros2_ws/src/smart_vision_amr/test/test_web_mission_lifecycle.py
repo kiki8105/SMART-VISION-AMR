@@ -61,6 +61,8 @@ class MissionLifecycleTests(unittest.TestCase):
         self.goals, self.stops = Publisher(), Publisher()
         self.cancel = ControlledCancelClient()
         self.node.goal_pub, self.node.motion_pub, self.node.cancel_client = self.goals, self.stops, self.cancel
+        self.estop_service, self.reset_service = ControlledCancelClient(), ControlledCancelClient()
+        self.node.estop_client, self.node.reset_client = self.estop_service, self.reset_service
 
     def tearDown(self):
         self.node.destroy_node()
@@ -130,6 +132,7 @@ class MissionLifecycleTests(unittest.TestCase):
         self.publish_first()
         message = String()
         message.data = json.dumps({'mode': 'estop', 'estop_latched': True,
+                                   'stop_acknowledged': True,
                                    'reason': 'Reverse recovery safety stop',
                                    'source_id': self.node.motion_source})
         self.node.on_motion(message)
@@ -139,7 +142,12 @@ class MissionLifecycleTests(unittest.TestCase):
         self.assertEqual(json.loads(self.stops.messages[-1].data)['mode'], 'estop')
         self.app.command('/api/emergency-stop', {'reset': True})
         self.tick()
-        self.assertEqual(json.loads(self.stops.messages[-1].data)['mode'], 'reset')
+        self.assertEqual(self.reset_service.requests, 1)
+        self.assertEqual(self.app.mission.state, 'ESTOP')
+        self.assertFalse(any(json.loads(item.data)['mode'] == 'reset'
+                             for item in self.stops.messages))
+        self.reset_service.ack()
+        self.tick()
         self.assertEqual(self.app.mission.state, 'CANCELED')
 
     def test_connection_change_rejected_until_cancel_ack(self):
@@ -159,6 +167,39 @@ class MissionLifecycleTests(unittest.TestCase):
         self.app.mission.commands.clear()
         self.app.command('/api/connection', {'domain_id': 216})
         self.assertEqual(self.app.pending_connection, (216, False))
+
+    def test_new_stop_preempts_reset_and_reset_never_emits_raw_control(self):
+        self.app.command('/api/emergency-stop', {})
+        self.app.manual_mux_at = time.monotonic()
+        self.app.manual_mux_status = {'estop_latched': True, 'stop_acknowledged': True}
+        self.app.command('/api/emergency-stop', {'reset': True})
+        self.node.tick_safety(time.monotonic())
+        old_reset = self.reset_service.future
+        count = len(self.stops.messages)
+        self.node.send_control('manual', .2, .3)
+        self.node.send_control('auto')
+        self.assertEqual(len(self.stops.messages), count)
+        self.app.command('/api/emergency-stop', {})
+        self.node.tick_safety(time.monotonic())
+        self.assertTrue(old_reset.cancelled())
+        self.assertEqual(self.estop_service.requests, 1)
+        self.assertEqual(self.node.safety_kind, 'stop')
+        self.estop_service.ack()
+        self.node.tick_safety(time.monotonic())
+        self.assertTrue(self.app.mission.estop_latched)
+
+    def test_delayed_stop_status_cannot_resurrect_a_fresh_zero_acknowledgment(self):
+        from std_msgs.msg import String
+        now_ns = self.node.get_clock().now().nanoseconds
+        old = {'mode': 'estop', 'estop_latched': True, 'stop_acknowledged': True,
+               'sent_at_ns': now_ns-2_000_000_000}
+        self.node.on_motion(String(data=json.dumps(old)))
+        self.assertEqual(self.app.manual_mux_at, 0.)
+        self.assertFalse(self.app.mission.estop_latched)
+        self.node.on_motion(String(data=json.dumps({**old, 'sent_at_ns': now_ns})))
+        self.assertTrue(self.app.state()['safety']['stop_acknowledged'])
+        self.app.manual_mux_at = time.monotonic()-2.
+        self.assertFalse(self.app.state()['safety']['stop_acknowledged'])
 
     def test_old_odom_pauses_but_old_camera_keeps_route_active(self):
         self.publish_first()

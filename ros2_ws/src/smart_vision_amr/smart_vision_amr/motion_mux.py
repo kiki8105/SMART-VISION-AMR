@@ -8,6 +8,7 @@ the supplied launch files; only this node does.
 import json
 import math
 import time
+import uuid
 
 
 class MotionMuxCore:
@@ -16,13 +17,21 @@ class MotionMuxCore:
     MODES = frozenset({'manual', 'hold', 'auto', 'estop', 'reset'})
     RECOVERY_SAFETY_SOURCE = 'path_follower_recovery_safety'
     EKF_SENSOR_SAFETY_SOURCE = 'ekf_sensor_safety'
+    LOCALIZATION_SAFETY_SOURCE = 'localization_safety'
     SAFETY_REASONS = {
         RECOVERY_SAFETY_SOURCE: 'Reverse recovery safety stop',
         EKF_SENSOR_SAFETY_SOURCE: 'EKF wheel, IMU, or LiDAR input lost',
+        LOCALIZATION_SAFETY_SOURCE: 'Localization confidence unsafe',
     }
 
     def __init__(self, clock=time.monotonic, manual_timeout=.5, auto_timeout=.5,
-                 max_linear_velocity=.25, max_angular_velocity=1.0):
+                 max_linear_velocity=.25, max_angular_velocity=1.0,
+                 max_auto_age_seconds=.35, auto_future_tolerance_seconds=.25,
+                 require_localization_health=False,
+                 localization_health_timeout=1.0,
+                 localization_warning_speed_factor=.5,
+                 localization_rotation_limit=.25, startup_estop=False,
+                 marker_alignment_rotation_limit=.15):
         self.clock = clock
         self.manual_timeout = float(manual_timeout)
         self.auto_timeout = float(auto_timeout)
@@ -41,7 +50,30 @@ class MotionMuxCore:
         self.manual_velocity = (0.0, 0.0)
         self.auto_at = None
         self.auto_velocity = (0.0, 0.0)
-        self.estop_latched = False
+        self.estop_latched = bool(startup_estop)
+        if self.estop_latched:
+            self.mode, self.reason = 'estop', 'Startup interlock; explicit safety reset required'
+        self.max_auto_age_ns = int(max_auto_age_seconds * 1e9)
+        self.auto_future_tolerance_ns = int(auto_future_tolerance_seconds*1e9)
+        self.auto_source_id = None
+        self.retired_auto_sources = set()
+        self.auto_sequences = {}
+        self.auto_last_stamp = -1
+        self.auto_rejected_reason = ''
+        self.require_localization_health = bool(require_localization_health)
+        self.localization_health_timeout = float(localization_health_timeout)
+        self.localization_warning_speed_factor = float(localization_warning_speed_factor)
+        self.localization_rotation_limit = float(localization_rotation_limit)
+        self.marker_alignment_rotation_limit = float(marker_alignment_rotation_limit)
+        if (self.max_auto_age_ns <= 0 or self.auto_future_tolerance_ns < 0
+                or self.localization_health_timeout <= 0
+                or not 0 < self.localization_warning_speed_factor <= 1
+                or not 0 < self.localization_rotation_limit <= self.max_angular_velocity
+                or not 0 < self.marker_alignment_rotation_limit <= self.max_angular_velocity):
+            raise ValueError('Invalid command age or localization safety limits')
+        self.localization_at = None
+        self.localization_health = None
+        self.manual_operation = None
 
     def _velocity(self, linear, angular):
         if (isinstance(linear, bool) or isinstance(angular, bool)
@@ -75,6 +107,64 @@ class MotionMuxCore:
             return False
         self.auto_velocity, self.auto_at = velocity, self.clock()
         return True
+
+    def receive_stamped_auto(self, payload, ros_now_ns):
+        """Validate forwarding age and sequence before renewing the steady lease.
+
+        A new bridge UUID may take over only with a stamp newer than every
+        previously accepted source. A retired bridge can never resume. Commands
+        rejected during manual/hold also consume their sequence so releasing a
+        manual lease cannot replay navigation output buffered during override.
+        """
+        if not isinstance(payload, dict):
+            return False
+        source, seq, stamp = (payload.get('source_id'), payload.get('seq'),
+                              payload.get('sent_at_ns'))
+        if (not isinstance(source, str) or not source or len(source) > 128
+                or type(seq) is not int or seq < 0 or type(stamp) is not int
+                or type(ros_now_ns) is not int or stamp < 0
+                or stamp > ros_now_ns + self.auto_future_tolerance_ns
+                or ros_now_ns-stamp > self.max_auto_age_ns
+                or source in self.retired_auto_sources
+                or seq <= self.auto_sequences.get(source, -1)
+                or stamp < self.auto_last_stamp
+                or (source != self.auto_source_id and stamp <= self.auto_last_stamp)):
+            self.auto_rejected_reason = 'Delayed, replayed, or invalid autonomous command'
+            return False
+        try:
+            self._velocity(payload.get('linear'), payload.get('angular'))
+        except ValueError:
+            self.auto_rejected_reason = 'Invalid autonomous velocity'
+            self.auto_at = None
+            return False
+        if source != self.auto_source_id:
+            if self.auto_source_id is not None:
+                self.retired_auto_sources.add(self.auto_source_id)
+            self.auto_source_id = source
+        self.auto_sequences[source], self.auto_last_stamp = seq, stamp
+        self.auto_rejected_reason = ''
+        return self.receive_auto(payload['linear'], payload['angular'])
+
+    def receive_localization_health(self, payload):
+        if not isinstance(payload, dict) or payload.get('level') not in {
+                'ok', 'healthy', 'warning', 'critical'}:
+            return False
+        self.localization_health = dict(payload)
+        self.localization_at = self.clock()
+        return True
+
+    def _localization_policy(self):
+        if (self.localization_at is None
+                or self.clock()-self.localization_at > self.localization_health_timeout):
+            return (0.0, False, False, 'Localization health missing or stale') if (
+                self.require_localization_health) else (1.0, True, False, '')
+        health = self.localization_health
+        level = health['level']
+        factor = (0.0 if level == 'critical' else
+                  self.localization_warning_speed_factor if level == 'warning' else 1.0)
+        return (factor, health.get('autonomous_allowed', True) is True,
+                health.get('allow_localization', False) is True,
+                '; '.join(str(x) for x in health.get('reasons', [])))
 
     def receive_control(self, payload, ros_now_ns):
         """Accept one atomic state/velocity packet from the current web bridge.
@@ -119,7 +209,10 @@ class MotionMuxCore:
                 and self.mode == 'manual' and mode != 'estop'):
             return False
         if source != self.source_id:
-            if self.source_id is not None:
+            # Service stop/reset must not permanently retire a connected UI.
+            if (self.source_id is not None
+                    and not source.startswith('mux-service:')
+                    and not self.source_id.startswith('mux-service:')):
                 self.retired_sources.add(self.source_id)
             self.source_id = source
         self.sequences[source] = seq
@@ -143,6 +236,7 @@ class MotionMuxCore:
             self.mode, self.reason = 'manual', 'Leased manual control has priority'
             self.manual_velocity, self.manual_at = velocity, now
             self.auto_at = None
+            self.manual_operation = payload.get('operation')
         else:
             # Repeated auto heartbeats must not erase fresh navigation commands.
             if self.mode != 'auto':
@@ -155,17 +249,48 @@ class MotionMuxCore:
         self._expire()
         if self.estop_latched:
             return 0.0, 0.0
+        velocity = (0.0, 0.0)
         if self.mode == 'manual':
-            return self.manual_velocity
-        if (self.mode == 'auto' and self.auto_at is not None
+            velocity = self.manual_velocity
+        elif (self.mode == 'auto' and self.auto_at is not None
                 and self.clock()-self.auto_at < self.auto_timeout):
-            return self.auto_velocity
-        return 0.0, 0.0
+            velocity = self.auto_velocity
+        factor, auto_allowed, allow_rotation, _ = self._localization_policy()
+        if self.mode == 'manual' and self.manual_operation == 'marker_alignment':
+            # This is mission-driven observation, not the operator's bootstrap
+            # localization exception. Even compatibility runtimes must have a
+            # fresh, autonomous-ready health report before rotating for a tag.
+            health_fresh = (self.localization_at is not None
+                            and self.clock()-self.localization_at <= self.localization_health_timeout)
+            if (not health_fresh or not auto_allowed
+                    or self.localization_health.get('autonomous_allowed') is not True or factor <= 0.
+                    or velocity[0] != 0.):
+                return 0.0, 0.0
+            angular = max(-self.marker_alignment_rotation_limit,
+                          min(self.marker_alignment_rotation_limit, velocity[1]))
+            return 0.0, angular*factor
+        if self.mode == 'manual' and self.manual_operation == 'localization':
+            if allow_rotation and velocity[0] == 0.0:
+                return 0.0, max(-self.localization_rotation_limit,
+                                min(self.localization_rotation_limit, velocity[1]))
+            return 0.0, 0.0
+        if self.mode == 'auto' and not auto_allowed:
+            return 0.0, 0.0
+        return velocity[0]*factor, velocity[1]*factor
 
     def status(self):
         self._expire()
+        factor, auto_allowed, _, health_reason = self._localization_policy()
+        linear, angular = self.output()
         return {'mode': self.mode, 'available': True, 'reason': self.reason,
-                'source_id': self.source_id, 'estop_latched': self.estop_latched}
+                'source_id': self.source_id, 'estop_latched': self.estop_latched,
+                'auto_source_id': self.auto_source_id,
+                'auto_rejected_reason': self.auto_rejected_reason,
+                'output_owner': 'manual' if self.mode == 'manual' else self.mode,
+                'localization_speed_factor': factor,
+                'autonomous_allowed': auto_allowed,
+                'localization_reason': health_reason,
+                'output_linear': linear, 'output_angular': angular}
 
 
 # Keep the arbitration core importable for non-ROS unit tests as well.
@@ -175,6 +300,7 @@ try:
     from rclpy.node import Node
     from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
     from std_msgs.msg import String
+    from std_srvs.srv import Trigger
 except ImportError:
     Node = object
 
@@ -188,12 +314,27 @@ class MotionMuxNode(Node):
         super().__init__('motion_mux', context=context, parameter_overrides=overrides)
         for name, default in (
                 ('manual_timeout', .5), ('auto_timeout', .5),
-                ('max_linear_velocity', .25), ('max_angular_velocity', 1.0)):
+                ('max_linear_velocity', .25), ('max_angular_velocity', 1.0),
+                ('max_auto_age_seconds', .35),
+                ('auto_future_tolerance_seconds', .25),
+                ('require_localization_health', False),
+                ('localization_health_timeout', 1.0),
+                ('localization_warning_speed_factor', .5),
+                ('localization_rotation_limit', .25),
+                ('marker_alignment_rotation_limit', .15),
+                ('startup_estop', False), ('allow_topic_reset', True),
+                ('allow_legacy_auto_input', True)):
             self.declare_parameter(name, default)
         self.core = MotionMuxCore(**{
             name: self.get_parameter(name).value for name in (
                 'manual_timeout', 'auto_timeout', 'max_linear_velocity',
-                'max_angular_velocity')})
+                'max_angular_velocity', 'max_auto_age_seconds',
+                'auto_future_tolerance_seconds',
+                'require_localization_health', 'localization_health_timeout',
+                'localization_warning_speed_factor', 'localization_rotation_limit',
+                'marker_alignment_rotation_limit',
+                'startup_estop')})
+        self.allow_topic_reset = self.get_parameter('allow_topic_reset').value
         self.output_pub = self.create_publisher(Twist, '/cmd_vel', 1)
         self.output_available = False
         self.output_conflict = 'Checking exclusive /cmd_vel ownership'
@@ -203,14 +344,39 @@ class MotionMuxNode(Node):
                              durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.status_pub = self.create_publisher(
             String, '/smart_vision_amr/motion_status', durable)
-        self.create_subscription(Twist, '/smart_vision_amr/navigation_cmd_vel',
-                                 self.on_auto, 1)
+        self.control_pub = self.create_publisher(
+            String, '/smart_vision_amr/manual_control', 10)
+        self.service_source = 'mux-service:'+uuid.uuid4().hex
+        self.service_seq = 0
+        self.auto_started_ns = self.get_clock().now().nanoseconds
+        self._health_sent_ns = -1
+        self.status_sequence = 0
+        self._status_published_at = -math.inf
+        self._status_transition = None
+        self.pending_reset = None
+        self.last_zero_published_at = None
+        if self.get_parameter('allow_legacy_auto_input').value:
+            self.create_subscription(Twist, '/smart_vision_amr/navigation_cmd_vel',
+                                     self.on_auto, 1)
+        self.create_subscription(String, '/smart_vision_amr/navigation_control',
+                                 self.on_navigation_control, 1)
+        self.create_subscription(String, '/smart_vision_amr/localization_health',
+                                 self.on_localization_health, 1)
         self.create_subscription(String, '/smart_vision_amr/manual_control',
                                  self.on_control, 1)
         # ROS timers stop when simulation time pauses. Dead-man watchdogs
         # must continue to run even then, so use a steady clock explicitly.
         from rclpy.clock import Clock, ClockType
         self.steady_clock = Clock(clock_type=ClockType.STEADY_TIME)
+        # Reentrant services yield while steady timers/subscriptions process the
+        # reset intent and independent sensor watchdogs can veto it.
+        from rclpy.callback_groups import ReentrantCallbackGroup
+        self.safety_group = ReentrantCallbackGroup()
+        self.create_service(Trigger, '/smart_vision_amr/emergency_stop',
+                            self.on_emergency_stop, callback_group=self.safety_group)
+        self.create_service(Trigger, '/smart_vision_amr/reset_emergency_stop',
+                            self.on_reset_emergency_stop, callback_group=self.safety_group)
+        self.create_timer(.025, self.advance_reset, clock=self.steady_clock)
         self.create_timer(.05, self.publish_output, clock=self.steady_clock)
         self.create_timer(.1, self.publish_status, clock=self.steady_clock)
         self.publish_status()
@@ -218,10 +384,125 @@ class MotionMuxNode(Node):
     def on_auto(self, message):
         self.core.receive_auto(message.linear.x, message.angular.z)
 
+    def on_navigation_control(self, message):
+        try:
+            payload = json.loads(message.data)
+        except (ValueError, TypeError):
+            return
+        # Do not accept a packet already in transit when this mux restarted.
+        if (isinstance(payload, dict) and type(payload.get('sent_at_ns')) is int
+                and payload['sent_at_ns'] < self.auto_started_ns):
+            self.core.auto_rejected_reason = 'Autonomous command predates mux startup'
+            return
+        self.core.receive_stamped_auto(payload, self.get_clock().now().nanoseconds)
+
+    def on_localization_health(self, message):
+        try:
+            payload = json.loads(message.data)
+        except (ValueError, TypeError):
+            return
+        if not isinstance(payload, dict):
+            return
+        stamp = payload.get('sent_at_ns')
+        if stamp is not None or self.core.require_localization_health:
+            now_ns = self.get_clock().now().nanoseconds
+            if (type(stamp) is not int or stamp < self._health_sent_ns
+                    or stamp < 0 or stamp > now_ns+50_000_000
+                    or now_ns-stamp > int(self.core.localization_health_timeout*1e9)):
+                return
+            self._health_sent_ns = stamp
+        if self.core.receive_localization_health(payload):
+            self.publish_output()
+            self.publish_status()
+
+    def _service_packet(self, mode):
+        self.service_seq += 1
+        return {'source_id': self.service_source, 'seq': self.service_seq,
+                'sent_at_ns': self.get_clock().now().nanoseconds,
+                'mode': mode, 'linear': 0.0, 'angular': 0.0}
+
+    def on_emergency_stop(self, request, response):
+        del request
+        if self.pending_reset is not None:
+            self.pending_reset['future'].set_result(False)
+            self.pending_reset = None
+        packet = self._service_packet('estop')
+        self.core.receive_control(packet, self.get_clock().now().nanoseconds)
+        self.control_pub.publish(String(data=json.dumps(packet)))
+        self.publish_output()
+        self.publish_status(force=True)
+        response.success = bool(self.output_available and self.core.estop_latched
+                                and self.last_zero_published_at is not None
+                                and time.monotonic()-self.last_zero_published_at < .1)
+        response.message = ('Emergency stop latched; zero velocity published. '
+                            'Physical standstill is not measured.' if response.success else
+                            'Stop latched but exclusive /cmd_vel output is unavailable: '
+                            + self.output_conflict)
+        return response
+
+    async def on_reset_emergency_stop(self, request, response):
+        del request
+        if self.pending_reset is not None:
+            response.success, response.message = False, 'A reset is already pending'
+            return response
+        from rclpy.task import Future
+        future = Future()
+        packet = self._service_packet('reset')
+        # Publish intent before changing state; ekf_sensor_guard correlates this
+        # source with the subsequent unlatched motion_status and can re-latch.
+        self.control_pub.publish(String(data=json.dumps(packet)))
+        self.pending_reset = {'future': future, 'packet': packet,
+                              'at': time.monotonic(), 'applied': False}
+        accepted = await future
+        response.success = bool(accepted)
+        response.message = ('Emergency reset acknowledged; motion remains held. '
+                            'Explicit resume required.' if accepted else
+                            'Emergency reset rejected by safety or output ownership guard')
+        return response
+
+    def advance_reset(self):
+        reset = self.pending_reset
+        if reset is None:
+            return
+        age = time.monotonic()-reset['at']
+        if not reset['applied'] and age >= .1:
+            reset['applied'] = True
+            packet = reset['packet']
+            reset['accepted'] = self.core.receive_control(
+                packet, self.get_clock().now().nanoseconds)
+            self.publish_output()
+            self.publish_status(force=True)
+        if age >= .5:
+            factor, _, _, _ = self.core._localization_policy()
+            accepted = (reset.get('accepted', False) and not self.core.estop_latched
+                        and self.core.source_id == self.service_source
+                        and self.output_available and factor > 0)
+            if not accepted:
+                self.core.estop_latched = True
+                self.core.mode, self.core.reason = 'estop', 'Safety reset rejected'
+                self.publish_output()
+                self.publish_status()
+            else:
+                # Late manual/navigation packets may have arrived while guards
+                # verified the reset. Completion always returns to explicit hold.
+                self.core.mode, self.core.reason = 'hold', 'Safety reset confirmed; explicit resume required'
+                self.core.manual_velocity, self.core.auto_at = (0.0, 0.0), None
+            self.pending_reset = None
+            self.publish_output()
+            self.publish_status(force=True)
+            reset['future'].set_result(accepted)
+
     def on_control(self, message):
         try:
             payload = json.loads(message.data)
         except (ValueError, TypeError):
+            return
+        # Locally created service packets are published for guard observation,
+        # never applied by DDS loopback ahead of the reset-intent grace period.
+        if isinstance(payload, dict) and payload.get('source_id') == self.service_source:
+            return
+        if (isinstance(payload, dict) and payload.get('mode') == 'reset'
+                and not self.allow_topic_reset):
             return
         if self.core.receive_control(payload, self.get_clock().now().nanoseconds):
             self.publish_output()
@@ -234,8 +515,14 @@ class MotionMuxNode(Node):
             # controller. Wait for an explicit exclusive handover instead.
             return
         message = Twist()
-        message.linear.x, message.angular.z = self.core.output()
+        # Guards briefly observe an unlatched state to acknowledge/veto the
+        # explicit reset. Keep the motor output at zero throughout that window,
+        # even if a delayed UI/navigation packet is accepted by the core.
+        message.linear.x, message.angular.z = ((0.0, 0.0) if
+            getattr(self, 'pending_reset', None) is not None else self.core.output())
         self.output_pub.publish(message)
+        if message.linear.x == 0.0 and message.angular.z == 0.0:
+            self.last_zero_published_at = time.monotonic()
 
     def check_output_ownership(self):
         """Back off completely if any other publisher can command the robot."""
@@ -264,32 +551,70 @@ class MotionMuxNode(Node):
             self.output_available = False
             self.output_conflict = 'Cannot verify exclusive /cmd_vel ownership: '+str(exc)
 
-    def publish_status(self):
+    def publish_status(self, force=False):
         self.check_output_ownership()
         status = self.core.status()
+        transition = (status['mode'], status['source_id'], status['estop_latched'],
+                      status['reason'], self.output_available, self.output_conflict,
+                      status['localization_speed_factor'], status['autonomous_allowed'],
+                      getattr(self, 'pending_reset', None) is not None)
+        now = time.monotonic()
+        if (not force and transition == getattr(self, '_status_transition', None)
+                and now-getattr(self, '_status_published_at', -math.inf) < .1):
+            return False
+        self._status_published_at, self._status_transition = now, transition
+        self.status_sequence = getattr(self, 'status_sequence', 0)+1
+        status['status_seq'] = self.status_sequence
+        status['sent_at_ns'] = self.get_clock().now().nanoseconds
+        status['mux_instance_id'] = getattr(self, 'service_source', '')
         status['available'] = self.output_available
         status['output_publishers'] = self.output_publishers
+        status['stop_acknowledged'] = bool(
+            self.output_available and self.core.estop_latched
+            and getattr(self, 'last_zero_published_at', None) is not None
+            and time.monotonic()-self.last_zero_published_at < .2)
+        status['reset_pending'] = getattr(self, 'pending_reset', None) is not None
+        if status['reset_pending']:
+            status['output_linear'] = status['output_angular'] = 0.0
+            status['output_owner'] = 'safety_reset'
         if not self.output_available:
             status['reason'] = self.output_conflict
         message = String()
         message.data = json.dumps(status, separators=(',', ':'))
         self.status_pub.publish(message)
+        return True
 
 
 def main(args=None):
-    rclpy.init(args=args)
+    import signal
+    from rclpy.signals import SignalHandlerOptions
+    # Publish the final stop before invalidating the context on normal launch
+    # shutdown. SIGKILL/power loss still requires the motor firmware watchdog.
+    rclpy.init(args=args, signal_handler_options=SignalHandlerOptions.NO)
     node = MotionMuxNode()
+    stop_requested = [False]
+
+    def stop(_signum, _frame):
+        stop_requested[0] = True
+
+    previous = {signum: signal.signal(signum, stop)
+                for signum in (signal.SIGINT, signal.SIGTERM)}
     try:
-        rclpy.spin(node)
+        while rclpy.ok() and not stop_requested[0]:
+            rclpy.spin_once(node, timeout_sec=.05)
     except KeyboardInterrupt:
         pass
     finally:
         if rclpy.ok():
             node.core.mode = 'hold'
+            node.core.estop_latched = True
             node.publish_output()
+            time.sleep(.05)  # Give DDS's transport thread time to flush the stop.
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
+        for signum, handler in previous.items():
+            signal.signal(signum, handler)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-TurtleBot3 Controller 1.1.0
+TurtleBot3 Controller 1.2.0
 ==========================
 
 지원 환경: Ubuntu 22.04 (Jammy), ROS 2 Humble 실행 라이브러리.
@@ -8,7 +8,7 @@ Ubuntu 24.04 및 Windows용 패키지가 아닙니다.
 설치
 ----
 ROS apt 저장소가 준비되어 있으면:
-  sudo apt install ./turtlebot3-controller_1.1.0_all.deb
+  sudo apt install ./turtlebot3-controller_1.2.0_all.deb
 
 저장소의 distribution/controller/install_controller.sh는 ROS Humble apt 저장소가
 준비된 PC에서 DEB와 필요한 실행 의존성을 설치합니다. 인터넷이 필요합니다.

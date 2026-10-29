@@ -98,6 +98,19 @@ def test_runtime_odom_duplicate_trips_even_with_fresh_sensors():
     assert not core.operator_reset(10.9)
 
 
+def test_filter_publisher_without_fresh_odom_or_tf_trips_the_guard():
+    core = EkfSensorGuardCore(arm_seconds=0.2)
+    for now in (10.0, 10.3):
+        feed_all(core, now)
+        core.tick(now)
+    assert core.operator_reset(10.3)
+    for name in ('wheel', 'imu', 'scan'):
+        feed(core, name, 11.4)
+    core.update_graph([], 11.4)  # Graph alone is healthy but filter is stalled.
+    reason = core.tick(11.4)
+    assert 'odom' in reason and 'odom_tf' in reason and core.latched
+
+
 def test_live_graph_requires_one_expected_publisher_per_topic():
     expected = EkfSensorGuard.EXPECTED_PUBLISHERS
     graph = {topic: [SimpleNamespace(node_name=name or 'robot_node',

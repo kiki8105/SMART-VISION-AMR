@@ -1,0 +1,5 @@
+# Keep simulated ROS timers/TF clocks close to 30 Hz odom and 20 Hz control.
+# Gazebo's default 10 Hz /clock otherwise leaves sensor stamps ~0.1 s ahead.
+gazebo:
+  ros__parameters:
+    publish_rate: 50.0

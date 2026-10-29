@@ -30,3 +30,45 @@ ekf_hardware:
     imu0_queue_size: 30
     imu0_twist_rejection_threshold: 5.0
     imu0_remove_gravitational_acceleration: false
+
+# Physical dimensions can be calibrated independently of the vendor's odom.
+# Variances use squared SI units. Do not copy simulation benchmark errors here.
+wheel_joint_odometry:
+  ros__parameters:
+    wheel_radius: 0.033
+    wheel_separation: 0.287
+    max_wheel_speed: 12.0
+    reject_stale_stamps: true
+    max_stamp_age_sec: 1.0
+    future_stamp_tolerance_sec: 0.25
+    pose_xy_variance: 0.0025
+    pose_yaw_variance: 0.0064
+    forward_velocity_variance: 0.0004
+    lateral_velocity_variance: 0.000025
+    yaw_rate_variance: 0.0064
+
+imu_ekf_conditioner:
+  ros__parameters:
+    calibration_seconds: 2.0
+    calibration_samples: 25
+    wheel_timeout: 0.4
+    stationary_linear_limit: 0.01
+    stationary_angular_limit: 0.04
+    stationary_gyro_limit: 0.12
+    minimum_gyro_z_variance: 0.0004
+    max_gyro_rate: 3.0
+    bias_adaptation: 0.005
+    max_stamp_age_sec: 1.0
+    future_stamp_tolerance_sec: 0.25
+
+ekf_sensor_guard:
+  ros__parameters:
+    arm_seconds: 2.0
+    stale_seconds: 1.0
+    base_frame: base_footprint
+    # 0 disables magnitude limits on unobservable local absolute pose.
+    # AMCL covariance and independent scan/map agreement guard global pose.
+    max_position_variance: 0.0
+    max_yaw_variance: 0.0
+    max_linear_velocity_variance: 0.25
+    max_angular_velocity_variance: 1.0

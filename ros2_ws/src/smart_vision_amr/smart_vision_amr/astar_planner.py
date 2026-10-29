@@ -21,6 +21,7 @@ from smart_vision_amr.map_utils import (cell_to_world, inflate_cells, occupancy_
                                         yaw_from_quaternion)
 from smart_vision_amr.reverse_recovery import (Breadcrumb, GridGeometry,
                                                select_reverse_egress)
+from smart_vision_amr.path_geometry import route_cells, smooth_grid_path
 
 
 class AStarPlannerNode(Node):
@@ -41,6 +42,10 @@ class AStarPlannerNode(Node):
         self.declare_parameter("live_obstacle_timeout", 2.0)
         self.declare_parameter("preferred_clearance", 0.45)
         self.declare_parameter("clearance_penalty_gain", 1.5)
+        self.declare_parameter("path_smoothing_enabled", True)
+        self.declare_parameter("path_smoothing_iterations", 2)
+        self.declare_parameter("path_smoothing_shortcut_distance", 0.80)
+        self.declare_parameter("path_resample_spacing", 0.05)
         self.declare_parameter("reverse_recovery_enabled", True)
         self.declare_parameter("reverse_recovery_min_distance", 0.10)
         self.declare_parameter("reverse_recovery_max_distance", 0.30)
@@ -61,6 +66,7 @@ class AStarPlannerNode(Node):
         self.goal_completed = False
         self.last_plan_time = float("-inf")
         self.invalid_path_published = False
+        self.geometry_signature = None
         self.stop_stamp_ns = None
         self.breadcrumbs = deque(maxlen=300)
         self.breadcrumb_odom_anchor = None
@@ -150,6 +156,13 @@ class AStarPlannerNode(Node):
                          self.get_parameter("mapped_wall_return_tolerance_cells").value)
             if signature != getattr(self, "map_signature", None):
                 self.on_map(self.map[0])
+        geometry = tuple(self.get_parameter(name).value for name in (
+            "path_smoothing_enabled", "path_smoothing_iterations",
+            "path_smoothing_shortcut_distance", "path_resample_spacing"))
+        if geometry != getattr(self, "geometry_signature", None):
+            self.geometry_signature = geometry
+            if self._goal_is_active():
+                self._request_replan("Path geometry settings changed")
         if self._goal_is_active() and not getattr(self, "recovery_active", False):
             self._record_breadcrumb()
         if getattr(self, "recovery_active", False):
@@ -553,6 +566,9 @@ class AStarPlannerNode(Node):
         if getattr(self, "recovery_active", False):
             return
         self.last_plan_time = time.monotonic()
+        self.geometry_signature = tuple(self.get_parameter(name).value for name in (
+            "path_smoothing_enabled", "path_smoothing_iterations",
+            "path_smoothing_shortcut_distance", "path_resample_spacing"))
         self.waiting_for_replan = True
         self.publish_status("PLANNING", "Planning to retained goal")
         if self.map is None:
@@ -675,12 +691,26 @@ class AStarPlannerNode(Node):
         path.header.frame_id = frame
         path.header.stamp = self.get_clock().now().to_msg()
         from math import atan2, sin, cos, isfinite
-        for index, cell in enumerate(cells):
+        points = [(x + .5, y + .5) for x, y in cells]
+        smoothed = False
+        if self.get_parameter("path_smoothing_enabled").value:
+            resolution = map_msg.info.resolution
+            points, smoothed = smooth_grid_path(
+                cells, lambda cell: grid.is_static_obstacle(cell) or cell in blocked,
+                spacing=max(.01, float(self.get_parameter("path_resample_spacing").value)) / resolution,
+                shortcut_distance=max(.01, float(self.get_parameter(
+                    "path_smoothing_shortcut_distance").value)) / resolution,
+                iterations=int(self.get_parameter("path_smoothing_iterations").value))
+        # Dynamic obstacle invalidation must cover the route actually sent to
+        # Nav2, including all crossed cells, rather than only the old A* cells.
+        self.planned_cells = list(cells) + sorted(route_cells(points) - set(cells))
+        world_points = [cell_to_world(map_msg.info, (x-.5, y-.5)) for x, y in points]
+        for index, point in enumerate(world_points):
             pose = PoseStamped()
             pose.header = path.header
-            pose.pose.position.x, pose.pose.position.y = cell_to_world(map_msg.info, cell)
-            if index + 1 < len(cells):
-                next_x, next_y = cell_to_world(map_msg.info, cells[index + 1])
+            pose.pose.position.x, pose.pose.position.y = point
+            if index + 1 < len(world_points):
+                next_x, next_y = world_points[index + 1]
                 yaw = atan2(next_y - pose.pose.position.y, next_x - pose.pose.position.x)
                 pose.pose.orientation.z, pose.pose.orientation.w = sin(yaw / 2.0), cos(yaw / 2.0)
             else:
@@ -696,6 +726,7 @@ class AStarPlannerNode(Node):
             path.poses.append(pose)
         self.path_pub.publish(path)
         detail = f"A* route ready: {len(path.poses)} poses"
+        detail += "; collision-checked smoothing" if smoothed else "; original grid route"
         if egress_steps:
             detail += f"; safe start egress {egress_steps} cells"
             self.get_logger().warning(

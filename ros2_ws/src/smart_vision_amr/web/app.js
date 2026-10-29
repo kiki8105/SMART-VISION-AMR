@@ -115,7 +115,12 @@
     $('#dispatch-start').disabled=localizing||manualBusy||busy||!paired||shipping||!d.home_ready||!d.pending_count||!snapshot?.health?.ready||d.dispatch_ready===false||mission.estop_latched||!$('#load-confirmed').checked;
     $('#delivery-resume').hidden=!shipping||mission.state!=='PAUSED';
     $('#delivery-resume').disabled=localizing||manualBusy||busy||!paired||!snapshot?.health?.ready||mission.estop_latched;
-    $('#emergency-stop span').textContent=mission.estop_latched?'비상정지 해제':'비상정지';
+    const safety=snapshot?.safety||{};
+    $('#emergency-stop span').textContent=mission.estop_latched&&safety.pending!=='reset'&&safety.stop_acknowledged?'비상정지 해제':mission.estop_latched&&safety.pending!=='reset'?'비상정지 다시 요청':'비상정지';
+    const seed=snapshot?.localization||{};
+    $('#seed-home-pose').disabled=busy||!paired||!$('#confirm-home-location').checked||!seed.home_seed_available||seed.home_seed_pending;
+    $('#home-seed-note').textContent=seed.home_seed_result||seed.home_seed_reason||'등록 홈과 센서 상태를 확인하고 있습니다.';
+    $('#confirm-reset').disabled=busy||!paired||!!seed.home_seed_pending||safety.pending==='reset';
     $('#confirm-replace').disabled=localizing||manualBusy||busy||!paired;
     $('#domain-input').disabled=localizing||manualBusy||busy;
     $('#sim-time-input').disabled=localizing||manualBusy||busy;
@@ -189,6 +194,38 @@
     if(Number.isFinite(localization.yaw_std_degrees))accuracy.push(`방향 표준편차 ${localization.yaw_std_degrees.toFixed(1)}°`);
     $('#localization-accuracy').hidden=accuracy.length===0;$('#localization-accuracy').textContent=accuracy.join(' · ');
   }
+  function renderMarkerAlignment({homeMode=false,manualHolding=false,manualResuming=false}={}){
+    const alignment=snapshot?.marker_alignment,mission=currentMission(),panel=$('#marker-alignment');
+    const phases={SEARCHING:'표식 탐색 · 저속 회전',CENTERING:'카메라 중앙 정렬',SETTLING:'정지 · 안정 확인',CONFIRMED:'중앙 정렬 확인 완료',FAILED:'표식 확인 일시정지'};
+    const state=String(alignment?.state||'IDLE').toUpperCase();
+    const expected=mission.current_marker_id??snapshot?.detection?.expected_id;
+    const sameTarget=expected==null||alignment?.marker_id==null||Number(expected)===Number(alignment.marker_id);
+    const visible=!!alignment&&!!phases[state]&&!homeMode&&sameTarget&&['CONFIRMING','PAUSED','WAIT_MARKER','COMPLETED'].includes(mission.state);
+    panel.hidden=!visible;if(!visible)return false;
+    const stopped=!!mission.estop_latched||!!snapshot?.safety?.latched;
+    const manual=manualHolding||manualResuming||!!snapshot?.manual?.active||['ACQUIRING','ACTIVE','RELEASING','WAIT_REPLAN'].includes(snapshot?.manual?.state);
+    panel.classList.toggle('failed',state==='FAILED');panel.classList.toggle('confirmed',state==='CONFIRMED'&&!stopped&&!manual);panel.classList.toggle('stopped',stopped);
+    $('#marker-alignment-phase').textContent=stopped?'비상정지 · 표식 정렬 중지':manual?'수동 조종 우선 · 표식 확인 대기':mission.state==='PAUSED'&&state!=='FAILED'?'임무 일시정지 · 표식 확인 대기':phases[state];
+    const camera=alignment.camera==='front'?'전방 카메라':alignment.camera==='rear'?'후방 카메라':'카메라 확인 중';
+    $('#marker-alignment-camera').textContent=camera+(Number.isInteger(alignment.marker_id)?` · ID ${alignment.marker_id}`:'');
+    const metrics=[],error=alignment.center_error,required=alignment.required??alignment.required_frames;
+    if(typeof error==='number'&&Number.isFinite(error)){
+      const offset=Math.abs(error)*50;
+      metrics.push(offset<0.05?'중심 오차 0.0%':`중심 오차 ${error<0?'왼쪽':'오른쪽'} ${offset.toFixed(1)}%`);
+      metrics.push('영상 폭 기준');
+    }else metrics.push('중심 오차 측정 대기');
+    if(Number.isFinite(alignment.frames)&&Number.isFinite(required)&&required>0)metrics.push(`안정 확인 ${Math.max(0,Math.min(required,alignment.frames))} / ${required} 프레임`);
+    $('#marker-alignment-metrics').textContent=metrics.join(' · ');
+    const max=typeof alignment.max_seconds==='number'&&Number.isFinite(alignment.max_seconds)?`최대 ${alignment.max_seconds}초 안에 확인하지 못하면 임무를 일시정지합니다. `:'';
+    let detail=alignment.reason||({SEARCHING:'목표 표식을 찾기 위해 제자리에서 저속 회전합니다.',CENTERING:'표식이 영상 중앙에 오도록 제자리에서 방향을 맞춥니다.',SETTLING:'차량을 멈추고 새 영상에서 중심 정렬을 연속 확인합니다.',CONFIRMED:'안정된 표식을 확인했습니다. 다음 임무 상태를 확인하세요.',FAILED:'정해진 시간 안에 표식 정렬을 확인하지 못했습니다.'}[state]);
+    if(stopped)detail='주변을 확인하고 비상정지를 해제한 뒤 임무를 별도로 재개하세요.';
+    else if(manual)detail='조이스틱이 우선합니다. 표식 확인 단계는 유지되며, 조이스틱을 놓은 뒤 임무 상태를 확인하세요.';
+    else if(state==='FAILED')detail+=' 표식과 카메라 방향을 확인한 뒤 '+(delivery().active?'‘배송 재개’':'‘수동 임무 재개’')+'를 누르세요. 자동 출발하지 않습니다.';
+    else if(mission.state==='PAUSED')detail='표식 정렬 동작을 멈췄습니다. 주변을 확인한 뒤 임무를 재개하세요.';
+    else if(state!=='CONFIRMED')detail+=' '+max+'조이스틱과 비상정지는 항상 우선합니다.';
+    $('#marker-alignment-detail').textContent=detail;
+    return true;
+  }
   function renderStatus(){
     const mission=currentMission(),connection=snapshot.connection||{},robot=snapshot.robot||{},detection=snapshot.detection||{},navigation=snapshot.navigation||{};
     VehiclePower.render($('#vehicle-power'),robot.power);
@@ -214,8 +251,9 @@
     const approachingMarker=detection.expected_camera==='front'&&['NAVIGATING','MOVING'].includes(mission.state)&&expectedIds?.includes(Number(detection.expected_id));
     $('#confirmation-status').textContent=homeMode?'홈 복귀는 저장된 위치와 방향으로 도착을 확인합니다.':detection.confirmed?'표식 확인 완료':mission.state==='CONFIRMING'&&detection.expected_camera==='front'&&!(typeof robot.front_camera_age==='number'&&robot.front_camera_age<2)?'전방 카메라 영상 대기 · 도착 후 표식 확인이 필요합니다.':mission.state==='CONFIRMING'?`연속 확인 ${detection.confirmations??0} / ${detection.required??3}`:approachingMarker?`전방에서 ID ${detection.expected_id} 검출 · 목표 위치로 접근 중`:'관측 위치 도착 후 표식을 확인합니다.';
     $('#confirmation-status').classList.toggle('confirmed',!homeMode&&!!detection.confirmed);
+    $('#confirmation-status').hidden=renderMarkerAlignment({homeMode,manualHolding,manualResuming});
     $('#pose-label').textContent=pose?`x ${pose.x.toFixed(2)} · y ${pose.y.toFixed(2)} m`:'위치 수신 대기';
-    $('#connection-banner').hidden=!!snapshot.health?.ready;
+    $('#connection-banner').hidden=!!snapshot.health?.ready||!!snapshot.operation;
     if(!snapshot.health?.ready){
       const missing=snapshot.health?.missing||[],reasons=explainReadiness(missing);
       const title=missing.includes('설정 지도와 다른 /map')?'지도 확인 필요':missing.includes('최신 map→base TF')?'위치 추정 대기':'ROS 데이터 수신 대기';
@@ -229,6 +267,30 @@
     events.forEach(event=>{const li=document.createElement('li');li.className=String(event.level||'').toLowerCase();const time=document.createElement('time');const stamp=typeof event.at==='number'?new Date(event.at*1000):new Date(event.at);time.textContent=Number.isNaN(stamp.getTime())?'—':stamp.toLocaleTimeString('ko-KR',{hour12:false});const text=document.createElement('span');text.textContent=event.message;li.append(time,text);eventList.append(li);});
   }
   const requestStates={PENDING:'접수',QUEUED:'대기',IN_PROGRESS:'운송 중',DELIVERED:'배송 완료',CANCELED:'취소'};
+  function renderOperation(){
+    const o=snapshot.operation;if(!o)return;
+    $('#state-pill').textContent=o.label||'임무 대기';
+    $('#state-pill').classList.toggle('warning',o.level==='warning');
+    $('#state-pill').classList.toggle('error',o.level==='critical');
+    $('#operation-summary').dataset.level=o.level||'info';
+    $('#operation-phase').textContent=o.label||'임무 대기';
+    $('#operation-detail').textContent=o.detail||'';
+    $('#operation-action-title').textContent=o.next_action?.title||'다음 조치';
+    $('#operation-action').textContent=o.next_action?.action||'';
+    const target=o.next_action?.target,button=$('#operation-action-button');
+    button.hidden=!['connection','localize','camera','safety'].includes(target);
+    button.textContent={connection:'연결 설정',localize:'위치 확인으로 이동',camera:'영상 확인',safety:'정지 제어 확인'}[target]||'확인하기';
+    button.onclick=()=>{if(target==='connection')$('#connection-open').click();else if(target==='localize')$('.localization-control').scrollIntoView({behavior:'smooth',block:'center'});else if(target==='camera')$('.camera-panel').scrollIntoView({behavior:'smooth',block:'center'});else $('#emergency-stop').focus();};
+    const diagnostics=$('#operation-diagnostics');diagnostics.replaceChildren();
+    const items=[...(snapshot.health?.missing||[]),...(snapshot.health?.warnings||[])];
+    const q=snapshot.localization_health;if(q?.level&&q.level!=='unknown')items.push(`위치 신뢰도 ${{ok:'정상',healthy:'정상',warning:'주의',critical:'정지'}[q.level]||q.level}: ${(q.explanations||q.reasons||[]).join(' · ')||'정상'}`);
+    if(!items.length)items.push('필수 센서·주행 준비 조건 충족');
+    items.forEach(text=>{const li=document.createElement('li');li.textContent=text;diagnostics.append(li);});
+    const s=snapshot.safety||{};
+    $('#safety-ack').textContent=s.pending==='reset'?'비상정지 해제 검증 중 · 자동 출발하지 않습니다.':s.latched?(s.stop_acknowledged?'정지 명령 0 발행 확인 · 실제 정지는 차량에서 확인하세요.':s.result||'정지 요청 중 · 제어 응답 대기'):s.result||'정지 제어 대기';
+    const route=$('#active-route');route.replaceChildren();
+    (snapshot.route_preview||[]).forEach(step=>{const li=document.createElement('li');li.textContent=`${step.order}. ${step.name}${step.completed?' ✓':step.current?' · 현재 목표':''}`;if(step.current)li.setAttribute('aria-current','step');li.classList.toggle('completed',!!step.completed);route.append(li);});
+  }
   function requestTime(value){const time=typeof value==='number'?new Date(value*1000):new Date(value);return Number.isNaN(time.getTime())?'—':time.toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});}
   function renderDelivery(){
     const d=delivery(),mission=currentMission(),requests=d.requests||[],trip=d.active_trip,tripId=trip?.id??null;
@@ -264,7 +326,7 @@
       if(!initialized||!dirty){draft=[...(data.mission?.pending_route??data.mission?.route??[])];initialized=true;}
       const nextMapVersion=data.map?.version??data.map_version;
       if(data.map&&mapVersion!==nextMapVersion){mapVersion=nextMapVersion;mapImageUrl=`/api/map.png?v=${encodeURIComponent(mapVersion)}`;loadMapLayout(data.map,mapVersion);}
-      renderMarkerButtons();renderEditor();renderDelivery();renderStatus();renderControls();drawMap();
+      renderMarkerButtons();renderEditor();renderDelivery();renderStatus();renderOperation();renderControls();drawMap();
     } catch(error){disconnected=true;VehiclePower.render($('#vehicle-power'),snapshot?.robot?.power,true);$('#connection-dot').classList.remove('online');$('#connection-banner').hidden=false;$('#connection-banner').textContent=error.message;$('#state-pill').textContent='웹 연결 확인 필요';renderControls();}
     finally{pollRunning=false;}
   }
@@ -395,8 +457,10 @@
   $('#pause-mission').addEventListener('click',()=>action('/api/mission/pause',{},'임무 일시정지를 요청했습니다.'));
   $('#return-home').addEventListener('click',()=>action('/api/mission/home',{},'현재 운송을 종료하고 Homepoint로 복귀합니다.'));
   $('#cancel-mission').addEventListener('click',()=>action('/api/mission/cancel',{},'미완료 요청을 보류하고 Homepoint로 복귀합니다.'));
-  $('#emergency-stop').addEventListener('click',async()=>{ManualJoystick.release();if(currentMission().estop_latched){$('#reset-dialog').showModal();return;}try{await api('/api/emergency-stop',{reset:false});notify('비상정지를 요청했습니다.');await refresh();}catch(error){notify(error.message,true);}});
-  $('#confirm-reset').addEventListener('click',async()=>{if(await action('/api/emergency-stop',{reset:true},'비상정지를 해제했습니다. 임무 시작은 별도로 눌러주세요.'))$('#reset-dialog').close();});
+  $('#emergency-stop').addEventListener('click',async()=>{ManualJoystick.release();if(currentMission().estop_latched&&snapshot?.safety?.stop_acknowledged&&snapshot?.safety?.pending!=='reset'){$('#confirm-home-location').checked=false;renderControls();$('#reset-dialog').showModal();return;}try{await api('/api/emergency-stop',{reset:false});notify('비상정지를 요청했습니다.');await refresh();}catch(error){notify(error.message,true);}});
+  $('#confirm-home-location').addEventListener('change',renderControls);
+  $('#seed-home-pose').addEventListener('click',()=>action('/api/localization/seed-home',{confirm_actual_home:$('#confirm-home-location').checked},'등록 홈 초기 위치 입력을 요청했습니다. 비상정지는 유지됩니다.'));
+  $('#confirm-reset').addEventListener('click',async()=>{if(await action('/api/emergency-stop',{reset:true},'비상정지 해제를 요청했습니다. 제어·센서 검증 응답 후 해제됩니다.'))$('#reset-dialog').close();});
   $('#confirm-replace').addEventListener('click',async()=>{if(await action('/api/mission/restart',{},'새 순서로 시작합니다.'))$('#replace-dialog').close();});
   $('[data-close-dialog="connection-dialog"]').addEventListener('click',()=>$('#connection-dialog').close());
   document.querySelectorAll('[data-close-dialog]').forEach(button=>button.addEventListener('click',()=>$('#'+button.dataset.closeDialog).close()));

@@ -21,10 +21,10 @@ Navigation and team-node parameters use the source simulation YAML files by defa
 Custom nav_params_file:=PATH and nodes_params_file:=PATH must also be selected in
 run_sim_controller.sh with --nav-params-file PATH and --nodes-params-file PATH.
 
-Fresh manual SLAM: run_sim.sh slam:=true
+Fresh manual SLAM: run_sim.sh slam:=true use_motion_mux:=false
 Ctrl+C during SLAM: save maps/slam_DATE_TIME_PID/map.yaml + map.pgm, then stop.
 If saving fails, SLAM stays running; Ctrl+C retries the save.
-Custom save path: run_sim.sh --map-prefix /absolute/path/my_map slam:=true
+Custom save path: run_sim.sh --map-prefix /absolute/path/my_map slam:=true use_motion_mux:=false
 Existing controller: run_sim_controller.sh (in another terminal)
 Saved-map navigation: run_sim.sh map:=/absolute/path/map.yaml
 EOF

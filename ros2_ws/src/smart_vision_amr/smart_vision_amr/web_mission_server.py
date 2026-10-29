@@ -17,6 +17,7 @@ from pathlib import Path
 import secrets
 import signal
 import socket
+import subprocess
 import sys
 import tempfile
 import threading
@@ -33,6 +34,9 @@ from smart_vision_amr.delivery_service import DeliveryService
 from smart_vision_amr.manual_control import ManualOverride
 from smart_vision_amr.assisted_localization import AssistedLocalization
 from smart_vision_amr.localization_geometry import rotation_clearance, scan_points, occupied_distance, scan_map_agreement
+from smart_vision_amr.operation_status import operation_summary, route_preview, localization_explanations
+from smart_vision_amr.navigation_graph import goal_consumers_ready
+from smart_vision_amr.marker_alignment import MarkerAlignment
 
 DEFAULT_MARKERS = [
     {'id': 0, 'name': '시작 지점', 'x': -3.0007995856, 'y': -2.0010944836, 'yaw': .0008724679},
@@ -40,6 +44,29 @@ DEFAULT_MARKERS = [
     {'id': 2, 'name': '남쪽 경유 지점', 'x': 1.3998967139, 'y': -2.7972553209, 'yaw': .0008724679},
     {'id': 3, 'name': '목적 지점', 'x': 3.8996340221, 'y': -2.4950742657, 'yaw': .0008724679},
 ]
+
+
+def marker_measurements(corners, ids, width, height):
+    """Upright, unmirrored image geometry; this is not an ML confidence score.
+
+    Yaw can center horizontally. Reject cropped/tiny/invalid quadrilaterals
+    rather than treating an ID alone as evidence of a centered marker.
+    """
+    if ids is None or width <= 0 or height <= 0:
+        return []
+    result = []
+    for ident, points in zip(np.asarray(ids).reshape(-1), corners):
+        points = np.asarray(points, dtype=float).reshape(-1, 2)
+        if (points.shape != (4, 2) or not np.all(np.isfinite(points))
+                or np.any(points[:, 0] < 1) or np.any(points[:, 0] >= width-1)
+                or np.any(points[:, 1] < 1) or np.any(points[:, 1] >= height-1)
+                or np.min(np.linalg.norm(points-np.roll(points, 1, axis=0), axis=1)) < 8.
+                or abs(cv2.contourArea(points.astype(np.float32))) < 64.):
+            continue
+        result.append({'id': int(ident),
+                       'center_x': float(2.*np.mean(points[:, 0])/width-1.),
+                       'confidence': 1.})
+    return result
 
 
 def load_markers(path=None):
@@ -312,6 +339,7 @@ class MissionApplication:
         self.frame_number = 0
         self.detected_ids = []
         self.front_detected_ids = []
+        self.marker_alignment = {'state': 'IDLE', 'reason': '섹터 도착 후 표식을 탐색합니다.'}
         self.path = []
         self.navigation = {'status': 'IDLE', 'planner_status': 'IDLE', 'message': ''}
         self.goal_available = False
@@ -322,6 +350,11 @@ class MissionApplication:
         self.manual = ManualOverride()
         self.manual_mux_at = 0.
         self.manual_mux_status = {}
+        self.localization_health = {}
+        self.localization_health_at = 0.
+        self.require_localization_health = False
+        self.safety_request = None
+        self.safety_result = ''
         self.navigation_command_publishers = 0
         self.unmanaged_velocity_publishers = []
         self.manual_cancel_requested = False
@@ -347,6 +380,11 @@ class MissionApplication:
         self.localization_match = None
         self.localization_distance = None
         self.localization_service_pending = False
+        self.home_seed_request = None
+        self.home_seed_result = ''
+        self.home_seed_match = None
+        self.home_seed_match_at = 0.
+        self.home_seed_match_key = None
         self.aruco_available = hasattr(cv2, 'aruco')
         self.pairing_code = f'{secrets.randbelow(1000000):06d}'
         self.sessions = {}
@@ -476,6 +514,11 @@ class MissionApplication:
                             (self.cancel_available, '주행 취소 서비스')]
         if self.map_matches_configured is False:
             conditions.append((False, '설정 지도와 다른 /map'))
+        if self.require_localization_health:
+            conditions.append((now-self.localization_health_at < 1.5 and
+                               self.localization_health.get('autonomous_allowed') is True,
+                               '위치 신뢰도: '+(' · '.join(localization_explanations(self.localization_health))
+                                or '위치 추정 상태 수신 대기')))
         warnings = []
         if not for_home:
             if marker_ids is None:
@@ -518,7 +561,7 @@ class MissionApplication:
             delivery = self.delivery.snapshot()
             if local and self.access_mode == 'code':
                 delivery['inventory_join_code'] = self.inventory_join_code
-            return {'connection': connection, 'mission': self.mission.snapshot(),
+            snapshot = {'connection': connection, 'mission': self.mission.snapshot(),
                     'manual': self.manual_snapshot(owner),
                     'localization': self.localization_snapshot(),
                     'delivery': delivery,
@@ -539,12 +582,26 @@ class MissionApplication:
                                   'confirmations': self.mission.confirmations,
                                   'required': self.mission.required_confirmations,
                                   'confirmed': self.mission.state == 'COMPLETED'},
+                    'marker_alignment': deepcopy(self.marker_alignment),
                     'navigation': dict(self.navigation),
                     'health': self.readiness(allow_camera_degraded=self.mission.state in ACTIVE_STATES | {'PAUSED'}),
                     'events': deepcopy(self.mission.events[-30:]), 'revision': self.mission.revision}
+            mux_fresh = now-self.manual_mux_at < 1.0
+            snapshot['safety'] = dict(self.manual_mux_status if mux_fresh else {},
+                                      latched=self.mission.estop_latched,
+                                      stop_acknowledged=bool(mux_fresh and self.manual_mux_status.get('stop_acknowledged')),
+                                      pending=self.safety_request, result=self.safety_result)
+            snapshot['localization_health'] = (deepcopy(self.localization_health)
+                if now-self.localization_health_at < 1.5 else {'level': 'unknown', 'reasons': ['추정 상태 수신 대기']})
+            snapshot['localization_health']['explanations'] = localization_explanations(snapshot['localization_health'])
+            snapshot['operation'] = operation_summary(snapshot)
+            snapshot['route_preview'] = route_preview(snapshot)
+            return snapshot
 
     def command(self, endpoint, payload):
         with self.lock:
+            if endpoint == '/api/localization/seed-home':
+                return self.seed_home_command(payload)
             if endpoint in {'/api/localization/start', '/api/localization/start-home', '/api/localization/stop'}:
                 return self.localization_command(endpoint)
             if self.localization.active:
@@ -626,11 +683,24 @@ class MissionApplication:
                 if type(reset) is not bool:
                     raise MissionError('reset은 true 또는 false여야 합니다.')
                 if reset:
-                    self.mission.reset_emergency()
+                    if self.home_seed_request is not None:
+                        raise MissionError('등록 홈 초기 위치 입력이 끝난 뒤 해제하세요.')
+                    # Never clear the UI latch before the shared mux/guard
+                    # handshake acknowledges the operator's reset request.
+                    if not self.mission.estop_latched:
+                        raise MissionError('현재 비상정지 상태가 아닙니다.')
+                    if (time.monotonic()-self.manual_mux_at >= 1.0
+                            or self.manual_mux_status.get('estop_latched') is not True
+                            or self.manual_mux_status.get('stop_acknowledged') is not True):
+                        raise MissionError('차량의 비상정지 확인 응답을 받은 뒤 해제하세요.')
+                    self.safety_request = 'reset'
+                    self.safety_result = '해제 응답 대기 · 자동 출발하지 않습니다.'
                 else:
                     self.pending_connection = None
                     self.mission.emergency_stop()
                     self.delivery.emergency()
+                    self.safety_request = 'stop'
+                    self.safety_result = '정지 요청 전송 중'
             elif endpoint == '/api/connection':
                 if (self.delivery.active or self.mission.state not in {'IDLE', 'COMPLETED', 'HOME_REACHED', 'CANCELED', 'ERROR'} or self.mission.returning_home or self.mission.estop_latched
                         or self.cancel_pending or self.navigation_active
@@ -647,6 +717,24 @@ class MissionApplication:
             else:
                 raise KeyError(endpoint)
             return self.state()
+
+    def complete_safety_result(self, kind, success, detail):
+        """Apply only the current shared-service result, never a stale reset.
+
+        HTTP reset requests leave the mission latched. Only the robot-side
+        service acknowledgment, after its sensor-guard handshake, may clear it.
+        Neither successful reset nor failure creates a new navigation goal.
+        """
+        with self.lock:
+            if kind != self.safety_request:
+                return False
+            self.safety_request = None
+            self.safety_result = str(detail)
+            if success and kind == 'reset':
+                self.mission.reset_emergency()
+            self.mission.event(('정지 제어 응답: ' if success else '정지 제어 실패: ')+str(detail),
+                               'info' if success else 'warning')
+            return bool(success)
 
     def sync_delivery(self):
         try:
@@ -745,6 +833,11 @@ class MissionApplication:
         startup_available, startup_reason = self.startup_home_readiness()
         result.update(available=available, clearance=self.localization_clearance, scan_match=self.localization_match,
                       startup_home_available=startup_available, startup_home_reason=startup_reason)
+        seed_available, seed_reason = self.seed_home_readiness()
+        result.update(home_seed_available=seed_available, home_seed_reason=seed_reason,
+                      home_seed_pending=self.home_seed_request is not None,
+                      home_seed_result=self.home_seed_result,
+                      home_seed_match=self.home_seed_match)
         use_existing_pose = (self.can_refine_localization() if self.localization.state == 'IDLE'
                              else self.localization_use_existing_pose)
         mode = 'home' if self.localization_startup_home else 'local' if use_existing_pose else 'global'
@@ -760,6 +853,58 @@ class MissionApplication:
         if not self.localization.active and self.localization.state == 'IDLE':
             result['reason'] = reason
         return result
+
+    def home_seed_key(self):
+        home = self.delivery.registered_homepoint
+        return (self.map_version, None if home is None else
+                tuple(home.get(name) for name in ('x', 'y', 'yaw')))
+
+    def seed_home_readiness(self):
+        """No-motion pose prior while ESTOP remains latched, never a reset."""
+        now = time.monotonic()
+        if (not self.mission.estop_latched or now-self.manual_mux_at >= 1.
+                or self.manual_mux_status.get('estop_latched') is not True
+                or self.manual_mux_status.get('stop_acknowledged') is not True):
+            return False, '차량의 비상정지 확인 응답이 필요합니다.'
+        if not self.connected or self.pending_connection is not None:
+            return False, 'ROS 연결을 확인하세요.'
+        if (self.map is None or self.map_is_preview or self.map_matches_configured is not True
+                or self._display_map_data is None):
+            return False, '설정한 저장 지도와 일치하는 /map 수신이 필요합니다.'
+        if (self.localization.active or self.manual.in_progress or self.navigation_active
+                or self.cancel_pending):
+            return False, '회전·조종·주행 취소가 모두 끝날 때까지 기다리세요.'
+        if (now-self.scan_at >= .8 or now-self.odom_at >= .8
+                or now-self.localization_scan_at >= .8 or now-self.localization_odom_at >= .8):
+            return False, '최신 LiDAR와 오도메트리 수신이 필요합니다.'
+        speeds = (self.speed.get('linear'), self.speed.get('angular'))
+        if (any(not isinstance(value, (float, int)) or not math.isfinite(value) for value in speeds)
+                or abs(speeds[0]) >= .01 or abs(speeds[1]) >= .03):
+            return False, '차량이 완전히 정지해야 초기 위치만 입력할 수 있습니다.'
+        if (not self.localization_services_ready or now-self.localization_amcl_active_at >= 3.):
+            return False, 'AMCL 활성 상태를 확인하세요.'
+        error = self.delivery.home_validation_error(self.delivery.registered_homepoint)
+        if error:
+            return False, error
+        if (self.home_seed_match is None or not math.isfinite(self.home_seed_match)
+                or self.home_seed_match < .65 or now-self.home_seed_match_at >= .8
+                or self.home_seed_match_key != self.home_seed_key()):
+            return False, '등록 홈 위치·방향의 LiDAR와 지도가 일치하지 않습니다. 실제 위치를 확인하세요.'
+        return True, '실제 등록 홈 위치·방향이 맞으면 회전 없이 초기 가설만 입력할 수 있습니다.'
+
+    def seed_home_command(self, payload):
+        if payload.get('confirm_actual_home') is not True:
+            raise MissionError('실제 등록 홈 위치와 방향을 확인한 뒤 확인란을 선택하세요.')
+        if self.home_seed_request is not None:
+            raise MissionError('등록 홈 초기 위치 입력을 처리 중입니다.')
+        available, reason = self.seed_home_readiness()
+        if not available:
+            raise MissionError(reason)
+        self.home_seed_request = {'home': deepcopy(self.delivery.registered_homepoint),
+                                  'at': time.monotonic(), 'key': self.home_seed_key()}
+        self.home_seed_result = '초기 위치 입력 검증 중 · 비상정지 유지'
+        self.mission.event('운용자가 등록 홈 위치·방향을 확인했습니다. 정지 상태에서 초기 가설만 입력합니다.')
+        return self.state()
 
     def cancel_localization(self, reason):
         if self.localization.active:
@@ -1105,6 +1250,11 @@ def create_ros_bridge(app, options, context):
             self.motion_gate = False
             self.sent_estop = False
             self.cancel_client = self.create_client(Trigger, '/smart_vision_amr/cancel_navigation')
+            self.estop_client = self.create_client(Trigger, '/smart_vision_amr/emergency_stop')
+            self.reset_client = self.create_client(Trigger, '/smart_vision_amr/reset_emergency_stop')
+            self.safety_future = None
+            self.safety_kind = None
+            self.safety_started = 0.
             self.global_localization_client = self.create_client(Empty, '/reinitialize_global_localization')
             self.nomotion_client = self.create_client(Empty, '/request_nomotion_update')
             self.amcl_state_client = self.create_client(GetState, '/amcl/get_state')
@@ -1139,6 +1289,7 @@ def create_ros_bridge(app, options, context):
             self.create_subscription(String, '/smart_vision_amr/navigation_status', self.on_navigation, 10)
             self.create_subscription(String, '/smart_vision_amr/planner_status', self.on_planner, durable)
             self.create_subscription(String, '/smart_vision_amr/motion_status', self.on_motion, durable)
+            self.create_subscription(String, '/smart_vision_amr/localization_health', self.on_health, durable)
             # A wall/steady timer keeps the joystick dead-man alive even if /clock pauses.
             from rclpy.clock import Clock, ClockType
             self.create_timer(.1, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
@@ -1156,6 +1307,16 @@ def create_ros_bridge(app, options, context):
             self.camera_rotation = getattr(options, 'camera_rotation', 0)
             self.front_camera_rotation = getattr(options, 'front_camera_rotation', 0)
             self.observation_started_ros_ns = None
+            self.marker_alignment = MarkerAlignment(
+                search_speed=getattr(options, 'marker_search_speed', .12),
+                center_gain=getattr(options, 'marker_center_gain', .35),
+                center_tolerance=getattr(options, 'marker_center_tolerance', .08),
+                timeout=getattr(options, 'marker_search_timeout', 45.),
+                required_frames=max(2, app.confirmations),
+                front_yaw_sign=getattr(options, 'marker_front_yaw_sign', -1.),
+                rear_yaw_sign=getattr(options, 'marker_rear_yaw_sign', -1.))
+            self.marker_alignment_key = None
+            self.marker_alignment_angular = 0.
             if app.aruco_available:
                 self.dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
                 self.detector_parameters = cv2.aruco.DetectorParameters_create() if hasattr(cv2.aruco, 'DetectorParameters_create') else cv2.aruco.DetectorParameters()
@@ -1231,8 +1392,18 @@ def create_ros_bridge(app, options, context):
                     self.localization_laser_pose = (transform.transform.translation.x, transform.transform.translation.y,
                         math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z)))
                     app.localization_clear, app.localization_clearance = rotation_clearance(message, self.localization_laser_pose)
+                    home = app.delivery.registered_homepoint
+                    if (app.mission.estop_latched and scan_now-app.home_seed_match_at >= .3
+                            and home is not None and app.map is not None and not app.map_is_preview
+                            and app.map_matches_configured is True and app.localization_distance is not None):
+                        app.home_seed_match = scan_map_agreement(
+                            scan_points(message, self.localization_laser_pose), home,
+                            app.map, app.localization_distance)
+                        app.home_seed_match_at = scan_now
+                        app.home_seed_match_key = app.home_seed_key()
                 except (TransformException, ValueError, TypeError):
                     self.localization_laser_pose = None
+                    app.home_seed_match = None
 
         def on_initial_pose(self, message):
             # An explicit operator estimate supersedes an automatic search.
@@ -1293,6 +1464,38 @@ def create_ros_bridge(app, options, context):
             self.last_battery_stamp_ns = stamp_ns
             app.update_battery(message.voltage, message.percentage)
 
+        def process_marker_frame(self, camera, capture_ns, corners, ids, image, now, fresh, capture_age=0.):
+            expected = app.mission.expected_id
+            if (app.mission.state != 'CONFIRMING' or expected is None
+                    or app.mission.markers[expected].get('camera', 'rear') != camera
+                    or app.manual.in_progress or app.localization.active
+                    or self.observation_started_ros_ns is None
+                    or capture_ns < self.observation_started_ros_ns or not fresh
+                    or not math.isfinite(capture_age)
+                    or not -.25 <= capture_age <= self.marker_alignment.frame_timeout):
+                return False
+            key = (app.mission.goal_stamp, expected, camera, self.observation_started_ros_ns)
+            if (self.marker_alignment_key != key or self.marker_alignment.marker_id != expected
+                    or self.marker_alignment.camera != camera):
+                return False
+            measurements = marker_measurements(corners, ids, image.shape[1], image.shape[0])
+            frame_time = now-max(0., capture_age)
+            accepted = self.marker_alignment.observe(capture_ns, measurements, camera, frame_time, now)
+            app.marker_alignment = self.marker_alignment.snapshot()
+            if not accepted:
+                return False
+            quality = app.localization_health
+            safe = (now-app.localization_health_at < 1.
+                    and quality.get('autonomous_allowed') is True
+                    and quality.get('level') in {'ok', 'healthy', 'warning'}
+                    and now-app.localization_scan_at < .5 and app.localization_clear
+                    and now-app.odom_at < .5 and abs(app.speed['linear']) < .025
+                    and abs(app.speed['angular']) < .06)
+            return (safe and self.marker_alignment.state == 'CONFIRMED'
+                    and any(item['id'] == expected
+                            and abs(item['center_x']) <= self.marker_alignment.center_tolerance
+                            for item in measurements))
+
         def on_image(self, message):
             now = time.monotonic()
             capture_ns = message.header.stamp.sec*1000000000+message.header.stamp.nanosec
@@ -1307,7 +1510,7 @@ def create_ros_bridge(app, options, context):
                 # ROS topic remains unchanged for other camera consumers.
                 if self.camera_rotation == 180:
                     image = cv2.rotate(image, cv2.ROTATE_180)
-                ids_list = []
+                ids_list, corners, ids = [], [], None
                 if app.aruco_available:
                     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                     corners, ids, _ = self.detector.detectMarkers(gray) if self.detector else cv2.aruco.detectMarkers(gray, self.dictionary, parameters=self.detector_parameters)
@@ -1329,8 +1532,11 @@ def create_ros_bridge(app, options, context):
                     rear_expected = (expected is not None
                                      and app.mission.markers[expected].get('camera', 'rear') == 'rear')
                     if rear_expected and not app.manual.in_progress and not app.localization.active:
+                        aligned = self.process_marker_frame('rear', capture_ns, corners, ids, image, now,
+                                                            capture_fresh and post_arrival, capture_age)
                         app.mission.observe(capture_ns, ids_list, pose, stationary, now,
-                                            camera_fresh=capture_fresh and post_arrival)
+                                            camera_fresh=capture_fresh and post_arrival,
+                                            alignment_verified=aligned)
                     app.sync_delivery()
             except (ValueError, cv2.error) as exc:
                 error = str(exc)
@@ -1350,7 +1556,7 @@ def create_ros_bridge(app, options, context):
                 image = image_to_bgr(message)
                 if self.front_camera_rotation == 180:
                     image = cv2.rotate(image, cv2.ROTATE_180)
-                ids_list = []
+                ids_list, corners, ids = [], [], None
                 if app.aruco_available:
                     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                     corners, ids, _ = (self.detector.detectMarkers(gray) if self.detector else
@@ -1373,8 +1579,10 @@ def create_ros_bridge(app, options, context):
                     post_arrival = (self.observation_started_ros_ns is not None
                                     and stamp >= self.observation_started_ros_ns)
                     if front_expected and not app.manual.in_progress and not app.localization.active:
+                        aligned = self.process_marker_frame('front', stamp, corners, ids, image, now,
+                                                            post_arrival, age)
                         app.mission.observe(stamp, ids_list, pose, stationary, now,
-                                            camera_fresh=post_arrival)
+                                            camera_fresh=post_arrival, alignment_verified=aligned)
                     app.sync_delivery()
             except (ValueError, cv2.error) as exc:
                 self.get_logger().warning('Front camera decode: '+str(exc))
@@ -1426,8 +1634,17 @@ def create_ros_bridge(app, options, context):
                 payload = json.loads(message.data)
                 if not isinstance(payload, dict):
                     return
+                age = 0.0
+                if 'sent_at_ns' in payload:
+                    stamp = payload['sent_at_ns']
+                    now_ns = self.get_clock().now().nanoseconds
+                    if type(stamp) is not int or stamp < 0:
+                        return
+                    age = (now_ns-stamp)/1e9
+                    if not -.25 <= age <= .75:
+                        return
                 with app.lock:
-                    app.manual_mux_at = time.monotonic()
+                    app.manual_mux_at = time.monotonic()-max(0.0, age)
                     app.manual_mux_status = payload
                     if payload.get('estop_latched') is True and not app.mission.estop_latched:
                         # The path follower can latch a safety stop when Nav2
@@ -1443,12 +1660,61 @@ def create_ros_bridge(app, options, context):
             except (ValueError, TypeError):
                 pass
 
-        def send_control(self, mode, linear=0., angular=0.):
+        def on_health(self, message):
+            try:
+                payload = json.loads(message.data)
+                stamp = int(payload.get('sent_at_ns', payload.get('stamp_ns', 0)))
+                if not stamp or abs(self.get_clock().now().nanoseconds-stamp) > 1500000000:
+                    return
+                with app.lock:
+                    app.localization_health, app.localization_health_at = payload, time.monotonic()
+            except (ValueError, TypeError, AttributeError):
+                return
+
+        def tick_safety(self, now):
+            if (self.safety_future is not None and self.safety_kind == 'reset'
+                    and app.safety_request == 'stop'):
+                # A fresh stop must preempt an outstanding reset immediately.
+                # Canceling a client future does not cancel the server callback;
+                # the stop service itself aborts its pending reset and re-latches.
+                self.safety_future.cancel()
+                self.safety_future = None
+            if self.safety_future is not None:
+                if self.safety_future.done():
+                    kind = self.safety_kind
+                    try:
+                        result = self.safety_future.result()
+                        success, detail = bool(result.success), result.message
+                    except Exception as exc:
+                        success, detail = False, str(exc)
+                    self.safety_future = None
+                    if app.complete_safety_result(kind, success, detail) and kind == 'reset':
+                        self.sent_estop = False
+                        self.motion_gate = True
+                elif now-self.safety_started > 3.0:
+                    self.safety_future.cancel()
+                    self.safety_future = None
+                    app.complete_safety_result(self.safety_kind, False,
+                        '정지 서비스 응답 시간 초과. 정지 상태를 직접 확인하세요.')
+            if app.safety_request and self.safety_future is None:
+                client = self.reset_client if app.safety_request == 'reset' else self.estop_client
+                if client.service_is_ready():
+                    self.safety_kind = app.safety_request
+                    self.safety_started = now
+                    self.safety_future = client.call_async(Trigger.Request())
+                else:
+                    app.safety_result = '공통 정지 서비스 연결 대기. 로봇 motion_mux 실행 상태를 확인하세요.'
+
+        def send_control(self, mode, linear=0., angular=0., operation=None):
+            if app.safety_request == 'reset' or (self.safety_future is not None and self.safety_kind == 'reset'):
+                # Keep the mux reset source stable during guard verification.
+                return
             self.motion_seq += 1
             message = String()
             message.data = json.dumps({'source_id': self.motion_source, 'seq': self.motion_seq,
                                        'sent_at_ns': self.get_clock().now().nanoseconds,
-                                       'mode': mode, 'linear': linear, 'angular': angular})
+                                       'mode': mode, 'linear': linear, 'angular': angular,
+                                       'operation': operation or ('localization' if self.localization_running else 'drive')})
             self.motion_pub.publish(message)
 
         def stop(self):
@@ -1484,6 +1750,61 @@ def create_ros_bridge(app, options, context):
                 self.send_control('auto')
             app.mission.event('홈 복귀 목표를 A*에 전달했습니다.' if app.mission.returning_home
                               else f'마커 {marker["id"]} 관측 목표를 A*에 전달했습니다.')
+
+        def tick_marker_alignment(self, now, cancelled, mux_held):
+            """Visual yaw servo after terminal navigation, never a second cmd_vel owner."""
+            self.marker_alignment_angular = 0.
+            mission = app.mission
+            expected = mission.expected_id
+            if mission.state != 'CONFIRMING' or expected is None:
+                self.marker_alignment_key = None
+                return
+            target = mission.markers[expected]
+            camera = target.get('camera', 'rear')
+            key = (mission.goal_stamp, expected, camera, self.observation_started_ros_ns)
+            if self.marker_alignment_key != key:
+                # Hold must be acknowledged and wheel odometry must show a
+                # stop before taking the leased in-place rotation channel.
+                stopped = (now-app.odom_at < .5 and abs(app.speed['linear']) < .025
+                           and abs(app.speed['angular']) < .06)
+                yaw = (app.odom_pose or {}).get('yaw')
+                if (not cancelled or not mux_held or not stopped
+                        or yaw is None or not math.isfinite(yaw)):
+                    app.marker_alignment = {'state': 'SEARCHING', 'camera': camera,
+                        'marker_id': expected, 'reason': '주행 종료·정지 응답과 오도메트리를 확인합니다.',
+                        'frames': 0, 'required': mission.required_confirmations,
+                        'max_seconds': self.marker_alignment.timeout}
+                    if mission.observation_since is not None and now-mission.observation_since > 5.:
+                        mission.pause()
+                        mission.reason = '정지 응답을 확인하지 못해 표식 탐색을 일시정지했습니다. 센서 확인 후 재개하세요.'
+                        mission.event(mission.reason, 'warning')
+                    return
+                self.marker_alignment.start(expected, camera, yaw, now)
+                self.marker_alignment_key = key
+            pose = app.pose
+            near_target = (pose is not None and now-app.pose_at < .5
+                and math.hypot(pose['x']-target['x'], pose['y']-target['y']) <= mission.pose_tolerance)
+            quality = app.localization_health
+            quality_ok = (now-app.localization_health_at < 1.
+                          and quality.get('autonomous_allowed') is True
+                          and quality.get('level') in {'ok', 'healthy', 'warning'})
+            sensors = (now-app.localization_odom_at < .5 and now-app.localization_scan_at < .5)
+            camera_at = app.front_camera_at if camera == 'front' else app.camera_at
+            yaw = (app.odom_pose or {}).get('yaw', math.nan)
+            self.marker_alignment_angular = self.marker_alignment.tick(now, yaw,
+                pose_ok=near_target and quality_ok, scan_clear=sensors and app.localization_clear,
+                stationary=abs(app.speed['angular']) < .06,
+                translation_stopped=abs(app.speed['linear']) < .025,
+                manual_active=app.manual.in_progress or app.localization.active,
+                estop=mission.estop_latched or app.safety_request is not None,
+                camera_fresh=now-camera_at < .8)
+            app.marker_alignment = self.marker_alignment.snapshot()
+            app.marker_alignment['required'] = app.marker_alignment.get('required_frames', 3)
+            app.marker_alignment['max_seconds'] = self.marker_alignment.timeout
+            if self.marker_alignment.state == 'FAILED':
+                mission.pause()
+                mission.reason = '표식 정렬을 일시정지했습니다: '+app.marker_alignment['reason']
+                mission.event(mission.reason, 'warning')
 
         def update_localization_services(self, now):
             app.localization_services_ready = (self.global_localization_client.service_is_ready()
@@ -1613,10 +1934,48 @@ def create_ros_bridge(app, options, context):
                                                  if app.localization_use_existing_pose else ''), 'warning')
                 self.stop()
 
+        def tick_home_seed(self, now):
+            request = app.home_seed_request
+            if request is None:
+                return
+            # Recheck at ROS dispatch time; an HTTP click is not permission to
+            # apply an old seed after a delayed callback or connection change.
+            available, reason = app.seed_home_readiness()
+            app.home_seed_request = None
+            if (not available or now-request['at'] >= 2.
+                    or request['key'] != app.home_seed_key()):
+                app.home_seed_result = '초기 위치 입력 거부: '+(reason if not available else '요청이 오래되었거나 등록 홈이 바뀌었습니다.')
+                app.mission.event(app.home_seed_result, 'warning')
+                return
+            if not any(info.node_name.lstrip('/') == 'amcl'
+                       for info in self.get_subscriptions_info_by_topic('/initialpose')):
+                app.home_seed_result = '초기 위치 입력 거부: AMCL 구독이 없습니다.'
+                app.mission.event(app.home_seed_result, 'warning')
+                return
+            home = request['home']
+            seed = PoseWithCovarianceStamped()
+            seed.header.frame_id = 'map'
+            stamp = self.get_clock().now().nanoseconds
+            seed.header.stamp.sec, seed.header.stamp.nanosec = divmod(stamp, 1_000_000_000)
+            seed.pose.pose.position.x, seed.pose.pose.position.y = home['x'], home['y']
+            seed.pose.pose.orientation.z = math.sin(home['yaw']/2.)
+            seed.pose.pose.orientation.w = math.cos(home['yaw']/2.)
+            seed.pose.covariance[0] = seed.pose.covariance[7] = .30**2
+            seed.pose.covariance[35] = .35**2
+            self.startup_seed_stamps.append(stamp)
+            self.manual_initial_pose_ns = self.localization_epoch_ns = stamp
+            app.localization_invalidated = True
+            self.initial_pose_pub.publish(seed)
+            app.home_seed_result = '등록 홈 초기 가설 입력 완료 · 비상정지 유지. 센서 안정 후 해제하고 자세 초기화를 실행하세요.'
+            app.mission.event(app.home_seed_result)
+
         def tick(self):
             now = time.monotonic()
             with app.lock:
-                app.goal_available = self.goal_pub.get_subscription_count() > 0
+                self.tick_safety(now)
+                self.tick_home_seed(now)
+                app.goal_available = goal_consumers_ready(
+                    endpoint.node_name for endpoint in self.get_subscriptions_info_by_topic('/smart_vision_amr/goal'))
                 app.planner_available = self.count_publishers('/smart_vision_amr/planner_status') > 0
                 app.cancel_available = self.cancel_client.service_is_ready()
                 app.navigation_command_publishers = self.count_publishers('/smart_vision_amr/navigation_cmd_vel')
@@ -1711,6 +2070,7 @@ def create_ros_bridge(app, options, context):
                             and app.manual_mux_status.get('source_id') == self.motion_source
                             and app.manual_mux_status.get('mode') in {'hold', 'manual'})
                 self.tick_localization(now, cancelled, mux_held)
+                self.tick_marker_alignment(now, cancelled, mux_held)
                 if app.manual.state == 'ACQUIRING' and cancelled and mux_held:
                     app.manual.mark_acquired()
                 if app.manual.state == 'RELEASING' and cancelled:
@@ -1746,7 +2106,9 @@ def create_ros_bridge(app, options, context):
                     self.stop()
                 elif self.sent_estop:
                     self.sent_estop = False
-                    self.send_control('reset')
+                    # Reset is acknowledged by the shared service; no raw
+                    # UI reset packet may bypass the estimator guard.
+                    self.send_control('hold')
                     self.motion_gate = True
                 elif app.manual.state == 'ACTIVE' and cancelled:
                     self.send_control('manual', app.manual.linear, app.manual.angular)
@@ -1756,9 +2118,11 @@ def create_ros_bridge(app, options, context):
                     else:
                         self.stop()
                 elif app.mission.state == 'CONFIRMING':
-                    # The A* follower has finished; keep the mux held until a
-                    # fresh camera frame confirms the marker or a new goal is sent.
-                    self.stop()
+                    if cancelled and mux_held and self.marker_alignment_angular:
+                        self.send_control('manual', 0., self.marker_alignment_angular,
+                                          operation='marker_alignment')
+                    else:
+                        self.stop()
                 elif app.manual.in_progress or now < self.stop_until or self.motion_gate:
                     self.stop()
                 app.cancel_pending = self.cancel_required or self.cancel_future is not None
@@ -2039,8 +2403,21 @@ def build_parser():
                         help='sensor_msgs/BatteryState topic used for the vehicle voltage indicator')
     parser.add_argument('--base-frame', default='base_footprint')
     parser.add_argument('--confirmations', type=int, default=3)
+    parser.add_argument('--marker-search-speed', type=float, default=.12,
+                        help='Arrival marker search angular speed, rad/s (max .15)')
+    parser.add_argument('--marker-center-gain', type=float, default=.35,
+                        help='Yaw gain on normalized horizontal pixel error')
+    parser.add_argument('--marker-center-tolerance', type=float, default=.08,
+                        help='Normalized image center tolerance; .08 is +/-4%% image width')
+    parser.add_argument('--marker-search-timeout', type=float, default=45.,
+                        help='Maximum seconds for one arrival marker search attempt')
+    parser.add_argument('--marker-front-yaw-sign', type=float, choices=(-1., 1.), default=-1.)
+    parser.add_argument('--marker-rear-yaw-sign', type=float, choices=(-1., 1.), default=-1.,
+                        help='Upright non-mirrored front and rear images both use -1')
     parser.add_argument('--with-motion-mux', action='store_true',
-                        help='Own the single cmd_vel arbiter in this web server executor')
+                        help='Start a separate cmd_vel arbiter process (legacy PC deployment only)')
+    parser.add_argument('--require-localization-health', action='store_true',
+                        help='Gate autonomous dispatch on current localization quality')
     clock = parser.add_mutually_exclusive_group()
     clock.add_argument('--use-sim-time', action='store_true', dest='use_sim_time')
     clock.add_argument('--no-use-sim-time', action='store_false', dest='use_sim_time')
@@ -2058,6 +2435,7 @@ def main(args=None):
         options.web_dir = str(Path(get_package_share_directory('smart_vision_amr'))/'web')
     app = MissionApplication(markers, options.domain_id, options.use_sim_time, options.config_file, options.confirmations,
                              access_mode=options.access_mode)
+    app.require_localization_health = options.require_localization_health
     if options.map_file:
         app.load_map_preview(options.map_file)
     if options.floorplan_file:
@@ -2078,7 +2456,17 @@ def main(args=None):
     old_handlers = {}
     for signum in (signal.SIGINT, signal.SIGTERM):
         old_handlers[signum] = signal.signal(signum, lambda *_: stop_requested.set())
-    node = mux_node = context = executor = None
+    node = mux_process = context = executor = None
+    def stop_mux_process():
+        nonlocal mux_process
+        if mux_process is not None and mux_process.poll() is None:
+            os.killpg(mux_process.pid, signal.SIGTERM)
+            try:
+                mux_process.wait(timeout=3.)
+            except subprocess.TimeoutExpired:
+                os.killpg(mux_process.pid, signal.SIGKILL)
+                mux_process.wait()
+        mux_process = None
     try:
         while not stop_requested.is_set():
             if node is None:
@@ -2089,9 +2477,16 @@ def main(args=None):
                     executor = SingleThreadedExecutor(context=context)
                     executor.add_node(node)
                     if options.with_motion_mux:
-                        from smart_vision_amr.motion_mux import MotionMuxNode
-                        mux_node = MotionMuxNode(context=context, use_sim_time=app.use_sim_time)
-                        executor.add_node(mux_node)
+                        env = dict(os.environ, ROS_DOMAIN_ID=str(app.domain_id))
+                        mux_process = subprocess.Popen(
+                            [sys.executable, '-m', 'smart_vision_amr.motion_mux', '--ros-args',
+                             '-p', 'use_sim_time:='+str(app.use_sim_time).lower(),
+                             '-p', 'allow_legacy_auto_input:=false',
+                             '-p', 'require_localization_health:='
+                                   +str(options.require_localization_health).lower(),
+                             '-p', 'startup_estop:='+str(options.require_localization_health).lower(),
+                             '-p', 'allow_topic_reset:='+str(not options.require_localization_health).lower()],
+                            env=env, start_new_session=True)
                 except Exception:
                     context.shutdown()
                     raise
@@ -2103,13 +2498,9 @@ def main(args=None):
                     and not any(kind == 'cancel' for kind, _ in app.mission.commands)):
                 node.stop()
                 node.destroy_node()
-                if mux_node is not None:
-                    mux_node.core.mode = 'hold'
-                    mux_node.publish_output()
-                    executor.remove_node(mux_node)
-                    mux_node.destroy_node()
+                stop_mux_process()
                 context.shutdown()
-                node = mux_node = context = executor = None
+                node = context = executor = None
                 with app.lock:
                     app.domain_id, app.use_sim_time = pending
                     app.pending_connection = None
@@ -2126,6 +2517,14 @@ def main(args=None):
                     app.manual.finish()
                     app.manual_mux_at = 0.
                     app.manual_mux_status = {}
+                    app.localization_health = {}
+                    app.localization_health_at = 0.
+                    app.safety_request = None
+                    app.home_seed_request = None
+                    app.home_seed_match = None
+                    app.home_seed_match_at = 0.
+                    app.home_seed_match_key = None
+                    app.home_seed_result = ''
                     app.manual_cancel_requested = app.manual_auto_ready = False
                     app.localization = AssistedLocalization()
                     app.localization_requested = app.localization_stop_requested = False
@@ -2157,12 +2556,8 @@ def main(args=None):
                     executor.spin_once(timeout_sec=.05)
             executor.remove_node(node)
             node.destroy_node()
-            if mux_node is not None:
-                mux_node.core.mode = 'hold'
-                mux_node.publish_output()
-                executor.remove_node(mux_node)
-                mux_node.destroy_node()
             executor.shutdown()
+        stop_mux_process()
         if context is not None and context.ok():
             context.shutdown()
         with app.lock:

@@ -3,8 +3,8 @@
 저장소를 `~/Team2_workspace/src/SMART-VISION-AMR`에 클론하고
 루트의 `./scripts/setup_sim.sh`를 실행한 환경을 기준으로 합니다.
 
-바로 받을 배포본은 [조종기 DEB](releases/turtlebot3-controller_1.1.0_all.deb)와
-[미로 실습 ZIP](releases/turtlebot3-aruco-lab_1.1.0.zip)입니다.
+바로 받을 배포본은 [조종기 DEB](releases/turtlebot3-controller_1.2.0_all.deb)와
+[미로 실습 ZIP](releases/turtlebot3-aruco-lab_1.2.0.zip)입니다.
 각 파일 옆의 `.sha256`으로 다운로드한 파일을 확인할 수 있습니다.
 
 ## 조종기 앱 DEB
@@ -17,7 +17,7 @@ python3 distribution/controller/build_deb.py
 ./distribution/controller/install_controller.sh
 ```
 
-`distribution/releases/turtlebot3-controller_1.1.0_all.deb`와 SHA-256이 생성됩니다.
+`distribution/releases/turtlebot3-controller_1.2.0_all.deb`와 SHA-256이 생성됩니다.
 받는 PC는 Ubuntu 22.04와 ROS Humble apt 저장소가 필요합니다.
 설치 후 앱 메뉴의 **TurtleBot3 Controller**를 실행하고 로봇 도메인을 맞춥니다.
 이 DEB는 조종기 앱이며 로봇 bringup·Nav2·웹 서버를 자동 시작하지 않습니다.
@@ -36,7 +36,7 @@ DEB도 넣으려면 다음처럼 실행합니다.
 
 ```bash
 python3 distribution/lab/build_lab_bundle.py --zip --replace \
-  --deb distribution/releases/turtlebot3-controller_1.1.0_all.deb
+  --deb distribution/releases/turtlebot3-controller_1.2.0_all.deb
 ```
 
 받는 사람은 압축을 풀고 해당 폴더에서 순서대로 실행합니다.

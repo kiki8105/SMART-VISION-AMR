@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Keep simulation/custom UDP local. Humble rmw_fastrtps additionally appends
+     its own loopback UDP and SHM when ROS_LOCALHOST_ONLY=1; this profile does
+     not claim to disable that explicit middleware SHM transport. -->
+<profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+  <transport_descriptors>
+    <transport_descriptor>
+      <transport_id>smart_vision_udp_localhost</transport_id>
+      <type>UDPv4</type>
+      <interfaceWhiteList>
+        <address>127.0.0.1</address>
+      </interfaceWhiteList>
+    </transport_descriptor>
+  </transport_descriptors>
+  <participant profile_name="smart_vision_udp_localhost" is_default_profile="true">
+    <rtps>
+      <userTransports>
+        <transport_id>smart_vision_udp_localhost</transport_id>
+      </userTransports>
+      <useBuiltinTransports>false</useBuiltinTransports>
+    </rtps>
+  </participant>
+</profiles>

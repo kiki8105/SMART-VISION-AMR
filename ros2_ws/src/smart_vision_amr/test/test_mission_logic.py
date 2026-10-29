@@ -17,9 +17,10 @@ class MissionLogicTests(unittest.TestCase):
         self.m.goal_dispatched(stamp)
         self.m.on_navigation({'status': 'SUCCEEDED', 'goal_stamp': {'sec': stamp[0], 'nanosec': stamp[1]}})
 
-    def observe(self, frame=1, ids=None, stationary=True, pose=None, frame_time=11.):
+    def observe(self, frame=1, ids=None, stationary=True, pose=None, frame_time=11., alignment_verified=True):
         return self.m.observe(frame, [2] if ids is None else ids,
-                              pose or {'x': 2., 'y': 0., 'yaw': 0.}, stationary, frame_time)
+                              pose or {'x': 2., 'y': 0., 'yaw': 0.}, stationary, frame_time,
+                              alignment_verified=alignment_verified)
 
     def test_invalid_empty_unknown_bool_routes_rejected(self):
         for route in ([], [10], [True], '2,3', None, [2]*101):
@@ -61,12 +62,12 @@ class MissionLogicTests(unittest.TestCase):
         self.arrive()
         pose = {'x': 2., 'y': 0., 'yaw': 0.}
         for frame in range(1, 5):
-            self.m.observe(frame, [2], pose, True, 11.+frame, camera_fresh=False)
+            self.m.observe(frame, [2], pose, True, 11.+frame, camera_fresh=False, alignment_verified=True)
         self.assertEqual(self.m.state, 'CONFIRMING')
         self.assertEqual(self.m.confirmations, 0)
         self.assertEqual(self.m.completed_ids, [])
         for frame in range(5, 8):
-            self.m.observe(frame, [2], pose, True, 11.+frame, camera_fresh=True)
+            self.m.observe(frame, [2], pose, True, 11.+frame, camera_fresh=True, alignment_verified=True)
         self.assertEqual(self.m.completed_ids, [2])
 
     def test_wrong_marker_resets_count(self):
@@ -75,12 +76,22 @@ class MissionLogicTests(unittest.TestCase):
         self.observe(2, ids=[3])
         self.assertEqual(self.m.confirmations, 0)
 
-    def test_moving_or_wrong_pose_or_wrong_yaw_does_not_confirm(self):
+    def test_moving_wrong_position_or_unverified_visual_yaw_does_not_confirm(self):
         self.arrive()
         self.observe(1, stationary=False)
         self.observe(2, pose={'x': 3., 'y': 0., 'yaw': 0.})
-        self.observe(3, pose={'x': 2., 'y': 0., 'yaw': 3.})
+        self.observe(3, pose={'x': 2., 'y': 0., 'yaw': 3.}, alignment_verified=False)
         self.assertEqual(self.m.confirmations, 0)
+
+    def test_id_only_observation_never_completes_and_visual_yaw_supersedes_nominal(self):
+        self.arrive()
+        pose = {'x': 2., 'y': 0., 'yaw': 1.2}
+        for frame in range(1, 5):
+            self.m.observe(frame, [2], pose, True, 11.)
+        self.assertEqual(self.m.confirmations, 0)
+        for frame in range(5, 8):
+            self.m.observe(frame, [2], pose, True, 11., alignment_verified=True)
+        self.assertEqual(self.m.completed_ids, [2])
 
     def test_replan_wait_keeps_goal_and_route(self):
         self.m.start(home=HOME)
@@ -287,7 +298,7 @@ class DeliveryMissionTests(unittest.TestCase):
         self.m.on_navigation({'status': 'SUCCEEDED', 'goal_stamp': list(stamp)})
         for _ in range(3):
             self.frame += 1
-            self.m.observe(self.frame, [marker_id], MARKERS[marker_id], True, 11.)
+            self.m.observe(self.frame, [marker_id], MARKERS[marker_id], True, 11., alignment_verified=True)
 
     def test_automatic_return_requires_home_without_partial_start(self):
         with self.assertRaises(MissionError):
@@ -315,15 +326,15 @@ class DeliveryMissionTests(unittest.TestCase):
         self.start()
         self.m.goal_dispatched((100, 3))
         self.m.on_navigation({'status': 'SUCCEEDED', 'goal_stamp': [100, 3]})
-        self.m.observe(1, [2], MARKERS[2], True, 11.)
+        self.m.observe(1, [2], MARKERS[2], True, 11., alignment_verified=True)
         self.m.append_waypoints([1, 3, 1])
         self.assertEqual(self.m.route, [2, 1, 3, 1])
         self.assertEqual(self.m.goal_stamp, (100, 3))
         self.assertEqual(self.m.state, 'CONFIRMING')
         self.assertEqual(self.m.confirmations, 1)
         self.assertEqual(self.m.drain_commands(), [])
-        self.m.observe(2, [2], MARKERS[2], True, 11.)
-        self.m.observe(3, [2], MARKERS[2], True, 11.)
+        self.m.observe(2, [2], MARKERS[2], True, 11., alignment_verified=True)
+        self.m.observe(3, [2], MARKERS[2], True, 11., alignment_verified=True)
         self.assertEqual(self.m.expected_id, 1)
         self.assertEqual(self.m.completed_ids, [2])
 

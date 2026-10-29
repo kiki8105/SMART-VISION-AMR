@@ -113,7 +113,7 @@ class LocalizationHTTPTests(unittest.TestCase):
 
     def test_start_and_stop_are_operator_only(self):
         manager = self.app.pair_inventory('manager', 4, '', domain_id=218)
-        for endpoint in ('/api/localization/start', '/api/localization/stop'):
+        for endpoint in ('/api/localization/start', '/api/localization/stop', '/api/localization/seed-home'):
             for cookie in (None, 'amr_inventory_session='+manager):
                 status, body = self.request(endpoint, cookie)
                 self.assertEqual(status, 401, body)
@@ -345,7 +345,12 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.node.count_publishers = lambda topic: 1 if topic in {
             '/smart_vision_amr/planner_status', '/smart_vision_amr/navigation_cmd_vel'} else 0
         self.node.get_publishers_info_by_topic = lambda _: []
-        self.node.get_subscriptions_info_by_topic = lambda _: [SimpleNamespace(node_name='amcl')]
+        self.node.get_subscriptions_info_by_topic = lambda topic: [
+            SimpleNamespace(node_name=name) for name in (
+                ('astar_planner', 'path_follower')
+                if topic == '/smart_vision_amr/goal' else ('amcl',)
+            )
+        ]
 
         def no_transform(*_args, **_kwargs):
             raise TransformException('No live transforms are consulted')
@@ -478,7 +483,10 @@ class LocalizationBridgeTests(unittest.TestCase):
         message.header.stamp.sec, message.header.stamp.nanosec = divmod(stamp, 1_000_000_000)
         with patch('smart_vision_amr.web_mission_server.image_to_bgr',
                    return_value=np.zeros((16, 16, 3), dtype=np.uint8)), \
-                patch('cv2.aruco.drawDetectedMarkers'):
+                patch('cv2.aruco.drawDetectedMarkers'), \
+                patch.object(self.node, 'process_marker_frame', return_value=True):
+            # This case isolates selected-camera routing. Alignment geometry,
+            # motion/stability and safety are covered by alignment bridge tests.
             self.node.on_image(message)
             self.assertEqual(mission.confirmations, 0, 'rear detection cannot confirm a front goal')
             self.assertEqual(self.app.detected_ids, [1])

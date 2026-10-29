@@ -304,6 +304,7 @@ class OutputOwnershipTest(unittest.TestCase):
                 self.output_conflict = ''
                 self.output_publishers = 0
                 self._ownership_checked_at = -math.inf
+                self.get_clock = lambda: SimpleNamespace(now=lambda: SimpleNamespace(nanoseconds=0))
                 self.get_publishers_info_by_topic = Mock(return_value=endpoints)
 
             def get_name(self):
@@ -366,6 +367,41 @@ class OutputOwnershipTest(unittest.TestCase):
         with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=10.21):
             node.publish_status()
         self.assertEqual(node.get_publishers_info_by_topic.call_count, 2)
+
+    def test_reset_verification_forces_zero_even_if_a_delayed_command_reaches_core(self):
+        node, own = self.harness([])
+        node.get_publishers_info_by_topic.return_value = [own]
+        node.pending_reset = {'applied': True}
+        node.core.receive_auto(.2, .5)
+        node.publish_output()
+        message = node.output_pub.publish.call_args.args[0]
+        self.assertEqual((message.linear.x, message.angular.z), (0.0, 0.0))
+        node.publish_status()
+        import json
+        status = json.loads(node.status_pub.publish.call_args.args[0].data)
+        self.assertEqual(status['output_owner'], 'safety_reset')
+        self.assertEqual(status['output_linear'], 0.0)
+
+    def test_duplicate_status_is_capped_but_transitions_and_service_ack_are_immediate(self):
+        from types import SimpleNamespace
+        from unittest.mock import Mock, patch
+        node, own = self.harness([])
+        node.get_publishers_info_by_topic.return_value = [own]
+        node.service_source, node.service_seq = 'mux-service:test', 0
+        node.pending_reset, node.control_pub = None, Mock()
+        node.last_zero_published_at = None
+        with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=10.0):
+            self.assertTrue(node.publish_status())
+            for _ in range(20):
+                self.assertFalse(node.publish_status())
+            self.assertEqual(node.status_pub.publish.call_count, 1)
+            # State transitions bypass the cap even inside a 100 ms window.
+            node.core.mode, node.core.estop_latched = 'estop', True
+            self.assertTrue(node.publish_status())
+            before = node.status_pub.publish.call_count
+            self.assertTrue(node.on_emergency_stop(None, SimpleNamespace()).success)
+            self.assertTrue(node.on_emergency_stop(None, SimpleNamespace()).success)
+            self.assertEqual(node.status_pub.publish.call_count, before+2)
 
 
 if __name__ == '__main__':

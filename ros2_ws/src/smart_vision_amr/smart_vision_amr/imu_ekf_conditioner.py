@@ -28,6 +28,13 @@ class StationaryGyroBias:
                  stationary_angular_limit=0.04, stationary_gyro_limit=0.12,
                  max_gyro_rate=3.0, minimum_variance=0.02**2,
                  bias_adaptation=0.005):
+        positive = (calibration_seconds, wheel_timeout, stationary_linear_limit,
+                    stationary_angular_limit, stationary_gyro_limit,
+                    max_gyro_rate, minimum_variance, bias_adaptation)
+        if (not all(math.isfinite(value) and value > 0.0 for value in positive)
+                or calibration_samples < 2 or bias_adaptation > 1.0
+                or stationary_gyro_limit >= max_gyro_rate):
+            raise ValueError('Invalid stationary gyro calibration limits')
         self.calibration_seconds = calibration_seconds
         self.calibration_samples = calibration_samples
         self.wheel_timeout = wheel_timeout
@@ -113,12 +120,26 @@ class ImuEkfConditioner(Node):
         self.declare_parameter('minimum_gyro_z_variance', 0.02**2)
         self.declare_parameter('max_stamp_age_sec', 1.0)
         self.declare_parameter('future_stamp_tolerance_sec', 0.25)
+        limits = {'stationary_linear_limit': 0.01,
+                  'stationary_angular_limit': 0.04,
+                  'stationary_gyro_limit': 0.12,
+                  'max_gyro_rate': 3.0, 'bias_adaptation': 0.005}
+        for name, default in limits.items():
+            self.declare_parameter(name, default)
+        values = {name: float(self.get_parameter(name).value) for name in limits}
+        if (not all(math.isfinite(value) and value > 0.0 for value in values.values())
+                or values['bias_adaptation'] > 1.0):
+            raise ValueError('Invalid gyro conditioning limits')
         self.estimator = StationaryGyroBias(
             calibration_seconds=float(self.get_parameter('calibration_seconds').value),
             calibration_samples=int(self.get_parameter('calibration_samples').value),
             wheel_timeout=float(self.get_parameter('wheel_timeout').value),
-            minimum_variance=float(self.get_parameter('minimum_gyro_z_variance').value))
+            minimum_variance=float(self.get_parameter('minimum_gyro_z_variance').value),
+            **values)
         self.stamp_guard = SensorStampGuard(
+            max_age_sec=float(self.get_parameter('max_stamp_age_sec').value),
+            future_tolerance_sec=float(self.get_parameter('future_stamp_tolerance_sec').value))
+        self.wheel_stamp_guard = SensorStampGuard(
             max_age_sec=float(self.get_parameter('max_stamp_age_sec').value),
             future_tolerance_sec=float(self.get_parameter('future_stamp_tolerance_sec').value))
         self.publisher = self.create_publisher(Imu, '/imu/ekf', 10)
@@ -129,6 +150,9 @@ class ImuEkfConditioner(Node):
         self.get_logger().info('Keep the robot stationary for gyro calibration before driving')
 
     def on_wheel(self, message):
+        stamp_ns = message.header.stamp.sec * 1_000_000_000 + message.header.stamp.nanosec
+        if not self.wheel_stamp_guard.accept(stamp_ns, self.get_clock().now().nanoseconds):
+            return
         velocity = message.twist.twist
         self.estimator.update_wheel(velocity.linear.x, velocity.angular.z,
                                     time.monotonic())

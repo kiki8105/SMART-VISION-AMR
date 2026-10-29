@@ -42,12 +42,19 @@ source /opt/ros/humble/setup.bash
 # shellcheck disable=SC1091
 source "$WORKSPACE_ROOT/install/local_setup.bash"
 export ROS_DOMAIN_ID="$DOMAIN_ID" ROS_LOCALHOST_ONLY=0 TURTLEBOT3_MODEL=waffle_pi
+source "$SCRIPT_DIR/dds_env.bash"
 # An EKF run needs robot_localization on the PC. Reuse the non-root Humble
 # package used by our benchmark when the host apt installation is absent.
 needs_ekf=false
+estimation_location=pc
+localization_mode=baseline
 for arg in "$@"; do
-  if [[ "$arg" == localization_mode:=ekf_independent ]]; then needs_ekf=true; fi
+  case "$arg" in
+    localization_mode:=*) localization_mode=${arg#localization_mode:=} ;;
+    estimation_location:=*) estimation_location=${arg#estimation_location:=} ;;
+  esac
 done
+if [[ "$localization_mode" == ekf_independent && "$estimation_location" == pc ]]; then needs_ekf=true; fi
 if [[ "$needs_ekf" == true ]] && ! ros2 pkg prefix robot_localization >/dev/null 2>&1; then
   local_ekf_root=$HOME/.local/opt/robot_localization/extracted
   local_ekf_prefix=$local_ekf_root/opt/ros/humble
@@ -63,9 +70,15 @@ if [[ "$needs_ekf" == true ]] && ! ros2 pkg prefix robot_localization >/dev/null
   printf 'Independent EKF requires ros-humble-robot-localization on the PC.\n' >&2
   exit 2
 fi
-if [[ "$needs_ekf" == true ]] && ! timeout 12s /usr/bin/python3 \
-    "$SCRIPT_DIR/check_ekf_robot_preflight.py" --timeout 8; then
-  printf 'Robot must run the independent EKF bringup before PC navigation starts.\n' >&2
+if [[ "$needs_ekf" == true || "$estimation_location" == robot ]] && ! timeout 12s /usr/bin/python3 \
+    "$SCRIPT_DIR/check_ekf_robot_preflight.py" --timeout 8 \
+    --estimation-location "$estimation_location" --localization-mode "$localization_mode"; then
+  if [[ "$estimation_location" == robot ]]; then
+    printf 'Start the robot-local runtime first (scripts/setup_robot_runtime.sh builds it).\n' >&2
+    printf 'For previous PC deployment, set SMART_VISION_ESTIMATION_LOCATION=pc on robot, navigation AND web.\n' >&2
+  else
+    printf 'Robot must run wheel-only EKF bringup before PC estimation starts.\n' >&2
+  fi
   exit 2
 fi
 # Also catch a Nav2 stack started directly, outside this script/lock. Query the

@@ -1,0 +1,706 @@
+{
+  "date": "2026-10-29",
+  "scope": "Isolated local Gazebo only; no physical robot commands or network scans",
+  "domain_id": 185,
+  "gazebo_master": "http://127.0.0.1:11585",
+  "web_url": "http://127.0.0.1:18890",
+  "runtime": {
+    "clock_hz": 50,
+    "final_camera_update_rate_hz": 8,
+    "web_camera_transport": "compressed",
+    "sim_mode_profiles": [
+      "baseline",
+      "ekf_independent"
+    ],
+    "dds": "Project UDP XML; Humble RMW still appends shared-memory transport with ROS_LOCALHOST_ONLY=1. No UDP-only or causal SHM-removal claim.",
+    "extra_dependencies": "User-space robot_localization and compressed_image_transport prefixes for this host only; repository setup installs normal ROS packages."
+  },
+  "trials": {
+    "baseline_straight": {
+      "result": "PASS",
+      "evidence_log": "evidence/nav_upgrade_baseline_straight185.log",
+      "checks": {
+        "nonempty_path": true,
+        "nonzero_cmd_vel": true,
+        "odom_displacement_over_0_3m": true,
+        "navigation_succeeded": true,
+        "goal_distance_within_0_35m": true
+      },
+      "goal": [
+        -1.0,
+        -2.0,
+        0.0
+      ],
+      "robot_map_xy": [
+        -1.2173204869965817,
+        -2.0442998343540264
+      ],
+      "final_distance_m": 0.22178969631663598,
+      "max_odom_displacement_m": 1.751432895742859,
+      "last_path_poses": 46,
+      "nonempty_paths_received": 1,
+      "last_navigation_status": {
+        "status": "SUCCEEDED",
+        "message": "Nav2 status 4",
+        "goal": {
+          "x": -1.0,
+          "y": -2.0,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 3,
+          "nanosec": 300000000
+        },
+        "manual_stop": false,
+        "stop_stamp": null
+      },
+      "status_parse_errors": 0,
+      "tf_error": null,
+      "wall_elapsed_seconds": 10.108
+    },
+    "ekf_outbound": {
+      "result": "PASS",
+      "evidence_log": "evidence/nav_upgrade_ekf_udp50_detour185.log",
+      "checks": {
+        "nonempty_path": true,
+        "nonzero_cmd_vel": true,
+        "odom_displacement_over_0_3m": true,
+        "navigation_succeeded": true,
+        "goal_distance_within_0_35m": true
+      },
+      "goal": [
+        3.0,
+        2.0,
+        1.57
+      ],
+      "robot_map_xy": [
+        2.8267986561938865,
+        1.9524956088275998
+      ],
+      "final_distance_m": 0.1795978081071814,
+      "max_odom_displacement_m": 7.145717288279969,
+      "last_path_poses": 77,
+      "nonempty_paths_received": 6,
+      "last_navigation_status": {
+        "status": "SUCCEEDED",
+        "message": "Nav2 status 4",
+        "goal": {
+          "x": 3.0,
+          "y": 2.0,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 1,
+          "nanosec": 480000000
+        },
+        "manual_stop": false,
+        "stop_stamp": null
+      },
+      "status_parse_errors": 0,
+      "tf_error": null,
+      "wall_elapsed_seconds": 74.393
+    },
+    "ekf_home_gui": {
+      "result": "PASS",
+      "evidence_log": "evidence/nav_upgrade_ekf_udp50_home_gui185.log",
+      "checks": {
+        "nonempty_path": true,
+        "nonzero_cmd_vel": true,
+        "odom_displacement_over_0_3m": true,
+        "navigation_succeeded": true,
+        "goal_distance_within_0_35m": true,
+        "controller_goal_published": true,
+        "controller_live_map": true,
+        "controller_robot_pose": true,
+        "controller_path_displayed": true
+      },
+      "goal": [
+        -3.0,
+        -2.0,
+        0.0
+      ],
+      "robot_map_xy": [
+        -2.9721799935721815,
+        -1.9225052226331103
+      ],
+      "final_distance_m": 0.08233707109672811,
+      "max_odom_displacement_m": 7.0848093169114605,
+      "last_path_poses": 29,
+      "nonempty_paths_received": 11,
+      "last_navigation_status": {
+        "status": "SUCCEEDED",
+        "message": "Nav2 status 4",
+        "goal": {
+          "x": -3.0,
+          "y": -2.0,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 105,
+          "nanosec": 600000000
+        },
+        "manual_stop": false,
+        "stop_stamp": null
+      },
+      "status_parse_errors": 0,
+      "tf_error": null,
+      "controller": {
+        "source": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/tools/cmd_vel_controller.py",
+        "sha256": "4b3ac5420170517d3d7c36365eaf8c39ebac36b6140d78e9e7442d7c6fa5f819",
+        "goal_handler": "MapPanel.start_v3_goal",
+        "goal_topic": "/smart_vision_amr/goal",
+        "displayed_path_poses": 29,
+        "robot_map_pose": [
+          -2.9731391722496587,
+          -1.9215556197174568,
+          -0.138008147322899
+        ],
+        "map_panel_status": "Goal 전송 (/smart_vision_amr/goal): x=-3.00, y=-2.00, yaw=0°",
+        "screenshot": "evidence/nav_upgrade_ekf_controller_home185.png"
+      },
+      "wall_elapsed_seconds": 69.352
+    },
+    "baseline_camera_gui": {
+      "result": "PASS",
+      "evidence_log": "evidence/nav_upgrade_baseline_camera_gui185.log",
+      "checks": {
+        "nonempty_path": true,
+        "nonzero_cmd_vel": true,
+        "odom_displacement_over_0_3m": true,
+        "navigation_succeeded": true,
+        "goal_distance_within_0_35m": true,
+        "controller_goal_published": true,
+        "controller_live_map": true,
+        "controller_robot_pose": true,
+        "controller_path_displayed": true
+      },
+      "goal": [
+        3.0,
+        2.0,
+        1.57
+      ],
+      "robot_map_xy": [
+        2.860641373931598,
+        1.9145223569360779
+      ],
+      "final_distance_m": 0.16348472137614573,
+      "max_odom_displacement_m": 7.139162138854412,
+      "last_path_poses": 29,
+      "nonempty_paths_received": 12,
+      "last_navigation_status": {
+        "status": "SUCCEEDED",
+        "message": "Nav2 status 4",
+        "goal": {
+          "x": 3.0,
+          "y": 2.0,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 3,
+          "nanosec": 740000000
+        },
+        "manual_stop": false,
+        "stop_stamp": null
+      },
+      "status_parse_errors": 0,
+      "tf_error": null,
+      "controller": {
+        "source": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/tools/cmd_vel_controller.py",
+        "sha256": "4b3ac5420170517d3d7c36365eaf8c39ebac36b6140d78e9e7442d7c6fa5f819",
+        "goal_handler": "MapPanel.start_v3_goal",
+        "goal_topic": "/smart_vision_amr/goal",
+        "displayed_path_poses": 29,
+        "robot_map_pose": [
+          2.8606412977411937,
+          1.914525497661799,
+          1.5098529793587234
+        ],
+        "map_panel_status": "Goal 전송 (/smart_vision_amr/goal): x=3.00, y=2.00, yaw=90°",
+        "screenshot": "evidence/nav_upgrade_baseline_camera_controller185.png"
+      },
+      "wall_elapsed_seconds": 76.945
+    },
+    "ekf_camera_loopback_gui": {
+      "result": "PASS",
+      "evidence_log": "evidence/nav_upgrade_ekf_camera_loopback_gui185.log",
+      "checks": {
+        "nonempty_path": true,
+        "nonzero_cmd_vel": true,
+        "odom_displacement_over_0_3m": true,
+        "navigation_succeeded": true,
+        "goal_distance_within_0_35m": true,
+        "controller_goal_published": true,
+        "controller_live_map": true,
+        "controller_robot_pose": true,
+        "controller_path_displayed": true
+      },
+      "goal": [
+        3.0,
+        2.0,
+        1.57
+      ],
+      "robot_map_xy": [
+        2.840206228355583,
+        1.9718206055650098
+      ],
+      "final_distance_m": 0.1622594457252668,
+      "max_odom_displacement_m": 7.143339812532596,
+      "last_path_poses": 61,
+      "nonempty_paths_received": 3,
+      "last_navigation_status": {
+        "status": "SUCCEEDED",
+        "message": "Nav2 status 4",
+        "goal": {
+          "x": 3.0,
+          "y": 2.0,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 3,
+          "nanosec": 260000000
+        },
+        "manual_stop": false,
+        "stop_stamp": null
+      },
+      "status_parse_errors": 0,
+      "tf_error": null,
+      "controller": {
+        "source": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/tools/cmd_vel_controller.py",
+        "sha256": "4b3ac5420170517d3d7c36365eaf8c39ebac36b6140d78e9e7442d7c6fa5f819",
+        "goal_handler": "MapPanel.start_v3_goal",
+        "goal_topic": "/smart_vision_amr/goal",
+        "displayed_path_poses": 61,
+        "robot_map_pose": [
+          2.8398489962761175,
+          1.9717097866894326,
+          1.3305819181464025
+        ],
+        "map_panel_status": "Goal 전송 (/smart_vision_amr/goal): x=3.00, y=2.00, yaw=90°",
+        "screenshot": "evidence/nav_upgrade_ekf_camera_loopback_controller185.png"
+      },
+      "wall_elapsed_seconds": 56.148
+    }
+  },
+  "telemetry": {
+    "independent_ekf_roundtrip": {
+      "elapsed": 208.75838830200064,
+      "health_levels": {
+        "warning": 22,
+        "ok": 797
+      },
+      "invalid_navigation_sequences": 0,
+      "navigation_age_max": 0.02,
+      "max_forwarded_nav_speed": 0.21999999999999997,
+      "max_cmd_speed": 0.21999999999999997,
+      "min_positive_curve_limit": 0.08300978981636219,
+      "max_curve_limit": 0.1683096130476329,
+      "evidence_json": "evidence/nav_upgrade_telemetry185_ekf_roundtrip.json"
+    },
+    "baseline_camera": {
+      "elapsed": 114.40374220400008,
+      "health_levels": {
+        "warning": 46,
+        "ok": 396
+      },
+      "invalid_navigation_sequences": 0,
+      "navigation_age_max": 0.02,
+      "max_forwarded_nav_speed": 0.21999999999999997,
+      "max_cmd_speed": 0.21999999999999997,
+      "min_positive_curve_limit": 0.05102082984016599,
+      "max_curve_limit": 0.2096148721806812,
+      "evidence_json": "evidence/nav_upgrade_telemetry185_baseline_camera.json"
+    },
+    "ekf_camera_loopback": {
+      "elapsed": 76.35639331000039,
+      "health_levels": {
+        "warning": 17,
+        "ok": 271
+      },
+      "invalid_navigation_sequences": 0,
+      "navigation_age_max": 0.02,
+      "max_forwarded_nav_speed": 0.21999999999999997,
+      "max_cmd_speed": 0.21999999999999997,
+      "min_positive_curve_limit": 0.08300978981636219,
+      "max_curve_limit": 0.14108951269762215,
+      "evidence_json": "evidence/nav_upgrade_telemetry185_ekf_camera_loopback.json"
+    }
+  },
+  "web_frame_samples": [
+    {
+      "wall_time": 1793240009.2044206,
+      "image_bytes": 16075,
+      "sha256": "c6bafb1ef7b5a5a88e5ed392ebd5f1f30c53b9079b77959f6cc057435d092891",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "warning",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    },
+    {
+      "wall_time": 1793240010.2117612,
+      "image_bytes": 16185,
+      "sha256": "63fdcd0a8bdc453861383de0f9bb1b791de6ee23ee0d0303e48ca62c962e3c55",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "warning",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    },
+    {
+      "wall_time": 1793240011.2163289,
+      "image_bytes": 16262,
+      "sha256": "0450b7c5d20dd761d6e5e0466c8e9aa77eea69d1d76d8108e3c1480c08d886d5",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "warning",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    },
+    {
+      "wall_time": 1793240012.2216725,
+      "image_bytes": 16174,
+      "sha256": "66e36d5fbfea48bd444bec3aa045f7fb1f58dc395d5981c17f75f77bdcaa6cce",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "ok",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    },
+    {
+      "wall_time": 1793240013.2252526,
+      "image_bytes": 15953,
+      "sha256": "5408128a29164e1a9217d2fda5c5c433d87b5834ab933b66669f831dc61d2847",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "ok",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    },
+    {
+      "wall_time": 1793240014.229297,
+      "image_bytes": 15826,
+      "sha256": "83963acd2e03f7cc04868591524811727ea2b0f03f3f11e601949076fd03b285",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "ok",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    }
+  ],
+  "recorder": {
+    "configured_pre_seconds": 30.0,
+    "configured_post_seconds": 5.0,
+    "actual_pre_seconds": 29.996732038999653,
+    "actual_post_seconds": 4.9862887609997415,
+    "sample_count": 1737,
+    "capture_overflow_samples": 0,
+    "oversize_messages_during_capture": 0,
+    "format": "sampled ROS messages as gzip JSONL; not rosbag",
+    "manifest": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261029T021348_530906Z_8272547d/manifest.json"
+  },
+  "tests": {
+    "navigation_recorder_focused_passed": 99,
+    "verifier_ownership_passed": 3,
+    "complete_ros_suite_passed": 800,
+    "complete_tools_suite_passed": 59,
+    "javascript_ui_suites_passed": 5,
+    "colcon_isolated_build": "PASS",
+    "python_compile_and_shell_syntax": "PASS",
+    "deb_package_validation": "PASS"
+  },
+  "limitations": [
+    "Simulation outcomes are single trials, not a statistical performance comparison of EKF modes.",
+    "GUI map/robot/path were exercised with camera=None; actual image reception and freshness were verified through the web JPEG endpoint.",
+    "Historical pre-fix TF/cancellation/readiness failures were preserved in /tmp debug logs; final passing trials contain no CRITICAL health packet.",
+    "Final independent-EKF full-route trial used the production loopback-scoped DDS profile and received compressed camera concurrently. This proves functional completion, not a statistical accuracy advantage.",
+    "No contact sensor, truth trajectory or minimum-wall-distance collision validation was performed.",
+    "Full-route trials used sensor_timeout1.0; sensor_timeout0.5 was separately revalidated with the final freeze test.",
+    "The pre-tuning strict one-second failure is retained as a historical result, not a failure of the final tuned configuration."
+  ],
+  "cleanup_complete": true,
+  "loopback_smoke": {
+    "samples": [
+      {
+        "health_ready": true,
+        "health_missing": [],
+        "localization_level": "ok",
+        "camera_bytes": 16792,
+        "camera_sha256": "4f7cae362b7236ce2ecbbe61169d341eb79a8d5abf844ac5559e583db2d9025b",
+        "map_match": true,
+        "motion_mode": "auto",
+        "robot": {
+          "pose": {
+            "x": -3.0008858020024363,
+            "y": -1.999999467615304,
+            "yaw": 3.7588064260131355e-05
+          },
+          "pose_age": 0.06,
+          "speed": {
+            "linear": -2.5426013781217836e-05,
+            "angular": -1.3319418493588214e-05
+          },
+          "scan_age": 0.11,
+          "camera_age": 0.04,
+          "front_camera_age": null,
+          "odom_age": 0.03,
+          "power": {
+            "status": "waiting",
+            "voltage": null,
+            "percentage": null,
+            "age": null,
+            "source": "/battery_state"
+          }
+        }
+      },
+      {
+        "health_ready": true,
+        "health_missing": [],
+        "localization_level": "ok",
+        "camera_bytes": 16718,
+        "camera_sha256": "6e3864c8666348c9c7f65b6d13fee88a957feb28b4b2f804a8c682b2a008f1c6",
+        "map_match": true,
+        "motion_mode": "auto",
+        "robot": {
+          "pose": {
+            "x": -3.000918016210435,
+            "y": -1.9999993286532851,
+            "yaw": 3.8902884836987935e-05
+          },
+          "pose_age": 0.06,
+          "speed": {
+            "linear": -3.219662054442628e-05,
+            "angular": -1.7128513533625897e-05
+          },
+          "scan_age": 0.1,
+          "camera_age": 0.03,
+          "front_camera_age": null,
+          "odom_age": 0.03,
+          "power": {
+            "status": "waiting",
+            "voltage": null,
+            "percentage": null,
+            "age": null,
+            "source": "/battery_state"
+          }
+        }
+      },
+      {
+        "health_ready": true,
+        "health_missing": [],
+        "localization_level": "ok",
+        "camera_bytes": 16595,
+        "camera_sha256": "d1e84ff52a8c20c72c4d78f365a47883e79171f7fdc023d62cf668543989c369",
+        "map_match": true,
+        "motion_mode": "auto",
+        "robot": {
+          "pose": {
+            "x": -3.000948935651378,
+            "y": -1.999999477065518,
+            "yaw": 4.019611032705416e-05
+          },
+          "pose_age": 0.07,
+          "speed": {
+            "linear": -3.121072350774211e-05,
+            "angular": -7.867179213194822e-06
+          },
+          "scan_age": 0.08,
+          "camera_age": 0.15,
+          "front_camera_age": null,
+          "odom_age": 0.0,
+          "power": {
+            "status": "waiting",
+            "voltage": null,
+            "percentage": null,
+            "age": null,
+            "source": "/battery_state"
+          }
+        }
+      }
+    ],
+    "health_levels": {
+      "warning": 17,
+      "ok": 110
+    },
+    "elapsed": 36.21357448300023,
+    "profile": "DDS_PROFILE=/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml",
+    "result": "PASS"
+  },
+  "cleanup_requested_process_groups": [
+    60133,
+    60134,
+    60135
+  ],
+  "cleanup_remaining_groups": [],
+  "isolated_web_closed": true,
+  "dynamic_obstacle_injection": "NOT TESTED: observed replans came from current scan/static-wall overlay updates; no deliberate moving obstacle was inserted.",
+  "ekf_camera_loopback_web_samples": [
+    {
+      "wall_time": 1793240301.900945,
+      "image_bytes": 16367,
+      "sha256": "2ff8c91aab9d1cb387c17115309a0d1de8df0bdd882e0d2387384d4b9b728e52",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "ok",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    },
+    {
+      "wall_time": 1793240302.9058537,
+      "image_bytes": 16356,
+      "sha256": "cf6933a3d70a425a933df835eba9fb8e8672b2293f533b87bb8df0dab6a22a84",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "ok",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    },
+    {
+      "wall_time": 1793240303.911603,
+      "image_bytes": 16533,
+      "sha256": "7e972fda6688051f34175082f75ed64d3d26d61ae6b04792e80db96983e7d211",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "ok",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    },
+    {
+      "wall_time": 1793240304.9174361,
+      "image_bytes": 15843,
+      "sha256": "3d36a00be432921dfbebd19a485039eff623f0c83ba67c95a5df18620adffde9",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "ok",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    },
+    {
+      "wall_time": 1793240305.9226265,
+      "image_bytes": 15805,
+      "sha256": "875092f2f995cef20c4a1460b077de428107be179287a8d0a1380109a7df61ee",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "ok",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    },
+    {
+      "wall_time": 1793240306.928011,
+      "image_bytes": 15926,
+      "sha256": "43e6c1162b030a2cd641cadad6a959818047d3b9a995537a2ff8c99e38814fd0",
+      "health_ready": true,
+      "health_missing": [],
+      "localization_level": "ok",
+      "navigation": {
+        "status": "MOVING",
+        "planner_status": "READY",
+        "message": "Following A* route"
+      }
+    }
+  ],
+  "sensor_and_clock_freeze_before_tuning": {
+    "scenario": "Gazebo physics pause freezes sensors AND /clock; steady-clock deadman + no automatic restart",
+    "result": "FAIL",
+    "moving_before_fault": true,
+    "fault_latch_latency_seconds": 1.8545599819999552,
+    "pause_zero_after_grace": false,
+    "clock_frozen_after_pause": true,
+    "clock_samples_before_pause": 173,
+    "no_automatic_restart_after_unpause": true,
+    "unpause_output_samples": 166,
+    "criterion": "Strict zero-after-1s criterion FAILED; measured fault latch delay1.855s. Holding zero after latch and no automatic restart after unpause PASSED.",
+    "fault_reasons": [
+      "odom_unavailable",
+      "scan_unavailable"
+    ],
+    "final_reasons": [
+      "operator_reset_required"
+    ],
+    "evidence_note": "Pre-tuning summary preserved; observer reused its raw JSON path for the final trial. See final trace separately.",
+    "sensor_timeout_seconds": 1.0,
+    "observed_zero_latency_seconds_approx": 1.248
+  },
+  "sensor_and_clock_freeze_final": {
+    "scenario": "Gazebo physics pause freezes sensors AND /clock; steady-clock deadman + no automatic restart",
+    "result": "PASS",
+    "moving_before_fault": true,
+    "fault_latch_latency_seconds": 1.0853720949999115,
+    "steady_zero_latency_seconds": 0.33331704800002626,
+    "last_nonzero_latency_seconds": 0.2965168460004861,
+    "pause_zero_after_grace": true,
+    "clock_frozen_after_pause": true,
+    "clock_samples_before_pause": 206,
+    "no_automatic_restart_after_unpause": true,
+    "unpause_output_samples": 167,
+    "sensor_timeout_seconds": 0.5,
+    "fault_debounce_seconds": 0.5,
+    "fault_reasons": [
+      "odom_unavailable",
+      "scan_map_check_unavailable",
+      "scan_unavailable"
+    ],
+    "final_reasons": [
+      "operator_reset_required"
+    ],
+    "evidence_json": "evidence/sensor_clock_freeze_final.json",
+    "scope": "Sensors and simulated /clock freeze together; not an isolated camera/laser disconnection. Output is measured in wall time."
+  },
+  "final_source_hashes": {
+    "ros2_ws/src/smart_vision_amr/config/localization_health.yaml": "58fcbc4c2d83a2962808642849e1694e5286b14dd05d89f2bf2e412a7e66ac16",
+    "ros2_ws/src/smart_vision_amr/config/simulation_nodes.yaml": "340aba94e0caf92921a0a509672a56cc30964d561b821f6c7cd14a271d21d92b",
+    "ros2_ws/src/smart_vision_amr/config/gazebo_clock.yaml": "d449e7c76a6d7af555fe66506ed0f4612a9f5b816bf9456b3dd7691404f906ce",
+    "ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml": "502579cc10d69224b3fbb339a78343883c64f4496fdcc7183fa3a7ee14cea25e",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py": "def149e7716b5d7017c5dd870f355e54b7690474a0929215f35412fed5e1cdd2",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": "e28c3d498dbe5c4c7ef28de5992ccddde1fa8cbc86a7ade1c720a496d092e1c0",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/localization_health.py": "45fe224a1f5161eea3624a8fa4e2ab0ae7bc536d7e873aa1b6f4b5fb874d02f2",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/marker_alignment.py": "2937a8587532128fd5b3837d2359ddab391551c92bd66c606c380b3d13fe7edb",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": "1a5b7c94ec3e9dc8b250e91777757de7dc132f8e8e557595037744990d55c348",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/mission_logic.py": "de0013ff9a2501cbf06ec5cef4e6d66ef12fc7104e54054899f5e4ae0bc81165",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/localization_health_math.py": "9ed11667c6c0466433983cf0d5f8fb372a24bdc20bdd27714905547696dbd226"
+  },
+  "aruco_alignment": {
+    "result": "PASS",
+    "evidence_json": "aruco_alignment.json",
+    "actual_camera": true,
+    "actual_marker_id": 0,
+    "duration_seconds": 21.800241081,
+    "normalized_center_error": 0.0640625,
+    "commanded_linear_max": 0.0,
+    "commanded_yaw_max": 0.15,
+    "estimated_odom_yaw_peak": 0.2567173661,
+    "note": "Commanded angular limit is not a measured physical angular limit."
+  }
+}

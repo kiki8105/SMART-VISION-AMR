@@ -21,7 +21,7 @@ PINNED = {
     'turtlebot3_simulations': 'a35a56c8b04877dc89772b598084d8ce648a9023',
 }
 EXCLUDED = {'.git', 'build', 'install', 'log', '__pycache__', '.pytest_cache', '.mypy_cache',
-            '.vscode', '.idea', '.DS_Store', '.env', 'checkpoints'}
+            '.vscode', '.idea', '.DS_Store', '.env', 'checkpoints', '.parameter-history'}
 
 
 def digest(path):
@@ -33,7 +33,7 @@ def copy_tree(source, target):
         raise RuntimeError(f'Missing source directory: {source}')
     for path in sorted(source.rglob('*')):
         rel = path.relative_to(source)
-        if any(part in EXCLUDED for part in rel.parts) or path.suffix in ('.pyc', '.pyo'):
+        if any(part in EXCLUDED for part in rel.parts) or path.suffix in ('.pyc', '.pyo') or '.bak-' in path.name:
             continue
         destination = target / rel
         if path.is_symlink():
@@ -90,6 +90,7 @@ def build(args):
     temporary = Path(tempfile.mkdtemp(prefix=output.name + '.tmp-', dir=output.parent))
     try:
         copy_tree(templates, temporary)
+        shutil.copyfile(project / 'scripts/dds_env.bash', temporary / 'tools/dds_env.bash')
         copy_tree(project / 'tools', temporary / 'tools/controller')
         # The launch template belongs to the ROS package, not the bundle root.
         launch_template = temporary / 'aruco_lab.launch.py'

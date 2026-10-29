@@ -26,6 +26,10 @@ class PlannerHarness(AStarPlannerNode):
                        "start_egress_max_cells": 7, "live_obstacle_layer_required": False,
                        "live_obstacle_timeout": 2.0,
                        "mapped_wall_return_tolerance_cells": 0}
+        self.params.update({"path_smoothing_enabled": True,
+                            "path_smoothing_iterations": 2,
+                            "path_smoothing_shortcut_distance": .8,
+                            "path_resample_spacing": .05})
         self.params["preferred_clearance"] = 0.45
         self.params["clearance_penalty_gain"] = 1.5
         self.params.update({"reverse_recovery_enabled": True,

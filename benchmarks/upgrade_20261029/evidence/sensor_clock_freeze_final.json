@@ -1,0 +1,3105 @@
+{
+  "scenario": "Gazebo physics pause freezes sensors AND /clock; steady-clock deadman + no automatic restart",
+  "domain_id": 185,
+  "hardware_access": false,
+  "initial_health": {
+    "level": "ok",
+    "reasons": [],
+    "metrics": {
+      "map_available": true,
+      "scan_age_seconds": 0.04531624999981432,
+      "odom_age_seconds": 0.002140343000064604,
+      "scan_header_age_seconds": 0.025,
+      "odom_header_age_seconds": -0.013,
+      "scan_valid": true,
+      "odom_valid": true,
+      "position_std_m": 1.385234388819988e-05,
+      "yaw_std_rad": 1.8123230624161504e-05,
+      "amcl_age_seconds": 2.1276239449998684,
+      "moving": false,
+      "pose_jump": false,
+      "scan_map_agreement": 1.0,
+      "agreement_age_seconds": 0.0,
+      "map_tf_age_seconds": -0.013,
+      "odom_tf_valid": true,
+      "odom_last_received_age_seconds": 0.002140343000064604,
+      "odom_raw_header_age_seconds": -0.013,
+      "odom_rejected_count": 0,
+      "odom_rejection_reason": "",
+      "odom_last_rejection_reason": "",
+      "scan_last_received_age_seconds": 0.04531624999981432,
+      "scan_raw_header_age_seconds": 0.025,
+      "scan_rejected_count": 0,
+      "scan_rejection_reason": "",
+      "scan_last_rejection_reason": ""
+    },
+    "stop_latched": false,
+    "autonomous_allowed": true,
+    "allow_localization": true,
+    "reinitialization_requested": false,
+    "stable_seconds": 2.0016850870006238,
+    "stamp_ns": 3960000000,
+    "sent_at_ns": 3960000000
+  },
+  "moving_before_fault": true,
+  "pre_fault_command": [
+    0.20842105263157892,
+    0.0
+  ],
+  "pause_wall": 7467.680112151,
+  "fault_latch_latency_seconds": 1.0853720949999115,
+  "fault_health": {
+    "level": "critical",
+    "reasons": [
+      "odom_unavailable",
+      "scan_map_check_unavailable",
+      "scan_unavailable"
+    ],
+    "metrics": {
+      "map_available": true,
+      "scan_age_seconds": 1.293620115999147,
+      "odom_age_seconds": 1.0949970259998736,
+      "scan_header_age_seconds": 0.185,
+      "odom_header_age_seconds": 0.011,
+      "scan_valid": true,
+      "odom_valid": true,
+      "position_std_m": 1.385234388819988e-05,
+      "yaw_std_rad": 1.8123230624161504e-05,
+      "amcl_age_seconds": 3.375927810999201,
+      "moving": false,
+      "pose_jump": false,
+      "scan_map_agreement": 1.0,
+      "agreement_age_seconds": 1.2483038659993326,
+      "map_tf_age_seconds": 0.011,
+      "odom_tf_valid": true,
+      "odom_last_received_age_seconds": 1.0949970259998736,
+      "odom_raw_header_age_seconds": 0.011,
+      "odom_rejected_count": 0,
+      "odom_rejection_reason": "",
+      "odom_last_rejection_reason": "",
+      "scan_last_received_age_seconds": 1.293620115999147,
+      "scan_raw_header_age_seconds": 0.185,
+      "scan_rejected_count": 0,
+      "scan_rejection_reason": "",
+      "scan_last_rejection_reason": ""
+    },
+    "stop_latched": true,
+    "autonomous_allowed": false,
+    "allow_localization": false,
+    "reinitialization_requested": false,
+    "stable_seconds": 0.0,
+    "stamp_ns": 4120000000,
+    "sent_at_ns": 4120000000
+  },
+  "fault_mux": {
+    "mode": "estop",
+    "available": true,
+    "reason": "Localization confidence unsafe",
+    "source_id": null,
+    "estop_latched": true,
+    "auto_source_id": "nav:fb4c1644232e4fbb8717cd5e0d39b305",
+    "auto_rejected_reason": "",
+    "output_owner": "estop",
+    "localization_speed_factor": 0.0,
+    "autonomous_allowed": false,
+    "localization_reason": "odom_unavailable; scan_map_check_unavailable; scan_unavailable",
+    "output_linear": 0.0,
+    "output_angular": 0.0,
+    "status_seq": 52,
+    "sent_at_ns": 4120000000,
+    "mux_instance_id": "mux-service:ba138426b3924d46bdd0fea16d44303c",
+    "output_publishers": 1,
+    "stop_acknowledged": true,
+    "reset_pending": false
+  },
+  "pause_zero_after_grace": true,
+  "clock_samples_before_pause": 206,
+  "clock_frozen_after_pause": true,
+  "no_automatic_restart_after_unpause": true,
+  "unpause_output_samples": 167,
+  "final_health": {
+    "level": "critical",
+    "reasons": [
+      "operator_reset_required"
+    ],
+    "metrics": {
+      "map_available": true,
+      "scan_age_seconds": 0.10508099799972115,
+      "odom_age_seconds": 0.0049886719998539775,
+      "scan_header_age_seconds": 0.105,
+      "odom_header_age_seconds": 0.005,
+      "scan_valid": true,
+      "odom_valid": true,
+      "position_std_m": 1.385234388819988e-05,
+      "yaw_std_rad": 1.8123230624161504e-05,
+      "amcl_age_seconds": 9.375881623999703,
+      "moving": false,
+      "pose_jump": false,
+      "scan_map_agreement": 1.0,
+      "agreement_age_seconds": 0.0,
+      "map_tf_age_seconds": 0.005,
+      "odom_tf_valid": true,
+      "odom_last_received_age_seconds": 0.0049886719998539775,
+      "odom_raw_header_age_seconds": 0.005,
+      "odom_rejected_count": 0,
+      "odom_rejection_reason": "",
+      "odom_last_rejection_reason": "",
+      "scan_last_received_age_seconds": 0.10508099799972115,
+      "scan_raw_header_age_seconds": 0.105,
+      "scan_rejected_count": 0,
+      "scan_rejection_reason": "",
+      "scan_last_rejection_reason": ""
+    },
+    "stop_latched": true,
+    "autonomous_allowed": false,
+    "allow_localization": true,
+    "reinitialization_requested": false,
+    "stable_seconds": 4.7498980649997975,
+    "stamp_ns": 8840000000,
+    "sent_at_ns": 8840000000
+  },
+  "final_mux": {
+    "mode": "estop",
+    "available": true,
+    "reason": "Emergency stop latched",
+    "source_id": "g_R47XMiXRgclzUYxyq9z_AD",
+    "estop_latched": true,
+    "auto_source_id": "nav:fb4c1644232e4fbb8717cd5e0d39b305",
+    "auto_rejected_reason": "",
+    "output_owner": "estop",
+    "localization_speed_factor": 0.0,
+    "autonomous_allowed": false,
+    "localization_reason": "operator_reset_required",
+    "output_linear": 0.0,
+    "output_angular": 0.0,
+    "status_seq": 111,
+    "sent_at_ns": 9040000000,
+    "mux_instance_id": "mux-service:ba138426b3924d46bdd0fea16d44303c",
+    "output_publishers": 1,
+    "stop_acknowledged": true,
+    "reset_pending": false
+  },
+  "goal_status": {
+    "status": "CANCELED",
+    "message": "Navigation manually stopped",
+    "goal": null,
+    "goal_stamp": null,
+    "manual_stop": true,
+    "stop_stamp": {
+      "sec": 4,
+      "nanosec": 120000000
+    }
+  },
+  "result": "PASS",
+  "command_trace": [
+    {
+      "seconds_after_pause": -0.05230733699954726,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": -0.0036011819993291283,
+      "linear": 0.20842105263157892,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.04636760100038373,
+      "linear": 0.20842105263157892,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.08265227700030664,
+      "linear": 0.20842105263157892,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.09624672200061468,
+      "linear": 0.20842105263157892,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.14633710900034202,
+      "linear": 0.20842105263157892,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.19653414900039934,
+      "linear": 0.20842105263157892,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.24661217300035787,
+      "linear": 0.20842105263157892,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.2965168460004861,
+      "linear": 0.20842105263157892,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.33331704800002626,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.34648804500011465,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.3963987940005609,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.44736457700037136,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.4962874869997904,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.546416457000305,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.582230625000193,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.596178511999824,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.6463085880004655,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.6966998300003979,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.7464431349999359,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.7964536159997806,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.8319861760001004,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.8464695410002605,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.8962562220003747,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.9464679200000319,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 0.9963331740000285,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.0463761689998137,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.0855188040004577,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.0861444930005746,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.0963737350002702,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.1452976380005566,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.1466200570002911,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.1473395970006095,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.196461690000433,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.2442744090003544,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.246223934000227,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.296144333000484,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.3321804540000812,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.3421967439999207,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.3463305710001805,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.3961833430003026,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.4424453210003776,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.4462915730000532,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.496193175999906,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.5427115640004558,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.5462447589998192,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.58266390100016,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.5852797060006196,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.5964051320006547,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.6438418830002774,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.6462230550005188,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.6961685570004192,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.7437401020006291,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.7465736670001206,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.7964685699998881,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.8332271870003751,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.8431424270002026,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.8472030800003267,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.8964687180005058,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.9427426550000746,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.946504644000015,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 1.9963752410003508,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.043228475000433,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.0463822910005547,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.0818665599999804,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.0964470529997925,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.143219677000161,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.14615865199994,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.196423678999963,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.24270873200021,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.2463587190004546,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.296174699000403,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.3432024379999348,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.3464888230000724,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.3554976619998342,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.3576692020005794,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.397352599000442,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.442130878000171,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.4462257189998127,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.4969446040004186,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.542738515000565,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.5471177079998597,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.5947248110005603,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.5976135549999526,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.6463376090005113,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.650002446000144,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.697257732000253,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.742715572000634,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.7462265960002696,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.797619974000554,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.842868231000466,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.845270308000181,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.846990292000555,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.8473456000001534,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.8971273970000766,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.9421231770002123,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.9464976360004584,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 2.997748079000303,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.04285402000005,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.0463245979999556,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.0949830740000834,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.096083321000151,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.1432805350004855,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.1462408320003306,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.1961316930000976,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.247652842000207,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.2485599600004207,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.2964823359998263,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.3329633829998784,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.342264714000521,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.346414315000402,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.396233408000626,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.442307041999811,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.4463776070006134,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.4961647159998392,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.5453535329997976,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.546153041999787,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.5961729250002463,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.602120921000278,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.6034699000001638,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.644825289000437,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.647083498000029,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.696753111000362,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.7423952810004266,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.7473484020001706,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.7976464430003034,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.842197116000534,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.8445219860004727,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.847118261000105,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.900003765999827,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.9454609450003773,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.9474304940004004,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 3.9961325049998777,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.042232380999849,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.046236567000051,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.094627880000189,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.096066789999895,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.142928318000486,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.14664527000059,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.196154834000481,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.242517981000674,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.246425002999786,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.296336008999788,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.347264042000461,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.347770700000183,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.348270030000094,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.349103784000363,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.396986202000335,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.442560070000582,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.4468262649998,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.496277969999937,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.546417469000517,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.548122219000106,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.596319375999883,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.600352754000596,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.644162882000273,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.646382665000601,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.696734392000508,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.746867357000156,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.757751457000268,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.796266445000583,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.842438329999823,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.846976476999771,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.847524286999942,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.848083539000072,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.899167008999939,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.942098098000315,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.946124948000033,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 4.996368046000498,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.0419884920002005,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.047496993000095,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.095044735000556,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.096148176000497,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.142336278000585,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.146850552000615,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.196169830000144,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.244205153000621,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.247166474000551,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.296296458000143,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.34345916500024,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.352418733999912,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.353377774000364,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.3962678690004395,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.442162514999836,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.446348997000314,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.496286190000319,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.545211257000119,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.547020603999954,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.596234614000423,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.599816705000194,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.601589517999855,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.643587714000205,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.646481652000148,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.697006641000371,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.744219547000284,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.747077038000498,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.796137057000124,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.846061736000593,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.84663666600045,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.862027734000549,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.896438261000185,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.945067528999971,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.946812629000306,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 5.997151135999957,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.045228798000608,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.0467248949998975,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.096559272999912,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.098955067000134,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.099946582000484,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.142224771000656,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.146160547999898,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.196107419000327,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.242039310000109,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.246245108000039,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.2965614060003645,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.342037581000113,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.343351524000354,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.346298199000557,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.3962120870000945,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.4427335649997985,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.4469470750000255,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.496151111000472,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.542170395000539,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.546168378000402,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.584229250000135,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.585193530000652,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.59630958300022,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.64314731200011,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.646328754000024,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.6971727970003485,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.7423122240006705,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.7471956380004485,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.7961994300003425,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.843220116999873,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.846158555999864,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.848161615000208,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.896170326000174,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.943385704999855,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.947716163000223,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 6.9963204860005135,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 7.044704876000651,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 7.046276787000352,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 7.095499337000547,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 7.096261067000341,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 7.143843298999855,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 7.1462561120006285,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 7.1966636950000975,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 7.243059430999892,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 7.248163792000014,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    {
+      "seconds_after_pause": 7.296314908000568,
+      "linear": 0.0,
+      "angular": 0.0
+    }
+  ],
+  "last_nonzero_latency_seconds": 0.2965168460004861,
+  "steady_zero_latency_seconds": 0.33331704800002626,
+  "observed_status_transitions": [
+    {
+      "wall": 7461.387479326,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7461.504481947,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7461.692562896,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7461.788092967,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7461.977476622,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7462.077168692,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7462.177576146,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7462.27830978,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7462.477266576,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7462.678502654,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7462.877981675,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7463.077289397,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7463.177506227,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7463.277494559,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7463.37744213,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7463.480153874,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7463.677594335,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7463.880149687,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7464.078450907,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7464.178294073,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7464.377282569,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7464.579236293,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7464.777622226,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7464.978477851,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7465.067667837,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "amcl_covariance_unavailable",
+        "map_tf_unavailable",
+        "odom_tf_unavailable",
+        "odom_unavailable",
+        "scan_map_check_unavailable",
+        "scan_unavailable",
+        "initializing"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7465.079881855,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7465.281203138,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7465.292425707,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "amcl_covariance_unavailable",
+        "initializing"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7465.293936577,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7465.477536786,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7465.534637568,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "initializing"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7465.578576269,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7465.776884742,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7465.77930324,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "initializing"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7465.877463937,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7465.977521484,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7466.030395371,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "initializing"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7466.177969275,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7466.276524937,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "initializing"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7466.278069827,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7466.477432682,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7466.526377401,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "initializing"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7466.677696094,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7466.788705349,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "initializing"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7466.795303635,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7466.979492402,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7467.041836192,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "initializing"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7467.177904159,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7467.278143871,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7467.280669118,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "initializing"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7467.479136379,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7467.533705273,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "ok",
+      "mode": null,
+      "status": null,
+      "reasons": [],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7467.536811988,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7467.679826988,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7467.702708785,
+      "topic": "/smart_vision_amr/navigation_status",
+      "level": null,
+      "mode": null,
+      "status": "MOVING",
+      "reasons": null,
+      "estop_latched": null,
+      "stop_latched": null
+    },
+    {
+      "wall": 7467.703722221,
+      "topic": "/smart_vision_amr/navigation_status",
+      "level": null,
+      "mode": null,
+      "status": "MOVING",
+      "reasons": null,
+      "estop_latched": null,
+      "stop_latched": null
+    },
+    {
+      "wall": 7467.761492056,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "ok",
+      "mode": null,
+      "status": null,
+      "reasons": [],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7467.877250987,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7467.977312518,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7468.013152095,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7468.013315987,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "scan_unavailable"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7468.177026856,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7468.26170378,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "odom_unavailable",
+        "scan_unavailable"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7468.377324329,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7468.511315827,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "warning",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "odom_unavailable",
+        "scan_unavailable"
+      ],
+      "estop_latched": null,
+      "stop_latched": false
+    },
+    {
+      "wall": 7468.511907687,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7468.677076183,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "auto",
+      "status": null,
+      "reasons": null,
+      "estop_latched": false,
+      "stop_latched": null
+    },
+    {
+      "wall": 7468.753674861,
+      "topic": "/smart_vision_amr/navigation_status",
+      "level": null,
+      "mode": null,
+      "status": "MOVING",
+      "reasons": null,
+      "estop_latched": null,
+      "stop_latched": null
+    },
+    {
+      "wall": 7468.762485127,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "odom_unavailable",
+        "scan_map_check_unavailable",
+        "scan_unavailable"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7468.765440316,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7468.826408114,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7468.826575297,
+      "topic": "/smart_vision_amr/navigation_status",
+      "level": null,
+      "mode": null,
+      "status": "CANCELED",
+      "reasons": null,
+      "estop_latched": null,
+      "stop_latched": null
+    },
+    {
+      "wall": 7468.924219705,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7469.011385433,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "odom_unavailable",
+        "scan_map_check_unavailable",
+        "scan_unavailable"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7469.076834225,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7469.223416165,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7469.261561972,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "odom_unavailable",
+        "scan_map_check_unavailable",
+        "scan_unavailable"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7469.262608238,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7469.325138521,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7469.477401704,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7469.512500181,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "odom_unavailable",
+        "scan_map_check_unavailable",
+        "scan_unavailable"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7469.578458991,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7469.723894268,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7469.761281556,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "odom_unavailable",
+        "scan_map_check_unavailable",
+        "scan_unavailable"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7469.823864614,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7469.923917606,
+      "topic": "/smart_vision_amr/navigation_status",
+      "level": null,
+      "mode": null,
+      "status": "CANCELED",
+      "reasons": null,
+      "estop_latched": null,
+      "stop_latched": null
+    },
+    {
+      "wall": 7469.977245628,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7470.031988313,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7470.037627359,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7470.12311249,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7470.223985908,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7470.274677996,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7470.330946138,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7470.478301271,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7470.524793698,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7470.525853822,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7470.622892957,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7470.722862264,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7470.774909931,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7470.823864211,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7470.928524333,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7471.012918594,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7471.076911042,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7471.176661791,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7471.281404322,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7471.282708402,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7471.326421959,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7471.478188131,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7471.523823278,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7471.579937868,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7471.722897038,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7471.77383896,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7471.823914327,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7471.976980364,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7472.027077087,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7472.027233772,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7472.030518114,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7472.177482799,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7472.276978335,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7472.279254846,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7472.438398618,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7472.526781588,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7472.526930896,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7472.622770249,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7472.773545733,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7472.77504236,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7472.876823303,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.023415915,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.029289842,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7473.176913352,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.279685231,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7473.28083059,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.281513982,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.324746863,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.476835223,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.541051971,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7473.577983405,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.677090573,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.777317849,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.778182079,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7473.780652449,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.822842255,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7473.977208265,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7474.022954046,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7474.123537232,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7474.263598717,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7474.263831122,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7474.324228991,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7474.425845231,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7474.52812594,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7474.531348772,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7474.676981368,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7474.774997233,
+      "topic": "/smart_vision_amr/localization_health",
+      "level": "critical",
+      "mode": null,
+      "status": null,
+      "reasons": [
+        "operator_reset_required"
+      ],
+      "estop_latched": null,
+      "stop_latched": true
+    },
+    {
+      "wall": 7474.824518345,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7474.976952716,
+      "topic": "/smart_vision_amr/motion_status",
+      "level": null,
+      "mode": "estop",
+      "status": null,
+      "reasons": null,
+      "estop_latched": true,
+      "stop_latched": null
+    },
+    {
+      "wall": 7474.984555433,
+      "topic": "/smart_vision_amr/navigation_status",
+      "level": null,
+      "mode": null,
+      "status": "CANCELED",
+      "reasons": null,
+      "estop_latched": null,
+      "stop_latched": null
+    }
+  ]
+}

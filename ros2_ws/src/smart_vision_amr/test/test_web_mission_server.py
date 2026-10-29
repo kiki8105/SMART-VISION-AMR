@@ -127,7 +127,15 @@ class WebMissionTests(unittest.TestCase):
         status, body, _ = self.request('POST', '/api/emergency-stop', {})
         self.assertEqual(status, 200)
         self.assertEqual(body['mission']['state'], 'ESTOP')
+        self.app.manual_mux_at = time.monotonic()
+        self.app.manual_mux_status = {'estop_latched': True, 'stop_acknowledged': True}
         status, body, _ = self.request('POST', '/api/emergency-stop', {'reset': True})
+        self.assertEqual(status, 200)
+        self.assertEqual(body['mission']['state'], 'ESTOP')
+        self.assertTrue(body['mission']['estop_latched'])
+        self.assertEqual(body['safety']['pending'], 'reset')
+        self.app.complete_safety_result('reset', True, 'Robot safety reset acknowledged')
+        body = self.app.state()
         self.assertEqual(body['mission']['state'], 'CANCELED')
         self.assertFalse(body['mission']['estop_latched'])
 

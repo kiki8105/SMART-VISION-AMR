@@ -1,0 +1,30 @@
+# Confidence checks for both simulation and the physical robot.
+# Distances are metres, angles are radians, durations are seconds.
+# These are initial bounds, not a claim of physical sensor calibration.
+localization_health:
+  ros__parameters:
+    base_frame: base_footprint
+    map_frame: map
+    odom_frame: odom
+    stable_seconds: 2.0
+    fault_seconds: 0.5
+    agreement_fault_seconds: 3.0  # Ignore brief occlusions by moving objects.
+    # At 5 Hz scan period is 0.2 s. A 0.5 s receive-age limit leaves 0.3 s
+    # margin; the next 0.25 s health tick blocks auto before a 1 s outage.
+    # The separate fault_seconds debounce controls the later latched ESTOP.
+    sensor_timeout: 0.5
+    tf_timeout: 1.0
+    future_tolerance: 1.5  # AMCL map->odom may be intentionally future-dated.
+    position_warning: 0.35  # Largest x/y position standard deviation.
+    position_critical: 0.8
+    yaw_warning: 0.5
+    yaw_critical: 1.0
+    agreement_warning: 0.55  # Fraction of laser hits consistent with known walls.
+    agreement_critical: 0.20
+    agreement_tolerance: 0.18
+    # Accumulated moving time since the last new AMCL sample, excluding idle.
+    # Stops do not reset the budget, so repeated stop/go cannot bypass it.
+    amcl_moving_timeout: 4.0
+    motion_dt_limit: 1.0  # Bound one integration step after scheduler stalls.
+    jump_distance_m: 0.65  # AMCL displacement residual relative to wheel/IMU odom.
+    jump_yaw_rad: 0.8

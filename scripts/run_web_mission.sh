@@ -79,6 +79,7 @@ MARKERS_FILE=$(realpath -- "$MARKERS_FILE")
 
 # sim_env rebuilds overlay paths and selects its own default domain. Restore the
 # requested web mission domain afterwards, before any node is started.
+# It also sources dds_env.bash, matching the robot/controller transport profile.
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/sim_env.bash" "$WORKSPACE_ROOT"
 WORKSPACE_ROOT=$SMART_VISION_SIM_WORKSPACE
@@ -94,6 +95,7 @@ if [[ "$ROS_LOCALHOST_ONLY" != 0 && "$ROS_LOCALHOST_ONLY" != 1 ]]; then
   printf 'SMART_VISION_WEB_LOCALHOST_ONLY must be 0 or 1.\n' >&2
   exit 2
 fi
+source "$SCRIPT_DIR/dds_env.bash"
 
 PACKAGE_PREFIX=$(ros2 pkg prefix smart_vision_amr)
 if [[ ! -x "$PACKAGE_PREFIX/lib/smart_vision_amr/web_mission_server" ]]; then

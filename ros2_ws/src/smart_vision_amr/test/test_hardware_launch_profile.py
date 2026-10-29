@@ -110,7 +110,7 @@ def test_ekf_robot_wrapper_selects_independent_mode(tmp_path):
     assert override.stdout.splitlines() == ['ekf_independent', 'v4l2']
 
 
-def test_robot_bringup_defaults_to_ekf_but_explicit_baseline_skips_ekf_preflight(tmp_path):
+def test_robot_bringup_defaults_to_local_runtime_and_legacy_pc_is_explicit(tmp_path):
     # Run only the initial validation path of the actual script. The copied
     # script deliberately lacks the EKF launch file and camera, so it cannot
     # start ROS or touch a physical device.
@@ -120,11 +120,20 @@ def test_robot_bringup_defaults_to_ekf_but_explicit_baseline_skips_ekf_preflight
     shutil.copyfile(REPO/'scripts/robot_bringup_camera_16.sh', wrapper)
     env = os.environ.copy()
     env.pop('TURTLEBOT3_LOCALIZATION_MODE', None)
+    env.pop('SMART_VISION_ESTIMATION_LOCATION', None)
     env['CAMERA_DEVICE'] = str(tmp_path/'missing_camera')
     default = subprocess.run(['bash', str(wrapper)], text=True,
                              capture_output=True, timeout=5, env=env)
     assert default.returncode == 2
-    assert 'Independent EKF bringup is missing' in default.stderr
+    assert 'Camera device is missing' in default.stderr
+    assert 'Independent EKF bringup is missing' not in default.stderr
+
+    env['SMART_VISION_ESTIMATION_LOCATION'] = 'pc'
+    env['SMART_VISION_DDS_TRANSPORT'] = 'default'
+    legacy = subprocess.run(['bash', str(wrapper)], text=True,
+                            capture_output=True, timeout=5, env=env)
+    assert legacy.returncode == 2
+    assert 'Independent EKF bringup is missing' in legacy.stderr
 
     env['TURTLEBOT3_LOCALIZATION_MODE'] = 'baseline'
     rollback = subprocess.run(['bash', str(wrapper)], text=True,
@@ -157,6 +166,8 @@ def test_explicit_robot_baseline_keeps_v4l2_camera_default(tmp_path):
     camera.touch()
     env = os.environ.copy()
     env['TURTLEBOT3_LOCALIZATION_MODE'] = 'baseline'
+    env['SMART_VISION_ESTIMATION_LOCATION'] = 'pc'
+    env['SMART_VISION_DDS_TRANSPORT'] = 'default'
     env.pop('CAMERA_BACKEND', None)
     env['TURTLEBOT3_WORKSPACE'] = str(workspace)
     env['CAMERA_DEVICE'] = str(camera)

@@ -5,6 +5,7 @@ import json
 import math
 import os
 import time
+from collections import deque
 from pathlib import Path
 
 import rclpy
@@ -13,7 +14,7 @@ from nav_msgs.msg import OccupancyGrid
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy, qos_profile_sensor_data
 from sensor_msgs.msg import LaserScan
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Int32MultiArray, String
 from std_srvs.srv import Trigger
 from tf2_ros import Buffer, TransformException, TransformListener
 
@@ -42,6 +43,10 @@ class ChangeMemoryNode(Node):
         self.declare_parameter("live_obstacle_ttl_sec", 2.0)
         self.declare_parameter("live_scan_max_age_sec", 1.0)
         self.declare_parameter("live_transform_max_age_sec", 1.0)
+        self.declare_parameter("scan_tf_wait_sec", 0.20)
+        self.declare_parameter("scan_tf_queue_size", 5)
+        self.declare_parameter("scan_tf_stamp_tolerance_sec", 0.02)
+        self.declare_parameter("scan_future_tolerance_sec", 0.15)
         self.declare_parameter("live_localization_jump_distance", 0.25)
         self.declare_parameter("live_localization_jump_angle", 0.25)
         self.map = None
@@ -50,6 +55,10 @@ class ChangeMemoryNode(Node):
         self.last_scan_stamp_ns = None
         self.last_map_to_odom = None
         self.scans_since_save = 0
+        self.pending_scans = deque()
+        self.projection_dropped = 0
+        self.projection_valid = 0
+        self.last_projection_diagnostic = float("-inf")
         self.memory_path = Path(os.path.expanduser(self.get_parameter("memory_path").value))
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -58,12 +67,17 @@ class ChangeMemoryNode(Node):
         self.overlay_pub = self.create_publisher(Int32MultiArray, "/smart_vision_amr/remembered_cells", latched)
         self.observation_pub = self.create_publisher(
             Int32MultiArray, "/smart_vision_amr/observed_obstacles", 10)
+        self.projection_status_pub = self.create_publisher(
+            String, "/smart_vision_amr/scan_projection_status", latched)
         self.create_subscription(OccupancyGrid, self.get_parameter("map_topic").value, self.on_map, latched)
         self.create_subscription(LaserScan, self.get_parameter("scan_topic").value,
                                  self.on_scan, qos_profile_sensor_data)
         self.create_subscription(PoseWithCovarianceStamped, "/initialpose", self.on_initial_pose, 10)
         self.create_service(Trigger, "/smart_vision_amr/save_memory", self.save_service)
         self.create_service(Trigger, "/smart_vision_amr/clear_memory", self.clear_service)
+        from rclpy.clock import Clock, ClockType
+        self.create_timer(.02, self.retry_pending_scans,
+                          clock=Clock(clock_type=ClockType.STEADY_TIME))
 
     def map_signature(self, msg):
         info = msg.info
@@ -83,6 +97,7 @@ class ChangeMemoryNode(Node):
         self.live_obstacles.clear()
         self.last_scan_stamp_ns = None
         self.last_map_to_odom = None
+        self.pending_scans.clear()
         path = self.memory_path
         if not self.get_parameter("memory_enabled").value:
             self.memory = self._new_memory(msg)
@@ -108,11 +123,12 @@ class ChangeMemoryNode(Node):
         # next valid scan rebuilds them; do not announce a fresh empty scan here.
         self.live_obstacles.clear()
         self.last_map_to_odom = None
+        self.pending_scans.clear()
 
-    def reset_live_on_localization_jump(self, target_frame):
+    def reset_live_on_localization_jump(self, target_frame, measurement_time):
         try:
             transform = self.tf_buffer.lookup_transform(
-                target_frame, self.get_parameter("odom_frame").value, rclpy.time.Time())
+                target_frame, self.get_parameter("odom_frame").value, measurement_time)
         except TransformException:
             return
         pose = (transform.transform.translation.x, transform.transform.translation.y,
@@ -164,35 +180,100 @@ class ChangeMemoryNode(Node):
     def on_scan(self, scan):
         if self.map is None or self.memory is None:
             return
+        if not self._scan_is_current(scan):
+            return
+        stamp_ns = scan.header.stamp.sec * 1_000_000_000 + scan.header.stamp.nanosec
+        if any(item[0] == stamp_ns for item in self.pending_scans):
+            return
+        # A zero-time TF query means "latest" in TF2, never measurement time.
+        if stamp_ns == 0:
+            self._projection_diagnostic("DROPPED", "unstamped_scan", scan)
+            return
+        if self._project_scan(scan):
+            return
+        bound = max(1, min(50, int(self.get_parameter("scan_tf_queue_size").value)))
+        while len(self.pending_scans) >= bound:
+            _, _, dropped = self.pending_scans.popleft()
+            self._projection_diagnostic("DROPPED", "tf_queue_full", dropped)
+        self.pending_scans.append((stamp_ns, time.monotonic(), scan))
+        self.pending_scans = deque(sorted(self.pending_scans, key=lambda item: item[0]))
+        self._projection_diagnostic("PENDING_TF", "waiting_for_measurement_transform", scan)
+
+    def retry_pending_scans(self):
+        """Short nonblocking retries allow a scan to arrive just ahead of TF."""
+        wait = max(.01, min(1., float(self.get_parameter("scan_tf_wait_sec").value)))
+        now = time.monotonic()
+        retained = deque()
+        while self.pending_scans:
+            stamp, arrived, scan = self.pending_scans.popleft()
+            if not self._scan_is_current(scan):
+                continue
+            if now - arrived >= wait:
+                self._projection_diagnostic("DROPPED", "measurement_tf_timeout", scan)
+                continue
+            if not self._project_scan(scan):
+                retained.append((stamp, arrived, scan))
+        self.pending_scans = retained
+
+    def _scan_is_current(self, scan):
         now_ns = self.get_clock().now().nanoseconds
         stamp_ns = scan.header.stamp.sec * 1_000_000_000 + scan.header.stamp.nanosec
         max_age = max(.05, float(self.get_parameter("live_scan_max_age_sec").value))
-        if abs(now_ns-stamp_ns) > max_age * 1e9:
-            return
+        future = max(0., min(.25, float(self.get_parameter("scan_future_tolerance_sec").value)))
+        if (now_ns-stamp_ns) > max_age * 1e9 or stamp_ns-now_ns > future*1e9:
+            self._projection_diagnostic("DROPPED", "scan_clock_skew_or_stale", scan)
+            return False
         if self.last_scan_stamp_ns is not None and stamp_ns <= self.last_scan_stamp_ns:
-            return
+            return False
         if (not all(math.isfinite(value) for value in (scan.angle_min, scan.angle_increment,
                                                       scan.range_min, scan.range_max))
                 or scan.angle_increment == 0.0 or not 0 <= scan.range_min < scan.range_max):
+            self._projection_diagnostic("DROPPED", "invalid_scan_geometry", scan)
+            return False
+        return True
+
+    def _projection_diagnostic(self, status, reason, scan, tf_skew=None):
+        if status == "DROPPED":
+            self.projection_dropped += 1
+            self.get_logger().warning(f"LiDAR projection rejected: {reason}", throttle_duration_sec=5.)
+        now = time.monotonic()
+        if status == "VALID" and now-self.last_projection_diagnostic < 1.:
             return
+        self.last_projection_diagnostic = now
+        stamp_ns = scan.header.stamp.sec*1_000_000_000 + scan.header.stamp.nanosec
+        message = String()
+        message.data = json.dumps({"status": status, "reason": reason,
+            "scan_stamp_ns": stamp_ns,
+            "scan_age_ms": (self.get_clock().now().nanoseconds-stamp_ns)/1e6,
+            "tf_skew_ms": tf_skew, "queue_depth": len(self.pending_scans),
+            "valid_scans": self.projection_valid, "dropped_scans": self.projection_dropped})
+        self.projection_status_pub.publish(message)
+
+    def _project_scan(self, scan):
+        """Return false only when TF may still arrive within the bounded wait."""
+        stamp_ns = scan.header.stamp.sec * 1_000_000_000 + scan.header.stamp.nanosec
         target_frame = self.get_parameter("map_frame").value
         sensor_frame = scan.header.frame_id or self.get_parameter("base_frame").value
+        measurement_time = rclpy.time.Time.from_msg(scan.header.stamp)
         try:
-            # Gazebo Classic may publish scans just ahead of the latest TF on WSL. Use
-            # the newest transform so valid scans are not dropped on small clock skew.
-            tf = self.tf_buffer.lookup_transform(target_frame, sensor_frame, rclpy.time.Time())
+            tf = self.tf_buffer.lookup_transform(target_frame, sensor_frame, measurement_time)
         except TransformException as exc:
-            self.get_logger().warning(f"Waiting for map-to-base TF: {exc}", throttle_duration_sec=5.0)
-            return
+            self.get_logger().warning(f"Waiting for scan-stamped TF: {exc}", throttle_duration_sec=5.0)
+            return False
         tf_ns = tf.header.stamp.sec * 1_000_000_000 + tf.header.stamp.nanosec
         tf_max_age = max(.05, float(self.get_parameter("live_transform_max_age_sec").value))
-        if tf_ns and abs(stamp_ns-tf_ns) > tf_max_age * 1e9:
-            return
+        tolerance = min(tf_max_age, max(.000001, float(self.get_parameter(
+            "scan_tf_stamp_tolerance_sec").value)))
+        skew_ms = (tf_ns-stamp_ns)/1e6 if tf_ns else 0.
+        if tf_ns and abs(stamp_ns-tf_ns) > tolerance * 1e9:
+            self._projection_diagnostic("DROPPED", "tf_measurement_stamp_skew", scan, skew_ms)
+            return True
         q = tf.transform.rotation
         if not all(math.isfinite(value) for value in (tf.transform.translation.x,
                 tf.transform.translation.y, q.x, q.y, q.z, q.w)):
-            return
-        self.reset_live_on_localization_jump(target_frame)
+            self._projection_diagnostic("DROPPED", "invalid_transform", scan, skew_ms)
+            return True
+        self.reset_live_on_localization_jump(target_frame, measurement_time)
         info = self.map["message"].info
         origin = world_to_cell(info, tf.transform.translation.x, tf.transform.translation.y)
         yaw = self._yaw(tf.transform.rotation)
@@ -221,8 +302,9 @@ class ChangeMemoryNode(Node):
             if valid_hit and self._is_free_in_base_map(end_cell):
                 occupied_cells.add(end_cell)
         if not valid_beams:
-            return
+            return True
         self.last_scan_stamp_ns = stamp_ns
+        self.projection_valid += 1
         free_cells.difference_update(occupied_cells)
         now = time.monotonic()
         ttl = max(.05, float(self.get_parameter("live_obstacle_ttl_sec").value))
@@ -239,8 +321,9 @@ class ChangeMemoryNode(Node):
         observed = Int32MultiArray()
         observed.data = sorted(y * self.memory.width + x for x, y in self.live_obstacles)
         self.observation_pub.publish(observed)
+        self._projection_diagnostic("VALID", "measurement_transform_applied", scan, skew_ms)
         if not self.get_parameter("memory_enabled").value:
-            return
+            return True
         changed = False
         observed_at = time.time()
         for cell in free_cells:
@@ -256,6 +339,7 @@ class ChangeMemoryNode(Node):
         if interval > 0 and self.scans_since_save >= interval:
             self.persist()
             self.scans_since_save = 0
+        return True
 
     def _is_free_in_base_map(self, cell):
         msg = self.map["message"]

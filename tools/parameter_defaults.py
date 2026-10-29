@@ -8,6 +8,7 @@ needed here; the controller supplies only changes accepted by a parameter servic
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
+import hashlib
 import math
 import os
 from pathlib import Path
@@ -304,8 +305,9 @@ def _backup(config):
     return backup
 
 
-def _commit(configs, outputs):
+def _commit(configs, outputs, changes=None):
     staged, backups, replaced = {}, {}, []
+    receipt = None
     try:
         for config in configs:
             if outputs[config.path] != config.raw:
@@ -317,18 +319,45 @@ def _commit(configs, outputs):
         for config in configs:
             if config.path in staged:
                 backups[config.path] = _backup(config)
+        if staged:
+            history_dir = configs[0].path.parent / '.parameter-history'
+            history_dir.mkdir(mode=0o700, exist_ok=True)
+            receipt = history_dir / (datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S.%fZ')+'-'+uuid4().hex[:8]+'.json')
+            record = {'version': 1, 'status': 'prepared', 'at': datetime.now(timezone.utc).isoformat(),
+                      'changes': [{'node': node, 'parameter': name, 'value': value}
+                                  for (node, name), value in (changes or {}).items()],
+                      'files': [{'path': str(config.path), 'backup': str(backups[config.path]),
+                                 'before_sha256': hashlib.sha256(config.raw).hexdigest(),
+                                 'after_sha256': hashlib.sha256(outputs[config.path]).hexdigest()}
+                                for config in configs if config.path in staged]}
+            for change in record['changes']:
+                source = next(config for config in configs if change['node'] in config.sections)
+                previous = _parameter_locations(source.sections[change['node']]).get(change['parameter'])
+                change['previous_value'] = yaml.safe_load(yaml.serialize(previous)) if previous is not None else None
+            with receipt.open('x', encoding='utf-8') as stream:
+                os.chmod(receipt, 0o600)
+                json.dump(record, stream, ensure_ascii=False, indent=2)
+                stream.flush()
+                os.fsync(stream.fileno())
         for config in configs:
             if config.path in staged:
                 if config.path.read_bytes() != config.raw:
                     raise ParameterDefaultsError(f'저장 도중 설정 파일이 변경되었습니다: {config.path}')
                 os.replace(staged[config.path], config.path)
                 replaced.append(config)
+        if receipt:
+            record['status'] = 'committed'
+            history_stage = _stage(receipt, (json.dumps(record, ensure_ascii=False, indent=2)+'\n').encode(), 0o600)
+            os.replace(history_stage, receipt)
         return [str(config.path) for config in configs]
     except BaseException as exc:
         restore_errors = []
         for config in reversed(replaced):
             restore = None
             try:
+                if config.path.read_bytes() != outputs[config.path]:
+                    raise ParameterDefaultsError(
+                        '저장 후 다른 변경이 있어 자동 복구로 덮어쓰지 않습니다')
                 restore = _stage(config.path, config.raw, config.mode)
                 os.replace(restore, config.path)
             except BaseException as restore_exc:
@@ -336,6 +365,8 @@ def _commit(configs, outputs):
             finally:
                 if restore is not None:
                     restore.unlink(missing_ok=True)
+        if receipt is not None and not restore_errors:
+            receipt.unlink(missing_ok=True)
         if restore_errors:
             raise ParameterDefaultsError('저장 실패 후 원본 복구도 실패했습니다: ' + '; '.join(restore_errors)) from exc
         if isinstance(exc, (KeyboardInterrupt, SystemExit)):
@@ -371,7 +402,32 @@ def save_parameter_defaults(paths, changes):
         grouped.setdefault(matches[0].path, {})[key] = value
     touched = [config for config in configs if config.path in grouped]
     outputs = {config.path: _render(config, grouped[config.path]) for config in touched}
-    return _commit(touched, outputs)
+    return _commit(touched, outputs, confirmed)
+
+
+def restore_parameter_history(receipt_path):
+    """Restore a saved transaction only if no later edits would be overwritten.
+
+    Restoration itself is recorded as a new transaction; live ROS parameters
+    remain unchanged until the operator applies them or restarts the nodes.
+    """
+    receipt = json.loads(Path(receipt_path).read_text(encoding='utf-8'))
+    if receipt.get('version') != 1 or receipt.get('status') != 'committed':
+        raise ParameterDefaultsError('완료된 파라미터 저장 이력만 복원할 수 있습니다.')
+    configs, outputs = [], {}
+    for item in receipt.get('files', []):
+        config = _read(item['path'])
+        backup = Path(item['backup']).read_bytes()
+        if hashlib.sha256(config.raw).hexdigest() != item['after_sha256']:
+            raise ParameterDefaultsError(f'이력 저장 후 다른 변경이 있어 복원을 중단합니다: {config.path}')
+        if hashlib.sha256(backup).hexdigest() != item['before_sha256']:
+            raise ParameterDefaultsError(f'백업 해시가 일치하지 않습니다: {item["backup"]}')
+        yaml.compose(backup.decode('utf-8'))
+        configs.append(config)
+        outputs[config.path] = backup
+    if not configs:
+        raise ParameterDefaultsError('복원할 파일이 없습니다.')
+    return _commit(configs, outputs)
 
 
 def export_parameters(source, target, changes):

@@ -13,6 +13,8 @@ from geometry_msgs.msg import Twist
 
 from cmd_vel_controller import Controller, LazyVelocityPublisher
 
+QT_TEST_APP = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
 
 class FakePublisher:
     def __init__(self, topic):
@@ -50,7 +52,7 @@ class FakeNode:
 class ControllerOwnershipTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+        cls.app = QT_TEST_APP
 
     def setUp(self):
         self.temporary = TemporaryDirectory()

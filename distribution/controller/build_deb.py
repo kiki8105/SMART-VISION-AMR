@@ -8,7 +8,7 @@ import shutil
 import subprocess
 import tempfile
 
-VERSION = '1.1.0'
+VERSION = '1.2.0'
 PACKAGE = 'turtlebot3-controller'
 DEPENDENCIES = [
     'python3 (>= 3.10)', 'python3 (<< 3.11)', 'python3-pyqt5',
@@ -31,7 +31,7 @@ def main():
     source = project / 'tools'
     output = (args.output_dir or project / 'distribution/releases').resolve()
     output.mkdir(parents=True, exist_ok=True)
-    # Stable timestamp for release 1.1.0 (2026-10-29 UTC).
+    # Stable timestamp for release 1.2.0 (2026-10-29 UTC).
     epoch = int(os.environ.get('SOURCE_DATE_EPOCH', '1793232000'))
     with tempfile.TemporaryDirectory(prefix='tb3-controller-deb-') as temporary:
         root = Path(temporary) / 'root'
@@ -44,6 +44,14 @@ def main():
             target = root / destination
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source / name, target)
+        # The desktop process uses the same scoped DDS profile as the robot and
+        # project scripts; user/site profiles and non-Fast RMW remain untouched.
+        for original in (
+            project / 'scripts/dds_env.bash',
+            project / 'ros2_ws/src/smart_vision_amr/config/dds_udp.xml',
+            project / 'ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml',
+        ):
+            shutil.copyfile(original, root / 'usr/lib/turtlebot3-controller' / original.name)
         resources = {
             'turtlebot3-controller': 'usr/bin/turtlebot3-controller',
             'turtlebot3-controller.desktop': 'usr/share/applications/turtlebot3-controller.desktop',

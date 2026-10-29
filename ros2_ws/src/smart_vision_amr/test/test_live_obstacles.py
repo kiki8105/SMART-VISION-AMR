@@ -1,5 +1,6 @@
 """Actual LaserScan projection and transient clearing without any actuator node."""
 from copy import deepcopy
+from collections import deque
 import math
 from pathlib import Path
 from types import SimpleNamespace
@@ -21,12 +22,18 @@ class ScanHarness(ChangeMemoryNode):
                        'clear_min_duration_sec': 2., 'min_observation_interval_sec': .25,
                        'live_obstacle_ttl_sec': 2., 'live_scan_max_age_sec': 1.,
                        'live_transform_max_age_sec': 1.,
+                       'scan_tf_wait_sec': .2, 'scan_tf_queue_size': 5,
+                       'scan_tf_stamp_tolerance_sec': .02, 'scan_future_tolerance_sec': .05,
                        'live_localization_jump_distance': .25,
                        'live_localization_jump_angle': .25}
         self.map = self.memory = None
         self.memory_path = Path('/this-test-never-writes-memory.json')
         self.live_obstacles = {}
         self.last_scan_stamp_ns = None
+        self.pending_scans = deque()
+        self.projection_dropped = self.projection_valid = 0
+        self.last_projection_diagnostic = float('-inf')
+        self.projection_status_pub = Mock()
         self.observation_pub, self.overlay_pub, self.logger = Mock(), Mock(), Mock()
         self.tf_buffer = Mock()
         self.transform = TransformStamped()
@@ -258,3 +265,84 @@ def test_scan_to_live_overlay_to_astar_detour_uses_same_goal_without_slam_map_wr
             assert (2, 1) not in planner.planned_cells
             assert planner.last_goal is goal
             assert all(value == 0 for value in sensor.map['message'].data)
+
+
+def test_projection_and_localization_frame_query_use_exact_measurement_time():
+    with harness() as node:
+        scan = node.scan()
+        stamp_ns = scan.header.stamp.sec*1_000_000_000 + scan.header.stamp.nanosec
+        calls = node.tf_buffer.lookup_transform.call_args_list
+        assert all(call.args[2].nanoseconds == stamp_ns for call in calls)
+        assert {call.args[1] for call in calls} == {'base_scan', 'odom'}
+
+
+def test_scan_just_ahead_of_tf_is_retried_without_latest_fallback():
+    from tf2_ros import TransformException
+    with harness() as node:
+        node.tf_buffer.lookup_transform.side_effect = TransformException('future extrapolation')
+        node.scan()
+        assert len(node.pending_scans) == 1
+        assert node.observation_pub.publish.call_count == 0
+        # The transform reaches the original laser stamp 50 ms later.
+        node.clock.return_value = 10.05
+        node.tf_buffer.lookup_transform.side_effect = (
+            lambda target, source, when: node.map_to_odom if source == 'odom' else node.transform)
+        node.retry_pending_scans()
+        assert not node.pending_scans
+        assert node.observation_pub.publish.call_count == 1
+        assert node.observed() == {8}
+        assert all(call.args[2].nanoseconds > 0 for call in node.tf_buffer.lookup_transform.call_args_list)
+
+
+def test_unavailable_measurement_tf_expires_and_never_heartbeats_safe_empty_layer():
+    from tf2_ros import TransformException
+    with harness() as node:
+        node.scan()
+        count = node.observation_pub.publish.call_count
+        node.tf_buffer.lookup_transform.side_effect = TransformException('future extrapolation')
+        node.scan()
+        assert len(node.pending_scans) == 1
+        node.clock.return_value = 10.21
+        node.retry_pending_scans()
+        assert not node.pending_scans
+        assert node.observation_pub.publish.call_count == count
+        assert node.projection_dropped == 1
+        import json
+        payload = json.loads(node.projection_status_pub.publish.call_args.args[0].data)
+        assert payload['reason'] == 'measurement_tf_timeout'
+
+
+def test_tf_pending_queue_is_bounded_and_cleared_on_initial_pose_or_map_replacement():
+    from tf2_ros import TransformException
+    with harness() as node:
+        node.tf_buffer.lookup_transform.side_effect = TransformException('not ready')
+        for _ in range(12):
+            node.scan(advance=.01)
+        assert len(node.pending_scans) == 5
+        assert node.projection_dropped == 7
+        reset = PoseWithCovarianceStamped()
+        reset.header.frame_id = 'map'
+        node.on_initial_pose(reset)
+        assert not node.pending_scans
+        node.scan()
+        replacement = deepcopy(node.map['message'])
+        replacement.data[0] = 100
+        node.on_map(replacement)
+        assert not node.pending_scans
+
+
+def test_future_scan_or_wrong_stamped_transform_are_diagnosed_without_projection():
+    with harness() as node:
+        scan = node.scan()
+        count = node.observation_pub.publish.call_count
+        scan.header.stamp.sec += 2
+        node.on_scan(scan)
+        assert node.observation_pub.publish.call_count == count
+        node.ros_ns += 2_000_000_000
+        node.on_scan(scan)  # Fake buffer returns the old stamp even for a stamped query.
+        assert node.observation_pub.publish.call_count == count
+        assert not node.pending_scans
+        import json
+        payload = json.loads(node.projection_status_pub.publish.call_args.args[0].data)
+        assert payload['reason'] == 'tf_measurement_stamp_skew'
+        assert abs(payload['tf_skew_ms']) == 2000.

@@ -69,6 +69,26 @@ def check_isolation():
                            + ". Source the simulation environment used by run_sim.sh.")
 
 
+def verification_owns_goal(goal_sent, goal_stamp, latest_status):
+    """Never stop another mission when readiness/goal validation failed."""
+    if not goal_sent:
+        return False
+    if latest_status is None:
+        return True
+    return (goal_stamp is not None
+            and latest_status.get("goal_stamp") == goal_stamp)
+
+
+def stop_failed_verification(node, window=None):
+    if not verification_owns_goal(node.goal_sent, node.goal_stamp,
+                                  node.latest_status_observed):
+        return False
+    if window is not None:
+        window.emergency_stop()
+    node.cancel_on_failure()
+    return True
+
+
 def run_verification(args):
     try:
         import rclpy
@@ -87,6 +107,7 @@ def run_verification(args):
         from std_msgs.msg import String
         from std_srvs.srv import Trigger
         from tf2_ros import Buffer, TransformException, TransformListener
+        from smart_vision_amr.navigation_graph import goal_consumers_ready
     except ImportError as exc:
         raise RuntimeError("ROS 2 Python packages are unavailable. Source "
                            "/opt/ros/humble/setup.bash and the Team2 workspace "
@@ -126,6 +147,9 @@ def run_verification(args):
             self.next_state_request = 0.0
             self.tf_error = "not queried"
             self.started = False
+            self.goal_sent = False
+            self.goal_stamp = None
+            self.latest_status_observed = None
             self.start_odom = None
             self.path_poses = 0
             self.path_count = 0
@@ -135,6 +159,7 @@ def run_verification(args):
             self.navigation_status = None
             self.last_status_payload = None
             self.status_parse_errors = 0
+            self.motion_status = None
             self.tf_buffer = Buffer()
             self.tf_listener = TransformListener(self.tf_buffer, self)
             self.controller = self.create_client(GetState, "/controller_server/get_state")
@@ -151,6 +176,8 @@ def run_verification(args):
             self.create_subscription(Path, "/smart_vision_amr/path", self.on_path, 10)
             self.create_subscription(String, "/smart_vision_amr/navigation_status",
                                      self.on_status, 10)
+            self.create_subscription(String, "/smart_vision_amr/motion_status",
+                                     self.on_motion_status, latched)
             if args.via_controller:
                 self.create_subscription(PoseStamped, "/smart_vision_amr/goal", self.on_goal, 10)
 
@@ -160,6 +187,10 @@ def run_verification(args):
                 point = message.pose.position
                 controller_goal_seen = (abs(point.x - args.goal_x) < 1e-6
                                         and abs(point.y - args.goal_y) < 1e-6)
+                if controller_goal_seen:
+                    self.goal_sent = True
+                    self.goal_stamp = {"sec": message.header.stamp.sec,
+                                       "nanosec": message.header.stamp.nanosec}
 
         def on_clock(self, message):
             value = message.clock.sec + message.clock.nanosec / 1e9
@@ -193,9 +224,9 @@ def run_verification(args):
                     self.path_count += 1
 
         def on_status(self, message):
-            # Status has no goal ID. Gate on a newly observed A* path so a
-            # status received during startup cannot satisfy this run.
-            if not self.started or not self.path_received:
+            # Match the actual published stamp; another operator's later goal
+            # must neither satisfy this trial nor be stopped during cleanup.
+            if not self.started:
                 return
             try:
                 payload = json.loads(message.data)
@@ -204,8 +235,20 @@ def run_verification(args):
             except (ValueError, TypeError):
                 self.status_parse_errors += 1
                 return
+            self.latest_status_observed = payload
+            if (not self.path_received or self.goal_stamp is None
+                    or payload.get("goal_stamp") != self.goal_stamp):
+                return
             self.last_status_payload = payload
             self.navigation_status = payload.get("status")
+
+        def on_motion_status(self, message):
+            try:
+                payload = json.loads(message.data)
+                if isinstance(payload, dict):
+                    self.motion_status = payload
+            except (ValueError, TypeError):
+                pass
 
         def update_controller_state(self):
             if self.state_future is not None and self.state_future.done():
@@ -236,6 +279,11 @@ def run_verification(args):
         def readiness(self):
             self.update_controller_state()
             pose = self.robot_pose()
+            # A recorder/web subscriber can appear before the planner during
+            # DDS discovery. Counting any subscriber can lose the one-shot
+            # goal even though the intended navigation nodes were not ready.
+            goal_nodes = {entry.node_name for entry in self.get_subscriptions_info_by_topic(
+                '/smart_vision_amr/goal')}
             checks = {
                 "clock_advances": (self.first_clock is not None and self.last_clock is not None
                                    and self.last_clock - self.first_clock >= 0.1),
@@ -245,9 +293,14 @@ def run_verification(args):
                 "map_to_base_footprint_tf": pose is not None,
                 "controller_active": self.controller_state == "active",
                 "follow_path_action": self.follow_path.server_is_ready(),
-                "goal_subscriber": self.goal_pub.get_subscription_count() > 0,
+                "goal_subscriber": goal_consumers_ready(goal_nodes),
                 "status_publisher": self.count_publishers(
                     "/smart_vision_amr/navigation_status") > 0,
+                "motion_mux_ready": (self.motion_status is not None
+                    and self.motion_status.get('available') is True
+                    and self.motion_status.get('mode') == 'auto'
+                    and self.motion_status.get('estop_latched') is False
+                    and self.motion_status.get('autonomous_allowed') is True),
             }
             if args.via_controller:
                 checks.update({
@@ -296,9 +349,24 @@ def run_verification(args):
                 # This path does not publish a substitute goal from the verifier.
                 window.map_panel.view.waypoints = [(args.goal_x, args.goal_y, args.goal_yaw)]
                 window.map_panel.view.draw_overlays()
-                window.map_panel.start_v3_goal()
+                publish_goal = window.bridge.publish_goal_pose
+                def record_publish(point):
+                    published = publish_goal(point)
+                    if published:
+                        self.goal_sent = True
+                    return published
+                window.bridge.publish_goal_pose = record_publish
+                try:
+                    window.map_panel.start_v3_goal()
+                finally:
+                    window.bridge.publish_goal_pose = publish_goal
+                if not self.goal_sent:
+                    raise RuntimeError("Controller did not publish the requested goal")
             else:
                 self.goal_pub.publish(goal)
+                self.goal_sent = True
+                self.goal_stamp = {"sec": goal.header.stamp.sec,
+                                   "nanosec": goal.header.stamp.nanosec}
 
         def evidence(self):
             pose = self.robot_pose()
@@ -323,7 +391,9 @@ def run_verification(args):
             }
 
         def cancel_on_failure(self):
-            if not self.started or not self.cancel.service_is_ready():
+            if (not verification_owns_goal(self.goal_sent, self.goal_stamp,
+                                           self.latest_status_observed)
+                    or not self.cancel.service_is_ready()):
                 return
             future = self.cancel.call_async(Trigger.Request())
             deadline = time.monotonic() + 3.0
@@ -439,9 +509,7 @@ def run_verification(args):
         raise RuntimeError("ROS shut down during navigation verification")
     finally:
         if not passed and rclpy.ok():
-            if window is not None:
-                window.emergency_stop()
-            node.cancel_on_failure()
+            stop_failed_verification(node, window)
         if window is not None:
             window.timer.stop()
             window.bridge.timer.stop()

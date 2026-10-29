@@ -68,12 +68,13 @@ PC에서는 마우스로 드래그하거나 조이스틱에 초점을 둔 뒤 �
 조이스틱의 자동 재개보다 우선합니다. 늦은 요청과 다른 운용자의 동시 개입은
 세션·순서 번호로 차단합니다.
 
-자동 속도는 `/smart_vision_amr/navigation_cmd_vel`, 웹 수동 제어는
+Nav2 속도는 `/smart_vision_amr/navigation_cmd_vel`에서 `command_stamper`가 시각·순서를 붙여
+`/smart_vision_amr/navigation_control`로 전달합니다. 웹 수동 제어는
 `/smart_vision_amr/manual_control`로 분리하며 `motion_mux`만 최종 `/cmd_vel`을
-출력합니다. 강의실 웹 서비스에 mux가 포함되므로 브링업과 LiDAR·오도메트리가 준비되면
-위치 추정이나 A* 없이도 수동으로 조종할 수 있습니다. 자동 임무에는 기존 주행 구성이
+출력합니다. 강의실 기본 구성은 로봇 runtime이 mux를 소유하므로 브링업과 LiDAR·오도메트리가 준비되면
+명시적으로 비상정지를 해제한 뒤 위치 추정이나 A* 없이도 수동으로 조종할 수 있습니다. 자동 임무에는 기존 주행 구성이
 계속 필요합니다. 일반 시뮬레이션·하드웨어 런치는 기본적으로 mux를 함께 실행하고,
-`scripts/run_classroom_navigation_16.sh`는 웹 서비스의 mux를 사용하도록 중복 실행을 끕니다.
+`scripts/run_classroom_navigation_16.sh`와 웹은 로봇 runtime의 mux를 사용하며 중복 생성하지 않습니다.
 
 업데이트 전 실행한 Nav2나 기존 Qt 조종기가 `/cmd_vel`에 직접 발행 중이면 새 mux는
 정지 명령도 끼워 넣지 않고 출력을 보류하며 UI에 충돌 사유를 표시합니다.
@@ -219,22 +220,15 @@ Sector 1 좌표를 유지하면서 경로가 생기도록 장애물 팽창을 5�
 
 ## 로봇 Bringup과 카메라를 함께 실행
 
-로봇용 기본 실행 파일은 `scripts/robot_bringup_camera_16.sh`이며 독립 바퀴·IMU
-EKF 입력을 발행합니다. PC에서 로봇으로 스크립트와 EKF launch 파일을 복사합니다.
-
-```bash
-cd ~/Team2_workspace/src/SMART-VISION-AMR
-scp scripts/robot_bringup_camera_16.sh scripts/robot_bringup_camera_16_baseline.sh \
-  scripts/ros_camera_compressed.py \
-  ros2_ws/src/smart_vision_amr/launch/hardware_robot_ekf.launch.py \
-  robot@192.168.0.187:~/
-```
+새 기본 구성은 로봇 내부에서 독립 바퀴·IMU EKF·안전 감시·최종 속도 중재기를 함께 실행합니다.
+처음에는 [실차 설치·실행 안내](hardware_ekf.md)를 따라 로봇에 저장소를 클론하고
+`./scripts/setup_robot_runtime.sh`를 실행합니다. 셸 파일만 복사해서는 설치되지 않습니다.
 
 로봇 SSH 터미널에서 기존 Bringup·카메라를 Ctrl+C로 종료한 뒤 실행합니다.
 
 ```bash
-chmod +x ~/robot_bringup_camera_16.sh ~/robot_bringup_camera_16_baseline.sh
-~/robot_bringup_camera_16.sh
+cd ~/SMART-VISION-AMR
+ENABLE_FRONT_CAMERA=true ./scripts/robot_bringup_camera_16.sh
 ```
 
 기본 워크스페이스는 `~/turtlebot3_ws`, 도메인은 16, 모델은 waffle_pi,
@@ -243,8 +237,8 @@ chmod +x ~/robot_bringup_camera_16.sh ~/robot_bringup_camera_16_baseline.sh
 사용합니다. 웹캠을 교체했다면 `CAMERA_DEVICE`로 새 경로를 지정합니다.
 기본 카메라 백엔드는 통신량을 줄인 5 FPS JPEG이며
 `/camera/image_raw/compressed`를 발행합니다. 원본 영상 토픽도 필요한 경우
-`CAMERA_BACKEND=v4l2 ~/robot_bringup_camera_16.sh`로 실행합니다.
-전방 카메라는 기본적으로 꺼져 있습니다. 활성화할 경우 실제 전방 영상과
+`CAMERA_BACKEND=v4l2 ./scripts/robot_bringup_camera_16.sh`로 실행합니다.
+스크립트의 기본 전방 설정은 꺼짐이지만 위 명령은 강의실 Sector 마커 확인을 위해 활성화합니다. 실제 전방 영상과
 ArUco 검출을 다시 확인해야 합니다. 웹 서비스는 거꾸로 장착된 후방 카메라를
 ArUco 검출과 표시 전에 180° 회전합니다.
 

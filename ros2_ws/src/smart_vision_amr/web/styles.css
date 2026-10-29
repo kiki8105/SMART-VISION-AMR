@@ -35,3 +35,18 @@
 @media(max-width:560px){.localization-control{padding:12px 14px}.localization-heading{align-items:flex-start}.localization-actions button{min-height:42px}.localization-help{font-size:10px}}
 .camera-feed+.camera-feed{border-top:1px solid var(--line)}.camera-feed-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;background:var(--panel);font-size:11px}.camera-feed-heading strong{font-weight:600}.camera-feed .camera-view{height:155px}.camera-feed .empty-state{padding:10px;text-align:center}
 @media(max-width:560px){.camera-feed .camera-view{height:180px}}
+
+.operation-summary{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;margin-bottom:18px;padding:20px;border-left:4px solid var(--accent)}
+.operation-summary h2{margin:5px 0;font-size:21px}.operation-summary p{margin:7px 0;line-height:1.5}.operation-summary[data-level=critical]{border-left-color:#bd2828}.operation-summary[data-level=warning]{border-left-color:#b77a1b}.operation-summary details{grid-column:1/-1}.operation-summary summary{cursor:pointer}.operation-summary ul{padding-left:22px}.active-route{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}.active-route li{border:1px solid #d4dedb;border-radius:8px;padding:8px 12px}.active-route [aria-current=step]{border-color:var(--accent);color:var(--accent);font-weight:700}.active-route .completed{opacity:.65}
+@media(max-width:650px){.operation-summary{grid-template-columns:1fr;padding:16px}.operation-summary details,.active-route{grid-column:1}}
+
+/* Arrival alignment stays within the existing camera panel on phone and PC. */
+.marker-alignment{border-top:1px solid var(--line);padding:10px 14px;background:var(--soft);font-size:12px}
+.marker-alignment-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.marker-alignment-heading strong{font-size:12px;font-weight:600}
+.marker-alignment-camera{padding:3px 7px;border:1px solid var(--line);border-radius:12px;font-size:11px;white-space:nowrap}
+.marker-alignment-metrics{margin-top:6px;color:var(--muted);font-size:11px;overflow-wrap:anywhere}
+.marker-alignment p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.55;overflow-wrap:anywhere}
+.marker-alignment.failed{background:var(--amberbg)}.marker-alignment.failed .marker-alignment-heading{color:var(--amber)}
+.marker-alignment.confirmed{background:var(--tint)}.marker-alignment.confirmed .marker-alignment-heading{color:var(--accent)}
+.marker-alignment.stopped .marker-alignment-heading{color:var(--red)}

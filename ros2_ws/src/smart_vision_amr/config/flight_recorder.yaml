@@ -1,0 +1,16 @@
+flight_recorder:
+  ros__parameters:
+    # Sampled JSONL diagnostics, not a rosbag. Never records camera frames/HTTP credentials.
+    output_directory: ~/.ros/smart_vision_amr/incidents
+    pre_buffer_seconds: 30.0
+    post_buffer_seconds: 5.0
+    max_samples: 4000
+    max_buffer_bytes: 8388608
+    max_message_bytes: 524288
+    max_incidents: 50
+    sensor_sample_period: 0.2  # /odom /imu /cmd_vel: at most 5 Hz each.
+    scan_sample_period: 0.5  # /scan: at most 2 Hz.
+    tf_sample_period: 0.2
+    path_sample_period: 1.0
+    status_sample_period: 0.2
+    minimum_incident_interval: 10.0

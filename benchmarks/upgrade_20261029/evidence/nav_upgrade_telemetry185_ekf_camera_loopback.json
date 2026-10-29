@@ -1,0 +1,138 @@
+{
+  "elapsed": 76.35639331000039,
+  "counts": {
+    "/smart_vision_amr/motion_status": 495,
+    "/cmd_vel": 1755,
+    "/smart_vision_amr/localization_health": 288,
+    "/smart_vision_amr/scan_projection_status": 347,
+    "/smart_vision_amr/planner_status": 9,
+    "/smart_vision_amr/navigation_control": 561,
+    "/speed_limit": 564,
+    "/smart_vision_amr/navigation_status": 60
+  },
+  "latest": {
+    "/smart_vision_amr/motion_status": {
+      "mode": "auto",
+      "available": true,
+      "reason": "Navigation control",
+      "source_id": null,
+      "estop_latched": false,
+      "auto_source_id": "nav:f142906f6cc8459481d749565f633fa0",
+      "auto_rejected_reason": "",
+      "output_owner": "auto",
+      "localization_speed_factor": 1.0,
+      "autonomous_allowed": true,
+      "localization_reason": "",
+      "output_linear": 0.0,
+      "output_angular": 0.0,
+      "status_seq": 495,
+      "sent_at_ns": 68640000000,
+      "mux_instance_id": "mux-service:6133a8746d6d422d8a90c9eafe77d2e6",
+      "output_publishers": 1,
+      "stop_acknowledged": false,
+      "reset_pending": false
+    },
+    "/smart_vision_amr/localization_health": {
+      "level": "ok",
+      "reasons": [],
+      "metrics": {
+        "map_available": true,
+        "scan_age_seconds": 0.15192874900003517,
+        "odom_age_seconds": 0.0345422630007306,
+        "scan_header_age_seconds": 0.131,
+        "odom_header_age_seconds": 0.022,
+        "scan_valid": true,
+        "odom_valid": true,
+        "position_std_m": 0.12920279731010084,
+        "yaw_std_rad": 0.0957160518621644,
+        "amcl_age_seconds": 11.574389069000063,
+        "moving": false,
+        "pose_jump": false,
+        "scan_map_agreement": 1.0,
+        "agreement_age_seconds": 0.0,
+        "map_tf_age_seconds": 0.022,
+        "odom_tf_valid": true,
+        "odom_last_received_age_seconds": 0.0345422630007306,
+        "odom_raw_header_age_seconds": 0.022,
+        "odom_rejected_count": 0,
+        "odom_rejection_reason": "",
+        "odom_last_rejection_reason": "",
+        "scan_last_received_age_seconds": 0.15192874900003517,
+        "scan_raw_header_age_seconds": 0.131,
+        "scan_rejected_count": 0,
+        "scan_rejection_reason": "",
+        "scan_last_rejection_reason": ""
+      },
+      "stop_latched": false,
+      "autonomous_allowed": true,
+      "allow_localization": true,
+      "reinitialization_requested": false,
+      "stable_seconds": 69.49988677200054,
+      "stamp_ns": 68420000000,
+      "sent_at_ns": 68420000000
+    },
+    "/smart_vision_amr/scan_projection_status": {
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 68489000000,
+      "scan_age_ms": -9.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 336,
+      "dropped_scans": 5
+    },
+    "/smart_vision_amr/planner_status": {
+      "status": "IDLE",
+      "message": "Goal completed",
+      "goal": {
+        "x": 3.0,
+        "y": 2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 3,
+        "nanosec": 260000000
+      }
+    },
+    "/smart_vision_amr/navigation_control": {
+      "source_id": "nav:f142906f6cc8459481d749565f633fa0",
+      "seq": 561,
+      "sent_at_ns": 57740000000,
+      "linear": 0.0,
+      "angular": 0.0
+    },
+    "/speed_limit": {
+      "speed_limit": 0.0,
+      "percentage": false
+    },
+    "/smart_vision_amr/navigation_status": {
+      "status": "SUCCEEDED",
+      "message": "Nav2 status 4",
+      "goal": {
+        "x": 3.0,
+        "y": 2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 3,
+        "nanosec": 260000000
+      },
+      "manual_stop": false,
+      "stop_stamp": null
+    }
+  },
+  "invalid_navigation_sequences": 0,
+  "max_forwarded_nav_speed": 0.21999999999999997,
+  "max_cmd_speed": 0.21999999999999997,
+  "navigation_age_max": 0.02,
+  "min_positive_curve_limit": 0.08300978981636219,
+  "max_curve_limit": 0.14108951269762215,
+  "health_levels": {
+    "warning": 17,
+    "ok": 271
+  },
+  "last_odom": [
+    5.924104008861101,
+    3.9931068813301698
+  ]
+}
