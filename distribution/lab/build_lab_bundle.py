@@ -181,7 +181,9 @@ def build(args):
     print(f'Assembled {output}')
     print(f'Files: {sum(path.is_file() for path in output.rglob("*"))}')
     if args.zip:
-        archive = output.with_suffix('.zip')
+        # A versioned directory such as lab_1.2.0 is a complete name; '.0'
+        # is not an extension to replace.
+        archive = Path(str(output) + '.zip')
         with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as bundle:
             for path in sorted(output.rglob('*')):
                 if path.is_file():
