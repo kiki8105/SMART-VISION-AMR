@@ -56,7 +56,7 @@
     # Temporary failed-approach memory; never writes cells into the saved/SLAM map.
     failure_memory_enabled: true
     obstacle_hold_enabled: true
-    obstacle_retry_limit: 3  # failed published approaches/execution/no-path, not individual scan packets.
+    obstacle_retry_limit: 3  # failed published approaches/execution; a no-path retry is not a new attempt.
     obstacle_clear_duration: 2.0  # s of positive fresh free-ray evidence before automatic resume.
     failure_memory_ttl: 120.0  # s; same bad approach becomes eligible after expiry.
     failure_memory_radius: 0.25  # m around a failed route segment.

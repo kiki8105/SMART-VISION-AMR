@@ -401,6 +401,29 @@ def test_no_path_without_dynamic_hit_on_reference_does_not_claim_obstacle(prepar
     assert node.last_goal is not None
 
 
+def test_repeated_no_path_with_same_dynamic_hit_does_not_count_new_attempts(prepared):
+    node = prepared
+    goal = node.last_goal
+    # A stationary robot can receive the same blocked map route on each timer
+    # retry. No new approach was published or attempted in between.
+    node.observed = {(10, 15)}
+    real_plan = node.planner.plan
+
+    def no_route_with_overlay(grid, start, end, blocked=None, **options):
+        return [] if blocked else real_plan(grid, start, end, blocked, **options)
+
+    node.planner.plan = no_route_with_overlay
+    node.params['reverse_recovery_enabled'] = False
+    for index in range(4):
+        ready(node, 102. + index * 2.1)
+        node.plan_to(goal)
+        assert not path_points(node)
+        assert node.failure_state == 'WAIT_ALTERNATIVE'
+        assert node.obstacle_hold.attempts == 0
+        assert not node.obstacle_hold.holding
+    assert node.last_goal is goal
+
+
 @pytest.mark.parametrize('kind', ['manual', 'estop', 'sensor_fault'])
 def test_manual_or_unhealthy_evidence_does_not_count_a_blocked_approach(prepared, kind):
     node = prepared

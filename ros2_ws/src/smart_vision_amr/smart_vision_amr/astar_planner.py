@@ -1465,7 +1465,11 @@ class AStarPlannerNode(Node):
         # filter here could hide a real object beside a mapped wall. Confirmed
         # memory also retains full inflation wherever it was observed.
         remembered_effective = self.remembered
-        observed_effective, observed_wall = self.observed, set()
+        observed_effective = self.observed
+        # Diagnostic only: show how many live returns are already covered by
+        # the inflated static map. Do not suppress a real near-wall object.
+        observed_inside_static_inflation = sum(
+            1 for cell in self.observed if grid.is_static_obstacle(cell))
         remembered_blocked = inflate_cells(remembered_effective, width, height, inflation)
         observed_blocked = inflate_cells(observed_effective, width, height, inflation)
         blocked = remembered_blocked | observed_blocked
@@ -1537,7 +1541,8 @@ class AStarPlannerNode(Node):
                 f"remembered_goal={end in remembered_blocked}, "
                 f"observed_goal={end in observed_blocked}, "
                 f"observed_raw={len(self.observed)}, "
-                f"observed_near_map_wall={len(observed_wall)}, "
+                f"observed_near_map_wall=0, "
+                f"observed_inside_static_inflation={observed_inside_static_inflation}, "
                 f"observed_effective={len(observed_effective)}, "
                 f"observed_inflated={len(observed_blocked)}, "
                 f"remembered_raw={len(self.remembered)}, "
@@ -1549,9 +1554,9 @@ class AStarPlannerNode(Node):
                 throttle_duration_sec=10.0)
             self._invalidate_path(f"No safe A* route from {start} to {end}; retrying")
             self.failure_state, self.failure_reason = "WAIT_ALTERNATIVE", "No safe alternative; goal retained"
-            if (reference_hits and not grid.is_static_obstacle(end) and self._register_obstacle_failure(
-                    tf.transform.translation.x, tf.transform.translation.y, reference_path)):
-                return
+            # Re-running A* against the same blocked scan is not a new physical
+            # approach. Only an attempted published route or a correlated
+            # execution failure may spend the obstacle retry budget.
             self._maybe_request_reverse(start, end, map_msg, grid, raw_grid,
                                         observed_effective | remembered_effective,
                                         blocked, cell_penalty, trail_verified)
