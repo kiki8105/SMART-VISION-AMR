@@ -107,15 +107,39 @@ colcon build --packages-select smart_vision_amr --symlink-install
 
 실차 배송 시험에 앞서 현재 강의실 환경부터 다시 SLAM으로 매핑합니다.
 로봇 SSH 주소는 실제 접속을 확인한 `robot@192.168.0.187`, 이 실차의 실습 도메인은 **16으로 고정**합니다.
-로봇에서는 Bringup을 실행하고, PC에서는 다음 두 명령을 별도 터미널에서 실행합니다.
+매핑 중에는 저장 지도 AMCL·A*·Nav2를 실행하지 않습니다. 세 터미널만 사용합니다.
+
+**터미널 1 — 로봇 SSH: Bringup·카메라·EKF·수동 제어 안전 감시**
+
+```bash
+ssh robot@192.168.0.187
+cd ~/SMART-VISION-AMR
+SMART_VISION_MAPPING_MODE=true ENABLE_FRONT_CAMERA=false ./scripts/robot_bringup_camera_16.sh
+```
+
+로봇에 `~/turtlebot16` 실행 파일을 설치한 경우에는 마지막 줄을
+`SMART_VISION_MAPPING_MODE=true ENABLE_FRONT_CAMERA=false ~/turtlebot16`으로 바꿔도 됩니다.
+매핑 모드는 AMCL·고정 지도를 요구하지 않으며, `/scan`·`/odom`·odom TF와
+EKF 입력 감시는 유지합니다. 자동 임무 명령은 차단합니다.
+
+**터미널 2 — PC: SLAM·지도 자동 저장**
 
 ```bash
 /home/kiki/turtlebot3/scripts/slam_16 use_rviz:=false
 ```
 
+**터미널 3 — PC: PyQt 조종기**
+
 ```bash
-/home/kiki/turtlebot3/scripts/control_16 --no-use-sim-time --robot-namespace / --camera-topic /camera/image_raw
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+./scripts/run_classroom_mapping_controller_16.sh
 ```
+
+조종기 실행 파일은 PC의 도메인 16 웹 연결을 함께 켜거나 기존 연결을 재사용합니다.
+따라서 별도 웹 터미널은 필요하지 않습니다. 조종기 방향 버튼은 누르고 있는 동안만
+움직이며 놓으면 정지합니다. 최초 Bringup 뒤 비상정지가 잠겨 있으면 조종기나
+웹에서 센서가 안정된 것을 확인한 다음 **비상정지 해제**를 한 번 누릅니다.
+매핑 수동 속도는 안전 감시의 50% 제한을 적용합니다.
 
 SLAM 터미널에서 Ctrl+C를 누르면 `/home/kiki/turtlebot3/maps/classroom_날짜_시간/map.yaml`과
 `map.pgm`을 저장한 다음 종료합니다. 저장 실패 시 SLAM을 유지하고 다시 시도합니다.

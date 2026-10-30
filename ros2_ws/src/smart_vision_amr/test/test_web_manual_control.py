@@ -670,6 +670,74 @@ class ManualBridgeTests(unittest.TestCase):
         self.node.on_navigation(String(data=json.dumps({
             'status': status, 'goal_stamp': {'sec': stamp.sec, 'nanosec': stamp.nanosec}})))
 
+    def mapping_tick(self, delta=0., *, stop_ack=True, output_linear=0.):
+        """Model an absent navigation stack and a robot-side zero-speed ACK."""
+        self.now += delta
+        self.refresh()
+        self.app.manual_mux_status.update({
+            'stop_acknowledged': stop_ack,
+            'output_linear': output_linear,
+            'output_angular': 0.,
+        })
+        self.node.tick()
+
+    def remove_navigation_stack(self):
+        self.cancel.available = False
+        self.node.count_publishers = lambda _topic: 0
+        self.node.get_subscriptions_info_by_topic = lambda _topic: []
+
+    def test_mapping_without_nav_service_acquires_and_releases_manual_control(self):
+        self.remove_navigation_stack()
+        # A canceled mission may leave a queued cancellation from the prior
+        # Nav2 launch. It must not make manual mapping impossible forever.
+        self.app.mission.state = 'CANCELED'
+        self.app.mission.commands = [('cancel', None), ('stop', None)]
+        self.command()
+        self.mapping_tick()
+        self.assertFalse(self.node.cancel_required)
+        for _ in range(3):
+            self.command()
+            self.mapping_tick(.3)
+        self.assertEqual(self.app.manual.state, 'ACTIVE')
+        self.command(False)
+        self.mapping_tick()
+        self.mapping_tick(.81)
+        self.assertEqual(self.app.manual.state, 'IDLE')
+        self.assertFalse(self.app.cancel_pending)
+        self.assertEqual(self.cancel.requests, 0)
+
+    def test_stale_cancel_clears_only_after_absent_stack_and_verified_stop(self):
+        self.remove_navigation_stack()
+        self.node.cancel_required = self.node.owns_navigation = True
+        self.app.navigation_active = True
+        self.node.cancel_sent_at = self.now
+        self.mapping_tick(stop_ack=False)
+        self.mapping_tick(1.1, stop_ack=False)
+        self.assertTrue(self.node.cancel_required)
+        self.mapping_tick(.1, output_linear=.05)
+        self.assertTrue(self.node.cancel_required)
+        self.mapping_tick(.1)
+        self.assertFalse(self.node.cancel_required)
+        self.assertFalse(self.node.owns_navigation)
+        self.assertFalse(self.app.navigation_active)
+
+    def test_partial_navigation_graph_keeps_cancel_pending_without_service(self):
+        self.remove_navigation_stack()
+        self.node.cancel_required = self.node.owns_navigation = True
+        self.app.navigation_active = True
+        self.node.count_publishers = lambda topic: int(topic == '/smart_vision_amr/planner_status')
+        self.mapping_tick()
+        self.mapping_tick(2.)
+        self.assertTrue(self.node.cancel_required)
+        self.assertTrue(self.node.owns_navigation)
+        self.assertTrue(self.app.navigation_active)
+        self.node.count_publishers = lambda _topic: 0
+        self.mapping_tick()
+        self.mapping_tick(.9)
+        self.assertTrue(self.node.cancel_required)
+        self.mapping_tick(.2)
+        self.assertFalse(self.node.cancel_required)
+
     def test_held_manual_cannot_publish_nonzero_before_cancel_acknowledgement(self):
         self.start_mission()
         first = len(self.controls.messages)

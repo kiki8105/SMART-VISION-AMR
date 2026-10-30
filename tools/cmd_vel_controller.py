@@ -13,6 +13,7 @@ import sys
 import time
 import threading
 import math
+import json
 
 from sensor_msgs.msg import Image, CompressedImage
 from rclpy.qos import QoSProfile, ReliabilityPolicy
@@ -24,6 +25,7 @@ from rclpy.node import Node
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.parameter import Parameter
 from std_srvs.srv import Trigger
+from std_msgs.msg import String
 from navigation_panels import RosBridge, MapPanel, ParameterPanel
 
 
@@ -32,23 +34,63 @@ SETTINGS_PATH = os.path.expanduser('~/.config/turtlebot3/cmd_vel_controller.ini'
 
 class LazyVelocityPublisher:
     """Keep map/parameter viewing passive and respect the web mux's output."""
-    def __init__(self, node, topic='cmd_vel'):
+    def __init__(self, node, topic='cmd_vel', bridge_mode=False):
         self.node = node
         self.topic = topic
         self.topic_name = node.resolve_topic_name(topic)
+        self.bridge_mode = bridge_mode
+        self.output_topic_name = node.resolve_topic_name('/cmd_vel')
         self.publisher = None
         self.blocked_reason = ''
         self.mux_owns_output = False
+        self.bridge_status = None
+        self.bridge_status_at = -math.inf
+        self.status_subscription = None
+        if bridge_mode:
+            self.status_subscription = node.create_subscription(
+                String, '/smart_vision_amr/controller_manual_status',
+                self.on_bridge_status, 1)
+
+    def on_bridge_status(self, message):
+        try:
+            self.bridge_status = json.loads(message.data)
+            self.bridge_status_at = time.monotonic()
+        except (ValueError, TypeError):
+            self.bridge_status = None
 
     def manual_available(self):
         try:
-            endpoints = self.node.get_publishers_info_by_topic(self.topic_name)
+            endpoints = self.node.get_publishers_info_by_topic(
+                self.output_topic_name if self.bridge_mode else self.topic_name)
             mux_owns_output = any(
                 item.node_name == 'motion_mux' or item.node_name.endswith('_motion_mux')
                 for item in endpoints)
         except Exception:
             self.mux_owns_output = None
             self.blocked_reason = '속도 토픽 소유권 확인 실패 · 연결 상태를 확인하세요.'
+            self.close()
+            return False
+        if self.bridge_mode:
+            self.mux_owns_output = mux_owns_output
+            if not mux_owns_output:
+                self.blocked_reason = '차량 속도 안전 제어기 연결을 기다립니다.'
+            else:
+                try:
+                    bridge_subscribed = any(
+                        item.node_name == 'controller_manual_bridge' for item in
+                        self.node.get_subscriptions_info_by_topic(self.topic_name))
+                except Exception:
+                    bridge_subscribed = False
+                if not bridge_subscribed:
+                    self.blocked_reason = 'PyQt 수동 조종 연결기를 기다립니다.'
+                elif time.monotonic()-self.bridge_status_at > 1.0:
+                    self.blocked_reason = '수동 조종 연결기의 최신 상태를 기다립니다.'
+                elif not self.bridge_status or self.bridge_status.get('available') is not True:
+                    self.blocked_reason = str((self.bridge_status or {}).get('reason') or
+                                              '웹 수동 조종권을 기다립니다.')
+                else:
+                    self.blocked_reason = ''
+                    return True
             self.close()
             return False
         if mux_owns_output:
@@ -120,6 +162,8 @@ def reconnect_arguments(options, domain, namespace, use_sim_time, profile):
     # domain/vehicle scope. Do not reapply the previous vehicle's CLI defaults.
     if options.navigation_cancel_service:
         arguments.extend(['--navigation-cancel-service', options.navigation_cancel_service])
+    if options.manual_via_web:
+        arguments.append('--manual-via-web')
     return arguments
 
 
@@ -711,6 +755,8 @@ class Controller(QtWidgets.QWidget):
         if callable(available) and not available():
             self.status.setText(self.publisher.blocked_reason)
             return False
+        if getattr(self.publisher, 'bridge_mode', False):
+            return True  # Web server pauses the mission and arbitrates the lease.
         if not self.bridge:
             return True
         refresh = getattr(self.bridge, 'refresh_autonomous_drivers', None)
@@ -747,7 +793,7 @@ class Controller(QtWidgets.QWidget):
         self.keys.clear()
         self.active = None
         self.direction = (0, 0)
-        if was_manual or not self.bridge or not self.bridge.busy:
+        if was_manual or getattr(self.publisher, 'bridge_mode', False) or not self.bridge or not self.bridge.busy:
             self.publish()
         self.stop_ticks = 5  # Short stop burst; do not continuously compete when idle.
         self.status.setText('정지')
@@ -756,6 +802,8 @@ class Controller(QtWidgets.QWidget):
             QtCore.QTimer.singleShot(300, self.resume_autonomous)
 
     def resume_autonomous(self):
+        if getattr(self.publisher, 'bridge_mode', False):
+            return  # The web lease owns any paused mission's explicit handoff.
         if self.bridge:
             enable = getattr(self.bridge, 'enable_autonomous_drive', None)
             if callable(enable):
@@ -774,7 +822,7 @@ class Controller(QtWidgets.QWidget):
             if was_manual:
                 self.status.setText(self.publisher.blocked_reason)
             return
-        if self.bridge and self.bridge.busy:
+        if self.bridge and self.bridge.busy and not getattr(self.publisher, 'bridge_mode', False):
             was_manual = bool(self.keys or self.active is not None)
             self.keys.clear()
             self.active = None
@@ -840,6 +888,8 @@ def main():
                         help='목표/경로 연결 방식 (기본: 차량별 저장값 또는 자동 감지)')
     parser.add_argument('--navigation-cancel-service',
                         help='주행 계획까지 지우는 선택적 std_srvs/Trigger 서비스')
+    parser.add_argument('--manual-via-web', action='store_true',
+                        help='수동 속도를 웹 lease 연결기 전용 토픽으로 보내고 /cmd_vel 직접 발행 금지')
     options, ros_args = parser.parse_known_args()
     if not (os.getenv('DISPLAY') or os.getenv('WAYLAND_DISPLAY')):
         print('GUI 화면이 없습니다. PC 데스크탑에서 실행하거나 ssh -X로 접속하세요.',
@@ -860,7 +910,11 @@ def main():
                '-r', '/controller_shared_tf:=/tf', '-r', '/controller_shared_tf_static:=/tf_static']
     node = Node('turtlebot3_pyqt_controller', namespace=namespace, cli_args=tf_args,
                 parameter_overrides=[Parameter('use_sim_time', value=use_sim_time)])
-    publisher = LazyVelocityPublisher(node)
+    publisher = LazyVelocityPublisher(
+        node,
+        topic=('/smart_vision_amr/controller_manual_request'
+               if options.manual_via_web else 'cmd_vel'),
+        bridge_mode=options.manual_via_web)
     app = QtWidgets.QApplication([sys.argv[0]])
     app.setApplicationName('turtlebot3-controller')
     app.setDesktopFileName('turtlebot3-controller')

@@ -15,6 +15,7 @@ FRONT_CAMERA_SIZE=${FRONT_CAMERA_SIZE:-320x240}
 CAMERA_JPEG_QUALITY=${CAMERA_JPEG_QUALITY:-60}
 CAMERA_PUBLISH_FPS=${CAMERA_PUBLISH_FPS:-5}
 LOCALIZATION_MODE=${TURTLEBOT3_LOCALIZATION_MODE:-ekf_independent}
+MAPPING_MODE=${SMART_VISION_MAPPING_MODE:-false}
 ESTIMATION_LOCATION=${SMART_VISION_ESTIMATION_LOCATION:-robot}
 TIMING_DIAGNOSTICS=${SMART_VISION_TIMING_DIAGNOSTICS:-false}
 RUNTIME_WORKSPACE=${SMART_VISION_RUNTIME_WORKSPACE:-$HOME/smart_vision_runtime_ws}
@@ -34,6 +35,14 @@ case "$LOCALIZATION_MODE" in
   baseline|ekf_independent) ;;
   *) printf 'TURTLEBOT3_LOCALIZATION_MODE must be baseline or ekf_independent.\n' >&2; exit 2 ;;
 esac
+case "$MAPPING_MODE" in
+  true|false) ;;
+  *) printf 'SMART_VISION_MAPPING_MODE must be true or false.\n' >&2; exit 2 ;;
+esac
+if [[ "$MAPPING_MODE" == true && "$LOCALIZATION_MODE" != ekf_independent ]]; then
+  printf 'SMART_VISION_MAPPING_MODE requires ekf_independent.\n' >&2
+  exit 2
+fi
 if [[ "$LOCALIZATION_MODE" == ekf_independent ]]; then
   CAMERA_BACKEND=${CAMERA_BACKEND:-rate_limited}
 else
@@ -243,8 +252,8 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 trap 'exit 129' HUP
 
-printf 'Robot bringup + camera: domain=16 model=%s lidar=%s rear=%s (%sx%s), backend=%s, fps=%s, localization=%s\n' \
-  "$TURTLEBOT3_MODEL" "$LDS_MODEL" "$CAMERA_DEVICE" "$rear_width" "$rear_height" "$CAMERA_BACKEND" "$CAMERA_PUBLISH_FPS" "$LOCALIZATION_MODE"
+printf 'Robot bringup + camera: domain=16 model=%s lidar=%s rear=%s (%sx%s), backend=%s, fps=%s, localization=%s, mapping=%s\n' \
+  "$TURTLEBOT3_MODEL" "$LDS_MODEL" "$CAMERA_DEVICE" "$rear_width" "$rear_height" "$CAMERA_BACKEND" "$CAMERA_PUBLISH_FPS" "$LOCALIZATION_MODE" "$MAPPING_MODE"
 if [[ "$front_camera_enabled" == true ]]; then
   printf 'Front camera: %s -> /camera/front/image_raw (%sx%s YUYV)\n' \
     "$FRONT_CAMERA_DEVICE" "${front_size[0]}" "${front_size[1]}"
@@ -257,7 +266,8 @@ if [[ "$ESTIMATION_LOCATION" == robot ]]; then
   if [[ -n "${WHEEL_RADIUS:-}" ]]; then geometry_args+=(wheel_radius:="$WHEEL_RADIUS"); fi
   if [[ -n "${WHEEL_SEPARATION:-}" ]]; then geometry_args+=(wheel_separation:="$WHEEL_SEPARATION"); fi
   setsid ros2 launch smart_vision_amr hardware_robot_runtime.launch.py \
-    localization_mode:="$LOCALIZATION_MODE" usb_port:="$OPENCR_DEVICE" \
+    localization_mode:="$LOCALIZATION_MODE" mapping_mode:="$MAPPING_MODE" \
+    usb_port:="$OPENCR_DEVICE" \
     timing_diagnostics:="$TIMING_DIAGNOSTICS" \
     minimum_battery_voltage:="${SMART_VISION_MIN_BATTERY_VOLTAGE:-0.0}" \
     "${geometry_args[@]}" &

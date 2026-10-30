@@ -57,6 +57,9 @@ def _runtime(context):
     if use_sim_time:
         raise ValueError('The physical robot runtime requires use_sim_time:=false')
     enable_bringup = _bool_argument(context, 'enable_bringup')
+    mapping_mode = _bool_argument(context, 'mapping_mode')
+    if mapping_mode and mode != 'ekf_independent':
+        raise ValueError('mapping_mode requires ekf_independent so sensor guard remains active')
     timing = {'enable_timing_diagnostics': _bool_argument(context, 'timing_diagnostics')}
     own = get_package_share_directory('smart_vision_amr')
     stock_params = LaunchConfiguration('stock_params').perform(context)
@@ -112,7 +115,8 @@ def _runtime(context):
                                   'startup_estop': True, 'allow_topic_reset': False}],
              output='screen', on_exit=Shutdown(reason='Final velocity mux exited')),
         Node(package='smart_vision_amr', executable='localization_health',
-             name='localization_health', parameters=[health_params, common],
+             name='localization_health', parameters=[health_params, common,
+                                                     {'mapping_mode': mapping_mode}],
              output='screen', on_exit=Shutdown(reason='Localization health monitor exited')),
     ])
     return actions
@@ -128,6 +132,8 @@ def generate_launch_description():
             on_exit=lambda event, context: _required_process_exited(event, context, instance))),
         DeclareLaunchArgument('localization_mode', default_value='ekf_independent'),
         DeclareLaunchArgument('enable_bringup', default_value='true'),
+        DeclareLaunchArgument('mapping_mode', default_value='false',
+                              description='SLAM manual mapping only: no AMCL/map agreement; autonomous motion blocked'),
         DeclareLaunchArgument('timing_diagnostics', default_value='false',
                               description='Observe runtime delays without changing safety or QoS'),
         DeclareLaunchArgument('minimum_battery_voltage', default_value='0.0',

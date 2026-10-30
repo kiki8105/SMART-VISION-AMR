@@ -43,6 +43,7 @@ def make_context(tmp_path, mode='ekf_independent', **overrides):
     context.launch_configurations.update({
         'localization_mode': mode, 'use_sim_time': 'false',
         'enable_bringup': 'false', 'stock_params': str(stock),
+        'mapping_mode': 'false',
         'timing_diagnostics': 'false',
         'minimum_battery_voltage': '0.0',
         'wheel_radius': '', 'wheel_separation': '',
@@ -72,6 +73,27 @@ def test_robot_runtime_has_one_mux_and_local_health_and_uses_pi_geometry(tmp_pat
     assert {'enable_timing_diagnostics': False} in nodes['motion_mux']['parameters']
     assert {'enable_timing_diagnostics': False} in nodes['ekf_sensor_guard']['parameters']
     assert {'minimum_battery_voltage': 0.0} in nodes['ekf_sensor_guard']['parameters']
+    assert {'mapping_mode': False} in nodes['localization_health']['parameters']
+
+
+def test_explicit_mapping_mode_is_confined_to_localization_health(tmp_path, monkeypatch):
+    module = load_launch()
+    monkeypatch.setattr(module, 'get_package_share_directory', lambda _: str(ROOT))
+    monkeypatch.setattr(module, 'Node', lambda **kwargs: kwargs)
+    context, _ = make_context(tmp_path, mapping_mode='true')
+    nodes = {node['name']: node for node in module._runtime(context)}
+    assert {'mapping_mode': True} in nodes['localization_health']['parameters']
+    assert all({'mapping_mode': True} not in node['parameters']
+               for name, node in nodes.items() if name != 'localization_health')
+    assert nodes['motion_mux']['parameters'][-1]['require_localization_health'] is True
+
+
+def test_mapping_mode_requires_independent_ekf_guard(tmp_path, monkeypatch):
+    module = load_launch()
+    monkeypatch.setattr(module, 'get_package_share_directory', lambda _: str(ROOT))
+    context, _ = make_context(tmp_path, mode='baseline', mapping_mode='true')
+    with pytest.raises(ValueError, match='ekf_independent'):
+        module._runtime(context)
 
 
 def test_physical_runtime_passes_battery_limit_only_to_ekf_guard(tmp_path, monkeypatch):
@@ -139,6 +161,7 @@ def test_invalid_calibrated_dimension_is_rejected(tmp_path, monkeypatch, value):
     {'localization_mode': 'unknown'}, {'use_sim_time': 'true'},
     {'enable_bringup': 'yes'},
     {'timing_diagnostics': 'yes'},
+    {'mapping_mode': 'yes'},
 ])
 def test_invalid_runtime_arguments_fail_before_starting_a_process(tmp_path, overrides):
     module = load_launch()

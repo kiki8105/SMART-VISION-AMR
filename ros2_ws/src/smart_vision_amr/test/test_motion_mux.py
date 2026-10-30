@@ -4,6 +4,7 @@ import math
 import unittest
 
 from smart_vision_amr.motion_mux import MotionMuxCore
+from smart_vision_amr.localization_health_math import LocalizationHealthCore
 
 
 class MotionMuxTest(unittest.TestCase):
@@ -31,6 +32,31 @@ class MotionMuxTest(unittest.TestCase):
         for _ in range(5):
             self.assertFalse(self.mux.receive_auto(.2, -.8))
             self.assertEqual(self.mux.output(), (-.1, .3))
+
+    def test_mapping_health_allows_bounded_manual_only_until_sensor_fault(self):
+        mapper = LocalizationHealthCore(mapping_mode=True, stable_seconds=1.,
+                                        fault_seconds=.5)
+        sensor = {'scan_age_seconds': .1, 'scan_header_age_seconds': .1,
+                  'scan_valid': True, 'odom_age_seconds': .1,
+                  'odom_header_age_seconds': .1, 'odom_valid': True,
+                  'odom_tf_valid': True, 'map_available': False,
+                  'map_tf_age_seconds': None, 'position_std_m': None,
+                  'yaw_std_rad': None, 'scan_map_agreement': None}
+        self.mux.require_localization_health = True
+        self.mux.receive_localization_health(mapper.evaluate(0., sensor))
+        self.assertTrue(self.control('manual', linear=.1))
+        self.assertEqual(self.mux.output(), (.05, 0.))
+        self.assertTrue(self.control('auto'))
+        self.mux.receive_auto(.1, 0.)
+        self.assertEqual(self.mux.output(), (0., 0.))
+        self.assertTrue(self.control('manual', linear=.1))
+        bad = dict(sensor, scan_age_seconds=2.)
+        self.mux.receive_localization_health(mapper.evaluate(.1, bad))
+        self.assertEqual(self.mux.output(), (0., 0.))
+        self.mux.receive_localization_health(mapper.evaluate(.7, bad))
+        self.assertTrue(mapper.stop_latched)
+        self.assertTrue(self.control('estop', source=self.mux.LOCALIZATION_SAFETY_SOURCE))
+        self.assertTrue(self.mux.status()['estop_latched'])
 
     def test_release_does_not_replay_an_old_navigation_command(self):
         self.mux.receive_auto(.2, 0.0)

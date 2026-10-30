@@ -1551,6 +1551,8 @@ def create_ros_bridge(app, options, context):
             self.cancel_required = False
             self.cancel_sent_at = 0.0
             self.cancel_completed_at = 0.0
+            self.navigation_absent_since = None
+            self.navigation_graph_present = True
             self.goal_waiting = None
             self.stop_until = 0.0
             self.last_goal_stamp = 0
@@ -2109,6 +2111,13 @@ def create_ros_bridge(app, options, context):
             self.stop()
             self.goal_waiting = None
             self.stop_until = time.monotonic()+.8
+            # In mapping mode there is no navigation service to acknowledge a
+            # cancellation. Do not create an unfulfillable cancel obligation
+            # when no goal has been dispatched and no navigation node exists.
+            if (not self.navigation_graph_present and not self.owns_navigation
+                    and not app.navigation_active and self.cancel_future is None
+                    and not self.cancel_required):
+                return
             self.cancel_required = True
             if self.cancel_future is None and self.cancel_client.service_is_ready():
                 self.cancel_future = self.cancel_client.call_async(Trigger.Request())
@@ -2806,11 +2815,20 @@ def create_ros_bridge(app, options, context):
             with app.lock:
                 self.tick_safety(now)
                 self.tick_home_seed(now)
+                goal_subscribers = self.get_subscriptions_info_by_topic('/smart_vision_amr/goal')
                 app.goal_available = goal_consumers_ready(
-                    endpoint.node_name for endpoint in self.get_subscriptions_info_by_topic('/smart_vision_amr/goal'))
+                    endpoint.node_name for endpoint in goal_subscribers)
                 app.planner_available = self.count_publishers('/smart_vision_amr/planner_status') > 0
                 app.cancel_available = self.cancel_client.service_is_ready()
                 app.navigation_command_publishers = self.count_publishers('/smart_vision_amr/navigation_cmd_vel')
+                self.navigation_graph_present = bool(
+                    goal_subscribers or app.planner_available or app.cancel_available
+                    or app.navigation_command_publishers
+                    or self.count_publishers('/smart_vision_amr/navigation_status'))
+                if self.navigation_graph_present:
+                    self.navigation_absent_since = None
+                elif self.navigation_absent_since is None:
+                    self.navigation_absent_since = now
                 app.unmanaged_velocity_publishers = [endpoint.node_name
                     for endpoint in self.get_publishers_info_by_topic('/cmd_vel')
                     if endpoint.node_name != 'motion_mux']
@@ -2842,7 +2860,9 @@ def create_ros_bridge(app, options, context):
                     app.manual_cancel_requested = True
                 if app.manual_cancel_requested:
                     self.motion_gate = True
-                    if app.cancel_available or self.owns_navigation or app.navigation_command_publishers:
+                    if (self.navigation_graph_present or self.owns_navigation
+                            or app.navigation_active or self.cancel_required
+                            or self.cancel_future is not None):
                         self.cancel()
                     else:
                         self.goal_waiting = None
@@ -2897,6 +2917,37 @@ def create_ros_bridge(app, options, context):
                         self.cancel_client.remove_pending_request(self.cancel_future)
                         self.cancel_future.cancel()
                         self.cancel_future = None
+                # A stopped navigation stack cannot answer an old cancel RPC.
+                # Clear stale ownership only after its entire ROS graph has
+                # been absent continuously and this bridge's hold is freshly
+                # acknowledged with zero physical velocity. A partial stack,
+                # lost graph sample, or moving robot must keep cancellation
+                # pending so a returning planner cannot reuse an old goal.
+                mux = app.manual_mux_status
+                output_linear = mux.get('output_linear')
+                output_angular = mux.get('output_angular')
+                stopped_by_mux = (
+                    now-app.manual_mux_at < 1.0
+                    and mux.get('mode') == 'hold'
+                    and mux.get('source_id') == self.motion_source
+                    and mux.get('stop_acknowledged') is True
+                    and type(output_linear) in (int, float)
+                    and type(output_angular) in (int, float)
+                    and math.isfinite(output_linear) and math.isfinite(output_angular)
+                    and abs(output_linear) < .025
+                    and abs(output_angular) < .06
+                    and now-app.odom_at < 2.0
+                    and abs(app.speed['linear']) < .025
+                    and abs(app.speed['angular']) < .06)
+                if (self.cancel_required and self.cancel_future is None
+                        and self.navigation_absent_since is not None
+                        and now-self.navigation_absent_since >= 1.0
+                        and stopped_by_mux):
+                    self.cancel_required = False
+                    self.owns_navigation = False
+                    app.navigation_active = False
+                    self.cancel_completed_at = now
+                    app.mission.event('종료된 주행 스택과 차량 정지를 확인해 이전 취소 대기를 해제했습니다.')
                 if self.cancel_required:
                     self.stop_until = now+.2
                     if self.cancel_future is None and now-self.cancel_sent_at > 1.0 and self.cancel_client.service_is_ready():

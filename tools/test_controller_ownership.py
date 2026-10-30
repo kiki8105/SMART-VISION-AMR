@@ -10,6 +10,7 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
 from PyQt5 import QtCore, QtWidgets
 from geometry_msgs.msg import Twist
+from std_msgs.msg import String
 
 from cmd_vel_controller import Controller, LazyVelocityPublisher
 
@@ -31,6 +32,7 @@ class FakeNode:
         self.created = []
         self.destroyed = []
         self.graph_error = False
+        self.subscriptions = []
 
     def resolve_topic_name(self, topic):
         return '/' + topic.lstrip('/')
@@ -44,6 +46,13 @@ class FakeNode:
         publisher = FakePublisher(self.resolve_topic_name(topic))
         self.created.append(publisher)
         return publisher
+
+    def create_subscription(self, message_type, topic, callback, depth):
+        self.status_callback = callback
+        return object()
+
+    def get_subscriptions_info_by_topic(self, topic):
+        return self.subscriptions
 
     def destroy_publisher(self, publisher):
         self.destroyed.append(publisher)
@@ -112,6 +121,26 @@ class ControllerOwnershipTests(unittest.TestCase):
         message.linear.x = 0.1
         self.assertFalse(self.publisher.publish(message))
         self.assertEqual(self.node.created, [])
+
+    def test_private_web_bridge_never_creates_direct_cmd_vel_publisher(self):
+        private = '/smart_vision_amr/controller_manual_request'
+        relay = LazyVelocityPublisher(self.node, topic=private, bridge_mode=True)
+        try:
+            self.node.endpoints = [SimpleNamespace(node_name='motion_mux')]
+            self.node.subscriptions = [SimpleNamespace(node_name='controller_manual_bridge')]
+            status = String()
+            status.data = '{"available": true, "armed": false}'
+            self.node.status_callback(status)
+            message = Twist()
+            message.linear.x = .1
+            self.assertTrue(relay.publish(message))
+            self.assertEqual([publisher.topic_name for publisher in self.node.created], [private])
+            self.assertNotIn('/cmd_vel', [publisher.topic_name for publisher in self.node.created])
+            self.node.subscriptions = []
+            self.assertFalse(relay.publish(message))
+            self.assertIsNone(relay.publisher)
+        finally:
+            relay.close()
 
 
 if __name__ == '__main__':

@@ -138,11 +138,13 @@ class LocalizationHealth(Node):
             'yaw_warning': 0.5, 'yaw_critical': 1.0,
             'agreement_warning': 0.55, 'agreement_critical': 0.20,
             'amcl_moving_timeout': 4.0, 'motion_dt_limit': 1.0,
+            'mapping_mode': False,
         }
         for name, value in defaults.items():
             self.declare_parameter(name, value)
         self.core = LocalizationHealthCore(**{
-            name: float(self.get_parameter(name).value) for name in defaults})
+            name: (bool(self.get_parameter(name).value) if name == 'mapping_mode'
+                   else float(self.get_parameter(name).value)) for name in defaults})
         for name, value in {'base_frame': 'base_footprint', 'map_frame': 'map',
                             'odom_frame': 'odom', 'agreement_tolerance': 0.18,
                             'jump_distance_m': 0.65, 'jump_yaw_rad': 0.8,
@@ -206,19 +208,24 @@ class LocalizationHealth(Node):
         self.publisher = self.create_publisher(
             String, '/smart_vision_amr/localization_health', durable)
         self.control_pub = self.create_publisher(String, '/smart_vision_amr/manual_control', 10)
-        self.create_subscription(OccupancyGrid, '/map', self.on_map, durable)
+        # During SLAM, every changing /map would trigger a full distance
+        # transform on the Pi without contributing to manual safety.
+        if not self.core.mapping_mode:
+            self.create_subscription(OccupancyGrid, '/map', self.on_map, durable)
         self.create_subscription(LaserScan, '/scan', self.on_scan, qos_profile_sensor_data)
         self.create_subscription(Odometry, '/odom', self.on_odom, qos_profile_sensor_data)
-        self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.on_amcl, durable)
-        self.create_subscription(PoseWithCovarianceStamped, '/initialpose', self.on_initialpose, 10)
+        if not self.core.mapping_mode:
+            self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.on_amcl, durable)
+            self.create_subscription(PoseWithCovarianceStamped, '/initialpose', self.on_initialpose, 10)
         # Only the latest stamped control intent is relevant to reset tracking.
         latest_control = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT,
                                     durability=DurabilityPolicy.VOLATILE)
         self.create_subscription(String, '/smart_vision_amr/manual_control',
                                  self.on_control, latest_control)
         self.create_timer(0.25, self.on_tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
-        self.create_timer(0.05, lambda: self.update_agreement(time.monotonic()),
-                          clock=Clock(clock_type=ClockType.STEADY_TIME))
+        if not self.core.mapping_mode:
+            self.create_timer(0.05, lambda: self.update_agreement(time.monotonic()),
+                              clock=Clock(clock_type=ClockType.STEADY_TIME))
 
     def on_map(self, message):
         info = message.info
@@ -436,8 +443,9 @@ class LocalizationHealth(Node):
 
     def on_tick(self):
         now, ros_ns = time.monotonic(), self.get_clock().now().nanoseconds
-        self.request_initial_covariance(now)
-        self.update_agreement(now)
+        if not self.core.mapping_mode:
+            self.request_initial_covariance(now)
+            self.update_agreement(now)
         metrics = {
             'map_available': self.map_distance is not None,
             'scan_age_seconds': None if self.scan_at is None else now-self.scan_at,
@@ -483,15 +491,16 @@ class LocalizationHealth(Node):
                 f'{name}_receive_interval_seconds': self.received_intervals[name],
                 f'{name}_header_interval_seconds': self.header_intervals[name],
             })
-        try:
-            transform = self._tf(self.map_frame, self.base_frame)
-            quaternion_yaw(transform.transform.rotation)
-            if not all(math.isfinite(value) for value in (
-                    transform.transform.translation.x, transform.transform.translation.y)):
-                raise ValueError('nonfinite map TF')
-            metrics['map_tf_age_seconds'] = (ros_ns-stamp_ns(transform.header))/1e9
-        except (TransformException, ValueError) as exc:
-            metrics['map_tf_lookup_error'] = str(exc)[:300]
+        if not self.core.mapping_mode:
+            try:
+                transform = self._tf(self.map_frame, self.base_frame)
+                quaternion_yaw(transform.transform.rotation)
+                if not all(math.isfinite(value) for value in (
+                        transform.transform.translation.x, transform.transform.translation.y)):
+                    raise ValueError('nonfinite map TF')
+                metrics['map_tf_age_seconds'] = (ros_ns-stamp_ns(transform.header))/1e9
+            except (TransformException, ValueError) as exc:
+                metrics['map_tf_lookup_error'] = str(exc)[:300]
         try:
             transform = self._tf(self.odom_frame, self.base_frame)
             quaternion_yaw(transform.transform.rotation)

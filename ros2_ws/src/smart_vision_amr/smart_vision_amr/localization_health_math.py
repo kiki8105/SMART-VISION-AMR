@@ -29,7 +29,8 @@ class LocalizationHealthCore:
                  position_warning=0.35, position_critical=0.8,
                  yaw_warning=0.5, yaw_critical=1.0,
                  agreement_warning=0.55, agreement_critical=0.20,
-                 amcl_moving_timeout=4.0, motion_dt_limit=1.0):
+                 amcl_moving_timeout=4.0, motion_dt_limit=1.0,
+                 mapping_mode=False):
         values = (stable_seconds, fault_seconds, agreement_fault_seconds,
                   sensor_timeout, tf_timeout, position_warning,
                   position_critical, yaw_warning, yaw_critical, amcl_moving_timeout,
@@ -53,6 +54,7 @@ class LocalizationHealthCore:
         self.agreement_critical = agreement_critical
         self.amcl_moving_timeout = amcl_moving_timeout
         self.motion_dt_limit = motion_dt_limit
+        self.mapping_mode = bool(mapping_mode)
         self.amcl_motion_without_update_seconds = 0.0
         self.last_amcl_update_epoch = None
         self.last_motion_evaluation = None
@@ -120,6 +122,36 @@ class LocalizationHealthCore:
                 self.sensor_good_since = now
         else:
             self.sensor_good_since = None
+        if self.mapping_mode:
+            # A changing SLAM map has no stable AMCL pose or scan/map baseline.
+            # Keep the independent sensor/TF interlock and never permit auto.
+            critical = sorted(set(critical))
+            for reason in list(self.fault_since):
+                if reason not in critical:
+                    del self.fault_since[reason]
+            for reason in critical:
+                self.fault_since.setdefault(reason, now)
+            if any(now-self.fault_since[reason] >= self.fault_seconds
+                   for reason in critical):
+                self.stop_latched = True
+            self.acquired = False
+            self.good_since = None
+            reasons = ['mapping_mode', *critical]
+            if self.stop_latched and not critical:
+                reasons.append('operator_reset_required')
+            result = {
+                'level': 'critical' if critical or self.stop_latched else 'warning',
+                'reasons': reasons, 'metrics': dict(metrics),
+                'stop_latched': self.stop_latched,
+                'autonomous_allowed': False,
+                'allow_localization': sensor_ok,
+                'reinitialization_requested': self.reinitialization_requested,
+                'stable_seconds': 0.0 if self.sensor_good_since is None
+                                  else now-self.sensor_good_since,
+                'mapping_mode': True,
+            }
+            self.last_result = result
+            return result
         tf_age = metrics.get('map_tf_age_seconds')
         if (tf_age is None or not math.isfinite(tf_age)
                 or not -self.future_tolerance <= tf_age <= self.tf_timeout):
@@ -196,6 +228,12 @@ class LocalizationHealthCore:
     def operator_reset(self, now):
         if self.last_result is None:
             return False
+        if self.mapping_mode:
+            if (self.sensor_good_since is None
+                    or now-self.sensor_good_since < self.stable_seconds):
+                return False
+            self.stop_latched = False
+            return True
         fully_healthy = (self.good_since is not None
                          and now-self.good_since >= self.stable_seconds)
         # An explicit initialpose + reset may release only the stop latch into

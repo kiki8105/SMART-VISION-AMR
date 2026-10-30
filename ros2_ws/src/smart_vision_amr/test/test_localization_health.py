@@ -85,6 +85,51 @@ def armed():
     return core
 
 
+def test_mapping_mode_ignores_changing_map_and_missing_amcl_but_never_allows_auto():
+    core = LocalizationHealthCore(stable_seconds=1.0, fault_seconds=.5,
+                                  mapping_mode=True)
+    changing_map = healthy(map_available=False, map_tf_age_seconds=None,
+                           position_std_m=None, yaw_std_rad=None,
+                           scan_map_agreement=None, agreement_age_seconds=None,
+                           pose_jump=True, moving=True)
+    for now in (0., 1.1, 5., 10.):
+        status = core.evaluate(now, changing_map)
+        assert status['level'] == 'warning'
+        assert status['mapping_mode'] is True
+        assert status['reasons'] == ['mapping_mode']
+        assert status['allow_localization'] is True
+        assert status['autonomous_allowed'] is False
+        assert not status['stop_latched']
+    assert not core.acquired
+
+
+@pytest.mark.parametrize('fault', [
+    {'scan_age_seconds': 2.}, {'odom_header_age_seconds': 2.},
+    {'odom_tf_valid': False},
+])
+def test_mapping_mode_stops_manual_on_real_sensor_loss_and_requires_reset(fault):
+    core = LocalizationHealthCore(stable_seconds=1.0, fault_seconds=.5,
+                                  mapping_mode=True)
+    core.evaluate(0., healthy())
+    core.evaluate(1.1, healthy())
+    bad = healthy(**fault)
+    blocked = core.evaluate(2., bad)
+    assert blocked['level'] == 'critical'
+    assert blocked['allow_localization'] is False
+    assert blocked['autonomous_allowed'] is False
+    assert not blocked['stop_latched']
+    latched = core.evaluate(2.6, bad)
+    assert latched['stop_latched']
+    assert not core.operator_reset(2.6)
+    core.evaluate(3., healthy())
+    assert core.evaluate(4.1, healthy())['stop_latched']
+    assert core.operator_reset(4.1)
+    resumed = core.evaluate(4.2, healthy())
+    assert resumed['level'] == 'warning'
+    assert not resumed['stop_latched']
+    assert not resumed['autonomous_allowed']
+
+
 def test_initial_unknown_pose_allows_deliberate_localization_but_not_autonomous_motion():
     core = LocalizationHealthCore()
     metrics = healthy(map_tf_age_seconds=None, position_std_m=None,
