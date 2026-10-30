@@ -1,0 +1,54 @@
+[turtlebot3_ros-3] [ERROR] [1793331058.084119181] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331058.156614507] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331058.270869745] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331058.379656465] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331058.486304690] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331058.570425372] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331058.682955451] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331058.793324607] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331058.901498194] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331059.111278995] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331059.217623445] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331059.333814498] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331059.409997283] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331059.572413274] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331059.679001115] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331059.786103329] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331059.894683350] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331060.106263750] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331060.214395477] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331060.321888237] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331060.395247051] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] [ERROR] [1793331060.615764681] [DynamixelSDKWrapper]: Failed to read[[TxRxResult] There is no status packet!]
+[turtlebot3_ros-3] *** stack smashing detected ***: terminated
+[ERROR] [turtlebot3_ros-3]: process has died [pid 1244, exit code -6, cmd '/home/robot/turtlebot3_ws/install/turtlebot3_node/lib/turtlebot3_node/turtlebot3_ros -i /dev/ttyACM0 --ros-args -r __ns:=/ --params-file /tmp/tb3_wheel_only_v9c60xp8.yaml --params-file /tmp/launch_params_vsbx7f1h -r odom:=/wheel/odom_raw'].
+[INFO] [launch]: process[turtlebot3_ros-3] was required: shutting down launched system
+[INFO] [localization_health-9]: sending signal 'SIGINT' to process[localization_health-9]
+[INFO] [motion_mux-8]: sending signal 'SIGINT' to process[motion_mux-8]
+[INFO] [ekf_sensor_guard-7]: sending signal 'SIGINT' to process[ekf_sensor_guard-7]
+[INFO] [ekf_node-6]: sending signal 'SIGINT' to process[ekf_node-6]
+[INFO] [imu_ekf_conditioner-5]: sending signal 'SIGINT' to process[imu_ekf_conditioner-5]
+[INFO] [wheel_joint_odometry-4]: sending signal 'SIGINT' to process[wheel_joint_odometry-4]
+[INFO] [single_coin_d4_node-2]: sending signal 'SIGINT' to process[single_coin_d4_node-2]
+[INFO] [robot_state_publisher-1]: sending signal 'SIGINT' to process[robot_state_publisher-1]
+[ekf_node-6] [INFO] [1793331061.253484534] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[single_coin_d4_node-2] [INFO] [1793331061.353277954] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-1] [INFO] [1793331061.362325068] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[single_coin_d4_node-2] [INFO] [1793331061.443752129] [lidar_node]: Deactivated lidar publish thread for port /dev/tb3_lidar
+[single_coin_d4_node-2] [INFO] [1793331061.480285994] [lidar_node]: Deactivated lidar grab thread for port /dev/tb3_lidar
+[single_coin_d4_node-2] [INFO] [1793331061.508205322] [lidar_node]: Closed lidar for port /dev/tb3_lidar
+[INFO] [single_coin_d4_node-2]: process has finished cleanly [pid 1242]
+[INFO] [robot_state_publisher-1]: process has finished cleanly [pid 1240]
+[INFO] [ekf_node-6]: process has finished cleanly [pid 1250]
+[INFO] [launch]: process[ekf_node-6] was required: shutting down launched system
+[INFO] [wheel_joint_odometry-4]: process has finished cleanly [pid 1246]
+[INFO] [launch]: process[wheel_joint_odometry-4] was required: shutting down launched system
+[INFO] [ekf_sensor_guard-7]: process has finished cleanly [pid 1252]
+[INFO] [launch]: process[ekf_sensor_guard-7] was required: shutting down launched system
+[INFO] [imu_ekf_conditioner-5]: process has finished cleanly [pid 1248]
+[INFO] [launch]: process[imu_ekf_conditioner-5] was required: shutting down launched system
+[INFO] [localization_health-9]: process has finished cleanly [pid 1256]
+[INFO] [launch]: process[localization_health-9] was required: shutting down launched system
+[INFO] [motion_mux-8]: process has finished cleanly [pid 1254]
+[INFO] [launch]: process[motion_mux-8] was required: shutting down launched system
+Bringup or camera exited; stopping both (status 1).

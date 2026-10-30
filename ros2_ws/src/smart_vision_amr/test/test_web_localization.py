@@ -227,6 +227,38 @@ class LocalizationHTTPTests(unittest.TestCase):
                 self.assertFalse(self.app.localization.active)
                 setattr(self.app, field, previous)
 
+    def test_bounded_home_proof_only_seeds_registered_prior_and_keeps_quality_unverified(self):
+        self.install_known_free_map()
+        self.install_home()
+        self.app.home_seed_match = .02
+        home = deepcopy(self.app.delivery.registered_homepoint)
+        self.app.home_prior_evidence = {'supported': True, 'distinct_scans': 3,
+            'consistent_candidates': 3, 'best_min_agreement': .8,
+            'at': time.monotonic(), 'key': self.app.home_seed_key()}
+        status, body = self.request('/api/localization/start-home', self.cookie,
+                                    payload={'confirm_actual_home': True})
+        self.assertEqual(status, 200, body)
+        self.assertEqual(self.app.localization_home_seed, home)
+        self.assertEqual(self.app.delivery.registered_homepoint, home)
+        self.assertFalse(body['localization']['quality_ok'])
+        self.assertEqual(body['localization']['state'], 'ACQUIRING')
+        self.assertFalse(any(kind == 'goal' for kind, _ in self.app.mission.commands))
+
+    def test_bounded_home_proof_rejects_stale_changed_or_insufficient_observations(self):
+        self.install_known_free_map()
+        self.install_home()
+        self.app.home_seed_match = .02
+        proof = {'supported': True, 'distinct_scans': 3, 'consistent_candidates': 3,
+                 'best_min_agreement': .8, 'at': time.monotonic(), 'key': self.app.home_seed_key()}
+        for field, value in (('at', 0.), ('key', None), ('distinct_scans', 2),
+                             ('consistent_candidates', 2), ('best_min_agreement', .64)):
+            with self.subTest(field=field):
+                self.app.home_prior_evidence = dict(proof, **{field: value})
+                status, body = self.request('/api/localization/start-home', self.cookie,
+                                            payload={'confirm_actual_home': True})
+                self.assertEqual(status, 400, body)
+                self.assertFalse(self.app.localization.active)
+
     def test_custom_dispatch_home_must_be_restored_before_registered_home_init(self):
         self.install_known_free_map()
         self.install_home()
@@ -866,6 +898,21 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(self.app.odom_pose['y'], -.3)
         self.assertAlmostEqual(self.app.odom_pose['yaw'], .4)
         self.assertEqual(self.app.pose, before)
+
+    def test_invalid_new_odometry_clears_home_proof_instead_of_reusing_old_pose(self):
+        self.node.source_fresh = lambda *_args, **_kwargs: True
+        self.app.odom_pose = {'x': 1., 'y': 2., 'yaw': 0.}
+        self.app.home_prior_evidence = {'supported': True}
+        self.node.home_prior_observer.evidence = {'supported': True}
+        generation = self.node.home_prior_observer.generation
+        message = Odometry()
+        message.pose.pose.position.x = float('nan')
+        message.pose.pose.orientation.w = 1.
+        self.node.on_odom(message)
+        self.assertIsNone(self.app.odom_pose)
+        self.assertIsNone(self.app.home_prior_evidence)
+        self.assertIsNone(self.node.home_prior_observer.evidence)
+        self.assertGreater(self.node.home_prior_observer.generation, generation)
 
     def invalid_scan_tick(self, delta=.1, *, clearance=None, stale=False):
         self.now += delta

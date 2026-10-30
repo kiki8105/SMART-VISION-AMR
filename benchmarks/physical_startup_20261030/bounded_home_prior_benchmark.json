@@ -1,0 +1,86 @@
+{
+  "source": "/tmp/sva_retest_scan_20261030.json",
+  "map": "classroom_20261027_cleaned.yaml",
+  "home": {
+    "x": -0.11,
+    "y": -0.79,
+    "yaw": 0
+  },
+  "runs": [
+    {
+      "wall_seconds": 0.13688225999976567,
+      "result": {
+        "supported": true,
+        "reason": "home_neighborhood_supported",
+        "distinct_scans": 3,
+        "candidate_count": 1243,
+        "footprint_candidates": 1155,
+        "shortlisted_candidates": 19,
+        "consistent_candidates": 3,
+        "support_clusters": 1,
+        "best_min_agreement": 0.8125,
+        "checked_candidates": 3
+      }
+    },
+    {
+      "wall_seconds": 0.1326053619995946,
+      "result": {
+        "supported": true,
+        "reason": "home_neighborhood_supported",
+        "distinct_scans": 3,
+        "candidate_count": 1243,
+        "footprint_candidates": 1155,
+        "shortlisted_candidates": 19,
+        "consistent_candidates": 3,
+        "support_clusters": 1,
+        "best_min_agreement": 0.8125,
+        "checked_candidates": 3
+      }
+    },
+    {
+      "wall_seconds": 0.13194213300084812,
+      "result": {
+        "supported": true,
+        "reason": "home_neighborhood_supported",
+        "distinct_scans": 3,
+        "candidate_count": 1243,
+        "footprint_candidates": 1155,
+        "shortlisted_candidates": 19,
+        "consistent_candidates": 3,
+        "support_clusters": 1,
+        "best_min_agreement": 0.8125,
+        "checked_candidates": 3
+      }
+    },
+    {
+      "wall_seconds": 0.17579834000025585,
+      "result": {
+        "supported": true,
+        "reason": "home_neighborhood_supported",
+        "distinct_scans": 3,
+        "candidate_count": 1243,
+        "footprint_candidates": 1155,
+        "shortlisted_candidates": 19,
+        "consistent_candidates": 3,
+        "support_clusters": 1,
+        "best_min_agreement": 0.8125,
+        "checked_candidates": 3
+      }
+    },
+    {
+      "wall_seconds": 0.17507386100078293,
+      "result": {
+        "supported": true,
+        "reason": "home_neighborhood_supported",
+        "distinct_scans": 3,
+        "candidate_count": 1243,
+        "footprint_candidates": 1155,
+        "shortlisted_candidates": 19,
+        "consistent_candidates": 3,
+        "support_clusters": 1,
+        "best_min_agreement": 0.8125,
+        "checked_candidates": 3
+      }
+    }
+  ]
+}

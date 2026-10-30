@@ -34,6 +34,8 @@ from smart_vision_amr.delivery_service import DeliveryService
 from smart_vision_amr.manual_control import ManualOverride
 from smart_vision_amr.assisted_localization import AssistedLocalization
 from smart_vision_amr.localization_geometry import rotation_clearance, scan_points, occupied_distance, scan_map_agreement
+from smart_vision_amr.home_prior_geometry import home_neighborhood_evidence
+from smart_vision_amr.home_prior_observer import HomePriorObserver
 from smart_vision_amr.operation_status import (operation_summary, route_preview, localization_explanations,
                                              failure_memory_snapshot, local_detour_snapshot)
 from smart_vision_amr.navigation_graph import goal_consumers_ready
@@ -391,6 +393,7 @@ class MissionApplication:
         self.home_seed_match = None
         self.home_seed_match_at = 0.
         self.home_seed_match_key = None
+        self.home_prior_evidence = None
         self.aruco_available = hasattr(cv2, 'aruco')
         self.pairing_code = f'{secrets.randbelow(1000000):06d}'
         self.sessions = {}
@@ -855,7 +858,8 @@ class MissionApplication:
         result.update(home_seed_available=seed_available, home_seed_reason=seed_reason,
                       home_seed_pending=self.home_seed_request is not None,
                       home_seed_result=self.home_seed_result,
-                      home_seed_match=self.home_seed_match)
+                      home_seed_match=self.home_seed_match,
+                      home_prior_evidence=deepcopy(self.home_prior_evidence))
         use_existing_pose = (self.can_refine_localization() if self.localization.state == 'IDLE'
                              else self.localization_use_existing_pose)
         mode = 'home' if self.localization_startup_home else 'local' if use_existing_pose else 'global'
@@ -897,10 +901,21 @@ class MissionApplication:
         error = self.delivery.home_validation_error(self.delivery.registered_homepoint)
         if error:
             return False, error
-        if (self.home_seed_match is None or not math.isfinite(self.home_seed_match)
-                or self.home_seed_match < .65 or now-self.home_seed_match_at >= .8
-                or self.home_seed_match_key != self.home_seed_key()):
-            return False, '등록 홈 위치·방향의 LiDAR와 지도가 일치하지 않습니다. 실제 위치를 확인하세요.'
+        exact_match = (self.home_seed_match is not None and math.isfinite(self.home_seed_match)
+                       and self.home_seed_match >= .65 and 0 <= now-self.home_seed_match_at < .8
+                       and self.home_seed_match_key == self.home_seed_key())
+        evidence = self.home_prior_evidence or {}
+        nearby_match = (evidence.get('supported') is True
+                        and evidence.get('distinct_scans', 0) >= 3
+                        and evidence.get('consistent_candidates', 0) >= 3
+                        and evidence.get('best_min_agreement', 0.) is not None
+                        and evidence.get('best_min_agreement', 0.) >= .65
+                        and 0 <= now-evidence.get('at', 0.) < .8
+                        and evidence.get('key') == self.home_seed_key())
+        if not exact_match and not nearby_match:
+            return False, '등록 홈 주변의 LiDAR와 지도가 일치하지 않습니다. 실제 위치를 확인하세요.'
+        # Nearby evidence validates only the existing broad Home prior. It
+        # never chooses a pose, changes Home, or certifies AMCL confidence.
         return True, ''
 
     def seed_home_readiness(self):
@@ -1314,6 +1329,7 @@ def create_ros_bridge(app, options, context):
             self.startup_seed_stamps = deque(maxlen=5)
             self.localization_scan = None
             self.localization_laser_pose = None
+            self.home_prior_observer = HomePriorObserver(home_neighborhood_evidence)
             self.localization_angular = 0.
             self.localization_running = False
             self.localization_scan_gap_since = None
@@ -1386,6 +1402,10 @@ def create_ros_bridge(app, options, context):
                 app.connection_error = ''
                 app.mission.event(f'ROS 도메인 {app.domain_id}에 연결했습니다.')
 
+        def destroy_node(self):
+            self.home_prior_observer.close()
+            return super().destroy_node()
+
         def on_map(self, message):
             width, height = int(message.info.width), int(message.info.height)
             if width <= 0 or height <= 0 or width*height != len(message.data) or width*height > 25000000:
@@ -1422,8 +1442,15 @@ def create_ros_bridge(app, options, context):
                 yaw = math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))
                 odom_pose = {'x': float(message.pose.pose.position.x),
                              'y': float(message.pose.pose.position.y), 'yaw': yaw}
-                if all(math.isfinite(value) for value in odom_pose.values()):
-                    app.odom_pose = odom_pose
+                if not all(math.isfinite(value) for value in odom_pose.values()):
+                    app.odom_pose = None
+                    self.home_prior_observer.invalidate()
+                    app.home_prior_evidence = None
+                    return
+                app.odom_pose = odom_pose
+                if (not self.home_prior_observer.observe_odom(app.odom_pose, app.speed)
+                        or self.home_prior_observer.evidence is None):
+                    app.home_prior_evidence = None
                 if self.source_fresh(message.header.stamp, .8):
                     if (app.localization.active and app.localization_odom_at
                             and app.odom_at-app.localization_odom_at > .8):
@@ -1463,9 +1490,20 @@ def create_ros_bridge(app, options, context):
                             app.map, app.localization_distance)
                         app.home_seed_match_at = scan_now
                         app.home_seed_match_key = app.home_seed_key()
+                    eligible = ((app.mission.estop_latched or app.mission.state in START_STATES)
+                                and (not app.localization.active or app.localization.state == 'ACQUIRING')
+                                and home is not None and app.map is not None and not app.map_is_preview
+                                and app.map_matches_configured is True and app.localization_distance is not None)
+                    app.home_prior_evidence = self.home_prior_observer.observe(
+                        message.header.stamp.sec*1_000_000_000+message.header.stamp.nanosec,
+                        scan_points(message, self.localization_laser_pose), app.home_seed_key(), home,
+                        app.map, app.localization_distance, app._display_map_data, app.odom_pose,
+                        app.speed, app.odom_at, scan_now, eligible)
                 except (TransformException, ValueError, TypeError):
                     self.localization_laser_pose = None
                     app.home_seed_match = None
+                    self.home_prior_observer.invalidate()
+                    app.home_prior_evidence = None
 
         def on_initial_pose(self, message):
             # An explicit operator estimate supersedes an automatic search.
@@ -2821,6 +2859,7 @@ def main(args=None):
                     app.home_seed_match = None
                     app.home_seed_match_at = 0.
                     app.home_seed_match_key = None
+                    app.home_prior_evidence = None
                     app.home_seed_result = ''
                     app.manual_cancel_requested = app.manual_auto_ready = False
                     app.localization = AssistedLocalization()
