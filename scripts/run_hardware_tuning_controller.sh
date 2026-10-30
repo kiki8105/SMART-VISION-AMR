@@ -30,7 +30,7 @@ source /opt/ros/humble/setup.bash
 # shellcheck disable=SC1091
 source "$WORKSPACE_ROOT/install/local_setup.bash"
 export ROS_DOMAIN_ID="$DOMAIN_ID" ROS_LOCALHOST_ONLY=0 TURTLEBOT3_MODEL=waffle_pi
-source "$SCRIPT_DIR/dds_env.bash"
+source "$SCRIPT_DIR/dds_env.bash" ""
 exec /usr/bin/python3 "$CONTROLLER" "$@" \
   --domain-id "$DOMAIN_ID" --robot-namespace / --no-use-sim-time \
   --settings-file "$HOME/.config/turtlebot3/cmd_vel_controller_hardware_tuning.ini" \

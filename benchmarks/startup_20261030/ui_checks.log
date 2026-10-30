@@ -1,0 +1,14 @@
+ros2_ws/src/smart_vision_amr/test/web_delivery_ui_check.cjs
+PASS: dispatch blockers, loading acknowledgment, registered home restore with stale TF, active-control interlocks and reset-only API action.
+ros2_ws/src/smart_vision_amr/test/web_failure_memory_ui_check.cjs
+PASS: failure memory phases, finite TTL, sensor hold, operator priority, finished/missing status, safe read-only rendering.
+ros2_ws/src/smart_vision_amr/test/web_joystick_app_check.cjs
+PASS: operator controls locked during every manual phase; home/pause/estop retained; hold/resume badges correct; estop takes display priority.
+ros2_ws/src/smart_vision_amr/test/web_joystick_ui_check.cjs
+PASS: zero-before-ack, release-before-acquire, fresh control IDs, sequence order, 10Hz motion, direction/clamps, hidden/blur/estop release, keyboard release.
+ros2_ws/src/smart_vision_amr/test/web_localization_ui_check.cjs
+PASS: localization states, confidence values, mission interlocks, retained joystick priority, intervention buttons, start/stop API handlers and explanatory copy.
+ros2_ws/src/smart_vision_amr/test/web_marker_alignment_ui_check.cjs
+PASS: marker phases, selected camera, normalized error units, stable frame count, timeout/resume guidance, missing data, stale target and manual/estop priority.
+ros2_ws/src/smart_vision_amr/test/web_startup_recovery_ui_check.cjs
+PASS: guide opens without actuation, live blocked-step reasons, Home consent, separate seed/reset/localize actions, fresh-stop/manual/disconnect interlocks and no automatic departure.

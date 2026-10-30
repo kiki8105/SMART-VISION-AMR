@@ -1,0 +1,1811 @@
+{
+  "passed": true,
+  "scenario": "precision",
+  "domain": 186,
+  "gazebo_master_uri": "http://127.0.0.1:11586",
+  "web_url": "http://127.0.0.1:8796",
+  "physical_vehicle_or_domain16_touched": false,
+  "synthetic_sensor_or_localization_feedback": false,
+  "initial_pose_is_actual_known_simulator_pose": true,
+  "initial_pose_std_requested_m": null,
+  "checks": [
+    {
+      "name": "actual_gazebo_ground_truth_available",
+      "passed": true
+    },
+    {
+      "name": "rear_camera_faces_marker_with_body_perpendicular_to_wall",
+      "passed": true,
+      "actual_body_yaw_radians": 0.025627938129872886,
+      "wall_normal_error_degrees": 1.4683726924641123,
+      "alignment": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙·벽 직각 방향·정지 및 연속 센서 확인을 완료했습니다.",
+        "marker_id": 1,
+        "camera": "rear",
+        "center_error": 0.04531250000000009,
+        "center_tolerance": 0.05,
+        "frames": 3,
+        "wall_required": true,
+        "wall_reliable": true,
+        "wall_heading_error_rad": -0.024950888534573945,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 4,
+        "wall_required_samples": 3,
+        "wall_reason": "표식 방향의 단일 벽을 확인했습니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 10.038728203930471,
+        "max_seconds": 45.0,
+        "elapsed": 3.6006858000000648,
+        "required": 3
+      }
+    },
+    {
+      "name": "strict_marker_image_center_and_measured_stop",
+      "passed": true,
+      "center_error": 0.04531250000000009,
+      "speed": {
+        "linear": -4.047069517009421e-05,
+        "angular": -0.00010130696429246686
+      }
+    },
+    {
+      "name": "precision_real_rotation_through_existing_mux",
+      "passed": true,
+      "max_command_angular": 0.12906249999999997
+    }
+  ],
+  "events": [
+    {
+      "t": 8.657,
+      "event": "rear_wall_precision_mission_start"
+    },
+    {
+      "t": 13.214,
+      "event": "rear_wall_precision_confirmed",
+      "alignment": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙·벽 직각 방향·정지 및 연속 센서 확인을 완료했습니다.",
+        "marker_id": 1,
+        "camera": "rear",
+        "center_error": 0.04531250000000009,
+        "center_tolerance": 0.05,
+        "frames": 3,
+        "wall_required": true,
+        "wall_reliable": true,
+        "wall_heading_error_rad": -0.024950888534573945,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 4,
+        "wall_required_samples": 3,
+        "wall_reason": "표식 방향의 단일 벽을 확인했습니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 10.038728203930471,
+        "max_seconds": 45.0,
+        "elapsed": 3.6006858000000648,
+        "required": 3
+      },
+      "ground_truth": {
+        "t": 13.1351,
+        "x": -2.999913091967479,
+        "y": -1.9999713976643834,
+        "yaw": 0.025627938129872886
+      }
+    }
+  ],
+  "initial_poses": [],
+  "raw_scans": 44,
+  "forwarded_scans": 44,
+  "duration_seconds": 13.2141,
+  "raw_telemetry": {
+    "path": "/tmp/smart_vision_startup186.TDRbza/full_result.json",
+    "sha256": "c270370f698ef678885d3264a25d387933057b456af4190ed919902000029eb0"
+  },
+  "sample_counts": {
+    "states": 63,
+    "commands": 426,
+    "odom": 263,
+    "ground_truth": 179,
+    "amcl": 5,
+    "health": 41,
+    "motion": 107,
+    "navigation": 5,
+    "planner": 5,
+    "paths": 1,
+    "tf": 80
+  },
+  "amcl_samples": [
+    {
+      "t": 4.2523,
+      "stamp_ns": 228000000,
+      "x": -3.0000000000002225,
+      "y": -2.0,
+      "yaw": 0.19999999999999904,
+      "position_std": 0.0,
+      "yaw_std": 1.9140888122715336e-07,
+      "covariance": [
+        -5.950795411990839e-13,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        3.66373598126305e-14
+      ]
+    },
+    {
+      "t": 4.6579,
+      "stamp_ns": 628000000,
+      "x": -2.9999939379489553,
+      "y": -1.9999987711617015,
+      "yaw": 0.20000049354901175,
+      "position_std": 2.9677089861228322e-06,
+      "yaw_std": 3.85758802011323e-06,
+      "covariance": [
+        8.43769498715119e-12,
+        1.7630341631047486e-12,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.7630341631047486e-12,
+        3.9745984281580604e-13,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.4880985332921108e-11
+      ]
+    },
+    {
+      "t": 6.9062,
+      "stamp_ns": 2829000000,
+      "x": -2.9999218110454415,
+      "y": -1.9999841502509017,
+      "yaw": 0.2000042755540093,
+      "position_std": 3.187741480254873e-05,
+      "yaw_std": 4.2964843952973665e-05,
+      "covariance": [
+        9.760405816905404e-10,
+        1.979056918344213e-10,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.97906580012841e-10,
+        4.014610865965551e-11,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.845977815903378e-09
+      ]
+    },
+    {
+      "t": 9.9911,
+      "stamp_ns": 5829000000,
+      "x": -2.9998045076115734,
+      "y": -1.9999603670666544,
+      "yaw": 0.1758956277983422,
+      "position_std": 0.011729927782599507,
+      "yaw_std": 0.010976504712051556,
+      "covariance": [
+        0.0001321600315762339,
+        2.679149404460901e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.679149404372083e-05,
+        5.4311745416590895e-06,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.00012048365569369002
+      ]
+    },
+    {
+      "t": 11.1932,
+      "stamp_ns": 7030000000,
+      "x": -2.9983741500727574,
+      "y": -1.9997043871906566,
+      "yaw": 0.07027860915556369,
+      "position_std": 0.04571076659350389,
+      "yaw_std": 0.046571508423958505,
+      "covariance": [
+        0.002023730384282274,
+        0.0003647287468080407,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0003647287468080407,
+        6.605810042081828e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.002168905396882838
+      ]
+    }
+  ],
+  "tf_samples": [
+    {
+      "t": 4.0602,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 62000000,
+      "header_age_seconds": -0.002
+    },
+    {
+      "t": 4.2535,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 1228000000,
+      "header_age_seconds": -0.988
+    },
+    {
+      "t": 4.4788,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 470000000,
+      "header_age_seconds": -0.01
+    },
+    {
+      "t": 4.6585,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 1628000000,
+      "header_age_seconds": -0.988
+    },
+    {
+      "t": 4.6828,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 674000000,
+      "header_age_seconds": -0.014
+    },
+    {
+      "t": 4.8885,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 878000000,
+      "header_age_seconds": -0.018
+    },
+    {
+      "t": 5.0977,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1082000000,
+      "header_age_seconds": -0.002
+    },
+    {
+      "t": 5.2813,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 2228000000,
+      "header_age_seconds": -0.988
+    },
+    {
+      "t": 5.3146,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1286000000,
+      "header_age_seconds": -0.006
+    },
+    {
+      "t": 5.4823,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 2428000000,
+      "header_age_seconds": -0.988
+    },
+    {
+      "t": 5.6898,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 2629000000,
+      "header_age_seconds": -0.969
+    },
+    {
+      "t": 5.7506,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1728000000,
+      "header_age_seconds": -0.008
+    },
+    {
+      "t": 5.9546,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1932000000,
+      "header_age_seconds": -0.012
+    },
+    {
+      "t": 6.0621,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 3029000000,
+      "header_age_seconds": -1.009
+    },
+    {
+      "t": 6.2671,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 3229000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 6.3669,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 2340000000,
+      "header_age_seconds": 0.0
+    },
+    {
+      "t": 6.4763,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 3429000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 6.5786,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 2544000000,
+      "header_age_seconds": -0.004
+    },
+    {
+      "t": 6.7903,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 2748000000,
+      "header_age_seconds": -0.008
+    },
+    {
+      "t": 6.9082,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 3829000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 7.0018,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 2952000000,
+      "header_age_seconds": -0.012
+    },
+    {
+      "t": 7.1103,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 4029000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 7.3189,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 4229000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 7.4186,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3360000000,
+      "header_age_seconds": 0.0
+    },
+    {
+      "t": 7.5225,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 4429000000,
+      "header_age_seconds": -0.969
+    },
+    {
+      "t": 7.6331,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3564000000,
+      "header_age_seconds": -0.004
+    },
+    {
+      "t": 7.935,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 4829000000,
+      "header_age_seconds": -1.009
+    },
+    {
+      "t": 8.0786,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3972000000,
+      "header_age_seconds": -0.012
+    },
+    {
+      "t": 8.1499,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 5029000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 8.3086,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4176000000,
+      "header_age_seconds": -0.016
+    },
+    {
+      "t": 8.5192,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4380000000,
+      "header_age_seconds": 0.0
+    },
+    {
+      "t": 8.7509,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4618000000,
+      "header_age_seconds": -0.018
+    },
+    {
+      "t": 8.7862,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 5629000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 8.9563,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4822000000,
+      "header_age_seconds": -0.002
+    },
+    {
+      "t": 9.1604,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 5026000000,
+      "header_age_seconds": -0.006
+    },
+    {
+      "t": 9.1974,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 6029000000,
+      "header_age_seconds": -0.969
+    },
+    {
+      "t": 9.3643,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 5230000000,
+      "header_age_seconds": -0.01
+    },
+    {
+      "t": 9.5753,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 5434000000,
+      "header_age_seconds": -0.014
+    },
+    {
+      "t": 9.7831,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 5638000000,
+      "header_age_seconds": -0.018
+    },
+    {
+      "t": 9.7859,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 6629000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 9.9886,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 5842000000,
+      "header_age_seconds": -0.002
+    },
+    {
+      "t": 9.9914,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 6829000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 10.1997,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 7029000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 10.4064,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 6250000000,
+      "header_age_seconds": -0.01
+    },
+    {
+      "t": 10.4077,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 7229000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 10.61,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 6454000000,
+      "header_age_seconds": -0.014
+    },
+    {
+      "t": 10.818,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 6658000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 10.8191,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 7629000000,
+      "header_age_seconds": -0.969
+    },
+    {
+      "t": 11.0214,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 6862000000,
+      "header_age_seconds": -0.002
+    },
+    {
+      "t": 11.024,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 7830000000,
+      "header_age_seconds": -0.97
+    },
+    {
+      "t": 11.3987,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 8230000000,
+      "header_age_seconds": -1.01
+    },
+    {
+      "t": 11.4309,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 7270000000,
+      "header_age_seconds": -0.01
+    },
+    {
+      "t": 11.6043,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 8430000000,
+      "header_age_seconds": -0.99
+    },
+    {
+      "t": 11.637,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 7474000000,
+      "header_age_seconds": -0.014
+    },
+    {
+      "t": 11.844,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 7678000000,
+      "header_age_seconds": -0.018
+    },
+    {
+      "t": 12.0177,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 8830000000,
+      "header_age_seconds": -0.99
+    },
+    {
+      "t": 12.0511,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 7882000000,
+      "header_age_seconds": -0.002
+    },
+    {
+      "t": 12.2278,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 9030000000,
+      "header_age_seconds": -0.99
+    },
+    {
+      "t": 12.4335,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 9230000000,
+      "header_age_seconds": -0.99
+    },
+    {
+      "t": 12.467,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 8290000000,
+      "header_age_seconds": -0.01
+    },
+    {
+      "t": 12.643,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 9430000000,
+      "header_age_seconds": -0.97
+    },
+    {
+      "t": 12.6762,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 8494000000,
+      "header_age_seconds": -0.014
+    },
+    {
+      "t": 13.0215,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 9830000000,
+      "header_age_seconds": -1.01
+    },
+    {
+      "t": 13.0875,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 8902000000,
+      "header_age_seconds": -0.002
+    }
+  ],
+  "navigation_transitions": [
+    {
+      "t": 2.7038,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": null,
+      "goal_stamp": null,
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 0,
+        "nanosec": 0
+      }
+    },
+    {
+      "t": 9.4651,
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -3.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 200000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 4,
+        "nanosec": 300000000
+      },
+      "distance_remaining": 0.025000236434392416,
+      "controller_distance_remaining": 0.0,
+      "measured_speed": 0.0,
+      "curve_speed_limit": 0.0
+    },
+    {
+      "t": 9.4717,
+      "status": "SUCCEEDED",
+      "message": "Nav2 status 4",
+      "goal": {
+        "x": -3.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 200000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 4,
+        "nanosec": 300000000
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "t": 0.1032,
+      "mission_state": "IDLE",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": null,
+        "scan_tf_error": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 0.3143,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": false,
+        "control_seq": -1
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": null,
+        "scan_tf_error": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 1.395,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": null,
+        "scan_tf_error": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 3.1438,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "map_unavailable",
+          "odom_tf_unavailable",
+          "odom_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_SCAN",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 3.3513,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 31
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "map_unavailable",
+          "odom_tf_unavailable",
+          "odom_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_SCAN",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 4.4302,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 43
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": 0.03125173700027517,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_SCAN",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 4.6463,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 44
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.045710675999998784,
+        "odom_age_seconds": 0.0028053569999428873,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "MEASUREMENT_TF_TIMEOUT",
+        "scan_tf_error": "Lookup would require extrapolation into the past.  Requested time 0.228000 but the earliest data is at time 1.228000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 4.8518,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 47
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "map_tf_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": 2.9677089861228322e-06,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.09500648600032946,
+        "odom_age_seconds": 0.015307704000406375,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the past.  Requested time 0.628000 but the earliest data is at time 1.228000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 5.6881,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.0000218059361905,
+        "y": -2.000003281090736,
+        "yaw": 0.20000119183872936
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 55
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "initializing"
+        ],
+        "position_std_m": 2.9677089861228322e-06,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.02927538199992341,
+        "odom_age_seconds": 0.004411992999848735,
+        "map_tf_age_seconds": -0.016,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 7.7662,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.000083130229202,
+        "y": -2.00001770269939,
+        "yaw": 0.2000051764000528
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 77
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.187741480254873e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 1,
+        "scan_age_seconds": 0.022319546999824524,
+        "odom_age_seconds": 0.023458204999769805,
+        "map_tf_age_seconds": 0.008,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 7.9758,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.999955127823984,
+        "y": -1.9999902698812,
+        "yaw": 0.20000535041823836
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 1
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.187741480254873e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 1,
+        "scan_age_seconds": 0.022319546999824524,
+        "odom_age_seconds": 0.023458204999769805,
+        "map_tf_age_seconds": 0.008,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 8.6192,
+      "mission_state": "CANCELED",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.999972246485615,
+        "y": -1.9999949288174776,
+        "yaw": 0.20000664105141117
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 80
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.187741480254873e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.11671447500020804,
+        "odom_age_seconds": 0.02975078899999062,
+        "map_tf_age_seconds": 0.028,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 8.824,
+      "mission_state": "NAVIGATING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9999793849882135,
+        "y": -1.999990589471778,
+        "yaw": 0.20000351409067563
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 81
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.187741480254873e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.16559233699990727,
+        "odom_age_seconds": 0.016659916999742563,
+        "map_tf_age_seconds": 0.016,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.4404,
+      "mission_state": "NAVIGATING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.000000789767186,
+        "y": -1.9999955750153453,
+        "yaw": 0.20000446713159137
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 88
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.187741480254873e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.06821484400006739,
+        "odom_age_seconds": 0.002564644999893062,
+        "map_tf_age_seconds": -0.014,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.6523,
+      "mission_state": "CONFIRMING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.000003517672712,
+        "y": -1.9999991642664132,
+        "yaw": 0.200006899270602
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 90
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.187741480254873e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.11749277699982486,
+        "odom_age_seconds": 0.011812791000011202,
+        "map_tf_age_seconds": 0.008,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "SEARCHING",
+        "reason": "선택한 rear 카메라로 마커 1을 저속 탐색합니다.",
+        "marker_id": 1,
+        "camera": "rear",
+        "center_error": null,
+        "center_tolerance": 0.05,
+        "frames": 0,
+        "wall_required": true,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "표식을 카메라 가로 중앙에 맞춘 뒤 벽 방향을 확인합니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 0.0,
+        "max_seconds": 45.0,
+        "elapsed": 0.0,
+        "required": 3
+      }
+    },
+    {
+      "t": 9.8649,
+      "mission_state": "CONFIRMING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.99999290803672,
+        "y": -2.0000001217551593,
+        "yaw": 0.19875143860375735
+      },
+      "safety": {
+        "mode": "manual",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 92
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.187741480254873e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.16132508900000175,
+        "odom_age_seconds": 0.020186133999686717,
+        "map_tf_age_seconds": 0.01,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 선택한 카메라의 가로 중앙으로 정렬합니다.",
+        "marker_id": 1,
+        "camera": "rear",
+        "center_error": 0.3687499999999999,
+        "center_tolerance": 0.05,
+        "frames": 0,
+        "wall_required": true,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "표식을 카메라 가로 중앙에 맞춘 뒤 벽 방향을 확인합니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.12906249999999997,
+        "rotation_degrees": 0.0721570064214339,
+        "max_seconds": 45.0,
+        "elapsed": 0.29987698200011437,
+        "required": 3
+      }
+    },
+    {
+      "t": 11.9509,
+      "mission_state": "CONFIRMING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.999645634601684,
+        "y": -1.9999244466096182,
+        "yaw": 0.03873899209846912
+      },
+      "safety": {
+        "mode": "manual",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 113
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.04571076659350389,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.13897057299982407,
+        "odom_age_seconds": 0.028306890999829193,
+        "map_tf_age_seconds": 0.018,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 선택한 카메라의 가로 중앙으로 정렬합니다.",
+        "marker_id": 1,
+        "camera": "rear",
+        "center_error": 0.0703125,
+        "center_tolerance": 0.05,
+        "frames": 0,
+        "wall_required": true,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "표식을 카메라 가로 중앙에 맞춘 뒤 벽 방향을 확인합니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.024609375,
+        "rotation_degrees": 9.261355018770578,
+        "max_seconds": 45.0,
+        "elapsed": 2.400827923000179,
+        "required": 3
+      }
+    },
+    {
+      "t": 12.5634,
+      "mission_state": "CONFIRMING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9983414498743493,
+        "y": -1.9996985527986815,
+        "yaw": 0.02619668863068035
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 119
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.04571076659350389,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.0729870570003186,
+        "odom_age_seconds": 0.01643397600037133,
+        "map_tf_age_seconds": 0.01,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "SETTLING",
+        "reason": "마커가 가로 중앙에 있습니다. 정지 상태에서 안정성을 확인합니다.",
+        "marker_id": 1,
+        "camera": "rear",
+        "center_error": 0.04843749999999991,
+        "center_tolerance": 0.05,
+        "frames": 1,
+        "wall_required": true,
+        "wall_reliable": true,
+        "wall_heading_error_rad": -0.02895333133061806,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 1,
+        "wall_required_samples": 3,
+        "wall_reason": "표식 방향의 단일 벽을 확인했습니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 10.01064373404977,
+        "max_seconds": 45.0,
+        "elapsed": 2.999781030000122,
+        "required": 3
+      }
+    },
+    {
+      "t": 13.2058,
+      "mission_state": "CONFIRMING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9983603587194416,
+        "y": -1.9996991140510287,
+        "yaw": 0.02652913690516059
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 125
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.04571076659350389,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.16649925100000473,
+        "odom_age_seconds": 0.03195869000001039,
+        "map_tf_age_seconds": 0.014,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙·벽 직각 방향·정지 및 연속 센서 확인을 완료했습니다.",
+        "marker_id": 1,
+        "camera": "rear",
+        "center_error": 0.04531250000000009,
+        "center_tolerance": 0.05,
+        "frames": 3,
+        "wall_required": true,
+        "wall_reliable": true,
+        "wall_heading_error_rad": -0.024950888534573945,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 4,
+        "wall_required_samples": 3,
+        "wall_reason": "표식 방향의 단일 벽을 확인했습니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 10.038728203930471,
+        "max_seconds": 45.0,
+        "elapsed": 3.6006858000000648,
+        "required": 3
+      }
+    }
+  ],
+  "ground_truth_samples": [
+    {
+      "t": 4.0457,
+      "x": -3.000000320051555,
+      "y": -1.999999929998507,
+      "yaw": 0.20000012456556038
+    },
+    {
+      "t": 4.5596,
+      "x": -2.9999298098852387,
+      "y": -1.9999852787686772,
+      "yaw": 0.20000141865656235
+    },
+    {
+      "t": 5.0659,
+      "x": -2.9999575947847235,
+      "y": -1.9999907280254143,
+      "yaw": 0.20000190634664095
+    },
+    {
+      "t": 5.5702,
+      "x": -2.999987247371512,
+      "y": -1.9999975794453624,
+      "yaw": 0.20000298643891765
+    },
+    {
+      "t": 6.0741,
+      "x": -3.0000004481065767,
+      "y": -2.0000000011951578,
+      "yaw": 0.20000355997207642
+    },
+    {
+      "t": 6.5842,
+      "x": -3.000016627110996,
+      "y": -2.000002099681777,
+      "yaw": 0.20000354424477162
+    },
+    {
+      "t": 7.1032,
+      "x": -3.0000340772694734,
+      "y": -2.0000079726358657,
+      "yaw": 0.2000056302202188
+    },
+    {
+      "t": 7.6163,
+      "x": -3.000050198640445,
+      "y": -2.0000112032009967,
+      "yaw": 0.20000652976876584
+    },
+    {
+      "t": 8.1563,
+      "x": -3.0000651525233137,
+      "y": -2.00001305093512,
+      "yaw": 0.20000639642919263
+    },
+    {
+      "t": 8.6937,
+      "x": -3.000079455030049,
+      "y": -2.0000181131532755,
+      "yaw": 0.20000814367733863
+    },
+    {
+      "t": 9.2364,
+      "x": -3.0000995837210427,
+      "y": -2.00001838914254,
+      "yaw": 0.2000067755338495
+    },
+    {
+      "t": 9.7454,
+      "x": -3.0001157274159644,
+      "y": -2.0000247083747267,
+      "yaw": 0.20000947169367486
+    },
+    {
+      "t": 10.2529,
+      "x": -3.0000200656424183,
+      "y": -1.9999999498903736,
+      "yaw": 0.1437287356447393
+    },
+    {
+      "t": 10.7621,
+      "x": -2.9999610191299713,
+      "y": -1.999984131372824,
+      "yaw": 0.09876782762643627
+    },
+    {
+      "t": 11.3101,
+      "x": -2.999917288608158,
+      "y": -1.9999737622679166,
+      "yaw": 0.06213048544864373
+    },
+    {
+      "t": 11.814,
+      "x": -2.9999004846259325,
+      "y": -1.9999690683902676,
+      "yaw": 0.04304369527856951
+    },
+    {
+      "t": 12.3251,
+      "x": -2.9998931909117514,
+      "y": -1.999969241921932,
+      "yaw": 0.029150694365999732
+    },
+    {
+      "t": 12.8325,
+      "x": -2.9999033239246766,
+      "y": -1.999970592514598,
+      "yaw": 0.025606262925378896
+    }
+  ],
+  "evidence_sampling": {
+    "method": "Uniform bounded samples including first/last. Assertions, events and selected failure proofs are retained separately. Full raw telemetry is unchanged at the referenced path/hash.",
+    "arrays": {
+      "tf_samples": {
+        "before": 80,
+        "retained": 64
+      }
+    }
+  },
+  "metadata_note": "Legacy default initial-std argument 0.446m was unused by this scenario. Actual recorded priors/launch configuration are authoritative; no additional covariance input was published by this observer."
+}

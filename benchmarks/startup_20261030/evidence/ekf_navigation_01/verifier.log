@@ -1,0 +1,3 @@
+{"t": 8.934, "event": "explicit_mission_start"}
+{"t": 18.9304, "event": "navigation_arrived", "pose": {"x": -1.2265797613597706, "y": -2.047122896924554, "yaw": -0.004426046368092356}, "goal": {"id": 1, "name": "Trial goal", "camera": "rear", "x": -1.0, "y": -2.0, "yaw": 0.0}, "distance_m": 0.23142807883317176}
+PASS /home/kiki/Team2_workspace/src/SMART-VISION-AMR/benchmarks/startup_20261030/evidence/ekf_navigation_01/result.json

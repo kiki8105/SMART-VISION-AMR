@@ -14,7 +14,7 @@ import uuid
 class MotionMuxCore:
     """Arbitrate commands using a monotonic dead-man lease, never ROS time."""
 
-    MODES = frozenset({'manual', 'hold', 'auto', 'estop', 'reset'})
+    MODES = frozenset({'manual', 'localization', 'hold', 'auto', 'estop', 'reset'})
     RECOVERY_SAFETY_SOURCE = 'path_follower_recovery_safety'
     EKF_SENSOR_SAFETY_SOURCE = 'ekf_sensor_safety'
     LOCALIZATION_SAFETY_SOURCE = 'localization_safety'
@@ -74,41 +74,98 @@ class MotionMuxCore:
         self.localization_at = None
         self.localization_health = None
         self.manual_operation = None
+        self.control_received = self.control_accepted = self.control_rejected = 0
+        self.auto_received = self.auto_accepted = self.auto_rejected = 0
+        self.last_control = self.last_auto = None
+        self.last_control_rejection = self.last_auto_rejection = None
+        self.control_rejected_reason = ''
+        self.control_by_origin = {}
+        self.auto_by_origin = {}
+
+    def _receipt(self, channel, payload, accepted, reason, origin):
+        """Record once at the public boundary, including pre-core rejects.
+
+        Nested application helpers do not create receipts. Keep only the most
+        recent packet and rejection; counters never enter the publish bypass key.
+        """
+        origin = origin if origin in {'topic', 'service', 'core', 'legacy'} else 'core'
+        origins = getattr(self, channel+'_by_origin')
+        counts = origins.setdefault(origin, {'received': 0, 'accepted': 0, 'rejected': 0})
+        counts['received'] += 1
+        counts['accepted' if accepted else 'rejected'] += 1
+        packet = payload if isinstance(payload, dict) else {}
+        source, seq, mode = (packet.get('source_id'), packet.get('seq'), packet.get('mode'))
+        receipt = {'source_id': source[:128] if isinstance(source, str) else None,
+                   'seq': seq if type(seq) is int else None,
+                   'mode': mode[:32] if isinstance(mode, str) else None,
+                   'accepted': bool(accepted), 'reason': reason, 'origin': origin,
+                   'received_at_monotonic_ns': int(self.clock()*1e9)}
+        setattr(self, channel+'_received', getattr(self, channel+'_received')+1)
+        outcome = channel+('_accepted' if accepted else '_rejected')
+        setattr(self, outcome, getattr(self, outcome)+1)
+        setattr(self, 'last_'+channel, receipt)
+        if not accepted:
+            setattr(self, 'last_'+channel+'_rejection', dict(receipt))
+        return bool(accepted)
+
+    def reject_control(self, payload, reason, origin='topic'):
+        self.control_rejected_reason = reason
+        return self._receipt('control', payload, False, reason, origin)
+
+    def reject_auto(self, payload, reason, origin='topic'):
+        self.auto_rejected_reason = reason
+        return self._receipt('auto', payload, False, reason, origin)
 
     def _velocity(self, linear, angular):
         if (isinstance(linear, bool) or isinstance(angular, bool)
                 or not isinstance(linear, (int, float))
                 or not isinstance(angular, (int, float))):
             raise ValueError('Velocity must be numeric')
-        linear, angular = float(linear), float(angular)
+        try:
+            linear, angular = float(linear), float(angular)
+        except OverflowError as exc:
+            raise ValueError('Velocity must be finite') from exc
         if not math.isfinite(linear) or not math.isfinite(angular):
             raise ValueError('Velocity must be finite')
         return (max(-self.max_linear_velocity, min(self.max_linear_velocity, linear)),
                 max(-self.max_angular_velocity, min(self.max_angular_velocity, angular)))
 
     def _expire(self):
-        if (self.mode == 'manual' and self.manual_at is not None
+        if (self.mode in {'manual', 'localization'} and self.manual_at is not None
                 and self.clock() - self.manual_at >= self.manual_timeout):
             self.mode = 'hold'
-            self.reason = 'Manual control lease expired; explicit resume required'
+            self.reason = 'Operator control lease expired; explicit resume required'
             self.manual_velocity = (0.0, 0.0)
             self.auto_at = None
 
     def receive_auto(self, linear, angular):
+        accepted = self._apply_auto(linear, angular)
+        return self._receipt('auto', {'mode': 'auto'}, accepted,
+                             '' if accepted else self.auto_rejected_reason, 'legacy')
+
+    def _apply_auto(self, linear, angular):
         """Only a post-transition command may restart automatic motion."""
         self._expire()
         try:
             velocity = self._velocity(linear, angular)
         except ValueError:
             self.auto_at = None
+            self.auto_rejected_reason = 'Invalid autonomous velocity'
             return False
         # Drop, rather than retain, navigation output during an override.
         if self.mode != 'auto' or self.estop_latched:
+            self.auto_rejected_reason = 'Autonomous command blocked by '+self.mode+' control'
             return False
+        self.auto_rejected_reason = ''
         self.auto_velocity, self.auto_at = velocity, self.clock()
         return True
 
     def receive_stamped_auto(self, payload, ros_now_ns):
+        accepted = self._receive_stamped_auto(payload, ros_now_ns)
+        return self._receipt('auto', payload, accepted,
+                             '' if accepted else self.auto_rejected_reason, 'topic')
+
+    def _receive_stamped_auto(self, payload, ros_now_ns):
         """Validate forwarding age and sequence before renewing the steady lease.
 
         A new bridge UUID may take over only with a stamp newer than every
@@ -117,6 +174,7 @@ class MotionMuxCore:
         manual lease cannot replay navigation output buffered during override.
         """
         if not isinstance(payload, dict):
+            self.auto_rejected_reason = 'Autonomous packet must be a JSON object'
             return False
         source, seq, stamp = (payload.get('source_id'), payload.get('seq'),
                               payload.get('sent_at_ns'))
@@ -143,7 +201,7 @@ class MotionMuxCore:
             self.auto_source_id = source
         self.auto_sequences[source], self.auto_last_stamp = seq, stamp
         self.auto_rejected_reason = ''
-        return self.receive_auto(payload['linear'], payload['angular'])
+        return self._apply_auto(payload['linear'], payload['angular'])
 
     def receive_localization_health(self, payload):
         if not isinstance(payload, dict) or payload.get('level') not in {
@@ -166,7 +224,17 @@ class MotionMuxCore:
                 health.get('allow_localization', False) is True,
                 '; '.join(str(x) for x in health.get('reasons', [])))
 
-    def receive_control(self, payload, ros_now_ns):
+    def receive_control(self, payload, ros_now_ns, origin='core'):
+        self.control_rejected_reason = ''
+        accepted = self._receive_control(payload, ros_now_ns)
+        return self._receipt('control', payload, accepted,
+                             '' if accepted else self.control_rejected_reason, origin)
+
+    def _reject_control(self, reason):
+        self.control_rejected_reason = reason
+        return False
+
+    def _receive_control(self, payload, ros_now_ns):
         """Accept one atomic state/velocity packet from the current web bridge.
 
         ROS stamps reject delayed DDS packets.  Lease expiry still works while
@@ -174,25 +242,33 @@ class MotionMuxCore:
         """
         self._expire()
         if not isinstance(payload, dict):
-            return False
+            return self._reject_control('Control packet must be a JSON object')
         source, seq, mode = (payload.get('source_id'), payload.get('seq'),
                              payload.get('mode'))
         stamp = payload.get('sent_at_ns')
-        if (not isinstance(source, str) or not source or len(source) > 128
-                or type(seq) is not int or seq < 0
-                or not isinstance(mode, str) or mode not in self.MODES
-                or (source in self.SAFETY_REASONS and mode != 'estop')
-                or type(stamp) is not int or stamp < 0
-                or type(ros_now_ns) is not int
-                or abs(ros_now_ns-stamp) > 1_000_000_000
-                or source in self.retired_sources
-                or seq <= self.sequences.get(source, -1)):
-            return False
+        if not isinstance(source, str) or not source or len(source) > 128:
+            return self._reject_control('Control source_id must be a nonempty string (max 128 characters)')
+        if type(seq) is not int or seq < 0:
+            return self._reject_control('Control seq must be a nonnegative integer')
+        if not isinstance(mode, str) or mode not in self.MODES:
+            return self._reject_control('Unknown control mode')
+        if source in self.SAFETY_REASONS and mode != 'estop':
+            return self._reject_control('Safety watchdog sources may only request estop')
+        if type(stamp) is not int or stamp < 0 or type(ros_now_ns) is not int:
+            return self._reject_control('Control sent_at_ns must be a nonnegative integer')
+        if abs(ros_now_ns-stamp) > 1_000_000_000:
+            return self._reject_control('Control timestamp differs by over 1s; check PC/robot clock sync and packet delay')
+        if source in self.retired_sources:
+            return self._reject_control('Control source was retired; reconnect the current bridge')
+        if seq <= self.sequences.get(source, -1):
+            return self._reject_control('Replayed or out-of-order control sequence')
         try:
             velocity = self._velocity(payload.get('linear', 0.0),
                                       payload.get('angular', 0.0))
-        except ValueError:
-            return False
+        except ValueError as exc:
+            return self._reject_control(str(exc))
+        if mode == 'localization' and velocity[0] != 0.0:
+            return self._reject_control('Localization control permits yaw only; linear must be zero')
         if source in self.SAFETY_REASONS:
             # Independent safety watchdogs can stop even a live manual lease.
             # Keep the web bridge as owner so its explicit emergency-reset
@@ -203,11 +279,14 @@ class MotionMuxCore:
             self.manual_velocity, self.auto_at = (0.0, 0.0), None
             return True
         if self.estop_latched and mode not in {'reset', 'estop'}:
-            return False
+            return self._reject_control('Emergency stop is latched; explicit safety reset required')
         now = self.clock()
+        if self.mode == 'manual' and mode == 'localization':
+            return self._reject_control('Manual joystick lease has priority; acknowledge hold before localization')
         if (self.source_id is not None and source != self.source_id
-                and self.mode == 'manual' and mode != 'estop'):
-            return False
+                and (self.mode == 'manual' and mode != 'estop'
+                     or self.mode == 'localization' and mode not in {'manual', 'estop'})):
+            return self._reject_control('Another operator owns a live '+self.mode+' lease; release it or wait for expiry')
         if source != self.source_id:
             # Service stop/reset must not permanently retire a connected UI.
             if (self.source_id is not None
@@ -232,8 +311,9 @@ class MotionMuxCore:
         if mode in {'hold', 'reset'}:
             self.mode, self.reason = 'hold', 'Motion held'
             self.manual_velocity, self.auto_at = (0.0, 0.0), None
-        elif mode == 'manual':
-            self.mode, self.reason = 'manual', 'Leased manual control has priority'
+        elif mode in {'manual', 'localization'}:
+            self.mode, self.reason = mode, ('Leased localization rotation' if mode == 'localization'
+                                           else 'Leased manual control has priority')
             self.manual_velocity, self.manual_at = velocity, now
             self.auto_at = None
             self.manual_operation = payload.get('operation')
@@ -250,7 +330,7 @@ class MotionMuxCore:
         if self.estop_latched:
             return 0.0, 0.0
         velocity = (0.0, 0.0)
-        if self.mode == 'manual':
+        if self.mode in {'manual', 'localization'}:
             velocity = self.manual_velocity
         elif (self.mode == 'auto' and self.auto_at is not None
                 and self.clock()-self.auto_at < self.auto_timeout):
@@ -269,7 +349,8 @@ class MotionMuxCore:
             angular = max(-self.marker_alignment_rotation_limit,
                           min(self.marker_alignment_rotation_limit, velocity[1]))
             return 0.0, angular*factor
-        if self.mode == 'manual' and self.manual_operation == 'localization':
+        if (self.mode == 'localization'
+                or self.mode == 'manual' and self.manual_operation == 'localization'):
             if allow_rotation and velocity[0] == 0.0:
                 return 0.0, max(-self.localization_rotation_limit,
                                 min(self.localization_rotation_limit, velocity[1]))
@@ -280,12 +361,20 @@ class MotionMuxCore:
 
     def status(self):
         self._expire()
-        factor, auto_allowed, _, health_reason = self._localization_policy()
+        factor, auto_allowed, allow_localization, health_reason = self._localization_policy()
         linear, angular = self.output()
         return {'mode': self.mode, 'available': True, 'reason': self.reason,
                 'source_id': self.source_id, 'estop_latched': self.estop_latched,
+                'control_seq': self.sequences.get(self.source_id, -1),
+                'allow_localization': allow_localization,
                 'auto_source_id': self.auto_source_id,
                 'auto_rejected_reason': self.auto_rejected_reason,
+                'control_rejected_reason': self.control_rejected_reason,
+                **{name: getattr(self, name) for name in (
+                    'control_received', 'control_accepted', 'control_rejected',
+                    'auto_received', 'auto_accepted', 'auto_rejected',
+                    'control_by_origin', 'auto_by_origin',
+                    'last_control', 'last_control_rejection', 'last_auto', 'last_auto_rejection')},
                 'output_owner': 'manual' if self.mode == 'manual' else self.mode,
                 'localization_speed_factor': factor,
                 'autonomous_allowed': auto_allowed,
@@ -388,13 +477,17 @@ class MotionMuxNode(Node):
         try:
             payload = json.loads(message.data)
         except (ValueError, TypeError):
+            self.core.reject_auto(None, 'Malformed autonomous JSON')
+            self.publish_status()
             return
         # Do not accept a packet already in transit when this mux restarted.
         if (isinstance(payload, dict) and type(payload.get('sent_at_ns')) is int
                 and payload['sent_at_ns'] < self.auto_started_ns):
-            self.core.auto_rejected_reason = 'Autonomous command predates mux startup'
+            self.core.reject_auto(payload, 'Autonomous command predates mux startup')
+            self.publish_status()
             return
         self.core.receive_stamped_auto(payload, self.get_clock().now().nanoseconds)
+        self.publish_status()
 
     def on_localization_health(self, message):
         try:
@@ -427,7 +520,7 @@ class MotionMuxNode(Node):
             self.pending_reset['future'].set_result(False)
             self.pending_reset = None
         packet = self._service_packet('estop')
-        self.core.receive_control(packet, self.get_clock().now().nanoseconds)
+        self.core.receive_control(packet, self.get_clock().now().nanoseconds, origin='service')
         self.control_pub.publish(String(data=json.dumps(packet)))
         self.publish_output()
         self.publish_status(force=True)
@@ -469,7 +562,7 @@ class MotionMuxNode(Node):
             reset['applied'] = True
             packet = reset['packet']
             reset['accepted'] = self.core.receive_control(
-                packet, self.get_clock().now().nanoseconds)
+                packet, self.get_clock().now().nanoseconds, origin='service')
             self.publish_output()
             self.publish_status(force=True)
         if age >= .5:
@@ -496,6 +589,8 @@ class MotionMuxNode(Node):
         try:
             payload = json.loads(message.data)
         except (ValueError, TypeError):
+            self.core.reject_control(None, 'Malformed control JSON')
+            self.publish_status()
             return
         # Locally created service packets are published for guard observation,
         # never applied by DDS loopback ahead of the reset-intent grace period.
@@ -503,10 +598,12 @@ class MotionMuxNode(Node):
             return
         if (isinstance(payload, dict) and payload.get('mode') == 'reset'
                 and not self.allow_topic_reset):
-            return
-        if self.core.receive_control(payload, self.get_clock().now().nanoseconds):
-            self.publish_output()
+            self.core.reject_control(payload, 'Topic reset is disabled; use reset_emergency_stop service')
             self.publish_status()
+            return
+        if self.core.receive_control(payload, self.get_clock().now().nanoseconds, origin='topic'):
+            self.publish_output()
+        self.publish_status()
 
     def publish_output(self):
         self.check_output_ownership()
@@ -521,7 +618,8 @@ class MotionMuxNode(Node):
         message.linear.x, message.angular.z = ((0.0, 0.0) if
             getattr(self, 'pending_reset', None) is not None else self.core.output())
         self.output_pub.publish(message)
-        if message.linear.x == 0.0 and message.angular.z == 0.0:
+        self.last_output_was_zero = message.linear.x == 0.0 and message.angular.z == 0.0
+        if self.last_output_was_zero:
             self.last_zero_published_at = time.monotonic()
 
     def check_output_ownership(self):
@@ -570,7 +668,9 @@ class MotionMuxNode(Node):
         status['available'] = self.output_available
         status['output_publishers'] = self.output_publishers
         status['stop_acknowledged'] = bool(
-            self.output_available and self.core.estop_latched
+            self.output_available and getattr(self, 'last_output_was_zero', False)
+            and (getattr(self, 'pending_reset', None) is not None
+                 or self.core.output() == (0.0, 0.0))
             and getattr(self, 'last_zero_published_at', None) is not None
             and time.monotonic()-self.last_zero_published_at < .2)
         status['reset_pending'] = getattr(self, 'pending_reset', None) is not None

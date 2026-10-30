@@ -142,8 +142,12 @@ class LocalizationHealthCore:
             critical.append('localization_jump')
         score = metrics.get('scan_map_agreement')
         agreement_age = metrics.get('agreement_age_seconds')
+        agreement_header_age = metrics.get('agreement_header_age_seconds')
         if (score is None or not math.isfinite(score) or agreement_age is None
-                or agreement_age > 2.0*self.sensor_timeout):
+                or agreement_age > 2.0*self.sensor_timeout
+                or (agreement_header_age is not None and (
+                    not math.isfinite(agreement_header_age)
+                    or not -.25 <= agreement_header_age <= 2.0*self.sensor_timeout))):
             critical.append('scan_map_check_unavailable')
         elif score < self.agreement_critical:
             critical.append('scan_map_disagreement')

@@ -39,10 +39,22 @@
     <div id="connection-banner" class="notice" role="status">ROS와 웹 서버의 연결을 확인하고 있습니다.</div>
     <section id="operation-summary" class="panel operation-summary" aria-label="현재 운용 단계">
       <div><span class="secondary">현재 단계</span><h2 id="operation-phase" aria-live="polite">연결 확인 중</h2><p id="operation-detail"></p></div>
-      <div><strong id="operation-action-title">다음 조치</strong><p id="operation-action"></p><button id="operation-action-button" type="button" hidden>확인하기</button></div>
+      <div><strong id="operation-action-title">다음 조치</strong><p id="operation-action"></p><div class="operation-actions"><button id="startup-recovery-open" class="primary" type="button" aria-controls="startup-recovery" aria-expanded="false">출발 준비 초기화</button><button id="operation-action-button" type="button" hidden>확인하기</button></div></div>
       <div id="failure-memory" class="failure-memory" role="status" aria-live="polite" hidden><strong id="failure-memory-phase"></strong><span id="failure-memory-count" class="failure-memory-count tabular"></span><p id="failure-memory-reason"></p><details><summary>실패 접근 기억 보기</summary><ul id="failure-memory-records"></ul><p class="secondary">운용 지도는 변경하지 않습니다. 표시된 임시 제한은 주행 계획에만 적용됩니다.</p></details></div>
       <details><summary>센서·정지 제어 상태</summary><ul id="operation-diagnostics"></ul><p id="safety-ack" role="status"></p></details>
       <ol id="active-route" class="active-route" aria-label="실제 방문 순서와 최종 홈 복귀"></ol>
+    </section>
+    <section id="startup-recovery" class="panel startup-recovery" aria-labelledby="startup-recovery-title" tabindex="-1" hidden>
+      <div class="startup-recovery-heading"><div><h2 id="startup-recovery-title">출발 준비 초기화</h2><p>막힌 단계를 확인한 뒤 필요한 동작을 하나씩 요청하세요. 센서·통신 단절은 위치 초기화만으로 복구되지 않습니다.</p></div><button id="startup-recovery-close" type="button" aria-label="출발 준비 안내 닫기">닫기</button></div>
+      <p id="startup-recovery-summary" class="startup-recovery-summary" role="status" aria-live="polite"></p>
+      <ol class="startup-recovery-steps">
+        <li id="startup-step-stop"><div><strong>1. 정지 확인</strong><span id="startup-stop-state" class="startup-step-state"></span></div><p id="startup-stop-detail"></p><div class="startup-step-actions"><button id="startup-recheck" type="button">현재 상태 다시 확인</button><button id="startup-stop-localization" type="button" hidden>위치 확인 회전 중지</button></div></li>
+        <li id="startup-step-inputs"><div><strong>2. 센서·지도·좌표 변환 확인</strong><span id="startup-inputs-state" class="startup-step-state"></span></div><p id="startup-inputs-detail"></p><button id="startup-connection" type="button">연결 설정 확인</button></li>
+        <li id="startup-step-home"><div><strong>3. 실제 등록 홈 확인</strong><span id="startup-home-state" class="startup-step-state"></span></div><p id="startup-home-position" class="tabular"></p><label class="checkbox"><input id="startup-confirm-home" type="checkbox">로봇이 실제 등록 홈 위치·방향에 정지해 있음을 확인했습니다.</label><p id="startup-home-detail"></p><button id="startup-seed-home" type="button" disabled>등록 홈 초기 위치만 입력</button></li>
+        <li id="startup-step-reset"><div><strong>4. 필요한 경우 비상정지 해제</strong><span id="startup-reset-state" class="startup-step-state"></span></div><p id="startup-reset-detail"></p><button id="startup-open-reset" type="button" disabled>비상정지 해제 창 열기</button></li>
+        <li id="startup-step-localize"><div><strong>5. 저속 회전·라이다 위치 확인</strong><span id="startup-localize-state" class="startup-step-state"></span></div><p id="startup-localize-detail"></p><progress id="startup-localize-progress" max="1" value="0" aria-label="출발 준비 위치 확인 진행률" hidden></progress><div class="startup-step-actions"><button id="startup-localize-home" type="button" disabled>등록 홈에서 자세 초기화 시작</button><button id="startup-localize-general" type="button" disabled>홈이 아닌 곳에서 일반 위치 확인</button></div></li>
+      </ol>
+      <p class="startup-recovery-policy">목표·방문 기록을 유지합니다. 홈 위치 입력은 비상정지를 해제하지 않으며, 초기화 완료 후에도 자동 출발하지 않습니다. 지도상의 위치·방향과 적재를 확인한 뒤 출발 또는 재개를 별도로 누르세요.</p>
     </section>
     <section class="panel dispatch-panel" aria-label="재고 부족 요청과 운송">
       <div class="panel-title"><div><h2>재고 부족 요청 <span id="request-count" class="count-badge">0</span></h2><p class="panel-subtitle" id="dispatch-description">재고 관리자의 요청을 기다리고 있습니다.</p></div><a class="plain-link" href="/inventory" target="_blank" rel="noopener">재고 관리자 페이지 ↗</a></div>
@@ -50,7 +62,7 @@
       <div id="request-empty" class="request-empty">아직 접수된 재고 부족 요청이 없습니다.</div>
       <ol id="delivery-requests" class="delivery-requests" aria-label="재고 부족 요청 목록"></ol>
       <div class="dispatch-actions"><label class="checkbox"><input id="load-confirmed" type="checkbox">접수된 요청의 물품을 로봇에 적재했습니다.</label><div class="dispatch-buttons"><button id="delivery-resume" type="button" hidden>배송 재개</button><button id="dispatch-start" type="button" class="primary" disabled><svg class="icon"><use href="#play"/></svg>적재 완료 · 출발</button></div></div>
-      <div id="dispatch-readiness" class="dispatch-readiness" role="status" aria-live="polite"><strong id="dispatch-readiness-title">출발 조건 확인 중</strong><ul id="dispatch-blockers"></ul></div>
+      <div id="dispatch-readiness" class="dispatch-readiness" role="status" aria-live="polite"><strong id="dispatch-readiness-title">출발 조건 확인 중</strong><ul id="dispatch-blockers"></ul><button id="startup-recovery-open-dispatch" type="button" aria-controls="startup-recovery" aria-expanded="false">출발 준비 초기화</button></div>
       <div class="dispatch-policy" id="delivery-policy">Homepoint에서 적재를 확인하면 출발합니다. 운송 중 추가된 요청은 접수 순서대로 이어서 방문하며, 모든 목표 완료 후 Homepoint로 돌아옵니다.</div>
     </section>
     <div class="workspace">
@@ -64,6 +76,7 @@
           <progress id="localization-progress" max="1" value="0" aria-label="위치 확인 진행률" hidden></progress>
           <p id="localization-reason" class="localization-reason" aria-live="polite">차량·지도·위치 추정 노드의 준비 상태를 확인합니다.</p>
           <p id="localization-accuracy" class="localization-accuracy tabular" hidden></p>
+          <div id="localization-health" class="localization-health" data-state="waiting" role="status"><strong id="localization-health-title">초기 위치 안정 확인 중</strong><p id="localization-health-detail">최신 센서와 위치 신뢰도 응답을 확인합니다.</p><p id="localization-health-values" class="tabular" hidden></p></div>
         </div>
       </section>
       <aside class="mission-column">
@@ -79,7 +92,7 @@
         <section class="panel camera-panel" aria-label="전방 및 후방 카메라와 ArUco 검출">
           <div class="panel-title"><h2>전방 · 후방 카메라</h2><span class="secondary">실시간 영상</span></div>
           <div class="camera-feed"><div class="camera-feed-heading"><strong>전방</strong><span id="front-camera-age" class="secondary">수신 대기</span></div><div class="camera-view"><img id="front-camera-image" alt="터틀봇 전방 카메라 실시간 영상" hidden><div id="front-camera-empty" class="empty-state"><svg class="icon"><use href="#camera"/></svg><span>전방 영상 대기 · /camera/front/image_raw</span></div></div></div>
-          <div class="camera-feed"><div class="camera-feed-heading"><strong>후방 · 홈 표식</strong><span id="camera-age" class="secondary">수신 대기</span></div><div class="camera-view"><img id="camera-image" alt="터틀봇 후방 카메라 실시간 영상" hidden><div id="camera-empty" class="empty-state"><svg class="icon"><use href="#camera"/></svg><span>후방 영상 대기</span></div></div></div>
+          <div class="camera-feed"><div class="camera-feed-heading"><strong>후방 · 홈 및 구역 도착 표식</strong><span id="camera-age" class="secondary">수신 대기</span></div><div class="camera-view"><img id="camera-image" alt="터틀봇 후방 카메라 실시간 영상" hidden><div id="camera-empty" class="empty-state"><svg class="icon"><use href="#camera"/></svg><span>후방 영상 대기</span></div></div></div>
           <div class="camera-footer"><span id="expected-id">확인 대상 —</span><span id="detected-ids" class="secondary">검출 없음</span></div><div id="confirmation-status" class="confirmation-status">표식 확인 대기</div>
           <div id="marker-alignment" class="marker-alignment" role="status" aria-live="polite" aria-atomic="true" hidden>
             <div class="marker-alignment-heading"><strong id="marker-alignment-phase">표식 탐색</strong><span id="marker-alignment-camera" class="marker-alignment-camera">카메라 대기</span></div>

@@ -149,7 +149,7 @@ def test_invalid_limits_are_rejected(change):
         MarkerAlignment(**change)
 
 
-@pytest.mark.parametrize('yaw', [None, math.nan, 'unknown', {}, True])
+@pytest.mark.parametrize('yaw', [None, math.nan, 'unknown', {}, True, 10**1000])
 def test_non_numeric_or_invalid_pose_yaw_stops_without_throwing(yaw):
     alignment = MarkerAlignment()
     alignment.start(3, 'rear', 0., 0.)
@@ -167,3 +167,139 @@ def test_confirmed_approval_is_immediately_revoked_by_priority_stop(failure):
     assert alignment.tick(.7, 0., stationary=True, **failure) == 0.
     assert alignment.state == 'FAILED'
     assert alignment.frames == 0
+
+
+def wall_evidence(stamp, now, error=0., reliable=True, reason='single wall'):
+    return {'frame_id': stamp, 'observed_at': now, 'heading_error_rad': error,
+            'reliable': reliable, 'reason': reason}
+
+
+def wall_alignment():
+    result = MarkerAlignment(require_wall_alignment=True)
+    result.start(3, 'rear', 0., 0.)
+    return result
+
+
+def test_wall_required_pixel_center_alone_holds_and_never_confirms():
+    alignment = wall_alignment()
+    for frame, now in enumerate((0., .2, .4, .61)):
+        alignment.observe(frame, detection(), 'rear', now, now)
+        assert alignment.tick(now, 0., stationary=True) == 0.
+    assert alignment.state == 'HOLD'
+    assert alignment.frames >= alignment.required_frames
+    assert alignment.snapshot()['wall_required']
+    assert '벽' in alignment.reason
+
+
+def test_wall_and_pixel_need_independent_distinct_stable_samples_and_actual_stop():
+    alignment = wall_alignment()
+    for frame, now in enumerate((0., .2, .4, .61)):
+        alignment.observe(frame, detection(), 'rear', now, now)
+        alignment.observe_wall(wall_evidence(frame, now), now)
+        assert alignment.tick(now, 0., stationary=False) == 0.
+    assert alignment.state == 'SETTLING'
+    for frame, now in enumerate((.7, .9, 1.1, 1.31), start=4):
+        alignment.observe(frame, detection(), 'rear', now, now)
+        alignment.observe_wall(wall_evidence(frame, now), now)
+        assert alignment.tick(now, 0., stationary=True) == 0.
+    assert alignment.state == 'CONFIRMED'
+    assert alignment.snapshot()['linear'] == 0.
+    assert alignment.snapshot()['wall_samples'] >= 3
+
+
+def test_wall_normal_yaw_feedback_is_independent_of_pixel_and_bounded():
+    alignment = wall_alignment()
+    alignment.observe(1, detection(), 'rear', .1, .1)
+    alignment.observe_wall(wall_evidence(1, .1, error=.5), .1)
+    assert alignment.tick(.1, 0.) == .08
+    assert alignment.state == 'WALL_ALIGNING'
+    alignment.observe(2, detection(), 'rear', .2, .2)
+    alignment.observe_wall(wall_evidence(2, .2, error=-.4), .2)
+    assert alignment.tick(.2, 0.) == -.08
+    # Image center gets priority if wall correction moves it away from center.
+    alignment.observe(3, detection(.3), 'rear', .3, .3)
+    alignment.observe_wall(wall_evidence(3, .3, error=.4), .3)
+    assert alignment.tick(.3, 0.) < 0.
+    assert alignment.state == 'CENTERING'
+    assert alignment.wall_samples == 0
+
+
+def test_replayed_scan_frames_and_same_acquisition_time_cannot_build_proof():
+    alignment = wall_alignment()
+    alignment.observe(1, detection(), 'rear', .1, .1)
+    assert alignment.observe_wall(wall_evidence(10, .1), .1)
+    for frame, now in enumerate((.2, .3, .4), start=2):
+        alignment.observe(frame, detection(), 'rear', now, now)
+        assert not alignment.observe_wall(wall_evidence(10, .1), now)
+        alignment.tick(now, 0., stationary=True)
+    assert alignment.wall_samples == 1
+    assert not alignment.observe_wall(wall_evidence(11, .1), .4)
+    assert alignment.state != 'CONFIRMED'
+
+
+@pytest.mark.parametrize('problem', [
+    {'reliable': False, 'reason': 'corner or mixed surfaces'},
+    {'heading_error_rad': math.nan}, {'observed_at': -1.},
+    {'observed_at': .8}, {'frame_id': True},
+])
+def test_unreliable_corner_invalid_or_stale_wall_revokes_confirmation(problem):
+    alignment = wall_alignment()
+    for frame, now in enumerate((0., .2, .4, .61)):
+        alignment.observe(frame, detection(), 'rear', now, now)
+        alignment.observe_wall(wall_evidence(frame, now), now)
+        alignment.tick(now, 0., stationary=True)
+    assert alignment.state == 'CONFIRMED'
+    evidence = {**wall_evidence(10, .7), **problem}
+    assert not alignment.observe_wall(evidence, .7)
+    assert alignment.tick(.7, 0., stationary=True) == 0.
+    assert alignment.state == 'HOLD'
+    assert alignment.wall_samples == 0
+
+
+def test_fresh_camera_cannot_mask_stale_scan_or_wall_loss():
+    alignment = wall_alignment()
+    alignment.observe(1, detection(), 'rear', 0., 0.)
+    alignment.observe_wall(wall_evidence(1, 0.), 0.)
+    alignment.tick(0., 0., stationary=True)
+    alignment.observe(2, detection(), 'rear', .51, .51)
+    assert alignment.tick(.51, 0., stationary=True) == 0.
+    assert alignment.state == 'HOLD'
+    assert alignment.wall_samples == 0
+
+
+def test_wall_rotation_respects_body_envelope_and_estop_priority():
+    alignment = wall_alignment()
+    alignment.observe(1, detection(), 'rear', .1, .1)
+    alignment.observe_wall(wall_evidence(1, .1, error=.4), .1)
+    assert alignment.tick(.1, 1.01) == 0.
+    assert alignment.state == 'FAILED'
+    alignment = wall_alignment()
+    alignment.observe(1, detection(), 'rear', .1, .1)
+    alignment.observe_wall(wall_evidence(1, .1, error=.4), .1)
+    assert alignment.tick(.1, 0., estop=True) == 0.
+    assert alignment.state == 'FAILED'
+
+
+def test_sensor_sampling_gap_cannot_reuse_previous_stability_duration():
+    alignment = wall_alignment()
+    for frame, now in enumerate((0., .2, .4)):
+        alignment.observe(frame, detection(), 'rear', now, now)
+        alignment.observe_wall(wall_evidence(frame, now), now)
+        alignment.tick(now, 0., stationary=True)
+    # New samples arriving together after an unobserved gap do not prove
+    # continuous camera/wall agreement or physical standstill during that gap.
+    alignment.observe(10, detection(), 'rear', 1.5, 1.5)
+    alignment.observe_wall(wall_evidence(10, 1.5), 1.5)
+    assert alignment.tick(1.5, 0., stationary=True) == 0.
+    assert alignment.frames == alignment.wall_samples == 1
+    assert alignment.state == 'SETTLING'
+    assert not alignment.observe(11, detection(), 'rear', 1.5, 1.5)
+
+
+def test_custom_lower_legacy_velocity_limit_still_constructs_and_caps_wall_servo():
+    alignment = MarkerAlignment(search_speed=.03, max_angular_velocity=.04,
+                                require_wall_alignment=True)
+    alignment.start(3, 'rear', 0., 0.)
+    alignment.observe(1, detection(), 'rear', .1, .1)
+    alignment.observe_wall(wall_evidence(1, .1, error=.4), .1)
+    assert alignment.tick(.1, 0.) == .04

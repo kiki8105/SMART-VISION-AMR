@@ -189,6 +189,19 @@ class AssistedLocalizationTest(unittest.TestCase):
         self.step(moving=False)
         self.assertTrue(self.logic.succeeded)
 
+    def test_settling_requires_current_healthy_guard_and_actual_stop(self):
+        self.rotate_until_settling()
+        for _ in range(12):
+            self.now += .1
+            self.logic.on_odom(self.yaw)
+            self.logic.on_estimate(1., 2., self.yaw, .1, .1)
+            self.assertEqual(self.logic.tick(settled_health_ok=False), 0.)
+        self.assertEqual(self.logic.state, 'SETTLING')
+        self.assertEqual(self.logic.tick(stationary=False), 0.)
+        self.assertFalse(self.logic.succeeded)
+        self.logic.tick(settled_health_ok=True, stationary=True)
+        self.assertTrue(self.logic.succeeded)
+
     def test_late_estimate_cannot_inherit_an_old_stable_window(self):
         self.rotate_until_settling()
         for _ in range(30):
@@ -259,6 +272,138 @@ class AssistedLocalizationTest(unittest.TestCase):
                 AssistedLocalization(**kwargs)
         with self.assertRaises(ValueError):
             self.logic.start(now=math.nan)
+
+
+class HomeHeadingLocalizationTest(unittest.TestCase):
+    def setUp(self):
+        self.now = 10.
+        self.yaw = 0.
+        self.target = {'x': 1., 'y': 2., 'yaw': 0.}
+        self.logic = AssistedLocalization(clock=lambda: self.now)
+        self.logic.start(home_target=self.target)
+        self.logic.acquired()
+        self.logic.initialized()
+        # Odom's origin is deliberately different from map yaw. Only measured
+        # AMCL map heading may establish registered Home direction.
+        self.logic.on_odom(1.2)
+
+    def step(self, *, estimate=True, quality_ok=True, stationary=True, health=True, x=1.):
+        self.now += .1
+        self.yaw = math.atan2(math.sin(self.yaw+self.logic.angular*.1),
+                              math.cos(self.yaw+self.logic.angular*.1))
+        self.logic.on_odom(self.yaw+1.2)
+        if estimate:
+            self.logic.on_estimate(x, 2., self.yaw, .1, .1, quality_ok=quality_ok)
+        return self.logic.tick(stationary=stationary, settled_health_ok=health)
+
+    def until(self, state):
+        for _ in range(600):
+            self.step()
+            if self.logic.state == state:
+                return
+            self.assertTrue(self.logic.active, self.logic.reason)
+        self.fail('Expected '+state)
+
+    def test_home_sweep_returns_to_map_heading_before_fresh_stationary_success(self):
+        self.until('RETURNING')
+        self.assertGreater(self.yaw, 1.5)
+        self.assertEqual(self.logic.angular, 0., 'phase entry cannot command unacknowledged return')
+        self.assertFalse(self.logic.succeeded)
+        self.assertLess(self.step(), 0.)
+        self.until('SETTLING')
+        self.assertLessEqual(abs(self.yaw), .10)
+        self.assertEqual(self.logic.snapshot()['good_estimates'], 0)
+        for _ in range(12):
+            self.assertEqual(self.step(estimate=False), 0.)
+        self.assertEqual(self.logic.state, 'SETTLING', 'sweep samples cannot prove final Home pose')
+        for _ in range(30):
+            self.step(stationary=False)
+        self.assertFalse(self.logic.succeeded, 'fresh AMCL still needs actual stop')
+        for _ in range(30):
+            self.step(health=False)
+        self.assertFalse(self.logic.succeeded, 'warning health cannot complete')
+        self.step()
+        self.assertTrue(self.logic.succeeded)
+        self.assertLess(self.logic.rotation, 2*math.pi)
+        self.assertEqual(self.logic.snapshot()['home_target'], self.target)
+
+    def test_home_target_is_frozen_and_bad_coordinates_rejected(self):
+        self.target['yaw'] = 2.
+        self.assertEqual(self.logic.home_target['yaw'], 0.)
+        for target in ({'x': 0., 'y': 0.}, {'x': 0., 'y': 0., 'yaw': math.nan},
+                       {'x': True, 'y': 0., 'yaw': 0.}):
+            logic = AssistedLocalization()
+            with self.assertRaises(ValueError):
+                logic.start(home_target=target)
+
+    def test_return_requires_actual_fresh_qualified_amcl_not_the_prior(self):
+        self.until('RETURNING')
+        self.step(quality_ok=False)
+        self.assertEqual(self.logic.angular, 0.)
+        self.assertFalse(self.logic.succeeded)
+        self.logic.pause_for_sensor_gap()
+        self.assertIsNone(self.logic.estimate)
+        self.assertEqual(self.logic.tick(), 0.)
+        self.step(estimate=False)
+        self.assertEqual(self.logic.angular, 0.)
+        self.assertEqual(self.logic.state, 'RETURNING')
+
+    def test_return_stale_amcl_cannot_keep_turning_on_new_odometry(self):
+        self.until('RETURNING')
+        for _ in range(27):
+            self.step(estimate=False)
+        self.assertEqual(self.logic.angular, 0.)
+        self.assertFalse(self.logic.succeeded)
+
+    def test_wrong_home_xy_fails_without_attempting_translation(self):
+        self.until('RETURNING')
+        self.step(x=1.31)
+        self.assertEqual(self.logic.state, 'FAILED')
+        self.assertEqual(self.logic.angular, 0.)
+
+    def test_post_stop_heading_drift_returns_again_and_resets_confidence(self):
+        self.until('SETTLING')
+        self.step()  # Establish the measured-stop interval before new evidence.
+        self.yaw += .05
+        self.step()
+        self.assertEqual(self.logic.state, 'RETURNING')
+        self.assertEqual(self.logic.angular, 0.)
+        self.until('SETTLING')
+        self.assertEqual(self.logic.snapshot()['good_estimates'], 0)
+        self.assertFalse(self.logic.succeeded)
+
+    def test_full_rotation_budget_never_allows_extra_home_return(self):
+        self.until('RETURNING')
+        self.logic.rotation = self.logic.max_rotation
+        self.assertEqual(self.step(), 0.)
+        self.assertEqual(self.logic.state, 'FAILED')
+        self.assertIn('회전 한도', self.logic.reason)
+
+    def test_home_heading_at_full_budget_may_settle_without_another_turn(self):
+        self.until('RETURNING')
+        self.logic.rotation = self.logic.max_rotation
+        self.now += .1
+        self.logic.on_odom(self.yaw+1.2)
+        self.logic.on_estimate(1., 2., 0., .1, .1)
+        self.assertEqual(self.logic.tick(), 0.)
+        self.assertEqual(self.logic.state, 'SETTLING')
+        self.assertEqual(self.logic.snapshot()['good_estimates'], 0)
+
+    def test_return_uses_original_deadline_and_stops_on_clearance_loss(self):
+        self.until('RETURNING')
+        original_start = self.logic.started_at
+        self.logic.pause_for_sensor_gap()
+        self.now = original_start+self.logic.timeout
+        self.assertEqual(self.logic.tick(), 0.)
+        self.assertEqual(self.logic.state, 'FAILED')
+        self.assertEqual(self.logic.started_at, original_start)
+
+    def test_return_cancellation_never_restarts_from_late_measurements(self):
+        self.until('RETURNING')
+        self.assertTrue(self.logic.cancel())
+        self.assertEqual(self.step(), 0.)
+        self.assertEqual(self.logic.state, 'CANCELED')
+        self.assertFalse(self.logic.on_estimate(1., 2., 0., .01, .01))
 
 
 class RotationClearanceTest(unittest.TestCase):

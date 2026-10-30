@@ -101,7 +101,7 @@ fi
 export ROS_DOMAIN_ID=16 ROS_LOCALHOST_ONLY=0 TURTLEBOT3_MODEL=waffle_pi
 export LDS_MODEL=${LDS_MODEL:-LDS-03}
 if [[ -f "$SCRIPT_DIR/dds_env.bash" ]]; then
-  source "$SCRIPT_DIR/dds_env.bash"
+  source "$SCRIPT_DIR/dds_env.bash" ""
 elif [[ "${SMART_VISION_DDS_TRANSPORT:-udp}" == udp ]]; then
   printf 'Copy scripts/dds_env.bash beside this wrapper before enabling UDP transport.\n' >&2
   exit 2
@@ -248,9 +248,12 @@ else
 fi
 printf 'Ctrl+C stops the robot bringup and cameras.\n'
 if [[ "$ESTIMATION_LOCATION" == robot ]]; then
+  geometry_args=()
+  if [[ -n "${WHEEL_RADIUS:-}" ]]; then geometry_args+=(wheel_radius:="$WHEEL_RADIUS"); fi
+  if [[ -n "${WHEEL_SEPARATION:-}" ]]; then geometry_args+=(wheel_separation:="$WHEEL_SEPARATION"); fi
   setsid ros2 launch smart_vision_amr hardware_robot_runtime.launch.py \
     localization_mode:="$LOCALIZATION_MODE" usb_port:="$OPENCR_DEVICE" \
-    wheel_radius:="${WHEEL_RADIUS:-}" wheel_separation:="${WHEEL_SEPARATION:-}" &
+    "${geometry_args[@]}" &
 elif [[ "$LOCALIZATION_MODE" == ekf_independent ]]; then
   setsid ros2 launch "$LEGACY_EKF_LAUNCH" usb_port:="$OPENCR_DEVICE" &
 else

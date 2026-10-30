@@ -6,6 +6,10 @@ localization_health:
     base_frame: base_footprint
     map_frame: map
     odom_frame: odom
+    # Health observer only: prefer current dynamic TF over reliable backlog.
+    # Set false to restore the original reliable listener, then restart health.
+    # Static TF retains its reliable/transient-local listener in both modes.
+    dynamic_tf_best_effort: true
     stable_seconds: 2.0
     fault_seconds: 0.5
     agreement_fault_seconds: 3.0  # Ignore brief occlusions by moving objects.
@@ -30,6 +34,12 @@ localization_health:
     nomotion_update_interval: 2.0  # s; rate is capped at one request per 2 s.
     nomotion_update_trigger_age: 1.0  # s since the last actual AMCL pose.
     nomotion_request_timeout: 1.0  # s; one pending request, then local cleanup.
+    # Real scan-only AMCL updates while stopped and still acquiring/uncertain.
+    # Never changes covariance or clears a stop. Each request needs a new scan.
+    stationary_refresh_max_requests: 10
+    stationary_refresh_timeout: 30.0  # s per episode; reinitialize to explicitly retry.
+    agreement_tf_wait_sec: 0.20  # s; bounded wait for the scan measurement TF.
+    agreement_tf_queue_size: 10  # Retain older scans so a delayed TF cannot starve checks.
     motion_dt_limit: 1.0  # Bound one integration step after scheduler stalls.
     jump_distance_m: 0.65  # AMCL displacement residual relative to wheel/IMU odom.
     jump_yaw_rad: 0.8

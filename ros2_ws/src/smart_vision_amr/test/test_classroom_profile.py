@@ -48,11 +48,11 @@ def test_classroom_names_and_supplied_coordinates_are_preserved():
 
 def test_classroom_goal_headings_point_selected_camera_at_wall_markers():
     _, _, markers, _ = classroom()
-    # Home uses the rear camera; each Sector uses the front camera. Navigation
+    # Every marker uses the rear camera, with chassis long axis normal to its wall. Navigation
     # goal yaw always describes the chassis front, not a camera optical frame.
-    base_headings = [0.0, 0.0, -pi/2, pi/2]
+    base_headings = [0.0, pi, pi/2, -pi/2]
     wall_headings = [pi, 0.0, -pi/2, pi/2]
-    assert [marker['camera'] for marker in markers] == ['rear', 'front', 'front', 'front']
+    assert [marker['camera'] for marker in markers] == ['rear', 'rear', 'rear', 'rear']
     for marker, base_yaw, wall_yaw in zip(markers, base_headings, wall_headings):
         assert isclose(sin(marker['yaw'] - base_yaw), 0.0, abs_tol=1e-12)
         assert isclose(cos(marker['yaw'] - base_yaw), 1.0, abs_tol=1e-12)

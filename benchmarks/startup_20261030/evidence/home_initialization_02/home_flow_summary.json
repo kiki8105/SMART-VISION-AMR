@@ -1,0 +1,162 @@
+{
+  "passed": true,
+  "source_manifest": "source_manifest.json",
+  "raw_telemetry": {
+    "path": "/tmp/smart_vision_startup186.UBRR0c/full_result.json",
+    "sha256": "1f649eb2e533081cf42c63b6497a4e85909d3d6caa050e962f4d2c7f29c830bd"
+  },
+  "raw_tf_trace": {
+    "path": "/tmp/smart_vision_startup186.UBRR0c/tf_ingress.jsonl",
+    "sha256": "ee486de9be56c40290b6467ec8de5e30c188ae074a64a3e8d3e11140a6307649"
+  },
+  "automatic_initial_pose_enabled": false,
+  "actual_amcl_set_initial_pose": false,
+  "before_home_action": {
+    "amcl_pose_count": 0,
+    "initial_pose_count": 0,
+    "map_tf_count": 0,
+    "map_to_odom_lookup_available": false,
+    "verifier_initial_pose_publisher_created": false
+  },
+  "first_actual_map_tf_receipt_elapsed_seconds": 7.748728421,
+  "web_home_initial_poses": [
+    {
+      "t": 7.6144,
+      "stamp_ns": 3540000000,
+      "x": -3.0,
+      "y": -2.0,
+      "yaw": 0.0,
+      "variance_x": 0.09,
+      "variance_y": 0.09,
+      "motion_status": {
+        "mode": "estop",
+        "available": true,
+        "reason": "Emergency stop latched",
+        "source_id": "Ud-Qbj28AU7mIBFCdGGg1j0t",
+        "estop_latched": true,
+        "control_seq": 76,
+        "allow_localization": true,
+        "auto_source_id": null,
+        "auto_rejected_reason": "",
+        "control_rejected_reason": "",
+        "control_received": 75,
+        "control_accepted": 75,
+        "control_rejected": 0,
+        "auto_received": 0,
+        "auto_accepted": 0,
+        "auto_rejected": 0,
+        "control_by_origin": {
+          "topic": {
+            "received": 75,
+            "accepted": 75,
+            "rejected": 0
+          }
+        },
+        "auto_by_origin": {},
+        "last_control": {
+          "source_id": "Ud-Qbj28AU7mIBFCdGGg1j0t",
+          "seq": 76,
+          "mode": "estop",
+          "accepted": true,
+          "reason": "",
+          "origin": "topic",
+          "received_at_monotonic_ns": 6130078238043
+        },
+        "last_control_rejection": null,
+        "last_auto": null,
+        "last_auto_rejection": null,
+        "output_owner": "estop",
+        "localization_speed_factor": 0.5,
+        "autonomous_allowed": false,
+        "localization_reason": "amcl_covariance_unavailable; map_tf_unavailable; scan_map_check_unavailable; initializing",
+        "output_linear": 0.0,
+        "output_angular": 0.0,
+        "status_seq": 60,
+        "sent_at_ns": 3520000000,
+        "mux_instance_id": "mux-service:79ee4263d513429b8c6549b95c2fc1bd",
+        "output_publishers": 1,
+        "stop_acknowledged": true,
+        "reset_pending": false
+      }
+    },
+    {
+      "t": 12.9161,
+      "stamp_ns": 8800000000,
+      "x": -3.0,
+      "y": -2.0,
+      "yaw": 0.0,
+      "variance_x": 0.09,
+      "variance_y": 0.09,
+      "motion_status": {
+        "mode": "hold",
+        "available": true,
+        "reason": "Motion held",
+        "source_id": "Ud-Qbj28AU7mIBFCdGGg1j0t",
+        "estop_latched": false,
+        "control_seq": 124,
+        "allow_localization": true,
+        "auto_source_id": null,
+        "auto_rejected_reason": "",
+        "control_rejected_reason": "",
+        "control_received": 123,
+        "control_accepted": 123,
+        "control_rejected": 0,
+        "auto_received": 0,
+        "auto_accepted": 0,
+        "auto_rejected": 0,
+        "control_by_origin": {
+          "topic": {
+            "received": 122,
+            "accepted": 122,
+            "rejected": 0
+          },
+          "service": {
+            "received": 1,
+            "accepted": 1,
+            "rejected": 0
+          }
+        },
+        "auto_by_origin": {},
+        "last_control": {
+          "source_id": "Ud-Qbj28AU7mIBFCdGGg1j0t",
+          "seq": 124,
+          "mode": "hold",
+          "accepted": true,
+          "reason": "",
+          "origin": "topic",
+          "received_at_monotonic_ns": 6135278046151
+        },
+        "last_control_rejection": null,
+        "last_auto": null,
+        "last_auto_rejection": null,
+        "output_owner": "hold",
+        "localization_speed_factor": 1.0,
+        "autonomous_allowed": true,
+        "localization_reason": "",
+        "output_linear": 0.0,
+        "output_angular": 0.0,
+        "status_seq": 103,
+        "sent_at_ns": 8680000000,
+        "mux_instance_id": "mux-service:79ee4263d513429b8c6549b95c2fc1bd",
+        "output_publishers": 1,
+        "stop_acknowledged": true,
+        "reset_pending": false
+      }
+    }
+  ],
+  "first_explicit_reset_ack_elapsed_seconds": 11.105,
+  "actual_maximum_heading_excursion_degrees": 91.97737499909306,
+  "home_operation_seconds": 21.091595005000272,
+  "final_actual_heading_error_degrees": 2.8893351714989626,
+  "final_actual_position_error_m": 0.0009183271073838995,
+  "delivery_home_ready": true,
+  "dispatch_missing": [
+    "접수된 대기 요청"
+  ],
+  "dispatch_scope": "Home position/heading/sensor gates removed. dispatch_ready remains false solely because the isolated inventory queue is empty; no delivery was automatically started.",
+  "maximum_command_linear_m_s": 0.0,
+  "maximum_command_angular_rad_s": 0.2,
+  "actual_nav2_process_records": "owned_nav2_process_identity.json",
+  "actual_dynamic_tf_depth": null,
+  "configured_dynamic_tf_depth": 20
+}

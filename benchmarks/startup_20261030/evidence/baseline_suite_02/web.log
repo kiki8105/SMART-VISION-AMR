@@ -1,0 +1,12 @@
+웹 미션: http://127.0.0.1:8796  ROS_DOMAIN_ID=186
+ROS Domain ID 186로 접속 · 운용자: / · 재고 관리자 1~99: /inventory
+127.0.0.1 "POST /api/emergency-stop HTTP/1.1" 200 -
+127.0.0.1 "POST /api/mission HTTP/1.1" 200 -
+127.0.0.1 "POST /api/localization/start HTTP/1.1" 200 -
+127.0.0.1 "POST /api/localization/start HTTP/1.1" 400 -
+127.0.0.1 "POST /api/mission/start HTTP/1.1" 200 -
+127.0.0.1 "POST /api/emergency-stop HTTP/1.1" 200 -
+127.0.0.1 "POST /api/localization/start HTTP/1.1" 200 -
+127.0.0.1 "POST /api/localization/start HTTP/1.1" 400 -
+127.0.0.1 "POST /api/mission/resume HTTP/1.1" 400 -
+127.0.0.1 "POST /api/emergency-stop HTTP/1.1" 200 -

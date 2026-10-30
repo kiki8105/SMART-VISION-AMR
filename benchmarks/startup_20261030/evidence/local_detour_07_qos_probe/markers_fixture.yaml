@@ -1,0 +1,3 @@
+markers:
+  - {id: 0, name: Home, x: -3.0, y: -2.0, yaw: 0.0, camera: rear}
+  - {id: 1, name: Dynamic obstacle goal, x: 1.0, y: -2.0, yaw: 0.0}

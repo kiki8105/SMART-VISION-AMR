@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "source_manifest": "source_manifest.json",
+  "raw_telemetry": {
+    "path": "/tmp/smart_vision_startup186.wLIAlc/full_result.json",
+    "sha256": "419461ca5cd1300b287f8693a6b07eaa5a88a28e9e5080da175d4547c2c5cafd"
+  },
+  "raw_tf_trace": {
+    "path": "/tmp/smart_vision_startup186.wLIAlc/tf_ingress.jsonl",
+    "sha256": "b459115f124c5daaf8606cad26d1780404a038f7f97b9dc2a0f83bca3a401bb8"
+  },
+  "actual_camera_base_pose": {
+    "x": -0.174,
+    "y": 0,
+    "z": 0.25,
+    "yaw": 3.141592653589793
+  },
+  "camera_rotation_degrees": 0,
+  "actual_wall_board": {
+    "marker_id": 1,
+    "x": -4.992,
+    "y": -2,
+    "z": 0.25,
+    "yaw": 3.141592653589793
+  },
+  "marker_camera": "rear",
+  "actual_body_yaw_error_degrees": 1.2023603726273207,
+  "normalized_image_center_error": 0.035937499999999956,
+  "center_error_fraction_of_full_image_width": 0.017968749999999978,
+  "distinct_camera_frames": 4,
+  "distinct_wall_scans": 5,
+  "physical_rotation_degrees": 10.275434064608493,
+  "linear_command_always_zero": true,
+  "actual_measured_stop_verified": true,
+  "confirmed_state": "CONFIRMED",
+  "actual_nav2_process_records": "owned_nav2_process_identity.json",
+  "configured_dynamic_tf_depth": 20,
+  "actual_dynamic_tf_depth": null,
+  "image_artifacts": {
+    "rear_camera_initial.jpg": "76177bf07daecc1e2d7fc25bafa5879bb0cc9a99ed941b38826895ea0bb134bb",
+    "rear_camera_confirmed.jpg": "90accef17123124305fdfa19777e479235272fa2f834fac34749ab65675667ce"
+  },
+  "visual_inspection": "Both actual Gazebo rear-camera JPEGs were opened and checked: ID1 visibly moved from right of center to the strict image center tolerance; upright rear mount."
+}

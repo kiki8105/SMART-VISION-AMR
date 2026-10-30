@@ -3,7 +3,7 @@ const app=fs.readFileSync('ros2_ws/src/smart_vision_amr/web/app.js','utf8');
 const controls=app.slice(app.indexOf('  function renderControls(){'),app.indexOf('  function renderStatus(){'));
 const status=app.slice(app.indexOf('  function renderStatus(){'),app.indexOf('  const requestStates='));
 const els=new Map();
-const element=()=>({disabled:false,hidden:false,checked:true,textContent:'',title:'',classList:{toggle(){}},replaceChildren(){},append(){}});
+const element=()=>({disabled:false,hidden:false,checked:true,textContent:'',title:'',dataset:{},setAttribute(){},classList:{toggle(){}},replaceChildren(){},append(){}});
 const $=sel=>{if(!els.has(sel))els.set(sel,element());return els.get(sel);};
 const sandbox={$,document:{querySelectorAll:()=>[],createElement:element},ManualJoystick:{setState(){}},VehiclePower:{render(){}},initialized:true,disconnected:false,busy:false,localizationStarting:false,draft:[1],dirty:false,lastPath:[],terminal:new Set(['IDLE','COMPLETED','CANCELED','ERROR','HOME_REACHED']),states:{IDLE:'임무 대기',PAUSED:'일시정지',ESTOP:'비상정지'},currentMission:()=>sandbox.snapshot.mission,delivery:()=>sandbox.snapshot.delivery,homepoint:()=>null,markerLabel:id=>'Sector '+id,Math,Date,Number,String,Array};
 vm.createContext(sandbox);vm.runInContext(controls+'\n'+status+'\nglobalThis.check=()=>{renderControls();renderStatus();};',sandbox);

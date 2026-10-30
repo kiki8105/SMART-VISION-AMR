@@ -16,6 +16,7 @@ from tf2_ros import Buffer, TransformException, TransformListener
 from collections import deque
 
 from smart_vision_amr.astar import AStarPlanner
+from smart_vision_amr.local_detour import plan_local_detour
 from smart_vision_amr.clearance_cost import clearance_penalties
 from smart_vision_amr.grid import Grid
 from smart_vision_amr.failure_memory import FailureMemory, EXECUTION_FAILURE_REASONS
@@ -30,7 +31,19 @@ from smart_vision_amr.path_geometry import (route_cells, smooth_grid_path, path_
                                            point_at_progress, path_length)
 
 
+LOCAL_DETOUR_DEFAULTS = {
+    "local_detour_enabled": True, "local_detour_trigger_distance": 1.5,
+    "local_detour_max_rejoin_distance": 2.5, "local_detour_max_length": 4.0,
+    "local_detour_max_lateral_distance": .9, "local_detour_max_expansions": 1500,
+    "local_detour_max_planning_time": .06, "local_detour_max_candidates": 10,
+    "local_detour_max_attempts": 3, "local_detour_clearance_margin": .02,
+    "local_detour_occlusion_extension": .5, "local_detour_rejoin_buffer": .15,
+    "local_detour_observation_margin": .05,
+}
+
+
 FAILURE_DEFAULTS = {
+    **LOCAL_DETOUR_DEFAULTS,
     "failure_memory_enabled": True, "failure_memory_ttl": 120.0,
     "failure_memory_radius": .25, "failure_memory_heading_tolerance": pi/3,
     "failure_memory_max_entries": 64, "failure_memory_penalty": 2.0,
@@ -145,6 +158,8 @@ class AStarPlannerNode(Node):
         map_replaced = self.breadcrumb_map_key is not None and map_key != self.breadcrumb_map_key
         if map_replaced:
             self._clear_breadcrumbs()
+            self._reset_local_reference()
+            self.local_grid_cache = None
         self.breadcrumb_map_key = map_key
         threshold = self.get_parameter("occupied_threshold").value
         inflation = self.get_parameter("obstacle_inflation_cells").value
@@ -198,6 +213,16 @@ class AStarPlannerNode(Node):
         self.last_visibility_at = None
         self.last_visibility_stamp_ns = 0
         self.latest_motion_status = self.latest_motion_status_at = None
+        self.local_reference_points = []
+        self.local_reference_key = None
+        self.local_grid_cache = None
+        self.local_cell_penalty = {}
+        self.local_detour_attempts = 0
+        self.local_attempt_id = 0
+        self.global_plan_count = 0
+        self.local_rejoin_anchor = None
+        self.plan_metrics = {"plan_kind": "NONE", "local_detour_state": "NONE",
+                             "local_attempt_id": 0, "global_plan_count": 0}
 
     def on_motion_status(self, msg):
         try:
@@ -206,6 +231,279 @@ class AStarPlannerNode(Node):
                 self.latest_motion_status, self.latest_motion_status_at = value, time.monotonic()
         except (ValueError, TypeError):
             pass
+
+    def _reset_local_reference(self):
+        self.local_reference_points = []
+        self.local_reference_key = None
+        self.local_detour_attempts = 0
+        self.local_rejoin_anchor = None
+        self.plan_metrics.update(local_detour_state="NONE")
+
+    def _local_route_key(self):
+        goal = self.last_goal
+        if goal is None:
+            return None
+        p, q = goal.pose.position, goal.pose.orientation
+        return (self.breadcrumb_map_key, goal.header.frame_id,
+                goal.header.stamp.sec, goal.header.stamp.nanosec,
+                p.x, p.y, q.x, q.y, q.z, q.w)
+
+    def _invalid_local_configuration(self, reason):
+        self.plan_metrics.update(local_detour_state="FAILED", detour_reason="invalid_configuration",
+                                 detour_configuration_error=str(reason)[:160])
+        return None
+
+    def _local_configuration(self):
+        """Runtime edits may disable this optional path, never crash planning."""
+        try:
+            config = {name.removeprefix("local_detour_"): self.get_parameter(name).value
+                      for name in LOCAL_DETOUR_DEFAULTS}
+            if type(config["enabled"]) is not bool:
+                raise ValueError("local_detour_enabled must be boolean")
+            if not config["enabled"]:
+                return config
+            for name in ("trigger_distance", "max_rejoin_distance", "max_length",
+                         "max_lateral_distance", "max_planning_time"):
+                value = config[name]
+                if type(value) not in (int, float) or not isfinite(value) or value <= 0:
+                    raise ValueError("local_detour_"+name+" must be finite and positive")
+            if config["max_planning_time"] > .1:
+                raise ValueError("local_detour_max_planning_time must be at most 0.1 seconds")
+            margin = config["clearance_margin"]
+            if (type(margin) not in (int, float) or not isfinite(margin)
+                    or not 0 <= margin <= 1.):
+                raise ValueError("local_detour_clearance_margin must be finite in 0..1 metres")
+            for name in ("occlusion_extension", "rejoin_buffer", "observation_margin"):
+                value = config[name]
+                if type(value) not in (int, float) or not isfinite(value) or not 0 <= value <= 1.:
+                    raise ValueError("local_detour_"+name+" must be finite in 0..1 metres")
+            for name, maximum in (("max_expansions", 10000), ("max_candidates", 64),
+                                  ("max_attempts", 10)):
+                if type(config[name]) is not int or not 1 <= config[name] <= maximum:
+                    raise ValueError("local_detour_"+name+" must be an integer in 1.."+str(maximum))
+            return config
+        except (ValueError, TypeError, OverflowError) as exc:
+            return self._invalid_local_configuration(exc)
+
+    def _local_footprint_grid(self, config=None):
+        """Cache static/unknown footprint inflation; never clear start cells."""
+        config = self._local_configuration() if config is None else config
+        if config is None or not config["enabled"]:
+            return None, 0
+        try:
+            return self._build_local_footprint_grid(config)
+        except (ValueError, TypeError, OverflowError) as exc:
+            self._invalid_local_configuration(exc)
+            return None, 0
+
+    def _build_local_footprint_grid(self, config):
+        message = self.map[0]
+        radius = float(self.get_parameter("robot_radius").value)+config["clearance_margin"]
+        if not isfinite(radius) or radius <= 0 or not isfinite(message.info.resolution) or message.info.resolution <= 0:
+            raise ValueError("Local footprint radius and map resolution must be finite and positive")
+        inflation = max(int(self.get_parameter("obstacle_inflation_cells").value),
+                        ceil(radius/message.info.resolution))
+        key = (self.breadcrumb_map_key, self.get_parameter("occupied_threshold").value,
+               inflation, radius)
+        if self.local_grid_cache is None or self.local_grid_cache[0] != key:
+            grid = occupancy_to_grid(message, key[1], inflation)
+            margin = radius/message.info.resolution
+            # Outside-map space is unknown too; the complete footprint must
+            # remain inside, even when no occupied edge cells were published.
+            rows = tuple(tuple(value or x+.5 < margin or grid.width-x-.5 < margin
+                               or y+.5 < margin or grid.height-y-.5 < margin
+                               for x, value in enumerate(row))
+                         for y, row in enumerate(grid.rows))
+            self.local_grid_cache = (key, Grid(rows))
+        return self.local_grid_cache[1], inflation
+
+    def _local_occlusion_reserve(self, raw_hits, reference, start, inflation, config):
+        """Reserve unseen depth locally without claiming extra sensor returns.
+
+        A visible face does not establish that the old route is free directly
+        behind it. Extend only nearby corridor-blocking hits along the original
+        forward tangent; keep actual observations and persistent memory intact.
+        """
+        reserved = set(raw_hits)
+        extension = config["occlusion_extension"]/self.map[0].info.resolution
+        if extension <= 0:
+            return reserved
+        origin = start[0]+.5, start[1]+.5
+        progress = path_progress(reference, origin)
+        trigger = config["trigger_distance"]/self.map[0].info.resolution
+        width, height = self.map[0].info.width, self.map[0].info.height
+        for cell in raw_hits:
+            center = cell[0]+.5, cell[1]+.5
+            if hypot(center[0]-origin[0], center[1]-origin[1]) > trigger:
+                continue
+            along = path_progress(reference, center)
+            point = point_at_progress(reference, along)
+            if along < progress-1. or hypot(center[0]-point[0], center[1]-point[1]) > inflation+1.:
+                continue
+            ahead = point_at_progress(reference, along+1.)
+            dx, dy = ahead[0]-point[0], ahead[1]-point[1]
+            length = hypot(dx, dy)
+            if length < 1e-9:
+                continue
+            end = center[0]+extension*dx/length, center[1]+extension*dy/length
+            reserved.update(cell for cell in route_cells([center, end])
+                            if 0 <= cell[0] < width and 0 <= cell[1] < height)
+        return reserved
+
+    def _try_local_detour(self, changed_cells):
+        """Queue a certified nonempty replacement before invalidating Nav2.
+
+        The existing follower owns cancel/terminal/new-goal ordering. Planning
+        needs fresh independent evidence, not an extra stop or fixed delay.
+        """
+        config = self._local_configuration()
+        if config is None or not config["enabled"]:
+            return False
+        if (not self._goal_is_active()
+                or not self.planned_world_points or len(self.local_reference_points) < 2
+                or self.local_reference_key != self._local_route_key()
+                or self.recovery_active or self.pending_failure_id is not None
+                or self.obstacle_hold.holding or self.failure_state == "SENSOR_HOLD"
+                or not self._automatic_resume_allowed()):
+            return False
+        current = self._fresh_motion_pose()
+        if current is None or not self._observations_ready():
+            return False
+        if self.plan_metrics.get("local_detour_state") == "ACTIVE":
+            self.plan_metrics.update(local_detour_state="FAILED", detour_reason="active_detour_obstructed")
+            return False
+        if self.local_detour_attempts >= config["max_attempts"]:
+            self.plan_metrics.update(local_detour_state="FAILED", detour_reason="attempt_budget")
+            return False
+        message = self.map[0]
+        resolution = message.info.resolution
+        start = world_to_cell(message.info, current[0], current[1])
+        trigger = config["trigger_distance"]
+        nearby = [cell for cell in changed_cells
+                  if hypot(cell_to_world(message.info, cell)[0]-current[0],
+                           cell_to_world(message.info, cell)[1]-current[1]) <= trigger]
+        if not nearby:
+            return False
+        began = time.perf_counter()
+        grid, inflation = self._local_footprint_grid(config)
+        if grid is None:
+            return False
+        edges, edge_cost = self._failure_constraints(grid)
+        yaw = yaw_from_quaternion(message.info.origin.orientation)
+        c, sn = cos(yaw), sin(yaw)
+        def local(point):
+            x, y = point[0]-message.info.origin.position.x, point[1]-message.info.origin.position.y
+            return ((c*x+sn*y)/resolution, (-sn*x+c*y)/resolution)
+        reference = [local(point) for point in self.local_reference_points]
+        actual_hits = self.observed | self.remembered
+        reserved_hits = self._local_occlusion_reserve(actual_hits, reference, start, inflation, config)
+        # Scan endpoints can cross a raster boundary as the viewing angle
+        # changes. Reserve that uncertainty before the unchanged footprint
+        # inflation, so a one-cell refinement need not cancel a safe bypass.
+        observation_cells = ceil(config["observation_margin"]/resolution)
+        planning_hits = inflate_cells(reserved_hits, grid.width, grid.height, observation_cells)
+        blocked = inflate_cells(planning_hits, grid.width, grid.height, inflation)
+        # A cached static-only field cannot price newly exposed obstacle faces.
+        # This mask is a conservative local planning constraint, not new data.
+        dynamic_penalty = clearance_penalties(self.raw_static_grid, planning_hits, resolution,
+            float(self.get_parameter("preferred_clearance").value),
+            float(self.get_parameter("clearance_penalty_gain").value))
+        self.local_detour_attempts += 1
+        self.local_attempt_id += 1
+        try:
+            result = plan_local_detour(grid, start, reference, blocked,
+                resolution=resolution, blocked_edges=edges, cell_penalty=dynamic_penalty,
+                edge_penalty=edge_cost,
+                max_rejoin_distance=config["max_rejoin_distance"],
+                max_detour_length=config["max_length"],
+                max_lateral_distance=config["max_lateral_distance"],
+                max_expansions=config["max_expansions"], max_candidates=config["max_candidates"],
+                max_seconds=config["max_planning_time"], rejoin_buffer=config["rejoin_buffer"])
+        except (ValueError, TypeError, OverflowError) as exc:
+            self._invalid_local_configuration(exc)
+            return False
+        elapsed = (time.perf_counter()-began)*1000.
+        self.plan_metrics.update(local_attempt_id=self.local_attempt_id,
+            search_duration_ms=result.search_duration_ms, adapter_duration_ms=elapsed,
+            expansions=result.expansions, detour_reason=result.reason,
+            local_detour_state="FAILED", rejoin_progress=result.rejoin_progress,
+            occlusion_reserved_cells=len(reserved_hits-actual_hits),
+            occlusion_extension=config["occlusion_extension"], rejoin_buffer=config["rejoin_buffer"],
+            observation_reserved_cells=len(planning_hits-reserved_hits),
+            observation_margin=config["observation_margin"])
+        if not result.points:
+            return False
+        world = [cell_to_world(message.info, (x-.5, y-.5)) for x, y in result.points]
+        # Keep the suffix bit-for-bit, without conversion roundoff or a global
+        # smoothing pass moving the original waypoints.
+        prefix_count = len(result.points)-(len(reference)-result.rejoin_index)
+        world[prefix_count:] = self.local_reference_points[result.rejoin_index:]
+        scopes = self._memory_scopes()
+        if edges and any(self.failure_memory.segment_blocked(a, b, now=time.monotonic(),
+                            map_scope=scopes[0], goal_scope=scopes[1]) for a, b in zip(world, world[1:])):
+            self.plan_metrics.update(detour_reason="directed_failure_segment", local_detour_state="FAILED")
+            return False
+        if self._turn_ready(world, current) is not True:
+            self.plan_metrics.update(detour_reason="turn_clearance_unverified", local_detour_state="FAILED")
+            return False
+        path = Path()
+        path.header.frame_id = self.get_parameter("map_frame").value
+        now_ns = self.get_clock().now().nanoseconds
+        path.header.stamp = rclpy.time.Time(nanoseconds=max(now_ns,
+            self.last_failure_event_stamp_ns+1)).to_msg()
+        for index, point in enumerate(world):
+            pose = PoseStamped()
+            pose.header = path.header
+            pose.pose.position.x, pose.pose.position.y = point
+            if index+1 < len(world):
+                angle = atan2(world[index+1][1]-point[1], world[index+1][0]-point[0])
+                pose.pose.orientation.z, pose.pose.orientation.w = sin(angle/2.), cos(angle/2.)
+            else:
+                q = self.last_goal.pose.orientation
+                norm = sqrt(q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w)
+                if isfinite(norm) and norm > 1e-9:
+                    pose.pose.orientation.x, pose.pose.orientation.y = q.x/norm, q.y/norm
+                    pose.pose.orientation.z, pose.pose.orientation.w = q.z/norm, q.w/norm
+                else:
+                    pose.pose.orientation.w = 1.
+            path.poses.append(pose)
+        self.planned_world_points = world
+        self.planned_cells = sorted(route_cells(result.points))
+        self.waiting_for_replan = self.invalid_path_published = False
+        self.local_rejoin_anchor = {"reference": list(self.local_reference_points),
+            "progress": result.rejoin_progress, "pose": current, "odom": self.latest_odom}
+        rejoin = self.local_reference_points[result.rejoin_index]
+        self.plan_metrics.update(plan_kind="LOCAL_DETOUR", local_detour_state="ACTIVE",
+            rejoin_point={"x": rejoin[0], "y": rejoin[1]}, global_plan_count=self.global_plan_count)
+        self.path_pub.publish(path)
+        self.publish_status("READY", "Local prefix repaired; original forward suffix and goal retained")
+        return True
+
+    def _update_local_rejoin(self):
+        anchor = self.local_rejoin_anchor
+        if anchor is None or not self._goal_is_active() or not self._automatic_resume_allowed():
+            return
+        pose = self._fresh_motion_pose()
+        odom = self.latest_odom
+        if pose is None or odom is None or odom[5] != anchor["odom"][5]:
+            return
+        points = anchor["reference"]
+        progress = path_progress(points, pose[:2])
+        projection = point_at_progress(points, progress)
+        ox, oy = odom[2]-anchor["odom"][2], odom[3]-anchor["odom"][3]
+        rotation = anchor["pose"][2]-anchor["odom"][4]
+        ex, ey = cos(rotation)*ox-sin(rotation)*oy, sin(rotation)*ox+cos(rotation)*oy
+        error = hypot(pose[0]-anchor["pose"][0]-ex, pose[1]-anchor["pose"][1]-ey)
+        if (progress >= anchor["progress"]+.10 and hypot(ox, oy) >= .20
+                and odom[1] > anchor["odom"][1] and error <= .05+.20*hypot(ox, oy)
+                and self.navigation_progress_at is not None
+                and time.monotonic()-self.navigation_progress_at < 1.
+                and hypot(pose[0]-projection[0], pose[1]-projection[1])
+                    <= float(self.get_parameter("rejoin_cross_track_tolerance").value)):
+            self.local_detour_attempts = 0
+            self.local_rejoin_anchor = None
+            self.plan_metrics.update(local_detour_state="REJOINED")
+            self.publish_status("READY", "Original suffix rejoin verified by map pose and independent odometry")
 
     def _automatic_resume_allowed(self):
         status = self.latest_motion_status or {}
@@ -489,6 +787,7 @@ class AStarPlannerNode(Node):
             return None
 
     def _update_rejoin(self):
+        self._update_local_rejoin()
         anchor = self.rejoin_anchor
         if anchor is None or self.rejoin_verified or not self._goal_is_active():
             return
@@ -564,6 +863,9 @@ class AStarPlannerNode(Node):
                 clear_wait_seconds=max(0., hold["clear_duration"]-hold["clear_elapsed"]))
             packet.data = json.dumps(detail)
             self.failure_status_pub.publish(packet)
+            if (self._goal_is_active() and self.planned_world_points and not self.waiting_for_replan
+                    and self.plan_metrics.get("local_detour_state") == "ACTIVE"):
+                self.publish_status("READY", "Local detour active; original forward suffix retained")
         except (ValueError, TypeError):
             self.get_logger().warning("Invalid failure-memory limits; keeping last valid settings",
                                       throttle_duration_sec=5.)
@@ -645,6 +947,9 @@ class AStarPlannerNode(Node):
         # continuously cancel a replacement action or flood navigation_status.
         self.planned_cells = []
         self.planned_world_points = []
+        if self.plan_metrics.get("local_detour_state") == "ACTIVE":
+            self.plan_metrics.update(local_detour_state="FAILED", detour_reason=reason)
+            self.local_rejoin_anchor = None
         if not self.invalid_path_published:
             path = Path()
             path.header.frame_id = self.get_parameter("map_frame").value
@@ -656,7 +961,10 @@ class AStarPlannerNode(Node):
 
     def publish_status(self, status, message):
         goal = self.last_goal
-        payload = {"status": status, "message": message, "goal": None, "goal_stamp": None}
+        payload = {"status": status, "message": message, "goal": None, "goal_stamp": None,
+                   **self.plan_metrics}
+        clock = self.get_clock().now()
+        payload["sent_at_ns"] = getattr(clock, "nanoseconds", 0)
         if goal is not None:
             payload["goal"] = {"x": goal.pose.position.x, "y": goal.pose.position.y,
                                "frame_id": goal.header.frame_id or self.get_parameter("map_frame").value}
@@ -686,6 +994,7 @@ class AStarPlannerNode(Node):
             # arriving late must not cancel a deliberately newer stamped goal.
             if goal_stamp == 0 or goal_stamp <= self.stop_stamp_ns:
                 self.navigation_suspended = True
+                self._reset_local_reference()
                 self.recovery_active = False
                 self.recovery_requested_at = None
                 self.recovery_cancel_due_map_change = False
@@ -737,6 +1046,7 @@ class AStarPlannerNode(Node):
             return
         if payload.get("status") == "SUCCEEDED":
             self.goal_completed = True
+            self._reset_local_reference()
             self.waiting_for_replan = False
             self.pending_failure_id = None
             self.rejoin_anchor = None
@@ -795,6 +1105,8 @@ class AStarPlannerNode(Node):
             if self._goal_is_active() and (self.waiting_for_replan
                     or self._changes_block_path(added) or self._changes_block_path(removed)):
                 if self._changes_block_path(added):
+                    if self._try_local_detour(added):
+                        return
                     if self._count_blocked_published_path():
                         return
                     self._invalidate_path("Remembered obstacle intersects the route")
@@ -816,6 +1128,8 @@ class AStarPlannerNode(Node):
             if self._goal_is_active() and (self.waiting_for_replan
                     or self._changes_block_path(added)):
                 if self._changes_block_path(added):
+                    if self._try_local_detour(added):
+                        return
                     if self._count_blocked_published_path():
                         return
                     self._invalidate_path("Observed obstacle intersects the route")
@@ -868,6 +1182,7 @@ class AStarPlannerNode(Node):
         if self.recovery_active:
             self._clear_breadcrumbs()
         self.last_goal = goal
+        self._reset_local_reference()
         self.navigation_suspended = False
         self.goal_completed = False
         self.obstacle_hold.ensure_goal_scope(repr(self._memory_scopes()))
@@ -1084,6 +1399,9 @@ class AStarPlannerNode(Node):
             self._invalidate_path("Waiting for fresh independent sensor evidence before retry")
             return
         self.last_plan_time = time.monotonic()
+        global_started = time.perf_counter()
+        self.plan_metrics.update(plan_kind="GLOBAL",
+            local_detour_state="FAILED" if self.plan_metrics.get("local_detour_state") == "FAILED" else "NONE")
         self.geometry_signature = tuple(self.get_parameter(name).value for name in (
             "path_smoothing_enabled", "path_smoothing_iterations",
             "path_smoothing_shortcut_distance", "path_resample_spacing"))
@@ -1155,6 +1473,8 @@ class AStarPlannerNode(Node):
              / map_msg.info.resolution + sqrt(2.0) / 2.0))
         allow_dynamic_escape = bool(escape_cells)
         egress_steps = 0
+        self.global_plan_count += 1
+        self.plan_metrics.update(global_plan_count=self.global_plan_count)
         try:
             if grid.is_static_obstacle(start) and self.get_parameter("start_egress_enabled").value:
                 resolution = map_msg.info.resolution
@@ -1179,8 +1499,10 @@ class AStarPlannerNode(Node):
                                           cell_penalty=cell_penalty,
                                           blocked_edges=failure_edges, edge_penalty=failure_costs)
         except ValueError:
+            self.plan_metrics.update(global_duration_ms=(time.perf_counter()-global_started)*1000.)
             self._invalidate_path(f"Robot or goal lies outside the map: {start} -> {end}")
             return
+        self.plan_metrics.update(global_duration_ms=(time.perf_counter()-global_started)*1000.)
         self.planned_cells = cells
         if not cells:
             reference_path = self._static_reference_path(
@@ -1269,6 +1591,12 @@ class AStarPlannerNode(Node):
                                       "pose": current}
                 self.rejoin_verified = False
         self.planned_world_points = world_points
+        self.local_reference_points = list(world_points)
+        self.local_reference_key = self._local_route_key()
+        self.local_cell_penalty = cell_penalty
+        self.local_rejoin_anchor = None
+        self._local_footprint_grid()
+        self.plan_metrics.update(global_duration_ms=(time.perf_counter()-global_started)*1000.)
         if not failure_edges:
             self.failure_state, self.failure_reason = "CLEAR", ""
         for index, point in enumerate(world_points):

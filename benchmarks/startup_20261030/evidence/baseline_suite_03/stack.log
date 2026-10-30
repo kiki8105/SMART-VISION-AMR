@@ -1,0 +1,180 @@
+[map_server-4] [INFO] [1793321229.323407693] [map_io]: Loading image_file: /tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/share/smart_vision_amr/maps/simulation_room.pgm
+[map_server-4] [INFO] [1793321229.333210612] [map_io]: Read map /tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/share/smart_vision_amr/maps/simulation_room.pgm: 204 X 164 map @ 0.05 m/cell
+[lifecycle_manager-10] [INFO] [1793321229.352049952] [lifecycle_manager_simulation]: [34m[1mConfiguring amcl[0m[0m
+[amcl-5] [INFO] [1793321229.354372573] [amcl]: Configuring
+[amcl-5] [INFO] [1793321229.354488974] [amcl]: initTransforms
+[amcl-5] [INFO] [1793321229.395383220] [amcl]: initPubSub
+[amcl-5] [INFO] [1793321229.415204102] [amcl]: Subscribed to map topic.
+[lifecycle_manager-10] [INFO] [1793321229.434486614] [lifecycle_manager_simulation]: [34m[1mConfiguring controller_server[0m[0m
+[controller_server-6] [INFO] [1793321229.436960878] [controller_server]: Configuring controller interface
+[controller_server-6] [INFO] [1793321229.437134182] [controller_server]: getting goal checker plugins..
+[controller_server-6] [INFO] [1793321229.437220602] [controller_server]: Controller frequency set to 10.0000Hz
+[controller_server-6] [INFO] [1793321229.437265025] [local_costmap.local_costmap]: Configuring
+[controller_server-6] [INFO] [1793321229.454790765] [local_costmap.local_costmap]: Using plugin "obstacle_layer"
+[controller_server-6] [INFO] [1793321229.464540865] [local_costmap.local_costmap]: Subscribed to Topics: scan
+[controller_server-6] [INFO] [1793321229.473169450] [local_costmap.local_costmap]: Initialized plugin "obstacle_layer"
+[controller_server-6] [INFO] [1793321229.473221924] [local_costmap.local_costmap]: Using plugin "inflation_layer"
+[controller_server-6] [INFO] [1793321229.477966163] [local_costmap.local_costmap]: Initialized plugin "inflation_layer"
+[controller_server-6] [INFO] [1793321229.521550501] [controller_server]: Created progress_checker : progress_checker of type nav2_controller::SimpleProgressChecker
+[controller_server-6] [INFO] [1793321229.528702103] [controller_server]: Created goal checker : general_goal_checker of type nav2_controller::SimpleGoalChecker
+[controller_server-6] [INFO] [1793321229.529233230] [controller_server]: Controller Server has general_goal_checker  goal checkers available.
+[controller_server-6] [INFO] [1793321229.534507646] [controller_server]: Created controller : FollowPath of type dwb_core::DWBLocalPlanner
+[controller_server-6] [INFO] [1793321229.538647094] [controller_server]: Setting transform_tolerance to 0.300000
+[controller_server-6] [INFO] [1793321229.570562533] [controller_server]: Using critic "RotateToGoal" (dwb_critics::RotateToGoalCritic)
+[controller_server-6] [INFO] [1793321229.570911903] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793321229.571011295] [controller_server]: Using critic "Oscillation" (dwb_critics::OscillationCritic)
+[controller_server-6] [INFO] [1793321229.571223563] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793321229.571310326] [controller_server]: Using critic "BaseObstacle" (dwb_critics::BaseObstacleCritic)
+[controller_server-6] [INFO] [1793321229.571411162] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793321229.571512578] [controller_server]: Using critic "GoalAlign" (dwb_critics::GoalAlignCritic)
+[controller_server-6] [INFO] [1793321229.571732039] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793321229.571822998] [controller_server]: Using critic "PathAlign" (dwb_critics::PathAlignCritic)
+[controller_server-6] [INFO] [1793321229.572005982] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793321229.572087198] [controller_server]: Using critic "PathDist" (dwb_critics::PathDistCritic)
+[controller_server-6] [INFO] [1793321229.572250650] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793321229.572329398] [controller_server]: Using critic "GoalDist" (dwb_critics::GoalDistCritic)
+[controller_server-6] [INFO] [1793321229.572469073] [controller_server]: Critic plugin initialized
+[controller_server-6] [INFO] [1793321229.572492961] [controller_server]: Controller Server has FollowPath  controllers available.
+[lifecycle_manager-10] [INFO] [1793321229.612622624] [lifecycle_manager_simulation]: [34m[1mConfiguring behavior_server[0m[0m
+[behavior_server-7] [INFO] [1793321229.613106749] [behavior_server]: Configuring
+[behavior_server-7] [INFO] [1793321229.658608360] [behavior_server]: Creating behavior plugin backup of type nav2_behaviors/BackUp
+[behavior_server-7] [INFO] [1793321229.659772114] [behavior_server]: Configuring backup
+[behavior_server-7] [WARN] [1793321229.790735438] [behavior_server.rclcpp]: failed to send response to /behavior_server/change_state (timeout): client will not receive response, at ./src/rmw_response.cpp:154, at ./src/rcl/service.c:314
+[spawn_entity.py-3] [INFO] [1793321230.183169346] [spawn_entity]: Spawn Entity started
+[spawn_entity.py-3] [INFO] [1793321230.183628437] [spawn_entity]: Loading entity XML from file /tmp/smart_vision_amr_model_ffb_p2rs/model.sdf
+[spawn_entity.py-3] [INFO] [1793321230.184841990] [spawn_entity]: Waiting for service /spawn_entity, timeout = 30
+[spawn_entity.py-3] [INFO] [1793321230.185415526] [spawn_entity]: Waiting for service /spawn_entity
+[localization_health-9] [INFO] [1793321231.194641188] [localization_health]: Localization health: warning ['amcl_covariance_unavailable', 'map_tf_unavailable', 'map_unavailable', 'odom_tf_unavailable', 'odom_unavailable', 'scan_map_check_unavailable', 'scan_unavailable', 'initializing']
+[gzserver-1] [INFO] [1793321231.306137725] [gazebo.startup_validation_ground_truth]: Publishing states of gazebo models at [/gazebo/model_states]
+[gzserver-1] [INFO] [1793321231.307968247] [gazebo.startup_validation_ground_truth]: Publishing states of gazebo links at [/gazebo/link_states]
+[spawn_entity.py-3] [INFO] [1793321231.447408505] [spawn_entity]: Calling service /spawn_entity
+[gzserver-1] [INFO] [1793321231.700014692] [turtlebot3_imu]: <initial_orientation_as_reference> is unset, using default value of false to comply with REP 145 (world as orientation reference)
+[spawn_entity.py-3] [INFO] [1793321231.887960344] [spawn_entity]: Spawn status: SpawnEntity: Successfully spawned entity [waffle_pi]
+[INFO] [spawn_entity.py-3]: process has finished cleanly [pid 24055]
+[gzserver-1] [INFO] [1793321232.128913009] [camera_driver]: Publishing camera info to [/camera/camera_info]
+[gzserver-1] [INFO] [1793321232.221664840] [turtlebot3_diff_drive]: Wheel pair 1 separation set to [0.287000m]
+[gzserver-1] [INFO] [1793321232.221856081] [turtlebot3_diff_drive]: Wheel pair 1 diameter set to [0.066000m]
+[gzserver-1] [INFO] [1793321232.224227942] [turtlebot3_diff_drive]: Subscribed to [/cmd_vel]
+[gzserver-1] [INFO] [1793321232.227633281] [turtlebot3_diff_drive]: Advertise odometry on [/odom]
+[gzserver-1] [INFO] [1793321232.231707129] [turtlebot3_diff_drive]: Publishing odom transforms between [odom] and [base_footprint]
+[gzserver-1] [INFO] [1793321232.255715497] [turtlebot3_joint_state]: Going to publish joint [wheel_left_joint]
+[gzserver-1] [INFO] [1793321232.255765118] [turtlebot3_joint_state]: Going to publish joint [wheel_right_joint]
+[amcl-5] [INFO] [1793321232.861686464] [amcl]: initialPoseReceived
+[amcl-5] [WARN] [1793321232.861741017] [amcl]: Received initial pose request, but AMCL is not yet in the active state
+[amcl-5] [INFO] [1793321282.871732233] [amcl]: Message Filter dropping message: frame 'base_scan' at time 49.234 for reason 'the timestamp on the message is earlier than all the data in the transform cache'
+[lifecycle_manager-10] [INFO] [1793321288.236441494] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lifecycle_manager-10] [INFO] [1793321288.236547590] [lifecycle_manager_simulation]: Running Nav2 LifecycleManager rcl preshutdown (lifecycle_manager_simulation)
+[map_server-4] [INFO] [1793321288.236462043] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[map_server-4] [INFO] [1793321288.236556398] [map_server]: Running Nav2 LifecycleNode rcl preshutdown (map_server)
+[map_server-4] [INFO] [1793321288.236622533] [map_server]: Cleaning up
+[map_server-4] [INFO] [1793321288.236658202] [map_server]: Destroying bond (map_server) to lifecycle manager.
+[robot_state_publisher-2] [INFO] [1793321288.236484316] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[controller_server-6] [INFO] [1793321288.237163860] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[controller_server-6] [INFO] [1793321288.237255755] [controller_server]: Running Nav2 LifecycleNode rcl preshutdown (controller_server)
+[controller_server-6] [INFO] [1793321288.237312394] [controller_server]: Cleaning up
+[amcl-5] [INFO] [1793321288.237174966] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[amcl-5] [INFO] [1793321288.237249712] [amcl]: Running Nav2 LifecycleNode rcl preshutdown (amcl)
+[amcl-5] [INFO] [1793321288.237311835] [amcl]: Cleaning up
+[controller_server-6] [INFO] [1793321288.237437760] [local_costmap.local_costmap]: Cleaning up
+[behavior_server-7] [INFO] [1793321288.237628810] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[behavior_server-7] [INFO] [1793321288.237719135] [behavior_server]: Running Nav2 LifecycleNode rcl preshutdown (behavior_server)
+[behavior_server-7] [INFO] [1793321288.237777022] [behavior_server]: Cleaning up
+[map_server-4] [INFO] [1793321288.259441213] [map_server]: Destroying
+[amcl-5] [INFO] [1793321288.264907490] [amcl]: Destroying bond (amcl) to lifecycle manager.
+[behavior_server-7] [INFO] [1793321288.266773781] [behavior_server]: Destroying bond (behavior_server) to lifecycle manager.
+[behavior_server-7] [INFO] [1793321288.285617852] [behavior_server]: Destroying
+[amcl-5] [INFO] [1793321288.301441937] [amcl]: Destroying
+[controller_server-6] [INFO] [1793321288.311030775] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[controller_server-6] [INFO] [1793321288.317392974] [local_costmap.local_costmap]: Destroying
+[controller_server-6] [INFO] [1793321288.345934249] [controller_server]: Destroying
+[change_memory-13] Traceback (most recent call last):
+[change_memory-13]   File "/tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/lib/smart_vision_amr/change_memory", line 33, in <module>
+[change_memory-13]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'change_memory')())
+[change_memory-13]   File "/tmp/smart_vision_startup186.7Isky4/build/smart_vision_amr/smart_vision_amr/change_memory.py", line 433, in main
+[change_memory-13]     rclpy.spin(node)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[change_memory-13]     executor.spin_once()
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[change_memory-13]     self._spin_once_impl(timeout_sec)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[change_memory-13]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[change_memory-13]     return next(self._cb_iter)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[change_memory-13]     raise ExternalShutdownException()
+[change_memory-13] rclpy.executors.ExternalShutdownException
+[command_stamper-8] Traceback (most recent call last):
+[command_stamper-8]   File "/tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/lib/smart_vision_amr/command_stamper", line 33, in <module>
+[command_stamper-8]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'command_stamper')())
+[command_stamper-8]   File "/tmp/smart_vision_startup186.7Isky4/build/smart_vision_amr/smart_vision_amr/command_stamper.py", line 57, in main
+[command_stamper-8]     rclpy.spin(node)
+[command_stamper-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[command_stamper-8]     executor.spin_once()
+[command_stamper-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[command_stamper-8]     self._spin_once_impl(timeout_sec)
+[command_stamper-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[command_stamper-8]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[command_stamper-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[command_stamper-8]     return next(self._cb_iter)
+[command_stamper-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[command_stamper-8]     raise ExternalShutdownException()
+[command_stamper-8] rclpy.executors.ExternalShutdownException
+[localization_health-9] Traceback (most recent call last):
+[localization_health-9]   File "/tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/lib/smart_vision_amr/localization_health", line 33, in <module>
+[localization_health-9]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'localization_health')())
+[localization_health-9]   File "/tmp/smart_vision_startup186.7Isky4/build/smart_vision_amr/smart_vision_amr/localization_health.py", line 670, in main
+[localization_health-9]     rclpy.spin(node)
+[localization_health-9]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[localization_health-9]     executor.spin_once()
+[localization_health-9]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[localization_health-9]     self._spin_once_impl(timeout_sec)
+[localization_health-9]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[localization_health-9]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[localization_health-9]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[localization_health-9]     return next(self._cb_iter)
+[localization_health-9]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 657, in _wait_for_ready_callbacks
+[localization_health-9]     wait_set = _rclpy.WaitSet(
+[localization_health-9] rclpy._rclpy_pybind11.RCLError: failed to initialize wait set: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at ./src/rcl/wait.c:130
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 24053]
+[astar_planner-11] Traceback (most recent call last):
+[astar_planner-11]   File "/tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/lib/smart_vision_amr/astar_planner", line 33, in <module>
+[astar_planner-11]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'astar_planner')())
+[astar_planner-11]   File "/tmp/smart_vision_startup186.7Isky4/build/smart_vision_amr/smart_vision_amr/astar_planner.py", line 1383, in main
+[astar_planner-11]     rclpy.spin(node)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[astar_planner-11]     executor.spin_once()
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[astar_planner-11]     self._spin_once_impl(timeout_sec)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[astar_planner-11]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[astar_planner-11]     return next(self._cb_iter)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 657, in _wait_for_ready_callbacks
+[astar_planner-11]     wait_set = _rclpy.WaitSet(
+[astar_planner-11] rclpy._rclpy_pybind11.RCLError: failed to initialize wait set: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at ./src/rcl/wait.c:130
+[path_follower-12] Traceback (most recent call last):
+[path_follower-12]   File "/tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/lib/smart_vision_amr/path_follower", line 33, in <module>
+[path_follower-12]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'path_follower')())
+[path_follower-12]   File "/tmp/smart_vision_startup186.7Isky4/build/smart_vision_amr/smart_vision_amr/path_follower.py", line 1896, in main
+[path_follower-12]     rclpy.spin(node)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[path_follower-12]     executor.spin_once()
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[path_follower-12]     self._spin_once_impl(timeout_sec)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[path_follower-12]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[path_follower-12]     return next(self._cb_iter)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[path_follower-12]     raise ExternalShutdownException()
+[path_follower-12] rclpy.executors.ExternalShutdownException
+[INFO] [behavior_server-7]: process has finished cleanly [pid 24063]
+[INFO] [map_server-4]: process has finished cleanly [pid 24057]
+[INFO] [amcl-5]: process has finished cleanly [pid 24059]
+[INFO] [controller_server-6]: process has finished cleanly [pid 24061]
+[ERROR] [change_memory-13]: process has died [pid 24104, exit code 1, cmd '/tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/lib/smart_vision_amr/change_memory --ros-args -r __node:=change_memory --params-file /tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/share/smart_vision_amr/config/simulation_nodes.yaml --params-file /tmp/launch_params_o_wdzefx --params-file /tmp/launch_params_7yxd_uaz'].
+[ERROR] [command_stamper-8]: process has died [pid 24065, exit code 1, cmd '/tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/lib/smart_vision_amr/command_stamper --ros-args -r __node:=command_stamper --params-file /tmp/launch_params_lul73sa9'].
+[ERROR] [localization_health-9]: process has died [pid 24069, exit code 1, cmd '/tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/lib/smart_vision_amr/localization_health --ros-args -r __node:=localization_health --params-file /tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/share/smart_vision_amr/config/localization_health.yaml --params-file /tmp/launch_params_7k9ipba2'].
+[ERROR] [path_follower-12]: process has died [pid 24085, exit code 1, cmd '/tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/lib/smart_vision_amr/path_follower --ros-args -r __node:=path_follower --params-file /tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/share/smart_vision_amr/config/simulation_nodes.yaml --params-file /tmp/launch_params_2d2mwxca'].
+[ERROR] [astar_planner-11]: process has died [pid 24082, exit code 1, cmd '/tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/lib/smart_vision_amr/astar_planner --ros-args -r __node:=astar_planner --params-file /tmp/smart_vision_startup186.7Isky4/install/smart_vision_amr/share/smart_vision_amr/config/simulation_nodes.yaml --params-file /tmp/launch_params_ssv8zzd8'].
+[INFO] [gzserver-1]: process has finished cleanly [pid 24051]

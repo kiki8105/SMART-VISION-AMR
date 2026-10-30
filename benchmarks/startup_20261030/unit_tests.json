@@ -1,0 +1,51 @@
+{
+  "result": {
+    "passed": 1377,
+    "failed": 0,
+    "skipped": 0,
+    "pytest_elapsed_seconds": 49.82,
+    "exit_code": 0
+  },
+  "working_directory": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR",
+  "executed_command": "source /opt/ros/humble/setup.bash\nexport PATH=\"/home/kiki/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH\"\nPYTHONNOUSERSITE=1 ROS_DOMAIN_ID=223 ROS_LOCALHOST_ONLY=1 FASTRTPS_DEFAULT_PROFILES_FILE=\"$PWD/ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml\" FASTDDS_DEFAULT_PROFILES_FILE=\"$PWD/ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml\" PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=\"$PWD/benchmarks/startup_20261030:$PWD/ros2_ws/src/smart_vision_amr:$PYTHONPATH\" timeout 240s /usr/bin/python3 -m pytest -q -p no:cacheprovider -p pytest_isolated_runtime ros2_ws/src/smart_vision_amr/test > /tmp/sva-integration-final-pytest-20261030.log 2>&1",
+  "reproduction_command": "source /opt/ros/humble/setup.bash\nexport PATH=\"/home/kiki/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH\"\nPYTHONNOUSERSITE=1 ROS_DOMAIN_ID=223 ROS_LOCALHOST_ONLY=1 FASTRTPS_DEFAULT_PROFILES_FILE=\"$PWD/ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml\" FASTDDS_DEFAULT_PROFILES_FILE=\"$PWD/ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml\" PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=\"$PWD/benchmarks/startup_20261030:$PWD/ros2_ws/src/smart_vision_amr:$PYTHONPATH\" timeout 240s /usr/bin/python3 -m pytest -q -p no:cacheprovider -p pytest_isolated_runtime ros2_ws/src/smart_vision_amr/test",
+  "execution_mode": "Serial full suite with an autouse isolation plugin; not ordinary unmodified pytest. No tests skipped by the plugin.",
+  "isolation": {
+    "ros_domain_id": 223,
+    "ros_localhost_only": 1,
+    "outer_timeout_seconds": 240,
+    "override": "Autouse fixture wraps real rclpy.init and forces domain_id=223; test mocks may replace the wrapper.",
+    "dds_profile": "ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml",
+    "dds_profile_sha256": "502579cc10d69224b3fbb339a78343883c64f4496fdcc7183fa3a7ee14cea25e",
+    "real_robot_domain_16_used": false,
+    "shell_wrapper_tests": "Some temporary fixtures select domain16 with fake ros2 executables; no actual robot launch or SSH occurs."
+  },
+  "runner_plugin": {
+    "executed_path": "benchmarks/startup_20261030/pytest_isolated_runtime.py",
+    "reproduction_path": "benchmarks/startup_20261030/pytest_isolated_runtime.py",
+    "sha256": "e2416bb5abdd9b65caec6003fca14ba5fabdcaaefcf224744ec516d2c809f43b"
+  },
+  "node_runtime": {
+    "path": "/home/kiki/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "role": "Prepended to PATH so optional JavaScript-wrapper regressions execute."
+  },
+  "log": {
+    "executed_path": "/tmp/sva-integration-final-pytest-20261030.log",
+    "archived_path": "benchmarks/startup_20261030/unit_tests.log",
+    "sha256": "ae85a3d69197fdc9aa386bc6829e701f160114bbe03eddf37e2178f79bb8c9b0",
+    "line_count": 21
+  },
+  "tested_core_sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/assisted_localization.py": "e0b32fa2613f56dff8344d03b2c1c69c031c82e838934b7435ffa6b3ee7f0930",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "5fa8888478d183cfe19131559259fd5c9f13454f4947539eb5c5c3c87da19398",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/local_detour.py": "7a7b952851cfb985477371a72cee416391d0d395be83c6422c5c8f9e4f21dc3b",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/localization_health.py": "e5c24d21ba52746bab9b9aa5ec014094c1510589ef1f5b02bd586e54cae2a00b",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/marker_alignment.py": "607283eaf0911ec4e177060e8166aa78d5e4118290dbddc8438140b20ae99832",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py": "18cca91965119f7b99688e6c0de1d1ab77bbed3800142c73d64d298997214225",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/operation_status.py": "125fb191d983e4da747b35b3fea2ab1db2e8b69e3942de1d7030a6346ade28bc",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": "3c1aa25343614e49790474683852df29d478798c19150c0aaba5524a47f422fd",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/wall_alignment.py": "494bf8d41545b24812bd0ec8557ebc49c6f5c251c1cdd1ff700f7e2e2461e649",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": "79293200bb518f848cbcae1e8abb58f8cc9db2776c590c1d77023deffc9a2dd4"
+  },
+  "scope_limit": "Software regression evidence including isolated localhost ROS contexts and mocked adapters; Gazebo and physical-robot acceptance are separate."
+}

@@ -35,9 +35,10 @@ from smart_vision_amr.manual_control import ManualOverride
 from smart_vision_amr.assisted_localization import AssistedLocalization
 from smart_vision_amr.localization_geometry import rotation_clearance, scan_points, occupied_distance, scan_map_agreement
 from smart_vision_amr.operation_status import (operation_summary, route_preview, localization_explanations,
-                                             failure_memory_snapshot)
+                                             failure_memory_snapshot, local_detour_snapshot)
 from smart_vision_amr.navigation_graph import goal_consumers_ready
 from smart_vision_amr.marker_alignment import MarkerAlignment
+from smart_vision_amr.wall_alignment import estimate_camera_axis_wall
 
 DEFAULT_MARKERS = [
     {'id': 0, 'name': '시작 지점', 'x': -3.0007995856, 'y': -2.0010944836, 'yaw': .0008724679},
@@ -343,6 +344,7 @@ class MissionApplication:
         self.marker_alignment = {'state': 'IDLE', 'reason': '섹터 도착 후 표식을 탐색합니다.'}
         self.path = []
         self.navigation = {'status': 'IDLE', 'planner_status': 'IDLE', 'message': ''}
+        self.planner_details, self.planner_details_at = {}, 0.
         self.goal_available = False
         self.planner_available = False
         self.cancel_available = False
@@ -383,6 +385,7 @@ class MissionApplication:
         self.localization_match = None
         self.localization_distance = None
         self.localization_service_pending = False
+        self.localization_control = {'state': 'IDLE', 'reason': ''}
         self.home_seed_request = None
         self.home_seed_result = ''
         self.home_seed_match = None
@@ -600,6 +603,9 @@ class MissionApplication:
             snapshot['failure_memory'] = failure_memory_snapshot(
                 self.failure_memory_status, self.mission.goal_stamp, self.mission.state,
                 now-self.failure_memory_at)
+            snapshot['local_detour'] = local_detour_snapshot(
+                self.planner_details, self.mission.goal_stamp, self.mission.state,
+                now-self.planner_details_at)
             snapshot['operation'] = operation_summary(snapshot)
             snapshot['route_preview'] = route_preview(snapshot)
             return snapshot
@@ -609,7 +615,7 @@ class MissionApplication:
             if endpoint == '/api/localization/seed-home':
                 return self.seed_home_command(payload)
             if endpoint in {'/api/localization/start', '/api/localization/start-home', '/api/localization/stop'}:
-                return self.localization_command(endpoint)
+                return self.localization_command(endpoint, payload)
             if self.localization.active:
                 if endpoint in {'/api/mission/start', '/api/mission/resume', '/api/mission/restart',
                                 '/api/dispatch/start', '/api/home/set', '/api/home/reset', '/api/connection', '/api/mission'}:
@@ -820,6 +826,8 @@ class MissionApplication:
             return False, '임무를 종료하고 홈에서 정지한 뒤 자세를 초기화하세요.'
         if self.cancel_pending or abs(self.speed['linear']) >= .025 or abs(self.speed['angular']) >= .06:
             return False, '차량이 완전히 정지할 때까지 기다리세요.'
+        if self.delivery.homepoint != self.delivery.registered_homepoint:
+            return False, '출발 Homepoint가 등록 홈과 다릅니다. 등록 홈으로 복원한 뒤 자세를 초기화하세요.'
         # The camera is corroborating evidence, not a dependency for LiDAR
         # localization. A freshly visible *other* marker contradicts Home.
         if (time.monotonic()-self.camera_at < 1.0 and self.detected_ids
@@ -829,6 +837,9 @@ class MissionApplication:
         error = self.delivery.home_validation_error(home)
         if error:
             return False, error
+        available, reason = self.home_prior_geometry_readiness()
+        if not available:
+            return False, reason
         if time.monotonic()-self.camera_at < 1.0 and 0 in self.detected_ids:
             return True, '홈 ArUco 0번이 보입니다. 실제 등록 홈에 놓였는지 확인하고 자세를 초기화하세요.'
         return True, '마커 확인 없이 등록 홈을 초기 위치로 가정합니다. 실제로 홈에 놓였을 때만 누르세요.'
@@ -839,6 +850,7 @@ class MissionApplication:
         startup_available, startup_reason = self.startup_home_readiness()
         result.update(available=available, clearance=self.localization_clearance, scan_match=self.localization_match,
                       startup_home_available=startup_available, startup_home_reason=startup_reason)
+        result['control'] = deepcopy(self.localization_control)
         seed_available, seed_reason = self.seed_home_readiness()
         result.update(home_seed_available=seed_available, home_seed_reason=seed_reason,
                       home_seed_pending=self.home_seed_request is not None,
@@ -865,6 +877,32 @@ class MissionApplication:
         return (self.map_version, None if home is None else
                 tuple(home.get(name) for name in ('x', 'y', 'yaw')))
 
+    def home_prior_geometry_readiness(self):
+        """Verify the known Home against real sensors without a map->base TF.
+
+        This is a prior, not an AMCL confidence shortcut. Both the stopped
+        ESTOP seed and ordinary Home initialization use the same proof.
+        """
+        now = time.monotonic()
+        if (self.map is None or self.map_is_preview or self.map_matches_configured is not True
+                or self._display_map_data is None):
+            return False, '설정한 저장 지도와 일치하는 /map 수신이 필요합니다.'
+        if (now-self.scan_at >= .8 or now-self.odom_at >= .8
+                or now-self.localization_scan_at >= .8 or now-self.localization_odom_at >= .8):
+            return False, '최신 LiDAR와 오도메트리 수신이 필요합니다.'
+        speeds = (self.speed.get('linear'), self.speed.get('angular'))
+        if (any(type(value) not in (int, float) or not math.isfinite(value) for value in speeds)
+                or abs(speeds[0]) >= .01 or abs(speeds[1]) >= .03):
+            return False, '차량이 완전히 정지해야 등록 홈 초기 위치를 입력할 수 있습니다.'
+        error = self.delivery.home_validation_error(self.delivery.registered_homepoint)
+        if error:
+            return False, error
+        if (self.home_seed_match is None or not math.isfinite(self.home_seed_match)
+                or self.home_seed_match < .65 or now-self.home_seed_match_at >= .8
+                or self.home_seed_match_key != self.home_seed_key()):
+            return False, '등록 홈 위치·방향의 LiDAR와 지도가 일치하지 않습니다. 실제 위치를 확인하세요.'
+        return True, ''
+
     def seed_home_readiness(self):
         """No-motion pose prior while ESTOP remains latched, never a reset."""
         now = time.monotonic()
@@ -889,13 +927,9 @@ class MissionApplication:
             return False, '차량이 완전히 정지해야 초기 위치만 입력할 수 있습니다.'
         if (not self.localization_services_ready or now-self.localization_amcl_active_at >= 3.):
             return False, 'AMCL 활성 상태를 확인하세요.'
-        error = self.delivery.home_validation_error(self.delivery.registered_homepoint)
-        if error:
-            return False, error
-        if (self.home_seed_match is None or not math.isfinite(self.home_seed_match)
-                or self.home_seed_match < .65 or now-self.home_seed_match_at >= .8
-                or self.home_seed_match_key != self.home_seed_key()):
-            return False, '등록 홈 위치·방향의 LiDAR와 지도가 일치하지 않습니다. 실제 위치를 확인하세요.'
+        available, reason = self.home_prior_geometry_readiness()
+        if not available:
+            return False, reason
         return True, '실제 등록 홈 위치·방향이 맞으면 회전 없이 초기 가설만 입력할 수 있습니다.'
 
     def seed_home_command(self, payload):
@@ -915,6 +949,7 @@ class MissionApplication:
     def cancel_localization(self, reason):
         if self.localization.active:
             self.localization.cancel(reason)
+            self.localization_control = {'state': 'CANCELED', 'reason': reason}
             self.localization_requested = False
             self.localization_stop_requested = True
             self.mission.event(reason, 'warning')
@@ -932,7 +967,7 @@ class MissionApplication:
                 and self._display_map_data is not None
                 and not self.delivery.home_validation_error(self.pose))
 
-    def localization_command(self, endpoint):
+    def localization_command(self, endpoint, payload=None):
         if endpoint.endswith('/stop'):
             self.cancel_localization('사용자가 위치 확인을 중단했습니다. 차량은 정지 상태를 유지합니다.')
             return self.state()
@@ -945,6 +980,8 @@ class MissionApplication:
             raise MissionError(reason)
         startup_home = endpoint.endswith('/start-home')
         if startup_home:
+            if (payload or {}).get('confirm_actual_home') is not True:
+                raise MissionError('실제 등록 홈 위치와 방향을 확인한 뒤 확인란을 선택하세요.')
             allowed, reason = self.startup_home_readiness()
             if not allowed:
                 raise MissionError(reason)
@@ -956,11 +993,13 @@ class MissionApplication:
         self.localization_use_existing_pose = not startup_home and self.can_refine_localization()
         self.localization_reference_pose = deepcopy(self.pose) if self.localization_use_existing_pose else None
         self.localization_reference_odom = deepcopy(self.odom_pose) if self.localization_use_existing_pose else None
-        self.localization.start()
+        self.localization.start(home_target=self.localization_home_seed)
+        self.localization_control = {'state': 'WAIT_HOLD', 'reason':
+                                     '주행을 멈추고 새 정지 응답을 확인합니다.'}
         self.localization_requested = True
         self.localization_stop_requested = False
         self.localization_match = None
-        self.mission.event('자세 초기화: 등록 홈을 초기 가설로 사용하고, 회전하며 라이다·지도 일치를 검증합니다.'
+        self.mission.event('자세 초기화: 등록 홈을 초기 가설로 입력하고, 라이다·지도 검증 후 홈 방향으로 복귀합니다.'
                            if startup_home else
                            '라이다 위치 보정: 현재 AMCL 위치를 유지하고 정지 후 주변 지도를 대조합니다.'
                            if self.localization_use_existing_pose else
@@ -1253,6 +1292,10 @@ def create_ros_bridge(app, options, context):
             self.motion_pub = self.create_publisher(String, '/smart_vision_amr/manual_control', 10)
             self.motion_source = secrets.token_urlsafe(18)
             self.motion_seq = 0
+            self.localization_hold_seq = self.localization_lease_seq = None
+            self.localization_lease_at = None
+            self.last_motion_status_stamp_ns = self.last_health_stamp_ns = -1
+            self.last_planner_status_stamp_ns = -1
             self.motion_gate = False
             self.sent_estop = False
             self.cancel_client = self.create_client(Trigger, '/smart_vision_amr/cancel_navigation')
@@ -1277,6 +1320,8 @@ def create_ros_bridge(app, options, context):
             self.localization_scan_gap_reason = None
             self.localization_sensor_gap_since = None
             self.localization_sensor_gap_reason = None
+            self.localization_policy_gap_since = None
+            self.localization_policy_gap_reason = None
             self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.on_amcl, durable)
             self.create_subscription(PoseWithCovarianceStamped, '/initialpose', self.on_initial_pose, 10)
             self.create_subscription(OccupancyGrid, '/map', self.on_map, durable)
@@ -1315,12 +1360,19 @@ def create_ros_bridge(app, options, context):
             self.camera_rotation = getattr(options, 'camera_rotation', 0)
             self.front_camera_rotation = getattr(options, 'front_camera_rotation', 0)
             self.observation_started_ros_ns = None
+            self.marker_camera_poses = {
+                'front': tuple(getattr(options, 'marker_front_camera_pose', (0., 0., 0.))),
+                'rear': tuple(getattr(options, 'marker_rear_camera_pose', (0., 0., math.pi)))}
+            if any(len(pose) != 3 or not all(math.isfinite(value) for value in pose)
+                   for pose in self.marker_camera_poses.values()):
+                raise ValueError('Finite camera mounting x, y and yaw are required')
             self.marker_alignment = MarkerAlignment(
                 search_speed=getattr(options, 'marker_search_speed', .12),
                 center_gain=getattr(options, 'marker_center_gain', .35),
                 center_tolerance=getattr(options, 'marker_center_tolerance', .08),
                 timeout=getattr(options, 'marker_search_timeout', 45.),
                 required_frames=max(2, app.confirmations),
+                require_wall_alignment=getattr(options, 'require_marker_wall_alignment', False),
                 front_yaw_sign=getattr(options, 'marker_front_yaw_sign', -1.),
                 rear_yaw_sign=getattr(options, 'marker_rear_yaw_sign', -1.))
             self.marker_alignment_key = None
@@ -1401,7 +1453,9 @@ def create_ros_bridge(app, options, context):
                         math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z)))
                     app.localization_clear, app.localization_clearance = rotation_clearance(message, self.localization_laser_pose)
                     home = app.delivery.registered_homepoint
-                    if (app.mission.estop_latched and scan_now-app.home_seed_match_at >= .3
+                    if (scan_now-app.home_seed_match_at >= .3
+                            and (app.mission.estop_latched or app.mission.state in START_STATES)
+                            and (not app.localization.active or app.localization.state == 'ACQUIRING')
                             and home is not None and app.map is not None and not app.map_is_preview
                             and app.map_matches_configured is True and app.localization_distance is not None):
                         app.home_seed_match = scan_map_agreement(
@@ -1489,6 +1543,7 @@ def create_ros_bridge(app, options, context):
             measurements = marker_measurements(corners, ids, image.shape[1], image.shape[0])
             frame_time = now-max(0., capture_age)
             accepted = self.marker_alignment.observe(capture_ns, measurements, camera, frame_time, now)
+            self.observe_marker_wall(now)
             app.marker_alignment = self.marker_alignment.snapshot()
             if not accepted:
                 return False
@@ -1632,6 +1687,17 @@ def create_ros_bridge(app, options, context):
                     return
                 with app.lock:
                     app.navigation['planner_status'] = payload.get('status', '')
+                    stamp = payload.get('sent_at_ns')
+                    if (type(stamp) is int and stamp > self.last_planner_status_stamp_ns
+                            and -.25e9 <= self.get_clock().now().nanoseconds-stamp < 1e9):
+                        self.last_planner_status_stamp_ns = stamp
+                        app.planner_details = {name: payload[name] for name in (
+                            'goal_stamp', 'plan_kind', 'local_detour_state', 'local_attempt_id',
+                            'global_plan_count', 'rejoin_point', 'rejoin_progress', 'search_duration_ms',
+                            'adapter_duration_ms', 'expansions', 'detour_reason', 'global_duration_ms')
+                            if name in payload}
+                        app.planner_details_at = time.monotonic()-max(0., (
+                            self.get_clock().now().nanoseconds-stamp)/1e9)
                     if not app.localization.active and payload.get('status') in {'WAIT_REPLAN', 'WAIT_POSE', 'WAIT_MAP', 'INVALID_GOAL'}:
                         app.mission.on_navigation(payload)
             except (ValueError, TypeError):
@@ -1642,16 +1708,16 @@ def create_ros_bridge(app, options, context):
                 payload = json.loads(message.data)
                 if not isinstance(payload, dict):
                     return
-                age = 0.0
-                if 'sent_at_ns' in payload:
-                    stamp = payload['sent_at_ns']
-                    now_ns = self.get_clock().now().nanoseconds
-                    if type(stamp) is not int or stamp < 0:
-                        return
-                    age = (now_ns-stamp)/1e9
-                    if not -.25 <= age <= .75:
-                        return
+                stamp = payload.get('sent_at_ns')
+                now_ns = self.get_clock().now().nanoseconds
+                if (type(stamp) is not int or stamp < 0
+                        or stamp <= self.last_motion_status_stamp_ns):
+                    return
+                age = (now_ns-stamp)/1e9
+                if not -.25 <= age <= .75:
+                    return
                 with app.lock:
+                    self.last_motion_status_stamp_ns = stamp
                     app.manual_mux_at = time.monotonic()-max(0.0, age)
                     app.manual_mux_status = payload
                     if payload.get('estop_latched') is True and not app.mission.estop_latched:
@@ -1671,11 +1737,18 @@ def create_ros_bridge(app, options, context):
         def on_health(self, message):
             try:
                 payload = json.loads(message.data)
-                stamp = int(payload.get('sent_at_ns', payload.get('stamp_ns', 0)))
-                if not stamp or abs(self.get_clock().now().nanoseconds-stamp) > 1500000000:
+                if not isinstance(payload, dict):
+                    return
+                stamp = payload.get('sent_at_ns', payload.get('stamp_ns'))
+                if (type(stamp) is not int or stamp < 0 or stamp <= self.last_health_stamp_ns):
+                    return
+                age = (self.get_clock().now().nanoseconds-stamp)/1e9
+                if not -.25 <= age < 1.5:
                     return
                 with app.lock:
-                    app.localization_health, app.localization_health_at = payload, time.monotonic()
+                    self.last_health_stamp_ns = stamp
+                    app.localization_health = payload
+                    app.localization_health_at = time.monotonic()-max(0., age)
             except (ValueError, TypeError, AttributeError):
                 return
 
@@ -1750,6 +1823,22 @@ def create_ros_bridge(app, options, context):
                                        'mode': mode, 'linear': linear, 'angular': angular,
                                        'operation': operation or ('localization' if self.localization_running else 'drive')})
             self.motion_pub.publish(message)
+            if mode == 'hold' and self.localization_running and self.localization_hold_seq is None:
+                self.localization_hold_seq = self.motion_seq
+            if mode == 'localization' and self.localization_lease_seq is None:
+                self.localization_lease_seq = self.motion_seq
+                self.localization_lease_at = time.monotonic()
+            return self.motion_seq
+
+        def localization_acknowledged(self, now, mode, minimum_seq, *, stopped=False):
+            """A previous operation's durable hold is never a new handoff ACK."""
+            status = app.manual_mux_status
+            seq = status.get('control_seq')
+            return (minimum_seq is not None and now-app.manual_mux_at < .5
+                    and status.get('available') is True
+                    and status.get('source_id') == self.motion_source
+                    and status.get('mode') == mode and type(seq) is int and seq >= minimum_seq
+                    and (not stopped or status.get('stop_acknowledged') is True))
 
         def stop(self):
             self.motion_gate = True
@@ -1785,6 +1874,52 @@ def create_ros_bridge(app, options, context):
             app.mission.event('홈 복귀 목표를 A*에 전달했습니다.' if app.mission.returning_home
                               else f'마커 {marker["id"]} 관측 목표를 A*에 전달했습니다.')
 
+        def observe_marker_wall(self, now):
+            """Use a centered camera axis and the matching fresh LiDAR surface.
+
+            Camera mounts are explicit base-frame geometry. No image FOV or
+            learned confidence is inferred. A corner, gap or stale scan cannot
+            stand in for evidence that the rear camera faces the marker wall.
+            """
+            alignment = self.marker_alignment
+            if not alignment.require_wall_alignment:
+                return
+            evidence = {'reliable': False, 'reason': 'center_camera_before_wall_fit',
+                        'observed_at': now, 'frame_id': None}
+            if (alignment.center_error is not None
+                    and abs(alignment.center_error) <= alignment.center_tolerance):
+                scan = self.localization_scan
+                if (scan is None or self.localization_laser_pose is None
+                        or now-app.localization_scan_at >= .5
+                        or not self.source_fresh(scan.header.stamp, .5)):
+                    evidence['reason'] = 'fresh_scan_and_laser_transform_required'
+                else:
+                    stamp = scan.header.stamp.sec*1_000_000_000+scan.header.stamp.nanosec
+                    if self.observation_started_ros_ns is None or stamp < self.observation_started_ros_ns:
+                        evidence['reason'] = 'post_arrival_scan_required'
+                    else:
+                        evidence = estimate_camera_axis_wall(scan, self.localization_laser_pose,
+                            camera_pose=self.marker_camera_poses[alignment.camera])
+                        evidence.update(frame_id=stamp, observed_at=app.localization_scan_at)
+            evidence['reason'] = {
+                'center_camera_before_wall_fit': '표식을 카메라 가로 중앙에 맞춘 뒤 벽 방향을 확인합니다.',
+                'fresh_scan_and_laser_transform_required': '최신 라이다와 차체 기준 센서 위치 변환을 기다립니다.',
+                'post_arrival_scan_required': '목표 도착 이후에 측정한 새 라이다를 기다립니다.',
+                'single_marker_bearing_wall': '표식 방향의 단일 벽을 확인했습니다.',
+                'invalid_inputs': '벽 방향 측정 입력 또는 카메라 장착 위치를 확인하세요.',
+                'insufficient_angular_resolution': '벽 방향을 확인할 라이다 각도 해상도가 부족합니다.',
+                'insufficient_returns': '표식 방향에 벽을 확인할 라이다 측정점이 부족합니다.',
+                'no_single_surface_spans_marker_bearing': '표식 방향의 단일 벽을 확인할 수 없습니다.',
+                'insufficient_angular_span': '보이는 벽의 각도 범위가 너무 좁습니다.',
+                'insufficient_surface_span': '보이는 벽의 길이가 너무 짧습니다.',
+                'mixed_surfaces_or_corner': '모서리 또는 여러 벽이 겹쳐 방향을 확정할 수 없습니다.',
+                'nonplanar_or_short_surface': '벽이 고르지 않거나 보이는 길이가 부족합니다.',
+                'fitted_wall_does_not_span_marker_bearing': '확인한 벽이 표식 방향을 지나지 않습니다.',
+                'wall_observed_too_obliquely': '벽을 너무 비스듬히 보고 있어 방향 확인을 기다립니다.',
+                'wall_distance_or_bearing_intersection_invalid': '표식 방향의 벽 거리 또는 보이는 범위를 확인하세요.',
+            }.get(evidence.get('reason'), '벽 방향을 확인할 수 없어 정지를 유지합니다.')
+            alignment.observe_wall(evidence, now)
+
         def tick_marker_alignment(self, now, cancelled, mux_held):
             """Visual yaw servo after terminal navigation, never a second cmd_vel owner."""
             self.marker_alignment_angular = 0.
@@ -1815,6 +1950,7 @@ def create_ros_bridge(app, options, context):
                     return
                 self.marker_alignment.start(expected, camera, yaw, now)
                 self.marker_alignment_key = key
+            self.observe_marker_wall(now)
             pose = app.pose
             near_target = (pose is not None and now-app.pose_at < .5
                 and math.hypot(pose['x']-target['x'], pose['y']-target['y']) <= mission.pose_tolerance)
@@ -1875,8 +2011,28 @@ def create_ros_bridge(app, options, context):
                     loc.fail('센서·지도 또는 속도 제어 연결이 끊겨 위치 확인을 중단합니다.', now)
                 elif now-app.localization_amcl_active_at > 3. or not app.localization_services_ready:
                     loc.fail('AMCL 활성 상태를 확인할 수 없어 회전을 중단합니다.', now)
-            if loc.state == 'ACQUIRING' and cancelled and mux_held:
-                if abs(app.speed['linear']) < .025 and abs(app.speed['angular']) < .06:
+            hold_ack = self.localization_acknowledged(now, 'hold', self.localization_hold_seq,
+                                                     stopped=True)
+            health_fresh = now-app.localization_health_at < 1.
+            sweep_allowed = health_fresh and app.localization_health.get('allow_localization') is True
+            if loc.active and health_fresh and (app.localization_health.get('level') == 'critical'
+                    or app.localization_health.get('stop_latched') is True):
+                loc.fail('위치 감시의 비상정지 또는 심각한 오류로 위치 확인을 중단합니다.', now)
+            if loc.active and now-loc.started_at >= loc.timeout:
+                loc.fail('제한 시간 안에 위치를 확인하지 못했습니다. 실제 홈과 센서 상태를 확인하고 다시 초기화하세요.', now)
+            if (loc.active and app.localization_startup_home
+                    and (app.localization_home_seed != app.delivery.registered_homepoint
+                         or app.localization_home_seed != app.delivery.homepoint)):
+                loc.fail('등록 홈 또는 출발 Homepoint가 바뀌어 자세 초기화를 중단합니다.', now)
+            stationary = (now-app.odom_at < .5 and abs(app.speed['linear']) < .025
+                          and abs(app.speed['angular']) < .06)
+            if loc.state == 'ACQUIRING':
+                app.localization_control = {'state': 'WAIT_HOLD', 'reason':
+                    '주행 취소·새 정지 명령 응답·위치 확인 전용 회전 허용을 기다립니다.',
+                    'hold_seq': self.localization_hold_seq, 'hold_acknowledged': hold_ack,
+                    'sweep_allowed': sweep_allowed}
+            if loc.state == 'ACQUIRING' and cancelled and hold_ack and sweep_allowed:
+                if stationary:
                     loc.acquired(now)
                     if app.localization_startup_home:
                         available, reason = app.startup_home_readiness()
@@ -1917,7 +2073,7 @@ def create_ros_bridge(app, options, context):
                         app.localization_invalidated = True
                         app.localization_service_pending = True
                         self.localization_future = self.global_localization_client.call_async(Empty.Request())
-            if (loc.state in {'ROTATING', 'SETTLING'} and self.nomotion_future is None
+            if (loc.state in {'ROTATING', 'RETURNING', 'SETTLING'} and self.nomotion_future is None
                     and now-self.nomotion_at >= .6 and self.nomotion_client.service_is_ready()):
                 self.nomotion_at = now
                 self.nomotion_future = self.nomotion_client.call_async(Empty.Request())
@@ -1939,7 +2095,7 @@ def create_ros_bridge(app, options, context):
             # An invalid beam is unknown clearance, not proof of a new nearby
             # obstacle. Stop immediately, but allow one second for a complete
             # replacement scan. Never tick/succeed or turn while blind.
-            if (loc.state in {'ROTATING', 'SETTLING'} and sensors_ready
+            if (loc.state in {'ROTATING', 'RETURNING', 'SETTLING'} and sensors_ready
                     and not app.localization_clear and app.localization_clearance is None):
                 if self.localization_scan_gap_since is None:
                     self.localization_scan_gap_since = now
@@ -1953,11 +2109,71 @@ def create_ros_bridge(app, options, context):
                 if loc.active and self.localization_scan_gap_reason is not None:
                     loc.reason = self.localization_scan_gap_reason
                 self.localization_scan_gap_since = self.localization_scan_gap_reason = None
+            lease_ack = self.localization_acknowledged(now, 'localization', self.localization_lease_seq)
+            if loc.state in loc.MOVING_STATES:
+                app.localization_control = {'state': 'LEASED' if lease_ack else 'WAIT_LEASE',
+                    'reason': '위치 확인 전용 회전 제어권 확인' if lease_ack else
+                    '위치 확인 전용 제어권 응답 대기 · 정지 유지',
+                    'lease_seq': self.localization_lease_seq, 'lease_acknowledged': lease_ack}
+                if not sweep_allowed:
+                    if self.localization_policy_gap_since is None:
+                        self.localization_policy_gap_since = now
+                        self.localization_policy_gap_reason = loc.reason
+                    loc.pause_for_sensor_gap(now)
+                    self.localization_angular = loc.angular = 0.
+                    if now-self.localization_policy_gap_since < 1.:
+                        loc.reason = ('위치 감시 입력·오도메트리 좌표 변환 복구를 기다리며 정지합니다.'
+                                      if health_fresh else '최신 위치 감시 응답을 기다리며 정지합니다.')
+                        app.localization_control = {'state': 'WAIT_HEALTH', 'reason': loc.reason,
+                            'lease_acknowledged': lease_ack, 'sweep_allowed': False}
+                        return
+                    loc.fail('위치 확인 회전 허용 또는 최신 위치 감시 응답이 1초 이상 없어 정지합니다.', now)
+                elif not lease_ack:
+                    # First send a zero packet to acquire this distinct lease.
+                    # Subsequent motion needs its acknowledgment, not a hold
+                    # status cached before initialization or another joystick.
+                    self.localization_angular = loc.angular = 0.
+                    if self.localization_lease_at is not None and now-self.localization_lease_at >= 1.:
+                        detail = str(app.manual_mux_status.get('control_rejected_reason') or
+                                     app.manual_mux_status.get('reason') or '응답 없음')
+                        loc.fail('위치 확인 제어권이 승인되지 않았습니다: '+detail, now)
+                    if loc.active:
+                        return
+                if sweep_allowed and self.localization_policy_gap_since is not None:
+                    loc.reason = self.localization_policy_gap_reason or loc.reason
+                    self.localization_policy_gap_since = self.localization_policy_gap_reason = None
+            settled_health_ok = (health_fresh
+                and app.localization_health.get('autonomous_allowed') is True
+                and app.localization_health.get('level') in {'ok', 'healthy'})
+            if loc.state == 'SETTLING':
+                stationary = stationary and hold_ack
+                if stationary and loc.mark_settled_stop(now):
+                    self.localization_epoch_ns = self.get_clock().now().nanoseconds
+                app.localization_control = {'state': 'SETTLING', 'reason':
+                    '새 AMCL 결과·실제 정지·정상 위치 신뢰도를 확인합니다.',
+                    'stationary': stationary, 'health_ready': settled_health_ok,
+                    'hold_acknowledged': hold_ack}
+            previous_state = loc.state
             self.localization_angular = loc.tick(now,
                 sensors_ready=sensors_ready,
-                rotation_clear=app.localization_clear)
+                rotation_clear=app.localization_clear,
+                stationary=stationary, settled_health_ok=settled_health_ok)
+            if previous_state != 'RETURNING' and loc.state == 'RETURNING':
+                # A new return phase cannot inherit the sweep's accepted lease.
+                self.localization_lease_seq = None
+                self.localization_lease_at = None
+            if previous_state in loc.MOVING_STATES and loc.state == 'SETTLING':
+                self.localization_hold_seq = None
+                if app.localization_startup_home:
+                    # Header time, not receipt time, proves the AMCL result was
+                    # produced after the return stopped requesting rotation.
+                    self.localization_epoch_ns = self.get_clock().now().nanoseconds
             if self.localization_running and not loc.active:
                 self.localization_running = False
+                app.localization_control = {'state': loc.state, 'reason': loc.reason}
+                self.localization_hold_seq = self.localization_lease_seq = None
+                self.localization_lease_at = None
+                self.localization_policy_gap_since = self.localization_policy_gap_reason = None
                 self.motion_gate = True
                 self.stop_until = now+.8
                 if loc.succeeded:
@@ -2023,8 +2239,11 @@ def create_ros_bridge(app, options, context):
                 if app.localization_requested:
                     app.localization_requested = False
                     self.localization_running = True
+                    self.localization_hold_seq = self.localization_lease_seq = None
+                    self.localization_lease_at = None
                     self.localization_scan_gap_since = self.localization_scan_gap_reason = None
                     self.localization_sensor_gap_since = self.localization_sensor_gap_reason = None
+                    self.localization_policy_gap_since = self.localization_policy_gap_reason = None
                     self.motion_gate = True
                     self.goal_waiting = None
                     self.localization_angular = 0.
@@ -2118,8 +2337,8 @@ def create_ros_bridge(app, options, context):
                             app.manual.reason = '임무를 유지하고 재개 조건을 기다립니다: '+', '.join(health['missing'])
                     else:
                         app.manual.finish()
-                        self.motion_gate = False
-                        self.send_control('auto')
+                        self.motion_gate = True
+                        self.send_control('hold')
                 if app.manual.state == 'WAIT_REPLAN' and app.mission.state == 'PAUSED':
                     app.manual.state = 'RELEASING'
                 # resume() appended the same goal after the main drain above.
@@ -2147,8 +2366,9 @@ def create_ros_bridge(app, options, context):
                 elif app.manual.state == 'ACTIVE' and cancelled:
                     self.send_control('manual', app.manual.linear, app.manual.angular)
                 elif app.localization.active:
-                    if app.localization.state == 'ROTATING' and cancelled and mux_held:
-                        self.send_control('manual', 0., self.localization_angular)
+                    if app.localization.state in app.localization.MOVING_STATES and cancelled:
+                        self.send_control('localization', 0., self.localization_angular,
+                                          operation='localization')
                     else:
                         self.stop()
                 elif app.mission.state == 'CONFIRMING':
@@ -2428,7 +2648,7 @@ def build_parser():
                         help='code: separate pairing PINs; domain: join using the current ROS domain')
     parser.add_argument('--camera-topic', default='/camera/image_raw')
     parser.add_argument('--front-camera-topic', default='/camera/front/image_raw',
-                        help='Front Image topic for preview and Sector 1-3 ArUco confirmation')
+                        help='Optional front Image preview; arrival camera is selected in marker configuration')
     parser.add_argument('--camera-rotation', type=int, choices=(0, 180), default=0,
                         help='Rotate incoming camera frames for ArUco detection and web preview (degrees)')
     parser.add_argument('--front-camera-rotation', type=int, choices=(0, 180), default=0,
@@ -2445,6 +2665,12 @@ def build_parser():
                         help='Normalized image center tolerance; .08 is +/-4%% image width')
     parser.add_argument('--marker-search-timeout', type=float, default=45.,
                         help='Maximum seconds for one arrival marker search attempt')
+    parser.add_argument('--require-marker-wall-alignment', action='store_true',
+                        help='Require fresh LiDAR wall-normal alignment and centered marker before arrival')
+    parser.add_argument('--marker-front-camera-pose', type=float, nargs=3, default=(0., 0., 0.),
+                        metavar=('X', 'Y', 'YAW'), help='Front camera optical-axis mount in base frame (m,m,rad)')
+    parser.add_argument('--marker-rear-camera-pose', type=float, nargs=3, default=(0., 0., math.pi),
+                        metavar=('X', 'Y', 'YAW'), help='Rear camera optical-axis mount in base frame (m,m,rad)')
     parser.add_argument('--marker-front-yaw-sign', type=float, choices=(-1., 1.), default=-1.)
     parser.add_argument('--marker-rear-yaw-sign', type=float, choices=(-1., 1.), default=-1.,
                         help='Upright non-mirrored front and rear images both use -1')
@@ -2563,6 +2789,7 @@ def main(args=None):
                     app.localization = AssistedLocalization()
                     app.localization_requested = app.localization_stop_requested = False
                     app.localization_services_ready = app.localization_service_pending = False
+                    app.localization_control = {'state': 'IDLE', 'reason': ''}
                     app.localization_amcl_active_at = app.localization_scan_at = app.localization_odom_at = 0.
                     app.localization_clear = app.localization_invalidated = False
                     app.localization_use_existing_pose = False

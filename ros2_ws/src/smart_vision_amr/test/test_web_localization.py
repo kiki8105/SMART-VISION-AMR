@@ -59,6 +59,14 @@ def ready_application(app, now):
     app.localization_amcl_active_at = app.localization_scan_at = app.localization_odom_at = now
     app.localization_clear = True
     app.localization_clearance = 1.
+    app.localization_health_at = now
+    app.localization_health = {'level': 'ok', 'autonomous_allowed': True,
+                               'allow_localization': True, 'reasons': []}
+    # This harness supplies an independently verified scan/Home raster match;
+    # individual negative cases replace or expire it explicitly.
+    app.home_seed_match = 1.
+    app.home_seed_match_at = now
+    app.home_seed_match_key = app.home_seed_key()
 
 
 def mission_bookkeeping(app):
@@ -98,14 +106,14 @@ class LocalizationHTTPTests(unittest.TestCase):
         self.remote.stop()
         self.temp.cleanup()
 
-    def request(self, endpoint, cookie=None, origin=None):
+    def request(self, endpoint, cookie=None, origin=None, payload=None):
         connection = http.client.HTTPConnection('127.0.0.1', self.server.server_port, timeout=3)
         headers = {'Content-Type': 'application/json'}
         if cookie:
             headers['Cookie'] = cookie
         if origin:
             headers['Origin'] = origin
-        connection.request('POST', endpoint, '{}', headers)
+        connection.request('POST', endpoint, json.dumps(payload or {}), headers)
         response = connection.getresponse()
         body, status = json.loads(response.read()), response.status
         connection.close()
@@ -138,6 +146,11 @@ class LocalizationHTTPTests(unittest.TestCase):
         self.app._show_map(self.app.map, np.zeros((10, 10), dtype=np.int16),
                            preview=False, source='ros', match=True)
 
+    def install_home(self):
+        self.app.delivery.registered_homepoint = {'x': .4, 'y': .4, 'yaw': 0.}
+        self.app.delivery.homepoint = deepcopy(self.app.delivery.registered_homepoint)
+        self.app.home_seed_match_key = self.app.home_seed_key()
+
     def test_known_free_current_pose_selects_local_refinement(self):
         self.install_known_free_map()
         before = deepcopy(self.app.pose)
@@ -151,10 +164,11 @@ class LocalizationHTTPTests(unittest.TestCase):
 
     def test_startup_home_initialization_uses_registered_home_without_camera(self):
         self.install_known_free_map()
-        self.app.delivery.registered_homepoint = {'x': .4, 'y': .4, 'yaw': 0.}
+        self.install_home()
         self.app.pose = None
         self.app.camera_at = 0.
-        status, body = self.request('/api/localization/start-home', self.cookie)
+        status, body = self.request('/api/localization/start-home', self.cookie,
+                                    payload={'confirm_actual_home': True})
         self.assertEqual(status, 200, body)
         self.assertEqual(body['localization']['mode'], 'home')
         self.assertEqual(self.app.localization_home_seed, {'x': .4, 'y': .4, 'yaw': 0.})
@@ -163,27 +177,66 @@ class LocalizationHTTPTests(unittest.TestCase):
 
     def test_startup_home_rejects_conflicting_marker_and_active_mission(self):
         self.install_known_free_map()
-        self.app.delivery.registered_homepoint = {'x': .4, 'y': .4, 'yaw': 0.}
+        self.install_home()
         self.app.detected_ids = [2]
-        status, body = self.request('/api/localization/start-home', self.cookie)
+        status, body = self.request('/api/localization/start-home', self.cookie,
+                                    payload={'confirm_actual_home': True})
         self.assertEqual(status, 400, body)
         self.assertIn('홈이 아닌', body['error'])
         self.app.detected_ids = [0]
         start_mid_mission(self.app)
-        status, body = self.request('/api/localization/start-home', self.cookie)
+        status, body = self.request('/api/localization/start-home', self.cookie,
+                                    payload={'confirm_actual_home': True})
         self.assertEqual(status, 400, body)
         self.assertFalse(self.app.localization.active)
 
     def test_startup_home_rejects_occupied_home_and_unclear_rotation(self):
         self.install_known_free_map()
-        self.app.delivery.registered_homepoint = {'x': .4, 'y': .4, 'yaw': 0.}
+        self.install_home()
         self.app._display_map_data[4, 4] = 100
-        status, _ = self.request('/api/localization/start-home', self.cookie)
+        status, _ = self.request('/api/localization/start-home', self.cookie,
+                                 payload={'confirm_actual_home': True})
         self.assertEqual(status, 400)
         self.app._display_map_data[4, 4] = 0
         self.app.localization_clear = False
-        status, _ = self.request('/api/localization/start-home', self.cookie)
+        status, _ = self.request('/api/localization/start-home', self.cookie,
+                                 payload={'confirm_actual_home': True})
         self.assertEqual(status, 400)
+
+    def test_home_confirmation_is_required_at_the_server_not_only_the_ui(self):
+        self.install_known_free_map()
+        self.install_home()
+        for payload in ({}, {'confirm_actual_home': False}, {'confirm_actual_home': 1}):
+            status, body = self.request('/api/localization/start-home', self.cookie, payload=payload)
+            self.assertEqual(status, 400, body)
+            self.assertIn('확인란', body['error'])
+            self.assertFalse(self.app.localization.active)
+
+    def test_home_prior_requires_current_real_scan_match_without_map_tf(self):
+        self.install_known_free_map()
+        self.install_home()
+        self.app.pose = None
+        for field, value in (('home_seed_match', .64), ('home_seed_match_at', 0.),
+                             ('home_seed_match_key', None), ('map_matches_configured', None)):
+            with self.subTest(field=field):
+                previous = getattr(self.app, field)
+                setattr(self.app, field, value)
+                status, body = self.request('/api/localization/start-home', self.cookie,
+                                            payload={'confirm_actual_home': True})
+                self.assertEqual(status, 400, body)
+                self.assertFalse(self.app.localization.active)
+                setattr(self.app, field, previous)
+
+    def test_custom_dispatch_home_must_be_restored_before_registered_home_init(self):
+        self.install_known_free_map()
+        self.install_home()
+        self.app.delivery.homepoint['yaw'] = 1.
+        status, body = self.request('/api/localization/start-home', self.cookie,
+                                    payload={'confirm_actual_home': True})
+        self.assertEqual(status, 400, body)
+        self.assertIn('등록 홈으로 복원', body['error'])
+        self.assertEqual(self.app.delivery.homepoint['yaw'], 1.)
+        self.assertFalse(self.app.localization.active)
 
     def test_outside_unknown_occupied_or_invalidated_pose_requires_global_search(self):
         for kind in ('outside', 'unknown', 'occupied', 'invalidated', 'stale'):
@@ -415,7 +468,10 @@ class LocalizationBridgeTests(unittest.TestCase):
 
     def refresh(self):
         ready_application(self.app, self.now)
-        self.app.manual_mux_status = {'mode': 'hold', 'source_id': self.node.motion_source}
+        packet = self.packets()[-1] if self.controls.messages else {'mode': 'hold', 'seq': 0}
+        self.app.manual_mux_status = {'mode': packet['mode'], 'source_id': self.node.motion_source,
+            'control_seq': packet['seq'], 'available': True, 'allow_localization': True,
+            'stop_acknowledged': packet.get('linear', 0.) == 0. and packet.get('angular', 0.) == 0.}
 
     def tick(self, delta=0., refresh=True):
         self.now += delta
@@ -456,6 +512,195 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(self.app.localization.state, 'ROTATING')
         self.assertEqual(self.global_reset.requests, [])
 
+    def prepare_home(self):
+        home = {'x': .4, 'y': .4, 'yaw': 0.}
+        self.app.delivery.registered_homepoint = home
+        self.app.delivery.homepoint = deepcopy(home)
+        self.app._show_map(self.app.map, np.zeros((10, 10), dtype=np.int16),
+                           preview=False, source='ros', match=True)
+        self.refresh()
+
+    def acquire_home(self):
+        self.prepare_home()
+        self.app.command('/api/localization/start-home', {'confirm_actual_home': True})
+        self.tick()
+        self.cancel.acknowledge(success=True)
+        self.tick(.1)
+        self.tick(.9)
+        self.assertEqual(self.app.localization.state, 'ROTATING')
+
+    def home_pose_tick(self, yaw, *, angular=0., health=None):
+        self.now += .1
+        self.refresh()
+        self.app.pose = {'x': .4, 'y': .4, 'yaw': yaw}
+        self.app.speed['angular'] = angular
+        if health is not None:
+            self.app.localization_health = health
+        self.app.localization.on_odom(yaw, self.now)
+        self.app.localization.on_estimate(.4, .4, yaw, .1, .1, now=self.now, quality_ok=True)
+        self.node.tick()
+
+    def enter_home_return(self):
+        self.acquire_home()
+        self.app.localization.min_rotation = .2
+        self.app.localization.stable_duration = .1
+        self.app.localization.min_estimates = 2
+        self.app.localization.settle_duration = .1
+        self.app.localization.on_odom(0., self.now)
+        yaw = 0.
+        for _ in range(20):
+            yaw += .02
+            self.home_pose_tick(yaw, angular=.2)
+            if self.app.localization.state == 'RETURNING':
+                return yaw
+        self.fail('Expected Home return')
+
+    def test_home_return_requires_new_lease_then_new_stopped_hold_and_estimate_epoch(self):
+        yaw = self.enter_home_return()
+        return_seq = self.node.localization_lease_seq
+        self.assertEqual(self.packets()[-1]['angular'], 0.)
+        self.assertGreater(return_seq, self.node.localization_hold_seq)
+        self.assertFalse(self.app.delivery.at_home(), 'measured rotation is not a dispatch-ready Home')
+
+        self.now += .1
+        self.refresh()
+        self.app.manual_mux_status['control_seq'] = return_seq-1
+        self.app.localization.on_odom(yaw, self.now)
+        self.node.tick()
+        self.assertEqual(self.packets()[-1]['angular'], 0., 'old sweep lease cannot authorize return')
+        self.assertEqual(self.app.localization_control['state'], 'WAIT_LEASE')
+        self.home_pose_tick(yaw)
+        self.assertLess(self.packets()[-1]['angular'], 0.)
+        previous_epoch = self.node.localization_epoch_ns
+        # Model the actual measured final approach, not a guessed Home pose.
+        for _ in range(30):
+            yaw = max(.04, yaw-.02)
+            self.home_pose_tick(yaw, angular=-.1)
+            if self.app.localization.state == 'SETTLING':
+                break
+        self.assertEqual(self.app.localization.state, 'SETTLING')
+        self.assertEqual(self.packets()[-1]['mode'], 'hold')
+        stop_seq = self.node.localization_hold_seq
+        self.assertGreater(stop_seq, return_seq)
+        self.assertGreater(self.node.localization_epoch_ns, previous_epoch)
+        self.assertEqual(self.app.localization.snapshot()['good_estimates'], 0)
+
+        for _ in range(5):
+            self.now += .1
+            self.refresh()
+            self.app.manual_mux_status['control_seq'] = stop_seq-1
+            self.app.localization.on_odom(yaw, self.now)
+            self.app.localization.on_estimate(.4, .4, yaw, .1, .1, now=self.now)
+            self.node.tick()
+        self.assertEqual(self.app.localization.state, 'SETTLING', 'previous hold ACK cannot finish')
+        self.home_pose_tick(yaw)
+        self.assertEqual(self.app.localization.state, 'SETTLING', 'actual stop starts a new AMCL interval')
+        for _ in range(5):
+            self.home_pose_tick(yaw)
+            if self.app.localization.succeeded:
+                break
+        self.assertEqual(self.app.localization.state, 'SUCCEEDED')
+        self.assertTrue(self.app.delivery.at_home(), 'Home result clears the actual dispatch heading gate')
+        self.assertEqual(len(self.seed_poses.messages), 1)
+        self.assertFalse(self.global_reset.requests)
+        self.assertFalse(self.goals.messages)
+        self.assertTrue(all(packet['linear'] == 0. for packet in self.packets()))
+        self.assertFalse(any(packet['mode'] == 'auto' for packet in self.packets()))
+
+    def test_home_return_health_gap_zeroes_and_preserves_original_budget(self):
+        yaw = self.enter_home_return()
+        started = self.app.localization.started_at
+        self.home_pose_tick(yaw, health={'level': 'warning', 'allow_localization': False,
+                                       'autonomous_allowed': False})
+        self.assertEqual(self.app.localization.state, 'RETURNING')
+        self.assertEqual(self.packets()[-1]['angular'], 0.)
+        self.assertEqual(self.app.localization_control['state'], 'WAIT_HEALTH')
+        self.assertEqual(self.app.localization.started_at, started)
+        self.tick(.1)
+        self.assertEqual(self.packets()[-1]['angular'], 0., 'gap recovery still needs new odom/AMCL')
+        self.home_pose_tick(yaw)
+        self.assertLess(self.packets()[-1]['angular'], 0.)
+
+    def test_home_return_critical_stop_never_auto_resumes(self):
+        yaw = self.enter_home_return()
+        self.home_pose_tick(yaw, health={'level': 'critical', 'stop_latched': True,
+                                       'allow_localization': False, 'autonomous_allowed': False})
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertEqual(self.packets()[-1]['angular'], 0.)
+        self.assertFalse(self.goals.messages)
+
+    def test_home_return_final_epoch_rejects_amcl_produced_before_stop(self):
+        yaw = self.enter_home_return()
+        for _ in range(30):
+            yaw = max(.04, yaw-.02)
+            self.home_pose_tick(yaw)
+            if self.app.localization.state == 'SETTLING':
+                break
+        epoch = self.node.localization_epoch_ns
+        self.node.source_fresh = lambda *_args, **_kwargs: True
+        self.node.localization_scan = SimpleNamespace()
+        self.node.localization_laser_pose = (0., 0., 0.)
+        self.app.localization_distance = np.ones((10, 10))
+        with patch('smart_vision_amr.web_mission_server.scan_points', return_value=np.ones((20, 2))), \
+                patch('smart_vision_amr.web_mission_server.scan_map_agreement', return_value=1.):
+            for stamp in (epoch-1, epoch+1):
+                self.now += .1
+                self.refresh()
+                message = PoseWithCovarianceStamped()
+                message.header.frame_id = 'map'
+                message.header.stamp.sec, message.header.stamp.nanosec = divmod(stamp, 1_000_000_000)
+                message.pose.pose.position.x = message.pose.pose.position.y = .4
+                message.pose.pose.orientation.w = 1.
+                message.pose.covariance[0] = message.pose.covariance[7] = message.pose.covariance[35] = .01
+                self.node.on_amcl(message)
+                self.assertEqual(self.app.localization.snapshot()['good_estimates'], 1 if stamp > epoch else 0)
+
+    def test_home_seed_is_rechecked_after_handoff_and_does_not_reset_estop(self):
+        self.prepare_home()
+        self.app.command('/api/localization/start-home', {'confirm_actual_home': True})
+        self.tick()
+        self.cancel.acknowledge(success=True)
+        self.tick(.1)
+        self.now += .9
+        self.refresh()
+        self.app.home_seed_match = .5
+        self.node.tick()
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertFalse(self.seed_poses.messages)
+        self.assertEqual(self.packets()[-1]['mode'], 'hold')
+        self.app.mission.emergency_stop()
+        with self.assertRaises(ValueError):
+            self.app.command('/api/localization/start-home', {'confirm_actual_home': True})
+        self.assertTrue(self.app.mission.estop_latched)
+
+    def test_unlatched_idle_scan_updates_known_home_proof_without_map_to_base_tf(self):
+        self.prepare_home()
+        self.app.home_seed_match = None
+        self.app.home_seed_match_at = 0.
+        self.app.localization_distance = np.ones((10, 10))
+        self.node.source_fresh = lambda *_args, **_kwargs: True
+        transform = SimpleNamespace(transform=SimpleNamespace(
+            translation=SimpleNamespace(x=0., y=0.), rotation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
+        calls = []
+
+        def laser_only(target, source, _time):
+            calls.append((target, source))
+            if target == 'map':
+                raise TransformException('No current map pose')
+            return transform
+        self.node.tf_buffer.lookup_transform = laser_only
+        message = LaserScan()
+        message.header.frame_id = 'isolated_laser'
+        message.range_min, message.range_max = .1, 8.
+        message.angle_increment = 2*math.pi/360
+        message.ranges = [1.]*360
+        with patch('smart_vision_amr.web_mission_server.scan_map_agreement', return_value=.9):
+            self.node.on_scan(message)
+        self.assertEqual(self.app.home_seed_match, .9)
+        self.assertEqual(self.app.home_seed_match_key, self.app.home_seed_key())
+        self.assertTrue(self.app.startup_home_readiness()[0])
+        self.assertFalse(any(target == 'map' for target, _ in calls))
+
     def test_local_refinement_never_resets_amcl_and_requests_new_estimates(self):
         self.acquire_local()
         self.assertTrue(self.app.localization_use_existing_pose)
@@ -471,12 +716,10 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(self.packets()[-1]['angular'], .2)
 
     def test_startup_home_seeds_amcl_only_after_cancel_and_mux_hold(self):
-        self.app.delivery.registered_homepoint = {'x': .4, 'y': .4, 'yaw': 0.}
-        self.app._show_map(self.app.map, np.zeros((10, 10), dtype=np.int16),
-                           preview=False, source='ros', match=True)
+        self.prepare_home()
         self.app.pose = None
         self.app.camera_at = 0.
-        self.app.command('/api/localization/start-home', {})
+        self.app.command('/api/localization/start-home', {'confirm_actual_home': True})
         self.tick()
         self.assertEqual(self.seed_poses.messages, [])
         self.cancel.acknowledge(success=True)
@@ -500,10 +743,8 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(self.packets()[-1]['mode'], 'hold')
 
     def test_startup_home_refuses_seed_without_amcl_subscriber(self):
-        self.app.delivery.registered_homepoint = {'x': .4, 'y': .4, 'yaw': 0.}
-        self.app._show_map(self.app.map, np.zeros((10, 10), dtype=np.int16),
-                           preview=False, source='ros', match=True)
-        self.app.command('/api/localization/start-home', {})
+        self.prepare_home()
+        self.app.command('/api/localization/start-home', {'confirm_actual_home': True})
         self.node.get_subscriptions_info_by_topic = lambda _: [SimpleNamespace(node_name='web_mission_server')]
         self.tick()
         self.cancel.acknowledge(success=True)
@@ -749,6 +990,267 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(len(self.global_reset.requests), 0)
         self.assertTrue(all(packet['angular'] == 0. for packet in self.packets()))
 
+    def test_previous_hold_sequence_and_unpublished_stop_cannot_acquire(self):
+        self.app.command('/api/localization/start', {})
+        self.tick()
+        self.cancel.acknowledge(success=True)
+        self.tick(.1)
+        self.now += 1.
+        self.refresh()
+        self.app.manual_mux_status['control_seq'] = self.node.localization_hold_seq-1
+        self.node.tick()
+        self.assertEqual(self.app.localization.state, 'ACQUIRING')
+        self.assertFalse(self.global_reset.requests)
+        self.refresh()
+        self.app.manual_mux_status['stop_acknowledged'] = False
+        self.node.tick()
+        self.assertEqual(self.app.localization.state, 'ACQUIRING')
+        self.refresh()
+        self.node.tick()
+        self.assertEqual(self.app.localization.state, 'INITIALIZING')
+
+    def test_initial_covariance_warning_permits_only_the_localization_lease(self):
+        self.app._show_map(self.app.map, np.zeros((10, 10), dtype=np.int16),
+                           preview=False, source='ros', match=True)
+        self.app.require_localization_health = True
+        self.app.command('/api/localization/start', {})
+        warning = {'level': 'warning', 'autonomous_allowed': False,
+                   'allow_localization': True, 'reasons': ['initializing', 'position_std_high'],
+                   'metrics': {'position_std_m': .446}}
+
+        def warning_tick(delta):
+            self.now += delta
+            self.refresh()
+            self.app.localization_health = warning
+            self.node.tick()
+
+        warning_tick(0.)
+        self.cancel.acknowledge(success=True)
+        warning_tick(.1)
+        warning_tick(.9)
+        self.assertEqual(self.app.localization.state, 'ROTATING')
+        self.assertFalse(self.app.readiness()['ready'])
+        self.assertEqual(self.packets()[-1]['mode'], 'localization')
+        self.assertEqual(self.packets()[-1]['angular'], 0., 'acquire a distinct zero lease first')
+        self.app.localization.on_odom(0., self.now)
+        warning_tick(.1)
+        self.assertEqual(self.packets()[-1]['mode'], 'localization')
+        self.assertEqual(self.packets()[-1]['linear'], 0.)
+        self.assertEqual(self.packets()[-1]['angular'], .2)
+        self.assertFalse(any(packet['mode'] == 'auto' for packet in self.packets()))
+        self.assertFalse(self.goals.messages)
+
+    def test_rejected_localization_lease_times_out_without_rotation_or_resume(self):
+        start_mid_mission(self.app)
+        self.initialize()
+        begin = len(self.controls.messages)
+        for delta in (.1, .5, .5):
+            self.now += delta
+            self.refresh()
+            self.app.manual_mux_status.update(mode='hold',
+                control_seq=self.node.localization_hold_seq,
+                control_rejected_reason='Localization requires a fresh hold handoff')
+            self.app.localization.on_odom(0., self.now)
+            self.node.tick()
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertIn('승인되지', self.app.localization.reason)
+        self.assertEqual(self.app.mission.state, 'PAUSED')
+        self.assertTrue(all(packet['angular'] == 0. for packet in self.packets()[begin:]))
+        self.assertFalse(any(packet['mode'] == 'auto' for packet in self.packets()[begin:]))
+
+    def test_stale_or_foreign_localization_lease_zeroes_output(self):
+        self.initialize()
+        self.tick(.1)
+        self.assertEqual(self.packets()[-1]['angular'], .2)
+        self.now += .1
+        self.refresh()
+        self.app.manual_mux_status['source_id'] = 'other-operator'
+        self.node.tick()
+        self.assertEqual(self.packets()[-1]['angular'], 0.)
+        self.now += 1.
+        self.refresh()
+        self.app.manual_mux_at = self.now-.6
+        self.node.tick()
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertEqual(self.packets()[-1]['mode'], 'hold')
+
+    def policy_gap_tick(self, delta=.1, *, fresh=True, health=None):
+        self.now += delta
+        self.refresh()
+        self.app.localization_health = health or {'level': 'warning', 'autonomous_allowed': False,
+            'allow_localization': False, 'reasons': ['initializing', 'odom_tf_unavailable']}
+        if not fresh:
+            self.app.localization_health_at = self.now-1.1
+        self.node.tick()
+
+    def test_transient_warning_policy_gap_holds_same_attempt_until_new_odom_and_lease_ack(self):
+        self.initialize()
+        self.tick(.1)
+        self.assertEqual(self.packets()[-1]['angular'], .2)
+        started = self.app.localization.started_at
+        reset_count = len(self.global_reset.requests)
+        self.policy_gap_tick()
+        self.assertEqual(self.app.localization.state, 'ROTATING')
+        self.assertEqual(self.app.localization_control['state'], 'WAIT_HEALTH')
+        self.assertEqual(self.packets()[-1]['angular'], 0.)
+        self.assertIsNone(self.app.localization.last_odom_at)
+        self.assertEqual(self.app.localization.snapshot()['good_estimates'], 0)
+        self.tick(.3)
+        self.assertEqual(self.app.localization.state, 'ROTATING')
+        self.assertEqual(self.packets()[-1]['angular'], 0., 'new odometry baseline is mandatory')
+        self.now += .1
+        self.refresh()
+        self.app.localization.on_odom(0., self.now)
+        self.app.manual_mux_status['mode'] = 'hold'
+        self.node.tick()
+        self.assertEqual(self.packets()[-1]['angular'], 0., 'the localization lease must still be acknowledged')
+        self.tick(.1)
+        self.assertEqual(self.app.localization.state, 'ROTATING')
+        self.assertEqual(self.packets()[-1]['angular'], .2)
+        self.assertEqual(self.app.localization.started_at, started)
+        self.assertEqual(len(self.global_reset.requests), reset_count)
+        self.assertFalse(any(packet['mode'] == 'auto' for packet in self.packets()))
+
+    def test_persistent_warning_or_heartbeat_gap_fails_held_after_one_second(self):
+        start_mid_mission(self.app)
+        self.initialize()
+        self.tick(.1)
+        self.policy_gap_tick()
+        self.policy_gap_tick(.5, fresh=False)
+        self.assertEqual(self.app.localization.state, 'ROTATING')
+        self.assertEqual(self.packets()[-1]['angular'], 0.)
+        self.policy_gap_tick(.51, fresh=False)
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertIn('1초 이상', self.app.localization.reason)
+        self.assertEqual(self.packets()[-1]['mode'], 'hold')
+        self.assertEqual(self.app.mission.state, 'PAUSED')
+        self.assertFalse(any(packet['mode'] == 'auto' for packet in self.packets()))
+
+    def test_duplicate_health_messages_cannot_extend_a_policy_gap(self):
+        self.initialize()
+        payload = {'sent_at_ns': self.node.get_clock().now().nanoseconds,
+            'level': 'warning', 'allow_localization': False, 'reasons': ['odom_tf_unavailable']}
+        message = SimpleNamespace(data=json.dumps(payload))
+        self.node.on_health(message)
+        received = self.app.localization_health_at
+        self.node.tick()
+        for delta in (.4, .4, .21):
+            self.now += delta
+            self.refresh()
+            self.app.localization_health, self.app.localization_health_at = payload, received
+            self.node.on_health(message)
+            self.assertEqual(self.app.localization_health_at, received)
+            self.node.tick()
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertTrue(all(packet['angular'] == 0. for packet in self.packets()))
+
+    def test_policy_gap_never_extends_the_original_localization_timeout(self):
+        self.initialize()
+        started = self.app.localization.started_at
+        self.now = started+self.app.localization.timeout-.05
+        self.refresh()
+        self.policy_gap_tick(0.)
+        self.assertEqual(self.app.localization.state, 'ROTATING')
+        self.policy_gap_tick(.05)
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertIn('제한 시간', self.app.localization.reason)
+        self.assertEqual(self.app.localization.started_at, started)
+        self.assertEqual(self.packets()[-1]['mode'], 'hold')
+
+    def test_critical_or_latched_health_fails_immediately_during_a_policy_gap(self):
+        self.initialize()
+        self.policy_gap_tick()
+        self.policy_gap_tick(.1, health={'level': 'critical', 'allow_localization': False,
+            'stop_latched': True, 'reasons': ['odom_tf_unavailable']})
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertEqual(self.packets()[-1]['mode'], 'hold')
+
+    def test_joystick_and_map_changes_still_interrupt_a_policy_gap(self):
+        self.initialize()
+        self.policy_gap_tick()
+        self.app.manual_command('operator', {'control_id': str(uuid4()), 'seq': 1,
+            'active': True, 'linear': 0., 'angular': .2})
+        self.tick(.1)
+        self.assertEqual(self.app.localization.state, 'CANCELED')
+        self.assertEqual(self.app.manual.state, 'ACQUIRING')
+        self.assertEqual(self.packets()[-1]['angular'], 0.)
+
+    def test_wrong_map_fails_immediately_during_a_policy_gap(self):
+        self.initialize()
+        self.policy_gap_tick()
+        self.now += .1
+        self.refresh()
+        self.app.map_matches_configured = False
+        self.node.tick()
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertEqual(self.packets()[-1]['mode'], 'hold')
+
+    def test_post_home_seed_initializing_warning_waits_for_first_new_sensor_baseline(self):
+        self.prepare_home()
+        self.app.command('/api/localization/start-home', {'confirm_actual_home': True})
+        self.tick()
+        self.cancel.acknowledge(success=True)
+        self.tick(.1)
+        self.tick(.9)
+        self.assertEqual(len(self.seed_poses.messages), 1)
+        self.assertEqual(self.app.localization.state, 'ROTATING')
+        self.policy_gap_tick()
+        self.assertEqual(self.app.localization.state, 'ROTATING')
+        self.assertEqual(self.packets()[-1]['angular'], 0.)
+        self.tick(.1)
+        self.assertEqual(self.packets()[-1]['angular'], 0.)
+        self.app.localization.on_odom(0., self.now)
+        self.tick(.1)
+        self.assertEqual(self.packets()[-1]['angular'], .2)
+        self.assertEqual(len(self.seed_poses.messages), 1)
+        self.assertFalse(self.global_reset.requests)
+        self.assertFalse(self.goals.messages)
+
+    def test_motion_and_health_replays_do_not_renew_receipt_freshness(self):
+        stamp = self.node.get_clock().now().nanoseconds
+        for callback, field in ((self.node.on_motion, 'manual_mux_at'),
+                                (self.node.on_health, 'localization_health_at')):
+            payload = {'sent_at_ns': stamp, 'mode': 'hold', 'level': 'ok'}
+            callback(SimpleNamespace(data=json.dumps(payload)))
+            accepted_at = getattr(self.app, field)
+            self.now += .1
+            callback(SimpleNamespace(data=json.dumps(payload)))
+            self.assertEqual(getattr(self.app, field), accepted_at)
+            for invalid in ({}, {'sent_at_ns': True}, {'sent_at_ns': stamp+2_000_000_000},
+                            {'sent_at_ns': stamp-2_000_000_000}):
+                callback(SimpleNamespace(data=json.dumps(invalid)))
+                self.assertEqual(getattr(self.app, field), accepted_at)
+
+    def test_settlement_needs_healthy_guard_and_actual_stop(self):
+        self.initialize()
+        self.app.localization.min_rotation = .02
+        self.app.localization.stable_duration = .1
+        self.app.localization.settle_duration = .1
+        self.app.localization.min_estimates = 2
+        yaw = 0.
+        for _ in range(20):
+            self.now += .1
+            self.refresh()
+            self.app.localization_health = {'level': 'warning', 'autonomous_allowed': True,
+                                           'allow_localization': True, 'reasons': ['position_std_high']}
+            if self.app.localization.state == 'ROTATING':
+                yaw += .02
+            self.app.localization.on_odom(yaw, self.now)
+            self.app.localization.on_estimate(.4, .4, yaw, .1, .1, now=self.now, quality_ok=True)
+            self.node.tick()
+        self.assertEqual(self.app.localization.state, 'SETTLING')
+        self.now += .1
+        self.refresh()
+        self.app.speed['linear'] = .08
+        self.app.localization.on_odom(yaw, self.now)
+        self.app.localization.on_estimate(.4, .4, yaw, .1, .1, now=self.now, quality_ok=True)
+        self.node.tick()
+        self.assertEqual(self.app.localization.state, 'SETTLING')
+        self.app.speed['linear'] = 0.
+        self.tick(.1)
+        self.assertEqual(self.app.localization.state, 'SUCCEEDED')
+        self.assertFalse(any(packet['mode'] == 'auto' for packet in self.packets()))
+
     def test_only_after_reset_ack_and_new_odom_may_rotation_begin(self):
         self.acquire()
         self.tick(.2)
@@ -758,7 +1260,7 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(self.packets()[-1]['angular'], 0.)
         self.app.localization.on_odom(0., self.now)
         self.tick(.1)
-        self.assertEqual(self.packets()[-1]['mode'], 'manual')
+        self.assertEqual(self.packets()[-1]['mode'], 'localization')
         self.assertEqual(self.packets()[-1]['linear'], 0.)
         self.assertEqual(self.packets()[-1]['angular'], .2)
 

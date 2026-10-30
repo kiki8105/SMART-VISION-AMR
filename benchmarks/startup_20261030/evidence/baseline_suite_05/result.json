@@ -1,0 +1,7449 @@
+{
+  "passed": true,
+  "scenario": "suite",
+  "domain": 186,
+  "gazebo_master_uri": "http://127.0.0.1:11586",
+  "web_url": "http://127.0.0.1:8796",
+  "physical_vehicle_or_domain16_touched": false,
+  "synthetic_sensor_or_localization_feedback": false,
+  "initial_pose_is_actual_known_simulator_pose": true,
+  "initial_pose_std_requested_m": 0.446,
+  "checks": [
+    {
+      "name": "startup_stop_latched",
+      "passed": true
+    },
+    {
+      "name": "real_amcl_updates_after_high_covariance_seed",
+      "passed": true,
+      "samples": 3,
+      "position_std": [
+        0.3947870475945736,
+        0.3311870199901756,
+        0.2864963039804017
+      ],
+      "requests": 3,
+      "responses": 3
+    },
+    {
+      "name": "stationary_convergence_never_moves",
+      "passed": true
+    },
+    {
+      "name": "stationary_convergence_keeps_startup_latch",
+      "passed": true
+    },
+    {
+      "name": "stationary_converged_without_threshold_relaxation",
+      "passed": true,
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "metrics": {
+          "map_available": true,
+          "scan_age_seconds": 0.1272737459999007,
+          "odom_age_seconds": 0.00234690600018439,
+          "scan_header_age_seconds": 0.117,
+          "odom_header_age_seconds": -0.009,
+          "scan_valid": true,
+          "odom_valid": true,
+          "position_std_m": 0.2864963039804017,
+          "yaw_std_rad": 0.10333342749449904,
+          "amcl_age_seconds": 0.303932881000037,
+          "amcl_update_epoch": 2152.012066541,
+          "amcl_header_age_seconds": 0.317,
+          "moving": false,
+          "pose_jump": false,
+          "scan_map_agreement": 1.0,
+          "agreement_age_seconds": 0.09997474300007525,
+          "agreement_header_age_seconds": 0.117,
+          "map_tf_age_seconds": -0.009,
+          "odom_tf_valid": true,
+          "amcl_update_requests": 3,
+          "amcl_update_responses": 3,
+          "amcl_update_timeouts": 0,
+          "amcl_update_errors": 0,
+          "scan_tf_state": "READY",
+          "scan_tf_error": "",
+          "scan_tf_wait_ms": 27.29900299982546,
+          "scan_tf_drop_count": 2,
+          "scan_tf_pending_count": 0,
+          "amcl_refresh_mode": "stationary",
+          "amcl_refresh_state": "RESPONDED",
+          "amcl_stationary_update_requests": 2,
+          "odom_last_received_age_seconds": 0.00234690600018439,
+          "odom_raw_header_age_seconds": -0.009,
+          "odom_rejected_count": 0,
+          "odom_rejection_reason": "",
+          "odom_last_rejection_reason": "",
+          "odom_receive_interval_seconds": 0.03702180699974633,
+          "odom_header_interval_seconds": 0.034,
+          "scan_last_received_age_seconds": 0.1272737459999007,
+          "scan_raw_header_age_seconds": 0.117,
+          "scan_rejected_count": 0,
+          "scan_rejection_reason": "",
+          "scan_last_rejection_reason": "",
+          "scan_receive_interval_seconds": 0.19923552099999142,
+          "scan_header_interval_seconds": 0.2,
+          "amcl_motion_without_update_seconds": 0.0,
+          "amcl_motion_dt_clamped": 0
+        },
+        "stop_latched": false,
+        "autonomous_allowed": true,
+        "allow_localization": true,
+        "reinitialization_requested": true,
+        "stable_seconds": 2.2499231769998005,
+        "stamp_ns": 4900000000,
+        "sent_at_ns": 4900000000,
+        "explanations": []
+      }
+    },
+    {
+      "name": "repeated_assisted_start_rejected",
+      "passed": true,
+      "response": {
+        "error": "이미 위치 확인 중입니다."
+      }
+    },
+    {
+      "name": "assisted_succeeded",
+      "passed": true,
+      "localization": {
+        "state": "SUCCEEDED",
+        "active": false,
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다.",
+        "angular": 0.0,
+        "rotation_degrees": 90.28949580384045,
+        "progress": 0.25080415501066794,
+        "elapsed": 9.777425045999735,
+        "estimate": {
+          "x": -3.019145487025804,
+          "y": -2.001786374086107,
+          "yaw": 1.5875840388409979,
+          "position_std": 0.07829161323006735,
+          "yaw_std": 0.06900094679658877,
+          "quality_ok": true
+        },
+        "good_estimates": 17,
+        "quality_ok": true,
+        "available": true,
+        "clearance": 1.9767953664049822,
+        "scan_match": 1.0,
+        "startup_home_available": true,
+        "startup_home_reason": "마커 확인 없이 등록 홈을 초기 위치로 가정합니다. 실제로 홈에 놓였을 때만 누르세요.",
+        "control": {
+          "state": "SUCCEEDED",
+          "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+        },
+        "home_seed_available": false,
+        "home_seed_reason": "차량의 비상정지 확인 응답이 필요합니다.",
+        "home_seed_pending": false,
+        "home_seed_result": "",
+        "home_seed_match": 1.0,
+        "mode": "home",
+        "mode_label": "등록 홈 기준 자세 초기화",
+        "use_existing_pose": false,
+        "rotated_degrees": 90.28949580384045,
+        "angular_velocity": 0.0,
+        "position_std": 0.07829161323006735,
+        "yaw_std_degrees": 3.9534630338512744
+      }
+    },
+    {
+      "name": "assisted_actual_rotation_command",
+      "passed": true
+    },
+    {
+      "name": "home_prior_after_mux_hold_ack_before_rotation",
+      "passed": true,
+      "priors": [
+        {
+          "t": 11.349,
+          "stamp_ns": 6820000000,
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0,
+          "variance_x": 0.09,
+          "variance_y": 0.09,
+          "motion_status": {
+            "mode": "hold",
+            "available": true,
+            "reason": "Motion held",
+            "source_id": "qIv7xnpsg1ObMBrIIjoq2wZn",
+            "estop_latched": false,
+            "control_seq": 108,
+            "allow_localization": true,
+            "auto_source_id": null,
+            "auto_rejected_reason": "",
+            "control_rejected_reason": "",
+            "control_received": 107,
+            "control_accepted": 107,
+            "control_rejected": 0,
+            "auto_received": 0,
+            "auto_accepted": 0,
+            "auto_rejected": 0,
+            "control_by_origin": {
+              "topic": {
+                "received": 106,
+                "accepted": 106,
+                "rejected": 0
+              },
+              "service": {
+                "received": 1,
+                "accepted": 1,
+                "rejected": 0
+              }
+            },
+            "auto_by_origin": {},
+            "last_control": {
+              "source_id": "qIv7xnpsg1ObMBrIIjoq2wZn",
+              "seq": 108,
+              "mode": "hold",
+              "accepted": true,
+              "reason": "",
+              "origin": "topic",
+              "received_at_monotonic_ns": 2154157711616
+            },
+            "last_control_rejection": null,
+            "last_auto": null,
+            "last_auto_rejection": null,
+            "output_owner": "hold",
+            "localization_speed_factor": 1.0,
+            "autonomous_allowed": true,
+            "localization_reason": "",
+            "output_linear": 0.0,
+            "output_angular": 0.0,
+            "status_seq": 91,
+            "sent_at_ns": 6780000000,
+            "mux_instance_id": "mux-service:0f7b506a24ef44a288b5459cccb65b9e",
+            "output_publishers": 1,
+            "stop_acknowledged": true,
+            "reset_pending": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "assisted_zero_linear_and_low_angular",
+      "passed": true,
+      "max_linear": 0.0,
+      "max_angular": 0.2
+    },
+    {
+      "name": "assisted_exclusive_mux_lease",
+      "passed": true
+    },
+    {
+      "name": "assisted_real_gazebo_rotation",
+      "passed": true
+    },
+    {
+      "name": "assisted_preserves_route",
+      "passed": true,
+      "before": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      },
+      "after": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      }
+    },
+    {
+      "name": "assisted_does_not_auto_start_mission",
+      "passed": true
+    },
+    {
+      "name": "stale_scan_stops_within_one_second",
+      "passed": true,
+      "stop_latency_seconds": 0.49620000000000175
+    },
+    {
+      "name": "fault_is_scan_only_genuine_source_continues",
+      "passed": true
+    },
+    {
+      "name": "scan_restore_does_not_auto_resume",
+      "passed": true
+    },
+    {
+      "name": "control_failure_preserves_mission_route",
+      "passed": true,
+      "before": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      },
+      "after": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      }
+    },
+    {
+      "name": "repeated_assisted_start_rejected",
+      "passed": true,
+      "response": {
+        "error": "이미 위치 확인 중입니다."
+      }
+    },
+    {
+      "name": "assisted_succeeded",
+      "passed": true,
+      "localization": {
+        "state": "SUCCEEDED",
+        "active": false,
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다.",
+        "angular": 0.0,
+        "rotation_degrees": 90.09872421006756,
+        "progress": 0.2502742339168543,
+        "elapsed": 10.395849246000125,
+        "estimate": {
+          "x": -2.9336548305824235,
+          "y": -1.913785591046384,
+          "yaw": 2.139924239377337,
+          "position_std": 0.08946694036435626,
+          "yaw_std": 0.06488320089301279,
+          "quality_ok": true
+        },
+        "good_estimates": 18,
+        "quality_ok": true,
+        "available": true,
+        "clearance": 2.0444268192439448,
+        "scan_match": 1.0,
+        "startup_home_available": true,
+        "startup_home_reason": "마커 확인 없이 등록 홈을 초기 위치로 가정합니다. 실제로 홈에 놓였을 때만 누르세요.",
+        "control": {
+          "state": "SUCCEEDED",
+          "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+        },
+        "home_seed_available": false,
+        "home_seed_reason": "차량의 비상정지 확인 응답이 필요합니다.",
+        "home_seed_pending": false,
+        "home_seed_result": "",
+        "home_seed_match": 0.14375,
+        "mode": "local",
+        "mode_label": "현재 위치 보정",
+        "use_existing_pose": true,
+        "rotated_degrees": 90.09872421006756,
+        "angular_velocity": 0.0,
+        "position_std": 0.08946694036435626,
+        "yaw_std_degrees": 3.7175335724690868
+      }
+    },
+    {
+      "name": "assisted_actual_rotation_command",
+      "passed": true
+    },
+    {
+      "name": "assisted_zero_linear_and_low_angular",
+      "passed": true,
+      "max_linear": 0.0,
+      "max_angular": 0.2
+    },
+    {
+      "name": "assisted_exclusive_mux_lease",
+      "passed": true
+    },
+    {
+      "name": "assisted_real_gazebo_rotation",
+      "passed": true
+    },
+    {
+      "name": "assisted_preserves_route",
+      "passed": true,
+      "before": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      },
+      "after": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      }
+    },
+    {
+      "name": "assisted_does_not_auto_start_mission",
+      "passed": true
+    },
+    {
+      "name": "tf_outage_blocks_and_latches_stop",
+      "passed": true,
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "map_tf_unavailable",
+          "scan_map_check_unavailable"
+        ],
+        "metrics": {
+          "map_available": true,
+          "scan_age_seconds": 0.1353095120002763,
+          "odom_age_seconds": 0.0006956960000934487,
+          "scan_header_age_seconds": 0.091,
+          "odom_header_age_seconds": -0.013,
+          "scan_valid": true,
+          "odom_valid": true,
+          "position_std_m": 0.12403188458357373,
+          "yaw_std_rad": 0.10831483123436013,
+          "amcl_age_seconds": 2.954545103000328,
+          "amcl_update_epoch": 2186.611725165,
+          "amcl_header_age_seconds": 2.891,
+          "moving": false,
+          "pose_jump": false,
+          "scan_map_agreement": 1.0,
+          "agreement_age_seconds": 1.9501123879999795,
+          "agreement_header_age_seconds": 1.891,
+          "map_tf_age_seconds": 1.891,
+          "odom_tf_valid": true,
+          "amcl_update_requests": 7,
+          "amcl_update_responses": 6,
+          "amcl_update_timeouts": 1,
+          "amcl_update_errors": 0,
+          "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+          "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 41.389000 but the latest data is at time 40.983000, when looking up transform from frame [base_footprint] to frame [map]",
+          "scan_tf_wait_ms": 3.5377700000935874,
+          "scan_tf_drop_count": 10,
+          "scan_tf_pending_count": 1,
+          "amcl_refresh_mode": "moving",
+          "amcl_refresh_state": "TIMEOUT",
+          "amcl_stationary_update_requests": 0,
+          "odom_last_received_age_seconds": 0.0006956960000934487,
+          "odom_raw_header_age_seconds": -0.013,
+          "odom_rejected_count": 0,
+          "odom_rejection_reason": "",
+          "odom_last_rejection_reason": "",
+          "odom_receive_interval_seconds": 0.03994882400002098,
+          "odom_header_interval_seconds": 0.034,
+          "scan_last_received_age_seconds": 0.1353095120002763,
+          "scan_raw_header_age_seconds": 0.091,
+          "scan_rejected_count": 0,
+          "scan_rejection_reason": "",
+          "scan_last_rejection_reason": "",
+          "scan_receive_interval_seconds": 0.19952703399985694,
+          "scan_header_interval_seconds": 0.2,
+          "amcl_motion_without_update_seconds": 2.079641005500207,
+          "amcl_motion_dt_clamped": 0
+        },
+        "stop_latched": true,
+        "autonomous_allowed": false,
+        "allow_localization": true,
+        "reinitialization_requested": true,
+        "stable_seconds": 0.0,
+        "stamp_ns": 41480000000,
+        "sent_at_ns": 41480000000,
+        "explanations": [
+          "지도상 차체 TF 대기",
+          "측정 시각 TF와 라이다·지도 대조 대기"
+        ]
+      }
+    },
+    {
+      "name": "tf_restore_does_not_auto_resume",
+      "passed": true
+    },
+    {
+      "name": "tf_failure_preserves_mission_route",
+      "passed": true,
+      "before": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      },
+      "after": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      }
+    },
+    {
+      "name": "explicit_goal_path_motion_nav2_success_and_arrival",
+      "passed": true,
+      "goal_distance_m": 0.23651325952259214,
+      "odom_displacement_m": 1.733925407628719,
+      "nonempty_paths": 3
+    }
+  ],
+  "events": [
+    {
+      "t": 5.413,
+      "event": "legitimate_initialpose_high_covariance"
+    },
+    {
+      "t": 9.4515,
+      "event": "stationary_convergence_complete",
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "metrics": {
+          "map_available": true,
+          "scan_age_seconds": 0.1272737459999007,
+          "odom_age_seconds": 0.00234690600018439,
+          "scan_header_age_seconds": 0.117,
+          "odom_header_age_seconds": -0.009,
+          "scan_valid": true,
+          "odom_valid": true,
+          "position_std_m": 0.2864963039804017,
+          "yaw_std_rad": 0.10333342749449904,
+          "amcl_age_seconds": 0.303932881000037,
+          "amcl_update_epoch": 2152.012066541,
+          "amcl_header_age_seconds": 0.317,
+          "moving": false,
+          "pose_jump": false,
+          "scan_map_agreement": 1.0,
+          "agreement_age_seconds": 0.09997474300007525,
+          "agreement_header_age_seconds": 0.117,
+          "map_tf_age_seconds": -0.009,
+          "odom_tf_valid": true,
+          "amcl_update_requests": 3,
+          "amcl_update_responses": 3,
+          "amcl_update_timeouts": 0,
+          "amcl_update_errors": 0,
+          "scan_tf_state": "READY",
+          "scan_tf_error": "",
+          "scan_tf_wait_ms": 27.29900299982546,
+          "scan_tf_drop_count": 2,
+          "scan_tf_pending_count": 0,
+          "amcl_refresh_mode": "stationary",
+          "amcl_refresh_state": "RESPONDED",
+          "amcl_stationary_update_requests": 2,
+          "odom_last_received_age_seconds": 0.00234690600018439,
+          "odom_raw_header_age_seconds": -0.009,
+          "odom_rejected_count": 0,
+          "odom_rejection_reason": "",
+          "odom_last_rejection_reason": "",
+          "odom_receive_interval_seconds": 0.03702180699974633,
+          "odom_header_interval_seconds": 0.034,
+          "scan_last_received_age_seconds": 0.1272737459999007,
+          "scan_raw_header_age_seconds": 0.117,
+          "scan_rejected_count": 0,
+          "scan_rejection_reason": "",
+          "scan_last_rejection_reason": "",
+          "scan_receive_interval_seconds": 0.19923552099999142,
+          "scan_header_interval_seconds": 0.2,
+          "amcl_motion_without_update_seconds": 0.0,
+          "amcl_motion_dt_clamped": 0
+        },
+        "stop_latched": false,
+        "autonomous_allowed": true,
+        "allow_localization": true,
+        "reinitialization_requested": true,
+        "stable_seconds": 2.2499231769998005,
+        "stamp_ns": 4900000000,
+        "sent_at_ns": 4900000000,
+        "explanations": []
+      }
+    },
+    {
+      "t": 10.8545,
+      "event": "assisted_start_home",
+      "endpoint": "/api/localization/start-home"
+    },
+    {
+      "t": 20.6359,
+      "event": "assisted_finished",
+      "localization": {
+        "state": "SUCCEEDED",
+        "active": false,
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다.",
+        "angular": 0.0,
+        "rotation_degrees": 90.28949580384045,
+        "progress": 0.25080415501066794,
+        "elapsed": 9.777425045999735,
+        "estimate": {
+          "x": -3.019145487025804,
+          "y": -2.001786374086107,
+          "yaw": 1.5875840388409979,
+          "position_std": 0.07829161323006735,
+          "yaw_std": 0.06900094679658877,
+          "quality_ok": true
+        },
+        "good_estimates": 17,
+        "quality_ok": true,
+        "available": true,
+        "clearance": 1.9767953664049822,
+        "scan_match": 1.0,
+        "startup_home_available": true,
+        "startup_home_reason": "마커 확인 없이 등록 홈을 초기 위치로 가정합니다. 실제로 홈에 놓였을 때만 누르세요.",
+        "control": {
+          "state": "SUCCEEDED",
+          "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+        },
+        "home_seed_available": false,
+        "home_seed_reason": "차량의 비상정지 확인 응답이 필요합니다.",
+        "home_seed_pending": false,
+        "home_seed_result": "",
+        "home_seed_match": 1.0,
+        "mode": "home",
+        "mode_label": "등록 홈 기준 자세 초기화",
+        "use_existing_pose": false,
+        "rotated_degrees": 90.28949580384045,
+        "angular_velocity": 0.0,
+        "position_std": 0.07829161323006735,
+        "yaw_std_degrees": 3.9534630338512744
+      }
+    },
+    {
+      "t": 22.6406,
+      "event": "explicit_mission_start"
+    },
+    {
+      "t": 23.4134,
+      "event": "scan_relay_suppressed",
+      "raw_scan_count": 92,
+      "forwarded_scan_count": 92
+    },
+    {
+      "t": 24.9746,
+      "event": "scan_relay_restored"
+    },
+    {
+      "t": 30.5075,
+      "event": "assisted_start",
+      "endpoint": "/api/localization/start"
+    },
+    {
+      "t": 40.5225,
+      "event": "waiting",
+      "for_condition": "real AMCL assisted-localization completion",
+      "localization": {
+        "state": "SETTLING",
+        "active": true,
+        "reason": "회전을 멈추고 지도상 위치의 안정성을 확인합니다.",
+        "angular": 0.0,
+        "rotation_degrees": 90.09872421006756,
+        "progress": 0.2502742339168543,
+        "elapsed": 9.983894711000175,
+        "estimate": {
+          "x": -2.9336548305824235,
+          "y": -1.913785591046384,
+          "yaw": 2.139924239377337,
+          "position_std": 0.08946694036435626,
+          "yaw_std": 0.06488320089301279,
+          "quality_ok": true
+        },
+        "good_estimates": 18,
+        "quality_ok": true,
+        "available": true,
+        "clearance": 2.039273745177581,
+        "scan_match": 1.0,
+        "startup_home_available": true,
+        "startup_home_reason": "마커 확인 없이 등록 홈을 초기 위치로 가정합니다. 실제로 홈에 놓였을 때만 누르세요.",
+        "control": {
+          "state": "SETTLING",
+          "reason": "새 AMCL 결과·실제 정지·정상 위치 신뢰도를 확인합니다.",
+          "stationary": true,
+          "health_ready": true,
+          "hold_acknowledged": true
+        },
+        "home_seed_available": false,
+        "home_seed_reason": "차량의 비상정지 확인 응답이 필요합니다.",
+        "home_seed_pending": false,
+        "home_seed_result": "",
+        "home_seed_match": 0.14375,
+        "mode": "local",
+        "mode_label": "현재 위치 보정",
+        "use_existing_pose": true,
+        "rotated_degrees": 90.09872421006756,
+        "angular_velocity": 0.0,
+        "position_std": 0.08946694036435626,
+        "yaw_std_degrees": 3.7175335724690868
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "metrics": {
+          "map_available": true,
+          "scan_age_seconds": 0.17119946000002528,
+          "odom_age_seconds": 0.021607551999750285,
+          "scan_header_age_seconds": 0.171,
+          "odom_header_age_seconds": 0.021,
+          "scan_valid": true,
+          "odom_valid": true,
+          "position_std_m": 0.10217778938340161,
+          "yaw_std_rad": 0.07850189134678069,
+          "amcl_age_seconds": 0.568061655999827,
+          "amcl_update_epoch": 2182.747968222,
+          "amcl_header_age_seconds": 0.571,
+          "moving": false,
+          "pose_jump": false,
+          "scan_map_agreement": 1.0,
+          "agreement_age_seconds": 0.14991175399973145,
+          "agreement_header_age_seconds": 0.171,
+          "map_tf_age_seconds": 0.021,
+          "odom_tf_valid": true,
+          "amcl_update_requests": 5,
+          "amcl_update_responses": 5,
+          "amcl_update_timeouts": 0,
+          "amcl_update_errors": 0,
+          "scan_tf_state": "READY",
+          "scan_tf_error": "",
+          "scan_tf_wait_ms": 21.287706000293838,
+          "scan_tf_drop_count": 2,
+          "scan_tf_pending_count": 0,
+          "amcl_refresh_mode": "moving",
+          "amcl_refresh_state": "WAITING_FOR_MOTION_OR_ACQUISITION",
+          "amcl_stationary_update_requests": 0,
+          "odom_last_received_age_seconds": 0.021607551999750285,
+          "odom_raw_header_age_seconds": 0.021,
+          "odom_rejected_count": 0,
+          "odom_rejection_reason": "",
+          "odom_last_rejection_reason": "",
+          "odom_receive_interval_seconds": 0.03215635000015027,
+          "odom_header_interval_seconds": 0.034,
+          "scan_last_received_age_seconds": 0.17119946000002528,
+          "scan_raw_header_age_seconds": 0.171,
+          "scan_rejected_count": 0,
+          "scan_rejection_reason": "",
+          "scan_last_rejection_reason": "",
+          "scan_receive_interval_seconds": 0.19796604199973444,
+          "scan_header_interval_seconds": 0.2,
+          "amcl_motion_without_update_seconds": 0.19350256949996947,
+          "amcl_motion_dt_clamped": 0
+        },
+        "stop_latched": false,
+        "autonomous_allowed": true,
+        "allow_localization": true,
+        "reinitialization_requested": true,
+        "stable_seconds": 14.999755084999833,
+        "stamp_ns": 35360000000,
+        "sent_at_ns": 35360000000,
+        "explanations": []
+      },
+      "safety": {
+        "mode": "hold",
+        "available": true,
+        "reason": "Motion held",
+        "source_id": "qIv7xnpsg1ObMBrIIjoq2wZn",
+        "estop_latched": false,
+        "control_seq": 380,
+        "allow_localization": true,
+        "auto_source_id": "nav:7a5909f844d745c287dde92c245554a3",
+        "auto_rejected_reason": "",
+        "control_rejected_reason": "",
+        "control_received": 386,
+        "control_accepted": 386,
+        "control_rejected": 0,
+        "auto_received": 14,
+        "auto_accepted": 14,
+        "auto_rejected": 0,
+        "control_by_origin": {
+          "topic": {
+            "received": 384,
+            "accepted": 384,
+            "rejected": 0
+          },
+          "service": {
+            "received": 2,
+            "accepted": 2,
+            "rejected": 0
+          }
+        },
+        "auto_by_origin": {
+          "topic": {
+            "received": 14,
+            "accepted": 14,
+            "rejected": 0
+          }
+        },
+        "last_control": {
+          "source_id": "qIv7xnpsg1ObMBrIIjoq2wZn",
+          "seq": 380,
+          "mode": "hold",
+          "accepted": true,
+          "reason": "",
+          "origin": "topic",
+          "received_at_monotonic_ns": 2183258693802
+        },
+        "last_control_rejection": null,
+        "last_auto": {
+          "source_id": "nav:7a5909f844d745c287dde92c245554a3",
+          "seq": 14,
+          "mode": null,
+          "accepted": true,
+          "reason": "",
+          "origin": "topic",
+          "received_at_monotonic_ns": 2167011305674
+        },
+        "last_auto_rejection": null,
+        "output_owner": "hold",
+        "localization_speed_factor": 1.0,
+        "autonomous_allowed": true,
+        "localization_reason": "",
+        "output_linear": 0.0,
+        "output_angular": 0.0,
+        "status_seq": 341,
+        "sent_at_ns": 35300000000,
+        "mux_instance_id": "mux-service:0f7b506a24ef44a288b5459cccb65b9e",
+        "output_publishers": 1,
+        "stop_acknowledged": true,
+        "reset_pending": false,
+        "latched": false,
+        "pending": null,
+        "result": "Emergency reset acknowledged; motion remains held. Explicit resume required."
+      }
+    },
+    {
+      "t": 40.9078,
+      "event": "assisted_finished",
+      "localization": {
+        "state": "SUCCEEDED",
+        "active": false,
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다.",
+        "angular": 0.0,
+        "rotation_degrees": 90.09872421006756,
+        "progress": 0.2502742339168543,
+        "elapsed": 10.395849246000125,
+        "estimate": {
+          "x": -2.9336548305824235,
+          "y": -1.913785591046384,
+          "yaw": 2.139924239377337,
+          "position_std": 0.08946694036435626,
+          "yaw_std": 0.06488320089301279,
+          "quality_ok": true
+        },
+        "good_estimates": 18,
+        "quality_ok": true,
+        "available": true,
+        "clearance": 2.0444268192439448,
+        "scan_match": 1.0,
+        "startup_home_available": true,
+        "startup_home_reason": "마커 확인 없이 등록 홈을 초기 위치로 가정합니다. 실제로 홈에 놓였을 때만 누르세요.",
+        "control": {
+          "state": "SUCCEEDED",
+          "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+        },
+        "home_seed_available": false,
+        "home_seed_reason": "차량의 비상정지 확인 응답이 필요합니다.",
+        "home_seed_pending": false,
+        "home_seed_result": "",
+        "home_seed_match": 0.14375,
+        "mode": "local",
+        "mode_label": "현재 위치 보정",
+        "use_existing_pose": true,
+        "rotated_degrees": 90.09872421006756,
+        "angular_velocity": 0.0,
+        "position_std": 0.08946694036435626,
+        "yaw_std_degrees": 3.7175335724690868
+      }
+    },
+    {
+      "t": 42.9232,
+      "event": "explicit_mission_restart_after_scan_fault",
+      "mission_state": "CANCELED",
+      "endpoint": "/api/mission/start"
+    },
+    {
+      "t": 43.8779,
+      "event": "own_amcl_frozen_tf_outage",
+      "pid": 34429
+    },
+    {
+      "t": 46.8899,
+      "event": "own_amcl_restored"
+    },
+    {
+      "t": 55.4137,
+      "event": "explicit_mission_restart_after_tf_fault",
+      "mission_state": "CANCELED",
+      "endpoint": "/api/mission/start"
+    },
+    {
+      "t": 64.2352,
+      "event": "navigation_arrived",
+      "pose": {
+        "x": -1.2348549221685348,
+        "y": -1.9720413257965885,
+        "yaw": -0.17749552938089172
+      },
+      "goal": {
+        "id": 1,
+        "name": "Trial goal",
+        "camera": "rear",
+        "x": -1.0,
+        "y": -2.0,
+        "yaw": 0.0
+      },
+      "distance_m": 0.23651325952259214
+    }
+  ],
+  "initial_poses": [
+    {
+      "t": 5.4143,
+      "stamp_ns": 980000000,
+      "x": -3.0,
+      "y": -2.0,
+      "yaw": 0.0,
+      "variance_x": 0.198916,
+      "variance_y": 0.198916,
+      "motion_status": {
+        "mode": "estop",
+        "available": true,
+        "reason": "Emergency stop latched",
+        "source_id": "qIv7xnpsg1ObMBrIIjoq2wZn",
+        "estop_latched": true,
+        "control_seq": 53,
+        "allow_localization": true,
+        "auto_source_id": null,
+        "auto_rejected_reason": "",
+        "control_rejected_reason": "",
+        "control_received": 52,
+        "control_accepted": 52,
+        "control_rejected": 0,
+        "auto_received": 0,
+        "auto_accepted": 0,
+        "auto_rejected": 0,
+        "control_by_origin": {
+          "topic": {
+            "received": 52,
+            "accepted": 52,
+            "rejected": 0
+          }
+        },
+        "auto_by_origin": {},
+        "last_control": {
+          "source_id": "qIv7xnpsg1ObMBrIIjoq2wZn",
+          "seq": 53,
+          "mode": "estop",
+          "accepted": true,
+          "reason": "",
+          "origin": "topic",
+          "received_at_monotonic_ns": 2148258752675
+        },
+        "last_control_rejection": null,
+        "last_auto": null,
+        "last_auto_rejection": null,
+        "output_owner": "estop",
+        "localization_speed_factor": 0.5,
+        "autonomous_allowed": false,
+        "localization_reason": "map_tf_unavailable; scan_map_check_unavailable; initializing",
+        "output_linear": 0.0,
+        "output_angular": 0.0,
+        "status_seq": 43,
+        "sent_at_ns": 960000000,
+        "mux_instance_id": "mux-service:0f7b506a24ef44a288b5459cccb65b9e",
+        "output_publishers": 1,
+        "stop_acknowledged": true,
+        "reset_pending": false
+      }
+    },
+    {
+      "t": 11.349,
+      "stamp_ns": 6820000000,
+      "x": -3.0,
+      "y": -2.0,
+      "yaw": 0.0,
+      "variance_x": 0.09,
+      "variance_y": 0.09,
+      "motion_status": {
+        "mode": "hold",
+        "available": true,
+        "reason": "Motion held",
+        "source_id": "qIv7xnpsg1ObMBrIIjoq2wZn",
+        "estop_latched": false,
+        "control_seq": 108,
+        "allow_localization": true,
+        "auto_source_id": null,
+        "auto_rejected_reason": "",
+        "control_rejected_reason": "",
+        "control_received": 107,
+        "control_accepted": 107,
+        "control_rejected": 0,
+        "auto_received": 0,
+        "auto_accepted": 0,
+        "auto_rejected": 0,
+        "control_by_origin": {
+          "topic": {
+            "received": 106,
+            "accepted": 106,
+            "rejected": 0
+          },
+          "service": {
+            "received": 1,
+            "accepted": 1,
+            "rejected": 0
+          }
+        },
+        "auto_by_origin": {},
+        "last_control": {
+          "source_id": "qIv7xnpsg1ObMBrIIjoq2wZn",
+          "seq": 108,
+          "mode": "hold",
+          "accepted": true,
+          "reason": "",
+          "origin": "topic",
+          "received_at_monotonic_ns": 2154157711616
+        },
+        "last_control_rejection": null,
+        "last_auto": null,
+        "last_auto_rejection": null,
+        "output_owner": "hold",
+        "localization_speed_factor": 1.0,
+        "autonomous_allowed": true,
+        "localization_reason": "",
+        "output_linear": 0.0,
+        "output_angular": 0.0,
+        "status_seq": 91,
+        "sent_at_ns": 6780000000,
+        "mux_instance_id": "mux-service:0f7b506a24ef44a288b5459cccb65b9e",
+        "output_publishers": 1,
+        "stop_acknowledged": true,
+        "reset_pending": false
+      }
+    }
+  ],
+  "raw_scans": 292,
+  "forwarded_scans": 284,
+  "duration_seconds": 64.2571,
+  "raw_telemetry": {
+    "path": "/tmp/smart_vision_startup186.eI25Hi/full_result.json",
+    "sha256": "8323eda23864dc9c92104ab1aa8016d20484af621345ddbc4eeefb6f6d9bbedc"
+  },
+  "sample_counts": {
+    "states": 313,
+    "commands": 2049,
+    "odom": 1719,
+    "ground_truth": 1172,
+    "amcl": 63,
+    "health": 245,
+    "motion": 549,
+    "navigation": 29,
+    "planner": 18,
+    "paths": 3,
+    "tf": 504
+  },
+  "amcl_samples": [
+    {
+      "t": 4.832,
+      "stamp_ns": 383000000,
+      "x": -3.0000000000002225,
+      "y": -2.0,
+      "yaw": 0.0,
+      "position_std": 0.0,
+      "yaw_std": 3.3085947202406556e-07,
+      "covariance": [
+        -5.950795411990839e-13,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0946799022804343e-13
+      ]
+    },
+    {
+      "t": 5.0245,
+      "stamp_ns": 583000000,
+      "x": -2.9999425124676833,
+      "y": -2.00000000002575,
+      "yaw": 4.0921508179942674e-07,
+      "position_std": 2.731850665840175e-05,
+      "yaw_std": 3.580209191980431e-05,
+      "covariance": [
+        7.463007989372272e-10,
+        7.283063041541027e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        7.283063041541027e-14,
+        4.796163466380676e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.2817897858341169e-09
+      ]
+    },
+    {
+      "t": 5.4413,
+      "stamp_ns": 983000000,
+      "x": -2.9749581754492826,
+      "y": -1.951549398888135,
+      "yaw": 0.003288591898696946,
+      "position_std": 0.3947870475945736,
+      "yaw_std": 0.1292557815918862,
+      "covariance": [
+        0.15496343306763194,
+        0.004882101577317499,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.004882101577317499,
+        0.12917732718513353,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.016707057074929383
+      ]
+    },
+    {
+      "t": 7.0709,
+      "stamp_ns": 2584000000,
+      "x": -2.9587621721651183,
+      "y": -1.944425452173837,
+      "yaw": 0.001226954389362907,
+      "position_std": 0.3311870199901756,
+      "yaw_std": 0.11092334218229097,
+      "covariance": [
+        0.10924404533681553,
+        0.0026980070308546544,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.002698007030856431,
+        0.0931710183109864,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.01230398784088961
+      ]
+    },
+    {
+      "t": 9.1029,
+      "stamp_ns": 4583000000,
+      "x": -2.9546176022024713,
+      "y": -1.9445202265974681,
+      "yaw": -0.007035790812812676,
+      "position_std": 0.2864963039804017,
+      "yaw_std": 0.10333342749449904,
+      "covariance": [
+        0.08030863286497869,
+        0.004535227353094307,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.004535227353094307,
+        0.07046946613190563,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.010677797237760892
+      ]
+    },
+    {
+      "t": 11.5191,
+      "stamp_ns": 6983000000,
+      "x": -2.984321174104163,
+      "y": -1.9814388398042588,
+      "yaw": -0.0066731288515976565,
+      "position_std": 0.282841854747725,
+      "yaw_std": 0.3021871597978413,
+      "covariance": [
+        0.07688595202945692,
+        0.001756105235218186,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0017561052352172979,
+        0.07900903995295305,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.09131707954668607
+      ]
+    },
+    {
+      "t": 11.7242,
+      "stamp_ns": 7183000000,
+      "x": -2.9653511673658812,
+      "y": -1.9656090196561065,
+      "yaw": 0.03396937020198175,
+      "position_std": 0.255616894565632,
+      "yaw_std": 0.25770459252783606,
+      "covariance": [
+        0.06360543169353683,
+        -0.002200033261518186,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.002200033261518186,
+        0.06254958761278173,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.06641165700993801
+      ]
+    },
+    {
+      "t": 12.133,
+      "stamp_ns": 7583000000,
+      "x": -2.9633873913060707,
+      "y": -1.964000867418191,
+      "yaw": 0.11562936625998357,
+      "position_std": 0.23355570882046459,
+      "yaw_std": 0.2208228244983991,
+      "covariance": [
+        0.04747373599194127,
+        -0.00033185143686598195,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.00033185143686598195,
+        0.05453270267123056,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.04876271981945077
+      ]
+    },
+    {
+      "t": 12.7557,
+      "stamp_ns": 8183000000,
+      "x": -2.9599744328848594,
+      "y": -1.9542211402477963,
+      "yaw": 0.24596742334579608,
+      "position_std": 0.2062080303184481,
+      "yaw_std": 0.18347942462003144,
+      "covariance": [
+        0.040940883555757424,
+        -0.002583020508298617,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.002583020508298617,
+        0.038301289305853636,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.033664699258897805
+      ]
+    },
+    {
+      "t": 13.3544,
+      "stamp_ns": 8783000000,
+      "x": -2.958752491489078,
+      "y": -1.9666043568369636,
+      "yaw": 0.35663048128944985,
+      "position_std": 0.18958906668032757,
+      "yaw_std": 0.15516840148778702,
+      "covariance": [
+        0.035496833908917225,
+        -0.00213728450688766,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.002137284506888548,
+        0.025728928463502054,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.024077232820275067
+      ]
+    },
+    {
+      "t": 14.2021,
+      "stamp_ns": 9583000000,
+      "x": -2.971186070235254,
+      "y": -1.9860350881762106,
+      "yaw": 0.5185391673799815,
+      "position_std": 0.13728189178899652,
+      "yaw_std": 0.11790056180030406,
+      "covariance": [
+        0.018751475930841366,
+        -0.0005321280527681438,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.0005321280527681438,
+        0.015860714221133332,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.013900542472827317
+      ]
+    },
+    {
+      "t": 14.8061,
+      "stamp_ns": 10183000000,
+      "x": -2.9743144504956383,
+      "y": -1.994039694272663,
+      "yaw": 0.645804999548119,
+      "position_std": 0.11974225590829128,
+      "yaw_std": 0.08886653842719752,
+      "covariance": [
+        0.014027955415492954,
+        0.0008570657330144726,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0008570657330144726,
+        0.01197058204278667,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.007897261652032573
+      ]
+    },
+    {
+      "t": 15.3907,
+      "stamp_ns": 10783000000,
+      "x": -2.975149893024241,
+      "y": -1.9943949815054782,
+      "yaw": 0.766392018320689,
+      "position_std": 0.12386515120608917,
+      "yaw_std": 0.0826521807826708,
+      "covariance": [
+        0.01482723179583445,
+        0.0018088545387664468,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0018088545387655586,
+        0.00899350504921248,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.006831382988131295
+      ]
+    },
+    {
+      "t": 15.5993,
+      "stamp_ns": 10983000000,
+      "x": -2.986239248245288,
+      "y": -1.9976111671231227,
+      "yaw": 0.8073313742361901,
+      "position_std": 0.10697583092070889,
+      "yaw_std": 0.07244874097219994,
+      "covariance": [
+        0.011360821938053434,
+        0.0005866047375508998,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.000586604737551788,
+        0.007298306412012678,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.005248820068456924
+      ]
+    },
+    {
+      "t": 16.2153,
+      "stamp_ns": 11583000000,
+      "x": -3.001498837180802,
+      "y": -1.9996992604587727,
+      "yaw": 0.921868176046409,
+      "position_std": 0.10147207690481314,
+      "yaw_std": 0.07823722509997795,
+      "covariance": [
+        0.009323200703725831,
+        0.0016484362765218918,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0016484362765218918,
+        0.007504931189973085,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.006121063391344619
+      ]
+    },
+    {
+      "t": 16.7996,
+      "stamp_ns": 12183000000,
+      "x": -3.0011758831357023,
+      "y": -1.9953966084375916,
+      "yaw": 1.0367284903944787,
+      "position_std": 0.09848299182105894,
+      "yaw_std": 0.08033587845416829,
+      "covariance": [
+        0.008010065429870039,
+        0.0018909356687650813,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0018909356687650813,
+        0.007581677276058851,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.006453853367002901
+      ]
+    },
+    {
+      "t": 17.0055,
+      "stamp_ns": 12383000000,
+      "x": -3.006040145870531,
+      "y": -1.9973199069002865,
+      "yaw": 1.0822815704881759,
+      "position_std": 0.08565105080763893,
+      "yaw_std": 0.07325600566843081,
+      "covariance": [
+        0.00677696318926202,
+        0.0010130737931657308,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0010130737931657308,
+        0.005500569780288789,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.005366442366493167
+      ]
+    },
+    {
+      "t": 17.6222,
+      "stamp_ns": 12983000000,
+      "x": -3.006821559941829,
+      "y": -2.000688807836686,
+      "yaw": 1.205287491922223,
+      "position_std": 0.09223100208893642,
+      "yaw_std": 0.09232389895059191,
+      "covariance": [
+        0.006748777579073106,
+        0.0015067611717487495,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0015067611717487495,
+        0.007214968916860798,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008523702317439107
+      ]
+    },
+    {
+      "t": 18.2451,
+      "stamp_ns": 13583000000,
+      "x": -3.0081191117245614,
+      "y": -2.003501497616051,
+      "yaw": 1.3250359338086297,
+      "position_std": 0.0950558559657312,
+      "yaw_std": 0.0863525069583102,
+      "covariance": [
+        0.006520708249061258,
+        0.0018235105436534838,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0018235105436534838,
+        0.007713423705714817,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0074567554579850134
+      ]
+    },
+    {
+      "t": 18.8322,
+      "stamp_ns": 14183000000,
+      "x": -3.0085940960274176,
+      "y": -2.0017312497486044,
+      "yaw": 1.4388547726517895,
+      "position_std": 0.10098029246974101,
+      "yaw_std": 0.09034523656433091,
+      "covariance": [
+        0.005978266832483925,
+        0.0021213371424559924,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0021213371424559924,
+        0.009130336572702014,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008162261769864915
+      ]
+    },
+    {
+      "t": 19.0417,
+      "stamp_ns": 14383000000,
+      "x": -3.0069468862942634,
+      "y": -1.999515459925679,
+      "yaw": 1.4795417492458212,
+      "position_std": 0.0937300701209932,
+      "yaw_std": 0.07606390058669459,
+      "covariance": [
+        0.0048050988741188405,
+        0.0015707897829830841,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0015707897829839723,
+        0.00816541656824965,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.005785716972462557
+      ]
+    },
+    {
+      "t": 19.4537,
+      "stamp_ns": 14783000000,
+      "x": -3.0132381170295286,
+      "y": -1.9971058056557647,
+      "yaw": 1.5596930916559233,
+      "position_std": 0.08810267089989798,
+      "yaw_std": 0.0749127505199999,
+      "covariance": [
+        0.004201453554436796,
+        0.0010745684140678335,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0010745684140678335,
+        0.0074377845742663595,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.005611920190471746
+      ]
+    },
+    {
+      "t": 20.0792,
+      "stamp_ns": 15383000000,
+      "x": -3.019145487025804,
+      "y": -2.001786374086107,
+      "yaw": 1.5875840388409979,
+      "position_std": 0.07829161323006735,
+      "yaw_std": 0.06900094679658877,
+      "covariance": [
+        0.003390095477895372,
+        0.000308608916713915,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.000308608916713915,
+        0.006094811191590388,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.004761130658825674
+      ]
+    },
+    {
+      "t": 23.3293,
+      "stamp_ns": 18583000000,
+      "x": -3.021858268889274,
+      "y": -1.9950482078093836,
+      "yaw": 1.4164423858065305,
+      "position_std": 0.09832395168469388,
+      "yaw_std": 0.0877795394338688,
+      "covariance": [
+        0.0031085024176338294,
+        0.0005361749647434522,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0005361749647443403,
+        0.009623769723587028,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.00770524754322213
+      ]
+    },
+    {
+      "t": 25.1559,
+      "stamp_ns": 20383000000,
+      "x": -2.958351290348542,
+      "y": -1.9047024022425842,
+      "yaw": 0.5357645727092105,
+      "position_std": 0.23044564591407526,
+      "yaw_std": 0.2364977590043713,
+      "covariance": [
+        0.02604650048828816,
+        0.021827026015550643,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.021827026015550643,
+        0.03549832071845005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.055931190014089686
+      ]
+    },
+    {
+      "t": 31.4571,
+      "stamp_ns": 26583000000,
+      "x": -2.9447812827225683,
+      "y": -1.8840442444877994,
+      "yaw": 0.5237859787642417,
+      "position_std": 0.19929559128279725,
+      "yaw_std": 0.2073814778617839,
+      "covariance": [
+        0.01987232239015313,
+        0.015762787383761356,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.01576278738375958,
+        0.02719931674152276,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.04300707736013756
+      ]
+    },
+    {
+      "t": 32.0757,
+      "stamp_ns": 27183000000,
+      "x": -2.9443042975021125,
+      "y": -1.8908932297633108,
+      "yaw": 0.6323490694038428,
+      "position_std": 0.1744198758419716,
+      "yaw_std": 0.17372534732260245,
+      "covariance": [
+        0.015860067670478983,
+        0.011631662269350862,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.011631662269350862,
+        0.021131435183268543,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.030180496302358854
+      ]
+    },
+    {
+      "t": 32.6621,
+      "stamp_ns": 27783000000,
+      "x": -2.9377041083759012,
+      "y": -1.8936681699697513,
+      "yaw": 0.7618762664902671,
+      "position_std": 0.14896248882014476,
+      "yaw_std": 0.1409650719844964,
+      "covariance": [
+        0.01207427729798205,
+        0.007944982062364936,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.007944982062364936,
+        0.015949651624570738,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.01987115151959425
+      ]
+    },
+    {
+      "t": 32.8718,
+      "stamp_ns": 27983000000,
+      "x": -2.9335272669971597,
+      "y": -1.895272432595459,
+      "yaw": 0.8047064294853572,
+      "position_std": 0.12614296514609002,
+      "yaw_std": 0.10969068050086223,
+      "covariance": [
+        0.009178013249995232,
+        0.004976469782263848,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.004976469782263848,
+        0.012234422921370225,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.012032045388742238
+      ]
+    },
+    {
+      "t": 33.4923,
+      "stamp_ns": 28583000000,
+      "x": -2.93236965024651,
+      "y": -1.9008577969673548,
+      "yaw": 0.922629373789023,
+      "position_std": 0.12786728490965357,
+      "yaw_std": 0.10410918766403059,
+      "covariance": [
+        0.009167347062742692,
+        0.005257027997687125,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.005257027997688013,
+        0.012502414119188288,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.010838722956064337
+      ]
+    },
+    {
+      "t": 34.7053,
+      "stamp_ns": 29783000000,
+      "x": -2.92974436785252,
+      "y": -1.9047491116245072,
+      "yaw": 1.170411118618809,
+      "position_std": 0.12157303823262426,
+      "yaw_std": 0.09560538352368125,
+      "covariance": [
+        0.007240017852030434,
+        0.004426261071444948,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.004426261071445836,
+        0.012181618473969369,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.009140389358710182
+      ]
+    },
+    {
+      "t": 35.323,
+      "stamp_ns": 30383000000,
+      "x": -2.9299981817904572,
+      "y": -1.9121927397338694,
+      "yaw": 1.2830774959588673,
+      "position_std": 0.11060529659787931,
+      "yaw_std": 0.0987036296697147,
+      "covariance": [
+        0.006502379995680485,
+        0.0032545835895554376,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0032545835895536612,
+        0.01038533165632538,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.009742406509976183
+      ]
+    },
+    {
+      "t": 35.5267,
+      "stamp_ns": 30583000000,
+      "x": -2.931723855592873,
+      "y": -1.9167644478882355,
+      "yaw": 1.32521615013009,
+      "position_std": 0.10624531145045443,
+      "yaw_std": 0.08419285276330003,
+      "covariance": [
+        0.005830741382467863,
+        0.002676818138843906,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.002676818138843906,
+        0.009975086754431484,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.007088436456422719
+      ]
+    },
+    {
+      "t": 36.1148,
+      "stamp_ns": 31183000000,
+      "x": -2.931844369988852,
+      "y": -1.9141925888896731,
+      "yaw": 1.4460496510081589,
+      "position_std": 0.11076109752220102,
+      "yaw_std": 0.08973913498459737,
+      "covariance": [
+        0.005504689407326069,
+        0.0026537093874745565,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0026537093874745565,
+        0.011226792196086244,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008053112347783787
+      ]
+    },
+    {
+      "t": 36.7419,
+      "stamp_ns": 31783000000,
+      "x": -2.932274297613061,
+      "y": -1.9205311787656776,
+      "yaw": 1.5674965699598948,
+      "position_std": 0.09939464596149619,
+      "yaw_std": 0.09350604576270863,
+      "covariance": [
+        0.00499690708744005,
+        0.0016957831803079415,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0016957831803079415,
+        0.009290305121965048,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008743380594177761
+      ]
+    },
+    {
+      "t": 37.21,
+      "stamp_ns": 32189000000,
+      "x": -2.932423658914162,
+      "y": -1.926129265899039,
+      "yaw": 1.6456198988198358,
+      "position_std": 0.08907427013899781,
+      "yaw_std": 0.0898154599646779,
+      "covariance": [
+        0.00405202869988841,
+        0.0009630965983324913,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0009630965983324913,
+        0.007695300301178598,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008066816848666659
+      ]
+    },
+    {
+      "t": 37.7994,
+      "stamp_ns": 32789000000,
+      "x": -2.9293664248732774,
+      "y": -1.9226238804990325,
+      "yaw": 1.7628813924324915,
+      "position_std": 0.09721632653868044,
+      "yaw_std": 0.09443682519644868,
+      "covariance": [
+        0.0036926463608235593,
+        0.0008334900085280594,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0008334900085280594,
+        0.009330371348919009,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008918313953184603
+      ]
+    },
+    {
+      "t": 38.4226,
+      "stamp_ns": 33389000000,
+      "x": -2.932369624352062,
+      "y": -1.928174145249402,
+      "yaw": 1.8808664165590825,
+      "position_std": 0.0994287002012719,
+      "yaw_std": 0.09578373776964322,
+      "covariance": [
+        0.003404117129033324,
+        -0.00010227714785404629,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.00010227714785404629,
+        0.00988445261674098,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.009174524421123776
+      ]
+    },
+    {
+      "t": 39.0477,
+      "stamp_ns": 33989000000,
+      "x": -2.933555444272936,
+      "y": -1.9199889871624516,
+      "yaw": 2.0031599310949164,
+      "position_std": 0.11131298921692484,
+      "yaw_std": 0.0893677839554078,
+      "covariance": [
+        0.004034211373150853,
+        -0.0015540746322919574,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.0015540746322928456,
+        0.012101562783180864,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.007986600809100443
+      ]
+    },
+    {
+      "t": 39.2589,
+      "stamp_ns": 34189000000,
+      "x": -2.9359186931059797,
+      "y": -1.9125992076689218,
+      "yaw": 2.0421729197620957,
+      "position_std": 0.10531734634615506,
+      "yaw_std": 0.07516596908064646,
+      "covariance": [
+        0.004122190157849204,
+        -0.0014571819817348342,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.001457181981733946,
+        0.010787078387338056,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0056499229078327
+      ]
+    },
+    {
+      "t": 39.8387,
+      "stamp_ns": 34789000000,
+      "x": -2.9320922886607805,
+      "y": -1.9234318522294098,
+      "yaw": 2.1386667748294927,
+      "position_std": 0.10217778938340161,
+      "yaw_std": 0.07850189134678069,
+      "covariance": [
+        0.00423089128801557,
+        -0.0011765184845859977,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.001176518484586886,
+        0.010217381575557738,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.006162546945021761
+      ]
+    },
+    {
+      "t": 40.4565,
+      "stamp_ns": 35389000000,
+      "x": -2.9336548305824235,
+      "y": -1.913785591046384,
+      "yaw": 2.139924239377337,
+      "position_std": 0.08946694036435626,
+      "yaw_std": 0.06488320089301279,
+      "covariance": [
+        0.004240323933618839,
+        -0.0006492055828388743,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.0006492055828388743,
+        0.007892360297336865,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0042098297581230565
+      ]
+    },
+    {
+      "t": 43.2838,
+      "stamp_ns": 38189000000,
+      "x": -2.934822567070113,
+      "y": -1.9153718681672582,
+      "yaw": 2.0850463053504655,
+      "position_std": 0.08629211987176434,
+      "yaw_std": 0.062474455286061076,
+      "covariance": [
+        0.004132900524531635,
+        -0.0011065525536748666,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.0011065525536739784,
+        0.007076785773986405,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0039030575632900445
+      ]
+    },
+    {
+      "t": 43.4966,
+      "stamp_ns": 38389000000,
+      "x": -2.9406896177361026,
+      "y": -1.9090574517990777,
+      "yaw": 1.9171092141299373,
+      "position_std": 0.10723040382231636,
+      "yaw_std": 0.08271772066035454,
+      "covariance": [
+        0.0049767992128249006,
+        -0.002984100681263868,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.002984100681263868,
+        0.010132910672869588,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.006842221311244446
+      ]
+    },
+    {
+      "t": 43.705,
+      "stamp_ns": 38589000000,
+      "x": -2.930803272721676,
+      "y": -1.9155465637901046,
+      "yaw": 1.7080173741652427,
+      "position_std": 0.12403188458357373,
+      "yaw_std": 0.10831483123436013,
+      "covariance": [
+        0.005502700720656506,
+        -0.004542840519009772,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.004542840519009772,
+        0.013295358019274506,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.011732102665327917
+      ]
+    },
+    {
+      "t": 47.1504,
+      "stamp_ns": 41789000000,
+      "x": -2.770075098799478,
+      "y": -1.7945237789617914,
+      "yaw": 0.03304356580531891,
+      "position_std": 0.4316925758224661,
+      "yaw_std": 0.5329201879396835,
+      "covariance": [
+        0.1443921941200106,
+        0.058623240606588745,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.058623240606588745,
+        0.10446692670554114,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.28400392671366764
+      ]
+    },
+    {
+      "t": 49.2406,
+      "stamp_ns": 43989000000,
+      "x": -2.7254273197322574,
+      "y": -1.776103373566661,
+      "yaw": 0.008915779789442128,
+      "position_std": 0.35424597433172367,
+      "yaw_std": 0.47313160023687884,
+      "covariance": [
+        0.10426930159496184,
+        0.03280083139509937,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.03280083139509937,
+        0.07479047104802428,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.2238535111427097
+      ]
+    },
+    {
+      "t": 50.4436,
+      "stamp_ns": 45189000000,
+      "x": -2.727909818564521,
+      "y": -1.7686414266622363,
+      "yaw": 0.02245096496233346,
+      "position_std": 0.2876638636617945,
+      "yaw_std": 0.39240894477923105,
+      "covariance": [
+        0.07633469274726501,
+        0.015724260541870372,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015724260541870372,
+        0.04421249079554146,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.1539847799427496
+      ]
+    },
+    {
+      "t": 56.5825,
+      "stamp_ns": 51189000000,
+      "x": -2.7151198902993965,
+      "y": -1.7861921129426237,
+      "yaw": 0.02360486247074845,
+      "position_std": 0.23767094484560147,
+      "yaw_std": 0.27575004538900005,
+      "covariance": [
+        0.053088302355311257,
+        0.010525360528106376,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.010525360528106376,
+        0.023896277965040014,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.07603808753203559
+      ]
+    },
+    {
+      "t": 57.1759,
+      "stamp_ns": 51789000000,
+      "x": -2.593662486895423,
+      "y": -1.7862950269432976,
+      "yaw": 0.013706829889686717,
+      "position_std": 0.1921875861195932,
+      "yaw_std": 0.23987259546438353,
+      "covariance": [
+        0.035895151182486984,
+        0.004566408059200278,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.004566408059200278,
+        0.016903653530995655,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.057538862054819784
+      ]
+    },
+    {
+      "t": 58.4167,
+      "stamp_ns": 52989000000,
+      "x": -2.3442478204734627,
+      "y": -1.803224800017709,
+      "yaw": -0.11774746743548507,
+      "position_std": 0.16875210495878326,
+      "yaw_std": 0.1540158937628205,
+      "covariance": [
+        0.028133667934548967,
+        0.002325968537626899,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.002325968537626899,
+        0.01273207206997995,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.023720895531560406
+      ]
+    },
+    {
+      "t": 59.005,
+      "stamp_ns": 53589000000,
+      "x": -2.221374354385425,
+      "y": -1.819860156362418,
+      "yaw": -0.15883682659272208,
+      "position_std": 0.17608153905073415,
+      "yaw_std": 0.13119427765849587,
+      "covariance": [
+        0.03063728425192558,
+        0.0026929698382822664,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0026929698382822664,
+        0.011267065408975707,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.01721193849033451
+      ]
+    },
+    {
+      "t": 59.6135,
+      "stamp_ns": 54189000000,
+      "x": -2.0902562848748345,
+      "y": -1.8363221520105517,
+      "yaw": -0.15745970742711,
+      "position_std": 0.17570431899994035,
+      "yaw_std": 0.14410477377628086,
+      "covariance": [
+        0.030356090226177912,
+        0.0032698757374052256,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0032698757374052256,
+        0.010147594286918249,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.020766185825113085
+      ]
+    },
+    {
+      "t": 60.2337,
+      "stamp_ns": 54789000000,
+      "x": -1.9680520448030467,
+      "y": -1.8604477353948132,
+      "yaw": -0.1548026857037287,
+      "position_std": 0.1705763473578498,
+      "yaw_std": 0.13948553262948346,
+      "covariance": [
+        0.02859517295633962,
+        0.003112986341845758,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.003112986341845758,
+        0.00975813622360766,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.019456213812930695
+      ]
+    },
+    {
+      "t": 60.8288,
+      "stamp_ns": 55389000000,
+      "x": -1.8430733237796824,
+      "y": -1.8837596840197641,
+      "yaw": -0.135361344107459,
+      "position_std": 0.15676798783235582,
+      "yaw_std": 0.1437869596551692,
+      "covariance": [
+        0.024176008938476823,
+        0.002507118689072829,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0025071186890732733,
+        0.008869672875972068,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.02067468976687725
+      ]
+    },
+    {
+      "t": 61.4448,
+      "stamp_ns": 55989000000,
+      "x": -1.7202044086750996,
+      "y": -1.8968256890814803,
+      "yaw": -0.07268565459796919,
+      "position_std": 0.158047569100944,
+      "yaw_std": 0.15236414345294208,
+      "covariance": [
+        0.02465202280157719,
+        0.0022548649100668783,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0022548649100668783,
+        0.009430899196006148,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.023214832210148716
+      ]
+    },
+    {
+      "t": 62.0536,
+      "stamp_ns": 56589000000,
+      "x": -1.594543652021323,
+      "y": -1.9118982801317945,
+      "yaw": -0.1046124341503257,
+      "position_std": 0.15715210213117106,
+      "yaw_std": 0.15197209013177018,
+      "covariance": [
+        0.024488850652657046,
+        0.0017847928871179697,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0017847928871179697,
+        0.009376980578038374,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.02309551617901888
+      ]
+    },
+    {
+      "t": 62.6631,
+      "stamp_ns": 57189000000,
+      "x": -1.4777513596315361,
+      "y": -1.9357224180596049,
+      "yaw": -0.1262533010598748,
+      "position_std": 0.15513886173139915,
+      "yaw_std": 0.14123866977270988,
+      "covariance": [
+        0.023842112292417283,
+        0.001884170159009102,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.001884170159009546,
+        0.008356482670631049,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.01994836183916459
+      ]
+    },
+    {
+      "t": 63.2842,
+      "stamp_ns": 57789000000,
+      "x": -1.350568527415059,
+      "y": -1.9510838182553336,
+      "yaw": -0.13363141220660207,
+      "position_std": 0.15667321568267423,
+      "yaw_std": 0.1298543567544603,
+      "covariance": [
+        0.024248952152163605,
+        0.002181835769181628,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.002181835769181628,
+        0.008547512963469117,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.016862153968114652
+      ]
+    },
+    {
+      "t": 63.8704,
+      "stamp_ns": 58389000000,
+      "x": -1.2376930516270317,
+      "y": -1.9738440466316571,
+      "yaw": -0.14533604754461876,
+      "position_std": 0.15383565993070303,
+      "yaw_std": 0.1142054859821462,
+      "covariance": [
+        0.02330263014059697,
+        0.0024758365046859687,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0024758365046859687,
+        0.006768766918488822,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.01304289302841819
+      ]
+    }
+  ],
+  "tf_samples": [
+    {
+      "t": 4.641,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 217000000,
+      "header_age_seconds": -0.017
+    },
+    {
+      "t": 5.7037,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1271000000,
+      "header_age_seconds": -0.011
+    },
+    {
+      "t": 6.6454,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 3183000000,
+      "header_age_seconds": -1.003
+    },
+    {
+      "t": 7.5792,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3107000000,
+      "header_age_seconds": -0.007
+    },
+    {
+      "t": 8.4709,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 4983000000,
+      "header_age_seconds": -1.003
+    },
+    {
+      "t": 9.3043,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 5783000000,
+      "header_age_seconds": -0.983
+    },
+    {
+      "t": 10.3515,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 5793000000,
+      "header_age_seconds": 0.047
+    },
+    {
+      "t": 11.3349,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 7783000000,
+      "header_age_seconds": -0.983
+    },
+    {
+      "t": 12.3395,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 8783000000,
+      "header_age_seconds": -0.983
+    },
+    {
+      "t": 13.1696,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 9584000000,
+      "header_age_seconds": -0.984
+    },
+    {
+      "t": 14.1098,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 9533000000,
+      "header_age_seconds": -0.013
+    },
+    {
+      "t": 15.1494,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 10553000000,
+      "header_age_seconds": -0.013
+    },
+    {
+      "t": 15.9716,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 11369000000,
+      "header_age_seconds": -0.009
+    },
+    {
+      "t": 16.7969,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 12185000000,
+      "header_age_seconds": -0.005
+    },
+    {
+      "t": 17.6305,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 13983000000,
+      "header_age_seconds": -0.983
+    },
+    {
+      "t": 18.6574,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 14021000000,
+      "header_age_seconds": -0.001
+    },
+    {
+      "t": 19.4857,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 14837000000,
+      "header_age_seconds": -0.017
+    },
+    {
+      "t": 20.456,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 16783000000,
+      "header_age_seconds": -1.003
+    },
+    {
+      "t": 21.2836,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 17583000000,
+      "header_age_seconds": -0.983
+    },
+    {
+      "t": 22.2193,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 17523000000,
+      "header_age_seconds": -0.003
+    },
+    {
+      "t": 23.1247,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 19383000000,
+      "header_age_seconds": -0.983
+    },
+    {
+      "t": 24.4968,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 19767000000,
+      "header_age_seconds": -0.007
+    },
+    {
+      "t": 25.737,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 20991000000,
+      "header_age_seconds": -0.011
+    },
+    {
+      "t": 26.5649,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 21807000000,
+      "header_age_seconds": -0.007
+    },
+    {
+      "t": 27.4012,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 22623000000,
+      "header_age_seconds": -0.003
+    },
+    {
+      "t": 28.4078,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 24583000000,
+      "header_age_seconds": -0.983
+    },
+    {
+      "t": 29.2766,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 24459000000,
+      "header_age_seconds": -0.019
+    },
+    {
+      "t": 30.1586,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 25309000000,
+      "header_age_seconds": -0.009
+    },
+    {
+      "t": 31.0476,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 27183000000,
+      "header_age_seconds": -1.003
+    },
+    {
+      "t": 31.8726,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 27983000000,
+      "header_age_seconds": -0.983
+    },
+    {
+      "t": 32.8697,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 27995000000,
+      "header_age_seconds": -0.015
+    },
+    {
+      "t": 33.6979,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 28811000000,
+      "header_age_seconds": -0.011
+    },
+    {
+      "t": 34.4962,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 30583000000,
+      "header_age_seconds": -1.003
+    },
+    {
+      "t": 35.3242,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 31383000000,
+      "header_age_seconds": -0.983
+    },
+    {
+      "t": 36.1782,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 31259000000,
+      "header_age_seconds": -0.019
+    },
+    {
+      "t": 37.2115,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 33189000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 38.1354,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 33129000000,
+      "header_age_seconds": -0.009
+    },
+    {
+      "t": 38.9729,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 33945000000,
+      "header_age_seconds": -0.005
+    },
+    {
+      "t": 39.84,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 35789000000,
+      "header_age_seconds": -1.009
+    },
+    {
+      "t": 40.8326,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 35781000000,
+      "header_age_seconds": -0.001
+    },
+    {
+      "t": 41.6637,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 37589000000,
+      "header_age_seconds": -1.009
+    },
+    {
+      "t": 42.4917,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 38389000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 43.4974,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 39389000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 44.7712,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 39657000000,
+      "header_age_seconds": -0.017
+    },
+    {
+      "t": 46.4222,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 41289000000,
+      "header_age_seconds": -0.009
+    },
+    {
+      "t": 47.6122,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 43389000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 48.5095,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 43295000000,
+      "header_age_seconds": -0.015
+    },
+    {
+      "t": 49.5406,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 44315000000,
+      "header_age_seconds": -0.015
+    },
+    {
+      "t": 50.4449,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 46189000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 51.2649,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 46989000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 52.2283,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 46967000000,
+      "header_age_seconds": -0.007
+    },
+    {
+      "t": 53.0541,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 47783000000,
+      "header_age_seconds": -0.003
+    },
+    {
+      "t": 53.8856,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 49589000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 54.7133,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 50389000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 55.9059,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 50537000000,
+      "header_age_seconds": -0.017
+    },
+    {
+      "t": 56.7866,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 52389000000,
+      "header_age_seconds": -0.969
+    },
+    {
+      "t": 57.8257,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 52441000000,
+      "header_age_seconds": -0.001
+    },
+    {
+      "t": 58.795,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 54389000000,
+      "header_age_seconds": -1.009
+    },
+    {
+      "t": 59.6809,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 54277000000,
+      "header_age_seconds": -0.017
+    },
+    {
+      "t": 60.6168,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 56189000000,
+      "header_age_seconds": -1.009
+    },
+    {
+      "t": 61.4462,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 56989000000,
+      "header_age_seconds": -0.989
+    },
+    {
+      "t": 62.4204,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 56963000000,
+      "header_age_seconds": -0.003
+    },
+    {
+      "t": 63.2468,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 57779000000,
+      "header_age_seconds": -0.019
+    },
+    {
+      "t": 64.0758,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 59589000000,
+      "header_age_seconds": -1.009
+    }
+  ],
+  "navigation_transitions": [
+    {
+      "t": 2.7493,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": null,
+      "goal_stamp": null,
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 0,
+        "nanosec": 0
+      }
+    },
+    {
+      "t": 22.881,
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 17,
+        "nanosec": 940000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 6,
+        "nanosec": 440000000
+      },
+      "distance_remaining": 1.9941442191629215,
+      "controller_distance_remaining": 2.0,
+      "measured_speed": 0.0,
+      "curve_speed_limit": 0.0
+    },
+    {
+      "t": 24.0601,
+      "status": "WAIT_REPLAN",
+      "message": "Navigation input unavailable: Stale scan receipt",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 17,
+        "nanosec": 940000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 6,
+        "nanosec": 440000000
+      },
+      "route_failure": false,
+      "input_hold": true
+    },
+    {
+      "t": 24.4513,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 17,
+        "nanosec": 940000000
+      },
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 19,
+        "nanosec": 720000000
+      }
+    },
+    {
+      "t": 30.4497,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": null,
+      "goal_stamp": null,
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 25,
+        "nanosec": 600000000
+      }
+    },
+    {
+      "t": 43.0138,
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 37,
+        "nanosec": 840000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 25,
+        "nanosec": 600000000
+      }
+    },
+    {
+      "t": 46.768,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 37,
+        "nanosec": 840000000
+      },
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 41,
+        "nanosec": 560000000
+      }
+    },
+    {
+      "t": 47.8507,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": null,
+      "goal_stamp": null,
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 42,
+        "nanosec": 640000000
+      }
+    },
+    {
+      "t": 56.3252,
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 50,
+        "nanosec": 880000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 50,
+        "nanosec": 40000000
+      }
+    },
+    {
+      "t": 64.2305,
+      "status": "SUCCEEDED",
+      "message": "Nav2 status 4",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 50,
+        "nanosec": 880000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 50,
+        "nanosec": 40000000
+      }
+    },
+    {
+      "t": 64.2526,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 50,
+        "nanosec": 880000000
+      },
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 58,
+        "nanosec": 760000000
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "t": 0.108,
+      "mission_state": "IDLE",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": null,
+        "scan_tf_error": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 0.3344,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": false,
+        "control_seq": -1
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": null,
+        "scan_tf_error": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 1.4041,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": null,
+        "scan_tf_error": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 2.9434,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "odom_tf_unavailable",
+          "odom_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_SCAN",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 3.5725,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 34
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "odom_tf_unavailable",
+          "odom_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_SCAN",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 4.646,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "odom_tf_unavailable",
+          "odom_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_SCAN",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 4.8545,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 47
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": 0.01557712400017408,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_SCAN",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 5.0704,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 50
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.09815631500032396,
+        "odom_age_seconds": 0.02657085900000311,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation at time 0.383000, but only time 1.383000 is in the buffer, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 5.2819,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 52
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "map_tf_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": 2.731850665840175e-05,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.14713478000021496,
+        "odom_age_seconds": 0.001956906000032177,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the past.  Requested time 0.583000 but the earliest data is at time 1.383000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 5.6997,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 55
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "map_tf_unavailable",
+          "position_std_m_elevated",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": 0.3947870475945736,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.04082092799990278,
+        "odom_age_seconds": 0.02113439799995831,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the past.  Requested time 1.183000 but the earliest data is at time 1.383000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 6.1083,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.0000138945600403,
+        "y": -1.9999998638246912,
+        "yaw": 1.6680945914163185e-06
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 60
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "position_std_m_elevated",
+          "initializing"
+        ],
+        "position_std_m": 0.3947870475945736,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.09123835999980656,
+        "odom_age_seconds": 0.0333248129995809,
+        "map_tf_age_seconds": 0.019,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 7.1668,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.974991086808018,
+        "y": -1.951549261608981,
+        "yaw": 0.0032908158735959953
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 70
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "initializing"
+        ],
+        "position_std_m": 0.3311870199901756,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 1,
+        "scan_age_seconds": 0.10459937700034061,
+        "odom_age_seconds": 0.029432339000322827,
+        "map_tf_age_seconds": 0.015,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.2478,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9588291886540685,
+        "y": -1.9444254030711658,
+        "yaw": 0.001229607206891896
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 91
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "initializing"
+        ],
+        "position_std_m": 0.2864963039804017,
+        "scan_map_agreement": 0.99375,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 2,
+        "scan_age_seconds": 0.07642010800009302,
+        "odom_age_seconds": 0.025581935999980487,
+        "map_tf_age_seconds": 0.023,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.4513,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9588392975640456,
+        "y": -1.9444253925648731,
+        "yaw": 0.0012299898228773655
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 93
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.2864963039804017,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 2,
+        "scan_age_seconds": 0.1272737459999007,
+        "odom_age_seconds": 0.00234690600018439,
+        "map_tf_age_seconds": -0.009,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.6544,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9588459324047323,
+        "y": -1.9444254966786005,
+        "yaw": 0.0012303671652643974
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 1
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.2864963039804017,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 2,
+        "scan_age_seconds": 0.1272737459999007,
+        "odom_age_seconds": 0.00234690600018439,
+        "map_tf_age_seconds": -0.009,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 10.2885,
+      "mission_state": "CANCELED",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9546549639478936,
+        "y": -1.9445199390154693,
+        "yaw": -0.007034231728811965
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 96
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.2864963039804017,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.07498113399969952,
+        "odom_age_seconds": 0.0006985449999774573,
+        "map_tf_age_seconds": -0.017,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 10.508,
+      "mission_state": "IDLE",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.954661379590438,
+        "y": -1.944519917065916,
+        "yaw": -0.007033998543379176
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 99
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.2864963039804017,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.05611555900031817,
+        "odom_age_seconds": 0.0069989660000828735,
+        "map_tf_age_seconds": 0.005,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 10.8613,
+      "mission_state": "IDLE",
+      "localization_state": "ACQUIRING",
+      "control": {
+        "state": "WAIT_HOLD",
+        "reason": "주행을 멈추고 새 정지 응답을 확인합니다."
+      },
+      "pose": {
+        "x": -2.9546746881087564,
+        "y": -1.9445197872245958,
+        "yaw": -0.007033417474057438
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 103
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.2864963039804017,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.16858067700013635,
+        "odom_age_seconds": 0.01507295500005057,
+        "map_tf_age_seconds": 0.007,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 11.4863,
+      "mission_state": "IDLE",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 109,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.9546937701284026,
+        "y": -1.9445197049862828,
+        "yaw": -0.007032613977190884
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 109
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.10618262099978892,
+        "odom_age_seconds": 0.005467533000228286,
+        "map_tf_age_seconds": -0.001,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 6.783000 but the latest data is at time 6.779000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 11.6896,
+      "mission_state": "IDLE",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 109,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.954750955410829,
+        "y": -1.9445190777927066,
+        "yaw": 0.011815784375047307
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 112
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "initializing"
+        ],
+        "position_std_m": 0.282841854747725,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.14834950799968283,
+        "odom_age_seconds": 0.008112296000035712,
+        "map_tf_age_seconds": 0.001,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 13.7684,
+      "mission_state": "IDLE",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 109,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.960763767295933,
+        "y": -1.9555636277581478,
+        "yaw": 0.439168558585028
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 132
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.15795529439112935,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.10480528500011133,
+        "odom_age_seconds": 0.028018614999837155,
+        "map_tf_age_seconds": 0.023,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 15.8686,
+      "mission_state": "IDLE",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 109,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.974582021213163,
+        "y": -1.9943304320013533,
+        "yaw": 0.8550289835518315
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 153
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.10697583092070889,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.07355117499992048,
+        "odom_age_seconds": 0.023614083000211394,
+        "map_tf_age_seconds": 0.011,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 17.9269,
+      "mission_state": "IDLE",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 109,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -3.001846578683576,
+        "y": -1.9959647054361964,
+        "yaw": 1.2410042753110273
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 174
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.09223100208893642,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.10105724000004557,
+        "odom_age_seconds": 0.010765113000161364,
+        "map_tf_age_seconds": 0.007,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 19.5946,
+      "mission_state": "IDLE",
+      "localization_state": "SETTLING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 109,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -3.008138986097047,
+        "y": -2.0039849758943515,
+        "yaw": 1.5816845240938435
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 191
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.0937300701209932,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.17689904600001682,
+        "odom_age_seconds": 0.02754497400019318,
+        "map_tf_age_seconds": 0.005,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 20.6347,
+      "mission_state": "IDLE",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -3.0132338331401587,
+        "y": -1.9971949300865688,
+        "yaw": 1.5866584947557638
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 202
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.07829161323006735,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.15977715700000772,
+        "odom_age_seconds": 0.022854198000004544,
+        "map_tf_age_seconds": 0.019,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 22.7254,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -3.0191443413524652,
+        "y": -2.001869076273123,
+        "yaw": 1.5872803193763712
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 222
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.07829161323006735,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.12592028400013078,
+        "odom_age_seconds": 0.010680304000288743,
+        "map_tf_age_seconds": 0.007,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 22.9314,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -3.0191441784536206,
+        "y": -2.001874561179422,
+        "yaw": 1.5872806253421754
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 223
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.07829161323006735,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.17930926300005012,
+        "odom_age_seconds": 0.013977490999877773,
+        "map_tf_age_seconds": -0.009,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 24.0588,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.972095965472148,
+        "y": -1.9327580547401644,
+        "yaw": 0.7275270304680422
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 223
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "scan_unavailable"
+        ],
+        "position_std_m": 0.09832395168469388,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.6084606829999757,
+        "odom_age_seconds": 0.026276971999777743,
+        "map_tf_age_seconds": 0.025,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 24.2636,
+      "mission_state": "WAIT_REPLAN",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.9589494107225933,
+        "y": -1.9168348968448399,
+        "yaw": 0.5905749429004026
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 223
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "scan_unavailable"
+        ],
+        "position_std_m": 0.09832395168469388,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.8583826019998924,
+        "odom_age_seconds": 0.0015207829997052613,
+        "map_tf_age_seconds": -0.007,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 24.4666,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.956788294017496,
+        "y": -1.9116426049001876,
+        "yaw": 0.5637413342664018
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 224
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "scan_map_check_unavailable",
+          "scan_unavailable"
+        ],
+        "position_std_m": 0.09832395168469388,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 1.1085037590000866,
+        "odom_age_seconds": 0.013508860999991157,
+        "map_tf_age_seconds": 0.077,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 25.2956,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.9576326083429945,
+        "y": -1.9083207317356354,
+        "yaw": 0.5488604018174424
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 233
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "scan_map_check_unavailable"
+        ],
+        "position_std_m": 0.23044564591407526,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.03456978700023683,
+        "odom_age_seconds": 0.006003743999826838,
+        "map_tf_age_seconds": 0.817,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 20.383000 but the latest data is at time 19.583000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 25.5027,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.957858952957616,
+        "y": -1.9075271840518424,
+        "yaw": 0.5456602065000695
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 234
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.23044564591407526,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.07845826299990222,
+        "odom_age_seconds": 0.015246241000113514,
+        "map_tf_age_seconds": 0.009,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 27.582,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.95851177023093,
+        "y": -1.904797866371895,
+        "yaw": 0.5331213699791638
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 255
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.23044564591407526,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.04540430399993056,
+        "odom_age_seconds": 0.0061744209997414146,
+        "map_tf_age_seconds": -0.003,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 29.6553,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.9586137741051863,
+        "y": -1.9048938151180774,
+        "yaw": 0.531495523775391
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 276
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.23044564591407526,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.0028311719997873297,
+        "odom_age_seconds": 0.024111304999678396,
+        "map_tf_age_seconds": 0.019,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 24.583000 but the latest data is at time 24.561000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 30.0863,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.958628288322028,
+        "y": -1.9048860235625573,
+        "yaw": 0.5311935332031819
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 2
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.23044564591407526,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.08646947099987301,
+        "odom_age_seconds": 0.0006898130000081437,
+        "map_tf_age_seconds": 0.023,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 30.5051,
+      "mission_state": "CANCELED",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.958633938532479,
+        "y": -1.904849970562952,
+        "yaw": 0.5309810869071376
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 279
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.23044564591407526,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.17376044299999194,
+        "odom_age_seconds": 0.01646168299976125,
+        "map_tf_age_seconds": 0.013,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 30.5136,
+      "mission_state": "CANCELED",
+      "localization_state": "ACQUIRING",
+      "control": {
+        "state": "WAIT_HOLD",
+        "reason": "주행을 멈추고 새 정지 응답을 확인합니다."
+      },
+      "pose": {
+        "x": -2.958633938532479,
+        "y": -1.904849970562952,
+        "yaw": 0.5309810869071376
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 279
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.23044564591407526,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.17376044299999194,
+        "odom_age_seconds": 0.01646168299976125,
+        "map_tf_age_seconds": 0.013,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 31.5606,
+      "mission_state": "CANCELED",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 291,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.958663293251723,
+        "y": -1.9048818305178785,
+        "yaw": 0.530405885630524
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 291
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.23044564591407526,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.17434532299967032,
+        "odom_age_seconds": 0.02326246699976764,
+        "map_tf_age_seconds": 0.007,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 33.6313,
+      "mission_state": "CANCELED",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 291,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.942742720934679,
+        "y": -1.8920946457382783,
+        "yaw": 0.9265865627815197
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 312
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.12614296514609002,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.14138702199988984,
+        "odom_age_seconds": 0.017235365000033198,
+        "map_tf_age_seconds": 0.015,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 35.6989,
+      "mission_state": "CANCELED",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 291,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.929940254061081,
+        "y": -1.9054631700207554,
+        "yaw": 1.3563716061579154
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 333
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.10624531145045443,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.16359019200035618,
+        "odom_age_seconds": 0.03029888800028857,
+        "map_tf_age_seconds": 0.025,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 37.7893,
+      "mission_state": "CANCELED",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 291,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.932081365230974,
+        "y": -1.9189851464465904,
+        "yaw": 1.754010257592402
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 353
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.08907427013899781,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.07506388499996319,
+        "odom_age_seconds": 0.005191850999835879,
+        "map_tf_age_seconds": -0.013,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 39.663,
+      "mission_state": "CANCELED",
+      "localization_state": "SETTLING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 291,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.932149476135313,
+        "y": -1.9285715008538338,
+        "yaw": 2.1205752798403816
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 373
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.10531734634615506,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.18034998499979338,
+        "odom_age_seconds": 0.015212403000077757,
+        "map_tf_age_seconds": 0.007,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 40.9063,
+      "mission_state": "CANCELED",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.9322290227021877,
+        "y": -1.9230437708823553,
+        "yaw": 2.1397314315372102
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 386
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.08946694036435626,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.01755835299991304,
+        "odom_age_seconds": 0.031208126999899832,
+        "map_tf_age_seconds": 0.023,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 35.589000 but the latest data is at time 35.577000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 42.9232,
+      "mission_state": "CANCELED",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.933613669611396,
+        "y": -1.913849725906556,
+        "yaw": 2.13993703681961
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 406
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.08946694036435626,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.1918323509999027,
+        "odom_age_seconds": 0.03153064300022379,
+        "map_tf_age_seconds": 0.031,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 43.1339,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.9336101066549043,
+        "y": -1.9138551959380858,
+        "yaw": 2.139937472068438
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 407
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.08946694036435626,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.04087768199997299,
+        "odom_age_seconds": 0.008477305000269553,
+        "map_tf_age_seconds": -0.001,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 45.2223,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.8940094726691865,
+        "y": -1.8620570295091072,
+        "yaw": 0.7590256772974
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 407
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.12403188458357373,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 7,
+        "amcl_update_responses": 6,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.05155631900015578,
+        "odom_age_seconds": 0.011051929000132077,
+        "map_tf_age_seconds": 0.451,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 39.989000 but the latest data is at time 39.589000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 46.0505,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.8940094726691865,
+        "y": -1.8620570295091072,
+        "yaw": 0.7590256772974
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 407
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "map_tf_unavailable",
+          "scan_map_check_unavailable"
+        ],
+        "position_std_m": 0.12403188458357373,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 7,
+        "amcl_update_responses": 6,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.19044608500007598,
+        "odom_age_seconds": 0.0006259279998630518,
+        "map_tf_age_seconds": 1.171,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 40.589000 but the latest data is at time 39.589000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 46.8897,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.8940094726691865,
+        "y": -1.8620570295091072,
+        "yaw": 0.7590256772974
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 410
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "map_tf_unavailable",
+          "scan_map_check_unavailable"
+        ],
+        "position_std_m": 0.12403188458357373,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 7,
+        "amcl_update_responses": 6,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.1353095120002763,
+        "odom_age_seconds": 0.0006956960000934487,
+        "map_tf_age_seconds": 1.891,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 41.389000 but the latest data is at time 40.983000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 47.3084,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.7734880259463193,
+        "y": -1.798266078780085,
+        "yaw": 0.042535115461149076
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 414
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "position_std_m_elevated",
+          "yaw_std_rad_elevated",
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.4316925758224661,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 7,
+        "amcl_update_responses": 6,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.15609657400000287,
+        "odom_age_seconds": 0.024917129000186833,
+        "map_tf_age_seconds": 0.005,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 49.3728,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.7701090677896376,
+        "y": -1.7947910847231408,
+        "yaw": 0.03113393337515108
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 434
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "position_std_m_elevated",
+          "yaw_std_rad_elevated",
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.4316925758224661,
+        "scan_map_agreement": 0.95625,
+        "amcl_update_requests": 8,
+        "amcl_update_responses": 6,
+        "amcl_stationary_update_requests": 1,
+        "scan_age_seconds": 0.14780881999968187,
+        "odom_age_seconds": 0.030696783999701438,
+        "map_tf_age_seconds": 0.013,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 49.5778,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.770122539997641,
+        "y": -1.794827851374818,
+        "yaw": 0.030980950720183698
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 437
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "position_std_m_elevated",
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.35424597433172367,
+        "scan_map_agreement": 0.95,
+        "amcl_update_requests": 8,
+        "amcl_update_responses": 6,
+        "amcl_stationary_update_requests": 1,
+        "scan_age_seconds": 0.19754629799990653,
+        "odom_age_seconds": 0.005162654999821825,
+        "map_tf_age_seconds": 0.001,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 50.8435,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.725565082570848,
+        "y": -1.776330789957831,
+        "yaw": 0.007847281654442236
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 448
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.2876638636617945,
+        "scan_map_agreement": 0.775,
+        "amcl_update_requests": 9,
+        "amcl_update_responses": 7,
+        "amcl_stationary_update_requests": 2,
+        "scan_age_seconds": 0.026424188999953913,
+        "odom_age_seconds": 0.013121255999976711,
+        "map_tf_age_seconds": -0.003,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 52.9231,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.728149651973818,
+        "y": -1.768637607569184,
+        "yaw": 0.020899562559366796
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 470
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.2876638636617945,
+        "scan_map_agreement": 0.86875,
+        "amcl_update_requests": 9,
+        "amcl_update_responses": 7,
+        "amcl_stationary_update_requests": 2,
+        "scan_age_seconds": 0.0020380840001053002,
+        "odom_age_seconds": 0.017104244000165636,
+        "map_tf_age_seconds": 0.005,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 47.389000 but the latest data is at time 47.375000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 54.9879,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.728336144611904,
+        "y": -1.7686334237695909,
+        "yaw": 0.019747485855624435
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 3
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.2876638636617945,
+        "scan_map_agreement": 0.85625,
+        "amcl_update_requests": 9,
+        "amcl_update_responses": 7,
+        "amcl_stationary_update_requests": 2,
+        "scan_age_seconds": 0.021345078999729594,
+        "odom_age_seconds": 0.026215992999823357,
+        "map_tf_age_seconds": 0.015,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 49.589000 but the latest data is at time 49.585000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 55.4098,
+      "mission_state": "CANCELED",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.7283715061148617,
+        "y": -1.7686330245839574,
+        "yaw": 0.01953413245791199
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 489
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.2876638636617945,
+        "scan_map_agreement": 0.86875,
+        "amcl_update_requests": 9,
+        "amcl_update_responses": 7,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.07030477999978757,
+        "odom_age_seconds": 0.03647577199990337,
+        "map_tf_age_seconds": 0.017,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 55.6886,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.7283773884474933,
+        "y": -1.7686327055538507,
+        "yaw": 0.01949891887269149
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 489
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.2876638636617945,
+        "scan_map_agreement": 0.875,
+        "amcl_update_requests": 9,
+        "amcl_update_responses": 7,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.11108905999981289,
+        "odom_age_seconds": 0.007489564000024984,
+        "map_tf_age_seconds": 0.005,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 56.3045,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.728443625098468,
+        "y": -1.7686312693015418,
+        "yaw": 0.01910688265906514
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 497
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.2876638636617945,
+        "scan_map_agreement": 0.875,
+        "amcl_update_requests": 9,
+        "amcl_update_responses": 7,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.011903486999926827,
+        "odom_age_seconds": 0.029932933000054618,
+        "map_tf_age_seconds": 0.025,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 50.789000 but the latest data is at time 50.775000, when looking up transform from frame [base_footprint] to frame [map]"
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 58.3825,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.348931348522378,
+        "y": -1.8026511692748783,
+        "yaw": -0.14436747271375291
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 497
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.18299241714779202,
+        "scan_map_agreement": 0.88125,
+        "amcl_update_requests": 10,
+        "amcl_update_responses": 8,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.18026426400001583,
+        "odom_age_seconds": 0.021334234999812907,
+        "map_tf_age_seconds": 0.013,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 60.4803,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.291589679988109,
+        "y": -1.8107374260013438,
+        "yaw": -0.17145011504635888
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 497
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.1705763473578498,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 10,
+        "amcl_update_responses": 8,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.0037903880001977086,
+        "odom_age_seconds": 0.000590870999985782,
+        "map_tf_age_seconds": -0.011,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 62.5972,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -1.5034089754830269,
+        "y": -1.9157599901827438,
+        "yaw": -0.10204992686368872
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 497
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.15715210213117106,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 10,
+        "amcl_update_responses": 8,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.16005658399990352,
+        "odom_age_seconds": 0.021923595999851386,
+        "map_tf_age_seconds": 0.011,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 64.2571,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -1.212033477788869,
+        "y": -1.9726784190496869,
+        "yaw": -0.17692778991674113
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 500
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.15383565993070303,
+        "scan_map_agreement": 0.9625,
+        "amcl_update_requests": 10,
+        "amcl_update_responses": 8,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.09297237600003427,
+        "odom_age_seconds": 0.016787870999905863,
+        "map_tf_age_seconds": 0.017,
+        "scan_tf_state": "READY",
+        "scan_tf_error": ""
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    }
+  ],
+  "ground_truth_samples": [
+    {
+      "t": 4.6208,
+      "x": -3.000000136794487,
+      "y": -1.9999999077695172,
+      "yaw": 6.403458794300704e-08
+    },
+    {
+      "t": 5.1292,
+      "x": -2.999926660506345,
+      "y": -1.9999995178102383,
+      "yaw": 1.41598063907664e-06
+    },
+    {
+      "t": 6.1458,
+      "x": -2.9999875774297324,
+      "y": -1.999999583175056,
+      "yaw": 2.619714367169701e-06
+    },
+    {
+      "t": 6.6556,
+      "x": -3.000001363187173,
+      "y": -1.9999994059060444,
+      "yaw": 3.2168882081563577e-06
+    },
+    {
+      "t": 7.6728,
+      "x": -3.0000341140086437,
+      "y": -1.9999993880988471,
+      "yaw": 4.560274026637253e-06
+    },
+    {
+      "t": 8.1775,
+      "x": -3.000050587112793,
+      "y": -1.9999993630555413,
+      "yaw": 5.2205493353022546e-06
+    },
+    {
+      "t": 9.1935,
+      "x": -3.0000830110569696,
+      "y": -1.9999994019689487,
+      "yaw": 6.616907834967572e-06
+    },
+    {
+      "t": 9.6994,
+      "x": -3.0000993995770786,
+      "y": -1.9999993553051774,
+      "yaw": 7.264562081465392e-06
+    },
+    {
+      "t": 10.7166,
+      "x": -3.0001321282066966,
+      "y": -1.9999993616389888,
+      "yaw": 8.636459838341141e-06
+    },
+    {
+      "t": 11.2648,
+      "x": -3.0001499404989818,
+      "y": -1.9999993622769243,
+      "yaw": 9.359107833486514e-06
+    },
+    {
+      "t": 12.2855,
+      "x": -3.000473488222608,
+      "y": -2.000045243627857,
+      "yaw": 0.156894380489385
+    },
+    {
+      "t": 12.7934,
+      "x": -3.000654181996721,
+      "y": -2.0000981906485866,
+      "yaw": 0.2565222982108154
+    },
+    {
+      "t": 13.8206,
+      "x": -3.000995779087515,
+      "y": -2.0002569232518885,
+      "yaw": 0.45578903431058254
+    },
+    {
+      "t": 14.3282,
+      "x": -3.0011531751070675,
+      "y": -2.0003608045099397,
+      "yaw": 0.5554189759323929
+    },
+    {
+      "t": 15.347,
+      "x": -3.001433182828732,
+      "y": -2.0006124675108485,
+      "yaw": 0.7546824242689945
+    },
+    {
+      "t": 15.8515,
+      "x": -3.0015532908079043,
+      "y": -2.0007577709039275,
+      "yaw": 0.8543148937996137
+    },
+    {
+      "t": 16.3522,
+      "x": -3.0016582267790426,
+      "y": -2.0009144642336767,
+      "yaw": 0.9539465462581571
+    },
+    {
+      "t": 17.3636,
+      "x": -3.0018194343218143,
+      "y": -2.001255375512523,
+      "yaw": 1.1532121058085885
+    },
+    {
+      "t": 17.8732,
+      "x": -3.0018736585286763,
+      "y": -2.0014359217075097,
+      "yaw": 1.2528476501343515
+    },
+    {
+      "t": 18.8886,
+      "x": -3.0019271842550808,
+      "y": -2.001808313931932,
+      "yaw": 1.4521153224081462
+    },
+    {
+      "t": 19.3957,
+      "x": -3.0019256239152132,
+      "y": -2.0019966195690957,
+      "yaw": 1.5517473272007223
+    },
+    {
+      "t": 20.4124,
+      "x": -3.0019206548759025,
+      "y": -2.0020946204244185,
+      "yaw": 1.5852692267119686
+    },
+    {
+      "t": 20.9279,
+      "x": -3.001920521500234,
+      "y": -2.002110994043846,
+      "yaw": 1.5853023511117172
+    },
+    {
+      "t": 21.9386,
+      "x": -3.0019199186472565,
+      "y": -2.0021435359806796,
+      "yaw": 1.5853040210984932
+    },
+    {
+      "t": 22.4498,
+      "x": -3.0019197443305923,
+      "y": -2.0021598646526324,
+      "yaw": 1.5853046530062778
+    },
+    {
+      "t": 23.5247,
+      "x": -3.000088363515938,
+      "y": -1.9987332044168393,
+      "yaw": 1.2091379898764063
+    },
+    {
+      "t": 24.0291,
+      "x": -2.9539311155623715,
+      "y": -1.932416674386678,
+      "yaw": 0.7171225641704299
+    },
+    {
+      "t": 25.0388,
+      "x": -2.936218328545227,
+      "y": -1.9192577154816013,
+      "yaw": 0.5619099043968049
+    },
+    {
+      "t": 25.545,
+      "x": -2.9362509448098533,
+      "y": -1.9192964889439947,
+      "yaw": 0.5614947666603767
+    },
+    {
+      "t": 26.5569,
+      "x": -2.936320509594646,
+      "y": -1.9193296644500881,
+      "yaw": 0.5603981061698103
+    },
+    {
+      "t": 27.0784,
+      "x": -2.9363486833413868,
+      "y": -1.9193447864043702,
+      "yaw": 0.5599135878119772
+    },
+    {
+      "t": 28.089,
+      "x": -2.936410714576959,
+      "y": -1.919334265705698,
+      "yaw": 0.5589842744709861
+    },
+    {
+      "t": 28.5953,
+      "x": -2.9364374602198033,
+      "y": -1.9193510871712562,
+      "yaw": 0.5585882445262775
+    },
+    {
+      "t": 29.1144,
+      "x": -2.9364625285846118,
+      "y": -1.9193970736215478,
+      "yaw": 0.5581859988171521
+    },
+    {
+      "t": 30.1515,
+      "x": -2.936492313611708,
+      "y": -1.9193749047508768,
+      "yaw": 0.5575101774304606
+    },
+    {
+      "t": 30.6947,
+      "x": -2.936512102868385,
+      "y": -1.9193846916317578,
+      "yaw": 0.5571847147869352
+    },
+    {
+      "t": 31.7065,
+      "x": -2.9365901710797386,
+      "y": -1.9194469709543676,
+      "yaw": 0.5847186125818289
+    },
+    {
+      "t": 32.2098,
+      "x": -2.9367439698074853,
+      "y": -1.919597262103877,
+      "yaw": 0.6842349212978807
+    },
+    {
+      "t": 33.2301,
+      "x": -2.937002360976271,
+      "y": -1.919884128082624,
+      "yaw": 0.8840641001803774
+    },
+    {
+      "t": 33.7361,
+      "x": -2.9371045188000178,
+      "y": -1.9200468822814263,
+      "yaw": 0.9838913550592703
+    },
+    {
+      "t": 34.7554,
+      "x": -2.937257864729291,
+      "y": -1.9203969440691715,
+      "yaw": 1.1835472048969418
+    },
+    {
+      "t": 35.2613,
+      "x": -2.9373067410818634,
+      "y": -1.9205803394010854,
+      "yaw": 1.2833577550129878
+    },
+    {
+      "t": 36.2658,
+      "x": -2.937347471984839,
+      "y": -1.9209547521228165,
+      "yaw": 1.4829002678802417
+    },
+    {
+      "t": 36.7896,
+      "x": -2.937339123263129,
+      "y": -1.9211430160068714,
+      "yaw": 1.582633267714113
+    },
+    {
+      "t": 37.8086,
+      "x": -2.937272566129757,
+      "y": -1.9214947500395316,
+      "yaw": 1.7720880506895398
+    },
+    {
+      "t": 38.3132,
+      "x": -2.9372112640243335,
+      "y": -1.9216733718671566,
+      "yaw": 1.8717938356468373
+    },
+    {
+      "t": 39.3428,
+      "x": -2.937036472800453,
+      "y": -1.922009384009219,
+      "yaw": 2.0712171347998445
+    },
+    {
+      "t": 39.8913,
+      "x": -2.93699618683652,
+      "y": -1.922120913172012,
+      "yaw": 2.1361439729155793
+    },
+    {
+      "t": 40.3956,
+      "x": -2.9369604635276,
+      "y": -1.9221217671803124,
+      "yaw": 2.137836340536795
+    },
+    {
+      "t": 41.4608,
+      "x": -2.936942228063632,
+      "y": -1.9221501523158269,
+      "yaw": 2.137769496911716
+    },
+    {
+      "t": 41.9778,
+      "x": -2.936933780383369,
+      "y": -1.9221637622514127,
+      "yaw": 2.1377707515440987
+    },
+    {
+      "t": 43.0284,
+      "x": -2.9369153889493784,
+      "y": -1.9221922431122276,
+      "yaw": 2.1377733963412173
+    },
+    {
+      "t": 43.5414,
+      "x": -2.9327739211772896,
+      "y": -1.9191757598610169,
+      "yaw": 1.8632332833911098
+    },
+    {
+      "t": 44.5593,
+      "x": -2.9134987749453938,
+      "y": -1.8840404954083816,
+      "yaw": 0.9121106922423061
+    },
+    {
+      "t": 45.0658,
+      "x": -2.8340499211404047,
+      "y": -1.8232136217459345,
+      "yaw": 0.4130999420917906
+    },
+    {
+      "t": 46.0797,
+      "x": -2.7860466089334714,
+      "y": -1.8114195897315082,
+      "yaw": 0.08469999593500055
+    },
+    {
+      "t": 46.6015,
+      "x": -2.7860276042919367,
+      "y": -1.8114511680328733,
+      "yaw": 0.08402359938040314
+    },
+    {
+      "t": 47.6476,
+      "x": -2.786006892033155,
+      "y": -1.8115232351765043,
+      "yaw": 0.0831488574763137
+    },
+    {
+      "t": 48.1534,
+      "x": -2.786006379527422,
+      "y": -1.811573284419134,
+      "yaw": 0.0827300275294466
+    },
+    {
+      "t": 49.17,
+      "x": -2.7860306021662344,
+      "y": -1.8117115240473904,
+      "yaw": 0.08193661538676501
+    },
+    {
+      "t": 49.673,
+      "x": -2.7860585062257823,
+      "y": -1.81180276135136,
+      "yaw": 0.0815611605947678
+    },
+    {
+      "t": 50.6905,
+      "x": -2.7861509266903,
+      "y": -1.8119544430869432,
+      "yaw": 0.08085282931499435
+    },
+    {
+      "t": 51.1959,
+      "x": -2.786202574282744,
+      "y": -1.8119562431099516,
+      "yaw": 0.08051455016970492
+    },
+    {
+      "t": 52.2102,
+      "x": -2.786302564007473,
+      "y": -1.811961107378804,
+      "yaw": 0.07986916704162261
+    },
+    {
+      "t": 52.7161,
+      "x": -2.7863509318094346,
+      "y": -1.8119621946676885,
+      "yaw": 0.07956065382651399
+    },
+    {
+      "t": 53.2223,
+      "x": -2.786398416369912,
+      "y": -1.8119646045066493,
+      "yaw": 0.07926254929916086
+    },
+    {
+      "t": 54.2351,
+      "x": -2.7864903919478294,
+      "y": -1.811967572953939,
+      "yaw": 0.07869216778300815
+    },
+    {
+      "t": 54.7454,
+      "x": -2.7865348658412845,
+      "y": -1.811969390554407,
+      "yaw": 0.07841996702135538
+    },
+    {
+      "t": 55.7719,
+      "x": -2.786617314829826,
+      "y": -1.811972368883379,
+      "yaw": 0.07792635334840126
+    },
+    {
+      "t": 56.3054,
+      "x": -2.786663415117341,
+      "y": -1.8119738030823809,
+      "yaw": 0.07765424558054881
+    },
+    {
+      "t": 57.3238,
+      "x": -2.6100657065656403,
+      "y": -1.802849636133578,
+      "yaw": 0.025311039213675047
+    },
+    {
+      "t": 57.8372,
+      "x": -2.5046133808604782,
+      "y": -1.8047015160323043,
+      "yaw": -0.05969074746831841
+    },
+    {
+      "t": 58.847,
+      "x": -2.2937568275047466,
+      "y": -1.830324030712352,
+      "yaw": -0.16032069276698896
+    },
+    {
+      "t": 59.3507,
+      "x": -2.1895885149990875,
+      "y": -1.8476146586747184,
+      "yaw": -0.168420897077966
+    },
+    {
+      "t": 60.3634,
+      "x": -1.9785067634177873,
+      "y": -1.8839368355039685,
+      "yaw": -0.15914913324153385
+    },
+    {
+      "t": 60.8738,
+      "x": -1.8764424658439194,
+      "y": -1.899590247460164,
+      "yaw": -0.13781245055627622
+    },
+    {
+      "t": 61.9249,
+      "x": -1.6747001585674575,
+      "y": -1.9194029525798988,
+      "yaw": -0.09030947690325199
+    },
+    {
+      "t": 62.4592,
+      "x": -1.5649527081372308,
+      "y": -1.930524739026053,
+      "yaw": -0.10893612035697216
+    },
+    {
+      "t": 63.47,
+      "x": -1.3682172082463264,
+      "y": -1.9561110220006324,
+      "yaw": -0.1515703080593193
+    },
+    {
+      "t": 63.9747,
+      "x": -1.2931993973257458,
+      "y": -1.9678050383004444,
+      "yaw": -0.1577189231430736
+    }
+  ],
+  "evidence_sampling": {
+    "method": "Uniform bounded samples including first/last. Assertions, events and selected failure proofs are retained separately. Full raw telemetry is unchanged at the referenced path/hash.",
+    "arrays": {
+      "tf_samples": {
+        "before": 504,
+        "retained": 64
+      },
+      "ground_truth_samples": {
+        "before": 117,
+        "retained": 80
+      },
+      "amcl_samples": {
+        "before": 63,
+        "retained": 60
+      }
+    }
+  }
+}

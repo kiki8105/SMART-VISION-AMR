@@ -50,7 +50,8 @@ class AssistedLocalization:
     until another explicit ``start``; mission resumption is deliberately absent.
     """
 
-    ACTIVE_STATES = {'ACQUIRING', 'INITIALIZING', 'ROTATING', 'SETTLING'}
+    ACTIVE_STATES = {'ACQUIRING', 'INITIALIZING', 'ROTATING', 'RETURNING', 'SETTLING'}
+    MOVING_STATES = {'ROTATING', 'RETURNING'}
     TERMINAL_STATES = {'SUCCEEDED', 'FAILED', 'CANCELED'}
 
     def __init__(self, clock=None, angular_speed=.20,
@@ -94,6 +95,11 @@ class AssistedLocalization:
         self._last_good_pose = None
         self._last_good_at = None
         self._settle_updates = 0
+        self.settle_stopped_at = None
+        self.home_target = None
+        self.home_approach_tolerance = .06
+        self.home_yaw_tolerance = .10
+        self.home_position_tolerance = .30
 
     @property
     def active(self):
@@ -113,10 +119,17 @@ class AssistedLocalization:
         self.state, self.reason, self.state_since = state, reason, now
         self.angular = 0.0
 
-    def start(self, now=None):
+    def start(self, now=None, *, home_target=None):
         if self.active:
             return False
+        if home_target is not None:
+            if (not isinstance(home_target, dict)
+                    or any(type(home_target.get(key)) not in (int, float)
+                           or not math.isfinite(home_target[key]) for key in ('x', 'y', 'yaw'))):
+                raise ValueError('Home target must contain finite x, y and yaw')
+            home_target = {key: float(home_target[key]) for key in ('x', 'y', 'yaw')}
         now = self._now(now)
+        self.home_target = home_target
         self.started_at = now
         self.rotation = 0.0
         self.estimate = None
@@ -124,6 +137,7 @@ class AssistedLocalization:
         self._last_yaw = self._last_motion_at = None
         self._clear_confidence()
         self._settle_updates = 0
+        self.settle_stopped_at = None
         self._transition('ACQUIRING', '주행을 멈추고 위치 확인 제어권을 확보합니다.', now)
         return True
 
@@ -154,7 +168,7 @@ class AssistedLocalization:
 
     def pause_for_sensor_gap(self, now=None):
         """Stop a blind sweep without counting unobserved yaw on recovery."""
-        if self.state not in {'ROTATING', 'SETTLING'}:
+        if self.state not in self.MOVING_STATES | {'SETTLING'}:
             return
         now = self._now(now)
         self.angular = 0.0
@@ -166,7 +180,7 @@ class AssistedLocalization:
         self._last_motion_at = now
 
     def on_odom(self, yaw, now=None):
-        if self.state not in {'ROTATING', 'SETTLING'}:
+        if self.state not in self.MOVING_STATES | {'SETTLING'}:
             return False
         now = self._now(now)
         if type(yaw) not in (int, float) or not math.isfinite(yaw):
@@ -187,7 +201,7 @@ class AssistedLocalization:
             if abs(delta) > min(.5, limit):
                 self.fail('오도메트리 방향이 갑자기 변해 위치 확인을 중단합니다.', now)
                 return False
-            if self.state == 'ROTATING':
+            if self.state in self.MOVING_STATES:
                 self.rotation += abs(delta)
                 if abs(delta) >= .002:
                     self._last_motion_at = now
@@ -195,7 +209,7 @@ class AssistedLocalization:
         return True
 
     def on_estimate(self, x, y, yaw, position_std, yaw_std, now=None, *, quality_ok=True):
-        if self.state not in {'ROTATING', 'SETTLING'}:
+        if self.state not in self.MOVING_STATES | {'SETTLING'}:
             return False
         now = self._now(now)
         if self.last_estimate_at is not None and now <= self.last_estimate_at:
@@ -239,7 +253,50 @@ class AssistedLocalization:
                 and self._good_count >= self.min_estimates
                 and now - self._good_since >= self.stable_duration)
 
-    def tick(self, now=None, *, sensors_ready=True, rotation_clear=True):
+    def _home_error(self, now):
+        """Use a fresh measured AMCL pose, never the seeded prior, for Home."""
+        estimate = self.estimate
+        if (self.home_target is None or estimate is None or self.last_estimate_at is None
+                or not 0 <= now-self.last_estimate_at <= self.estimate_timeout
+                or not estimate['quality_ok']
+                or estimate['position_std'] > self.position_std_limit
+                or estimate['yaw_std'] > self.yaw_std_limit):
+            return None
+        target = self.home_target
+        return (math.hypot(estimate['x']-target['x'], estimate['y']-target['y']),
+                math.atan2(math.sin(target['yaw']-estimate['yaw']),
+                           math.cos(target['yaw']-estimate['yaw'])))
+
+    def _settle(self, now):
+        self._settle_updates = 0
+        self.settle_stopped_at = None
+        # Home heading must be proved again after the return stops; the sweep's
+        # covariance and samples cannot establish a stationary Home result.
+        if self.home_target is not None:
+            self._clear_confidence()
+        self._transition('SETTLING', '회전을 멈추고 지도상 위치의 안정성을 확인합니다.', now)
+
+    def mark_settled_stop(self, now=None):
+        """Start Home's final evidence interval at measured stop + hold ACK.
+
+        The bridge also advances its AMCL source-header epoch on True. Pure
+        callers invoke this through tick(stationary=True).
+        """
+        if self.state != 'SETTLING' or self.home_target is None or self.settle_stopped_at is not None:
+            return False
+        now = self._now(now)
+        self.settle_stopped_at = self.state_since = now
+        self._clear_confidence()
+        self._settle_updates = 0
+        self.estimate = self.last_estimate_at = None
+        return True
+
+    def _return_home(self, now):
+        self._last_motion_at = now
+        self._transition('RETURNING', '위치를 확인했습니다. 등록 홈 방향으로 천천히 복귀합니다.', now)
+
+    def tick(self, now=None, *, sensors_ready=True, rotation_clear=True,
+             settled_health_ok=True, stationary=True):
         now = self._now(now)
         self.angular = 0.0
         if not self.active:
@@ -249,7 +306,7 @@ class AssistedLocalization:
         elif not rotation_clear:
             self.fail('차체 주변 회전 공간이 부족하여 위치 확인을 중단합니다.', now)
         elif now - self.started_at >= self.timeout:
-            self.fail('제한 시간 안에 위치를 확인하지 못했습니다. 수동 초기 위치를 지정하세요.', now)
+            self.fail('제한 시간 안에 위치를 확인하지 못했습니다. 실제 홈과 센서 상태를 확인하고 다시 초기화하세요.', now)
         elif self.state == 'ACQUIRING' and now - self.state_since >= self.acquire_timeout:
             self.fail('주행 정지와 제어권 확보를 확인하지 못했습니다.', now)
         elif self.state == 'INITIALIZING' and now - self.state_since >= self.initialize_timeout:
@@ -265,16 +322,53 @@ class AssistedLocalization:
             return self.angular
         if self.last_estimate_at is not None and now - self.last_estimate_at > self.estimate_timeout:
             self._clear_confidence()
+        if self.state == 'SETTLING' and self.home_target is not None:
+            if not stationary:
+                self.settle_stopped_at = None
+                self._clear_confidence()
+                self._settle_updates = 0
+                return self.angular
+            if self.mark_settled_stop(now):
+                return self.angular
         if self.state == 'ROTATING':
             if (self.rotation >= self.max_rotation
                     or (self.rotation >= self.min_rotation and self._confident(now))):
-                self._settle_updates = 0
-                self._transition('SETTLING', '회전을 멈추고 지도상 위치의 안정성을 확인합니다.', now)
+                if self.home_target is None:
+                    self._settle(now)
+                else:
+                    self._return_home(now)
             elif now - self._last_motion_at >= self.motion_timeout:
                 self.fail('회전 명령 후 실제 차체 회전을 확인하지 못했습니다.', now)
             else:
                 self.angular = self.angular_speed
-        elif (now - self.state_since >= self.settle_duration
+        elif self.state == 'RETURNING':
+            error = self._home_error(now)
+            if error is not None and error[0] > self.home_position_tolerance:
+                self.fail('추정 위치가 등록 홈에서 30cm 이상 벗어났습니다. 실제 홈 위치를 확인하세요.', now)
+            elif (error is not None
+                  and (abs(error[1]) <= self.home_approach_tolerance
+                       or (self.rotation >= self.max_rotation
+                           and abs(error[1]) <= self.home_yaw_tolerance))):
+                self._settle(now)
+            elif self.rotation >= self.max_rotation:
+                self.fail('회전 한도 안에 등록 홈 방향으로 복귀하지 못했습니다.', now)
+            elif now-self._last_motion_at >= self.motion_timeout:
+                self.fail('등록 홈 방향 복귀에 필요한 새 위치 또는 실제 회전을 확인하지 못했습니다.', now)
+            elif error is not None:
+                # Proportional final approach prevents a delayed AMCL sample
+                # from producing an abrupt full-speed heading correction.
+                self.angular = max(-self.angular_speed, min(self.angular_speed, .6*error[1]))
+        elif self.home_target is not None and self._settle_updates >= 1:
+            error = self._home_error(now)
+            if error is not None and error[0] > self.home_position_tolerance:
+                self.fail('정지 후 추정 위치가 등록 홈에서 벗어났습니다. 실제 홈을 확인하세요.', now)
+            elif error is not None and abs(error[1]) > self.home_yaw_tolerance:
+                self._return_home(now)
+            elif (error is not None and settled_health_ok and stationary
+                  and now-self.state_since >= self.settle_duration and self._confident(now)):
+                self._transition('SUCCEEDED', '등록 홈 위치와 방향을 확인했습니다. 임무는 자동 출발하지 않습니다.', now)
+        elif (self.home_target is None and settled_health_ok and stationary
+              and now - self.state_since >= self.settle_duration
               and self._settle_updates >= 1 and self._confident(now)):
             self._transition('SUCCEEDED', '라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다.', now)
         return self.angular
@@ -292,10 +386,12 @@ class AssistedLocalization:
     def snapshot(self, now=None):
         now = self._now(now)
         return {'state': self.state, 'active': self.active, 'reason': self.reason,
-                'angular': self.angular if self.state == 'ROTATING' else 0.0,
+                'angular': self.angular if self.state in self.MOVING_STATES else 0.0,
                 'rotation_degrees': math.degrees(min(self.rotation, self.max_rotation)),
                 'progress': min(1.0, self.rotation / self.max_rotation),
                 'elapsed': max(0.0, now - self.started_at) if self.started_at is not None else 0.0,
                 'estimate': dict(self.estimate) if self.estimate is not None else None,
                 'good_estimates': self._good_count,
-                'quality_ok': bool(self.estimate and self.estimate['quality_ok'])}
+                'quality_ok': bool(self.estimate and self.estimate['quality_ok']),
+                'home_target': dict(self.home_target) if self.home_target is not None else None,
+                'home_yaw_tolerance': self.home_yaw_tolerance if self.home_target is not None else None}

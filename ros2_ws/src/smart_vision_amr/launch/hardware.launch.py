@@ -13,6 +13,15 @@ from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 
+def _isolate_nav2_parameters(context):
+    # Humble scopes launch configurations shallowly; SetParameter extends its
+    # list in place. Do not mutate a caller's list outside this Nav2 group.
+    inherited = context.launch_configurations.get('global_params')
+    if inherited is not None:
+        context.launch_configurations['global_params'] = list(inherited)
+    return []
+
+
 def _validate_localization_mode(context):
     mode = LaunchConfiguration('localization_mode').perform(context)
     if mode not in ('baseline', 'ekf_independent'):
@@ -52,6 +61,8 @@ def generate_launch_description():
         DeclareLaunchArgument('record_incidents', default_value='true'),
         DeclareLaunchArgument('use_composition', default_value='true',
                               description='Run Nav2 in a shared container; false uses separate processes'),
+        DeclareLaunchArgument('nav2_dynamic_tf_best_effort', default_value='true',
+                              description='Nav2 dynamic TF: best effort, depth 20; false restores installed defaults'),
         DeclareLaunchArgument('lifecycle_bond_timeout', default_value='4.0',
                               description='Nav2 lifecycle bond wait, seconds, for separate-process bringup'),
         DeclareLaunchArgument('use_motion_mux', default_value='true',
@@ -87,6 +98,13 @@ def generate_launch_description():
              parameters=[PathJoinSubstitution([own, 'config', 'localization_health.yaml']), {'use_sim_time': False}],
              output='screen', condition=LaunchConfigurationEquals('estimation_location', 'pc')),
         GroupAction([
+            OpaqueFunction(function=_isolate_nav2_parameters),
+            # Scope only Nav2's dynamic TF subscriptions, including AMCL's
+            # internal listener. Static TF keeps its installed durable policy.
+            SetParameter(name='qos_overrides./tf.subscription.reliability', value='best_effort',
+                         condition=IfCondition(LaunchConfiguration('nav2_dynamic_tf_best_effort'))),
+            SetParameter(name='qos_overrides./tf.subscription.depth', value=20,
+                         condition=IfCondition(LaunchConfiguration('nav2_dynamic_tf_best_effort'))),
             SetParameter(name='speed_limit_topic', value='/speed_limit'),
             # The classroom PC can be slow to schedule map_server during
             # concurrent Nav2 startup. Keep bond failure detection enabled,

@@ -1,0 +1,186 @@
+{
+  "diagnostic_scope": "Read-only AMCL-only copied-launch QoS probe; main source and follower were unchanged from local06. One run cannot establish the middleware root cause.",
+  "trace_raw_path": "/tmp/smart_vision_startup186.NkTSiq/tf_ingress07.jsonl",
+  "trace_raw_sha256": "57a1a6a491afc4ae3272323043fb5471fc63dc3236c9f29f40a1a256149f94be",
+  "stream_counts": {
+    "tf": 1062,
+    "scan": 154
+  },
+  "max_receive_gap_seconds": {
+    "map_odom": 0.2684986909999978,
+    "odom_base": 0.06774064699999904,
+    "scan": 0.26574173699999903
+  },
+  "publisher_gids": {
+    "map_odom": [
+      "010f783925d079e200000000000023030000000000000000"
+    ],
+    "odom_base": [
+      "010f78391dd06dec00000000000089030000000000000000"
+    ],
+    "scan": [
+      "010f7839e4cff1030000000000001a030000000000000000"
+    ]
+  },
+  "new_cell_invalidation": {
+    "observed_at": 11.3017,
+    "cell": [
+      67,
+      36
+    ],
+    "cell_center_world": [
+      -1.725,
+      -2.275
+    ],
+    "inflation_radius_cells": 6,
+    "intersecting_local_route_cell": [
+      61,
+      30
+    ],
+    "intersecting_route_center_world": [
+      -2.025,
+      -2.575
+    ],
+    "previous_front_face_lowest_row": 37,
+    "new_front_face_lowest_row": 36
+  },
+  "curve_speed_limit_zero_semantics": "0 resets Nav2 to its configured limits; it is not a zero-Twist stop command and is not established as the cause of this stall.",
+  "actual_source_time_footprint_case": {
+    "failure_elapsed_seconds": 36.2476,
+    "footprint": {
+      "t": 36.0565,
+      "kind": "footprint",
+      "receipt_ros_ns": 32020000000,
+      "stamp_ns": 31482000000,
+      "header_age_seconds": 0.538,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 31992000000,
+        "frame_id": "odom",
+        "x": -2.1765567751193435,
+        "y": -2.1643045056299552,
+        "yaw": 0.8690245125088186
+      },
+      "points": [
+        [
+          -2.0212345123291016,
+          -2.1258044242858887,
+          0.0
+        ],
+        [
+          -2.070124626159668,
+          -2.0435729026794434,
+          0.0
+        ],
+        [
+          -2.1399223804473877,
+          -1.993605613708496,
+          0.0
+        ],
+        [
+          -2.2235288619995117,
+          -1.9741523265838623,
+          0.0
+        ],
+        [
+          -2.308215379714966,
+          -1.9881746768951416,
+          0.0
+        ],
+        [
+          -2.3998043537139893,
+          -2.0405914783477783,
+          0.0
+        ],
+        [
+          -2.4497716426849365,
+          -2.110389232635498,
+          0.0
+        ],
+        [
+          -2.4692249298095703,
+          -2.193995714187622,
+          0.0
+        ],
+        [
+          -2.455202579498291,
+          -2.2786824703216553,
+          0.0
+        ],
+        [
+          -2.4027857780456543,
+          -2.3702714443206787,
+          0.0
+        ],
+        [
+          -2.3329880237579346,
+          -2.420238733291626,
+          0.0
+        ],
+        [
+          -2.2493815422058105,
+          -2.4396920204162598,
+          0.0
+        ],
+        [
+          -2.1646950244903564,
+          -2.4256696701049805,
+          0.0
+        ],
+        [
+          -2.073105812072754,
+          -2.3732528686523438,
+          0.0
+        ],
+        [
+          -2.0231385231018066,
+          -2.303455114364624,
+          0.0
+        ],
+        [
+          -2.003685474395752,
+          -2.2198486328125,
+          0.0
+        ]
+      ]
+    },
+    "centroid_odom_frame": [
+      -2.2364663490440098,
+      -2.206892463104015
+    ],
+    "current_odom": {
+      "t": 36.2371,
+      "stamp_ns": 32196000000,
+      "x": -2.1594187720455222,
+      "y": -2.139317139622451,
+      "yaw": 1.072467443162333,
+      "v": 0.1486208507367863,
+      "w": 0.9971747918720549
+    },
+    "real_odom_before_header": {
+      "t": 35.4192,
+      "stamp_ns": 31482000000,
+      "x": -2.236455173466918,
+      "y": -2.206922163073937,
+      "yaw": 0.3604395506481576,
+      "v": 0.1253154423229944,
+      "w": 0.996246835966888
+    },
+    "real_odom_after_header": {
+      "t": 35.4192,
+      "stamp_ns": 31482000000,
+      "x": -2.236455173466918,
+      "y": -2.206922163073937,
+      "yaw": 0.3604395506481576,
+      "v": 0.1253154423229944,
+      "w": 0.996246835966888
+    },
+    "interpolated_real_odom_at_footprint_header": [
+      -2.236455173466918,
+      -2.206922163073937
+    ],
+    "centroid_to_current_odom_m": 0.10248294231224954,
+    "centroid_to_source_time_real_odom_m": 3.1732975541318246e-05,
+    "conclusion": "Both receipt and header were fresh. The unchanged 0.10m current-versus-old-polygon guard falsely rejected actual 0.714s-old measured geometry during motion. Comparing actual source-time odom removes the false mismatch without weakening the distance bound."
+  }
+}

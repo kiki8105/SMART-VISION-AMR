@@ -1,0 +1,2213 @@
+{
+  "passed": true,
+  "scenario": "navigation",
+  "domain": 186,
+  "gazebo_master_uri": "http://127.0.0.1:11586",
+  "web_url": "http://127.0.0.1:8796",
+  "physical_vehicle_or_domain16_touched": false,
+  "synthetic_sensor_or_localization_feedback": false,
+  "initial_pose_is_actual_known_simulator_pose": true,
+  "initial_pose_std_requested_m": null,
+  "checks": [
+    {
+      "name": "explicit_goal_path_motion_nav2_success_and_arrival",
+      "passed": true,
+      "goal_distance_m": 0.23142807883317176,
+      "odom_displacement_m": 1.7824591554435447,
+      "nonempty_paths": 1
+    }
+  ],
+  "events": [
+    {
+      "t": 8.934,
+      "event": "explicit_mission_start"
+    },
+    {
+      "t": 18.9304,
+      "event": "navigation_arrived",
+      "pose": {
+        "x": -1.2265797613597706,
+        "y": -2.047122896924554,
+        "yaw": -0.004426046368092356
+      },
+      "goal": {
+        "id": 1,
+        "name": "Trial goal",
+        "camera": "rear",
+        "x": -1.0,
+        "y": -2.0,
+        "yaw": 0.0
+      },
+      "distance_m": 0.23142807883317176
+    }
+  ],
+  "raw_scans": 71,
+  "forwarded_scans": 71,
+  "duration_seconds": 19.0171,
+  "raw_telemetry": {
+    "path": "/tmp/smart_vision_startup186.03znOu/full_result.json",
+    "sha256": "03708fb1deccf96bee01d113ee670fed4cb36301d85cfe34d3721494864591d1"
+  },
+  "sample_counts": {
+    "states": 91,
+    "commands": 525,
+    "odom": 421,
+    "ground_truth": 280,
+    "amcl": 17,
+    "health": 62,
+    "motion": 152,
+    "navigation": 13,
+    "planner": 6,
+    "paths": 1,
+    "tf": 120
+  },
+  "amcl_samples": [
+    {
+      "t": 4.7841,
+      "stamp_ns": 417000000,
+      "x": -3.0000000000002225,
+      "y": -2.0,
+      "yaw": 0.0,
+      "position_std": 0.0,
+      "yaw_std": 3.3085947202406556e-07,
+      "covariance": [
+        -5.950795411990839e-13,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0946799022804343e-13
+      ]
+    },
+    {
+      "t": 4.9748,
+      "stamp_ns": 617000000,
+      "x": -2.9999929554032323,
+      "y": -1.999999999999722,
+      "yaw": -1.5146393545090923e-05,
+      "position_std": 8.108427719119187e-06,
+      "yaw_std": 7.903138177594526e-06,
+      "covariance": [
+        6.574651933988207e-11,
+        7.283063041541027e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        7.283063041541027e-14,
+        4.75175454539567e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        6.245959305415213e-11
+      ]
+    },
+    {
+      "t": 6.3857,
+      "stamp_ns": 2017000000,
+      "x": -2.9999396500886557,
+      "y": -2.000000000823661,
+      "yaw": -6.972855623163781e-05,
+      "position_std": 3.446452721712834e-05,
+      "yaw_std": 3.928381909284452e-05,
+      "covariance": [
+        1.187803633229123e-09,
+        6.039613253960852e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        6.039613253960852e-14,
+        3.907985046680551e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.5432184425193356e-09
+      ]
+    },
+    {
+      "t": 10.0574,
+      "stamp_ns": 5617000000,
+      "x": -2.9656563675815795,
+      "y": -2.000017312023299,
+      "yaw": -0.003247222977089942,
+      "position_std": 0.016312746559674518,
+      "yaw_std": 0.020716038226799505,
+      "covariance": [
+        0.00026610557896056264,
+        1.7960638754033198e-07,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.7960638754033198e-07,
+        2.9688307190411933e-07,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0004291542398142184
+      ]
+    },
+    {
+      "t": 10.6643,
+      "stamp_ns": 6217000000,
+      "x": -2.835698789499061,
+      "y": -2.0029499298237385,
+      "yaw": -0.03609923290180265,
+      "position_std": 0.059673345691943346,
+      "yaw_std": 0.07225146866626408,
+      "covariance": [
+        0.003559725338867281,
+        -6.434445147540657e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -6.434445147540657e-05,
+        6.070255888079856e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.005220274724432141
+      ]
+    },
+    {
+      "t": 11.2783,
+      "stamp_ns": 6817000000,
+      "x": -2.7050610858557826,
+      "y": -2.010151173685067,
+      "yaw": -0.06018657437890851,
+      "position_std": 0.08337212048430073,
+      "yaw_std": 0.09123445031897691,
+      "covariance": [
+        0.006948780962010126,
+        -0.00011926579716270425,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.00011926579716270425,
+        0.0002712908641084866,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008323724925005865
+      ]
+    },
+    {
+      "t": 11.8879,
+      "stamp_ns": 7417000000,
+      "x": -2.5755609258168892,
+      "y": -2.018070343609196,
+      "yaw": -0.05597506184618699,
+      "position_std": 0.09287441977984197,
+      "yaw_std": 0.1047946444987356,
+      "covariance": [
+        0.008624159934965903,
+        -0.00010975457667061761,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.00010975457667061761,
+        0.000583765411693804,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.010981917515616375
+      ]
+    },
+    {
+      "t": 12.5027,
+      "stamp_ns": 8017000000,
+      "x": -2.4505622537543386,
+      "y": -2.0221785093662437,
+      "yaw": -0.055211054439402475,
+      "position_std": 0.10854606801760804,
+      "yaw_std": 0.11220337611971985,
+      "covariance": [
+        0.011782168210254795,
+        -2.9580910925197657e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -2.9580910926085835e-05,
+        0.0009354600016795445,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.01258959761266332
+      ]
+    },
+    {
+      "t": 13.143,
+      "stamp_ns": 8617000000,
+      "x": -2.3233128150020828,
+      "y": -2.031184932743616,
+      "yaw": -0.05977479652055767,
+      "position_std": 0.1187727849069777,
+      "yaw_std": 0.11323791984698517,
+      "covariance": [
+        0.01410695480973434,
+        -1.577087404935895e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.577087404935895e-05,
+        0.001433206887027083,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.012822826491272237
+      ]
+    },
+    {
+      "t": 13.7522,
+      "stamp_ns": 9217000000,
+      "x": -2.1987784934618673,
+      "y": -2.0383200160895303,
+      "yaw": -0.050255788066621856,
+      "position_std": 0.12385480714008243,
+      "yaw_std": 0.12083127389941603,
+      "covariance": [
+        0.015327836220001778,
+        -0.00040370037033365946,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.00040370037033365946,
+        0.0019562927397958063,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014600196752155698
+      ]
+    },
+    {
+      "t": 14.3778,
+      "stamp_ns": 9817000000,
+      "x": -2.0817649226505512,
+      "y": -2.042390765980184,
+      "yaw": -0.04874935601236241,
+      "position_std": 0.12424915542552083,
+      "yaw_std": 0.1279709784735677,
+      "covariance": [
+        0.01541877910898215,
+        -0.0004945000467291294,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.0004945000467291294,
+        0.002617441883711713,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.016376571331482327
+      ]
+    },
+    {
+      "t": 15.0185,
+      "stamp_ns": 10417000000,
+      "x": -1.9583295416821243,
+      "y": -2.0404169755473034,
+      "yaw": -0.017865255782140262,
+      "position_std": 0.12495625385935917,
+      "yaw_std": 0.12118584854038532,
+      "covariance": [
+        0.01561382662205979,
+        5.490918450012927e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        5.490918450057336e-05,
+        0.002986059516566719,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.01468600988645321
+      ]
+    },
+    {
+      "t": 15.6444,
+      "stamp_ns": 11017000000,
+      "x": -1.8380896445733335,
+      "y": -2.040487684385162,
+      "yaw": -0.01280939134223316,
+      "position_std": 0.12836818889565557,
+      "yaw_std": 0.1246460423415001,
+      "covariance": [
+        0.01647613375527568,
+        0.00017125711498344742,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0001712571149838915,
+        0.0034904134254185593,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015536635871399036
+      ]
+    },
+    {
+      "t": 16.3033,
+      "stamp_ns": 11617000000,
+      "x": -1.7038634252621776,
+      "y": -2.041781628620487,
+      "yaw": -0.007015999371523199,
+      "position_std": 0.13562950989555966,
+      "yaw_std": 0.12496261463378966,
+      "covariance": [
+        0.01832230259973988,
+        0.0010339661828981939,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0010339661828977498,
+        0.0037626477840451145,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015615655056113023
+      ]
+    },
+    {
+      "t": 16.9463,
+      "stamp_ns": 12218000000,
+      "x": -1.5703193055830107,
+      "y": -2.0446993181666437,
+      "yaw": -0.006819642454405539,
+      "position_std": 0.1395280544669378,
+      "yaw_std": 0.11903586222368726,
+      "covariance": [
+        0.01943100266082931,
+        0.0007548203351372962,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0007548203351372962,
+        0.004100612512321078,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014169536495336654
+      ]
+    },
+    {
+      "t": 17.568,
+      "stamp_ns": 12818000000,
+      "x": -1.4356699945534601,
+      "y": -2.046054445873894,
+      "yaw": -0.010362729262505536,
+      "position_std": 0.1600150423153786,
+      "yaw_std": 0.10563417184891362,
+      "covariance": [
+        0.025572722748329113,
+        0.0008262661941254024,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0008262661941254024,
+        0.00433045577741531,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.011158578262205815
+      ]
+    },
+    {
+      "t": 18.1785,
+      "stamp_ns": 13418000000,
+      "x": -1.3076411600088997,
+      "y": -2.0459907793331573,
+      "yaw": -0.0011183981687724214,
+      "position_std": 0.16499743059655622,
+      "yaw_std": 0.1102227400057846,
+      "covariance": [
+        0.027028730942578294,
+        0.002100790069401004,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.002100790069401004,
+        0.004640523515546668,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.012149052414382789
+      ]
+    }
+  ],
+  "tf_samples": [
+    {
+      "t": 4.5548,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 237000000,
+      "header_age_seconds": 0.003
+    },
+    {
+      "t": 4.7844,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 1417000000,
+      "header_age_seconds": -0.957
+    },
+    {
+      "t": 5.1665,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 838000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 5.3697,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1038000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 5.5726,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1238000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 5.5749,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 2217000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 5.9776,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1635000000,
+      "header_age_seconds": 0.005
+    },
+    {
+      "t": 6.2172,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1876000000,
+      "header_age_seconds": 0.004
+    },
+    {
+      "t": 6.4241,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 2077000000,
+      "header_age_seconds": 0.003
+    },
+    {
+      "t": 6.7875,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 3417000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 6.9951,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 3617000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 7.2909,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 2938000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 7.4937,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3138000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 7.8034,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 4417000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 7.9052,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3537000000,
+      "header_age_seconds": 0.003
+    },
+    {
+      "t": 8.1453,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3777000000,
+      "header_age_seconds": 0.003
+    },
+    {
+      "t": 8.3505,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3978000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 8.555,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4178000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 8.7614,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4378000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 8.9741,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4478000000,
+      "header_age_seconds": 0.102
+    },
+    {
+      "t": 9.1953,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4798000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 9.3993,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4999000000,
+      "header_age_seconds": 0.001
+    },
+    {
+      "t": 9.6012,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 5195000000,
+      "header_age_seconds": 0.005
+    },
+    {
+      "t": 9.6434,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 6217000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 9.8547,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 6417000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 10.0581,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 6617000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 10.4642,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 6036000000,
+      "header_age_seconds": 0.004
+    },
+    {
+      "t": 10.7071,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 6279000000,
+      "header_age_seconds": 0.001
+    },
+    {
+      "t": 10.9153,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 6479000000,
+      "header_age_seconds": 0.001
+    },
+    {
+      "t": 11.2811,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 7817000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 11.4837,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 8017000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 11.7466,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 7299000000,
+      "header_age_seconds": 0.001
+    },
+    {
+      "t": 11.8892,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 8417000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 12.0922,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 8617000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 12.3954,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 7937000000,
+      "header_age_seconds": 0.003
+    },
+    {
+      "t": 12.6112,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 8139000000,
+      "header_age_seconds": 0.001
+    },
+    {
+      "t": 12.8197,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 8339000000,
+      "header_age_seconds": 0.001
+    },
+    {
+      "t": 13.0302,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 8539000000,
+      "header_age_seconds": 0.001
+    },
+    {
+      "t": 13.2372,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 8737000000,
+      "header_age_seconds": 0.003
+    },
+    {
+      "t": 13.5538,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 10017000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 13.8556,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 9336000000,
+      "header_age_seconds": 0.004
+    },
+    {
+      "t": 13.9562,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 10417000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 14.1678,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 10617000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 14.3788,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 10817000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 14.5926,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 11017000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 14.8133,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 11217000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 15.0188,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 11417000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 15.2214,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 11617000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 15.4344,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 11817000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 15.648,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 12017000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 15.7814,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 11176000000,
+      "header_age_seconds": 0.004
+    },
+    {
+      "t": 16.0561,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 12417000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 16.3038,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 12617000000,
+      "header_age_seconds": -0.977
+    },
+    {
+      "t": 16.664,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 11995000000,
+      "header_age_seconds": 0.005
+    },
+    {
+      "t": 16.8806,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 12176000000,
+      "header_age_seconds": 0.004
+    },
+    {
+      "t": 17.098,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 12377000000,
+      "header_age_seconds": 0.003
+    },
+    {
+      "t": 17.307,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 12576000000,
+      "header_age_seconds": 0.004
+    },
+    {
+      "t": 17.5218,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 12798000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 17.7324,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 12998000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 17.9703,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 13239000000,
+      "header_age_seconds": 0.001
+    },
+    {
+      "t": 18.1742,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 13439000000,
+      "header_age_seconds": 0.001
+    },
+    {
+      "t": 18.3761,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 13638000000,
+      "header_age_seconds": 0.002
+    },
+    {
+      "t": 18.5831,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 14818000000,
+      "header_age_seconds": -0.978
+    },
+    {
+      "t": 18.791,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 15018000000,
+      "header_age_seconds": -0.978
+    }
+  ],
+  "navigation_transitions": [
+    {
+      "t": 3.0232,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": null,
+      "goal_stamp": null,
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 0,
+        "nanosec": 0
+      }
+    },
+    {
+      "t": 9.7972,
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 220000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 4,
+        "nanosec": 340000000
+      },
+      "distance_remaining": 1.9750468033875124,
+      "controller_distance_remaining": 0.0,
+      "measured_speed": 0.20842105150222778,
+      "curve_speed_limit": 0.0
+    },
+    {
+      "t": 18.9299,
+      "status": "SUCCEEDED",
+      "message": "Nav2 status 4",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 220000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 4,
+        "nanosec": 340000000
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "t": 0.1215,
+      "mission_state": "IDLE",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 0.3256,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": false,
+        "control_seq": -1
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 1.4297,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 3.3979,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "odom_tf_unavailable",
+          "odom_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 3.6141,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 34
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "odom_tf_unavailable",
+          "odom_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 4.8859,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 47
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "odom_tf_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.025810860999854413,
+        "odom_age_seconds": 0.042863199999828794,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 5.0933,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 49
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "map_tf_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": 8.108427719119187e-06,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.0705464079999274,
+        "odom_age_seconds": 0.008221044000038091,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 6.1427,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.000031109995711,
+        "y": -1.9999999982949797,
+        "yaw": -6.094884661830908e-05
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 59
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "initializing"
+        ],
+        "position_std_m": 8.108427719119187e-06,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.060414770999841494,
+        "odom_age_seconds": 0.034381449999955294,
+        "map_tf_age_seconds": 0.025
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 8.0342,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.999992495914258,
+        "y": -1.999999996653062,
+        "yaw": -9.961514173274136e-05
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 79
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.446452721712834e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 1,
+        "scan_age_seconds": 0.03256040299993401,
+        "odom_age_seconds": 0.007025588000033167,
+        "map_tf_age_seconds": 0.003
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 8.2427,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9999990610251506,
+        "y": -1.9999999959683001,
+        "yaw": -0.00010399469200806543
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 1
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.446452721712834e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 1,
+        "scan_age_seconds": 0.03256040299993401,
+        "odom_age_seconds": 0.007025588000033167,
+        "map_tf_age_seconds": 0.003
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 8.8682,
+      "mission_state": "CANCELED",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.0000173858112706,
+        "y": -1.9999999940382873,
+        "yaw": -0.0001065940345355083
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 82
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.446452721712834e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.1719993589999831,
+        "odom_age_seconds": 0.001449575999913577,
+        "map_tf_age_seconds": 0.002
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.0739,
+      "mission_state": "NAVIGATING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.0000238886477537,
+        "y": -1.9999999933752026,
+        "yaw": -0.00010109253560353811
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 83
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.446452721712834e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.010433972999862817,
+        "odom_age_seconds": 0.024640024999825982,
+        "map_tf_age_seconds": 0.022
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.7059,
+      "mission_state": "NAVIGATING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.000043380132276,
+        "y": -1.9999999913972057,
+        "yaw": -0.00010362851832735514
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 90
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 3.446452721712834e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.09872008599995752,
+        "odom_age_seconds": 0.012362574999997378,
+        "map_tf_age_seconds": 0.001
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 11.8375,
+      "mission_state": "NAVIGATING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.60026751549772,
+        "y": -2.0154896154050967,
+        "yaw": -0.05698776407568578
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 90
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.08337212048430073,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.10901648499998373,
+        "odom_age_seconds": 0.015919811999992817,
+        "map_tf_age_seconds": 0.001
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 13.9428,
+      "mission_state": "NAVIGATING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.1603703802011784,
+        "y": -2.0358385884037546,
+        "yaw": -0.0355742818122151
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 90
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.12385480714008243,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.0359987640001691,
+        "odom_age_seconds": 0.012863850000030652,
+        "map_tf_age_seconds": 0.005
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 16.0373,
+      "mission_state": "NAVIGATING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -1.7499057908326603,
+        "y": -2.045165294671224,
+        "yaw": -0.01648587347383586
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 90
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.12836818889565557,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.19385949799993796,
+        "odom_age_seconds": 0.017928561999951853,
+        "map_tf_age_seconds": 0.022
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 18.1426,
+      "mission_state": "NAVIGATING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -1.327967550115137,
+        "y": -2.0457270358872983,
+        "yaw": -0.0007513178789677417
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 90
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.1600150423153786,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.06477478800002245,
+        "odom_age_seconds": 0.0022084930001256,
+        "map_tf_age_seconds": 0.002
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 19.0171,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -1.2076116506283805,
+        "y": -2.047206395112012,
+        "yaw": -0.004384968668882665
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 91
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.16499743059655622,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.003977068000040163,
+        "odom_age_seconds": 0.02045971899997312,
+        "map_tf_age_seconds": 0.004
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    }
+  ],
+  "ground_truth_samples": [
+    {
+      "t": 4.5644,
+      "x": -3.0000004773605675,
+      "y": -1.9999996669522653,
+      "yaw": 3.528058662765301e-07
+    },
+    {
+      "t": 5.0743,
+      "x": -2.999932115121009,
+      "y": -1.9999995208779358,
+      "yaw": 1.439115323776934e-06
+    },
+    {
+      "t": 5.5825,
+      "x": -2.9999578679801355,
+      "y": -1.999999413459235,
+      "yaw": 2.0678299365403254e-06
+    },
+    {
+      "t": 6.0836,
+      "x": -2.999988044003099,
+      "y": -1.9999995724483683,
+      "yaw": 2.653541683051233e-06
+    },
+    {
+      "t": 6.5924,
+      "x": -3.0000017547077533,
+      "y": -1.9999994201178517,
+      "yaw": 3.319053298788909e-06
+    },
+    {
+      "t": 7.0951,
+      "x": -3.0000184190602845,
+      "y": -1.9999994074134464,
+      "yaw": 4.055830440734267e-06
+    },
+    {
+      "t": 7.6035,
+      "x": -3.0000346630857258,
+      "y": -1.9999993932919657,
+      "yaw": 4.5793379691706495e-06
+    },
+    {
+      "t": 8.1131,
+      "x": -3.000051044564296,
+      "y": -1.9999993656966397,
+      "yaw": 5.26895907193586e-06
+    },
+    {
+      "t": 8.6226,
+      "x": -3.00006734592423,
+      "y": -1.9999993574672734,
+      "yaw": 5.947359130429936e-06
+    },
+    {
+      "t": 9.141,
+      "x": -3.0000835811794024,
+      "y": -1.9999994225374145,
+      "yaw": 6.644045449930349e-06
+    },
+    {
+      "t": 9.6483,
+      "x": -3.0000999378309627,
+      "y": -1.9999993488436447,
+      "yaw": 7.2359446217365905e-06
+    },
+    {
+      "t": 10.1641,
+      "x": -2.934165632199334,
+      "y": -2.0002215380069255,
+      "yaw": -0.010455298446493202
+    },
+    {
+      "t": 10.6703,
+      "x": -2.828669993703413,
+      "y": -2.0027169377455314,
+      "yaw": -0.036561094574586506
+    },
+    {
+      "t": 11.1829,
+      "x": -2.723382787962431,
+      "y": -2.0078530580166065,
+      "yaw": -0.05545636784613072
+    },
+    {
+      "t": 11.6874,
+      "x": -2.6181631454328276,
+      "y": -2.0136990090186053,
+      "yaw": -0.05553113914197302
+    },
+    {
+      "t": 12.1993,
+      "x": -2.513721039838626,
+      "y": -2.0193620995834385,
+      "yaw": -0.05231065031595436
+    },
+    {
+      "t": 12.728,
+      "x": -2.4088679105464417,
+      "y": -2.024814081018319,
+      "yaw": -0.05203489894816385
+    },
+    {
+      "t": 13.2443,
+      "x": -2.3040194851055866,
+      "y": -2.0301285700249405,
+      "yaw": -0.04362506329641321
+    },
+    {
+      "t": 13.7601,
+      "x": -2.1987023804478114,
+      "y": -2.0339972854243396,
+      "yaw": -0.03279451167817091
+    },
+    {
+      "t": 14.2836,
+      "x": -2.0936108354050633,
+      "y": -2.037082463059879,
+      "yaw": -0.026870219438813712
+    },
+    {
+      "t": 14.8188,
+      "x": -1.9856148002594434,
+      "y": -2.03940424887476,
+      "yaw": -0.015822905059276755
+    },
+    {
+      "t": 15.3387,
+      "x": -1.8791675579809612,
+      "y": -2.041054582674787,
+      "yaw": -0.015383919778812873
+    },
+    {
+      "t": 15.853,
+      "x": -1.7738927786153953,
+      "y": -2.0426571773172304,
+      "yaw": -0.015050286215596556
+    },
+    {
+      "t": 16.3559,
+      "x": -1.6792197295279117,
+      "y": -2.0437245797767383,
+      "yaw": -0.009501328171961237
+    },
+    {
+      "t": 16.8938,
+      "x": -1.575281263241429,
+      "y": -2.044688542457587,
+      "yaw": -0.009144931099254692
+    },
+    {
+      "t": 17.4211,
+      "x": -1.4698702615488777,
+      "y": -2.045634212919582,
+      "yaw": -0.008806676447141176
+    },
+    {
+      "t": 17.9283,
+      "x": -1.3644640255969127,
+      "y": -2.0461925995073127,
+      "yaw": -0.0032692552422377936
+    },
+    {
+      "t": 18.4373,
+      "x": -1.2766800810225867,
+      "y": -2.0464656422209972,
+      "yaw": -0.002962227025624462
+    },
+    {
+      "t": 18.9457,
+      "x": -1.2162577879524148,
+      "y": -2.0466410078480974,
+      "yaw": -0.00276224047566768
+    }
+  ],
+  "evidence_sampling": {
+    "method": "Uniform bounded samples including first/last. Assertions, events and selected failure proofs are retained separately. Full raw telemetry is unchanged at the referenced path/hash.",
+    "arrays": {
+      "tf_samples": {
+        "before": 120,
+        "retained": 64
+      }
+    }
+  },
+  "metadata_note": "Legacy default initial-std argument 0.446m was unused by this scenario. Actual recorded priors/launch configuration are authoritative; no additional covariance input was published by this observer."
+}

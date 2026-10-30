@@ -162,8 +162,9 @@ def test_invalid_degenerate_crossed_and_unreasonable_footprints_are_rejected(ver
 
 def test_old_footprint_must_match_current_position_and_have_fresh_receipt():
     node = healthy_follower()
-    node.latest_footprint.header.stamp.sec = 1
     node.latest_odom.pose.pose.position.x = .2
+    node.on_odom(node.latest_odom)
+    polygon(node, stamp=1)  # A new receipt carrying stale coordinates.
     assert 'Footprint disagrees' in node._navigation_input_error()
     node.latest_odom.pose.pose.position.x = 0.
     node.latest_footprint_at = time.monotonic()-2.
@@ -175,11 +176,12 @@ def test_old_asymmetric_footprint_requires_body_reference_and_matching_orientati
     rectangle = [(-.3, -.15), (.3, -.15), (.3, .15), (-.3, .15)]
     polygon(node, rectangle, stamp=1)
     assert 'reference' in node._navigation_input_error()
-    node.latest_footprint.header.stamp.sec = 5
+    polygon(node, rectangle, stamp=5)
     assert node._navigation_input_error() is None
-    node.latest_footprint.header.stamp.sec = 1
     node.latest_odom.pose.pose.orientation.z = math.sin(math.pi/4)
     node.latest_odom.pose.pose.orientation.w = math.cos(math.pi/4)
+    node.on_odom(node.latest_odom)
+    polygon(node, rectangle, stamp=1)  # Newly received, but the old orientation.
     assert 'orientation' in node._navigation_input_error()
     polygon(node, [(-y, x) for x, y in rectangle], stamp=1)
     assert node._navigation_input_error() is None
@@ -204,6 +206,7 @@ def test_costmap_and_footprint_in_connected_frames_are_compared_in_odometry_fram
     node = healthy_follower()
     node.latest_costmap.header.frame_id = node.latest_footprint.header.frame_id = 'local_grid'
     node.latest_odom.pose.pose.position.x = 1.
+    node.on_odom(node.latest_odom)
     transform = TransformStamped()
     transform.transform.translation.x = 1.
     transform.transform.rotation.w = 1.
@@ -330,6 +333,8 @@ def test_repeated_input_rejections_rearm_the_planner_until_inputs_recover():
             for source in ('scan', 'odom', 'costmap', 'footprint'):
                 getattr(node, 'latest_'+source).header.stamp.sec = seconds
                 setattr(node, 'latest_'+source+'_at', monotonic)
+            node.on_odom(node.latest_odom)
+            node.on_footprint(node.latest_footprint)
             if seconds == 8:
                 node.latest_costmap.data = [0]*3600
             planner.retry_transform()

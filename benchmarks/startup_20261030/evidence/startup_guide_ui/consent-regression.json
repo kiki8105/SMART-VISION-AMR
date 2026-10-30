@@ -1,0 +1,20 @@
+{
+  "ui_only": true,
+  "backend_changed": false,
+  "all_six_cjs_ui_checks": "PASS",
+  "js_syntax": "PASS",
+  "regressions_passed": [
+    "manual acquire then release requires new Home confirmation",
+    "measured linear motion then stopped requires new Home confirmation",
+    "measured angular motion then stopped requires new Home confirmation",
+    "stale odom then fresh requires new Home confirmation",
+    "stale scan then fresh requires new Home confirmation",
+    "running mission invalidates Home confirmation",
+    "clearing consent preserves an accepted localization sweep"
+  ],
+  "sha256": {
+    "ros2_ws/src/smart_vision_amr/web/app.js": "2d3f1eab51a127d1fb6ea8ba2ca3dd1da6fdbc7514e79e046d860c9699b6a1ed",
+    "ros2_ws/src/smart_vision_amr/test/web_startup_recovery_ui_check.cjs": "249447247246f9addab617a8be005074e3cba34f7c7f02990fe02e28f370fcf5"
+  },
+  "screenshots_layout_unchanged": true
+}

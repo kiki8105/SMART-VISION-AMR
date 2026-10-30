@@ -1,0 +1,180 @@
+[amcl-5] [INFO] [1793325007.009696025] [amcl]: Requesting no-motion update
+[amcl-5] [INFO] [1793325007.611503765] [amcl]: Requesting no-motion update
+[amcl-5] [INFO] [1793325008.310034743] [amcl]: Requesting no-motion update
+[change_memory-13] [WARN] [1793325008.315259052] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 30.659000 but the latest data is at time 30.652000, when looking up transform from frame [base_scan] to frame [map]
+[amcl-5] [INFO] [1793325008.910053089] [amcl]: Requesting no-motion update
+[amcl-5] [INFO] [1793325009.611270199] [amcl]: Requesting no-motion update
+[amcl-5] [INFO] [1793325010.309833317] [amcl]: Requesting no-motion update
+[amcl-5] [INFO] [1793325010.910091940] [amcl]: Requesting no-motion update
+[amcl-5] [INFO] [1793325011.611729799] [amcl]: Requesting no-motion update
+[amcl-5] [INFO] [1793325012.309966642] [amcl]: Requesting no-motion update
+[amcl-5] [INFO] [1793325013.014247577] [amcl]: Requesting no-motion update
+[change_memory-13] [WARN] [1793325013.375807088] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 35.461000 but the latest data is at time 35.378000, when looking up transform from frame [base_scan] to frame [map]
+[astar_planner-11] [INFO] [1793325015.887307228] [astar_planner]: Published A* path with 45 poses
+[controller_server-6] [INFO] [1793325015.892466401] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-12] [INFO] [1793325015.893639540] [path_follower]: Sent path with 45 poses to Nav2
+[amcl-5] [INFO] [1793325016.093454965] [amcl]: Requesting no-motion update
+[controller_server-6] [ERROR] [1793325017.692790306] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325017.692881903] [tf_help]: Data time: 39s 832000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325017.692947676] [controller_server]: Unable to transform robot pose into global plan's frame
+[change_memory-13] [WARN] [1793325017.725531907] [change_memory]: LiDAR projection rejected: measurement_tf_timeout
+[controller_server-6] [ERROR] [1793325017.792752777] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325017.792805630] [tf_help]: Data time: 39s 934000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325017.792841524] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325017.892844013] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325017.892897780] [tf_help]: Data time: 40s 36000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325017.892942727] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325017.993010853] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325017.993061703] [tf_help]: Data time: 40s 138000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325017.993103941] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325018.093640907] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325018.093706184] [tf_help]: Data time: 40s 240000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325018.093745882] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325018.193496317] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325018.193538676] [tf_help]: Data time: 40s 342000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325018.193577989] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325018.292776933] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325018.292849673] [tf_help]: Data time: 40s 410000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325018.292895764] [controller_server]: Unable to transform robot pose into global plan's frame
+[localization_health-9] [INFO] [1793325018.344300705] [localization_health]: Localization health: warning ['map_tf_unavailable', 'scan_map_check_unavailable']
+[change_memory-13] [WARN] [1793325018.388392807] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 40.462000 but the latest data is at time 39.462000, when looking up transform from frame [base_scan] to frame [map]
+[controller_server-6] [ERROR] [1793325018.392799190] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325018.392850252] [tf_help]: Data time: 40s 512000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325018.392908787] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325018.492814915] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325018.492870124] [tf_help]: Data time: 40s 580000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325018.492922944] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325018.592813812] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325018.592873453] [tf_help]: Data time: 40s 682000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325018.592915576] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325018.692834046] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325018.692931188] [tf_help]: Data time: 40s 784000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325018.693017081] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325018.792803789] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325018.792843731] [tf_help]: Data time: 40s 886000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325018.792878651] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325018.892786400] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325018.892839303] [tf_help]: Data time: 40s 988000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325018.892893761] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325018.992783520] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325018.992823348] [tf_help]: Data time: 41s 90000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325018.992860000] [controller_server]: Unable to transform robot pose into global plan's frame
+[controller_server-6] [ERROR] [1793325019.092781577] [tf_help]: Transform data too old when converting from odom to map
+[controller_server-6] [ERROR] [1793325019.092825701] [tf_help]: Data time: 41s 192000000ns, Transform time: 39s 462000000ns
+[controller_server-6] [WARN] [1793325019.092860501] [controller_server]: Unable to transform robot pose into global plan's frame
+[localization_health-9] [INFO] [1793325019.093126301] [localization_health]: Localization health: critical ['map_tf_unavailable', 'scan_map_check_unavailable']
+[controller_server-6] [INFO] [1793325019.192698095] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793325019.192761697] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-12] [INFO] [1793325019.197970888] [path_follower]: FollowPath finished: Nav2 status 5
+[amcl-5] [INFO] [1793325022.107432012] [amcl]: Requesting no-motion update
+[amcl-5] [INFO] [1793325022.107746372] [amcl]: Requesting no-motion update
+[change_memory-13] [WARN] [1793325023.261413679] [change_memory]: LiDAR projection rejected: measurement_tf_timeout
+[change_memory-13] [WARN] [1793325023.443572238] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 45.064000 but the latest data is at time 45.034000, when looking up transform from frame [base_scan] to frame [map]
+[amcl-5] [INFO] [1793325023.592666388] [amcl]: Requesting no-motion update
+[localization_health-9] [INFO] [1793325028.093391271] [localization_health]: Localization health: ok []
+[change_memory-13] [WARN] [1793325028.489581752] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 50.064000 but the latest data is at time 50.032000, when looking up transform from frame [base_scan] to frame [map]
+[astar_planner-11] [INFO] [1793325029.473660494] [astar_planner]: Published A* path with 41 poses
+[controller_server-6] [INFO] [1793325029.480053420] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-12] [INFO] [1793325029.480826946] [path_follower]: Sent path with 41 poses to Nav2
+[amcl-5] [INFO] [1793325029.592664368] [amcl]: Requesting no-motion update
+[change_memory-13] [WARN] [1793325033.751204622] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 55.266000 but the latest data is at time 55.234000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793325039.003633647] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 60.465000 but the latest data is at time 60.436000, when looking up transform from frame [base_scan] to frame [map]
+[controller_server-6] [INFO] [1793325039.686260450] [controller_server]: Reached the goal!
+[path_follower-12] [INFO] [1793325039.688610515] [path_follower]: FollowPath finished: Nav2 status 4
+[localization_health-9] [INFO] [1793325040.343009141] [localization_health]: Localization health: warning ['scan_unavailable']
+[behavior_server-7] [INFO] [1793325040.395286478] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[behavior_server-7] [INFO] [1793325040.395682571] [behavior_server]: Running Nav2 LifecycleNode rcl preshutdown (behavior_server)
+[behavior_server-7] [INFO] [1793325040.395736672] [behavior_server]: Deactivating
+[behavior_server-7] [INFO] [1793325040.395763055] [behavior_server]: Destroying bond (behavior_server) to lifecycle manager.
+[robot_state_publisher-2] [INFO] [1793325040.395308572] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[map_server-4] [INFO] [1793325040.395327594] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[map_server-4] [INFO] [1793325040.395399394] [map_server]: Running Nav2 LifecycleNode rcl preshutdown (map_server)
+[map_server-4] [INFO] [1793325040.395471218] [map_server]: Deactivating
+[map_server-4] [INFO] [1793325040.395496038] [map_server]: Destroying bond (map_server) to lifecycle manager.
+[lifecycle_manager-10] [INFO] [1793325040.395953911] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lifecycle_manager-10] [INFO] [1793325040.396032214] [lifecycle_manager_simulation]: Running Nav2 LifecycleManager rcl preshutdown (lifecycle_manager_simulation)
+[lifecycle_manager-10] [INFO] [1793325040.396062542] [lifecycle_manager_simulation]: [34m[1mTerminating bond timer...[0m[0m
+[amcl-5] [INFO] [1793325040.396512574] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[amcl-5] [INFO] [1793325040.396594817] [amcl]: Running Nav2 LifecycleNode rcl preshutdown (amcl)
+[amcl-5] [INFO] [1793325040.396658969] [amcl]: Deactivating
+[amcl-5] [INFO] [1793325040.396683930] [amcl]: Destroying bond (amcl) to lifecycle manager.
+[controller_server-6] [INFO] [1793325040.396751672] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[controller_server-6] [INFO] [1793325040.396824301] [controller_server]: Running Nav2 LifecycleNode rcl preshutdown (controller_server)
+[controller_server-6] [INFO] [1793325040.396878737] [controller_server]: Deactivating
+[controller_server-6] [INFO] [1793325040.396919195] [local_costmap.local_costmap]: Deactivating
+[map_server-4] [INFO] [1793325040.405779198] [map_server]: Cleaning up
+[map_server-4] [INFO] [1793325040.405847354] [map_server]: Destroying bond (map_server) to lifecycle manager.
+[behavior_server-7] [INFO] [1793325040.406784572] [behavior_server]: Cleaning up
+[amcl-5] [INFO] [1793325040.411286996] [amcl]: Cleaning up
+[map_server-4] [INFO] [1793325040.420995454] [map_server]: Destroying
+[behavior_server-7] [INFO] [1793325040.422046973] [behavior_server]: Destroying bond (behavior_server) to lifecycle manager.
+[amcl-5] [INFO] [1793325040.426772890] [amcl]: Destroying bond (amcl) to lifecycle manager.
+[amcl-5] [INFO] [1793325040.454128892] [amcl]: Destroying
+[behavior_server-7] [INFO] [1793325040.466779900] [behavior_server]: Destroying
+[lifecycle_manager-10] [INFO] [1793325040.483613113] [lifecycle_manager_simulation]: Destroying lifecycle_manager_simulation
+[change_memory-13] Traceback (most recent call last):
+[change_memory-13]   File "/tmp/smart_vision_startup186.8GXmZU/install/smart_vision_amr/lib/smart_vision_amr/change_memory", line 33, in <module>
+[change_memory-13]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'change_memory')())
+[change_memory-13]   File "/tmp/smart_vision_startup186.8GXmZU/build/smart_vision_amr/smart_vision_amr/change_memory.py", line 433, in main
+[change_memory-13]     rclpy.spin(node)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[change_memory-13]     executor.spin_once()
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[change_memory-13]     self._spin_once_impl(timeout_sec)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[change_memory-13]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[change_memory-13]     return next(self._cb_iter)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 657, in _wait_for_ready_callbacks
+[change_memory-13]     wait_set = _rclpy.WaitSet(
+[change_memory-13] rclpy._rclpy_pybind11.RCLError: failed to initialize wait set: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at ./src/rcl/wait.c:130
+[path_follower-12] Traceback (most recent call last):
+[path_follower-12]   File "/tmp/smart_vision_startup186.8GXmZU/install/smart_vision_amr/lib/smart_vision_amr/path_follower", line 33, in <module>
+[path_follower-12]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'path_follower')())
+[path_follower-12]   File "/tmp/smart_vision_startup186.8GXmZU/build/smart_vision_amr/smart_vision_amr/path_follower.py", line 1981, in main
+[path_follower-12]     rclpy.spin(node)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[path_follower-12]     executor.spin_once()
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[path_follower-12]     self._spin_once_impl(timeout_sec)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[astar_planner-11] Traceback (most recent call last):
+[astar_planner-11]   File "/tmp/smart_vision_startup186.8GXmZU/install/smart_vision_amr/lib/smart_vision_amr/astar_planner", line 33, in <module>
+[astar_planner-11]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'astar_planner')())
+[astar_planner-11]   File "/tmp/smart_vision_startup186.8GXmZU/build/smart_vision_amr/smart_vision_amr/astar_planner.py", line 1711, in main
+[astar_planner-11]     rclpy.spin(node)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[astar_planner-11]     executor.spin_once()
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[astar_planner-11]     self._spin_once_impl(timeout_sec)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[path_follower-12]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[path_follower-12]     return next(self._cb_iter)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[path_follower-12]     raise ExternalShutdownException()
+[path_follower-12] rclpy.executors.ExternalShutdownException
+[astar_planner-11]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[astar_planner-11]     return next(self._cb_iter)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 657, in _wait_for_ready_callbacks
+[astar_planner-11]     wait_set = _rclpy.WaitSet(
+[astar_planner-11] rclpy._rclpy_pybind11.RCLError: failed to initialize wait set: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at ./src/rcl/wait.c:130
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 63179]
+[INFO] [map_server-4]: process has finished cleanly [pid 63183]
+[controller_server-6] [INFO] [1793325040.585892893] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[controller_server-6] [INFO] [1793325040.596111856] [controller_server]: Cleaning up
+[controller_server-6] [INFO] [1793325040.596433501] [local_costmap.local_costmap]: Cleaning up
+[INFO] [amcl-5]: process has finished cleanly [pid 63185]
+[controller_server-6] [INFO] [1793325040.613691986] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[INFO] [behavior_server-7]: process has finished cleanly [pid 63189]
+[INFO] [lifecycle_manager-10]: process has finished cleanly [pid 63198]
+[controller_server-6] [INFO] [1793325040.623545523] [local_costmap.local_costmap]: Destroying
+[controller_server-6] [INFO] [1793325040.630994757] [controller_server]: Destroying
+[INFO] [command_stamper-8]: process has finished cleanly [pid 63192]
+[INFO] [localization_health-9]: process has finished cleanly [pid 63194]
+[ERROR] [change_memory-13]: process has died [pid 63229, exit code 1, cmd '/tmp/smart_vision_startup186.8GXmZU/install/smart_vision_amr/lib/smart_vision_amr/change_memory --ros-args -r __node:=change_memory --params-file /tmp/smart_vision_startup186.8GXmZU/install/smart_vision_amr/share/smart_vision_amr/config/simulation_nodes.yaml --params-file /tmp/launch_params_lzleqouf --params-file /tmp/launch_params_0nzzfbfr'].
+[ERROR] [path_follower-12]: process has died [pid 63202, exit code 1, cmd '/tmp/smart_vision_startup186.8GXmZU/install/smart_vision_amr/lib/smart_vision_amr/path_follower --ros-args -r __node:=path_follower --params-file /tmp/smart_vision_startup186.8GXmZU/install/smart_vision_amr/share/smart_vision_amr/config/simulation_nodes.yaml --params-file /tmp/launch_params_uohx2g3z'].
+[INFO] [controller_server-6]: process has finished cleanly [pid 63187]
+[ERROR] [astar_planner-11]: process has died [pid 63200, exit code 1, cmd '/tmp/smart_vision_startup186.8GXmZU/install/smart_vision_amr/lib/smart_vision_amr/astar_planner --ros-args -r __node:=astar_planner --params-file /tmp/smart_vision_startup186.8GXmZU/install/smart_vision_amr/share/smart_vision_amr/config/simulation_nodes.yaml --params-file /tmp/launch_params_e8_v__k2'].
+[INFO] [gzserver-1]: process has finished cleanly [pid 63177]

@@ -7,6 +7,23 @@
     # 5 cells * 0.05 m = 0.25 m. Keeps the supplied Sector 1 coordinate valid.
     # Offline paths retain >=0.275 m from raw occupied/unknown cell areas.
     obstacle_inflation_cells: 5
+    # Repair only the nearby route prefix, then rejoin the original route ahead.
+    # Static/unknown/live obstacles and the full chassis margin remain blocked.
+    local_detour_enabled: true
+    local_detour_trigger_distance: 1.5  # m from robot; only blocks on the remaining route matter.
+    local_detour_max_rejoin_distance: 2.5  # m ahead along the original route.
+    local_detour_max_length: 4.0  # m; longer detours use global A*.
+    local_detour_max_lateral_distance: 0.9  # m from the original local route.
+    local_detour_clearance_margin: 0.02  # m beyond robot_radius; never reduces inflation.
+    local_detour_observation_margin: 0.05  # m; local planning reserve for scan/grid quantization.
+    # A first scan may show only the front face of an unmapped object.
+    # Reserve its unseen depth locally; never write these cells to the map/memory.
+    local_detour_occlusion_extension: 0.5  # m along the original forward route.
+    local_detour_rejoin_buffer: 0.15  # m beyond the last blocked reference segment.
+    local_detour_max_expansions: 1500  # Total search budget per local repair.
+    local_detour_max_planning_time: 0.06  # s of bounded local search.
+    local_detour_max_candidates: 10  # Maximum forward rejoin anchors to consider.
+    local_detour_max_attempts: 3  # Prevent repeated patching without verified rejoin.
     # Legacy API setting; live observations are range-classified by change_memory.
     # Do not discard a real obstacle merely because it is close to a mapped wall.
     mapped_wall_return_tolerance_cells: 2

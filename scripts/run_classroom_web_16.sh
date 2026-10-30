@@ -54,7 +54,7 @@ PY
 exec "$SCRIPT_DIR/run_web_mission.sh" \
   --domain-id 16 --no-use-sim-time --markers-file "$MARKERS" \
   -- --map-file "$MAP_FILE" --floorplan-file "$FLOORPLAN_FILE" \
-  --config-file "$SETTINGS_FILE" --access-mode domain --require-localization-health "${MUX_OPTIONS[@]}" \
+  --config-file "$SETTINGS_FILE" --access-mode domain --require-localization-health --require-marker-wall-alignment "${MUX_OPTIONS[@]}" \
   --camera-topic "/camera/image_raw$CAMERA_SUFFIX" --camera-rotation 180 \
   --front-camera-topic "/camera/front/image_raw$CAMERA_SUFFIX" \
   --front-camera-rotation 0 "$@"

@@ -1,0 +1,72 @@
+[
+  {
+    "pid": 71645,
+    "pgid": 71534,
+    "argv": [
+      "/opt/ros/humble/lib/nav2_amcl/amcl",
+      "--ros-args",
+      "-r",
+      "__node:=amcl",
+      "-r",
+      "__ns:=/",
+      "-p",
+      "qos_overrides./tf.subscription.reliability:=best_effort",
+      "-p",
+      "qos_overrides./tf.subscription.depth:=20",
+      "--params-file",
+      "/tmp/smart_vision_startup186.UBRR0c/install/smart_vision_amr/share/smart_vision_amr/config/simulation.yaml",
+      "--params-file",
+      "/tmp/launch_params_kq_fe9gy",
+      "--params-file",
+      "/tmp/launch_params_ugerr_s1"
+    ],
+    "domain": 186,
+    "wall_monotonic_ns": 6127464137563
+  },
+  {
+    "pid": 71647,
+    "pgid": 71534,
+    "argv": [
+      "/opt/ros/humble/lib/nav2_controller/controller_server",
+      "--ros-args",
+      "-r",
+      "__node:=controller_server",
+      "-p",
+      "qos_overrides./tf.subscription.reliability:=best_effort",
+      "-p",
+      "qos_overrides./tf.subscription.depth:=20",
+      "--params-file",
+      "/tmp/smart_vision_startup186.UBRR0c/install/smart_vision_amr/share/smart_vision_amr/config/simulation.yaml",
+      "--params-file",
+      "/tmp/launch_params_31cggkus",
+      "--params-file",
+      "/tmp/launch_params_5sru5gkn",
+      "-r",
+      "cmd_vel:=/smart_vision_amr/navigation_cmd_vel"
+    ],
+    "domain": 186,
+    "wall_monotonic_ns": 6127464281494
+  },
+  {
+    "pid": 71649,
+    "pgid": 71534,
+    "argv": [
+      "/opt/ros/humble/lib/nav2_behaviors/behavior_server",
+      "--ros-args",
+      "-r",
+      "__node:=behavior_server",
+      "-p",
+      "qos_overrides./tf.subscription.reliability:=best_effort",
+      "-p",
+      "qos_overrides./tf.subscription.depth:=20",
+      "--params-file",
+      "/tmp/smart_vision_startup186.UBRR0c/install/smart_vision_amr/share/smart_vision_amr/config/simulation.yaml",
+      "--params-file",
+      "/tmp/launch_params_84x08aez",
+      "-r",
+      "cmd_vel:=/smart_vision_amr/navigation_cmd_vel"
+    ],
+    "domain": 186,
+    "wall_monotonic_ns": 6127464416082
+  }
+]

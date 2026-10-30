@@ -60,7 +60,9 @@ _smart_vision_sim_env() {
   export GAZEBO_MASTER_URI=http://127.0.0.1:11376
   export TURTLEBOT3_MODEL=waffle_pi
   export SMART_VISION_SIM_WORKSPACE="$workspace_root"
-  source "$script_dir/dds_env.bash" || return
+  # Pass the empty optional profile explicitly. A sourced script otherwise
+  # inherits this function's workspace argument as its own $1.
+  source "$script_dir/dds_env.bash" "" || return
 
   for package in smart_vision_amr turtlebot3_gazebo turtlebot3_description turtlebot3_navigation2; do
     prefix=$(ros2 pkg prefix "$package") || return

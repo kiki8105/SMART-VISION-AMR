@@ -1,0 +1,24 @@
+{
+  "source_manifest": "source_manifest.json",
+  "raw_trace_path": "/tmp/smart_vision_startup186.EGCOCx/tf_ingress.jsonl",
+  "raw_trace_sha256": "935ba71e072a80e69965cabe2ae36f1d7500a2211f31f12432e863616aa56bb3",
+  "search_duration_ms": 19.0834109998832,
+  "adapter_duration_ms": 67.20581999979913,
+  "expansions": 616,
+  "first_local_status_elapsed_seconds": 11.8474,
+  "actual_closest_rejoin_elapsed_seconds": 70.195,
+  "actual_closest_rejoin_distance_m": 0.015722119232721533,
+  "global_searches_initial": 1,
+  "global_searches_at_arrival": 1,
+  "maximum_obstacle_retry_count": 0,
+  "max_tf_receive_gap_seconds": {
+    "map_odom": 0.28174488099999806,
+    "odom_base": 0.07063032499999977
+  },
+  "health_after_start": [
+    "ok"
+  ],
+  "configured_dynamic_tf_depth": 20,
+  "actual_dynamic_tf_depth": null,
+  "actual_depth_note": "RMW graph does not expose history/depth. Actual reliability/static policy and participant GIDs were observed. Depth20 is configured by immutable launch source. This historical process argv inventory was empty because recording occurred before readiness."
+}

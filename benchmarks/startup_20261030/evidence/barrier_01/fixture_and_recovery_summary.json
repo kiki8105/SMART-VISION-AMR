@@ -1,0 +1,12 @@
+{
+  "actual_reverse_used": false,
+  "maximum_recovery_attempts": 0,
+  "negative_reverse_commands": 0,
+  "recovering_navigation_events": 0,
+  "reverse_scope_note": "No reverse command was observed. The fully sealed known corridor had no reachable forward exit, so the stack held rather than forcing BackUp. This trial does not claim actual reverse-action validation.",
+  "removal_to_first_nonzero_command_seconds": 2.727499999999999,
+  "source_original_pgm_sha256": "74c16fe11dc1908c01dd699ba6635ea5d92054b2a70f56bbc847838bef3f6609",
+  "original_source_pgm_unchanged": true,
+  "copied_matched_corridor_pgm_sha256": "2b97510f60d823c5ff9b2f83a3beadedb77d3d3afd37db3f6678c8965223c05a",
+  "copied_world_sha256": "1b0f7f4c30044465bda8cc2396af456dabb78bafffe6866ef14752a8b68331ca"
+}

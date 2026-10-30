@@ -1,0 +1,100 @@
+{
+  "kind": "browser UI verification with recorded fixture, no ROS motion test",
+  "browser_checks": [
+    {
+      "name": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "bounds": {
+        "viewport": 1440,
+        "scroll": 1440,
+        "panel": {
+          "x": 24,
+          "y": 400,
+          "width": 1392,
+          "height": 699.34375,
+          "top": 400,
+          "right": 1416,
+          "bottom": 1099.34375,
+          "left": 24
+        }
+      },
+      "posts": 0,
+      "errors": [],
+      "keyboard_focus": "startup-recovery-close",
+      "home_requires_confirmation": true,
+      "stop_available": true
+    },
+    {
+      "name": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": {
+        "viewport": 390,
+        "scroll": 390,
+        "panel": {
+          "x": 16,
+          "y": 578.5,
+          "width": 358,
+          "height": 1252.4375,
+          "top": 578.5,
+          "right": 374,
+          "bottom": 1830.9375,
+          "left": 16
+        }
+      },
+      "posts": 0,
+      "errors": [],
+      "keyboard_focus": "startup-recovery-close",
+      "home_requires_confirmation": true,
+      "stop_available": true
+    }
+  ],
+  "source_hashes": {
+    "app.js": "80e28ffeaefb6e1cd3eaffe6b2adae0bf4d8448eaaf3513794084529bfd38b71",
+    "index.html": "34fb14ca4fe04e87190ec6a2c962d3f30a1dca7342c8f55d85d0bd6959004cd8",
+    "styles.css": "877818037d56becfbe299838ff1f54a0ed213f3e74e5c8d49badf6dad42a0734"
+  },
+  "cjs_checks": [
+    {
+      "test": "web_delivery_ui_check.cjs",
+      "passed": true,
+      "output": "PASS: dispatch blockers, loading acknowledgment, registered home restore with stale TF, active-control interlocks and reset-only API action."
+    },
+    {
+      "test": "web_failure_memory_ui_check.cjs",
+      "passed": true,
+      "output": "PASS: failure memory phases, finite TTL, sensor hold, operator priority, finished/missing status, safe read-only rendering."
+    },
+    {
+      "test": "web_joystick_app_check.cjs",
+      "passed": true,
+      "output": "PASS: operator controls locked during every manual phase; home/pause/estop retained; hold/resume badges correct; estop takes display priority."
+    },
+    {
+      "test": "web_joystick_ui_check.cjs",
+      "passed": true,
+      "output": "PASS: zero-before-ack, release-before-acquire, fresh control IDs, sequence order, 10Hz motion, direction/clamps, hidden/blur/estop release, keyboard release."
+    },
+    {
+      "test": "web_localization_ui_check.cjs",
+      "passed": true,
+      "output": "PASS: localization states, confidence values, mission interlocks, retained joystick priority, intervention buttons, start/stop API handlers and explanatory copy."
+    },
+    {
+      "test": "web_marker_alignment_ui_check.cjs",
+      "passed": true,
+      "output": "PASS: marker phases, selected camera, normalized error units, stable frame count, timeout/resume guidance, missing data, stale target and manual/estop priority."
+    },
+    {
+      "test": "web_startup_recovery_ui_check.cjs",
+      "passed": true,
+      "output": "PASS: guide opens without actuation, live blocked-step reasons, Home consent, separate seed/reset/localize actions, fresh-stop/manual/disconnect interlocks and no automatic departure."
+    }
+  ],
+  "scope": "Final Home confirmation and RETURNING implementation; browser fixture checks are separate from actual Gazebo Home initialization."
+}

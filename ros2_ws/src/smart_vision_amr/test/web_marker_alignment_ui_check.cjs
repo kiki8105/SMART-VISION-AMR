@@ -7,7 +7,7 @@ function $(selector){if(!elements.has(selector)){const classes=new Set();element
 const sandbox={$,Number,String,Math,currentMission:()=>sandbox.snapshot.mission,delivery:()=>sandbox.snapshot.delivery||{}};
 vm.createContext(sandbox);vm.runInContext(render+'\nglobalThis.render=renderMarkerAlignment;',sandbox);
 function fixture(state){return{mission:{state:'CONFIRMING',current_marker_id:2},delivery:{active:true},manual:{state:'IDLE'},marker_alignment:{state,reason:'실제 정렬 상태',camera:'front',marker_id:2,center_error:.2,frames:1,required:3,max_seconds:45}};}
-for(const [state,expected] of [['SEARCHING','저속 회전'],['CENTERING','중앙 정렬'],['SETTLING','안정 확인'],['CONFIRMED','확인 완료'],['FAILED','일시정지']]){
+for(const [state,expected] of [['SEARCHING','저속 회전'],['CENTERING','중앙 정렬'],['WALL_ALIGNING','벽 정면 정렬'],['HOLD','정지 유지'],['SETTLING','안정 확인'],['CONFIRMED','확인 완료'],['FAILED','일시정지']]){
  sandbox.snapshot=fixture(state);assert.equal(sandbox.render(),true);assert.equal($('#marker-alignment').hidden,false);
  assert.match($('#marker-alignment-phase').textContent,state==='SEARCHING'?/저속 회전/:new RegExp(expected));
  assert.equal($('#marker-alignment-camera').textContent,'전방 카메라 · ID 2');
@@ -18,6 +18,8 @@ for(const [state,expected] of [['SEARCHING','저속 회전'],['CENTERING','중�
 sandbox.snapshot=fixture('SETTLING');sandbox.snapshot.marker_alignment.center_error=0;sandbox.snapshot.marker_alignment.required_frames=4;delete sandbox.snapshot.marker_alignment.required;sandbox.render();assert.match($('#marker-alignment-metrics').textContent,/중심 오차 0\.0%.*1 \/ 4/);
 sandbox.snapshot.marker_alignment.center_error=null;sandbox.render();assert.match($('#marker-alignment-metrics').textContent,/측정 대기/);assert.doesNotMatch($('#marker-alignment-metrics').textContent,/0\.0%/,'missing error must not look centered');
 sandbox.snapshot=fixture('CENTERING');sandbox.snapshot.marker_alignment.camera='rear';sandbox.snapshot.marker_alignment.center_error=-.1;sandbox.render();assert.match($('#marker-alignment-camera').textContent,/후방/);assert.match($('#marker-alignment-metrics').textContent,/왼쪽 5\.0%/);
+sandbox.snapshot=fixture('WALL_ALIGNING');Object.assign(sandbox.snapshot.marker_alignment,{camera:'rear',wall_required:true,wall_reliable:true,wall_heading_error_rad:.10,wall_samples:1,wall_required_samples:3});sandbox.render();assert.match($('#marker-alignment-camera').textContent,/후방/);assert.match($('#marker-alignment-metrics').textContent,/벽 정면 각도 오차 5\.7°.*벽 확인 1 \/ 3/);
+sandbox.snapshot.marker_alignment.state='HOLD';sandbox.snapshot.marker_alignment.wall_reliable=false;sandbox.render();assert.match($('#marker-alignment-metrics').textContent,/벽 정면 확인 대기/);
 sandbox.snapshot=fixture('FAILED');sandbox.snapshot.mission.state='PAUSED';sandbox.snapshot.delivery.active=false;sandbox.render();assert.match($('#marker-alignment-detail').textContent,/수동 임무 재개/);
 sandbox.snapshot=fixture('CENTERING');sandbox.snapshot.manual.state='ACTIVE';sandbox.render();assert.match($('#marker-alignment-phase').textContent,/수동 조종 우선/);assert.match($('#marker-alignment-detail').textContent,/조이스틱이 우선/);
 sandbox.snapshot.mission.estop_latched=true;sandbox.render();assert.match($('#marker-alignment-phase').textContent,/비상정지/);assert.match($('#marker-alignment-detail').textContent,/해제한 뒤 임무를 별도로 재개/);

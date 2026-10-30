@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "scope": "Pure local search performance; not SITL or physical-robot acceptance. Adapter preprocessing is outside the search deadline.",
+  "input_provenance": "Actual local_detour_08 map, first observed face, initial reference path and conservative planning mask reconstructed. Start(49,41) inferred from raw TF composition; planner-local start was not recorded. Neighbor(48,42) measured separately.",
+  "baseline_implementation_sha256": "4c759f7b33e6a086025e37f16ee2f75cc67995b792a18bc21f3d8a2d66b3b4fa",
+  "optimized40_implementation_sha256": "65d02da89b81a4a24c82eda88dba1fcb0857a89570cfeada84d37780d3e025a7",
+  "final_implementation_sha256": "7a7b952851cfb985477371a72cee416391d0d395be83c6422c5c8f9e4f21dc3b",
+  "input_sha256": "9381015b8b310bd1fca383d6a2cc378c3bad97cb22ae4fe85a950a1050b42e84",
+  "replay_script_sha256": "3274759042ccf2398df85f1f557483d20a6b28b73f9aca344a978d297c67821a",
+  "executed_script_in_session": "/tmp/sva_local08_profile.py",
+  "executed_final_command": "PYTHONPATH=\"$PWD/ros2_ws/src/smart_vision_amr\" MAX_SECONDS=.06 REPLAYS=20 /usr/bin/python3 /tmp/sva_local08_profile.py --contended",
+  "reproduce_final_command": "/usr/bin/python3 benchmarks/startup_20261030/local_detour_replay.py --replays 20 --budget .06 --contended",
+  "reproduction_note": "Archived fixture, reproducer and byte-identical baseline permit A/B comparison from a clone without session-private files. Historical timing batches used the recorded session command. After the final1377-test pass, the archived final reproducer was executed once successfully (616expansions, matching path hash); the baseline artifact is byte-identical and syntax-checked. Optional implementations load with a smart_vision_amr package prefix for relative imports.",
+  "contender": "One busy process and replay pinned to the same available logical CPU; contender bounded to5s in executed session script and terminated in finally. Archived reproducer bounds it to10s for up to100 replays.",
+  "batches": [
+    {
+      "start": [
+        49,
+        41
+      ],
+      "version": "baseline",
+      "budget_ms": 40,
+      "contended": false,
+      "replays": 20,
+      "successes": 20,
+      "median_ms": 20.84306650021972,
+      "p95_ms": 27.737843000068096,
+      "max_ms": 32.24135100026615
+    },
+    {
+      "start": [
+        49,
+        41
+      ],
+      "version": "optimized40",
+      "budget_ms": 40,
+      "contended": false,
+      "replays": 20,
+      "successes": 20,
+      "median_ms": 16.469518000121752,
+      "p95_ms": 20.88620299946342,
+      "max_ms": 21.128841000063403
+    },
+    {
+      "start": [
+        49,
+        41
+      ],
+      "version": "baseline",
+      "budget_ms": 40,
+      "contended": true,
+      "replays": 20,
+      "successes": 0,
+      "median_ms": 41.88721300033649,
+      "p95_ms": 41.93101799955912,
+      "max_ms": 42.87782000028528
+    },
+    {
+      "start": [
+        49,
+        41
+      ],
+      "version": "optimized40",
+      "budget_ms": 40,
+      "contended": true,
+      "replays": 20,
+      "successes": 20,
+      "median_ms": 31.781424499968125,
+      "p95_ms": 35.468229999423784,
+      "max_ms": 39.294781000535295
+    },
+    {
+      "start": [
+        48,
+        42
+      ],
+      "version": "optimized40",
+      "budget_ms": 40,
+      "contended": true,
+      "replays": 20,
+      "successes": 19,
+      "median_ms": 29.79352349984765,
+      "p95_ms": 39.74465600003896,
+      "max_ms": 42.44402199947217
+    },
+    {
+      "start": [
+        49,
+        41
+      ],
+      "version": "final60",
+      "budget_ms": 60,
+      "contended": true,
+      "replays": 20,
+      "successes": 20,
+      "median_ms": 27.998555000067427,
+      "p95_ms": 30.109076999906392,
+      "max_ms": 33.25728300023911
+    }
+  ],
+  "complete_result_equivalence": {
+    "seed": 260108,
+    "cases": 48,
+    "clock": "Frozen only for deterministic equality checks, not performance claims.",
+    "compared": [
+      "points",
+      "prefix_cells",
+      "rejoin_index",
+      "expansions",
+      "reason",
+      "rejoin_progress"
+    ],
+    "all_equal": true,
+    "actual08_complete_path_sha256": "84192d3045befda55272a450307e4f4ca1fe06f3d90dbcfd65dc9055997308b4",
+    "actual08_expansions": 616
+  },
+  "focused_tests": {
+    "passed": 68,
+    "duration_seconds": 3.4
+  },
+  "interpretation": "Caches and precomputed projection constants reduce repeated work while preserving collision masks, directed constraints, ordering and1500 expansions.40ms remains scheduler-sensitive; approved operational deadline60ms supplies bounded margin. Max runtime accepted budget remains100ms. These finite replay batches do not guarantee absence of future OS preemption or real sensor/controller failures.",
+  "baseline_artifact": "benchmarks/startup_20261030/reference_local_detour_before_optimization.py",
+  "baseline_artifact_role": "Byte-identical pre-optimization reference retained only for offline evidence A/B comparison; outside the ROS package and not deployed.",
+  "reproduce_baseline_command": "/usr/bin/python3 benchmarks/startup_20261030/local_detour_replay.py --implementation benchmarks/startup_20261030/reference_local_detour_before_optimization.py --replays 20 --budget .04 --contended",
+  "archived_reproducer_runtime_smoke": {
+    "command": "/usr/bin/python3 benchmarks/startup_20261030/local_detour_replay.py --replays 1 --budget .06",
+    "result_path": "benchmarks/startup_20261030/local_detour_replay_smoke.json",
+    "passed": true,
+    "after_final_full_pytest": true
+  }
+}

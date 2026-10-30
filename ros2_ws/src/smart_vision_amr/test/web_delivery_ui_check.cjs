@@ -4,7 +4,7 @@ const app=fs.readFileSync('ros2_ws/src/smart_vision_amr/web/app.js','utf8');
 const controls=app.slice(app.indexOf('  function renderControls(){'),app.indexOf('  function renderLocalization(){'));
 const handlers=app.slice(app.indexOf("  $('#dispatch-start').addEventListener"),app.indexOf("  $('#delivery-resume').addEventListener"));
 const els=new Map(),listeners=new Map(),calls=[];
-function element(){return{disabled:false,hidden:false,checked:true,textContent:'',title:'',children:[],classList:{toggle(){}},replaceChildren(){this.children=[];},append(child){this.children.push(child);},addEventListener(name,handler){listeners.set(this.selector+':'+name,handler);}};}
+function element(){return{disabled:false,hidden:false,checked:true,textContent:'',title:'',children:[],dataset:{},setAttribute(){},classList:{toggle(){}},replaceChildren(){this.children=[];},append(child){this.children.push(child);},addEventListener(name,handler){listeners.set(this.selector+':'+name,handler);}};}
 const $=selector=>{if(!els.has(selector)){const el=element();el.selector=selector;els.set(selector,el);}return els.get(selector);};
 const sandbox={$,document:{querySelectorAll:()=>[],createElement:element},ManualJoystick:{setState(){}},initialized:true,disconnected:false,busy:false,localizationStarting:false,draft:[1],dirty:false,terminal:new Set(['IDLE','COMPLETED','CANCELED','ERROR','HOME_REACHED']),currentMission:()=>sandbox.snapshot.mission,delivery:()=>sandbox.snapshot.delivery,async action(path,body,message){calls.push({path,body,message});return true;},Math,Number,Array,String};
 vm.createContext(sandbox);vm.runInContext(controls+'\n'+handlers+'\nglobalThis.check=renderControls;',sandbox);

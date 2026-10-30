@@ -132,6 +132,7 @@ class MissionLifecycleTests(unittest.TestCase):
         self.publish_first()
         message = String()
         message.data = json.dumps({'mode': 'estop', 'estop_latched': True,
+                                   'sent_at_ns': self.node.get_clock().now().nanoseconds,
                                    'stop_acknowledged': True,
                                    'reason': 'Reverse recovery safety stop',
                                    'source_id': self.node.motion_source})

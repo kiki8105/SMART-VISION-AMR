@@ -15,6 +15,48 @@ _FAILURE_PHASES = {
 OBSTACLE_HOLD_MESSAGE = '장애물이 있어 경로 주행을 잠시 멈춥니다. 장애물을 치우면 경로를 재개합니다.'
 
 
+def local_detour_snapshot(payload, goal_stamp, mission_state, age):
+    """Read-only, fresh planner evidence scoped to the current mission goal."""
+    empty = {'available': False, 'state': 'NONE'}
+    if (not isinstance(payload, dict) or type(age) not in (int, float)
+            or not 0 <= age < 2. or not isfinite(age)
+            or mission_state not in {'NAVIGATING', 'RETURNING_HOME', 'WAIT_REPLAN'}):
+        return empty
+
+    def stamp(value):
+        if isinstance(value, dict):
+            value = (value.get('sec'), value.get('nanosec'))
+        if (not isinstance(value, (list, tuple)) or len(value) != 2
+                or any(type(item) is not int for item in value)
+                or value[0] < 0 or not 0 <= value[1] < 1_000_000_000):
+            return None
+        return tuple(value)
+
+    current = stamp(goal_stamp)
+    if current is None or stamp(payload.get('goal_stamp')) != current:
+        return empty
+    kind, state = payload.get('plan_kind'), payload.get('local_detour_state')
+    if kind not in {'LOCAL_DETOUR', 'GLOBAL'} or state not in {'ACTIVE', 'REJOINED', 'FAILED', 'NONE'}:
+        return empty
+    result = {'available': True, 'state': state, 'plan_kind': kind,
+              'reason': str(payload.get('detour_reason') or '')[:240]}
+    for name in ('local_attempt_id', 'global_plan_count', 'expansions'):
+        value = payload.get(name)
+        if type(value) is int and 0 <= value <= 1_000_000_000:
+            result[name] = value
+    for name in ('search_duration_ms', 'adapter_duration_ms', 'global_duration_ms', 'rejoin_progress'):
+        value = payload.get(name)
+        if type(value) in (int, float) and 0 <= value <= 1_000_000 and isfinite(value):
+            result[name] = float(value)
+    point = payload.get('rejoin_point')
+    if isinstance(point, dict):
+        values = [point.get('x'), point.get('y')]
+        if all(type(value) in (int, float) and abs(value) <= 1_000_000
+               and isfinite(value) for value in values):
+            result['rejoin_point'] = dict(zip(('x', 'y'), values))
+    return result
+
+
 def failure_memory_snapshot(payload, goal_stamp, mission_state, age):
     """Expose only this goal's fresh status; display code cannot clear memory.
 
@@ -80,6 +122,10 @@ _LOCALIZATION_REASONS = {
     'odom_tf_unavailable': '차체 오도메트리 TF 대기', 'map_tf_unavailable': '지도상 차체 TF 대기',
     'map_unavailable': '저장 지도 수신 대기', 'amcl_covariance_unavailable': 'AMCL 위치 불확실성 수신 대기',
     'position_std_high': '위치 추정 오차 범위가 큼', 'yaw_std_high': '방향 추정 오차 범위가 큼',
+    'position_std_m_elevated': '위치 추정 오차 범위가 큼',
+    'yaw_std_rad_elevated': '방향 추정 오차 범위가 큼',
+    'position_std_m_high': '위치 추정 오차 범위가 큼',
+    'yaw_std_rad_high': '방향 추정 오차 범위가 큼',
     'position_high': '위치 추정 오차 범위가 큼', 'yaw_high': '방향 추정 오차 범위가 큼',
     'amcl_not_updating_while_moving': '이동 중 AMCL 위치 갱신 지연',
     'localization_jump': '오도메트리와 다른 큰 위치 보정 감지',
@@ -133,6 +179,7 @@ def operation_summary(snapshot):
     nav = snapshot.get('navigation') or {}
     alignment = snapshot.get('marker_alignment') or {}
     failure_memory = snapshot.get('failure_memory') or {}
+    detour = snapshot.get('local_detour') or {}
     if (alignment.get('marker_id') is not None
             and mission.get('current_marker_id') is not None
             and alignment['marker_id'] != mission['current_marker_id']):
@@ -157,7 +204,13 @@ def operation_summary(snapshot):
         phase, label = 'connecting', '차량 연결 대기'
     elif localization.get('active'):
         phase, label = 'localizing', '위치 확인 중'
-        detail = '저속 회전으로 라이다와 저장 지도를 대조합니다.'
+        detail = localization.get('reason') or '저속 회전으로 라이다와 저장 지도를 대조합니다.'
+        if localization.get('control', {}).get('state') == 'WAIT_HEALTH':
+            level, label = 'warning', '위치 감시 복구 대기 · 정지'
+            action = {'title': '위치 감시 입력 확인', 'detail': detail,
+                      'action': '라이다·오도메트리와 좌표 변환 복구를 기다리며 정지합니다. '
+                                '1초 이상 복구되지 않으면 위치 확인을 중단합니다.',
+                      'target': 'localize', 'conditions': health.get('missing', [])}
     elif quality.get('level') == 'critical':
         level, phase, label = 'critical', 'localization_fault', '위치 신뢰도 확인 필요'
         detail = ' · '.join(localization_explanations(quality))
@@ -165,6 +218,16 @@ def operation_summary(snapshot):
     elif manual.get('active') or manual.get('state') in {'ACQUIRING', 'ACTIVE', 'RELEASING', 'WAIT_REPLAN'}:
         phase, label = 'manual', '수동 조종 우선'
         detail = manual.get('reason') or '조이스틱을 놓으면 같은 목표로 재개를 준비합니다.'
+    elif (mission.get('state') in {'NAVIGATING', 'RETURNING_HOME', 'WAIT_REPLAN'}
+          and detour.get('available') is True and detour.get('plan_kind') == 'LOCAL_DETOUR'
+          and detour.get('state') == 'ACTIVE'
+          and not (failure_memory.get('available') is True
+                   and failure_memory.get('state') in {'SENSOR_HOLD', 'OBSTACLE_HOLD', 'RECOVERING', 'WAIT_ALTERNATIVE'})):
+        phase, label = 'local_detour', '장애물 국소 우회 · 원래 경로 합류 중'
+        detail = '라이다와 차체 여유를 확인하며 가까운 장애물을 돌아 원래 경로의 앞쪽에 합류합니다.'
+        action = {'title': '국소 우회 중', 'detail': detail,
+                  'action': '우회 공간과 라이다 입력을 확인하세요. 조이스틱과 비상정지가 항상 우선합니다.',
+                  'target': 'diagnostics', 'conditions': health.get('missing', [])}
     elif (mission.get('state') in {'NAVIGATING', 'RETURNING_HOME', 'WAIT_REPLAN'}
           and failure_memory.get('available') is True
           and failure_memory.get('state') in _FAILURE_PHASES):
@@ -200,17 +263,23 @@ def operation_summary(snapshot):
         detail = '목적지에서 정지하고 해당 섹터의 카메라 표식을 확인합니다.'
         alignment_labels = {'SEARCHING': '도착 표식 탐색 중',
                             'CENTERING': '카메라 중앙 정렬 중',
+                            'WALL_ALIGNING': '벽 직각 방향 정렬 중',
+                            'HOLD': '벽 방향 확인 대기',
                             'SETTLING': '정지 · 표식 안정 확인 중',
                             'CONFIRMED': '표식 중앙 정렬 확인 완료',
                             'FAILED': '표식 확인 필요'}
         if alignment.get('state') in alignment_labels:
             label = alignment_labels[alignment['state']]
             detail = alignment.get('reason') or detail
-            if alignment['state'] == 'FAILED':
+            if alignment['state'] in {'FAILED', 'HOLD'}:
                 level = 'warning'
             action = {'title': '카메라 표식 정렬', 'detail': detail,
                       'action': '선택된 카메라와 중심 오차를 확인하세요. 조이스틱과 비상정지가 항상 우선합니다.',
                       'target': 'camera', 'conditions': health.get('missing', [])}
+            if alignment['state'] in {'WALL_ALIGNING', 'HOLD'}:
+                action.update(title='표식과 벽 방향 확인', action=
+                    '후방 카메라가 표식 벽을 정면으로 보고 차체의 앞뒤 축이 벽과 직각이 되어야 합니다. '
+                    '벽 주변 장애물과 라이다 입력을 확인하세요. 조이스틱과 비상정지가 항상 우선합니다.')
     elif delivery.get('active') or mission.get('state') in {'NAVIGATING', 'ALIGNING', 'VERIFYING', 'WAIT_MARKER', 'RUNNING'}:
         phase, label = 'delivering', '배송 중'
     elif delivery.get('home_ready'):

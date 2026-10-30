@@ -47,6 +47,10 @@ class PathFollower(Node):
         self.navigation_input_fault = None
         self.navigation_input_cutoff_ns = None
         self.navigation_footprint_reference = None
+        self.navigation_odom_history = deque(maxlen=256)
+        self.navigation_odom_epoch = 0
+        self.navigation_footprint_receipt_pose = None
+        self.navigation_footprint_receipt_ros_ns = None
         for name, default in (("follow_request_timeout", 5.0),
                               ("follow_feedback_timeout", 5.0),
                               ("follow_cancel_timeout", 3.0),
@@ -1159,10 +1163,45 @@ class PathFollower(Node):
     def on_odom(self, message):
         self.latest_odom = message
         self.latest_odom_at = time.monotonic()
+        history = getattr(self, 'navigation_odom_history', None)
+        if history is None:
+            history = self.navigation_odom_history = deque(maxlen=256)
+            self.navigation_odom_epoch = 0
+        try:
+            sample = self._navigation_odom_sample(message)
+            if history:
+                previous = history[-1]
+                dt = (sample[0]-previous[0])*1e-9
+                continuous = (sample[1:3] == previous[1:3] and 0 < dt <= .25
+                              and hypot(sample[3]-previous[3], sample[4]-previous[4]) <= .03+dt
+                              and abs(atan2(sin(sample[5]-previous[5]),
+                                            cos(sample[5]-previous[5]))) <= .05+3*dt)
+                if sample == previous:
+                    return  # Repeated source data cannot extend the history.
+                if not continuous:
+                    history.clear()
+                    self.navigation_odom_epoch += 1
+            history.append(sample)
+            while history and sample[0]-history[0][0] > 3_000_000_000:
+                history.popleft()
+        except (ValueError, AttributeError, TypeError):
+            history.clear()
+            self.navigation_odom_epoch += 1
 
     def on_footprint(self, message):
         self.latest_footprint = message
         self.latest_footprint_at = time.monotonic()
+        self.navigation_footprint_receipt_ros_ns = self.get_clock().now().nanoseconds
+        self.navigation_footprint_receipt_pose = None
+        try:
+            sample = self._navigation_odom_sample(self.latest_odom)
+            source_age = (self.navigation_footprint_receipt_ros_ns-sample[0])*1e-9
+            received_age = self.latest_footprint_at-self.latest_odom_at
+            if -.25 <= source_age < .25 and 0 <= received_age < .25:
+                self.navigation_footprint_receipt_pose = (
+                    getattr(self, 'navigation_odom_epoch', 0), sample)
+        except (ValueError, AttributeError, TypeError):
+            pass
 
     def on_costmap(self, message):
         self.latest_costmap = message
@@ -1180,16 +1219,44 @@ class PathFollower(Node):
                     norm-2*(orientation.y**2+orientation.z**2))
         return position.x, position.y, yaw
 
-    def _navigation_transform(self, target, source, now):
+    def _navigation_odom_sample(self, message):
+        stamp = message.header.stamp
+        stamp_ns = stamp.sec*1_000_000_000+stamp.nanosec
+        frame = message.header.frame_id
+        base = message.child_frame_id or self.get_parameter('curve_base_frame').value
+        if stamp_ns <= 0 or not frame or not base:
+            raise ValueError('Missing odometry timestamp or frame')
+        return (stamp_ns, frame, base,
+                *self._navigation_pose(message.pose.pose.position, message.pose.pose.orientation))
+
+    def _navigation_odom_at(self, stamp_ns, frame, base):
+        history = getattr(self, 'navigation_odom_history', ())
+        for sample in history:
+            if sample[0] == stamp_ns and sample[1:3] == (frame, base):
+                return sample[3:]
+        for first, last in zip(history, list(history)[1:]):
+            if (first[1:3] == last[1:3] == (frame, base)
+                    and first[0] < stamp_ns < last[0]
+                    and last[0]-first[0] <= 250_000_000):
+                fraction = (stamp_ns-first[0])/(last[0]-first[0])
+                yaw = first[5]+fraction*atan2(sin(last[5]-first[5]), cos(last[5]-first[5]))
+                return (first[3]+fraction*(last[3]-first[3]),
+                        first[4]+fraction*(last[4]-first[4]), yaw)
+        raise ValueError('No continuous odometry at footprint acquisition time')
+
+    def _navigation_transform(self, target, source, now, stamp_ns=None):
         if not target or not source:
             raise ValueError('Missing navigation frame')
         if target == source:
             return 0., 0., 0.
-        transform = self.tf_buffer.lookup_transform(target, source, rclpy.time.Time())
+        query = (rclpy.time.Time() if stamp_ns is None
+                 else rclpy.time.Time(nanoseconds=stamp_ns))
+        transform = self.tf_buffer.lookup_transform(target, source, query)
         stamp = transform.header.stamp
         stamp_seconds = stamp.sec+stamp.nanosec*1e-9
         # A zero stamp is valid for a wholly static TF chain.
-        if stamp_seconds != 0 and not -.25 <= now-stamp_seconds < 1.0:
+        reference = now if stamp_ns is None else stamp_ns*1e-9
+        if stamp_seconds != 0 and not -.25 <= reference-stamp_seconds < 1.0:
             raise ValueError('Stale navigation frame transform')
         return self._navigation_pose(transform.transform.translation, transform.transform.rotation)
 
@@ -1199,7 +1266,7 @@ class PathFollower(Node):
         return x+cos(yaw)*point[0]-sin(yaw)*point[1], y+sin(yaw)*point[0]+cos(yaw)*point[1]
 
     def _navigation_input_error(self):
-        """Validate current Nav2 geometry without trusting a footprint's old stamp."""
+        """Compare geometry with odometry from the same proven source/receipt time."""
         now = self.get_clock().now().nanoseconds*1e-9
         received_now = time.monotonic()
         footprint_fresh_header = False
@@ -1254,8 +1321,19 @@ class PathFollower(Node):
                 odom.header.frame_id, costmap.header.frame_id, now))
             if hypot(x-center[0], y-center[1]) > .35:
                 return 'Local costmap is not centered on odometry'
+            if footprint_fresh_header:
+                stamp = self.latest_footprint.header.stamp
+                footprint_ns = stamp.sec*1_000_000_000+stamp.nanosec
+                footprint_pose = self._navigation_odom_at(footprint_ns, odom.header.frame_id, base)
+            else:
+                proof = getattr(self, 'navigation_footprint_receipt_pose', None)
+                if (proof is None or proof[0] != getattr(self, 'navigation_odom_epoch', 0)
+                        or proof[1][1:3] != (odom.header.frame_id, base)):
+                    return 'Old footprint has no fresh receipt-time odometry proof'
+                footprint_pose = proof[1][3:]
+                footprint_ns = self.navigation_footprint_receipt_ros_ns
             footprint_transform = self._navigation_transform(
-                odom.header.frame_id, self.latest_footprint.header.frame_id, now)
+                odom.header.frame_id, self.latest_footprint.header.frame_id, now, footprint_ns)
         except (TransformException, ValueError, AttributeError):
             return 'Invalid navigation pose or unavailable frame transform'
         points = self.latest_footprint.polygon.points
@@ -1288,9 +1366,16 @@ class PathFollower(Node):
         radii = [hypot(px, py) for px, py in centered]
         if not .5*radius <= max(radii) <= 2*radius+.05:
             return 'Footprint size differs from the robot'
-        if hypot(x-center_x, y-center_y) > .10:
+        footprint_x, footprint_y, footprint_yaw = footprint_pose
+        if hypot(footprint_x-center_x, footprint_y-center_y) > .10:
             return 'Footprint disagrees with current odometry'
-        body = tuple(self._navigation_point(point, (0., 0., -yaw)) for point in centered)
+        if not footprint_fresh_header and hypot(x-center_x, y-center_y) > .10:
+            return 'Old footprint position no longer matches current odometry'
+        # A valid source stamp permits motion compensation. The legacy old-
+        # header exception retains its current position/orientation guards;
+        # downstream consumers cannot recover geometry time from that header.
+        body_yaw = footprint_yaw if footprint_fresh_header else yaw
+        body = tuple(self._navigation_point(point, (0., 0., -body_yaw)) for point in centered)
         angles = sorted(atan2(py, px) for px, py in centered)
         gaps = [b-a for a, b in zip(angles, angles[1:]+[angles[0]+2*pi])]
         circular = (len(polygon) >= 8 and max(gaps) <= pi/3

@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "packages_finished": 1,
+  "elapsed_seconds": 1.82,
+  "dedicated_root": "/tmp/sva-final-package-build.aqmTEl",
+  "build_base": "/tmp/sva-final-package-build.aqmTEl/build",
+  "install_base": "/tmp/sva-final-package-build.aqmTEl/install",
+  "log_base": "/tmp/sva-final-package-build.aqmTEl/log",
+  "workspace_build_install_log_used": false,
+  "installed_python_modules_match_source": 38,
+  "executed_command": "source /opt/ros/humble/setup.bash\nPYTHONNOUSERSITE=1 ROS_DOMAIN_ID=223 ROS_LOCALHOST_ONLY=1 colcon --log-base /tmp/sva-final-package-build.aqmTEl/log build --base-paths \"$PWD/ros2_ws/src/smart_vision_amr\" --build-base /tmp/sva-final-package-build.aqmTEl/build --install-base /tmp/sva-final-package-build.aqmTEl/install --packages-select smart_vision_amr --event-handlers console_direct+",
+  "reproduction_command": "source /opt/ros/humble/setup.bash\nvalidation_build_root=$(mktemp -d /tmp/sva-final-package-build.XXXXXX)\nPYTHONNOUSERSITE=1 ROS_DOMAIN_ID=223 ROS_LOCALHOST_ONLY=1 colcon --log-base \"$validation_build_root/log\" build --base-paths \"$PWD/ros2_ws/src/smart_vision_amr\" --build-base \"$validation_build_root/build\" --install-base \"$validation_build_root/install\" --packages-select smart_vision_amr --event-handlers console_direct+",
+  "raw_log": {
+    "path": "/tmp/sva-integration-final-build-20261030.log",
+    "sha256": "eec2348eccd0f7e9a50c16c5bd5276c6b364d4f92da5c71d7dd774750bd06ce5",
+    "line_count": 209
+  },
+  "archived_summary_log": {
+    "path": "benchmarks/startup_20261030/package_build.log",
+    "sha256": "4126ce78db40172d633a24a2ef722908ad7366c3d5829b97b067f3cfd6a12b22",
+    "scope": "Exact starting/finished/summary lines; verbose copied-file output omitted."
+  }
+}

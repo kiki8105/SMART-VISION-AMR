@@ -1,0 +1,3306 @@
+{
+  "passed": false,
+  "scenario": "suite",
+  "domain": 186,
+  "gazebo_master_uri": "http://127.0.0.1:11586",
+  "web_url": "http://127.0.0.1:8796",
+  "physical_vehicle_or_domain16_touched": false,
+  "synthetic_sensor_or_localization_feedback": false,
+  "initial_pose_is_actual_known_simulator_pose": true,
+  "initial_pose_std_requested_m": 0.446,
+  "checks": [
+    {
+      "name": "startup_stop_latched",
+      "passed": true
+    },
+    {
+      "name": "real_amcl_updates_after_high_covariance_seed",
+      "passed": true,
+      "samples": 2,
+      "position_std": [
+        0.37288042828803125,
+        0.32957080119884286
+      ],
+      "requests": 3,
+      "responses": 3
+    },
+    {
+      "name": "stationary_convergence_never_moves",
+      "passed": true
+    },
+    {
+      "name": "stationary_convergence_keeps_startup_latch",
+      "passed": true
+    },
+    {
+      "name": "stationary_converged_without_threshold_relaxation",
+      "passed": true,
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "metrics": {
+          "map_available": true,
+          "scan_age_seconds": 0.06207775699999729,
+          "odom_age_seconds": 0.013943742000037673,
+          "scan_header_age_seconds": 0.046,
+          "odom_header_age_seconds": -0.003,
+          "scan_valid": true,
+          "odom_valid": true,
+          "position_std_m": 0.32957080119884286,
+          "yaw_std_rad": 0.12003466141257943,
+          "amcl_age_seconds": 2.282961586000056,
+          "amcl_update_epoch": 1791.764732362,
+          "amcl_header_age_seconds": 2.246,
+          "moving": false,
+          "pose_jump": false,
+          "scan_map_agreement": 0.9875,
+          "agreement_age_seconds": 0.0,
+          "agreement_header_age_seconds": 0.046,
+          "map_tf_age_seconds": -0.003,
+          "odom_tf_valid": true,
+          "amcl_update_requests": 3,
+          "amcl_update_responses": 3,
+          "amcl_update_timeouts": 0,
+          "amcl_update_errors": 0,
+          "scan_tf_state": "READY",
+          "scan_tf_error": "",
+          "scan_tf_wait_ms": 62.07775699999729,
+          "scan_tf_drop_count": 5,
+          "scan_tf_pending_count": 0,
+          "amcl_refresh_mode": "stationary",
+          "amcl_refresh_state": "RESPONDED",
+          "amcl_stationary_update_requests": 2,
+          "odom_last_received_age_seconds": 0.013943742000037673,
+          "odom_raw_header_age_seconds": -0.003,
+          "odom_rejected_count": 0,
+          "odom_rejection_reason": "",
+          "odom_last_rejection_reason": "",
+          "odom_receive_interval_seconds": 0.03346914099984133,
+          "odom_header_interval_seconds": 0.034,
+          "scan_last_received_age_seconds": 0.06207775699999729,
+          "scan_raw_header_age_seconds": 0.046,
+          "scan_rejected_count": 0,
+          "scan_rejection_reason": "",
+          "scan_last_rejection_reason": "",
+          "scan_receive_interval_seconds": 0.20372379299988097,
+          "scan_header_interval_seconds": 0.2,
+          "amcl_motion_without_update_seconds": 0.0,
+          "amcl_motion_dt_clamped": 0
+        },
+        "stop_latched": false,
+        "autonomous_allowed": true,
+        "allow_localization": true,
+        "reinitialization_requested": true,
+        "stable_seconds": 2.24993867399985,
+        "stamp_ns": 4480000000,
+        "sent_at_ns": 4480000000,
+        "explanations": []
+      }
+    },
+    {
+      "name": "repeated_assisted_start_rejected",
+      "passed": true,
+      "response": {
+        "error": "이미 위치 확인 중입니다."
+      }
+    },
+    {
+      "name": "assisted_succeeded",
+      "passed": true,
+      "localization": {
+        "state": "SUCCEEDED",
+        "active": false,
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다.",
+        "angular": 0.0,
+        "rotation_degrees": 91.06645662381179,
+        "progress": 0.2529623795105883,
+        "elapsed": 9.795829110999875,
+        "estimate": {
+          "x": -2.994561305114081,
+          "y": -1.996173124356289,
+          "yaw": 1.5986452807610367,
+          "position_std": 0.08960952234495277,
+          "yaw_std": 0.08847630362610469,
+          "quality_ok": true
+        },
+        "good_estimates": 13,
+        "quality_ok": true,
+        "available": true,
+        "clearance": 1.9757812026389605,
+        "scan_match": 1.0,
+        "startup_home_available": true,
+        "startup_home_reason": "마커 확인 없이 등록 홈을 초기 위치로 가정합니다. 실제로 홈에 놓였을 때만 누르세요.",
+        "control": {
+          "state": "SUCCEEDED",
+          "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+        },
+        "home_seed_available": false,
+        "home_seed_reason": "차량의 비상정지 확인 응답이 필요합니다.",
+        "home_seed_pending": false,
+        "home_seed_result": "",
+        "home_seed_match": 1.0,
+        "mode": "local",
+        "mode_label": "현재 위치 보정",
+        "use_existing_pose": true,
+        "rotated_degrees": 91.06645662381179,
+        "angular_velocity": 0.0,
+        "position_std": 0.08960952234495277,
+        "yaw_std_degrees": 5.06931878469382
+      }
+    },
+    {
+      "name": "assisted_actual_rotation_command",
+      "passed": true
+    },
+    {
+      "name": "assisted_zero_linear_and_low_angular",
+      "passed": true,
+      "max_linear": 0.0,
+      "max_angular": 0.2
+    },
+    {
+      "name": "assisted_exclusive_mux_lease",
+      "passed": true
+    },
+    {
+      "name": "assisted_real_gazebo_rotation",
+      "passed": true
+    },
+    {
+      "name": "assisted_preserves_route",
+      "passed": true,
+      "before": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      },
+      "after": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      }
+    },
+    {
+      "name": "assisted_does_not_auto_start_mission",
+      "passed": true
+    },
+    {
+      "name": "stale_scan_stops_within_one_second",
+      "passed": true,
+      "stop_latency_seconds": 0.4663000000000004
+    },
+    {
+      "name": "fault_is_scan_only_genuine_source_continues",
+      "passed": true
+    },
+    {
+      "name": "scan_restore_does_not_auto_resume",
+      "passed": true
+    },
+    {
+      "name": "control_failure_preserves_mission_route",
+      "passed": true,
+      "before": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      },
+      "after": {
+        "route": [
+          1
+        ],
+        "pending_route": null,
+        "current_index": 0,
+        "completed_ids": [],
+        "home": {
+          "x": -3.0,
+          "y": -2.0,
+          "yaw": 0.0
+        }
+      }
+    },
+    {
+      "name": "repeated_assisted_start_rejected",
+      "passed": true,
+      "response": {
+        "error": "이미 위치 확인 중입니다."
+      }
+    },
+    {
+      "name": "assisted_succeeded",
+      "passed": false,
+      "localization": {
+        "state": "FAILED",
+        "active": false,
+        "reason": "위치 확인 회전 허용 또는 최신 위치 감시 응답이 없어 정지합니다.",
+        "angular": 0.0,
+        "rotation_degrees": 0.3568206484382753,
+        "progress": 0.0009911684678840982,
+        "elapsed": 1.2655895309999323,
+        "estimate": {
+          "x": -2.93952565838709,
+          "y": -1.9139727716940254,
+          "yaw": 0.7357269574741281,
+          "position_std": 0.20465757098012305,
+          "yaw_std": 0.19743772069058546,
+          "quality_ok": true
+        },
+        "good_estimates": 1,
+        "quality_ok": true,
+        "available": true,
+        "clearance": 2.019598020669783,
+        "scan_match": 1.0,
+        "startup_home_available": false,
+        "startup_home_reason": "차량이 완전히 정지할 때까지 기다리세요.",
+        "control": {
+          "state": "FAILED",
+          "reason": "위치 확인 회전 허용 또는 최신 위치 감시 응답이 없어 정지합니다."
+        },
+        "home_seed_available": false,
+        "home_seed_reason": "차량의 비상정지 확인 응답이 필요합니다.",
+        "home_seed_pending": false,
+        "home_seed_result": "",
+        "home_seed_match": 0.1625,
+        "mode": "local",
+        "mode_label": "현재 위치 보정",
+        "use_existing_pose": true,
+        "rotated_degrees": 0.3568206484382753,
+        "angular_velocity": 0.0,
+        "position_std": 0.20465757098012305,
+        "yaw_std_degrees": 11.312348112253316
+      }
+    }
+  ],
+  "events": [
+    {
+      "t": 4.4788,
+      "event": "legitimate_initialpose_high_covariance"
+    },
+    {
+      "t": 8.2749,
+      "event": "stationary_convergence_complete",
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "metrics": {
+          "map_available": true,
+          "scan_age_seconds": 0.06207775699999729,
+          "odom_age_seconds": 0.013943742000037673,
+          "scan_header_age_seconds": 0.046,
+          "odom_header_age_seconds": -0.003,
+          "scan_valid": true,
+          "odom_valid": true,
+          "position_std_m": 0.32957080119884286,
+          "yaw_std_rad": 0.12003466141257943,
+          "amcl_age_seconds": 2.282961586000056,
+          "amcl_update_epoch": 1791.764732362,
+          "amcl_header_age_seconds": 2.246,
+          "moving": false,
+          "pose_jump": false,
+          "scan_map_agreement": 0.9875,
+          "agreement_age_seconds": 0.0,
+          "agreement_header_age_seconds": 0.046,
+          "map_tf_age_seconds": -0.003,
+          "odom_tf_valid": true,
+          "amcl_update_requests": 3,
+          "amcl_update_responses": 3,
+          "amcl_update_timeouts": 0,
+          "amcl_update_errors": 0,
+          "scan_tf_state": "READY",
+          "scan_tf_error": "",
+          "scan_tf_wait_ms": 62.07775699999729,
+          "scan_tf_drop_count": 5,
+          "scan_tf_pending_count": 0,
+          "amcl_refresh_mode": "stationary",
+          "amcl_refresh_state": "RESPONDED",
+          "amcl_stationary_update_requests": 2,
+          "odom_last_received_age_seconds": 0.013943742000037673,
+          "odom_raw_header_age_seconds": -0.003,
+          "odom_rejected_count": 0,
+          "odom_rejection_reason": "",
+          "odom_last_rejection_reason": "",
+          "odom_receive_interval_seconds": 0.03346914099984133,
+          "odom_header_interval_seconds": 0.034,
+          "scan_last_received_age_seconds": 0.06207775699999729,
+          "scan_raw_header_age_seconds": 0.046,
+          "scan_rejected_count": 0,
+          "scan_rejection_reason": "",
+          "scan_last_rejection_reason": "",
+          "scan_receive_interval_seconds": 0.20372379299988097,
+          "scan_header_interval_seconds": 0.2,
+          "amcl_motion_without_update_seconds": 0.0,
+          "amcl_motion_dt_clamped": 0
+        },
+        "stop_latched": false,
+        "autonomous_allowed": true,
+        "allow_localization": true,
+        "reinitialization_requested": true,
+        "stable_seconds": 2.24993867399985,
+        "stamp_ns": 4480000000,
+        "sent_at_ns": 4480000000,
+        "explanations": []
+      }
+    },
+    {
+      "t": 9.6492,
+      "event": "assisted_start"
+    },
+    {
+      "t": 19.4519,
+      "event": "assisted_finished",
+      "localization": {
+        "state": "SUCCEEDED",
+        "active": false,
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다.",
+        "angular": 0.0,
+        "rotation_degrees": 91.06645662381179,
+        "progress": 0.2529623795105883,
+        "elapsed": 9.795829110999875,
+        "estimate": {
+          "x": -2.994561305114081,
+          "y": -1.996173124356289,
+          "yaw": 1.5986452807610367,
+          "position_std": 0.08960952234495277,
+          "yaw_std": 0.08847630362610469,
+          "quality_ok": true
+        },
+        "good_estimates": 13,
+        "quality_ok": true,
+        "available": true,
+        "clearance": 1.9757812026389605,
+        "scan_match": 1.0,
+        "startup_home_available": true,
+        "startup_home_reason": "마커 확인 없이 등록 홈을 초기 위치로 가정합니다. 실제로 홈에 놓였을 때만 누르세요.",
+        "control": {
+          "state": "SUCCEEDED",
+          "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+        },
+        "home_seed_available": false,
+        "home_seed_reason": "차량의 비상정지 확인 응답이 필요합니다.",
+        "home_seed_pending": false,
+        "home_seed_result": "",
+        "home_seed_match": 1.0,
+        "mode": "local",
+        "mode_label": "현재 위치 보정",
+        "use_existing_pose": true,
+        "rotated_degrees": 91.06645662381179,
+        "angular_velocity": 0.0,
+        "position_std": 0.08960952234495277,
+        "yaw_std_degrees": 5.06931878469382
+      }
+    },
+    {
+      "t": 21.453,
+      "event": "explicit_mission_start"
+    },
+    {
+      "t": 22.0018,
+      "event": "scan_relay_suppressed",
+      "raw_scan_count": 90,
+      "forwarded_scan_count": 90
+    },
+    {
+      "t": 23.748,
+      "event": "scan_relay_restored"
+    },
+    {
+      "t": 28.8759,
+      "event": "assisted_start"
+    },
+    {
+      "t": 30.1435,
+      "event": "failure",
+      "error": "AssertionError('{\"name\": \"assisted_succeeded\", \"passed\": false, \"localization\": {\"state\": \"FAILED\", \"active\": false, \"reason\": \"위치 확인 회전 허용 또는 최신 위치 감시 응답이 없어 정지합니다.\", \"angular\": 0.0, \"rotation_degrees\": 0.3568206484382753, \"progress\": 0.0009911684678840982, \"elapsed\": 1.2655895309999323, \"estimate\": {\"x\": -2.93952565838709, \"y\": -1.9139727716940254, \"yaw\": 0.7357269574741281, \"position_std\": 0.20465757098012305, \"yaw_std\": 0.19743772069058546, \"quality_ok\": true}, \"good_estimates\": 1, \"quality_ok\": true, \"available\": true, \"clearance\": 2.019598020669783, \"scan_match\": 1.0, \"startup_home_available\": false, \"startup_home_reason\": \"차량이 완전히 정지할 때까지 기다리세요.\", \"control\": {\"state\": \"FAILED\", \"reason\": \"위치 확인 회전 허용 또는 최신 위치 감시 응답이 없어 정지합니다.\"}, \"home_seed_available\": false, \"home_seed_reason\": \"차량의 비상정지 확인 응답이 필요합니다.\", \"home_seed_pending\": false, \"home_seed_result\": \"\", \"home_seed_match\": 0.1625, \"mode\": \"local\", \"mode_label\": \"현재 위치 보정\", \"use_existing_pose\": true, \"rotated_degrees\": 0.3568206484382753, \"angular_velocity\": 0.0, \"position_std\": 0.20465757098012305, \"yaw_std_degrees\": 11.312348112253316}}')"
+    }
+  ],
+  "error": "AssertionError('{\"name\": \"assisted_succeeded\", \"passed\": false, \"localization\": {\"state\": \"FAILED\", \"active\": false, \"reason\": \"위치 확인 회전 허용 또는 최신 위치 감시 응답이 없어 정지합니다.\", \"angular\": 0.0, \"rotation_degrees\": 0.3568206484382753, \"progress\": 0.0009911684678840982, \"elapsed\": 1.2655895309999323, \"estimate\": {\"x\": -2.93952565838709, \"y\": -1.9139727716940254, \"yaw\": 0.7357269574741281, \"position_std\": 0.20465757098012305, \"yaw_std\": 0.19743772069058546, \"quality_ok\": true}, \"good_estimates\": 1, \"quality_ok\": true, \"available\": true, \"clearance\": 2.019598020669783, \"scan_match\": 1.0, \"startup_home_available\": false, \"startup_home_reason\": \"차량이 완전히 정지할 때까지 기다리세요.\", \"control\": {\"state\": \"FAILED\", \"reason\": \"위치 확인 회전 허용 또는 최신 위치 감시 응답이 없어 정지합니다.\"}, \"home_seed_available\": false, \"home_seed_reason\": \"차량의 비상정지 확인 응답이 필요합니다.\", \"home_seed_pending\": false, \"home_seed_result\": \"\", \"home_seed_match\": 0.1625, \"mode\": \"local\", \"mode_label\": \"현재 위치 보정\", \"use_existing_pose\": true, \"rotated_degrees\": 0.3568206484382753, \"angular_velocity\": 0.0, \"position_std\": 0.20465757098012305, \"yaw_std_degrees\": 11.312348112253316}}')",
+  "raw_scans": 130,
+  "forwarded_scans": 121,
+  "duration_seconds": 30.1436,
+  "raw_telemetry": {
+    "path": "/tmp/smart_vision_startup186.ZixSYj/full_result.json",
+    "sha256": "2d545be6face96367d4d1e992b668964a6065a86ab38a24c9b28167bd1c4353a"
+  },
+  "sample_counts": {
+    "states": 148,
+    "commands": 988,
+    "odom": 762,
+    "ground_truth": 519,
+    "amcl": 24,
+    "health": 109,
+    "motion": 259,
+    "navigation": 9,
+    "planner": 10,
+    "paths": 1
+  },
+  "amcl_samples": [
+    {
+      "t": 4.0813,
+      "stamp_ns": 433000000,
+      "x": -3.0000000000002225,
+      "y": -2.0,
+      "yaw": 0.0,
+      "position_std": 0.0,
+      "yaw_std": 3.3085947202406556e-07,
+      "covariance": [
+        -5.950795411990839e-13,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0946799022804343e-13
+      ]
+    },
+    {
+      "t": 4.274,
+      "stamp_ns": 633000000,
+      "x": -2.9999425124676833,
+      "y": -2.00000000002575,
+      "yaw": 4.0921508179942674e-07,
+      "position_std": 2.731850665840175e-05,
+      "yaw_std": 3.580209191980431e-05,
+      "covariance": [
+        7.463007989372272e-10,
+        7.283063041541027e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        7.283063041541027e-14,
+        4.796163466380676e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.2817897858341169e-09
+      ]
+    },
+    {
+      "t": 4.6851,
+      "stamp_ns": 1033000000,
+      "x": -2.9849535984095183,
+      "y": -1.9438667962366192,
+      "yaw": 0.0038305185410422125,
+      "position_std": 0.37288042828803125,
+      "yaw_std": 0.13282135443804172,
+      "covariance": [
+        0.138853787897256,
+        0.0012482148822297034,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0012482148822288153,
+        0.13066441893851888,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0176415121947559
+      ]
+    },
+    {
+      "t": 5.9353,
+      "stamp_ns": 2234000000,
+      "x": -2.969353686257715,
+      "y": -1.928552317161039,
+      "yaw": -0.0004631594602035215,
+      "position_std": 0.32957080119884286,
+      "yaw_std": 0.12003466141257943,
+      "covariance": [
+        0.1064153901060152,
+        -0.005525330905607362,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.005525330905607362,
+        0.09474956614927077,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014408319940432584
+      ]
+    },
+    {
+      "t": 9.9018,
+      "stamp_ns": 5234000000,
+      "x": -2.9724561291965608,
+      "y": -1.9413204460369238,
+      "yaw": -0.005803342260846206,
+      "position_std": 0.2754321381930532,
+      "yaw_std": 0.09996911487117471,
+      "covariance": [
+        0.07526099631073002,
+        -0.00250220741424112,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.00250220741424112,
+        0.0654601528798322,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.009993823928126125
+      ]
+    },
+    {
+      "t": 10.198,
+      "stamp_ns": 6434000000,
+      "x": -2.980136614929087,
+      "y": -1.9238432947488928,
+      "yaw": -0.009443719108383672,
+      "position_std": 0.22695938371023644,
+      "yaw_std": 0.08950565107839213,
+      "covariance": [
+        0.0443362357565622,
+        -0.0033437068328474595,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.0033437068328474595,
+        0.04995217501305538,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008011261574966878
+      ]
+    },
+    {
+      "t": 10.8202,
+      "stamp_ns": 7034000000,
+      "x": -2.9654989448293834,
+      "y": -1.9436160215629328,
+      "yaw": 0.11091267209434362,
+      "position_std": 0.21236704206084694,
+      "yaw_std": 0.08645972727935458,
+      "covariance": [
+        0.03642293504877259,
+        -0.0035458390006226637,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.0035458390006226637,
+        0.043650731273179755,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.007475284441220371
+      ]
+    },
+    {
+      "t": 12.9012,
+      "stamp_ns": 8234000000,
+      "x": -2.9512096748120964,
+      "y": -1.9525141021809378,
+      "yaw": 0.34767588034360525,
+      "position_std": 0.18473289229539314,
+      "yaw_std": 0.12247659342894382,
+      "covariance": [
+        0.03364111253924662,
+        -0.0011313525496623456,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.0011313525496623456,
+        0.0314878531368481,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015000515937958805
+      ]
+    },
+    {
+      "t": 12.9065,
+      "stamp_ns": 8834000000,
+      "x": -2.9499171165150986,
+      "y": -1.9649787686641305,
+      "yaw": 0.46510453153434694,
+      "position_std": 0.18322520539066892,
+      "yaw_std": 0.1185302162870486,
+      "covariance": [
+        0.03352741036865936,
+        -0.0007144329126944626,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.0007144329126953508,
+        0.021988397647687563,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014049412173054521
+      ]
+    },
+    {
+      "t": 13.2265,
+      "stamp_ns": 9434000000,
+      "x": -2.9493677260664,
+      "y": -1.973528081311079,
+      "yaw": 0.5820752391190316,
+      "position_std": 0.16742982936539577,
+      "yaw_std": 0.11258539109779621,
+      "covariance": [
+        0.028011796537901645,
+        0.00042215929074984615,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.00042215929074984615,
+        0.01952639645378884,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.01267547028864373
+      ]
+    },
+    {
+      "t": 13.431,
+      "stamp_ns": 9634000000,
+      "x": -2.9725302714929325,
+      "y": -1.9872764088094954,
+      "yaw": 0.6231235458956458,
+      "position_std": 0.14850964599567593,
+      "yaw_std": 0.09060161806419204,
+      "covariance": [
+        0.021691832442703785,
+        0.0017414037369585245,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0017414037369576363,
+        0.013707652902073875,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008208653195849729
+      ]
+    },
+    {
+      "t": 14.0487,
+      "stamp_ns": 10234000000,
+      "x": -2.97588922529994,
+      "y": -1.9972175999809505,
+      "yaw": 0.7456804551155674,
+      "position_std": 0.14901229854988665,
+      "yaw_std": 0.09018759063619071,
+      "covariance": [
+        0.021942985260206882,
+        0.0016023066889276905,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0016023066889276905,
+        0.012393490747349745,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008133801504761114
+      ]
+    },
+    {
+      "t": 14.6315,
+      "stamp_ns": 10834000000,
+      "x": -2.9633194119341653,
+      "y": -1.9986893662846168,
+      "yaw": 0.8619651435939024,
+      "position_std": 0.14317071689313268,
+      "yaw_std": 0.09504763192052215,
+      "covariance": [
+        0.020302108640793293,
+        0.0013305592700927349,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0013305592700927349,
+        0.011453520305539922,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.00903405233369906
+      ]
+    },
+    {
+      "t": 14.8384,
+      "stamp_ns": 11034000000,
+      "x": -2.9577788019155187,
+      "y": -2.0008349687553886,
+      "yaw": 0.9032687833070537,
+      "position_std": 0.1337298531517162,
+      "yaw_std": 0.07879646319771558,
+      "covariance": [
+        0.017698605801252043,
+        0.0013057045431263958,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0013057045431263958,
+        0.008671567873695274,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.006208882612468945
+      ]
+    },
+    {
+      "t": 15.4606,
+      "stamp_ns": 11634000000,
+      "x": -2.9613523702872038,
+      "y": -1.9928604272958121,
+      "yaw": 1.0287681677357352,
+      "position_std": 0.12786841665369775,
+      "yaw_std": 0.08378029803301212,
+      "covariance": [
+        0.014115619922391076,
+        0.0033226022395016486,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0033226022395016486,
+        0.01141023886056658,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.007019138338500335
+      ]
+    },
+    {
+      "t": 16.0429,
+      "stamp_ns": 12234000000,
+      "x": -2.973139579154439,
+      "y": -1.9954882064370303,
+      "yaw": 1.1580069323095543,
+      "position_std": 0.11442117063624364,
+      "yaw_std": 0.08647300871887419,
+      "covariance": [
+        0.010205240943120586,
+        0.0035882802015327897,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0035882802015327897,
+        0.008632239524485552,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0074775812368944915
+      ]
+    },
+    {
+      "t": 16.6588,
+      "stamp_ns": 12834000000,
+      "x": -2.9841444189335835,
+      "y": -1.9985961892779045,
+      "yaw": 1.27318382088383,
+      "position_std": 0.10735243220200007,
+      "yaw_std": 0.0818529281702798,
+      "covariance": [
+        0.0073510252967352585,
+        0.0034105500201633276,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0034105500201633276,
+        0.008737484111967397,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.006699901850048984
+      ]
+    },
+    {
+      "t": 17.2839,
+      "stamp_ns": 13434000000,
+      "x": -2.989844145280362,
+      "y": -2.0068568658391146,
+      "yaw": 1.3921629393294512,
+      "position_std": 0.10902375161123587,
+      "yaw_std": 0.0896659940486321,
+      "covariance": [
+        0.006780578119164105,
+        0.003429792545729171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.003429792545729171,
+        0.00958214436959004,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008039990488729326
+      ]
+    },
+    {
+      "t": 17.8602,
+      "stamp_ns": 14034000000,
+      "x": -2.9869822745971435,
+      "y": -1.9958168585734137,
+      "yaw": 1.5193304553991718,
+      "position_std": 0.10867233523877123,
+      "yaw_std": 0.09564563550804832,
+      "covariance": [
+        0.005555251823544438,
+        0.003337462768971733,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.003337462768971733,
+        0.010028751995765361,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.009148087591738433
+      ]
+    },
+    {
+      "t": 18.4885,
+      "stamp_ns": 14634000000,
+      "x": -2.988450813518266,
+      "y": -1.9896247494579469,
+      "yaw": 1.6023212336224517,
+      "position_std": 0.09716275519878526,
+      "yaw_std": 0.09565800862590558,
+      "covariance": [
+        0.00411325038742838,
+        0.0022454319733489214,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0022454319733489214,
+        0.008494170939864265,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.009150454614273825
+      ]
+    },
+    {
+      "t": 19.1175,
+      "stamp_ns": 15234000000,
+      "x": -2.994561305114081,
+      "y": -1.996173124356289,
+      "yaw": 1.5986452807610367,
+      "position_std": 0.08960952234495277,
+      "yaw_std": 0.08847630362610469,
+      "covariance": [
+        0.0037842187814014494,
+        0.0018573454059165329,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0018573454059165329,
+        0.007217332768665763,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.007828056303338667
+      ]
+    },
+    {
+      "t": 21.7297,
+      "stamp_ns": 17834000000,
+      "x": -2.99960628895399,
+      "y": -1.9957632231468962,
+      "yaw": 1.5913133143068012,
+      "position_std": 0.08343333284094642,
+      "yaw_std": 0.07293300151257821,
+      "covariance": [
+        0.0031298454490151784,
+        0.0012829609384104046,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0012829609384104046,
+        0.006531502032573133,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.005319222709633736
+      ]
+    },
+    {
+      "t": 23.9663,
+      "stamp_ns": 20034000000,
+      "x": -2.946966639664079,
+      "y": -1.920988490530016,
+      "yaw": 0.7291257517501475,
+      "position_std": 0.23068458920295207,
+      "yaw_std": 0.2458526649661935,
+      "covariance": [
+        0.01889792091161091,
+        0.02091154463888678,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.02091154463888678,
+        0.040472807411027656,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0604435328709794
+      ]
+    },
+    {
+      "t": 30.0042,
+      "stamp_ns": 26034000000,
+      "x": -2.93952565838709,
+      "y": -1.9139727716940254,
+      "yaw": 0.7357269574741281,
+      "position_std": 0.20465757098012305,
+      "yaw_std": 0.19743772069058546,
+      "covariance": [
+        0.013852132021563435,
+        0.01566315818979369,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015663158189795467,
+        0.03313296027451518,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.03898165355149364
+      ]
+    }
+  ],
+  "navigation_transitions": [
+    {
+      "t": 2.7601,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": null,
+      "goal_stamp": null,
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 0,
+        "nanosec": 0
+      }
+    },
+    {
+      "t": 21.6523,
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 17,
+        "nanosec": 560000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 5,
+        "nanosec": 920000000
+      },
+      "distance_remaining": 1.9522242946768118,
+      "controller_distance_remaining": 1.9522242546081543,
+      "measured_speed": 0.011578947305679321,
+      "curve_speed_limit": 0.0
+    },
+    {
+      "t": 22.6828,
+      "status": "WAIT_REPLAN",
+      "message": "Navigation input unavailable: Stale scan receipt",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 17,
+        "nanosec": 560000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 5,
+        "nanosec": 920000000
+      },
+      "route_failure": false,
+      "input_hold": true
+    },
+    {
+      "t": 23.2592,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": {
+        "x": -1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 17,
+        "nanosec": 560000000
+      },
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 19,
+        "nanosec": 340000000
+      }
+    },
+    {
+      "t": 28.8588,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": null,
+      "goal_stamp": null,
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 24,
+        "nanosec": 900000000
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "t": 0.1286,
+      "mission_state": "IDLE",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 0.3498,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": false,
+        "control_seq": -1
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 1.4347,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 3.16,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 30
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "map_unavailable",
+          "odom_tf_unavailable",
+          "odom_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 4.0448,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 37
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.49307988900000055,
+        "odom_age_seconds": 0.009586668000110876,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 4.7038,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 45
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "map_tf_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": 2.731850665840175e-05,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.0077578640000410815,
+        "odom_age_seconds": 0.031343731000106345,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 4.9117,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 47
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "map_tf_unavailable",
+          "position_std_m_elevated",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": 0.37288042828803125,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.055675390000033076,
+        "odom_age_seconds": 0.007214966999981698,
+        "map_tf_age_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 5.3302,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.000019479489264,
+        "y": -1.9999997996459478,
+        "yaw": 1.5678193609606819e-06
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 51
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "position_std_m_elevated",
+          "initializing"
+        ],
+        "position_std_m": 0.37288042828803125,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.15053870500014455,
+        "odom_age_seconds": 0.026445495000189112,
+        "map_tf_age_seconds": 0.021
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 6.196,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.984976603857826,
+        "y": -1.9438666879402595,
+        "yaw": 0.0038324180580724455
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 59
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "initializing"
+        ],
+        "position_std_m": 0.32957080119884286,
+        "scan_map_agreement": 0.9875,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 1,
+        "scan_age_seconds": 0.040372278000177175,
+        "odom_age_seconds": 0.009857459000158997,
+        "map_tf_age_seconds": 0.007
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 8.2747,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9694105090263965,
+        "y": -1.928552323000262,
+        "yaw": -0.0004606774190175516
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 80
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.32957080119884286,
+        "scan_map_agreement": 0.9875,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 2,
+        "scan_age_seconds": 0.06207775699999729,
+        "odom_age_seconds": 0.013943742000037673,
+        "map_tf_age_seconds": -0.003
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 8.4834,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9694105090263965,
+        "y": -1.928552323000262,
+        "yaw": -0.0004606774190175516
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 1
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.32957080119884286,
+        "scan_map_agreement": 0.98125,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.1087684240001181,
+        "odom_age_seconds": 0.02158493900014946,
+        "map_tf_age_seconds": 0.019
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.0994,
+      "mission_state": "CANCELED",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9694105090263965,
+        "y": -1.928552323000262,
+        "yaw": -0.0004606774190175516
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 83
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.32957080119884286,
+        "scan_map_agreement": 0.98125,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.00413044899983106,
+        "odom_age_seconds": 0.007382132999964597,
+        "map_tf_age_seconds": 0.386
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.3058,
+      "mission_state": "IDLE",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9694105090263965,
+        "y": -1.928552323000262,
+        "yaw": -0.0004606774190175516
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 85
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.32957080119884286,
+        "scan_map_agreement": 0.98125,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.051112114000034126,
+        "odom_age_seconds": 0.01685018099988156,
+        "map_tf_age_seconds": 0.646
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.6628,
+      "mission_state": "IDLE",
+      "localization_state": "ACQUIRING",
+      "control": {
+        "state": "WAIT_HOLD",
+        "reason": "주행 취소·새 정지 명령 응답·위치 확인 전용 회전 허용을 기다립니다.",
+        "hold_seq": 90,
+        "hold_acknowledged": false,
+        "sweep_allowed": true
+      },
+      "pose": {
+        "x": -2.9694105090263965,
+        "y": -1.928552323000262,
+        "yaw": -0.0004606774190175516
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 89
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.32957080119884286,
+        "scan_map_agreement": 0.98125,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.10016166300010809,
+        "odom_age_seconds": 0.02738610400001562,
+        "map_tf_age_seconds": 0.886
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.8808,
+      "mission_state": "IDLE",
+      "localization_state": "ACQUIRING",
+      "control": {
+        "state": "WAIT_HOLD",
+        "reason": "주행 취소·새 정지 명령 응답·위치 확인 전용 회전 허용을 기다립니다.",
+        "hold_seq": 90,
+        "hold_acknowledged": true,
+        "sweep_allowed": true
+      },
+      "pose": {
+        "x": -2.9694105090263965,
+        "y": -1.928552323000262,
+        "yaw": -0.0004606774190175516
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 93
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "map_tf_unavailable",
+          "scan_map_check_unavailable"
+        ],
+        "position_std_m": 0.32957080119884286,
+        "scan_map_agreement": 0.98125,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.1502654270000221,
+        "odom_age_seconds": 0.0044340909998936695,
+        "map_tf_age_seconds": 1.146
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 10.0929,
+      "mission_state": "IDLE",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "WAIT_LEASE",
+        "reason": "위치 확인 전용 제어권 응답 대기 · 정지 유지",
+        "lease_seq": null,
+        "lease_acknowledged": false
+      },
+      "pose": {
+        "x": -2.972490552747038,
+        "y": -1.9413201748738098,
+        "yaw": -0.005801988615750361
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 95
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.2754321381930532,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.1968819960000019,
+        "odom_age_seconds": 0.008801065000170638,
+        "map_tf_age_seconds": 0.003
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 12.1918,
+      "mission_state": "IDLE",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 95,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.9659291900733176,
+        "y": -1.9437532531429833,
+        "yaw": 0.35016703928561754
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 115
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.21236704206084694,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.17315786300014224,
+        "odom_age_seconds": 0.01705768800002261,
+        "map_tf_age_seconds": 0.011
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 14.2507,
+      "mission_state": "IDLE",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 95,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.9498797419256824,
+        "y": -1.970863700573185,
+        "yaw": 0.7684776423894004
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 136
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.14901229854988665,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.20208918100001938,
+        "odom_age_seconds": 0.03310896000016328,
+        "map_tf_age_seconds": 0.021
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 16.3152,
+      "mission_state": "IDLE",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "LEASED",
+        "reason": "위치 확인 전용 회전 제어권 확인",
+        "lease_seq": 95,
+        "lease_acknowledged": true
+      },
+      "pose": {
+        "x": -2.958097407033903,
+        "y": -2.0011073350874438,
+        "yaw": 1.1833805138031992
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 156
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.11442117063624364,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.17768285799979822,
+        "odom_age_seconds": 0.006508271999791759,
+        "map_tf_age_seconds": -0.005
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 18.4013,
+      "mission_state": "IDLE",
+      "localization_state": "SETTLING",
+      "control": {
+        "state": "SETTLING",
+        "reason": "새 AMCL 결과·실제 정지·정상 위치 신뢰도를 확인합니다.",
+        "stationary": false,
+        "health_ready": true,
+        "hold_acknowledged": true
+      },
+      "pose": {
+        "x": -2.9898386656606077,
+        "y": -2.007251690278147,
+        "yaw": 1.6021106551808966
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 178
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.10867233523877123,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.15569076499991752,
+        "odom_age_seconds": 0.009674019999920347,
+        "map_tf_age_seconds": 0.003
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 19.4508,
+      "mission_state": "IDLE",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.987452858745034,
+        "y": -1.9939511351889194,
+        "yaw": 1.6033074448551918
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 189
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.08960952234495277,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.12753663400008008,
+        "odom_age_seconds": 0.031296423999947365,
+        "map_tf_age_seconds": 0.031
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 21.5431,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.9945595488138936,
+        "y": -1.996249226683275,
+        "yaw": 1.5986185917172944
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 210
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.08960952234495277,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 4,
+        "amcl_update_responses": 4,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.15229429400005756,
+        "odom_age_seconds": 0.013741683000034755,
+        "map_tf_age_seconds": 0.007
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 22.6261,
+      "mission_state": "NAVIGATING",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.9716365775205507,
+        "y": -1.9461411228925847,
+        "yaw": 0.9320025740303113
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 210
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "scan_unavailable"
+        ],
+        "position_std_m": 0.08343333284094642,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.5482686160000867,
+        "odom_age_seconds": 0.016615076000107365,
+        "map_tf_age_seconds": 0.001
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 22.8329,
+      "mission_state": "WAIT_REPLAN",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.965876902637033,
+        "y": -1.9319855324939756,
+        "yaw": 0.8096930308365949
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 210
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "scan_unavailable"
+        ],
+        "position_std_m": 0.08343333284094642,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.7982717530001082,
+        "odom_age_seconds": 0.024703930999976365,
+        "map_tf_age_seconds": 0.023
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 23.0412,
+      "mission_state": "WAIT_REPLAN",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.960286265836686,
+        "y": -1.9271180085487227,
+        "yaw": 0.7593187355856541
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 210
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "scan_map_check_unavailable",
+          "scan_unavailable"
+        ],
+        "position_std_m": 0.08343333284094642,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 1.0481218019999687,
+        "odom_age_seconds": 0.03357181100000162,
+        "map_tf_age_seconds": 0.026
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 23.2472,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.960286265836686,
+        "y": -1.9271180085487227,
+        "yaw": 0.7593187355856541
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 210
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "scan_map_check_unavailable",
+          "scan_unavailable"
+        ],
+        "position_std_m": 0.08343333284094642,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 1.2981827580001664,
+        "odom_age_seconds": 0.009321100000079241,
+        "map_tf_age_seconds": 0.266
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 24.0877,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.953732665463229,
+        "y": -1.9242845680774008,
+        "yaw": 0.7458782620524685
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 219
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.23068458920295207,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.0253046360001008,
+        "odom_age_seconds": 0.005399327000077392,
+        "map_tf_age_seconds": 0.005
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 26.1665,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.9470195633432223,
+        "y": -1.9210355563591581,
+        "yaw": 0.7291300632327337
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 240
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.23068458920295207,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.004661019999957716,
+        "odom_age_seconds": 0.012202261000084036,
+        "map_tf_age_seconds": -0.007
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 28.2544,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.947068330333114,
+        "y": -1.9210790514056315,
+        "yaw": 0.7291327677170386
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 261
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.23068458920295207,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.038260766999883344,
+        "odom_age_seconds": 0.03607926499989844,
+        "map_tf_age_seconds": 0.023
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 28.4639,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.9470748329559115,
+        "y": -1.921084940314865,
+        "yaw": 0.729133120362807
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 2
+      },
+      "health": {
+        "level": "critical",
+        "reasons": [
+          "operator_reset_required"
+        ],
+        "position_std_m": 0.23068458920295207,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.038260766999883344,
+        "odom_age_seconds": 0.03607926499989844,
+        "map_tf_age_seconds": 0.023
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 28.6692,
+      "mission_state": "ESTOP",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.947080037865864,
+        "y": -1.9210894901727427,
+        "yaw": 0.7291333890571224
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 2
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.23068458920295207,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.08528839599989624,
+        "odom_age_seconds": 0.008689447000051587,
+        "map_tf_age_seconds": -0.009
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 28.8738,
+      "mission_state": "CANCELED",
+      "localization_state": "SUCCEEDED",
+      "control": {
+        "state": "SUCCEEDED",
+        "reason": "라이다와 지도 대조로 위치를 확인했습니다. 임무는 일시정지 상태입니다."
+      },
+      "pose": {
+        "x": -2.9470847790348746,
+        "y": -1.9210938201448289,
+        "yaw": 0.7291336546238234
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 263
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.23068458920295207,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.1342194669998662,
+        "odom_age_seconds": 0.022588545999951748,
+        "map_tf_age_seconds": 0.013
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 28.8813,
+      "mission_state": "CANCELED",
+      "localization_state": "ACQUIRING",
+      "control": {
+        "state": "WAIT_HOLD",
+        "reason": "주행을 멈추고 새 정지 응답을 확인합니다."
+      },
+      "pose": {
+        "x": -2.9470847790348746,
+        "y": -1.9210938201448289,
+        "yaw": 0.7291336546238234
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 263
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.23068458920295207,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.1342194669998662,
+        "odom_age_seconds": 0.022588545999951748,
+        "map_tf_age_seconds": 0.013
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 29.9375,
+      "mission_state": "CANCELED",
+      "localization_state": "ROTATING",
+      "control": {
+        "state": "WAIT_LEASE",
+        "reason": "위치 확인 전용 제어권 응답 대기 · 정지 유지",
+        "lease_seq": null,
+        "lease_acknowledged": false
+      },
+      "pose": {
+        "x": -2.947087415873995,
+        "y": -1.9210962074501228,
+        "yaw": 0.7291338273479915
+      },
+      "safety": {
+        "mode": "localization",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 274
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.23068458920295207,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.12023922599996695,
+        "odom_age_seconds": 0.02283988799990766,
+        "map_tf_age_seconds": 0.755
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 30.1435,
+      "mission_state": "CANCELED",
+      "localization_state": "FAILED",
+      "control": {
+        "state": "FAILED",
+        "reason": "위치 확인 회전 허용 또는 최신 위치 감시 응답이 없어 정지합니다."
+      },
+      "pose": {
+        "x": -2.947087415873995,
+        "y": -1.9210962074501228,
+        "yaw": 0.7291338273479915
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 277
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "map_tf_unavailable",
+          "odom_tf_unavailable",
+          "scan_map_check_unavailable"
+        ],
+        "position_std_m": 0.23068458920295207,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 5,
+        "amcl_update_responses": 5,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.17019074599988926,
+        "odom_age_seconds": 0.03194815999995626,
+        "map_tf_age_seconds": 1.015
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    }
+  ],
+  "ground_truth_samples": [
+    {
+      "t": 3.8656,
+      "x": -3.000000136794487,
+      "y": -1.9999999077695172,
+      "yaw": 6.403458794300704e-08
+    },
+    {
+      "t": 4.373,
+      "x": -2.999926660506345,
+      "y": -1.9999995178102383,
+      "yaw": 1.41598063907664e-06
+    },
+    {
+      "t": 4.8767,
+      "x": -2.999955651641721,
+      "y": -1.999999424804283,
+      "yaw": 2.0236161967704064e-06
+    },
+    {
+      "t": 5.3804,
+      "x": -2.9999875774297324,
+      "y": -1.999999583175056,
+      "yaw": 2.619714367169701e-06
+    },
+    {
+      "t": 5.9321,
+      "x": -3.000001363187173,
+      "y": -1.9999994059060444,
+      "yaw": 3.2168882081563577e-06
+    },
+    {
+      "t": 6.435,
+      "x": -3.000017847789347,
+      "y": -1.9999994254331912,
+      "yaw": 4.049866094135139e-06
+    },
+    {
+      "t": 6.9455,
+      "x": -3.0000341140086437,
+      "y": -1.9999993880988471,
+      "yaw": 4.560274026637253e-06
+    },
+    {
+      "t": 7.4556,
+      "x": -3.000050587112793,
+      "y": -1.9999993630555413,
+      "yaw": 5.2205493353022546e-06
+    },
+    {
+      "t": 7.9658,
+      "x": -3.000066772376145,
+      "y": -1.9999993636863083,
+      "yaw": 5.934797746603946e-06
+    },
+    {
+      "t": 8.4732,
+      "x": -3.0000830110569696,
+      "y": -1.9999994019689487,
+      "yaw": 6.616907834967572e-06
+    },
+    {
+      "t": 8.9764,
+      "x": -3.0000993995770786,
+      "y": -1.9999993553051774,
+      "yaw": 7.264562081465392e-06
+    },
+    {
+      "t": 9.481,
+      "x": -3.0001158694366272,
+      "y": -1.9999993097340392,
+      "yaw": 7.994386156150838e-06
+    },
+    {
+      "t": 9.9888,
+      "x": -3.0001321282066966,
+      "y": -1.9999993616389888,
+      "yaw": 8.636459838341141e-06
+    },
+    {
+      "t": 10.4955,
+      "x": -3.0002772206495094,
+      "y": -2.0000114317444906,
+      "yaw": 0.06161148737041586
+    },
+    {
+      "t": 11.0041,
+      "x": -3.0004620964961184,
+      "y": -2.000047894503169,
+      "yaw": 0.1625210030074105
+    },
+    {
+      "t": 11.5041,
+      "x": -3.0006426170154734,
+      "y": -2.0001017765117233,
+      "yaw": 0.26211227218582267
+    },
+    {
+      "t": 12.0077,
+      "x": -3.000816986925165,
+      "y": -2.000173345599606,
+      "yaw": 0.36174619674592356
+    },
+    {
+      "t": 12.5126,
+      "x": -3.000983383704401,
+      "y": -2.0002623500433137,
+      "yaw": 0.4613777399438935
+    },
+    {
+      "t": 13.0206,
+      "x": -3.0011402333108372,
+      "y": -2.000367137157265,
+      "yaw": 0.5610077403247437
+    },
+    {
+      "t": 13.5229,
+      "x": -3.0012859701328902,
+      "y": -2.0004867911660105,
+      "yaw": 0.6606386646620196
+    },
+    {
+      "t": 14.029,
+      "x": -3.0014187482398795,
+      "y": -2.0006203684705555,
+      "yaw": 0.7602713334459201
+    },
+    {
+      "t": 14.5357,
+      "x": -3.0015380454657934,
+      "y": -2.000766175569445,
+      "yaw": 0.8599037037869294
+    },
+    {
+      "t": 15.0447,
+      "x": -3.001642111847483,
+      "y": -2.0009236659974166,
+      "yaw": 0.9595354428455188
+    },
+    {
+      "t": 15.5501,
+      "x": -3.0017303125563504,
+      "y": -2.0010905404648702,
+      "yaw": 1.0591672736786084
+    },
+    {
+      "t": 16.0525,
+      "x": -3.0018014734065788,
+      "y": -2.0012652362951586,
+      "yaw": 1.158801089071881
+    },
+    {
+      "t": 16.5566,
+      "x": -3.001854727398317,
+      "y": -2.0014461182769,
+      "yaw": 1.2584366982505861
+    },
+    {
+      "t": 17.0648,
+      "x": -3.001889683465913,
+      "y": -2.0016311789914623,
+      "yaw": 1.3580714839203771
+    },
+    {
+      "t": 17.5693,
+      "x": -3.0019059531555907,
+      "y": -2.0018186559839974,
+      "yaw": 1.457704331178965
+    },
+    {
+      "t": 18.0818,
+      "x": -3.00190367569136,
+      "y": -2.0020070804482955,
+      "yaw": 1.5573362421467312
+    },
+    {
+      "t": 18.5852,
+      "x": -3.001897266050602,
+      "y": -2.0021038870105543,
+      "yaw": 1.598552179764828
+    },
+    {
+      "t": 19.1026,
+      "x": -3.0018961488372744,
+      "y": -2.0021203173571944,
+      "yaw": 1.598829716705141
+    },
+    {
+      "t": 19.6034,
+      "x": -3.0018961685994086,
+      "y": -2.0021366308024295,
+      "yaw": 1.5988454985054954
+    },
+    {
+      "t": 20.11,
+      "x": -3.0018956271215216,
+      "y": -2.002152926487102,
+      "yaw": 1.598844913052767
+    },
+    {
+      "t": 20.6156,
+      "x": -3.0018950934146584,
+      "y": -2.0021692987761286,
+      "yaw": 1.598845581011745
+    },
+    {
+      "t": 21.1215,
+      "x": -3.0018945847779634,
+      "y": -2.0021856350168434,
+      "yaw": 1.5988462160653902
+    },
+    {
+      "t": 21.6318,
+      "x": -3.00189316186619,
+      "y": -2.0022013161946908,
+      "yaw": 1.5987753529666866
+    },
+    {
+      "t": 22.1358,
+      "x": -3.0005827104269764,
+      "y": -1.9986716455127491,
+      "yaw": 1.3479685824792051
+    },
+    {
+      "t": 22.6413,
+      "x": -2.972690396287333,
+      "y": -1.94380142022521,
+      "yaw": 0.8573148629635291
+    },
+    {
+      "t": 23.1492,
+      "x": -2.962845113087747,
+      "y": -1.9340142609724045,
+      "yaw": 0.7624913503497455
+    },
+    {
+      "t": 23.6613,
+      "x": -2.9628552516507396,
+      "y": -1.9340409851852562,
+      "yaw": 0.7640397243690911
+    },
+    {
+      "t": 24.2074,
+      "x": -2.9628681740454237,
+      "y": -1.9340534083075371,
+      "yaw": 0.7640368975278877
+    },
+    {
+      "t": 24.7109,
+      "x": -2.9628798879013494,
+      "y": -1.9340648129737998,
+      "yaw": 0.7640380334781278
+    },
+    {
+      "t": 25.2181,
+      "x": -2.9628916805054155,
+      "y": -1.9340761026206377,
+      "yaw": 0.7640386381365254
+    },
+    {
+      "t": 25.7238,
+      "x": -2.9629034811493278,
+      "y": -1.9340873962213394,
+      "yaw": 0.7640392634486278
+    },
+    {
+      "t": 26.2296,
+      "x": -2.962915360191984,
+      "y": -1.9340987444267128,
+      "yaw": 0.7640399999774917
+    },
+    {
+      "t": 26.734,
+      "x": -2.962927004450624,
+      "y": -1.9341099664030157,
+      "yaw": 0.764040610099436
+    },
+    {
+      "t": 27.2425,
+      "x": -2.962938830858928,
+      "y": -1.934121240477882,
+      "yaw": 0.76404130493465
+    },
+    {
+      "t": 27.7443,
+      "x": -2.962950733859315,
+      "y": -1.9341325609351439,
+      "yaw": 0.7640418888200092
+    },
+    {
+      "t": 28.2452,
+      "x": -2.9629625512505826,
+      "y": -1.9341437217312492,
+      "yaw": 0.7640424985337985
+    },
+    {
+      "t": 28.7492,
+      "x": -2.9629743473681085,
+      "y": -1.934155012217964,
+      "yaw": 0.7640432225338684
+    },
+    {
+      "t": 29.2594,
+      "x": -2.9629861291859094,
+      "y": -1.9341663689094317,
+      "yaw": 0.7640439283975294
+    },
+    {
+      "t": 29.7619,
+      "x": -2.9629978679652553,
+      "y": -1.9341777359421368,
+      "yaw": 0.7640446153988885
+    }
+  ],
+  "failure_classification": "First assisted rotation and scan-only fault recovery passed. A second assisted operation correctly failed closed after map/odom TF became stale while scan/odom messages remained fresh. Raw TF was not subscribed in this run, so publisher/discovery versus local-buffer cause cannot be determined. Subsequent verifier records /tf and permits one explicit operator retry only after fresh TF/sensors are stable; this run is not a full pass."
+}

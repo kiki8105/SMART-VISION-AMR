@@ -36,6 +36,7 @@ def setup_node():
         map_distance=object(), map_metadata=object(), map_frame='map', odom_frame='odom',
         base_frame='base_footprint', _tf=Mock(return_value=transform),
         get_clock=lambda: SimpleNamespace(now=lambda: SimpleNamespace(nanoseconds=clock['ros'])))
+    node.core.acquired = True  # These existing cases exercise already-localized tracking.
     return node, clock
 
 

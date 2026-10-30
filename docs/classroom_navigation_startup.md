@@ -10,10 +10,11 @@
 ```bash
 ssh robot@192.168.0.187
 cd ~/SMART-VISION-AMR
-ENABLE_FRONT_CAMERA=true ./scripts/robot_bringup_camera_16.sh
+./scripts/robot_bringup_camera_16.sh
 ```
 
 주소와 LiDAR·카메라 장치는 실제 로봇에 맞춥니다. 시작 후 2초 이상 정지해 IMU 바이어스를 측정합니다.
+기본은 후방 카메라이며 전방 보조 영상도 필요하면 명령 앞에 `ENABLE_FRONT_CAMERA=true`를 붙입니다.
 
 ## 터미널 2 — PC 주행
 
@@ -70,7 +71,11 @@ ps -eo pid,args | grep -E '[c]artographer_occupancy_grid_node|[c]artographer_nod
 
 ## 시작 도중 Nav2 lifecycle이 중단된 경우
 
-기본 강의실 프로필은 bond 연결에 15초를 허용합니다. 그래도 지도 서버·AMCL 시작이 실패했다면 로그를 확인하고 PC 주행 launch를 종료 후 재시작하는 것이 우선입니다. 로봇·지도·센서가 정상이고 정지 중일 때만 아래 수명주기 재시도를 사용할 수 있습니다.
+기본 강의실 프로필은 활성화 후 bond 연결에 15초를 허용합니다. `configure` 응답이 유실되어
+활성화 전 단계에서 멈춘 경우에는 bond 시간을 늘려도 해결되지 않습니다.
+지도 서버·AMCL·Nav2 시작이 실패했다면 차량을 정지시킨 상태로 PC 주행 launch를 `Ctrl+C`로
+종료하고 한 번 다시 시작하세요. 계속 실패하면 해당 로그를 보존해 통신·시각·발행자를 점검합니다.
+로봇·지도·센서가 정상이고 정지 중일 때만 아래 수명주기 재시도를 사용할 수 있습니다.
 
 ```bash
 ros2 service call /lifecycle_manager_localization/manage_nodes nav2_msgs/srv/ManageLifecycleNodes '{command: 3}'

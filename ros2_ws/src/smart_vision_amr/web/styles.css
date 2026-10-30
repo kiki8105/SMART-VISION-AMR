@@ -33,6 +33,7 @@
 /* Localization shares the map panel; new missions wait while manual input stays first. */
 .localization-control{padding:13px 16px;border-top:1px solid var(--line);background:var(--panel)}.localization-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.localization-heading>div:first-child{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.localization-heading strong{font-size:12px;font-weight:600}.localization-state{font-size:10px;color:var(--muted)}.localization-state.active{color:var(--amber)}.localization-state.success{color:var(--accent)}.localization-state.error{color:var(--red)}.localization-actions{display:flex;gap:7px}.localization-actions button{min-height:35px;font-size:11px}.localization-actions button[hidden]{display:none}.localization-actions #localization-stop{color:var(--red);border-color:var(--red)}.localization-help,.localization-reason,.localization-accuracy{margin:8px 0 0;font-size:11px;line-height:1.6;color:var(--muted)}.localization-reason{color:var(--ink)}.localization-accuracy{font-size:10px}.localization-control progress{display:block;width:100%;height:5px;margin:12px 0 0;accent-color:var(--accent)}.localization-control progress[hidden]{display:none}
 @media(max-width:560px){.localization-control{padding:12px 14px}.localization-heading{align-items:flex-start}.localization-actions button{min-height:42px}.localization-help{font-size:10px}}
+.localization-health{margin-top:11px;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;font-size:11px;line-height:1.65}.localization-health strong{font-size:11px}.localization-health p{margin:4px 0 0;color:var(--muted)}.localization-health[data-state=waiting],.localization-health[data-state=warning]{border-left-color:var(--amber)}.localization-health[data-state=stopped]{border-left-color:var(--red)}
 .camera-feed+.camera-feed{border-top:1px solid var(--line)}.camera-feed-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;background:var(--panel);font-size:11px}.camera-feed-heading strong{font-weight:600}.camera-feed .camera-view{height:155px}.camera-feed .empty-state{padding:10px;text-align:center}
 @media(max-width:560px){.camera-feed .camera-view{height:180px}}
 
@@ -51,3 +52,22 @@
 .marker-alignment.confirmed{background:var(--tint)}.marker-alignment.confirmed .marker-alignment-heading{color:var(--accent)}
 .marker-alignment.stopped .marker-alignment-heading{color:var(--red)}
 .failure-memory{grid-column:1/-1;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--soft);font-size:12px}.failure-memory strong{font-weight:600}.failure-memory-count{margin-left:10px;color:var(--muted);white-space:nowrap}.operation-summary .failure-memory p{font-size:12px;margin:6px 0}.failure-memory details{margin-top:6px}.failure-memory li{line-height:1.6;overflow-wrap:anywhere}
+.operation-actions,.startup-step-actions{display:flex;gap:8px;flex-wrap:wrap}
+.startup-recovery{margin:0 24px 18px;padding:18px;scroll-margin-top:16px}
+.startup-recovery:focus{outline:2px solid var(--accent);outline-offset:3px}
+.startup-recovery-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+#startup-recovery-close{flex-shrink:0;white-space:nowrap;min-width:44px}
+.startup-recovery-heading h2{font-size:18px}.startup-recovery-heading p,.startup-recovery-policy{font-size:12px;line-height:1.65;color:var(--muted)}
+.startup-recovery-summary{padding:10px 12px;background:var(--amberbg);color:var(--amber);border-radius:7px;font-size:13px;line-height:1.6}
+.startup-recovery-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;list-style:none;padding:0;margin:14px 0}
+.startup-recovery-steps>li{border:1px solid var(--line);border-radius:8px;padding:13px;min-width:0;font-size:12px}
+.startup-recovery-steps>li>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.startup-recovery-steps>li[data-state=ready]{border-left:3px solid var(--accent)}
+.startup-recovery-steps p{font-size:12px;line-height:1.7;color:var(--muted);overflow-wrap:anywhere;margin:8px 0}
+.startup-recovery-steps button{font-size:12px}.startup-step-state{font-size:11px;color:var(--amber)}
+.startup-recovery-steps [data-state=ready] .startup-step-state{color:var(--accent)}
+.startup-recovery-steps .checkbox{align-items:flex-start;line-height:1.6;font-size:12px}.startup-recovery-steps input{flex-shrink:0}
+.startup-recovery progress{display:block;width:100%;height:6px;accent-color:var(--accent);margin:10px 0}
+.startup-recovery-policy{border-top:1px solid var(--line);padding-top:12px;margin-bottom:0}
+.dispatch-readiness>button{margin-top:9px;font-size:12px}
+@media(max-width:650px){.startup-recovery{margin:0 16px 16px;padding:14px}.startup-recovery-steps{grid-template-columns:minmax(0,1fr)}.startup-recovery-heading{gap:10px}.startup-recovery-heading>div{min-width:0}.startup-step-actions button{flex:1;min-width:min(100%,190px)}.startup-recovery-steps button{min-height:44px}.operation-actions button{min-height:44px}}

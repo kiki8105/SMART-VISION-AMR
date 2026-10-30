@@ -5,6 +5,20 @@
     base_frame: base_footprint
     occupied_threshold: 65
     obstacle_inflation_cells: 6
+    # Nearby obstacles: repair a bounded prefix and keep the original forward suffix.
+    local_detour_enabled: true
+    local_detour_trigger_distance: 1.5  # m from robot; only blocks on the remaining route matter.
+    local_detour_max_rejoin_distance: 2.5  # m ahead along the original route.
+    local_detour_max_length: 4.0  # m; longer repairs use global A*.
+    local_detour_max_lateral_distance: 0.9  # m of lateral corridor width.
+    local_detour_clearance_margin: 0.02  # m beyond chassis radius; never reduces existing inflation.
+    local_detour_observation_margin: 0.05  # m; local planning reserve for scan/grid quantization.
+    local_detour_occlusion_extension: 0.5  # m of unseen object depth reserved locally, not map/memory.
+    local_detour_rejoin_buffer: 0.15  # m beyond the last blocked reference segment.
+    local_detour_max_expansions: 1500  # Total local A* search budget.
+    local_detour_max_planning_time: 0.06  # s, then use the global fallback.
+    local_detour_max_candidates: 10  # Forward rejoin candidates.
+    local_detour_max_attempts: 3  # Require verified rejoin before refreshing the budget.
     # Round corners only if every segment remains clear of inflated/unknown cells.
     path_smoothing_enabled: true
     path_smoothing_iterations: 2

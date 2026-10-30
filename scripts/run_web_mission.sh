@@ -77,12 +77,26 @@ if [[ ! -f "$MARKERS_FILE" ]]; then
 fi
 MARKERS_FILE=$(realpath -- "$MARKERS_FILE")
 
-# sim_env rebuilds overlay paths and selects its own default domain. Restore the
-# requested web mission domain afterwards, before any node is started.
-# It also sources dds_env.bash, matching the robot/controller transport profile.
-# shellcheck disable=SC1091
-source "$SCRIPT_DIR/sim_env.bash" "$WORKSPACE_ROOT"
-WORKSPACE_ROOT=$SMART_VISION_SIM_WORKSPACE
+# The physical web bridge needs ROS and its package overlay, not Gazebo's
+# packages or simulation-only environment. The simulation branch retains the
+# full simulator setup and then restores the requested domain below.
+if [[ "$USE_SIM_TIME" == true ]]; then
+  # shellcheck disable=SC1091
+  source "$SCRIPT_DIR/sim_env.bash" "$WORKSPACE_ROOT"
+  WORKSPACE_ROOT=$SMART_VISION_SIM_WORKSPACE
+else
+  if [[ ! -f /opt/ros/humble/setup.bash || ! -f "$WORKSPACE_ROOT/install/local_setup.bash" ]]; then
+    printf 'Web workspace is not built: %s\n' "$WORKSPACE_ROOT" >&2
+    exit 1
+  fi
+  WORKSPACE_ROOT=$(cd -- "$WORKSPACE_ROOT" && pwd)
+  unset AMENT_PREFIX_PATH CMAKE_PREFIX_PATH COLCON_PREFIX_PATH ROS_PACKAGE_PATH \
+    PYTHONPATH LD_LIBRARY_PATH
+  # shellcheck disable=SC1091
+  source /opt/ros/humble/setup.bash
+  # shellcheck disable=SC1091
+  source "$WORKSPACE_ROOT/install/local_setup.bash"
+fi
 export ROS_DOMAIN_ID="$DOMAIN_ID"
 if [[ "$USE_SIM_TIME" == true ]]; then
   export ROS_LOCALHOST_ONLY=${SMART_VISION_WEB_LOCALHOST_ONLY:-1}
@@ -95,9 +109,15 @@ if [[ "$ROS_LOCALHOST_ONLY" != 0 && "$ROS_LOCALHOST_ONLY" != 1 ]]; then
   printf 'SMART_VISION_WEB_LOCALHOST_ONLY must be 0 or 1.\n' >&2
   exit 2
 fi
-source "$SCRIPT_DIR/dds_env.bash"
+# The empty argument prevents inherited server options from being read as a
+# DDS profile path by Bash's source builtin.
+source "$SCRIPT_DIR/dds_env.bash" ""
 
 PACKAGE_PREFIX=$(ros2 pkg prefix smart_vision_amr)
+case "$PACKAGE_PREFIX" in
+  "$WORKSPACE_ROOT/install"|"$WORKSPACE_ROOT/install/"*) ;;
+  *) printf 'smart_vision_amr resolves outside the selected workspace: %s\n' "$PACKAGE_PREFIX" >&2; exit 2 ;;
+esac
 if [[ ! -x "$PACKAGE_PREFIX/lib/smart_vision_amr/web_mission_server" ]]; then
   printf 'The new web_mission_server executable is not built yet. Run once:\n' >&2
   printf '  cd %q\n' "$WORKSPACE_ROOT" >&2

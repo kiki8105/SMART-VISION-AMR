@@ -1,0 +1,110 @@
+{
+  "all_passed": true,
+  "pytest": {
+    "report": "benchmarks/startup_20261030/unit_tests.json",
+    "passed": 1377,
+    "failed": 0,
+    "skipped": 0,
+    "pytest_elapsed_seconds": 49.82,
+    "exit_code": 0
+  },
+  "cjs": {
+    "passed": 7,
+    "failed": 0,
+    "node_path": "/home/kiki/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "command": "for script in ros2_ws/src/smart_vision_amr/test/*.cjs; do /home/kiki/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node \"$script\"; done",
+    "checks": [
+      {
+        "test": "web_delivery_ui_check.cjs",
+        "passed": true,
+        "output": "PASS: dispatch blockers, loading acknowledgment, registered home restore with stale TF, active-control interlocks and reset-only API action."
+      },
+      {
+        "test": "web_failure_memory_ui_check.cjs",
+        "passed": true,
+        "output": "PASS: failure memory phases, finite TTL, sensor hold, operator priority, finished/missing status, safe read-only rendering."
+      },
+      {
+        "test": "web_joystick_app_check.cjs",
+        "passed": true,
+        "output": "PASS: operator controls locked during every manual phase; home/pause/estop retained; hold/resume badges correct; estop takes display priority."
+      },
+      {
+        "test": "web_joystick_ui_check.cjs",
+        "passed": true,
+        "output": "PASS: zero-before-ack, release-before-acquire, fresh control IDs, sequence order, 10Hz motion, direction/clamps, hidden/blur/estop release, keyboard release."
+      },
+      {
+        "test": "web_localization_ui_check.cjs",
+        "passed": true,
+        "output": "PASS: localization states, confidence values, mission interlocks, retained joystick priority, intervention buttons, start/stop API handlers and explanatory copy."
+      },
+      {
+        "test": "web_marker_alignment_ui_check.cjs",
+        "passed": true,
+        "output": "PASS: marker phases, selected camera, normalized error units, stable frame count, timeout/resume guidance, missing data, stale target and manual/estop priority."
+      },
+      {
+        "test": "web_startup_recovery_ui_check.cjs",
+        "passed": true,
+        "output": "PASS: guide opens without actuation, live blocked-step reasons, Home consent, separate seed/reset/localize actions, fresh-stop/manual/disconnect interlocks and no automatic departure."
+      }
+    ],
+    "log": "benchmarks/startup_20261030/ui_checks.log",
+    "log_sha256": "17510500e985a52547e7fecb86882bc2861b72bdd3d38e36fe42dcb4d5e95f11"
+  },
+  "shell_syntax": {
+    "passed": 31,
+    "failed": 0,
+    "files": [
+      "scripts/check_classroom_deployment.sh",
+      "scripts/check_sim.sh",
+      "scripts/check_slam.sh",
+      "scripts/dds_env.bash",
+      "scripts/install_classroom_web_service.sh",
+      "scripts/robot_bringup_camera_16.sh",
+      "scripts/robot_bringup_camera_16_baseline.sh",
+      "scripts/robot_bringup_camera_16_ekf.sh",
+      "scripts/run_classroom_controller_16.sh",
+      "scripts/run_classroom_navigation_16.sh",
+      "scripts/run_classroom_navigation_16_baseline.sh",
+      "scripts/run_classroom_navigation_16_ekf.sh",
+      "scripts/run_classroom_web_16.sh",
+      "scripts/run_curve_tuning_sim.sh",
+      "scripts/run_curve_tuning_sim_controller.sh",
+      "scripts/run_ekf_benchmark.sh",
+      "scripts/run_hardware_tuning.sh",
+      "scripts/run_hardware_tuning_controller.sh",
+      "scripts/run_sim.sh",
+      "scripts/run_sim_aruco.sh",
+      "scripts/run_sim_controller.sh",
+      "scripts/run_startup_gazebo_validation.sh",
+      "scripts/run_web_mission.sh",
+      "scripts/run_web_mission_sim.sh",
+      "scripts/save_sim_map.sh",
+      "scripts/set_classroom_home_pose_16.sh",
+      "scripts/setup_pc_runtime.sh",
+      "scripts/setup_robot_runtime.sh",
+      "scripts/setup_sim.sh",
+      "scripts/sim_env.bash",
+      "scripts/spawn_aruco.sh"
+    ],
+    "log": "benchmarks/startup_20261030/shell_syntax.log",
+    "log_sha256": "0ee09604b55517b5aa801c25d0d771c84a25f5183b3e812c44c9063aaba4df3e"
+  },
+  "package_build": {
+    "passed": true,
+    "packages_finished": 1,
+    "elapsed_seconds": 1.82,
+    "report": "benchmarks/startup_20261030/package_build.json"
+  },
+  "archived_reproducer": {
+    "passed": true,
+    "runs": 1,
+    "elapsed_ms": 15.933535999465676,
+    "expansions": 616,
+    "report": "benchmarks/startup_20261030/local_detour_replay_smoke.json"
+  },
+  "physical_robot_or_domain16_touched": false,
+  "scope": "Final software validation. Independent actual Gazebo acceptance and browser screenshots are in the separate evidence report."
+}

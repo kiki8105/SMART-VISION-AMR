@@ -6,6 +6,20 @@
     base_frame: base_footprint
     occupied_threshold: 65
     obstacle_inflation_cells: 6
+    # Local prefix repair; all static/unknown/live footprint checks still apply.
+    local_detour_enabled: true
+    local_detour_trigger_distance: 1.5
+    local_detour_max_rejoin_distance: 2.5
+    local_detour_max_length: 4.0
+    local_detour_max_lateral_distance: 0.9
+    local_detour_clearance_margin: 0.02
+    local_detour_observation_margin: 0.05  # m; local planning reserve for scan/grid quantization.
+    local_detour_occlusion_extension: 0.5
+    local_detour_rejoin_buffer: 0.15
+    local_detour_max_expansions: 1500
+    local_detour_max_planning_time: 0.06
+    local_detour_max_candidates: 10
+    local_detour_max_attempts: 3
     # Physical footprint; start-only egress never crosses raw obstacles/unknown.
     robot_radius: 0.22
     start_egress_enabled: true

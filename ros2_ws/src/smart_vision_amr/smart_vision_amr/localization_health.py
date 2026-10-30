@@ -8,6 +8,7 @@ after recovery. Scan projection uses the measurement-time transform.
 import json
 import math
 import time
+from collections import deque
 
 import numpy as np
 import rclpy
@@ -52,6 +53,78 @@ def stamp_rejection_reason(guard, stamp, now_ns):
     return 'timestamp_rejected'
 
 
+class HealthTransformListener(TransformListener):
+    """Health-only TF QoS and ingress observations, without changing TF data.
+
+    Static TF keeps TransformListener's reliable/transient-local default.
+    Dynamic receipt diagnostics never satisfy a pose or measurement-age guard;
+    the unchanged TF buffer lookup remains the sole transform input to checks.
+    """
+
+    def __init__(self, buffer, node, *, best_effort=True, map_frame='map',
+                 odom_frame='odom', base_frame='base_footprint', clock=None):
+        if type(best_effort) is not bool:
+            raise ValueError('dynamic_tf_best_effort must be boolean')
+        self.ingress_clock = clock or time.monotonic
+        self.dynamic_best_effort = best_effort
+        self.dynamic_received_count = self.dynamic_transform_count = 0
+        self.dynamic_received_at = self.dynamic_latest_stamp = None
+        self.dynamic_receive_interval = None
+        self.dynamic_links = {
+            'map_odom': (map_frame.lstrip('/'), odom_frame.lstrip('/')),
+            'odom_base': (odom_frame.lstrip('/'), base_frame.lstrip('/'))}
+        self.dynamic_link_samples = {}
+        options = {}
+        if best_effort:
+            options['qos'] = QoSProfile(depth=20, reliability=ReliabilityPolicy.BEST_EFFORT,
+                                        durability=DurabilityPolicy.VOLATILE)
+        # Omitting qos when disabled restores the installed Humble listener's
+        # original reliable depth-100 profile. Never override static_qos.
+        super().__init__(buffer, node, **options)
+
+    def callback(self, data):
+        now = self.ingress_clock()
+        self.dynamic_receive_interval = (None if self.dynamic_received_at is None
+                                         else now-self.dynamic_received_at)
+        self.dynamic_received_at = now
+        self.dynamic_received_count += 1
+        self.dynamic_transform_count += len(data.transforms)
+        for transform in data.transforms:
+            stamp = stamp_ns(transform.header)
+            self.dynamic_latest_stamp = (stamp if self.dynamic_latest_stamp is None
+                                         else max(self.dynamic_latest_stamp, stamp))
+            pair = (transform.header.frame_id.lstrip('/'), transform.child_frame_id.lstrip('/'))
+            for name, frames in self.dynamic_links.items():
+                if pair == frames:
+                    previous = self.dynamic_link_samples.get(name)
+                    self.dynamic_link_samples[name] = {
+                        'stamp': stamp, 'received': now,
+                        'count': 1 if previous is None else previous['count']+1,
+                        'interval': None if previous is None else now-previous['received']}
+        super().callback(data)
+
+    def diagnostics(self, now, ros_ns):
+        result = {
+            'dynamic_tf_qos': 'BEST_EFFORT' if self.dynamic_best_effort else 'RELIABLE',
+            'dynamic_tf_received_count': self.dynamic_received_count,
+            'dynamic_tf_transform_count': self.dynamic_transform_count,
+            'dynamic_tf_receive_age_seconds': (None if self.dynamic_received_at is None
+                                                else now-self.dynamic_received_at),
+            'dynamic_tf_receive_interval_seconds': self.dynamic_receive_interval,
+            'dynamic_tf_latest_header_age_seconds': (None if self.dynamic_latest_stamp is None
+                                                       else (ros_ns-self.dynamic_latest_stamp)/1e9)}
+        for name in self.dynamic_links:
+            sample = self.dynamic_link_samples.get(name)
+            result.update({
+                f'dynamic_tf_{name}_count': 0 if sample is None else sample['count'],
+                f'dynamic_tf_{name}_header_age_seconds': (None if sample is None
+                                                           else (ros_ns-sample['stamp'])/1e9),
+                f'dynamic_tf_{name}_receive_age_seconds': (None if sample is None
+                                                            else now-sample['received']),
+                f'dynamic_tf_{name}_receive_interval_seconds': (None if sample is None else sample['interval'])})
+        return result
+
+
 class LocalizationHealth(Node):
     SAFETY_SOURCE = 'localization_safety'
 
@@ -75,19 +148,28 @@ class LocalizationHealth(Node):
                             'jump_distance_m': 0.65, 'jump_yaw_rad': 0.8,
                             'nomotion_update_interval': 2.0,
                             'nomotion_update_trigger_age': 1.0,
-                            'nomotion_request_timeout': 1.0}.items():
+                            'nomotion_request_timeout': 1.0,
+                            'stationary_refresh_max_requests': 10,
+                            'stationary_refresh_timeout': 30.0,
+                            'agreement_tf_wait_sec': 0.20,
+                            'agreement_tf_queue_size': 10,
+                            'dynamic_tf_best_effort': True}.items():
             self.declare_parameter(name, value)
         self.base_frame = str(self.get_parameter('base_frame').value)
         self.map_frame = str(self.get_parameter('map_frame').value)
         self.odom_frame = str(self.get_parameter('odom_frame').value)
         self.tf_buffer = Buffer(node=self)
-        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.tf_listener = HealthTransformListener(self.tf_buffer, self,
+            best_effort=self.get_parameter('dynamic_tf_best_effort').value,
+            map_frame=self.map_frame, odom_frame=self.odom_frame, base_frame=self.base_frame)
         self.map_metadata = self.map_distance = None
         self.scan = self.odom = None
         self.scan_at = self.odom_at = self.amcl_at = None
         self.scan_valid = self.odom_valid = False
         self.last_received_at = {'scan': None, 'odom': None}
         self.last_received_stamp = {'scan': None, 'odom': None}
+        self.received_intervals = {'scan': None, 'odom': None}
+        self.header_intervals = {'scan': None, 'odom': None}
         self.rejected_count = {'scan': 0, 'odom': 0}
         self.rejection_reason = {'scan': '', 'odom': ''}
         self.last_rejection_reason = {'scan': '', 'odom': ''}
@@ -96,6 +178,13 @@ class LocalizationHealth(Node):
         self.previous_amcl = None
         self.jump_until = 0.0
         self.agreement = self.agreement_at = self.agreement_stamp = None
+        self.agreement_scan = self.agreement_scan_at = None
+        self.stationary_refresh_scan_stamp = None
+        self.agreement_pending = deque()
+        self.agreement_tf_state = 'WAITING_FOR_SCAN'
+        self.agreement_tf_error = ''
+        self.agreement_tf_wait_ms = None
+        self.agreement_tf_drop_count = 0
         self.last_reset_seq = {}
         self.safety_seq = 0
         self.last_estop_at = None
@@ -106,6 +195,10 @@ class LocalizationHealth(Node):
         self.last_no_motion_at = None
         self.no_motion_requests = self.no_motion_responses = self.no_motion_timeouts = 0
         self.no_motion_errors = 0
+        self.stationary_refresh_started = None
+        self.stationary_refresh_requests = 0
+        self.last_refresh_scan_stamp = None
+        self.refresh_mode, self.refresh_state = 'idle', 'WAITING_FOR_INPUTS'
         self.stamps = {name: SensorStampGuard(self.core.sensor_timeout, 0.25)
                        for name in ('scan', 'odom')}
         durable = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
@@ -120,9 +213,13 @@ class LocalizationHealth(Node):
         self.create_subscription(PoseWithCovarianceStamped, '/initialpose', self.on_initialpose, 10)
         self.create_subscription(String, '/smart_vision_amr/manual_control', self.on_control, 10)
         self.create_timer(0.25, self.on_tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
+        self.create_timer(0.05, lambda: self.update_agreement(time.monotonic()),
+                          clock=Clock(clock_type=ClockType.STEADY_TIME))
 
     def on_map(self, message):
         info = message.info
+        self.agreement_scan = self.agreement_scan_at = None
+        self.stationary_refresh_scan_stamp = None
         try:
             if (message.header.frame_id != self.map_frame or info.resolution <= 0.0
                     or not math.isfinite(info.resolution)
@@ -138,12 +235,15 @@ class LocalizationHealth(Node):
             data = np.asarray(message.data, dtype=np.int16).reshape(info.height, info.width)
             self.map_distance = occupied_distance(data, info.resolution)
             self.agreement = self.agreement_at = self.agreement_stamp = None
+            if hasattr(self, 'agreement_pending'):
+                self.agreement_pending.clear()
         except (ValueError, TypeError):
             self.map_metadata = self.map_distance = None
 
     def on_scan(self, message):
         now, ros_ns = time.monotonic(), self.get_clock().now().nanoseconds
         stamp = stamp_ns(message.header)
+        LocalizationHealth._record_receive_timing(self, 'scan', now, stamp)
         self.last_received_at['scan'], self.last_received_stamp['scan'] = now, stamp
         values = np.asarray(message.ranges, dtype=float)
         finite = np.isfinite(values) & (values >= message.range_min) & (values <= message.range_max)
@@ -163,10 +263,18 @@ class LocalizationHealth(Node):
             self.scan_valid = True
             self.scan, self.scan_at = message, now
             self.rejection_reason['scan'] = ''
+            if hasattr(self, 'agreement_pending'):
+                bound = int(LocalizationHealth._refresh_setting(self, 'agreement_tf_queue_size', 10))
+                bound = max(1, min(50, bound))
+                while len(self.agreement_pending) >= bound:
+                    self.agreement_pending.popleft()
+                    self.agreement_tf_drop_count += 1
+                self.agreement_pending.append((stamp, now, message))
 
     def on_odom(self, message):
         now, ros_ns = time.monotonic(), self.get_clock().now().nanoseconds
         stamp = stamp_ns(message.header)
+        LocalizationHealth._record_receive_timing(self, 'odom', now, stamp)
         self.last_received_at['odom'], self.last_received_stamp['odom'] = now, stamp
         issues = odometry_issues(message, base_frame=self.base_frame)
         if issues:
@@ -182,6 +290,15 @@ class LocalizationHealth(Node):
     def reject(self, name, reason):
         self.rejected_count[name] += 1
         self.rejection_reason[name] = self.last_rejection_reason[name] = str(reason)
+
+    @staticmethod
+    def _record_receive_timing(node, name, now, stamp):
+        """Keep receipt spacing separate from source clock spacing; never retime data."""
+        received = node.last_received_at[name]
+        previous = node.last_received_stamp[name]
+        if hasattr(node, 'received_intervals'):
+            node.received_intervals[name] = None if received is None else now-received
+            node.header_intervals[name] = None if previous is None else (stamp-previous)/1e9
 
     def on_amcl(self, message):
         now = time.monotonic()
@@ -233,7 +350,15 @@ class LocalizationHealth(Node):
         self.previous_amcl = None
         self.position_std = self.yaw_std = self.amcl_at = None
         self.agreement = self.agreement_at = self.agreement_stamp = None
+        self.agreement_scan = self.agreement_scan_at = None
+        self.stationary_refresh_scan_stamp = None
         self.jump_until = 0.0
+        if hasattr(self, 'agreement_pending'):
+            self.agreement_pending.clear()
+        self.stationary_refresh_started = None
+        self.stationary_refresh_requests = 0
+        self.last_refresh_scan_stamp = None
+        self.refresh_mode, self.refresh_state = 'idle', 'WAITING_FOR_INPUTS'
         self.core.reinitialize()
 
     def _tf(self, target, source, stamp=None):
@@ -241,31 +366,69 @@ class LocalizationHealth(Node):
             target, source, rclpy.time.Time() if stamp is None else rclpy.time.Time.from_msg(stamp))
 
     def update_agreement(self, now):
-        if (self.scan is None or self.map_distance is None
-                or stamp_ns(self.scan.header) == self.agreement_stamp):
+        if self.scan is None or self.map_distance is None:
             return
-        try:
+        pending = getattr(self, 'agreement_pending', None)
+        # Newer scans can continually outrun a delayed TF stream. Keep a small
+        # bounded queue and apply the newest measurement whose exact TF exists.
+        candidates = (list(pending) if pending is not None else
+                      [(stamp_ns(self.scan.header), self.scan_at, self.scan)])
+        if not candidates:
+            return
+        wait = min(.5, max(.02, LocalizationHealth._refresh_setting(
+            self, 'agreement_tf_wait_sec', .20)))
+        ros_ns = self.get_clock().now().nanoseconds
+        keep = []
+        applied = None
+        for stamp, received, scan in reversed(candidates):
+            if self.agreement_stamp is not None and stamp <= self.agreement_stamp:
+                continue
+            age = (ros_ns-stamp)/1e9
+            if (received is None or not 0 <= now-received <= self.core.sensor_timeout
+                    or not -.25 <= age <= self.core.sensor_timeout):
+                self.agreement_tf_drop_count = getattr(self, 'agreement_tf_drop_count', 0)+1
+                self.agreement_tf_state = 'SCAN_STALE_OR_CLOCK_SKEW'
+                continue
             # Both transforms correspond to exactly the laser measurement,
             # not the newest pose available when this callback is scheduled.
-            scan_time = self.scan.header.stamp
-            laser = self._tf(self.base_frame, self.scan.header.frame_id, scan_time).transform
-            robot = self._tf(self.map_frame, self.base_frame, scan_time).transform
-            if not all(math.isfinite(value) for value in (
-                    laser.translation.x, laser.translation.y,
-                    robot.translation.x, robot.translation.y)):
-                raise ValueError('nonfinite scan transform')
-            points = scan_points(self.scan, (laser.translation.x, laser.translation.y,
-                                             quaternion_yaw(laser.rotation)))
-            self.agreement = scan_map_agreement(
-                points, {'x': robot.translation.x, 'y': robot.translation.y,
-                         'yaw': quaternion_yaw(robot.rotation)},
-                self.map_metadata, self.map_distance,
-                tolerance=float(self.get_parameter('agreement_tolerance').value))
-            self.agreement_at, self.agreement_stamp = now, stamp_ns(self.scan.header)
-        except (TransformException, ValueError):
-            # Leave the previous score with its original receive time. A TF
-            # outage must age out rather than refresh a reassuring old score.
-            return
+            try:
+                scan_time = scan.header.stamp
+                laser_tf = self._tf(self.base_frame, scan.header.frame_id, scan_time)
+                robot_tf = self._tf(self.map_frame, self.base_frame, scan_time)
+                for transform in (laser_tf, robot_tf):
+                    tf_stamp = stamp_ns(transform.header)
+                    if tf_stamp and abs(tf_stamp-stamp) > 20_000_000:
+                        raise ValueError('transform does not match laser measurement time')
+                laser, robot = laser_tf.transform, robot_tf.transform
+                if not all(math.isfinite(value) for value in (
+                        laser.translation.x, laser.translation.y,
+                        robot.translation.x, robot.translation.y)):
+                    raise ValueError('nonfinite scan transform')
+                points = scan_points(scan, (laser.translation.x, laser.translation.y,
+                                           quaternion_yaw(laser.rotation)))
+                self.agreement = scan_map_agreement(
+                    points, {'x': robot.translation.x, 'y': robot.translation.y,
+                             'yaw': quaternion_yaw(robot.rotation)},
+                    self.map_metadata, self.map_distance,
+                    tolerance=float(self.get_parameter('agreement_tolerance').value))
+                self.agreement_at, self.agreement_stamp = now, stamp
+                self.agreement_scan, self.agreement_scan_at = scan, received
+                self.agreement_tf_state, self.agreement_tf_error = 'READY', ''
+                self.agreement_tf_wait_ms = (now-received)*1000.
+                applied = stamp
+                break
+            except (TransformException, ValueError) as exc:
+                self.agreement_tf_error = str(exc)[:300]
+                if now-received <= wait:
+                    keep.append((stamp, received, scan))
+                    self.agreement_tf_state = 'WAITING_FOR_MEASUREMENT_TF'
+                else:
+                    self.agreement_tf_state = 'MEASUREMENT_TF_TIMEOUT'
+                    self.agreement_tf_drop_count = getattr(self, 'agreement_tf_drop_count', 0)+1
+        if pending is not None:
+            # On success discard all older scans; they cannot improve freshness.
+            self.agreement_pending = deque(sorted(
+                (item for item in keep if applied is None or item[0] > applied), key=lambda item: item[0]))
 
     def on_tick(self):
         now, ros_ns = time.monotonic(), self.get_clock().now().nanoseconds
@@ -288,12 +451,23 @@ class LocalizationHealth(Node):
             'pose_jump': now < self.jump_until,
             'scan_map_agreement': self.agreement,
             'agreement_age_seconds': None if self.agreement_at is None else now-self.agreement_at,
-            'map_tf_age_seconds': None, 'odom_tf_valid': False,
+            'agreement_header_age_seconds': None if self.agreement_stamp is None else (ros_ns-self.agreement_stamp)/1e9,
+            'map_tf_age_seconds': None, 'odom_tf_valid': False, 'odom_tf_age_seconds': None,
+            'map_tf_lookup_error': '', 'odom_tf_lookup_error': '',
             'amcl_update_requests': self.no_motion_requests,
             'amcl_update_responses': self.no_motion_responses,
             'amcl_update_timeouts': self.no_motion_timeouts,
             'amcl_update_errors': self.no_motion_errors,
+            'scan_tf_state': self.agreement_tf_state,
+            'scan_tf_error': self.agreement_tf_error,
+            'scan_tf_wait_ms': self.agreement_tf_wait_ms,
+            'scan_tf_drop_count': self.agreement_tf_drop_count,
+            'scan_tf_pending_count': len(self.agreement_pending),
+            'amcl_refresh_mode': self.refresh_mode,
+            'amcl_refresh_state': self.refresh_state,
+            'amcl_stationary_update_requests': self.stationary_refresh_requests,
         }
+        metrics.update(self.tf_listener.diagnostics(now, ros_ns))
         for name in ('odom', 'scan'):
             received, raw_stamp = self.last_received_at[name], self.last_received_stamp[name]
             metrics.update({
@@ -302,6 +476,8 @@ class LocalizationHealth(Node):
                 f'{name}_rejected_count': self.rejected_count[name],
                 f'{name}_rejection_reason': self.rejection_reason[name],
                 f'{name}_last_rejection_reason': self.last_rejection_reason[name],
+                f'{name}_receive_interval_seconds': self.received_intervals[name],
+                f'{name}_header_interval_seconds': self.header_intervals[name],
             })
         try:
             transform = self._tf(self.map_frame, self.base_frame)
@@ -310,16 +486,20 @@ class LocalizationHealth(Node):
                     transform.transform.translation.x, transform.transform.translation.y)):
                 raise ValueError('nonfinite map TF')
             metrics['map_tf_age_seconds'] = (ros_ns-stamp_ns(transform.header))/1e9
-        except (TransformException, ValueError):
-            pass
+        except (TransformException, ValueError) as exc:
+            metrics['map_tf_lookup_error'] = str(exc)[:300]
         try:
             transform = self._tf(self.odom_frame, self.base_frame)
             quaternion_yaw(transform.transform.rotation)
             age = (ros_ns-stamp_ns(transform.header))/1e9
+            metrics['odom_tf_age_seconds'] = age
             metrics['odom_tf_valid'] = -0.25 <= age <= self.core.tf_timeout
-        except (TransformException, ValueError):
-            pass
+        except (TransformException, ValueError) as exc:
+            metrics['odom_tf_lookup_error'] = str(exc)[:300]
         status = self.core.evaluate(now, metrics)
+        if status['level'] == 'ok' and status['autonomous_allowed']:
+            self.stationary_refresh_started = None
+            self.stationary_refresh_requests = 0
         status['stamp_ns'] = ros_ns
         status['sent_at_ns'] = ros_ns
         if status['level'] != self.last_level:
@@ -341,13 +521,7 @@ class LocalizationHealth(Node):
         too. A request/response never refreshes the AMCL observation epoch;
         only ``on_amcl`` may do that. A failed service cannot stall evaluation.
         """
-        def setting(name, default):
-            getter = getattr(self, 'get_parameter', None)
-            try:
-                value = getter(name).value if callable(getter) else default
-                return float(value) if not isinstance(value, bool) and math.isfinite(value) and value > 0 else default
-            except (AttributeError, KeyError, TypeError, ValueError):
-                return default
+        setting = lambda name, default: LocalizationHealth._refresh_setting(self, name, default)
         # Never permit a runtime typo to flood AMCL or indefinitely retain a
         # pending request. The separate four-second motion watchdog is unchanged.
         interval = max(2., setting('nomotion_update_interval', 2.))
@@ -368,30 +542,144 @@ class LocalizationHealth(Node):
                 except Exception:
                     pass
                 self.no_motion_timeouts = getattr(self, 'no_motion_timeouts', 0)+1
+                self.refresh_state = 'TIMEOUT'
             elif callable(getattr(future, 'result', None)):
                 try:
                     future.result()
                     self.no_motion_responses = getattr(self, 'no_motion_responses', 0)+1
+                    self.refresh_state = 'RESPONDED'
                 except Exception:
                     self.no_motion_errors = getattr(self, 'no_motion_errors', 0)+1
             self.no_motion_future = None
             self.no_motion_started_at = None
         if (self.scan is None or self.map_distance is None
-                or self.scan_at is None or now-self.scan_at > self.core.sensor_timeout
-                or (self.last_no_motion_at is not None and now-self.last_no_motion_at < interval)
-                or not self.no_motion_client.service_is_ready()):
+                or self.scan_at is None or not 0 <= now-self.scan_at <= self.core.sensor_timeout
+                or (self.last_no_motion_at is not None and now-self.last_no_motion_at < interval)):
             return
-        if self.position_std is not None and not LocalizationHealth._moving_update_ready(self, now, trigger_age):
+        if not self.no_motion_client.service_is_ready():
+            self.refresh_state = 'SERVICE_UNAVAILABLE'
+            return
+        mode = 'bootstrap'
+        if self.position_std is not None:
+            if LocalizationHealth._stationary_update_ready(self, now, trigger_age):
+                mode = 'stationary'
+                maximum = max(1, min(30, int(setting('stationary_refresh_max_requests', 10))))
+                timeout = max(2., min(60., setting('stationary_refresh_timeout', 30.)))
+                started = getattr(self, 'stationary_refresh_started', None)
+                count = getattr(self, 'stationary_refresh_requests', 0)
+                if count >= maximum or (started is not None and now-started >= timeout):
+                    self.refresh_mode, self.refresh_state = mode, 'STATIONARY_LIMIT_REACHED'
+                    return
+            elif LocalizationHealth._moving_update_ready(self, now, trigger_age):
+                mode = 'moving'
+            else:
+                self.refresh_state = 'WAITING_FOR_MOTION_OR_ACQUISITION'
+                return
+        scan_stamp = (self.stationary_refresh_scan_stamp if mode == 'stationary'
+                      else stamp_ns(self.scan.header))
+        if scan_stamp <= (getattr(self, 'last_refresh_scan_stamp', None) or 0):
+            self.refresh_state = 'WAITING_FOR_NEW_SCAN'
             return
         self.last_no_motion_at = now
         try:
             self.no_motion_future = self.no_motion_client.call_async(Empty.Request())
             self.no_motion_started_at = now
             self.no_motion_requests = getattr(self, 'no_motion_requests', 0)+1
+            self.last_refresh_scan_stamp = scan_stamp
+            self.refresh_mode, self.refresh_state = mode, 'REQUESTED'
+            if mode == 'stationary':
+                if getattr(self, 'stationary_refresh_started', None) is None:
+                    self.stationary_refresh_started = now
+                self.stationary_refresh_requests = getattr(self, 'stationary_refresh_requests', 0)+1
         except Exception:
             self.no_motion_future = None
             self.no_motion_started_at = None
             self.no_motion_errors = getattr(self, 'no_motion_errors', 0)+1
+            self.refresh_state = 'REQUEST_FAILED'
+
+    @staticmethod
+    def _refresh_setting(node, name, default):
+        getter = getattr(node, 'get_parameter', None)
+        try:
+            value = getter(name).value if callable(getter) else default
+            return float(value) if not isinstance(value, bool) and math.isfinite(value) and value > 0 else default
+        except (AttributeError, KeyError, TypeError, ValueError):
+            return default
+
+    def _stationary_update_ready(self, now, trigger_age=1.):
+        """Refresh uncertain acquisition from fresh scans without issuing motion.
+
+        A filter service response never edits covariance, confirms a pose, or
+        releases a safety latch. Already healthy idle tracking stays idle.
+        """
+        self.stationary_refresh_scan_stamp = None
+        acquiring = not getattr(self.core, 'acquired', True)
+        elevated = (self.position_std >= self.core.position_warning
+                    or (self.yaw_std is not None and self.yaw_std >= self.core.yaw_warning))
+        if not acquiring and not elevated:
+            return False
+        if not LocalizationHealth._refresh_evidence_ready(self, now, trigger_age):
+            return False
+        twist = self.odom.twist.twist
+        if abs(twist.linear.x) > .015 or abs(twist.angular.z) > .05:
+            return False
+        # The newest arrival may repeatedly outrun TF. A recent measurement
+        # already checked by the bounded agreement queue is also valid evidence;
+        # retain its actual receipt/header and consume that proof's sequence.
+        candidates = [(self.scan, self.scan_at),
+                      (getattr(self, 'agreement_scan', None),
+                       getattr(self, 'agreement_scan_at', None))]
+        ros_ns = self.get_clock().now().nanoseconds
+        for scan, received in candidates:
+            if (scan is None or received is None
+                    or not 0 <= now-received <= self.core.sensor_timeout
+                    or not -.25 <= (ros_ns-stamp_ns(scan.header))/1e9 <= self.core.sensor_timeout):
+                continue
+            try:
+                for target in (self.base_frame, self.map_frame):
+                    source = scan.header.frame_id if target == self.base_frame else self.base_frame
+                    stamped = self._tf(target, source, scan.header.stamp)
+                    quaternion_yaw(stamped.transform.rotation)
+                    if not all(math.isfinite(value) for value in (
+                            stamped.transform.translation.x, stamped.transform.translation.y)):
+                        raise ValueError('nonfinite measurement transform')
+                    tf_stamp = stamp_ns(stamped.header)
+                    if tf_stamp and abs(tf_stamp-stamp_ns(scan.header)) > 20_000_000:
+                        raise ValueError('transform does not match measurement time')
+                self.stationary_refresh_scan_stamp = stamp_ns(scan.header)
+                return True
+            except (TransformException, ValueError, AttributeError):
+                continue
+        return False
+
+    def _refresh_evidence_ready(self, now, trigger_age):
+        amcl_at, amcl_stamp = getattr(self, 'amcl_at', None), getattr(self, 'last_amcl_stamp_ns', None)
+        odom, odom_at = getattr(self, 'odom', None), getattr(self, 'odom_at', None)
+        if (amcl_at is None or not 0 <= now-amcl_at or now-amcl_at < trigger_age
+                or amcl_stamp is None or odom is None or odom_at is None
+                or not 0 <= now-odom_at <= self.core.sensor_timeout
+                or not getattr(self, 'scan_valid', False) or not getattr(self, 'odom_valid', False)):
+            return False
+        ros_ns = self.get_clock().now().nanoseconds
+        if (ros_ns <= 0 or ros_ns-amcl_stamp < trigger_age*1e9
+                or self.scan_at is None or not 0 <= now-self.scan_at <= self.core.sensor_timeout):
+            return False
+        for sample in (self.scan, odom):
+            if not -.25 <= (ros_ns-stamp_ns(sample.header))/1e9 <= self.core.sensor_timeout:
+                return False
+        if not all(math.isfinite(value) for value in (
+                odom.twist.twist.linear.x, odom.twist.twist.angular.z)):
+            return False
+        try:
+            transform = self._tf(self.odom_frame, self.base_frame)
+            quaternion_yaw(transform.transform.rotation)
+            age = (ros_ns-stamp_ns(transform.header))/1e9
+            if (not -.25 <= age <= self.core.tf_timeout or not all(math.isfinite(value) for value in (
+                    transform.transform.translation.x, transform.transform.translation.y))):
+                return False
+        except (TransformException, ValueError, AttributeError):
+            return False
+        return True
 
     def _moving_update_ready(self, now, trigger_age=1.):
         """Only healthy, measured slow motion can request periodic AMCL work."""

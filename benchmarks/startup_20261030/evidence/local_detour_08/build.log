@@ -1,0 +1,180 @@
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/bases/waffle_pi_base.stl
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/burger_base.dae
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/lds.dae
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/r200.dae
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/sensors/astra.dae
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/sensors/astra.jpg
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/sensors/lds.stl
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/sensors/r200.dae
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/sensors/r200.jpg
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/tire.dae
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/waffle_base.dae
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/waffle_pi_base.dae
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/wheels/left_tire.stl
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/meshes/wheels/right_tire.stl
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_common/model.config
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/goal_box/model.config
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/goal_box/model.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/inner_walls/model.config
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/inner_walls/model.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/model.config
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/model.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/obstacle1/model.config
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/obstacle1/model.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/obstacle2/model.config
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/obstacle2/model.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/obstacles/model.config
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_dqn_world/obstacles/model.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_house/model.config
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_house/model.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_waffle/model-1_4.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_waffle/model.config
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_waffle/model.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_waffle_pi/model-1_4_.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_waffle_pi/model.config
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_waffle_pi/model.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_world/meshes/hexagon.dae
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_world/meshes/wall.dae
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_world/model-1_4.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_world/model.config
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//models/turtlebot3_world/model.sdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//rviz/tb3_gazebo.rviz
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//urdf/common_properties.urdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//urdf/turtlebot3_burger.urdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//urdf/turtlebot3_burger_cam.urdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//urdf/turtlebot3_waffle.urdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//urdf/turtlebot3_waffle_pi.urdf
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//worlds/empty_world.world
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//worlds/turtlebot3_autorace_2020.world
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//worlds/turtlebot3_dqn_stage1.world
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//worlds/turtlebot3_dqn_stage2.world
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//worlds/turtlebot3_dqn_stage3.world
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//worlds/turtlebot3_dqn_stage4.world
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//worlds/turtlebot3_house.world
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo//worlds/turtlebot3_world.world
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/include//turtlebot3_gazebo/obstacle1.hpp
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/include//turtlebot3_gazebo/obstacle2.hpp
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/include//turtlebot3_gazebo/obstacles.hpp
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/include//turtlebot3_gazebo/traffic_bar_plugin.hpp
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/include//turtlebot3_gazebo/traffic_light_plugin.hpp
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/include//turtlebot3_gazebo/turtlebot3_drive.hpp
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/ament_index/resource_index/package_run_dependencies/turtlebot3_gazebo
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/ament_index/resource_index/parent_prefix_path/turtlebot3_gazebo
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/environment/ament_prefix_path.sh
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/environment/ament_prefix_path.dsv
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/environment/path.sh
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/environment/path.dsv
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/local_setup.bash
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/local_setup.sh
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/local_setup.zsh
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/local_setup.dsv
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/package.dsv
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/ament_index/resource_index/packages/turtlebot3_gazebo
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/cmake/ament_cmake_export_include_directories-extras.cmake
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/cmake/ament_cmake_export_dependencies-extras.cmake
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/cmake/turtlebot3_gazeboConfig.cmake
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/cmake/turtlebot3_gazeboConfig-version.cmake
+-- Symlinking: /tmp/smart_vision_startup186.Ra6wfr/install/turtlebot3_gazebo/share/turtlebot3_gazebo/package.xml
+--- stderr: turtlebot3_gazebo
+CMake Warning (dev) at /usr/share/cmake-3.22/Modules/FindPackageHandleStandardArgs.cmake:438 (message):
+  The package name passed to `find_package_handle_standard_args` (PkgConfig)
+  does not match the name of the calling package (gazebo).  This can lead to
+  problems in calling code that expects `find_package` result variables
+  (e.g., `_FOUND`) to follow a certain pattern.
+Call Stack (most recent call first):
+  /usr/share/cmake-3.22/Modules/FindPkgConfig.cmake:99 (find_package_handle_standard_args)
+  /usr/lib/x86_64-linux-gnu/cmake/gazebo/gazebo-config.cmake:72 (include)
+  CMakeLists.txt:23 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+---
+Finished <<< turtlebot3_gazebo [24.3s]
+Starting >>> smart_vision_amr
+running develop
+running egg_info
+creating smart_vision_amr.egg-info
+writing smart_vision_amr.egg-info/PKG-INFO
+writing dependency_links to smart_vision_amr.egg-info/dependency_links.txt
+writing entry points to smart_vision_amr.egg-info/entry_points.txt
+writing requirements to smart_vision_amr.egg-info/requires.txt
+writing top-level names to smart_vision_amr.egg-info/top_level.txt
+writing manifest file 'smart_vision_amr.egg-info/SOURCES.txt'
+reading manifest file 'smart_vision_amr.egg-info/SOURCES.txt'
+writing manifest file 'smart_vision_amr.egg-info/SOURCES.txt'
+running build_ext
+Creating /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/python3.10/site-packages/smart-vision-amr.egg-link (link to .)
+Installing astar_planner script to /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/smart_vision_amr
+Installing change_memory script to /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/smart_vision_amr
+Installing command_stamper script to /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/smart_vision_amr
+Installing ekf_sensor_guard script to /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/smart_vision_amr
+Installing flight_recorder script to /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/smart_vision_amr
+Installing imu_ekf_conditioner script to /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/smart_vision_amr
+Installing localization_health script to /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/smart_vision_amr
+Installing motion_mux script to /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/smart_vision_amr
+Installing path_follower script to /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/smart_vision_amr
+Installing web_mission_server script to /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/smart_vision_amr
+Installing wheel_joint_odometry script to /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/lib/smart_vision_amr
+
+Installed /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr
+running symlink_data
+creating /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/ament_index
+creating /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/ament_index/resource_index
+creating /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/ament_index/resource_index/packages
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/resource/smart_vision_amr -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/ament_index/resource_index/packages
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/package.xml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr
+creating /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/launch
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/launch/hardware.launch.py -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/launch
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/launch/hardware_robot_ekf.launch.py -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/launch
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/launch/hardware_robot_runtime.launch.py -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/launch
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/launch/simulation.launch.py -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/launch
+creating /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/slam_simulation.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/nodes.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/ekf_hardware.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/ekf_overlay.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/curve_tuning_simulation.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/classroom_floorplan.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/curve_tuning_waffle_pi.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/simulation.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/localization_health.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/curve_tuning_simulation_nodes.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/gazebo_clock.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/aruco_classroom_markers.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/ekf_independent.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/classroom_hardware_nodes.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/simulation_nodes.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/aruco_mission_markers.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/flight_recorder.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/dds_udp.xml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/config/dds_udp_localhost.xml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/config
+creating /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/maps
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/maps/classroom_map.pgm -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/maps
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/maps/maze_aruco_20261026.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/maps
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/maps/classroom_20261027_cleaned.pgm -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/maps
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/maps/maze_aruco_20261026_preview.png -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/maps
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/maps/maze_aruco_20261026.pgm -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/maps
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/maps/simulation_room.pgm -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/maps
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/maps/classroom_map.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/maps
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/maps/classroom_20261027_cleaned.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/maps
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/maps/simulation_room.yaml -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/maps
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/maps/maze_aruco_20261026_mapping_info.json -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/maps
+creating /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/worlds
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/worlds/simulation_maze_aruco.world -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/worlds
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/worlds/simulation_room.world -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/worlds
+creating /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/rviz
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/rviz/simulation.rviz -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/rviz
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/rviz/minimal.rviz -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/rviz
+creating /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/web
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/web/app.js -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/web
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/web/index.html -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/web
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/web/joystick.js -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/web
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/web/styles.css -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/web
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/web/inventory.css -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/web
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/web/favicon.svg -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/web
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/web/power.js -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/web
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/web/inventory.js -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/web
+symbolically linking /tmp/smart_vision_startup186.Ra6wfr/build/smart_vision_amr/web/inventory.html -> /tmp/smart_vision_startup186.Ra6wfr/install/smart_vision_amr/share/smart_vision_amr/web
+Finished <<< smart_vision_amr [1.96s]
+
+Summary: 4 packages finished [26.7s]
+  1 package had stderr output: turtlebot3_gazebo

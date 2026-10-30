@@ -1,0 +1,30 @@
+{
+  "budget_ms": 60.0,
+  "contended": false,
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "expansions": [
+    616
+  ],
+  "implementation_sha256": "7a7b952851cfb985477371a72cee416391d0d395be83c6422c5c8f9e4f21dc3b",
+  "input_sha256": "9381015b8b310bd1fca383d6a2cc378c3bad97cb22ae4fe85a950a1050b42e84",
+  "max_ms": 15.933535999465676,
+  "median_cpu_ms": 16.04707800000016,
+  "median_ms": 15.933535999465676,
+  "p95_ms": 15.933535999465676,
+  "reasons": {
+    "local_detour_ready": 1
+  },
+  "replays": 1,
+  "successful_path_hashes": [
+    "84192d3045befda55272a450307e4f4ca1fe06f3d90dbcfd65dc9055997308b4"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "domain": 186,
+  "read_only": true,
+  "duration_limit_seconds": 60,
+  "scope": "Extra observer started after box insertion; evidence for the later TF/projection gap only, not the initial insertion phase or local04.",
+  "counts": {
+    "started": 1,
+    "clock": 37,
+    "raw_scan": 36,
+    "forward_scan": 32,
+    "observed": 17,
+    "projection": 31,
+    "finished": 1
+  },
+  "script_sha256": "94b841b5300659ff9bcd0aca68b65c546005e5f0cb56c3c5d82d6c779ea65386",
+  "stream_sha256": "ec714e330f0d5760cb75475921f202608c9a8cd7ee0e1fd250610befc33a9c5a",
+  "max_wall_receive_gap_seconds": {
+    "clock": 0.22387435099972208,
+    "raw_scan": 0.23038794700005383,
+    "forward_scan": 0.2300701960002698,
+    "observed": 1.9522128109997539
+  },
+  "projection_during_tf_gap": {
+    "first": {
+      "kind": "projection",
+      "wall_monotonic_ns": 3689583703072,
+      "elapsed": 2.5299159099999997,
+      "ros_ns": 19020000000,
+      "payload": {
+        "status": "PENDING_TF",
+        "reason": "waiting_for_measurement_transform",
+        "scan_stamp_ns": 19029000000,
+        "scan_age_ms": -9.0,
+        "tf_skew_ms": null,
+        "queue_depth": 1,
+        "valid_scans": 85,
+        "dropped_scans": 9
+      }
+    },
+    "last": {
+      "kind": "projection",
+      "wall_monotonic_ns": 3694364028596,
+      "elapsed": 7.310241181000038,
+      "ros_ns": 23740000000,
+      "payload": {
+        "status": "PENDING_TF",
+        "reason": "waiting_for_measurement_transform",
+        "scan_stamp_ns": 23629000000,
+        "scan_age_ms": 111.0,
+        "tf_skew_ms": null,
+        "queue_depth": 1,
+        "valid_scans": 100,
+        "dropped_scans": 17
+      }
+    },
+    "steady_callbacks_while_scan_projection_dropped": true
+  }
+}

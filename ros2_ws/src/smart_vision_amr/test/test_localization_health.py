@@ -279,16 +279,18 @@ def test_duplicate_amcl_header_does_not_refresh_update_epoch():
 def test_missing_amcl_covariance_requests_bounded_filter_updates_without_motion():
     requests = []
     node = SimpleNamespace(
-        no_motion_future=None, position_std=None, scan=object(), map_distance=object(),
-        scan_at=10.0, core=SimpleNamespace(sensor_timeout=1.0), last_no_motion_at=None,
+        no_motion_future=None, position_std=None, yaw_std=.1, scan=LaserScan(), map_distance=object(),
+        scan_at=10.0, core=LocalizationHealthCore(sensor_timeout=1.0), last_no_motion_at=None,
         no_motion_client=SimpleNamespace(
             service_is_ready=lambda: True,
             call_async=lambda request: requests.append(request) or SimpleNamespace(done=lambda: True)))
+    node.scan.header.stamp.sec = 10
     LocalizationHealth.request_initial_covariance(node, 10.1)
     assert len(requests) == 1
     LocalizationHealth.request_initial_covariance(node, 10.5)
     assert len(requests) == 1
     node.scan_at = 12.2
+    node.scan.header.stamp.sec = 12
     LocalizationHealth.request_initial_covariance(node, 12.2)
     assert len(requests) == 2
     node.position_std = 0.1

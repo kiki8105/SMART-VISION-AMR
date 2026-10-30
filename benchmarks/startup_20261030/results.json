@@ -1,0 +1,533 @@
+{
+  "passed": true,
+  "physical_vehicle_or_domain16_touched": false,
+  "isolation": {
+    "domain": 186,
+    "localhost_only": 1,
+    "gazebo_master_uri": "http://127.0.0.1:11586",
+    "web_url": "http://127.0.0.1:8796"
+  },
+  "current_runtime_sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/assisted_localization.py": "e0b32fa2613f56dff8344d03b2c1c69c031c82e838934b7435ffa6b3ee7f0930",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "5fa8888478d183cfe19131559259fd5c9f13454f4947539eb5c5c3c87da19398",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/local_detour.py": "7a7b952851cfb985477371a72cee416391d0d395be83c6422c5c8f9e4f21dc3b",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/localization_health.py": "e5c24d21ba52746bab9b9aa5ec014094c1510589ef1f5b02bd586e54cae2a00b",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/localization_health_math.py": "a60fe8925f0626e4273195268bbdd4eff837660f9457c3e58bca55e56a084ab6",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/marker_alignment.py": "607283eaf0911ec4e177060e8166aa78d5e4118290dbddc8438140b20ae99832",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/wall_alignment.py": "494bf8d41545b24812bd0ec8557ebc49c6f5c251c1cdd1ff700f7e2e2461e649",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py": "18cca91965119f7b99688e6c0de1d1ab77bbed3800142c73d64d298997214225",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": "3c1aa25343614e49790474683852df29d478798c19150c0aaba5524a47f422fd",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": "79293200bb518f848cbcae1e8abb58f8cc9db2776c590c1d77023deffc9a2dd4",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/operation_status.py": "125fb191d983e4da747b35b3fea2ab1db2e8b69e3942de1d7030a6346ade28bc",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/delivery_service.py": "c7b03bdae6c27c6d2a31ca62500303854f5633845bffe56750b74a9b42e4a269",
+    "ros2_ws/src/smart_vision_amr/launch/simulation.launch.py": "599572fd09b1dc521d252e5b63a840ec0cb602fd7558840aacb07637c3e2eb21",
+    "ros2_ws/src/smart_vision_amr/launch/hardware.launch.py": "f32c51d3e03905277876f91eeae0105511d540b3f9ec5cb58282370926499364",
+    "ros2_ws/src/smart_vision_amr/config/nodes.yaml": "761fffad3e53a13b9b86cdb7626315eafb259f11e4903db756c422ba70804e23",
+    "ros2_ws/src/smart_vision_amr/config/simulation_nodes.yaml": "5d6f858885c54e75373e659909dc448120e56da6247d82985db0d6d70138ae65",
+    "ros2_ws/src/smart_vision_amr/config/curve_tuning_simulation_nodes.yaml": "731e23724389ca6cf91367447cc736942f061008717e61bea3c5d6a7d7d6d7ec",
+    "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": "999f652e1e421015f636f6a3e775d038b743f710744d57bdf30c79576ea391e8",
+    "ros2_ws/src/smart_vision_amr/config/localization_health.yaml": "8c65fa2b6e3aa60f4fa19aa7a5e03333eeaf661a4781ceb3bb14203b6453dd0a",
+    "ros2_ws/src/smart_vision_amr/config/aruco_classroom_markers.yaml": "b566b6c27e5b750a745dc1e2e68018384c90662727483860b80a40ec93903970",
+    "ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml": "502579cc10d69224b3fbb339a78343883c64f4496fdcc7183fa3a7ee14cea25e",
+    "ros2_ws/src/smart_vision_amr/web/app.js": "80e28ffeaefb6e1cd3eaffe6b2adae0bf4d8448eaaf3513794084529bfd38b71",
+    "ros2_ws/src/smart_vision_amr/web/index.html": "34fb14ca4fe04e87190ec6a2c962d3f30a1dca7342c8f55d85d0bd6959004cd8",
+    "ros2_ws/src/smart_vision_amr/web/styles.css": "877818037d56becfbe299838ff1f54a0ed213f3e74e5c8d49badf6dad42a0734"
+  },
+  "passed_runs": [
+    {
+      "run": "baseline_suite_05",
+      "passed": true,
+      "result": "evidence/baseline_suite_05/result.json",
+      "source_manifest": "evidence/baseline_suite_05/source_manifest.json",
+      "duration_seconds": 64.2571,
+      "assertions_passed": 30,
+      "runtime_differences_from_current": {
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/assisted_localization.py": {
+          "tested": "655ff4fc3182ea04ea9e22c1106eff85cd49b255ab31128f102a4ad4e206f234",
+          "current": "e0b32fa2613f56dff8344d03b2c1c69c031c82e838934b7435ffa6b3ee7f0930"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": {
+          "tested": "0a285fafec79b2035a16496b508e67729d64cf3bfc7c6b182ff20b29f7037955",
+          "current": "5fa8888478d183cfe19131559259fd5c9f13454f4947539eb5c5c3c87da19398"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/local_detour.py": {
+          "tested": null,
+          "current": "7a7b952851cfb985477371a72cee416391d0d395be83c6422c5c8f9e4f21dc3b"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/localization_health.py": {
+          "tested": "69656abde35bbe7b791a51eb8c8855b65526e78038c88ddf113118db64257996",
+          "current": "e5c24d21ba52746bab9b9aa5ec014094c1510589ef1f5b02bd586e54cae2a00b"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": {
+          "tested": "24b0cbed608fe77e5aee21d9927c4d57b228759c28406aeef467fb5d190f80bc",
+          "current": "3c1aa25343614e49790474683852df29d478798c19150c0aaba5524a47f422fd"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": {
+          "tested": "6d4833b451545742fb158a7a87a863e2160c9479a7f4f36699aa62aa15add52e",
+          "current": "79293200bb518f848cbcae1e8abb58f8cc9db2776c590c1d77023deffc9a2dd4"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/operation_status.py": {
+          "tested": "36951ea116e6a75d2c142a70fea02f62f3977394b4b804951f3942c906049dfe",
+          "current": "125fb191d983e4da747b35b3fea2ab1db2e8b69e3942de1d7030a6346ade28bc"
+        },
+        "ros2_ws/src/smart_vision_amr/launch/simulation.launch.py": {
+          "tested": "89ffe349149f5916d2b735e1f876f88b75a579b0e7e73ad6e85510212fcde603",
+          "current": "599572fd09b1dc521d252e5b63a840ec0cb602fd7558840aacb07637c3e2eb21"
+        },
+        "ros2_ws/src/smart_vision_amr/launch/hardware.launch.py": {
+          "tested": "512a57b9b57533a7ca1fa0e6eb8623d814e9b47dba69ee499520f3d0967b02cf",
+          "current": "f32c51d3e03905277876f91eeae0105511d540b3f9ec5cb58282370926499364"
+        },
+        "ros2_ws/src/smart_vision_amr/config/nodes.yaml": {
+          "tested": "dc1da2e10a619899a88982e1bea73d0cb1ba9dffc9bbdea191b4dcc638e58d8f",
+          "current": "761fffad3e53a13b9b86cdb7626315eafb259f11e4903db756c422ba70804e23"
+        },
+        "ros2_ws/src/smart_vision_amr/config/simulation_nodes.yaml": {
+          "tested": "2cc438d394e7ebdfd066c99e327b0372433bf20a4e565072c4cb135ba7995b9c",
+          "current": "5d6f858885c54e75373e659909dc448120e56da6247d82985db0d6d70138ae65"
+        },
+        "ros2_ws/src/smart_vision_amr/config/curve_tuning_simulation_nodes.yaml": {
+          "tested": "b34d2eeefeb95a3dea078b16d13333cc56a3216b67fa5e5a0f6f8b12058bf0a1",
+          "current": "731e23724389ca6cf91367447cc736942f061008717e61bea3c5d6a7d7d6d7ec"
+        },
+        "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": {
+          "tested": "ca747fdfabb23e69b4b1e6f89f170161b0908cea4e2f563ca40c951e7d3b1e84",
+          "current": "999f652e1e421015f636f6a3e775d038b743f710744d57bdf30c79576ea391e8"
+        },
+        "ros2_ws/src/smart_vision_amr/config/localization_health.yaml": {
+          "tested": "b98ed75b69e1b1df394c0f8626a90581ea061468666843406519601fc074b94e",
+          "current": "8c65fa2b6e3aa60f4fa19aa7a5e03333eeaf661a4781ceb3bb14203b6453dd0a"
+        },
+        "ros2_ws/src/smart_vision_amr/web/app.js": {
+          "tested": "79b91c9468e8f525b074d6b75b5ba577a63fe763b1606fface8ae54e14b6f8c5",
+          "current": "80e28ffeaefb6e1cd3eaffe6b2adae0bf4d8448eaaf3513794084529bfd38b71"
+        },
+        "ros2_ws/src/smart_vision_amr/web/index.html": {
+          "tested": "19abad5bbd09990f79116642648f15255b2693ae8cb9a8dabd5771325672a1c0",
+          "current": "34fb14ca4fe04e87190ec6a2c962d3f30a1dca7342c8f55d85d0bd6959004cd8"
+        },
+        "ros2_ws/src/smart_vision_amr/web/styles.css": {
+          "tested": "07d30e4ccdbef8988153aee8a88c25f89f802b6d91d8e7026d15188789d4aa3f",
+          "current": "877818037d56becfbe299838ff1f54a0ed213f3e74e5c8d49badf6dad42a0734"
+        }
+      },
+      "actual_gazebo_final_goal_distance_m": 0.2689345909638695,
+      "primary_acceptance": false,
+      "version_scope": "Historical successful baseline superseded by baseline06 plus final no-prior Home02; old helper did not return Home heading."
+    },
+    {
+      "run": "ekf_navigation_01",
+      "passed": true,
+      "result": "evidence/ekf_navigation_01/result.json",
+      "source_manifest": "evidence/ekf_navigation_01/source_manifest.json",
+      "duration_seconds": 19.0171,
+      "assertions_passed": 1,
+      "runtime_differences_from_current": {
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/assisted_localization.py": {
+          "tested": "655ff4fc3182ea04ea9e22c1106eff85cd49b255ab31128f102a4ad4e206f234",
+          "current": "e0b32fa2613f56dff8344d03b2c1c69c031c82e838934b7435ffa6b3ee7f0930"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": {
+          "tested": "0a285fafec79b2035a16496b508e67729d64cf3bfc7c6b182ff20b29f7037955",
+          "current": "5fa8888478d183cfe19131559259fd5c9f13454f4947539eb5c5c3c87da19398"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/local_detour.py": {
+          "tested": null,
+          "current": "7a7b952851cfb985477371a72cee416391d0d395be83c6422c5c8f9e4f21dc3b"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/localization_health.py": {
+          "tested": "69656abde35bbe7b791a51eb8c8855b65526e78038c88ddf113118db64257996",
+          "current": "e5c24d21ba52746bab9b9aa5ec014094c1510589ef1f5b02bd586e54cae2a00b"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": {
+          "tested": "24b0cbed608fe77e5aee21d9927c4d57b228759c28406aeef467fb5d190f80bc",
+          "current": "3c1aa25343614e49790474683852df29d478798c19150c0aaba5524a47f422fd"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": {
+          "tested": "fc600fe7a863fcee04eb1fd671b3055a142657ceff2a4aff7dbebc7673b24626",
+          "current": "79293200bb518f848cbcae1e8abb58f8cc9db2776c590c1d77023deffc9a2dd4"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/operation_status.py": {
+          "tested": "b8755f2d4379235fcd9f83b27f84cd6c2d7f9021b2f338eac0f5af60f4bda4b1",
+          "current": "125fb191d983e4da747b35b3fea2ab1db2e8b69e3942de1d7030a6346ade28bc"
+        },
+        "ros2_ws/src/smart_vision_amr/launch/simulation.launch.py": {
+          "tested": "89ffe349149f5916d2b735e1f876f88b75a579b0e7e73ad6e85510212fcde603",
+          "current": "599572fd09b1dc521d252e5b63a840ec0cb602fd7558840aacb07637c3e2eb21"
+        },
+        "ros2_ws/src/smart_vision_amr/launch/hardware.launch.py": {
+          "tested": "512a57b9b57533a7ca1fa0e6eb8623d814e9b47dba69ee499520f3d0967b02cf",
+          "current": "f32c51d3e03905277876f91eeae0105511d540b3f9ec5cb58282370926499364"
+        },
+        "ros2_ws/src/smart_vision_amr/config/nodes.yaml": {
+          "tested": "dc1da2e10a619899a88982e1bea73d0cb1ba9dffc9bbdea191b4dcc638e58d8f",
+          "current": "761fffad3e53a13b9b86cdb7626315eafb259f11e4903db756c422ba70804e23"
+        },
+        "ros2_ws/src/smart_vision_amr/config/simulation_nodes.yaml": {
+          "tested": "2cc438d394e7ebdfd066c99e327b0372433bf20a4e565072c4cb135ba7995b9c",
+          "current": "5d6f858885c54e75373e659909dc448120e56da6247d82985db0d6d70138ae65"
+        },
+        "ros2_ws/src/smart_vision_amr/config/curve_tuning_simulation_nodes.yaml": {
+          "tested": "b34d2eeefeb95a3dea078b16d13333cc56a3216b67fa5e5a0f6f8b12058bf0a1",
+          "current": "731e23724389ca6cf91367447cc736942f061008717e61bea3c5d6a7d7d6d7ec"
+        },
+        "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": {
+          "tested": "ca747fdfabb23e69b4b1e6f89f170161b0908cea4e2f563ca40c951e7d3b1e84",
+          "current": "999f652e1e421015f636f6a3e775d038b743f710744d57bdf30c79576ea391e8"
+        },
+        "ros2_ws/src/smart_vision_amr/config/localization_health.yaml": {
+          "tested": "b98ed75b69e1b1df394c0f8626a90581ea061468666843406519601fc074b94e",
+          "current": "8c65fa2b6e3aa60f4fa19aa7a5e03333eeaf661a4781ceb3bb14203b6453dd0a"
+        },
+        "ros2_ws/src/smart_vision_amr/web/app.js": {
+          "tested": "bae5a7b56777dae9f695504659465c251ca992b56de4cd63a68e3776667cee51",
+          "current": "80e28ffeaefb6e1cd3eaffe6b2adae0bf4d8448eaaf3513794084529bfd38b71"
+        },
+        "ros2_ws/src/smart_vision_amr/web/index.html": {
+          "tested": "19abad5bbd09990f79116642648f15255b2693ae8cb9a8dabd5771325672a1c0",
+          "current": "34fb14ca4fe04e87190ec6a2c962d3f30a1dca7342c8f55d85d0bd6959004cd8"
+        },
+        "ros2_ws/src/smart_vision_amr/web/styles.css": {
+          "tested": "07d30e4ccdbef8988153aee8a88c25f89f802b6d91d8e7026d15188789d4aa3f",
+          "current": "877818037d56becfbe299838ff1f54a0ed213f3e74e5c8d49badf6dad42a0734"
+        }
+      },
+      "actual_gazebo_final_goal_distance_m": 0.22123022954189123,
+      "version_scope": "Independent wheel/IMU EKF navigation component smoke on its immutable earlier snapshot; later Home helper was not invoked. Final planner/follower/TF changes were exercised by baseline/local/barrier trials, not a new independent-EKF rerun. Exact differences are listed.",
+      "primary_acceptance": true
+    },
+    {
+      "run": "rear_precision_01",
+      "passed": true,
+      "result": "evidence/rear_precision_01/result.json",
+      "source_manifest": "evidence/rear_precision_01/source_manifest.json",
+      "duration_seconds": 13.2141,
+      "assertions_passed": 4,
+      "runtime_differences_from_current": {
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/assisted_localization.py": {
+          "tested": "655ff4fc3182ea04ea9e22c1106eff85cd49b255ab31128f102a4ad4e206f234",
+          "current": "e0b32fa2613f56dff8344d03b2c1c69c031c82e838934b7435ffa6b3ee7f0930"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": {
+          "tested": "0a285fafec79b2035a16496b508e67729d64cf3bfc7c6b182ff20b29f7037955",
+          "current": "5fa8888478d183cfe19131559259fd5c9f13454f4947539eb5c5c3c87da19398"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/local_detour.py": {
+          "tested": null,
+          "current": "7a7b952851cfb985477371a72cee416391d0d395be83c6422c5c8f9e4f21dc3b"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/localization_health.py": {
+          "tested": "69656abde35bbe7b791a51eb8c8855b65526e78038c88ddf113118db64257996",
+          "current": "e5c24d21ba52746bab9b9aa5ec014094c1510589ef1f5b02bd586e54cae2a00b"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": {
+          "tested": "24b0cbed608fe77e5aee21d9927c4d57b228759c28406aeef467fb5d190f80bc",
+          "current": "3c1aa25343614e49790474683852df29d478798c19150c0aaba5524a47f422fd"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": {
+          "tested": "6d4833b451545742fb158a7a87a863e2160c9479a7f4f36699aa62aa15add52e",
+          "current": "79293200bb518f848cbcae1e8abb58f8cc9db2776c590c1d77023deffc9a2dd4"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/operation_status.py": {
+          "tested": "36951ea116e6a75d2c142a70fea02f62f3977394b4b804951f3942c906049dfe",
+          "current": "125fb191d983e4da747b35b3fea2ab1db2e8b69e3942de1d7030a6346ade28bc"
+        },
+        "ros2_ws/src/smart_vision_amr/launch/simulation.launch.py": {
+          "tested": "89ffe349149f5916d2b735e1f876f88b75a579b0e7e73ad6e85510212fcde603",
+          "current": "599572fd09b1dc521d252e5b63a840ec0cb602fd7558840aacb07637c3e2eb21"
+        },
+        "ros2_ws/src/smart_vision_amr/launch/hardware.launch.py": {
+          "tested": "512a57b9b57533a7ca1fa0e6eb8623d814e9b47dba69ee499520f3d0967b02cf",
+          "current": "f32c51d3e03905277876f91eeae0105511d540b3f9ec5cb58282370926499364"
+        },
+        "ros2_ws/src/smart_vision_amr/config/nodes.yaml": {
+          "tested": "dc1da2e10a619899a88982e1bea73d0cb1ba9dffc9bbdea191b4dcc638e58d8f",
+          "current": "761fffad3e53a13b9b86cdb7626315eafb259f11e4903db756c422ba70804e23"
+        },
+        "ros2_ws/src/smart_vision_amr/config/simulation_nodes.yaml": {
+          "tested": "2cc438d394e7ebdfd066c99e327b0372433bf20a4e565072c4cb135ba7995b9c",
+          "current": "5d6f858885c54e75373e659909dc448120e56da6247d82985db0d6d70138ae65"
+        },
+        "ros2_ws/src/smart_vision_amr/config/curve_tuning_simulation_nodes.yaml": {
+          "tested": "b34d2eeefeb95a3dea078b16d13333cc56a3216b67fa5e5a0f6f8b12058bf0a1",
+          "current": "731e23724389ca6cf91367447cc736942f061008717e61bea3c5d6a7d7d6d7ec"
+        },
+        "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": {
+          "tested": "ca747fdfabb23e69b4b1e6f89f170161b0908cea4e2f563ca40c951e7d3b1e84",
+          "current": "999f652e1e421015f636f6a3e775d038b743f710744d57bdf30c79576ea391e8"
+        },
+        "ros2_ws/src/smart_vision_amr/config/localization_health.yaml": {
+          "tested": "b98ed75b69e1b1df394c0f8626a90581ea061468666843406519601fc074b94e",
+          "current": "8c65fa2b6e3aa60f4fa19aa7a5e03333eeaf661a4781ceb3bb14203b6453dd0a"
+        },
+        "ros2_ws/src/smart_vision_amr/web/app.js": {
+          "tested": "79b91c9468e8f525b074d6b75b5ba577a63fe763b1606fface8ae54e14b6f8c5",
+          "current": "80e28ffeaefb6e1cd3eaffe6b2adae0bf4d8448eaaf3513794084529bfd38b71"
+        },
+        "ros2_ws/src/smart_vision_amr/web/index.html": {
+          "tested": "19abad5bbd09990f79116642648f15255b2693ae8cb9a8dabd5771325672a1c0",
+          "current": "34fb14ca4fe04e87190ec6a2c962d3f30a1dca7342c8f55d85d0bd6959004cd8"
+        },
+        "ros2_ws/src/smart_vision_amr/web/styles.css": {
+          "tested": "07d30e4ccdbef8988153aee8a88c25f89f802b6d91d8e7026d15188789d4aa3f",
+          "current": "877818037d56becfbe299838ff1f54a0ed213f3e74e5c8d49badf6dad42a0734"
+        }
+      },
+      "actual_wall_normal_error_degrees": 1.4683726924641123,
+      "primary_acceptance": false,
+      "version_scope": "Historical successful rear precision trial superseded by latest-source rear_precision02."
+    },
+    {
+      "run": "local_detour_09",
+      "passed": true,
+      "result": "evidence/local_detour_09/result.json",
+      "source_manifest": "evidence/local_detour_09/source_manifest.json",
+      "duration_seconds": 78.0942,
+      "assertions_passed": 14,
+      "actual_gazebo_final_goal_distance_m": 0.28527174958506946,
+      "local_search_ms": 19.0834109998832,
+      "expansions": 616,
+      "exact_original_suffix_points": 39,
+      "global_plan_count_initial": 1,
+      "global_plan_count_at_arrival": 1,
+      "actual_rejoin_distance_m": 0.015722119232721533,
+      "conservative_body_disk_radius_m": 0.24,
+      "minimum_center_to_box_surface_distance_m": 0.517333120319715,
+      "minimum_body_clearance_m": 0.277333120319715,
+      "robot_contacts": 0,
+      "obstacle_present_at_arrival": true,
+      "runtime_differences_from_current": {
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/assisted_localization.py": {
+          "tested": "655ff4fc3182ea04ea9e22c1106eff85cd49b255ab31128f102a4ad4e206f234",
+          "current": "e0b32fa2613f56dff8344d03b2c1c69c031c82e838934b7435ffa6b3ee7f0930"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": {
+          "tested": "867af4ef2766dcaeefa5df941bcb34dae6af53174803cf576829199be5ec8db8",
+          "current": "79293200bb518f848cbcae1e8abb58f8cc9db2776c590c1d77023deffc9a2dd4"
+        },
+        "ros2_ws/src/smart_vision_amr/launch/simulation.launch.py": {
+          "tested": "700bad1b4261e64607cfc42448d46d1d79a107bba77747c811cd865bdde6b8de",
+          "current": "599572fd09b1dc521d252e5b63a840ec0cb602fd7558840aacb07637c3e2eb21"
+        },
+        "ros2_ws/src/smart_vision_amr/web/app.js": {
+          "tested": "2d3f1eab51a127d1fb6ea8ba2ca3dd1da6fdbc7514e79e046d860c9699b6a1ed",
+          "current": "80e28ffeaefb6e1cd3eaffe6b2adae0bf4d8448eaaf3513794084529bfd38b71"
+        }
+      },
+      "version_scope": "Final local planner/follower/health/TF-policy behavior exercised. Later Home-only sweep-return/confirmation changes were not invoked. Simulation launch later exposes set_initial_pose(default true) and uses explicit /amcl parameter scope to make false work; this run used equivalent default true. See exact differing files.",
+      "primary_acceptance": true
+    },
+    {
+      "run": "barrier_01",
+      "passed": true,
+      "result": "evidence/barrier_01/result.json",
+      "source_manifest": "evidence/barrier_01/source_manifest.json",
+      "duration_seconds": 50.6332,
+      "assertions_passed": 11,
+      "actual_gazebo_final_goal_distance_m": 0.2683464512562974,
+      "actual_reverse_performed": false,
+      "recovery_attempts": 0,
+      "reverse_scope": "Fully sealed known corridor has no safe exit; actual stopped HOLD was verified. Unchanged verified reverse is covered by unit tests, not an observed BackUp action in this trial.",
+      "robot_contacts": 0,
+      "runtime_differences_from_current": {
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/assisted_localization.py": {
+          "tested": "655ff4fc3182ea04ea9e22c1106eff85cd49b255ab31128f102a4ad4e206f234",
+          "current": "e0b32fa2613f56dff8344d03b2c1c69c031c82e838934b7435ffa6b3ee7f0930"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": {
+          "tested": "867af4ef2766dcaeefa5df941bcb34dae6af53174803cf576829199be5ec8db8",
+          "current": "79293200bb518f848cbcae1e8abb58f8cc9db2776c590c1d77023deffc9a2dd4"
+        },
+        "ros2_ws/src/smart_vision_amr/launch/simulation.launch.py": {
+          "tested": "700bad1b4261e64607cfc42448d46d1d79a107bba77747c811cd865bdde6b8de",
+          "current": "599572fd09b1dc521d252e5b63a840ec0cb602fd7558840aacb07637c3e2eb21"
+        },
+        "ros2_ws/src/smart_vision_amr/web/app.js": {
+          "tested": "2d3f1eab51a127d1fb6ea8ba2ca3dd1da6fdbc7514e79e046d860c9699b6a1ed",
+          "current": "80e28ffeaefb6e1cd3eaffe6b2adae0bf4d8448eaaf3513794084529bfd38b71"
+        }
+      },
+      "version_scope": "Final local planner/follower/health/TF-policy behavior exercised. Later Home-only sweep-return/confirmation changes were not invoked. Simulation launch later exposes set_initial_pose(default true) and uses explicit /amcl parameter scope to make false work; this run used equivalent default true. See exact differing files.",
+      "primary_acceptance": true
+    },
+    {
+      "run": "baseline_suite_06",
+      "passed": true,
+      "result": "evidence/baseline_suite_06/result.json",
+      "source_manifest": "evidence/baseline_suite_06/source_manifest.json",
+      "duration_seconds": 66.4266,
+      "assertions_passed": 31,
+      "version_scope": "Final navigation/TF-policy freeze. Home helper still stopped after its sweep; the subsequently requested Home-heading return and dispatch-home gate are not covered by this run.",
+      "actual_gazebo_final_goal_distance_m": 0.17643468088911282,
+      "runtime_differences_from_current": {
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/assisted_localization.py": {
+          "tested": "655ff4fc3182ea04ea9e22c1106eff85cd49b255ab31128f102a4ad4e206f234",
+          "current": "e0b32fa2613f56dff8344d03b2c1c69c031c82e838934b7435ffa6b3ee7f0930"
+        },
+        "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": {
+          "tested": "867af4ef2766dcaeefa5df941bcb34dae6af53174803cf576829199be5ec8db8",
+          "current": "79293200bb518f848cbcae1e8abb58f8cc9db2776c590c1d77023deffc9a2dd4"
+        },
+        "ros2_ws/src/smart_vision_amr/launch/simulation.launch.py": {
+          "tested": "700bad1b4261e64607cfc42448d46d1d79a107bba77747c811cd865bdde6b8de",
+          "current": "599572fd09b1dc521d252e5b63a840ec0cb602fd7558840aacb07637c3e2eb21"
+        },
+        "ros2_ws/src/smart_vision_amr/web/app.js": {
+          "tested": "2d3f1eab51a127d1fb6ea8ba2ca3dd1da6fdbc7514e79e046d860c9699b6a1ed",
+          "current": "80e28ffeaefb6e1cd3eaffe6b2adae0bf4d8448eaaf3513794084529bfd38b71"
+        }
+      },
+      "primary_acceptance": true
+    },
+    {
+      "run": "home_initialization_02",
+      "passed": true,
+      "result": "evidence/home_initialization_02/result.json",
+      "source_manifest": "evidence/home_initialization_02/source_manifest.json",
+      "duration_seconds": 35.7231,
+      "assertions_passed": 23,
+      "actual_heading_error_degrees": 2.8893351714989626,
+      "actual_home_position_error_m": 0.0009183271073838995,
+      "delivery_home_ready": true,
+      "no_prior_boot_verified": true,
+      "only_remaining_dispatch_gate": "접수된 대기 요청",
+      "scope_summary": "evidence/home_initialization_02/home_flow_summary.json",
+      "runtime_differences_from_current": {},
+      "primary_acceptance": true,
+      "version_scope": "All selected final runtime hashes match. Exact complete package source manifest and verifier hash accompany the actual Gazebo run."
+    },
+    {
+      "run": "rear_precision_02",
+      "passed": true,
+      "result": "evidence/rear_precision_02/result.json",
+      "source_manifest": "evidence/rear_precision_02/source_manifest.json",
+      "duration_seconds": 13.3657,
+      "assertions_passed": 6,
+      "actual_wall_normal_error_degrees": 1.2023603726273207,
+      "normalized_image_center_error": 0.035937499999999956,
+      "image_center_error_fraction_of_width": 0.017968749999999978,
+      "scope_summary": "evidence/rear_precision_02/precision_summary.json",
+      "runtime_differences_from_current": {},
+      "primary_acceptance": true,
+      "version_scope": "All selected final runtime hashes match. Exact complete package source manifest and verifier hash accompany the actual Gazebo run."
+    }
+  ],
+  "diagnostic_failed_runs": [
+    {
+      "run": "baseline_suite_01",
+      "passed": false,
+      "classification": "Verifier cache reused previous SUCCEEDED after retry; this is not a passing whole-suite run. Fixed verifier waits for the newly active operation.",
+      "result": "evidence/baseline_suite_01/result.json"
+    },
+    {
+      "run": "baseline_suite_02",
+      "passed": false,
+      "classification": "Verifier requested /api/mission/resume after existing guarded reset intentionally set CANCELED. Both actual assisted operations and scan-only stop/restoration passed. Fixed verifier makes a new explicit start of the preserved route when CANCELED.",
+      "result": "evidence/baseline_suite_02/result.json"
+    },
+    {
+      "run": "baseline_suite_03",
+      "passed": false,
+      "classification": "Actual Nav2 lifecycle manager stalled configuring behavior_server after its DDS service response timed out. Map/AMCL remained inactive; startup stop remained latched with zero velocity. Concurrent full-suite CPU load was present; causality is not proven. The verifier also attempted the covariance seed before active AMCL; readiness was subsequently strengthened.",
+      "result": "evidence/baseline_suite_03/result.json"
+    },
+    {
+      "run": "baseline_suite_04",
+      "passed": false,
+      "classification": "First assisted rotation and scan-only fault recovery passed. A second assisted operation correctly failed closed after map/odom TF became stale while scan/odom messages remained fresh. Raw TF was not subscribed in this run, so publisher/discovery versus local-buffer cause cannot be determined. Subsequent verifier records /tf and permits one explicit operator retry only after fresh TF/sensors are stable; this run is not a full pass.",
+      "result": "evidence/baseline_suite_04/result.json"
+    },
+    {
+      "run": "local_detour_01",
+      "passed": false,
+      "classification": "Verifier event metadata duplicated the name argument after actual motion and real box insertion; run failed before planner assessment.",
+      "result": "evidence/local_detour_01/result.json"
+    },
+    {
+      "run": "local_detour_02",
+      "passed": false,
+      "classification": "Actual health TF lookup/receipt discrepancy before motion: raw BE /tf and web pose stayed fresh while health lookup aged and safely latched. No box inserted. Health-only controlled dynamic TF BE profile and separate ingress diagnostics added afterward.",
+      "result": "evidence/local_detour_02/result.json"
+    },
+    {
+      "run": "local_detour_03",
+      "passed": false,
+      "classification": "Genuine local bypass failure: first local patch rejoined inside actual partially observed box footprint, then repeated scan invalidations exhausted retries and held safely. Exact suffix/nonempty/local-first checks passed individually, but no goal arrival. Separate verifier goal-stamp capture fixed.",
+      "result": "evidence/local_detour_03/result.json"
+    },
+    {
+      "run": "local_detour_04",
+      "passed": false,
+      "classification": "Genuine safe follower input hold immediately after obstacle insertion: footprint centroid disagreed by more than 0.10m with current odometry, route_failure=false. No polygon trace was captured in this run, so exact timestamp/receipt cause is unresolved. Global replanning happened before the first LOCAL attempt; strict local-before-global acceptance failed. Corrected local geometry was not assessed to completion.",
+      "result": "evidence/local_detour_04/result.json"
+    },
+    {
+      "run": "local_detour_05",
+      "passed": false,
+      "classification": "First LOCAL-before-global, nonempty publication, exact suffix and bounded search passed individually. Later a real map-to-odom TF gap visible in both raw BE observer and health ingress caused a critical safe latch before goal arrival; odom TF, scan and odom remained fresh. No automatic reset/retry. Independent footprint capture was normal in this run and did not reproduce local04 mismatch. Whole scenario failed.",
+      "result": "evidence/local_detour_05/result.json"
+    },
+    {
+      "run": "local_detour_06_qos_probe",
+      "passed": false,
+      "classification": "Verifier required graph depth20, but Humble rmw reports UNKNOWN/depth0 for every endpoint. Actual AMCL-only BEST_EFFORT and unchanged static TF were present; no mission or motion issued. Corrected verifier records configured depth separately from unobservable actual depth.",
+      "result": "evidence/local_detour_06_qos_probe/result.json"
+    },
+    {
+      "run": "local_detour_07_qos_probe",
+      "passed": false,
+      "classification": "AMCL-only dynamic TF BEST_EFFORT was verified by actual hidden-reader participant GUID prefix; static TF remained reliable/transient-local. Graph history/depth were unavailable; depth20 was configured only. First bounded local patch passed initial local-first/nonempty/suffix checks, but a one-cell observation row change touched its square inflation corner and invalidated it. Global fallback later failed controller progress; safe hold exhausted retries. Health remained OK. No goal arrival; whole trial failed. This is an A/B diagnostic, not production-source acceptance.",
+      "result": "evidence/local_detour_07_qos_probe/result.json"
+    },
+    {
+      "run": "local_detour_08",
+      "passed": false,
+      "classification": "All three production Nav2 participant dynamic TF BEST_EFFORT policies and unchanged reliable/transient-local static TF were verified before actual motion. The first local search safely exhausted its unchanged 40ms time budget at 546 expansions and fell back to global search; a second local patch then succeeded, so the required first-local-before-global assertion failed and stopped the run. No goal arrival assessment. Equivalent caching and a justified60ms production budget were later verified by exact-replay tests and local09; this is not a passing whole scenario.",
+      "result": "evidence/local_detour_08/result.json"
+    },
+    {
+      "run": "home_initialization_01",
+      "passed": false,
+      "classification": "Real simulation launch argument precedence defect before any Home API: typed set_initial_pose=false was emitted in a wildcard parameter file, but node-scoped amcl.set_initial_pose=true in simulation.yaml won. AMCL automatically published3 poses/mapTF; verifier had no initialpose publisher and observed0 initialpose messages. Failed no-prior assertion; no mission or localization helper invoked. Fixed by explicit AMCL namespace so generated parameters are exact /amcl-scoped; real RCL-parser regression and no-prior Home02 passed.",
+      "result": "evidence/home_initialization_01/result.json"
+    }
+  ],
+  "acceptance_state": "Required finite actual Gazebo cases passed: final navigation local bypass and exact original suffix rejoin, full barrier safe hold/removal/same-goal resume, scan/TF fault baseline, genuine no-prior/no-mapTF Home initialization with explicit ESTOP reset and Home heading return, latest-source rear camera/wall precision. Independent EKF component smoke retained with exact earlier version scope. Repository unit suite and browser QA have separate evidence.",
+  "runtime_hash_snapshot_scope": "Final production Home/helper and exact /amcl launch override freeze. Home02/rear_precision02 match every selected current runtime file. Complete immutable manifests remain authoritative for all earlier component trials; source differences are explicit, never relabeled exact-head full-stack reruns.",
+  "browser_ui_verification": {
+    "result": "evidence/startup_guide_ui/result.json",
+    "scope": "Recorded browser fixture only; no ROS motion acceptance",
+    "passed": true
+  },
+  "observability_notes": [
+    "Actual graph reports dynamic BEST_EFFORT and unchanged RELIABLE/TRANSIENT_LOCAL static TF; participant GUID prefixes bind hidden readers to AMCL/controller/behavior. RMW history/depth are UNKNOWN/0, so runtime depth is null, not fabricated.",
+    "Historical process-argv capture happened before readiness and inventories were empty. Their configured depth20 follows immutable launch source. Final Home02/rear_precision02 capture all3 actual domain186 Nav2 process argv after readiness and show depth20/reliability CLI settings.",
+    "Versioned telemetry arrays are bounded uniform samples including endpoints. All assertions used complete raw records; raw full JSON/TF trace paths and SHA256 are retained.",
+    "No reverse was physically performed in the sealed corridor: no safe exit was available, so actual HOLD was verified. Existing verified reverse remains unit-test coverage only.",
+    "Some Python ROS nodes print ExternalShutdownException/exit1 only after owned cleanup SIGINT. Bounded logs retain these cleanup events; no runtime acceptance failure is inferred or hidden."
+  ],
+  "primary_acceptance_runs": [
+    "ekf_navigation_01",
+    "local_detour_09",
+    "barrier_01",
+    "baseline_suite_06",
+    "home_initialization_02",
+    "rear_precision_02"
+  ],
+  "required_acceptance_scopes": {
+    "no_rviz_home_boot": "home_initialization_02",
+    "rear_camera_wall_precision": "rear_precision_02",
+    "stationary_amcl_and_sensor_faults": "baseline_suite_06",
+    "local_prefix_and_original_suffix_rejoin": "local_detour_09",
+    "full_width_obstruction_hold_and_resume": "barrier_01",
+    "independent_ekf_component_smoke": "ekf_navigation_01"
+  },
+  "all_owned_simulation_web_observer_processes_cleaned": true,
+  "isolated_ports_released": [
+    8796,
+    11586
+  ],
+  "full_unit_suite_report": "unit_tests.json",
+  "performance_replay_report": "local_detour_performance.json",
+  "written_at_utc": "2026-10-30T02:04:44.480862+00:00"
+}

@@ -42,7 +42,7 @@ source /opt/ros/humble/setup.bash
 # shellcheck disable=SC1091
 source "$WORKSPACE_ROOT/install/local_setup.bash"
 export ROS_DOMAIN_ID="$DOMAIN_ID" ROS_LOCALHOST_ONLY=0 TURTLEBOT3_MODEL=waffle_pi
-source "$SCRIPT_DIR/dds_env.bash"
+source "$SCRIPT_DIR/dds_env.bash" ""
 # An EKF run needs robot_localization on the PC. Reuse the non-root Humble
 # package used by our benchmark when the host apt installation is absent.
 needs_ekf=false

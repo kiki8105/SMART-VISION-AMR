@@ -7,14 +7,14 @@ import tempfile
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
-    AppendEnvironmentVariable, DeclareLaunchArgument, IncludeLaunchDescription,
+    AppendEnvironmentVariable, DeclareLaunchArgument, GroupAction, IncludeLaunchDescription,
     OpaqueFunction, RegisterEventHandler,
 )
 from launch.conditions import IfCondition, LaunchConfigurationEquals, UnlessCondition
 from launch.event_handlers import OnShutdown
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node
+from launch_ros.actions import Node, SetParameter
 from launch_ros.parameter_descriptions import ParameterValue
 from smart_vision_amr.gazebo_model_variant import make_independent_ekf_model, set_camera_update_rate
 
@@ -27,6 +27,26 @@ def _validate_localization_mode(context):
     if mode not in LOCALIZATION_MODES:
         raise ValueError(f'localization_mode must be one of {LOCALIZATION_MODES}; got {mode!r}')
     return []
+
+
+def _isolate_nav2_parameters(context):
+    # GroupAction's launch-configuration snapshot is shallow in Humble.
+    inherited = context.launch_configurations.get('global_params')
+    if inherited is not None:
+        context.launch_configurations['global_params'] = list(inherited)
+    return []
+
+
+def _nav2_dynamic_tf_group(node):
+    """Keep the optional dynamic listener policy inside one Nav2 node scope."""
+    return GroupAction([
+        OpaqueFunction(function=_isolate_nav2_parameters),
+        SetParameter(name='qos_overrides./tf.subscription.reliability', value='best_effort',
+                     condition=IfCondition(LaunchConfiguration('nav2_dynamic_tf_best_effort'))),
+        SetParameter(name='qos_overrides./tf.subscription.depth', value=20,
+                     condition=IfCondition(LaunchConfiguration('nav2_dynamic_tf_best_effort'))),
+        node,
+    ], scoped=True)
 
 
 def _spawn_robot(context, source_model):
@@ -87,10 +107,14 @@ def generate_launch_description():
                               description='AMCL start y in the saved map frame; use the captured SLAM pose'),
         DeclareLaunchArgument('initial_yaw', default_value=LaunchConfiguration('yaw'),
                               description='AMCL start yaw in the saved map frame'),
+        DeclareLaunchArgument('set_initial_pose', default_value='true',
+                              description='Seed AMCL at launch; false waits for the confirmed Home initialization action'),
         DeclareLaunchArgument('gui', default_value='true'),
         DeclareLaunchArgument('camera_update_rate', default_value='8.0',
                               description='Simulated camera FPS; lowers preview/transport load without changing geometry'),
         DeclareLaunchArgument('use_rviz', default_value='true'),
+        DeclareLaunchArgument('nav2_dynamic_tf_best_effort', default_value='true',
+                              description='Nav2 dynamic TF: best effort, depth 20; false restores installed defaults'),
         DeclareLaunchArgument('use_motion_mux', default_value='true',
                               description='Disable only when the web service owns the velocity mux'),
         DeclareLaunchArgument('record_incidents', default_value='true'),
@@ -127,19 +151,21 @@ def generate_launch_description():
         Node(package='nav2_map_server', executable='map_server', name='map_server',
              parameters=[config, sim, {'yaml_filename': LaunchConfiguration('map')}], output='screen',
              condition=navigation),
-        Node(package='nav2_amcl', executable='amcl', name='amcl', output='screen',
-             parameters=[config, sim, {'set_initial_pose': True,
+        # Explicit namespace makes Humble emit /amcl-scoped parameter overrides;
+        # an unspecified namespace emits /**, which loses to amcl: in the YAML.
+        _nav2_dynamic_tf_group(Node(package='nav2_amcl', executable='amcl', name='amcl', namespace='', output='screen',
+             parameters=[config, sim, {'set_initial_pose': ParameterValue(LaunchConfiguration('set_initial_pose'), value_type=bool),
                                       'initial_pose.x': floating('initial_x'),
                                       'initial_pose.y': floating('initial_y'),
                                       'initial_pose.z': 0.0,
                                       'initial_pose.yaw': floating('initial_yaw')}],
-             condition=navigation),
-        Node(package='nav2_controller', executable='controller_server', name='controller_server',
+             condition=navigation)),
+        _nav2_dynamic_tf_group(Node(package='nav2_controller', executable='controller_server', name='controller_server',
              parameters=[config, sim, {'speed_limit_topic': '/speed_limit'}], output='screen', condition=navigation,
-             remappings=[('cmd_vel', '/smart_vision_amr/navigation_cmd_vel')]),
-        Node(package='nav2_behaviors', executable='behavior_server', name='behavior_server',
+             remappings=[('cmd_vel', '/smart_vision_amr/navigation_cmd_vel')])),
+        _nav2_dynamic_tf_group(Node(package='nav2_behaviors', executable='behavior_server', name='behavior_server',
              parameters=[config, sim], output='screen', condition=navigation,
-             remappings=[('cmd_vel', '/smart_vision_amr/navigation_cmd_vel')]),
+             remappings=[('cmd_vel', '/smart_vision_amr/navigation_cmd_vel')])),
         Node(package='smart_vision_amr', executable='motion_mux', name='motion_mux',
              parameters=[sim, {'allow_legacy_auto_input': False}], output='screen',
              condition=IfCondition(LaunchConfiguration('use_motion_mux'))),

@@ -40,7 +40,7 @@ cd ~/SMART-VISION-AMR
 ENABLE_FRONT_CAMERA=true ./scripts/robot_bringup_camera_16.sh
 ```
 
-강의실 Sector 1~3은 전방 카메라로 마커를 확인하므로 위 명령은 전방을 활성화합니다. 스크립트 자체의 기본 전방 설정은 꺼짐입니다. 전방이 없는 장치는 마커 설정의 카메라 지정도 실제 장치에 맞춰야 합니다. 기본 후방 장치는 고정 `by-id` 경로의 웹캠이며 320×240 JPEG, 최대 5 FPS로 전송합니다. 다른 웹캠은 `CAMERA_DEVICE=/dev/v4l/by-id/실제장치`로 지정합니다. LiDAR 종류가 기본 `LDS-03`과 다르면 `LDS_MODEL=LDS-02 ./scripts/robot_bringup_camera_16.sh`처럼 실제 모델을 지정합니다. 새 로봇은 카메라 장치와 LiDAR 모델을 먼저 확인하세요.
+강의실 Home과 Sector 1~3은 모두 후방 카메라로 표식을 정면 확인하고 차체 길이 방향을 벽과 90°로 정렬합니다. 위 명령은 운용 보조용 전방 카메라도 활성화합니다. 전방 영상은 도착 조건이 아니며 스크립트 자체의 기본 전방 설정은 꺼짐입니다. 기본 후방 장치는 고정 `by-id` 경로의 웹캠이며 320×240 JPEG, 최대 5 FPS로 전송합니다. 다른 웹캠은 `CAMERA_DEVICE=/dev/v4l/by-id/실제장치`로 지정합니다. LiDAR 종류가 기본 `LDS-03`과 다르면 `LDS_MODEL=LDS-02 ./scripts/robot_bringup_camera_16.sh`처럼 실제 모델을 지정합니다. 새 로봇은 카메라 장치와 LiDAR 모델을 먼저 확인하세요.
 
 **터미널 2 — PC: 저장 지도·AMCL·A*·Nav2**
 

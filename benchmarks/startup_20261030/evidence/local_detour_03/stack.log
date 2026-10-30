@@ -1,0 +1,180 @@
+[astar_planner-11] [INFO] [1793322659.677124165] [astar_planner]: Published A* path with 89 poses
+[path_follower-12] [INFO] [1793322659.713343114] [path_follower]: Sent path with 89 poses to Nav2
+[amcl-5] [INFO] [1793322659.767816685] [amcl]: Requesting no-motion update
+[gzserver-1] [INFO] [1793322661.228477862] [startup_validation.contact_sensor]: Publishing contact states to [/startup_validation/contacts]
+[controller_server-6] [INFO] [1793322661.565030478] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793322661.565088070] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-12] [INFO] [1793322661.566896586] [path_follower]: FollowPath finished: Nav2 status 5
+[controller_server-6] [INFO] [1793322661.576052262] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-12] [INFO] [1793322661.577382467] [path_follower]: Sent path with 92 poses to Nav2
+[path_follower-12] [WARN] [1793322661.714281452] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793322661.776419740] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793322661.776501220] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[astar_planner-11] [INFO] [1793322661.777400169] [astar_planner]: Published A* path with 73 poses
+[path_follower-12] [INFO] [1793322661.787870761] [path_follower]: FollowPath finished: Nav2 status 5
+[controller_server-6] [INFO] [1793322661.795217542] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-12] [INFO] [1793322661.796303994] [path_follower]: Sent path with 73 poses to Nav2
+[change_memory-13] [WARN] [1793322663.953925107] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 9.828000 but the latest data is at time 9.815000, when looking up transform from frame [base_scan] to frame [map]
+[path_follower-12] [WARN] [1793322664.184793832] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793322664.195499637] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793322664.195575485] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-12] [INFO] [1793322664.201009971] [path_follower]: FollowPath finished: Nav2 status 5
+[astar_planner-11] [INFO] [1793322664.259011904] [astar_planner]: Published A* path with 71 poses
+[controller_server-6] [INFO] [1793322664.273950756] [controller_server]: Received a goal, begin computing control effort.
+[path_follower-12] [INFO] [1793322664.275542863] [path_follower]: Sent path with 71 poses to Nav2
+[change_memory-13] [WARN] [1793322664.371690573] [change_memory]: LiDAR projection rejected: measurement_tf_timeout
+[amcl-5] [INFO] [1793322665.517646815] [amcl]: Requesting no-motion update
+[amcl-5] [INFO] [1793322668.017346239] [amcl]: Requesting no-motion update
+[change_memory-13] [WARN] [1793322669.052660820] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 14.828000 but the latest data is at time 14.813000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322669.471826669] [change_memory]: LiDAR projection rejected: measurement_tf_timeout
+[amcl-5] [INFO] [1793322670.019343124] [amcl]: Requesting no-motion update
+[controller_server-6] [INFO] [1793322671.070650380] [local_costmap.local_costmap]: Message Filter dropping message: frame 'base_scan' at time 16.430 for reason 'the timestamp on the message is earlier than all the data in the transform cache'
+[path_follower-12] [WARN] [1793322672.360915751] [path_follower]: Planner has no safe path; stopping while retaining the goal
+[controller_server-6] [INFO] [1793322672.374199897] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-6] [INFO] [1793322672.374288015] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[path_follower-12] [INFO] [1793322672.376413021] [path_follower]: FollowPath finished: Nav2 status 5
+[change_memory-13] [WARN] [1793322674.246317642] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 19.831000 but the latest data is at time 19.811000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322679.336850390] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 24.831000 but the latest data is at time 24.809000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322684.429761393] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 29.832000 but the latest data is at time 29.807000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322689.513949499] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 34.832000 but the latest data is at time 34.805000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322694.586924319] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 39.833000 but the latest data is at time 39.803000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322699.605866517] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 44.635000 but the latest data is at time 44.631000, when looking up transform from frame [base_scan] to frame [map]
+[controller_server-6] [INFO] [1793322703.175762703] [local_costmap.local_costmap]: Message Filter dropping message: frame 'base_scan' at time 47.835 for reason 'the timestamp on the message is earlier than all the data in the transform cache'
+[change_memory-13] [WARN] [1793322704.754009944] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 49.635000 but the latest data is at time 49.629000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322709.846203992] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 54.635000 but the latest data is at time 54.627000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322714.964269896] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 59.635000 but the latest data is at time 59.625000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322720.071309491] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 64.635000 but the latest data is at time 64.623000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322725.200493896] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 69.637000 but the latest data is at time 69.621000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322730.214662566] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 74.437000 but the latest data is at time 74.347000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322735.295792548] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 79.438000 but the latest data is at time 79.413000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322740.343441284] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 84.438000 but the latest data is at time 84.411000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322745.414445654] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 89.438000 but the latest data is at time 89.409000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322750.464632292] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 94.438000 but the latest data is at time 94.407000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322755.701704753] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 99.638000 but the latest data is at time 99.609000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322760.765598506] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 104.638000 but the latest data is at time 104.607000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322766.001477487] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 109.838000 but the latest data is at time 109.809000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322771.066036901] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 114.838000 but the latest data is at time 114.807000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322776.366653448] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 120.038000 but the latest data is at time 120.009000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322781.408089847] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 125.038000 but the latest data is at time 125.007000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322786.467147382] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 130.038000 but the latest data is at time 130.005000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322791.534368654] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 135.038000 but the latest data is at time 135.037000, when looking up transform from frame [base_scan] to frame [map]
+[controller_server-6] [INFO] [1793322795.994814773] [local_costmap.local_costmap]: Message Filter dropping message: frame 'base_scan' at time 139.039 for reason 'the timestamp on the message is earlier than all the data in the transform cache'
+[change_memory-13] [WARN] [1793322796.550246585] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 139.839000 but the latest data is at time 139.729000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322796.709550674] [change_memory]: LiDAR projection rejected: measurement_tf_timeout
+[change_memory-13] [WARN] [1793322801.583762228] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 144.839000 but the latest data is at time 144.829000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322806.651086208] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 149.839000 but the latest data is at time 149.827000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322811.725466233] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 154.839000 but the latest data is at time 154.825000, when looking up transform from frame [base_scan] to frame [map]
+[change_memory-13] [WARN] [1793322816.761424383] [change_memory]: Waiting for scan-stamped TF: Lookup would require extrapolation into the future.  Requested time 159.839000 but the latest data is at time 159.823000, when looking up transform from frame [base_scan] to frame [map]
+[localization_health-9] [INFO] [1793322822.265293545] [localization_health]: Localization health: warning ['scan_unavailable']
+[lifecycle_manager-10] [INFO] [1793322822.628523374] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lifecycle_manager-10] [INFO] [1793322822.628627512] [lifecycle_manager_simulation]: Running Nav2 LifecycleManager rcl preshutdown (lifecycle_manager_simulation)
+[lifecycle_manager-10] [INFO] [1793322822.628674811] [lifecycle_manager_simulation]: [34m[1mTerminating bond timer...[0m[0m
+[robot_state_publisher-2] [INFO] [1793322822.630237973] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[controller_server-6] [INFO] [1793322822.630436462] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[controller_server-6] [INFO] [1793322822.630508219] [controller_server]: Running Nav2 LifecycleNode rcl preshutdown (controller_server)
+[controller_server-6] [INFO] [1793322822.630563188] [controller_server]: Deactivating
+[controller_server-6] [INFO] [1793322822.630606580] [local_costmap.local_costmap]: Deactivating
+[amcl-5] [INFO] [1793322822.630448770] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[amcl-5] [INFO] [1793322822.630507219] [amcl]: Running Nav2 LifecycleNode rcl preshutdown (amcl)
+[amcl-5] [INFO] [1793322822.630562841] [amcl]: Deactivating
+[amcl-5] [INFO] [1793322822.630587399] [amcl]: Destroying bond (amcl) to lifecycle manager.
+[map_server-4] [INFO] [1793322822.630698558] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[map_server-4] [INFO] [1793322822.630781449] [map_server]: Running Nav2 LifecycleNode rcl preshutdown (map_server)
+[map_server-4] [INFO] [1793322822.631067184] [map_server]: Deactivating
+[map_server-4] [INFO] [1793322822.631096106] [map_server]: Destroying bond (map_server) to lifecycle manager.
+[behavior_server-7] [INFO] [1793322822.632954143] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[behavior_server-7] [INFO] [1793322822.633045477] [behavior_server]: Running Nav2 LifecycleNode rcl preshutdown (behavior_server)
+[behavior_server-7] [INFO] [1793322822.633106331] [behavior_server]: Deactivating
+[behavior_server-7] [INFO] [1793322822.633140862] [behavior_server]: Destroying bond (behavior_server) to lifecycle manager.
+[amcl-5] [INFO] [1793322822.640889275] [amcl]: Cleaning up
+[map_server-4] [INFO] [1793322822.641912382] [map_server]: Cleaning up
+[map_server-4] [INFO] [1793322822.641973036] [map_server]: Destroying bond (map_server) to lifecycle manager.
+[behavior_server-7] [INFO] [1793322822.643403547] [behavior_server]: Cleaning up
+[map_server-4] [INFO] [1793322822.655936608] [map_server]: Destroying
+[amcl-5] [INFO] [1793322822.663938901] [amcl]: Destroying bond (amcl) to lifecycle manager.
+[behavior_server-7] [INFO] [1793322822.674103270] [behavior_server]: Destroying bond (behavior_server) to lifecycle manager.
+[behavior_server-7] [INFO] [1793322822.682947458] [behavior_server]: Destroying
+[amcl-5] [INFO] [1793322822.684432327] [amcl]: Destroying
+[lifecycle_manager-10] [INFO] [1793322822.711463437] [lifecycle_manager_simulation]: Destroying lifecycle_manager_simulation
+[command_stamper-8] Traceback (most recent call last):
+[command_stamper-8]   File "/tmp/smart_vision_startup186.fWX5SK/install/smart_vision_amr/lib/smart_vision_amr/command_stamper", line 33, in <module>
+[command_stamper-8]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'command_stamper')())
+[command_stamper-8]   File "/tmp/smart_vision_startup186.fWX5SK/build/smart_vision_amr/smart_vision_amr/command_stamper.py", line 57, in main
+[command_stamper-8]     rclpy.spin(node)
+[command_stamper-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[command_stamper-8]     executor.spin_once()
+[command_stamper-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[command_stamper-8]     self._spin_once_impl(timeout_sec)
+[command_stamper-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[command_stamper-8]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[command_stamper-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[command_stamper-8]     return next(self._cb_iter)
+[command_stamper-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[command_stamper-8]     raise ExternalShutdownException()
+[command_stamper-8] rclpy.executors.ExternalShutdownException
+[controller_server-6] [INFO] [1793322822.747233402] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[change_memory-13] Traceback (most recent call last):
+[change_memory-13]   File "/tmp/smart_vision_startup186.fWX5SK/install/smart_vision_amr/lib/smart_vision_amr/change_memory", line 33, in <module>
+[change_memory-13]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'change_memory')())
+[change_memory-13]   File "/tmp/smart_vision_startup186.fWX5SK/build/smart_vision_amr/smart_vision_amr/change_memory.py", line 433, in main
+[change_memory-13]     rclpy.spin(node)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[change_memory-13]     executor.spin_once()
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[change_memory-13]     self._spin_once_impl(timeout_sec)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[change_memory-13]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[change_memory-13]     return next(self._cb_iter)
+[change_memory-13]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[change_memory-13]     raise ExternalShutdownException()
+[change_memory-13] rclpy.executors.ExternalShutdownException
+[astar_planner-11] Traceback (most recent call last):
+[astar_planner-11]   File "/tmp/smart_vision_startup186.fWX5SK/install/smart_vision_amr/lib/smart_vision_amr/astar_planner", line 33, in <module>
+[astar_planner-11]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'astar_planner')())
+[astar_planner-11]   File "/tmp/smart_vision_startup186.fWX5SK/build/smart_vision_amr/smart_vision_amr/astar_planner.py", line 1657, in main
+[astar_planner-11]     rclpy.spin(node)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[astar_planner-11]     executor.spin_once()
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[astar_planner-11]     self._spin_once_impl(timeout_sec)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[astar_planner-11]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[astar_planner-11]     return next(self._cb_iter)
+[astar_planner-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[astar_planner-11]     raise ExternalShutdownException()
+[astar_planner-11] rclpy.executors.ExternalShutdownException
+[controller_server-6] [INFO] [1793322822.757449059] [controller_server]: Cleaning up
+[path_follower-12] Traceback (most recent call last):
+[path_follower-12]   File "/tmp/smart_vision_startup186.fWX5SK/install/smart_vision_amr/lib/smart_vision_amr/path_follower", line 33, in <module>
+[path_follower-12]     sys.exit(load_entry_point('smart-vision-amr', 'console_scripts', 'path_follower')())
+[path_follower-12]   File "/tmp/smart_vision_startup186.fWX5SK/build/smart_vision_amr/smart_vision_amr/path_follower.py", line 1896, in main
+[path_follower-12]     rclpy.spin(node)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[path_follower-12]     executor.spin_once()
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[path_follower-12]     self._spin_once_impl(timeout_sec)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[path_follower-12]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[path_follower-12]     return next(self._cb_iter)
+[path_follower-12]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[controller_server-6] [INFO] [1793322822.757765494] [local_costmap.local_costmap]: Cleaning up
+[path_follower-12]     raise ExternalShutdownException()
+[path_follower-12] rclpy.executors.ExternalShutdownException
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 42599]
+[controller_server-6] [INFO] [1793322822.793293105] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[INFO] [map_server-4]: process has finished cleanly [pid 42603]
+[controller_server-6] [INFO] [1793322822.801905570] [local_costmap.local_costmap]: Destroying
+[controller_server-6] [INFO] [1793322822.813404089] [controller_server]: Destroying
+[INFO] [behavior_server-7]: process has finished cleanly [pid 42609]
+[INFO] [amcl-5]: process has finished cleanly [pid 42605]
+[INFO] [lifecycle_manager-10]: process has finished cleanly [pid 42624]
+[INFO] [localization_health-9]: process has finished cleanly [pid 42613]
+[INFO] [controller_server-6]: process has finished cleanly [pid 42607]
+[ERROR] [command_stamper-8]: process has died [pid 42611, exit code 1, cmd '/tmp/smart_vision_startup186.fWX5SK/install/smart_vision_amr/lib/smart_vision_amr/command_stamper --ros-args -r __node:=command_stamper --params-file /tmp/launch_params_x55m8hdt'].
+[ERROR] [change_memory-13]: process has died [pid 42639, exit code 1, cmd '/tmp/smart_vision_startup186.fWX5SK/install/smart_vision_amr/lib/smart_vision_amr/change_memory --ros-args -r __node:=change_memory --params-file /tmp/smart_vision_startup186.fWX5SK/install/smart_vision_amr/share/smart_vision_amr/config/simulation_nodes.yaml --params-file /tmp/launch_params__93akk0d --params-file /tmp/launch_params_xg19khzm'].
+[ERROR] [path_follower-12]: process has died [pid 42632, exit code 1, cmd '/tmp/smart_vision_startup186.fWX5SK/install/smart_vision_amr/lib/smart_vision_amr/path_follower --ros-args -r __node:=path_follower --params-file /tmp/smart_vision_startup186.fWX5SK/install/smart_vision_amr/share/smart_vision_amr/config/simulation_nodes.yaml --params-file /tmp/launch_params_ohyiy_7w'].
+[ERROR] [astar_planner-11]: process has died [pid 42629, exit code 1, cmd '/tmp/smart_vision_startup186.fWX5SK/install/smart_vision_amr/lib/smart_vision_amr/astar_planner --ros-args -r __node:=astar_planner --params-file /tmp/smart_vision_startup186.fWX5SK/install/smart_vision_amr/share/smart_vision_amr/config/simulation_nodes.yaml --params-file /tmp/launch_params_x3g6xp4b'].
+[INFO] [gzserver-1]: process has finished cleanly [pid 42597]

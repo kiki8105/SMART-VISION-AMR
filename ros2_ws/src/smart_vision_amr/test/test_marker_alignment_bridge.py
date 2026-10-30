@@ -11,6 +11,8 @@ import numpy as np
 import rclpy
 from rclpy.context import Context
 from rclpy.signals import SignalHandlerOptions
+from sensor_msgs.msg import LaserScan
+from smart_vision_amr.marker_alignment import MarkerAlignment
 
 from smart_vision_amr.web_mission_server import (
     DEFAULT_MARKERS, MissionApplication, create_ros_bridge, marker_measurements,
@@ -98,6 +100,74 @@ class BridgeTests(unittest.TestCase):
         self.frame += 1
         return self.node.process_marker_frame(camera, capture or self.frame, corners(cx),
             np.array([[3]] if ids is None else ids), self.image, self.now, fresh, capture_age)
+
+    def enable_rear_wall_alignment(self):
+        self.app.mission.markers[3]['camera'] = 'rear'
+        self.node.marker_alignment = MarkerAlignment(require_wall_alignment=True)
+        self.node.marker_alignment_key = None
+
+    def install_wall(self, error=0., *, side='rear'):
+        message = LaserScan()
+        stamp = self.node.get_clock().now().nanoseconds
+        message.header.stamp.sec, message.header.stamp.nanosec = divmod(stamp, 1_000_000_000)
+        message.angle_min, message.angle_increment = -math.pi, math.pi/180
+        message.range_min, message.range_max = .12, 3.5
+        normal = (math.pi if side == 'rear' else 0.)+error
+        message.ranges = [1./cosine if (cosine := math.cos(message.angle_min+i*message.angle_increment-normal)) > .3
+                          else math.inf for i in range(361)]
+        self.node.localization_scan = message
+        self.node.localization_laser_pose = (0., 0., 0.)
+        self.app.localization_scan_at = self.now
+        return message
+
+    def test_centered_rear_marker_cannot_confirm_until_wall_normal_is_aligned(self):
+        self.enable_rear_wall_alignment()
+        self.tick()
+        self.install_wall(.15)
+        self.assertFalse(self.frame_at(camera='rear'))
+        self.tick(.1)
+        self.assertGreater(self.node.marker_alignment_angular, 0.)
+        self.assertLessEqual(self.node.marker_alignment_angular, .08)
+        self.assertNotEqual(self.node.marker_alignment.state, 'CONFIRMED')
+        verified = False
+        for _ in range(12):
+            self.install_wall(0.)
+            verified = self.frame_at(camera='rear')
+            self.app.mission.observe(self.frame, [3], self.app.pose, True, self.now,
+                                     alignment_verified=verified)
+            if self.app.mission.state == 'COMPLETED':
+                break
+            self.tick(.15)
+        self.assertTrue(verified)
+        self.assertEqual(self.app.mission.completed_ids, [3])
+        self.assertEqual(self.node.marker_alignment.snapshot()['wall_required'], True)
+        self.assertEqual(self.node.goal_pub.messages, [])
+
+    def test_rear_arrival_never_uses_front_wall_or_pixel_center_alone(self):
+        self.enable_rear_wall_alignment()
+        self.tick()
+        for _ in range(10):
+            self.install_wall(0., side='front')
+            self.assertFalse(self.frame_at(camera='rear'))
+            self.tick(.15)
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.assertNotEqual(self.node.marker_alignment.state, 'CONFIRMED')
+        self.assertEqual(self.app.mission.completed_ids, [])
+
+    def test_replayed_or_stale_scan_cannot_supply_wall_stability(self):
+        self.enable_rear_wall_alignment()
+        self.tick()
+        scan = self.install_wall(0.)
+        for _ in range(10):
+            self.assertFalse(self.frame_at(camera='rear'))
+            self.tick(.15)
+        self.assertNotEqual(self.node.marker_alignment.state, 'CONFIRMED')
+        self.assertLess(self.node.marker_alignment.snapshot()['wall_samples'], 3)
+        scan.header.stamp.sec -= 2
+        self.assertFalse(self.frame_at(camera='rear'))
+        self.tick(.1)
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.assertFalse(self.node.marker_alignment.snapshot()['wall_reliable'])
 
     def test_fresh_blank_frame_enables_rotation_only_after_the_hold_ack(self):
         self.node.tick_marker_alignment(self.now, False, True)

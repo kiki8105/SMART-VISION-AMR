@@ -1,0 +1,3 @@
+{"t": 4.9049, "event": "amcl_tf_qos_override_verified", "configured_dynamic_depth": 20, "actual_dynamic_depth": null, "actual_dynamic_reliability": "BEST_EFFORT", "actual_static_policy": "RELIABLE/TRANSIENT_LOCAL"}
+{"t": 6.9106, "event": "failure", "error": "AssertionError('{\"name\": \"home_initialization_boots_without_amcl_prior_or_map_tf\", \"passed\": false, \"amcl_messages\": 3, \"initial_pose_messages\": 0, \"map_tf_messages\": 9, \"map_tf_lookup_available\": 1, \"verifier_initial_pose_publisher\": false}')"}
+FAIL /home/kiki/Team2_workspace/src/SMART-VISION-AMR/benchmarks/startup_20261030/evidence/home_initialization_01/result.json

@@ -1,0 +1,8384 @@
+{
+  "passed": false,
+  "scenario": "local_detour",
+  "domain": 186,
+  "gazebo_master_uri": "http://127.0.0.1:11586",
+  "web_url": "http://127.0.0.1:8796",
+  "physical_vehicle_or_domain16_touched": false,
+  "synthetic_sensor_or_localization_feedback": false,
+  "initial_pose_is_actual_known_simulator_pose": true,
+  "initial_pose_std_requested_m": null,
+  "checks": [
+    {
+      "name": "amcl_dynamic_tf_reliability_and_static_policy_verified_before_motion",
+      "passed": true,
+      "endpoints": {
+        "/amcl_pose publishers": [
+          {
+            "node_name": "amcl",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              32,
+              220,
+              55,
+              91,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              38,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "TRANSIENT_LOCAL",
+            "history": "UNKNOWN",
+            "depth": 0
+          }
+        ],
+        "/tf publishers": [
+          {
+            "node_name": "turtlebot3_diff_drive",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              24,
+              220,
+              53,
+              48,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              137,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "robot_state_publisher",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              26,
+              220,
+              108,
+              20,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              19,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "amcl",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              32,
+              220,
+              55,
+              91,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              35,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          }
+        ],
+        "/tf subscribers": [
+          {
+            "node_name": "transform_listener_impl_5f9fbf971f60",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              32,
+              220,
+              55,
+              91,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              33,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "BEST_EFFORT",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "transform_listener_impl_557577da0fd0",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              34,
+              220,
+              208,
+              165,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              60,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "BEST_EFFORT",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "transform_listener_impl_5ca7588478e0",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              36,
+              220,
+              252,
+              21,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              33,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "BEST_EFFORT",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "localization_health",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              51,
+              220,
+              25,
+              57,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              20,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "BEST_EFFORT",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "astar_planner",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              63,
+              220,
+              163,
+              222,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              18,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "path_follower",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              76,
+              220,
+              178,
+              15,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              38,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "change_memory",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              85,
+              220,
+              45,
+              44,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              18,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "gazebo_tf_ingress_probe",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              194,
+              219,
+              64,
+              38,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              19,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "BEST_EFFORT",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "web_mission_server",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              196,
+              219,
+              136,
+              74,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              18,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "startup_gazebo_acceptance",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              223,
+              219,
+              253,
+              166,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              24,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "startup_gazebo_acceptance",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              223,
+              219,
+              253,
+              166,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              40,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "BEST_EFFORT",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          }
+        ],
+        "/tf_static subscribers": [
+          {
+            "node_name": "transform_listener_impl_5f9fbf971f60",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              32,
+              220,
+              55,
+              91,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              34,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "TRANSIENT_LOCAL",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "transform_listener_impl_557577da0fd0",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              34,
+              220,
+              208,
+              165,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              61,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "TRANSIENT_LOCAL",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "transform_listener_impl_5ca7588478e0",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              36,
+              220,
+              252,
+              21,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              34,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "TRANSIENT_LOCAL",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "localization_health",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              51,
+              220,
+              25,
+              57,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              21,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "TRANSIENT_LOCAL",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "astar_planner",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              63,
+              220,
+              163,
+              222,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              19,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "TRANSIENT_LOCAL",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "path_follower",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              76,
+              220,
+              178,
+              15,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              39,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "TRANSIENT_LOCAL",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "change_memory",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              85,
+              220,
+              45,
+              44,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              19,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "TRANSIENT_LOCAL",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "web_mission_server",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              196,
+              219,
+              136,
+              74,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              19,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "TRANSIENT_LOCAL",
+            "history": "UNKNOWN",
+            "depth": 0
+          },
+          {
+            "node_name": "startup_gazebo_acceptance",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              223,
+              219,
+              253,
+              166,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              25,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "TRANSIENT_LOCAL",
+            "history": "UNKNOWN",
+            "depth": 0
+          }
+        ],
+        "/controller_server/transition_event publishers": [
+          {
+            "node_name": "controller_server",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              34,
+              220,
+              208,
+              165,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              19,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          }
+        ],
+        "/behavior_server/transition_event publishers": [
+          {
+            "node_name": "behavior_server",
+            "node_namespace": "/",
+            "gid": [
+              1,
+              15,
+              120,
+              57,
+              36,
+              220,
+              252,
+              21,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              19,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reliability": "RELIABLE",
+            "durability": "VOLATILE",
+            "history": "UNKNOWN",
+            "depth": 0
+          }
+        ]
+      },
+      "configured_dynamic_depth": 20,
+      "actual_dynamic_depth": null,
+      "graph_depth_note": "Humble rmw graph reports UNKNOWN history/depth0. Depth20 is configured in the copied AMCL-only wildcard parameter file; actual depth is not observable here. Hidden listener parameter services are disabled."
+    },
+    {
+      "name": "current_goal_has_real_planner_stamp",
+      "passed": true,
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      }
+    },
+    {
+      "name": "inserted_obstacle_center_was_known_free_in_original_map",
+      "passed": true
+    },
+    {
+      "name": "actual_gazebo_obstacle_spawned",
+      "passed": true,
+      "message": "SpawnEntity: Successfully spawned entity [startup_validation_b22fb35466ef]"
+    },
+    {
+      "name": "local_detour_precedes_global_replan",
+      "passed": false,
+      "selection": {
+        "t": 11.8886,
+        "status": "READY",
+        "message": "Local detour active; original forward suffix retained",
+        "goal": {
+          "x": 1.0,
+          "y": -2.0,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 5,
+          "nanosec": 760000000
+        },
+        "plan_kind": "LOCAL_DETOUR",
+        "local_detour_state": "ACTIVE",
+        "local_attempt_id": 2,
+        "global_plan_count": 2,
+        "global_duration_ms": 79.63510599984147,
+        "search_duration_ms": 35.3503450005519,
+        "adapter_duration_ms": 94.44967600029486,
+        "expansions": 360,
+        "detour_reason": "local_detour_ready",
+        "rejoin_progress": 1.8227922332975064,
+        "occlusion_reserved_cells": 0,
+        "occlusion_extension": 0.5,
+        "rejoin_buffer": 0.15,
+        "observation_reserved_cells": 28,
+        "observation_margin": 0.05,
+        "rejoin_point": {
+          "x": -1.174999941512942,
+          "y": -2.4249999750405546
+        },
+        "sent_at_ns": 8040000000
+      },
+      "global_plan_count_before_obstacle": 1
+    }
+  ],
+  "events": [
+    {
+      "t": 4.802,
+      "event": "amcl_tf_qos_override_verified",
+      "configured_dynamic_depth": 20,
+      "actual_dynamic_depth": null,
+      "actual_dynamic_reliability": "BEST_EFFORT",
+      "actual_static_policy": "RELIABLE/TRANSIENT_LOCAL"
+    },
+    {
+      "t": 8.7438,
+      "event": "explicit_dynamic_obstacle_goal"
+    },
+    {
+      "t": 11.2831,
+      "event": "actual_obstacle_inserted",
+      "obstacle_name": "startup_validation_b22fb35466ef",
+      "xy": [
+        -1.5,
+        -2.0
+      ],
+      "size": [
+        0.45,
+        0.5,
+        1.0
+      ],
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "robot": {
+        "t": 11.2096,
+        "x": -2.7077659091596087,
+        "y": -1.9999981209944084,
+        "yaw": 8.786731264347683e-06
+      }
+    },
+    {
+      "t": 11.8888,
+      "event": "failure",
+      "error": "AssertionError('{\"name\": \"local_detour_precedes_global_replan\", \"passed\": false, \"selection\": {\"t\": 11.8886, \"status\": \"READY\", \"message\": \"Local detour active; original forward suffix retained\", \"goal\": {\"x\": 1.0, \"y\": -2.0, \"frame_id\": \"map\"}, \"goal_stamp\": {\"sec\": 5, \"nanosec\": 760000000}, \"plan_kind\": \"LOCAL_DETOUR\", \"local_detour_state\": \"ACTIVE\", \"local_attempt_id\": 2, \"global_plan_count\": 2, \"global_duration_ms\": 79.63510599984147, \"search_duration_ms\": 35.3503450005519, \"adapter_duration_ms\": 94.44967600029486, \"expansions\": 360, \"detour_reason\": \"local_detour_ready\", \"rejoin_progress\": 1.8227922332975064, \"occlusion_reserved_cells\": 0, \"occlusion_extension\": 0.5, \"rejoin_buffer\": 0.15, \"observation_reserved_cells\": 28, \"observation_margin\": 0.05, \"rejoin_point\": {\"x\": -1.174999941512942, \"y\": -2.4249999750405546}, \"sent_at_ns\": 8040000000}, \"global_plan_count_before_obstacle\": 1}')"
+    }
+  ],
+  "initial_poses": [],
+  "robot_contacts": [],
+  "path_events": [
+    {
+      "t": 9.609,
+      "points_count": 89,
+      "stamp_ns": 5760000000
+    },
+    {
+      "t": 11.6744,
+      "points_count": 0,
+      "stamp_ns": 7820000000
+    },
+    {
+      "t": 11.7645,
+      "points_count": 73,
+      "stamp_ns": 7820000000
+    },
+    {
+      "t": 11.8882,
+      "points_count": 78,
+      "stamp_ns": 8040000000
+    }
+  ],
+  "observed_obstacle_samples": [
+    {
+      "t": 5.0877,
+      "receipt_ros_ns": 1640000000,
+      "indices": []
+    },
+    {
+      "t": 5.3094,
+      "receipt_ros_ns": 1860000000,
+      "indices": []
+    },
+    {
+      "t": 5.6939,
+      "receipt_ros_ns": 2220000000,
+      "indices": []
+    },
+    {
+      "t": 5.854,
+      "receipt_ros_ns": 2380000000,
+      "indices": []
+    },
+    {
+      "t": 6.2925,
+      "receipt_ros_ns": 2820000000,
+      "indices": []
+    },
+    {
+      "t": 6.4883,
+      "receipt_ros_ns": 3000000000,
+      "indices": []
+    },
+    {
+      "t": 6.9328,
+      "receipt_ros_ns": 3420000000,
+      "indices": []
+    },
+    {
+      "t": 7.1495,
+      "receipt_ros_ns": 3640000000,
+      "indices": []
+    },
+    {
+      "t": 7.5499,
+      "receipt_ros_ns": 4020000000,
+      "indices": []
+    },
+    {
+      "t": 7.7388,
+      "receipt_ros_ns": 4200000000,
+      "indices": []
+    },
+    {
+      "t": 8.1595,
+      "receipt_ros_ns": 4620000000,
+      "indices": []
+    },
+    {
+      "t": 8.3795,
+      "receipt_ros_ns": 4820000000,
+      "indices": []
+    },
+    {
+      "t": 8.9419,
+      "receipt_ros_ns": 5320000000,
+      "indices": []
+    },
+    {
+      "t": 9.1306,
+      "receipt_ros_ns": 5500000000,
+      "indices": []
+    },
+    {
+      "t": 9.4675,
+      "receipt_ros_ns": 5840000000,
+      "indices": []
+    },
+    {
+      "t": 9.6469,
+      "receipt_ros_ns": 6000000000,
+      "indices": []
+    },
+    {
+      "t": 10.04,
+      "receipt_ros_ns": 6400000000,
+      "indices": []
+    },
+    {
+      "t": 10.261,
+      "receipt_ros_ns": 6620000000,
+      "indices": []
+    },
+    {
+      "t": 10.7016,
+      "receipt_ros_ns": 7040000000,
+      "indices": []
+    },
+    {
+      "t": 10.8969,
+      "receipt_ros_ns": 7240000000,
+      "indices": []
+    },
+    {
+      "t": 11.2748,
+      "receipt_ros_ns": 7560000000,
+      "indices": []
+    },
+    {
+      "t": 11.545,
+      "receipt_ros_ns": 7820000000,
+      "indices": [
+        7615,
+        7819,
+        8023,
+        8227,
+        8431,
+        8635,
+        8839,
+        9043,
+        9247,
+        9451
+      ]
+    },
+    {
+      "t": 11.9556,
+      "receipt_ros_ns": 8220000000,
+      "indices": [
+        7615,
+        7819,
+        8023,
+        8227,
+        8431,
+        8635,
+        8839,
+        9043,
+        9247,
+        9451,
+        12557
+      ]
+    },
+    {
+      "t": 12.1917,
+      "receipt_ros_ns": 8440000000,
+      "indices": [
+        7615,
+        7819,
+        8023,
+        8227,
+        8431,
+        8635,
+        8839,
+        9043,
+        9247,
+        9451
+      ]
+    }
+  ],
+  "navigation_input_samples": [
+    {
+      "t": 4.2951,
+      "kind": "footprint",
+      "receipt_ros_ns": 860000000,
+      "stamp_ns": 856000000,
+      "header_age_seconds": 0.004,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 856000000,
+        "frame_id": "odom",
+        "x": -2.999964369733468,
+        "y": -1.999999671100974,
+        "yaw": 1.3778809352637819e-06
+      },
+      "points": [
+        [
+          -2.7699644565582275,
+          -1.9999994039535522,
+          0.0
+        ],
+        [
+          -2.7867109775543213,
+          -1.9058090448379517,
+          0.0
+        ],
+        [
+          -2.8344011306762695,
+          -1.8344359397888184,
+          0.0
+        ],
+        [
+          -2.9057743549346924,
+          -1.7867460250854492,
+          0.0
+        ],
+        [
+          -2.989964723587036,
+          -1.769999623298645,
+          0.0
+        ],
+        [
+          -3.0941550731658936,
+          -1.7867462635040283,
+          0.0
+        ],
+        [
+          -3.1655280590057373,
+          -1.8344364166259766,
+          0.0
+        ],
+        [
+          -3.2132179737091064,
+          -1.9058096408843994,
+          0.0
+        ],
+        [
+          -3.2299644947052,
+          -1.9900000095367432,
+          0.0
+        ],
+        [
+          -3.2132177352905273,
+          -2.0941903591156006,
+          0.0
+        ],
+        [
+          -3.165527582168579,
+          -2.1655633449554443,
+          0.0
+        ],
+        [
+          -3.0941543579101562,
+          -2.2132532596588135,
+          0.0
+        ],
+        [
+          -3.0099639892578125,
+          -2.2299997806549072,
+          0.0
+        ],
+        [
+          -2.905773639678955,
+          -2.2132530212402344,
+          0.0
+        ],
+        [
+          -2.8344006538391113,
+          -2.165562868118286,
+          0.0
+        ],
+        [
+          -2.786710739135742,
+          -2.0941896438598633,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 4.4978,
+      "kind": "footprint",
+      "receipt_ros_ns": 1060000000,
+      "stamp_ns": 1060000000,
+      "header_age_seconds": 0.0,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 1060000000,
+        "frame_id": "odom",
+        "x": -2.9999812943293844,
+        "y": -1.9999996872879269,
+        "yaw": 1.4816279522624778e-06
+      },
+      "points": [
+        [
+          -2.7699813842773438,
+          -1.9999994039535522,
+          0.0
+        ],
+        [
+          -2.7867279052734375,
+          -1.9058090448379517,
+          0.0
+        ],
+        [
+          -2.8344180583953857,
+          -1.8344359397888184,
+          0.0
+        ],
+        [
+          -2.9057912826538086,
+          -1.7867460250854492,
+          0.0
+        ],
+        [
+          -2.9899816513061523,
+          -1.769999623298645,
+          0.0
+        ],
+        [
+          -3.0941720008850098,
+          -1.7867463827133179,
+          0.0
+        ],
+        [
+          -3.1655449867248535,
+          -1.8344364166259766,
+          0.0
+        ],
+        [
+          -3.2132349014282227,
+          -1.9058096408843994,
+          0.0
+        ],
+        [
+          -3.2299814224243164,
+          -1.9900000095367432,
+          0.0
+        ],
+        [
+          -3.2132346630096436,
+          -2.0941903591156006,
+          0.0
+        ],
+        [
+          -3.1655445098876953,
+          -2.1655633449554443,
+          0.0
+        ],
+        [
+          -3.0941712856292725,
+          -2.2132532596588135,
+          0.0
+        ],
+        [
+          -3.0099809169769287,
+          -2.2299997806549072,
+          0.0
+        ],
+        [
+          -2.9057905673980713,
+          -2.2132530212402344,
+          0.0
+        ],
+        [
+          -2.8344175815582275,
+          -2.165562868118286,
+          0.0
+        ],
+        [
+          -2.7867276668548584,
+          -2.0941896438598633,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 4.8962,
+      "kind": "costmap",
+      "receipt_ros_ns": 1460000000,
+      "stamp_ns": 1460000000,
+      "header_age_seconds": 0.0,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 1434000000,
+        "frame_id": "odom",
+        "x": -2.9999819177983342,
+        "y": -1.9999995852020505,
+        "yaw": 1.9561327129234208e-06
+      },
+      "resolution": 0.05000000074505806,
+      "width": 60,
+      "height": 60,
+      "origin": [
+        -4.450000000372529,
+        -3.4500000003725293,
+        0.0
+      ]
+    },
+    {
+      "t": 5.2956,
+      "kind": "footprint",
+      "receipt_ros_ns": 1840000000,
+      "stamp_ns": 1842000000,
+      "header_age_seconds": -0.002,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 1842000000,
+        "frame_id": "odom",
+        "x": -2.9999888092068794,
+        "y": -1.999999502779261,
+        "yaw": 2.7154509457254705e-06
+      },
+      "points": [
+        [
+          -2.769988775253296,
+          -1.999998927116394,
+          0.0
+        ],
+        [
+          -2.7867355346679688,
+          -1.9058085680007935,
+          0.0
+        ],
+        [
+          -2.834425687789917,
+          -1.8344355821609497,
+          0.0
+        ],
+        [
+          -2.905799150466919,
+          -1.7867457866668701,
+          0.0
+        ],
+        [
+          -2.9899895191192627,
+          -1.7699995040893555,
+          0.0
+        ],
+        [
+          -3.094179630279541,
+          -1.7867462635040283,
+          0.0
+        ],
+        [
+          -3.165552854537964,
+          -1.8344364166259766,
+          0.0
+        ],
+        [
+          -3.213242530822754,
+          -1.905809760093689,
+          0.0
+        ],
+        [
+          -3.2299888134002686,
+          -1.9900001287460327,
+          0.0
+        ],
+        [
+          -3.2132420539855957,
+          -2.0941903591156006,
+          0.0
+        ],
+        [
+          -3.1655519008636475,
+          -2.1655633449554443,
+          0.0
+        ],
+        [
+          -3.0941786766052246,
+          -2.2132532596588135,
+          0.0
+        ],
+        [
+          -3.0099880695343018,
+          -2.229999542236328,
+          0.0
+        ],
+        [
+          -2.9057979583740234,
+          -2.2132527828216553,
+          0.0
+        ],
+        [
+          -2.8344249725341797,
+          -2.165562629699707,
+          0.0
+        ],
+        [
+          -2.7867350578308105,
+          -2.094189167022705,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 5.499,
+      "kind": "costmap",
+      "receipt_ros_ns": 2020000000,
+      "stamp_ns": 2020000000,
+      "header_age_seconds": 0.0,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 2012000000,
+        "frame_id": "odom",
+        "x": -2.999992746705871,
+        "y": -1.9999994416522229,
+        "yaw": 2.9266238102111207e-06
+      },
+      "resolution": 0.05000000074505806,
+      "width": 60,
+      "height": 60,
+      "origin": [
+        -4.450000000372529,
+        -3.4500000003725293,
+        0.0
+      ]
+    },
+    {
+      "t": 6.0952,
+      "kind": "footprint",
+      "receipt_ros_ns": 2620000000,
+      "stamp_ns": 2624000000,
+      "header_age_seconds": -0.004,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 2624000000,
+        "frame_id": "odom",
+        "x": -3.0000133457830076,
+        "y": -1.999999445997116,
+        "yaw": 3.850241662402694e-06
+      },
+      "points": [
+        [
+          -2.7700133323669434,
+          -1.9999985694885254,
+          0.0
+        ],
+        [
+          -2.7867603302001953,
+          -1.9058083295822144,
+          0.0
+        ],
+        [
+          -2.8344504833221436,
+          -1.8344353437423706,
+          0.0
+        ],
+        [
+          -2.9058237075805664,
+          -1.786745548248291,
+          0.0
+        ],
+        [
+          -2.9900143146514893,
+          -1.769999384880066,
+          0.0
+        ],
+        [
+          -3.0942044258117676,
+          -1.7867462635040283,
+          0.0
+        ],
+        [
+          -3.1655774116516113,
+          -1.8344365358352661,
+          0.0
+        ],
+        [
+          -3.2132670879364014,
+          -1.9058098793029785,
+          0.0
+        ],
+        [
+          -3.230013370513916,
+          -1.9900003671646118,
+          0.0
+        ],
+        [
+          -3.213266372680664,
+          -2.0941905975341797,
+          0.0
+        ],
+        [
+          -3.165576219558716,
+          -2.1655635833740234,
+          0.0
+        ],
+        [
+          -3.094202995300293,
+          -2.2132532596588135,
+          0.0
+        ],
+        [
+          -3.01001238822937,
+          -2.229999542236328,
+          0.0
+        ],
+        [
+          -2.905822277069092,
+          -2.213252544403076,
+          0.0
+        ],
+        [
+          -2.834449291229248,
+          -2.165562391281128,
+          0.0
+        ],
+        [
+          -2.786759376525879,
+          -2.094188928604126,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 6.2951,
+      "kind": "footprint",
+      "receipt_ros_ns": 2820000000,
+      "stamp_ns": 2794000000,
+      "header_age_seconds": 0.026,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 2794000000,
+        "frame_id": "odom",
+        "x": -3.0000189494410208,
+        "y": -1.9999994058125978,
+        "yaw": 4.008780356187635e-06
+      },
+      "points": [
+        [
+          -2.770019054412842,
+          -1.9999984502792358,
+          0.0
+        ],
+        [
+          -2.7867658138275146,
+          -1.9058082103729248,
+          0.0
+        ],
+        [
+          -2.834456205368042,
+          -1.834435224533081,
+          0.0
+        ],
+        [
+          -2.905829429626465,
+          -1.786745548248291,
+          0.0
+        ],
+        [
+          -2.9900197982788086,
+          -1.769999384880066,
+          0.0
+        ],
+        [
+          -3.094210147857666,
+          -1.7867462635040283,
+          0.0
+        ],
+        [
+          -3.1655831336975098,
+          -1.8344365358352661,
+          0.0
+        ],
+        [
+          -3.2132728099823,
+          -1.9058098793029785,
+          0.0
+        ],
+        [
+          -3.2300190925598145,
+          -1.9900003671646118,
+          0.0
+        ],
+        [
+          -3.2132720947265625,
+          -2.0941905975341797,
+          0.0
+        ],
+        [
+          -3.165581703186035,
+          -2.1655635833740234,
+          0.0
+        ],
+        [
+          -3.0942084789276123,
+          -2.2132532596588135,
+          0.0
+        ],
+        [
+          -3.0100181102752686,
+          -2.229999542236328,
+          0.0
+        ],
+        [
+          -2.905827760696411,
+          -2.213252544403076,
+          0.0
+        ],
+        [
+          -2.8344547748565674,
+          -2.165562152862549,
+          0.0
+        ],
+        [
+          -2.7867650985717773,
+          -2.094188928604126,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 6.6953,
+      "kind": "footprint",
+      "receipt_ros_ns": 3200000000,
+      "stamp_ns": 3202000000,
+      "header_age_seconds": -0.002,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 3202000000,
+        "frame_id": "odom",
+        "x": -3.0000321883556493,
+        "y": -1.9999993861535281,
+        "yaw": 4.585557738097042e-06
+      },
+      "points": [
+        [
+          -2.7700321674346924,
+          -1.9999983310699463,
+          0.0
+        ],
+        [
+          -2.7867791652679443,
+          -1.9058080911636353,
+          0.0
+        ],
+        [
+          -2.8344695568084717,
+          -1.8344351053237915,
+          0.0
+        ],
+        [
+          -2.9058427810668945,
+          -1.7867454290390015,
+          0.0
+        ],
+        [
+          -2.9900331497192383,
+          -1.769999384880066,
+          0.0
+        ],
+        [
+          -3.0942234992980957,
+          -1.7867462635040283,
+          0.0
+        ],
+        [
+          -3.1655964851379395,
+          -1.8344366550445557,
+          0.0
+        ],
+        [
+          -3.2132861614227295,
+          -1.905809998512268,
+          0.0
+        ],
+        [
+          -3.230032205581665,
+          -1.9900004863739014,
+          0.0
+        ],
+        [
+          -3.213285207748413,
+          -2.094190835952759,
+          0.0
+        ],
+        [
+          -3.1655948162078857,
+          -2.1655635833740234,
+          0.0
+        ],
+        [
+          -3.094221591949463,
+          -2.2132532596588135,
+          0.0
+        ],
+        [
+          -3.010031223297119,
+          -2.229999542236328,
+          0.0
+        ],
+        [
+          -2.9058408737182617,
+          -2.213252544403076,
+          0.0
+        ],
+        [
+          -2.834467887878418,
+          -2.165562152862549,
+          0.0
+        ],
+        [
+          -2.786778211593628,
+          -2.094188690185547,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 6.8963,
+      "kind": "footprint",
+      "receipt_ros_ns": 3380000000,
+      "stamp_ns": 3372000000,
+      "header_age_seconds": 0.008,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 3372000000,
+        "frame_id": "odom",
+        "x": -3.0000377957836126,
+        "y": -1.9999993891326395,
+        "yaw": 4.755606212067267e-06
+      },
+      "points": [
+        [
+          -2.770037889480591,
+          -1.9999983310699463,
+          0.0
+        ],
+        [
+          -2.7867846488952637,
+          -1.9058079719543457,
+          0.0
+        ],
+        [
+          -2.834475040435791,
+          -1.8344351053237915,
+          0.0
+        ],
+        [
+          -2.905848503112793,
+          -1.7867454290390015,
+          0.0
+        ],
+        [
+          -2.9900388717651367,
+          -1.769999384880066,
+          0.0
+        ],
+        [
+          -3.094229221343994,
+          -1.7867463827133179,
+          0.0
+        ],
+        [
+          -3.165601968765259,
+          -1.8344366550445557,
+          0.0
+        ],
+        [
+          -3.213291645050049,
+          -1.905809998512268,
+          0.0
+        ],
+        [
+          -3.2300379276275635,
+          -1.9900004863739014,
+          0.0
+        ],
+        [
+          -3.2132909297943115,
+          -2.094190835952759,
+          0.0
+        ],
+        [
+          -3.165600538253784,
+          -2.1655635833740234,
+          0.0
+        ],
+        [
+          -3.0942270755767822,
+          -2.2132532596588135,
+          0.0
+        ],
+        [
+          -3.0100367069244385,
+          -2.229999542236328,
+          0.0
+        ],
+        [
+          -2.905846357345581,
+          -2.213252544403076,
+          0.0
+        ],
+        [
+          -2.8344736099243164,
+          -2.165562152862549,
+          0.0
+        ],
+        [
+          -2.7867839336395264,
+          -2.094188690185547,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 7.2956,
+      "kind": "costmap",
+      "receipt_ros_ns": 3760000000,
+      "stamp_ns": 3760000000,
+      "header_age_seconds": 0.0,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 3746000000,
+        "frame_id": "odom",
+        "x": -3.000050060499998,
+        "y": -1.999999375718269,
+        "yaw": 5.189228870734493e-06
+      },
+      "resolution": 0.05000000074505806,
+      "width": 60,
+      "height": 60,
+      "origin": [
+        -4.450000000372529,
+        -3.4500000003725293,
+        0.0
+      ]
+    },
+    {
+      "t": 7.6949,
+      "kind": "footprint",
+      "receipt_ros_ns": 4160000000,
+      "stamp_ns": 4154000000,
+      "header_age_seconds": 0.006,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 4154000000,
+        "frame_id": "odom",
+        "x": -3.0000633675559705,
+        "y": -1.9999993603948374,
+        "yaw": 5.7511445308996255e-06
+      },
+      "points": [
+        [
+          -2.7700634002685547,
+          -1.9999980926513672,
+          0.0
+        ],
+        [
+          -2.7868103981018066,
+          -1.9058077335357666,
+          0.0
+        ],
+        [
+          -2.834500789642334,
+          -1.8344348669052124,
+          0.0
+        ],
+        [
+          -2.905874252319336,
+          -1.786745309829712,
+          0.0
+        ],
+        [
+          -2.9900646209716797,
+          -1.7699992656707764,
+          0.0
+        ],
+        [
+          -3.094254970550537,
+          -1.7867463827133179,
+          0.0
+        ],
+        [
+          -3.1656277179718018,
+          -1.8344367742538452,
+          0.0
+        ],
+        [
+          -3.213317394256592,
+          -1.9058102369308472,
+          0.0
+        ],
+        [
+          -3.2300634384155273,
+          -1.9900007247924805,
+          0.0
+        ],
+        [
+          -3.2133164405822754,
+          -2.094190835952759,
+          0.0
+        ],
+        [
+          -3.165625810623169,
+          -2.1655638217926025,
+          0.0
+        ],
+        [
+          -3.094252586364746,
+          -2.2132534980773926,
+          0.0
+        ],
+        [
+          -3.0100619792938232,
+          -2.229999303817749,
+          0.0
+        ],
+        [
+          -2.905871868133545,
+          -2.213252305984497,
+          0.0
+        ],
+        [
+          -2.834498882293701,
+          -2.1655619144439697,
+          0.0
+        ],
+        [
+          -2.7868094444274902,
+          -2.0941884517669678,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 7.8961,
+      "kind": "costmap",
+      "receipt_ros_ns": 4360000000,
+      "stamp_ns": 4360000000,
+      "header_age_seconds": 0.0,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 4358000000,
+        "frame_id": "odom",
+        "x": -3.000069889029209,
+        "y": -1.9999994260809608,
+        "yaw": 6.1025472175821015e-06
+      },
+      "resolution": 0.05000000074505806,
+      "width": 60,
+      "height": 60,
+      "origin": [
+        -4.450000000372529,
+        -3.4500000003725293,
+        0.0
+      ]
+    },
+    {
+      "t": 8.4964,
+      "kind": "footprint",
+      "receipt_ros_ns": 4920000000,
+      "stamp_ns": 4902000000,
+      "header_age_seconds": 0.018,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 4936000000,
+        "frame_id": "odom",
+        "x": -3.0000888506538477,
+        "y": -1.9999993322021004,
+        "yaw": 6.8864701597870206e-06
+      },
+      "points": [
+        [
+          -2.770087718963623,
+          -1.9999977350234985,
+          0.0
+        ],
+        [
+          -2.786834955215454,
+          -1.9058074951171875,
+          0.0
+        ],
+        [
+          -2.8345253467559814,
+          -1.8344347476959229,
+          0.0
+        ],
+        [
+          -2.9058988094329834,
+          -1.7867451906204224,
+          0.0
+        ],
+        [
+          -2.9900894165039062,
+          -1.7699992656707764,
+          0.0
+        ],
+        [
+          -3.0942795276641846,
+          -1.7867465019226074,
+          0.0
+        ],
+        [
+          -3.1656525135040283,
+          -1.8344370126724243,
+          0.0
+        ],
+        [
+          -3.2133419513702393,
+          -1.9058104753494263,
+          0.0
+        ],
+        [
+          -3.2300877571105957,
+          -1.99000084400177,
+          0.0
+        ],
+        [
+          -3.2133407592773438,
+          -2.094191074371338,
+          0.0
+        ],
+        [
+          -3.1656501293182373,
+          -2.1655640602111816,
+          0.0
+        ],
+        [
+          -3.0942766666412354,
+          -2.2132534980773926,
+          0.0
+        ],
+        [
+          -3.0100862979888916,
+          -2.229999303817749,
+          0.0
+        ],
+        [
+          -2.905895948410034,
+          -2.213252305984497,
+          0.0
+        ],
+        [
+          -2.8345232009887695,
+          -2.1655616760253906,
+          0.0
+        ],
+        [
+          -2.7868337631225586,
+          -2.0941882133483887,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 8.7828,
+      "kind": "footprint",
+      "receipt_ros_ns": 5140000000,
+      "stamp_ns": 5038000000,
+      "header_age_seconds": 0.102,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 5072000000,
+        "frame_id": "odom",
+        "x": -3.000093353707395,
+        "y": -1.9999993203748048,
+        "yaw": 7.027662703411256e-06
+      },
+      "points": [
+        [
+          -2.770092248916626,
+          -1.9999977350234985,
+          0.0
+        ],
+        [
+          -2.786839246749878,
+          -1.9058074951171875,
+          0.0
+        ],
+        [
+          -2.8345298767089844,
+          -1.8344346284866333,
+          0.0
+        ],
+        [
+          -2.9059033393859863,
+          -1.7867451906204224,
+          0.0
+        ],
+        [
+          -2.99009370803833,
+          -1.7699992656707764,
+          0.0
+        ],
+        [
+          -3.0942840576171875,
+          -1.7867465019226074,
+          0.0
+        ],
+        [
+          -3.165656805038452,
+          -1.8344370126724243,
+          0.0
+        ],
+        [
+          -3.213346242904663,
+          -1.9058104753494263,
+          0.0
+        ],
+        [
+          -3.2300922870635986,
+          -1.9900009632110596,
+          0.0
+        ],
+        [
+          -3.2133450508117676,
+          -2.094191074371338,
+          0.0
+        ],
+        [
+          -3.165654420852661,
+          -2.1655640602111816,
+          0.0
+        ],
+        [
+          -3.094280958175659,
+          -2.2132534980773926,
+          0.0
+        ],
+        [
+          -3.0100905895233154,
+          -2.229999303817749,
+          0.0
+        ],
+        [
+          -2.905900239944458,
+          -2.213252067565918,
+          0.0
+        ],
+        [
+          -2.8345274925231934,
+          -2.1655616760253906,
+          0.0
+        ],
+        [
+          -2.7868380546569824,
+          -2.0941882133483887,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 9.0949,
+      "kind": "footprint",
+      "receipt_ros_ns": 5460000000,
+      "stamp_ns": 5446000000,
+      "header_age_seconds": 0.014,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 5446000000,
+        "frame_id": "odom",
+        "x": -3.000105519188841,
+        "y": -1.9999993090344108,
+        "yaw": 7.499297676131485e-06
+      },
+      "points": [
+        [
+          -2.7701056003570557,
+          -1.999997615814209,
+          0.0
+        ],
+        [
+          -2.7868528366088867,
+          -1.905807375907898,
+          0.0
+        ],
+        [
+          -2.834543228149414,
+          -1.8344346284866333,
+          0.0
+        ],
+        [
+          -2.905916690826416,
+          -1.7867450714111328,
+          0.0
+        ],
+        [
+          -2.990107297897339,
+          -1.7699992656707764,
+          0.0
+        ],
+        [
+          -3.094297409057617,
+          -1.7867465019226074,
+          0.0
+        ],
+        [
+          -3.165670156478882,
+          -1.8344370126724243,
+          0.0
+        ],
+        [
+          -3.213359832763672,
+          -1.9058105945587158,
+          0.0
+        ],
+        [
+          -3.2301056385040283,
+          -1.9900010824203491,
+          0.0
+        ],
+        [
+          -3.2133584022521973,
+          -2.094191312789917,
+          0.0
+        ],
+        [
+          -3.165667772293091,
+          -2.1655640602111816,
+          0.0
+        ],
+        [
+          -3.094294309616089,
+          -2.2132534980773926,
+          0.0
+        ],
+        [
+          -3.010103702545166,
+          -2.229999303817749,
+          0.0
+        ],
+        [
+          -2.9059135913848877,
+          -2.213252067565918,
+          0.0
+        ],
+        [
+          -2.834540843963623,
+          -2.1655616760253906,
+          0.0
+        ],
+        [
+          -2.786851406097412,
+          -2.0941879749298096,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 9.4949,
+      "kind": "footprint",
+      "receipt_ros_ns": 5860000000,
+      "stamp_ns": 5854000000,
+      "header_age_seconds": 0.006,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 5854000000,
+        "frame_id": "odom",
+        "x": -3.0001188280370195,
+        "y": -1.99999930224902,
+        "yaw": 8.018241261517246e-06
+      },
+      "points": [
+        [
+          -2.7701187133789062,
+          -1.9999974966049194,
+          0.0
+        ],
+        [
+          -2.7868661880493164,
+          -1.9058072566986084,
+          0.0
+        ],
+        [
+          -2.8345565795898438,
+          -1.8344345092773438,
+          0.0
+        ],
+        [
+          -2.905930280685425,
+          -1.7867450714111328,
+          0.0
+        ],
+        [
+          -2.9901206493377686,
+          -1.7699992656707764,
+          0.0
+        ],
+        [
+          -3.094310998916626,
+          -1.7867465019226074,
+          0.0
+        ],
+        [
+          -3.1656837463378906,
+          -1.8344371318817139,
+          0.0
+        ],
+        [
+          -3.2133731842041016,
+          -1.9058107137680054,
+          0.0
+        ],
+        [
+          -3.230118989944458,
+          -1.9900012016296387,
+          0.0
+        ],
+        [
+          -3.213371515274048,
+          -2.094191312789917,
+          0.0
+        ],
+        [
+          -3.1656808853149414,
+          -2.1655640602111816,
+          0.0
+        ],
+        [
+          -3.0943074226379395,
+          -2.2132534980773926,
+          0.0
+        ],
+        [
+          -3.0101170539855957,
+          -2.229999303817749,
+          0.0
+        ],
+        [
+          -2.9059267044067383,
+          -2.213252067565918,
+          0.0
+        ],
+        [
+          -2.8345539569854736,
+          -2.1655614376068115,
+          0.0
+        ],
+        [
+          -2.7868645191192627,
+          -2.0941879749298096,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 9.6951,
+      "kind": "costmap",
+      "receipt_ros_ns": 6060000000,
+      "stamp_ns": 6060000000,
+      "header_age_seconds": 0.0,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 6058000000,
+        "frame_id": "odom",
+        "x": -3.000125498134812,
+        "y": -1.999999409857177,
+        "yaw": 8.360490641500475e-06
+      },
+      "resolution": 0.05000000074505806,
+      "width": 60,
+      "height": 60,
+      "origin": [
+        -4.450000000372529,
+        -3.4500000003725293,
+        0.0
+      ]
+    },
+    {
+      "t": 10.0968,
+      "kind": "footprint",
+      "receipt_ros_ns": 6460000000,
+      "stamp_ns": 6432000000,
+      "header_age_seconds": 0.028,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 6432000000,
+        "frame_id": "odom",
+        "x": -2.939801541177904,
+        "y": -1.9999992298786562,
+        "yaw": 9.625675582349178e-06
+      },
+      "points": [
+        [
+          -2.709801435470581,
+          -1.9999970197677612,
+          0.0
+        ],
+        [
+          -2.726548910140991,
+          -1.9058067798614502,
+          0.0
+        ],
+        [
+          -2.7742395401000977,
+          -1.834434151649475,
+          0.0
+        ],
+        [
+          -2.8456132411956787,
+          -1.7867448329925537,
+          0.0
+        ],
+        [
+          -2.9298038482666016,
+          -1.7699991464614868,
+          0.0
+        ],
+        [
+          -3.03399395942688,
+          -1.786746621131897,
+          0.0
+        ],
+        [
+          -3.1053667068481445,
+          -1.834437370300293,
+          0.0
+        ],
+        [
+          -3.1530559062957764,
+          -1.9058109521865845,
+          0.0
+        ],
+        [
+          -3.169801712036133,
+          -1.9900014400482178,
+          0.0
+        ],
+        [
+          -3.1530542373657227,
+          -2.094191551208496,
+          0.0
+        ],
+        [
+          -3.105363368988037,
+          -2.1655642986297607,
+          0.0
+        ],
+        [
+          -3.033989906311035,
+          -2.2132537364959717,
+          0.0
+        ],
+        [
+          -2.9497992992401123,
+          -2.229999303817749,
+          0.0
+        ],
+        [
+          -2.845609188079834,
+          -2.213251829147339,
+          0.0
+        ],
+        [
+          -2.7742364406585693,
+          -2.1655611991882324,
+          0.0
+        ],
+        [
+          -2.7265472412109375,
+          -2.0941874980926514,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 10.2956,
+      "kind": "costmap",
+      "receipt_ros_ns": 6640000000,
+      "stamp_ns": 6640000000,
+      "header_age_seconds": 0.0,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 6636000000,
+        "frame_id": "odom",
+        "x": -2.8983787353071486,
+        "y": -1.99999880673991,
+        "yaw": 9.288254037624888e-06
+      },
+      "resolution": 0.05000000074505806,
+      "width": 60,
+      "height": 60,
+      "origin": [
+        -4.400000000372529,
+        -3.4500000003725293,
+        0.0
+      ]
+    },
+    {
+      "t": 10.8948,
+      "kind": "footprint",
+      "receipt_ros_ns": 7240000000,
+      "stamp_ns": 7214000000,
+      "header_age_seconds": 0.026,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 7214000000,
+        "frame_id": "odom",
+        "x": -2.776861039867181,
+        "y": -1.9999984042917458,
+        "yaw": 8.748666389121125e-06
+      },
+      "points": [
+        [
+          -2.546860933303833,
+          -1.9999964237213135,
+          0.0
+        ],
+        [
+          -2.563608407974243,
+          -1.9058061838150024,
+          0.0
+        ],
+        [
+          -2.6112990379333496,
+          -1.8344334363937378,
+          0.0
+        ],
+        [
+          -2.6826725006103516,
+          -1.7867441177368164,
+          0.0
+        ],
+        [
+          -2.7668631076812744,
+          -1.76999831199646,
+          0.0
+        ],
+        [
+          -2.8710532188415527,
+          -1.7867457866668701,
+          0.0
+        ],
+        [
+          -2.9424259662628174,
+          -1.8344364166259766,
+          0.0
+        ],
+        [
+          -2.9901154041290283,
+          -1.9058098793029785,
+          0.0
+        ],
+        [
+          -3.0068612098693848,
+          -1.9900003671646118,
+          0.0
+        ],
+        [
+          -2.9901137351989746,
+          -2.0941905975341797,
+          0.0
+        ],
+        [
+          -2.942423105239868,
+          -2.1655633449554443,
+          0.0
+        ],
+        [
+          -2.871049642562866,
+          -2.2132527828216553,
+          0.0
+        ],
+        [
+          -2.7868590354919434,
+          -2.2299985885620117,
+          0.0
+        ],
+        [
+          -2.682668924331665,
+          -2.2132511138916016,
+          0.0
+        ],
+        [
+          -2.6112961769104004,
+          -2.165560483932495,
+          0.0
+        ],
+        [
+          -2.5636067390441895,
+          -2.094186782836914,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 11.0965,
+      "kind": "footprint",
+      "receipt_ros_ns": 7440000000,
+      "stamp_ns": 7418000000,
+      "header_age_seconds": 0.022,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 7418000000,
+        "frame_id": "odom",
+        "x": -2.734647969844604,
+        "y": -1.9999982533505765,
+        "yaw": 8.077289667452411e-06
+      },
+      "points": [
+        [
+          -2.504647970199585,
+          -1.9999964237213135,
+          0.0
+        ],
+        [
+          -2.521395206451416,
+          -1.9058061838150024,
+          0.0
+        ],
+        [
+          -2.5690858364105225,
+          -1.8344334363937378,
+          0.0
+        ],
+        [
+          -2.6404592990875244,
+          -1.7867439985275269,
+          0.0
+        ],
+        [
+          -2.7246499061584473,
+          -1.7699981927871704,
+          0.0
+        ],
+        [
+          -2.8288400173187256,
+          -1.786745548248291,
+          0.0
+        ],
+        [
+          -2.9002127647399902,
+          -1.834436058998108,
+          0.0
+        ],
+        [
+          -2.947902202606201,
+          -1.9058096408843994,
+          0.0
+        ],
+        [
+          -2.9646480083465576,
+          -1.9900001287460327,
+          0.0
+        ],
+        [
+          -2.9479007720947266,
+          -2.0941903591156006,
+          0.0
+        ],
+        [
+          -2.90021014213562,
+          -2.1655631065368652,
+          0.0
+        ],
+        [
+          -2.828836679458618,
+          -2.213252544403076,
+          0.0
+        ],
+        [
+          -2.7446460723876953,
+          -2.2299983501434326,
+          0.0
+        ],
+        [
+          -2.640455961227417,
+          -2.2132508754730225,
+          0.0
+        ],
+        [
+          -2.5690832138061523,
+          -2.165560483932495,
+          0.0
+        ],
+        [
+          -2.5213937759399414,
+          -2.094186782836914,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 11.4969,
+      "kind": "footprint",
+      "receipt_ros_ns": 7780000000,
+      "stamp_ns": 7758000000,
+      "header_age_seconds": 0.022,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 7758000000,
+        "frame_id": "odom",
+        "x": -2.663996126473088,
+        "y": -1.999997968060091,
+        "yaw": 6.1641357122843404e-06
+      },
+      "points": [
+        [
+          -2.4339962005615234,
+          -1.999996542930603,
+          0.0
+        ],
+        [
+          -2.4507431983947754,
+          -1.905806303024292,
+          0.0
+        ],
+        [
+          -2.4984335899353027,
+          -1.8344334363937378,
+          0.0
+        ],
+        [
+          -2.5698070526123047,
+          -1.7867438793182373,
+          0.0
+        ],
+        [
+          -2.6539976596832275,
+          -1.7699979543685913,
+          0.0
+        ],
+        [
+          -2.758187770843506,
+          -1.7867450714111328,
+          0.0
+        ],
+        [
+          -2.8295607566833496,
+          -1.8344354629516602,
+          0.0
+        ],
+        [
+          -2.8772501945495605,
+          -1.905808925628662,
+          0.0
+        ],
+        [
+          -2.893996238708496,
+          -1.9899994134902954,
+          0.0
+        ],
+        [
+          -2.877249002456665,
+          -2.0941896438598633,
+          0.0
+        ],
+        [
+          -2.8295586109161377,
+          -2.165562391281128,
+          0.0
+        ],
+        [
+          -2.7581851482391357,
+          -2.213252067565918,
+          0.0
+        ],
+        [
+          -2.673994779586792,
+          -2.2299981117248535,
+          0.0
+        ],
+        [
+          -2.5698044300079346,
+          -2.2132508754730225,
+          0.0
+        ],
+        [
+          -2.49843168258667,
+          -2.165560483932495,
+          0.0
+        ],
+        [
+          -2.45074200630188,
+          -2.094187021255493,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 11.9087,
+      "kind": "footprint",
+      "receipt_ros_ns": 8160000000,
+      "stamp_ns": 8166000000,
+      "header_age_seconds": -0.006,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 8166000000,
+        "frame_id": "odom",
+        "x": -2.5828620756263456,
+        "y": -2.00002175987124,
+        "yaw": -0.005388448965344358
+      },
+      "points": [
+        [
+          -2.35286545753479,
+          -2.001260995864868,
+          0.0
+        ],
+        [
+          -2.3691041469573975,
+          -1.9069818258285522,
+          0.0
+        ],
+        [
+          -2.4164087772369385,
+          -1.8353527784347534,
+          0.0
+        ],
+        [
+          -2.4875240325927734,
+          -1.7872788906097412,
+          0.0
+        ],
+        [
+          -2.571622848510742,
+          -1.7700790166854858,
+          0.0
+        ],
+        [
+          -2.6759018898010254,
+          -1.7862638235092163,
+          0.0
+        ],
+        [
+          -2.747530937194824,
+          -1.8335685729980469,
+          0.0
+        ],
+        [
+          -2.795604944229126,
+          -1.9046837091445923,
+          0.0
+        ],
+        [
+          -2.812804937362671,
+          -1.988782525062561,
+          0.0
+        ],
+        [
+          -2.7966201305389404,
+          -2.093061685562134,
+          0.0
+        ],
+        [
+          -2.7493152618408203,
+          -2.1646907329559326,
+          0.0
+        ],
+        [
+          -2.6782002449035645,
+          -2.2127647399902344,
+          0.0
+        ],
+        [
+          -2.5941011905670166,
+          -2.2299644947052,
+          0.0
+        ],
+        [
+          -2.4898221492767334,
+          -2.2137796878814697,
+          0.0
+        ],
+        [
+          -2.4181931018829346,
+          -2.1664750576019287,
+          0.0
+        ],
+        [
+          -2.370119094848633,
+          -2.0953598022460938,
+          0.0
+        ]
+      ]
+    },
+    {
+      "t": 12.0984,
+      "kind": "costmap",
+      "receipt_ros_ns": 8360000000,
+      "stamp_ns": 8360000000,
+      "header_age_seconds": 0.0,
+      "frame_id": "odom",
+      "latest_odom": {
+        "stamp_ns": 8336000000,
+        "frame_id": "odom",
+        "x": -2.5583499681196793,
+        "y": -2.000464235927974,
+        "yaw": -0.05691743760123154
+      },
+      "resolution": 0.05000000074505806,
+      "width": 60,
+      "height": 60,
+      "origin": [
+        -4.05000000037253,
+        -3.4500000003725293,
+        0.0
+      ]
+    }
+  ],
+  "scan_receipts": [
+    {
+      "t": 3.2265,
+      "receipt_ros_ns": 240000000,
+      "stamp_ns": 244000000,
+      "latest_raw_odom_tf_stamp_ns": null,
+      "raw_count": 1,
+      "relayed": true
+    },
+    {
+      "t": 4.0306,
+      "receipt_ros_ns": 640000000,
+      "stamp_ns": 644000000,
+      "latest_raw_odom_tf_stamp_ns": 618000000,
+      "raw_count": 3,
+      "relayed": true
+    },
+    {
+      "t": 4.4711,
+      "receipt_ros_ns": 1040000000,
+      "stamp_ns": 1044000000,
+      "latest_raw_odom_tf_stamp_ns": 1026000000,
+      "raw_count": 5,
+      "relayed": true
+    },
+    {
+      "t": 4.6763,
+      "receipt_ros_ns": 1240000000,
+      "stamp_ns": 1244000000,
+      "latest_raw_odom_tf_stamp_ns": 1230000000,
+      "raw_count": 6,
+      "relayed": true
+    },
+    {
+      "t": 5.0841,
+      "receipt_ros_ns": 1640000000,
+      "stamp_ns": 1644000000,
+      "latest_raw_odom_tf_stamp_ns": 1604000000,
+      "raw_count": 8,
+      "relayed": true
+    },
+    {
+      "t": 5.5127,
+      "receipt_ros_ns": 2040000000,
+      "stamp_ns": 2045000000,
+      "latest_raw_odom_tf_stamp_ns": 2012000000,
+      "raw_count": 10,
+      "relayed": true
+    },
+    {
+      "t": 5.9072,
+      "receipt_ros_ns": 2440000000,
+      "stamp_ns": 2445000000,
+      "latest_raw_odom_tf_stamp_ns": 2420000000,
+      "raw_count": 12,
+      "relayed": true
+    },
+    {
+      "t": 6.1113,
+      "receipt_ros_ns": 2640000000,
+      "stamp_ns": 2645000000,
+      "latest_raw_odom_tf_stamp_ns": 2624000000,
+      "raw_count": 13,
+      "relayed": true
+    },
+    {
+      "t": 6.5156,
+      "receipt_ros_ns": 3040000000,
+      "stamp_ns": 3045000000,
+      "latest_raw_odom_tf_stamp_ns": 3032000000,
+      "raw_count": 15,
+      "relayed": true
+    },
+    {
+      "t": 6.9502,
+      "receipt_ros_ns": 3440000000,
+      "stamp_ns": 3445000000,
+      "latest_raw_odom_tf_stamp_ns": 3440000000,
+      "raw_count": 17,
+      "relayed": true
+    },
+    {
+      "t": 7.3643,
+      "receipt_ros_ns": 3840000000,
+      "stamp_ns": 3845000000,
+      "latest_raw_odom_tf_stamp_ns": 3814000000,
+      "raw_count": 19,
+      "relayed": true
+    },
+    {
+      "t": 7.7713,
+      "receipt_ros_ns": 4240000000,
+      "stamp_ns": 4245000000,
+      "latest_raw_odom_tf_stamp_ns": 4222000000,
+      "raw_count": 21,
+      "relayed": true
+    },
+    {
+      "t": 7.976,
+      "receipt_ros_ns": 4440000000,
+      "stamp_ns": 4445000000,
+      "latest_raw_odom_tf_stamp_ns": 4426000000,
+      "raw_count": 22,
+      "relayed": true
+    },
+    {
+      "t": 8.3882,
+      "receipt_ros_ns": 4840000000,
+      "stamp_ns": 4845000000,
+      "latest_raw_odom_tf_stamp_ns": 4834000000,
+      "raw_count": 24,
+      "relayed": true
+    },
+    {
+      "t": 8.8651,
+      "receipt_ros_ns": 5240000000,
+      "stamp_ns": 5246000000,
+      "latest_raw_odom_tf_stamp_ns": 5242000000,
+      "raw_count": 26,
+      "relayed": true
+    },
+    {
+      "t": 9.2631,
+      "receipt_ros_ns": 5640000000,
+      "stamp_ns": 5645000000,
+      "latest_raw_odom_tf_stamp_ns": 5616000000,
+      "raw_count": 28,
+      "relayed": true
+    },
+    {
+      "t": 9.6745,
+      "receipt_ros_ns": 6040000000,
+      "stamp_ns": 6045000000,
+      "latest_raw_odom_tf_stamp_ns": 6024000000,
+      "raw_count": 30,
+      "relayed": true
+    },
+    {
+      "t": 9.8731,
+      "receipt_ros_ns": 6240000000,
+      "stamp_ns": 6245000000,
+      "latest_raw_odom_tf_stamp_ns": 6228000000,
+      "raw_count": 31,
+      "relayed": true
+    },
+    {
+      "t": 10.2822,
+      "receipt_ros_ns": 6640000000,
+      "stamp_ns": 6645000000,
+      "latest_raw_odom_tf_stamp_ns": 6636000000,
+      "raw_count": 33,
+      "relayed": true
+    },
+    {
+      "t": 10.6917,
+      "receipt_ros_ns": 7040000000,
+      "stamp_ns": 7045000000,
+      "latest_raw_odom_tf_stamp_ns": 7044000000,
+      "raw_count": 35,
+      "relayed": true
+    },
+    {
+      "t": 11.0957,
+      "receipt_ros_ns": 7440000000,
+      "stamp_ns": 7445000000,
+      "latest_raw_odom_tf_stamp_ns": 7418000000,
+      "raw_count": 37,
+      "relayed": true
+    },
+    {
+      "t": 11.3582,
+      "receipt_ros_ns": 7640000000,
+      "stamp_ns": 7645000000,
+      "latest_raw_odom_tf_stamp_ns": 7622000000,
+      "raw_count": 38,
+      "relayed": true
+    },
+    {
+      "t": 11.7659,
+      "receipt_ros_ns": 8040000000,
+      "stamp_ns": 8045000000,
+      "latest_raw_odom_tf_stamp_ns": 8030000000,
+      "raw_count": 40,
+      "relayed": true
+    },
+    {
+      "t": 12.1854,
+      "receipt_ros_ns": 8440000000,
+      "stamp_ns": 8445000000,
+      "latest_raw_odom_tf_stamp_ns": 8438000000,
+      "raw_count": 42,
+      "relayed": true
+    }
+  ],
+  "projection": [
+    {
+      "t": 3.2287,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 244000000,
+      "scan_age_ms": -4.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 0,
+      "dropped_scans": 0
+    },
+    {
+      "t": 3.8171,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 444000000,
+      "scan_age_ms": -4.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 0,
+      "dropped_scans": 1
+    },
+    {
+      "t": 4.0439,
+      "status": "DROPPED",
+      "reason": "measurement_tf_timeout",
+      "scan_stamp_ns": 444000000,
+      "scan_age_ms": 216.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 0,
+      "dropped_scans": 2
+    },
+    {
+      "t": 4.2827,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 844000000,
+      "scan_age_ms": -4.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 0,
+      "dropped_scans": 3
+    },
+    {
+      "t": 4.4869,
+      "status": "DROPPED",
+      "reason": "measurement_tf_timeout",
+      "scan_stamp_ns": 844000000,
+      "scan_age_ms": 196.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 0,
+      "dropped_scans": 4
+    },
+    {
+      "t": 4.6798,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 1244000000,
+      "scan_age_ms": -4.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 0,
+      "dropped_scans": 5
+    },
+    {
+      "t": 4.8989,
+      "status": "DROPPED",
+      "reason": "measurement_tf_timeout",
+      "scan_stamp_ns": 1244000000,
+      "scan_age_ms": 216.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 0,
+      "dropped_scans": 6
+    },
+    {
+      "t": 5.3261,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 1845000000,
+      "scan_age_ms": 15.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 2,
+      "dropped_scans": 6
+    },
+    {
+      "t": 5.71,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 2245000000,
+      "scan_age_ms": -5.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 4,
+      "dropped_scans": 6
+    },
+    {
+      "t": 6.1139,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 2645000000,
+      "scan_age_ms": -5.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 6,
+      "dropped_scans": 6
+    },
+    {
+      "t": 6.5175,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 3045000000,
+      "scan_age_ms": -5.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 8,
+      "dropped_scans": 6
+    },
+    {
+      "t": 6.9543,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 3445000000,
+      "scan_age_ms": -5.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 10,
+      "dropped_scans": 6
+    },
+    {
+      "t": 7.3796,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 3845000000,
+      "scan_age_ms": -5.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 12,
+      "dropped_scans": 6
+    },
+    {
+      "t": 7.7737,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 4245000000,
+      "scan_age_ms": -5.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 14,
+      "dropped_scans": 6
+    },
+    {
+      "t": 8.1886,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 4645000000,
+      "scan_age_ms": -5.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 16,
+      "dropped_scans": 6
+    },
+    {
+      "t": 8.9603,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 5246000000,
+      "scan_age_ms": 94.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 19,
+      "dropped_scans": 6
+    },
+    {
+      "t": 9.3139,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 5645000000,
+      "scan_age_ms": 35.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 21,
+      "dropped_scans": 6
+    },
+    {
+      "t": 9.6765,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 6045000000,
+      "scan_age_ms": -5.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 23,
+      "dropped_scans": 6
+    },
+    {
+      "t": 10.0875,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 6445000000,
+      "scan_age_ms": -5.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 25,
+      "dropped_scans": 6
+    },
+    {
+      "t": 10.5008,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 6845000000,
+      "scan_age_ms": -5.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 27,
+      "dropped_scans": 6
+    },
+    {
+      "t": 10.9128,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 7245000000,
+      "scan_age_ms": 15.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 29,
+      "dropped_scans": 6
+    },
+    {
+      "t": 11.3604,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 7645000000,
+      "scan_age_ms": -5.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 31,
+      "dropped_scans": 6
+    },
+    {
+      "t": 11.7904,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 8045000000,
+      "scan_age_ms": 15.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 33,
+      "dropped_scans": 6
+    },
+    {
+      "t": 12.2068,
+      "status": "PENDING_TF",
+      "reason": "waiting_for_measurement_transform",
+      "scan_stamp_ns": 8445000000,
+      "scan_age_ms": 15.0,
+      "tf_skew_ms": null,
+      "queue_depth": 1,
+      "valid_scans": 35,
+      "dropped_scans": 6
+    }
+  ],
+  "start_monotonic_ns": 4690288555887,
+  "owned_amcl_process_samples": [
+    {
+      "t": 4.0001,
+      "pid": 56352,
+      "state": "S",
+      "user_cpu_seconds": 0.32,
+      "system_cpu_seconds": 0.16,
+      "threads": 18,
+      "start_ticks": 469087,
+      "wchan": "futex_wait_queue",
+      "thread_samples": [
+        {
+          "tid": 56352,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.08,
+          "system_cpu_seconds": 0.03
+        },
+        {
+          "tid": 56375,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56376,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56379,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56380,
+          "name": "amcl",
+          "state": "R",
+          "wchan": "0",
+          "user_cpu_seconds": 0.04,
+          "system_cpu_seconds": 0.03
+        },
+        {
+          "tid": 56381,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56385,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56386,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56387,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56389,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.06,
+          "system_cpu_seconds": 0.02
+        },
+        {
+          "tid": 56390,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56393,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.07,
+          "system_cpu_seconds": 0.02
+        },
+        {
+          "tid": 56400,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.01,
+          "system_cpu_seconds": 0.02
+        },
+        {
+          "tid": 56408,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56494,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56532,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56533,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.01,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56536,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        }
+      ],
+      "resident_bytes": 36831232
+    },
+    {
+      "t": 7.0022,
+      "pid": 56352,
+      "state": "S",
+      "user_cpu_seconds": 0.67,
+      "system_cpu_seconds": 0.28,
+      "threads": 18,
+      "start_ticks": 469087,
+      "wchan": "futex_wait_queue",
+      "thread_samples": [
+        {
+          "tid": 56352,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.11,
+          "system_cpu_seconds": 0.03
+        },
+        {
+          "tid": 56375,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56376,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56379,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56380,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "0",
+          "user_cpu_seconds": 0.09,
+          "system_cpu_seconds": 0.06
+        },
+        {
+          "tid": 56381,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56385,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56386,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56387,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56389,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.07,
+          "system_cpu_seconds": 0.03
+        },
+        {
+          "tid": 56390,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56393,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "0",
+          "user_cpu_seconds": 0.3,
+          "system_cpu_seconds": 0.09
+        },
+        {
+          "tid": 56400,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.01,
+          "system_cpu_seconds": 0.03
+        },
+        {
+          "tid": 56408,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56494,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56532,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56533,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.03,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56536,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        }
+      ],
+      "resident_bytes": 37355520
+    },
+    {
+      "t": 9.0162,
+      "pid": 56352,
+      "state": "S",
+      "user_cpu_seconds": 0.91,
+      "system_cpu_seconds": 0.35,
+      "threads": 18,
+      "start_ticks": 469087,
+      "wchan": "futex_wait_queue",
+      "thread_samples": [
+        {
+          "tid": 56352,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.13,
+          "system_cpu_seconds": 0.04
+        },
+        {
+          "tid": 56375,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56376,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56379,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56380,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.13,
+          "system_cpu_seconds": 0.08
+        },
+        {
+          "tid": 56381,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56385,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56386,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56387,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56389,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.07,
+          "system_cpu_seconds": 0.03
+        },
+        {
+          "tid": 56390,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56393,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.46,
+          "system_cpu_seconds": 0.14
+        },
+        {
+          "tid": 56400,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.01,
+          "system_cpu_seconds": 0.03
+        },
+        {
+          "tid": 56408,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56494,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.01,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56532,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.01,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56533,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.04,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56536,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        }
+      ],
+      "resident_bytes": 37355520
+    },
+    {
+      "t": 12.0234,
+      "pid": 56352,
+      "state": "S",
+      "user_cpu_seconds": 1.29,
+      "system_cpu_seconds": 0.45,
+      "threads": 18,
+      "start_ticks": 469087,
+      "wchan": "futex_wait_queue",
+      "thread_samples": [
+        {
+          "tid": 56352,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.15,
+          "system_cpu_seconds": 0.04
+        },
+        {
+          "tid": 56375,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56376,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56379,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56380,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.18,
+          "system_cpu_seconds": 0.1
+        },
+        {
+          "tid": 56381,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56385,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56386,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56387,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56389,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.07,
+          "system_cpu_seconds": 0.03
+        },
+        {
+          "tid": 56390,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "__skb_wait_for_more_packets",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56393,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.73,
+          "system_cpu_seconds": 0.21
+        },
+        {
+          "tid": 56400,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.01,
+          "system_cpu_seconds": 0.03
+        },
+        {
+          "tid": 56408,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56494,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.01,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56532,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.01,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56533,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.06,
+          "system_cpu_seconds": 0.0
+        },
+        {
+          "tid": 56536,
+          "name": "amcl",
+          "state": "S",
+          "wchan": "futex_wait_queue",
+          "user_cpu_seconds": 0.0,
+          "system_cpu_seconds": 0.0
+        }
+      ],
+      "resident_bytes": 37617664
+    }
+  ],
+  "map_info": {
+    "resolution": 0.05000000074505806,
+    "width": 204,
+    "height": 164,
+    "origin": [
+      -5.1,
+      -4.1,
+      0.0
+    ]
+  },
+  "tf_endpoint_snapshot": {
+    "/amcl_pose publishers": [
+      {
+        "node_name": "amcl",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          32,
+          220,
+          55,
+          91,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          38,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL",
+        "history": "UNKNOWN",
+        "depth": 0
+      }
+    ],
+    "/tf publishers": [
+      {
+        "node_name": "turtlebot3_diff_drive",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          24,
+          220,
+          53,
+          48,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          137,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "robot_state_publisher",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          26,
+          220,
+          108,
+          20,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          19,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "amcl",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          32,
+          220,
+          55,
+          91,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          35,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      }
+    ],
+    "/tf subscribers": [
+      {
+        "node_name": "transform_listener_impl_5f9fbf971f60",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          32,
+          220,
+          55,
+          91,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          33,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "transform_listener_impl_557577da0fd0",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          34,
+          220,
+          208,
+          165,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          60,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "transform_listener_impl_5ca7588478e0",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          36,
+          220,
+          252,
+          21,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          33,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "localization_health",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          51,
+          220,
+          25,
+          57,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          20,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "astar_planner",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          63,
+          220,
+          163,
+          222,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          18,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "path_follower",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          76,
+          220,
+          178,
+          15,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          38,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "change_memory",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          85,
+          220,
+          45,
+          44,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          18,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "gazebo_tf_ingress_probe",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          194,
+          219,
+          64,
+          38,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          19,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "web_mission_server",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          196,
+          219,
+          136,
+          74,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          18,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "startup_gazebo_acceptance",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          223,
+          219,
+          253,
+          166,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          24,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "startup_gazebo_acceptance",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          223,
+          219,
+          253,
+          166,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          40,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      }
+    ],
+    "/tf_static subscribers": [
+      {
+        "node_name": "transform_listener_impl_5f9fbf971f60",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          32,
+          220,
+          55,
+          91,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          34,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "transform_listener_impl_557577da0fd0",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          34,
+          220,
+          208,
+          165,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          61,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "transform_listener_impl_5ca7588478e0",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          36,
+          220,
+          252,
+          21,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          34,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "localization_health",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          51,
+          220,
+          25,
+          57,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          21,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "astar_planner",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          63,
+          220,
+          163,
+          222,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          19,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "path_follower",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          76,
+          220,
+          178,
+          15,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          39,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "change_memory",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          85,
+          220,
+          45,
+          44,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          19,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "web_mission_server",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          196,
+          219,
+          136,
+          74,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          19,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL",
+        "history": "UNKNOWN",
+        "depth": 0
+      },
+      {
+        "node_name": "startup_gazebo_acceptance",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          223,
+          219,
+          253,
+          166,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          25,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL",
+        "history": "UNKNOWN",
+        "depth": 0
+      }
+    ],
+    "/controller_server/transition_event publishers": [
+      {
+        "node_name": "controller_server",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          34,
+          220,
+          208,
+          165,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          19,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      }
+    ],
+    "/behavior_server/transition_event publishers": [
+      {
+        "node_name": "behavior_server",
+        "node_namespace": "/",
+        "gid": [
+          1,
+          15,
+          120,
+          57,
+          36,
+          220,
+          252,
+          21,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          19,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE",
+        "history": "UNKNOWN",
+        "depth": 0
+      }
+    ]
+  },
+  "error": "AssertionError('{\"name\": \"local_detour_precedes_global_replan\", \"passed\": false, \"selection\": {\"t\": 11.8886, \"status\": \"READY\", \"message\": \"Local detour active; original forward suffix retained\", \"goal\": {\"x\": 1.0, \"y\": -2.0, \"frame_id\": \"map\"}, \"goal_stamp\": {\"sec\": 5, \"nanosec\": 760000000}, \"plan_kind\": \"LOCAL_DETOUR\", \"local_detour_state\": \"ACTIVE\", \"local_attempt_id\": 2, \"global_plan_count\": 2, \"global_duration_ms\": 79.63510599984147, \"search_duration_ms\": 35.3503450005519, \"adapter_duration_ms\": 94.44967600029486, \"expansions\": 360, \"detour_reason\": \"local_detour_ready\", \"rejoin_progress\": 1.8227922332975064, \"occlusion_reserved_cells\": 0, \"occlusion_extension\": 0.5, \"rejoin_buffer\": 0.15, \"observation_reserved_cells\": 28, \"observation_margin\": 0.05, \"rejoin_point\": {\"x\": -1.174999941512942, \"y\": -2.4249999750405546}, \"sent_at_ns\": 8040000000}, \"global_plan_count_before_obstacle\": 1}')",
+  "raw_scans": 42,
+  "forwarded_scans": 42,
+  "contact_sensor_message_count": 47,
+  "duration_seconds": 12.2922,
+  "raw_telemetry": {
+    "path": "/tmp/smart_vision_startup186.Ra6wfr/full_result.json",
+    "sha256": "76a4186ef43290b51834c85dbb3cb45f5aa61c306c645c2ecd3a4a0c98086ba3"
+  },
+  "sample_counts": {
+    "states": 59,
+    "commands": 373,
+    "odom": 244,
+    "ground_truth": 166,
+    "amcl": 8,
+    "health": 35,
+    "motion": 102,
+    "navigation": 9,
+    "planner": 8,
+    "paths": 3,
+    "tf": 76
+  },
+  "amcl_samples": [
+    {
+      "t": 3.8404,
+      "stamp_ns": 444000000,
+      "x": -3.0000000000002225,
+      "y": -2.0,
+      "yaw": 0.0,
+      "position_std": 0.0,
+      "yaw_std": 3.3085947202406556e-07,
+      "covariance": [
+        -5.950795411990839e-13,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0946799022804343e-13
+      ]
+    },
+    {
+      "t": 4.9067,
+      "stamp_ns": 1444000000,
+      "x": -2.99998401864373,
+      "y": -2.00000000000196,
+      "yaw": 1.1588190880125249e-06,
+      "position_std": 7.619149244648765e-06,
+      "yaw_std": 9.96451022088823e-06,
+      "covariance": [
+        5.8051341511600185e-11,
+        7.37188088351104e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        7.37188088351104e-14,
+        5.3290705182007514e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        9.929146394218603e-11
+      ]
+    },
+    {
+      "t": 6.9826,
+      "stamp_ns": 3445000000,
+      "x": -2.9999193529584045,
+      "y": -1.999999999948146,
+      "yaw": 3.1702250061164306e-06,
+      "position_std": 2.8802614921184616e-05,
+      "yaw_std": 3.93087661518692e-05,
+      "covariance": [
+        8.295906184230262e-10,
+        8.171241461241152e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        7.993605777301127e-14,
+        6.17284001691587e-14,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.5451790963823373e-09
+      ]
+    },
+    {
+      "t": 9.8977,
+      "stamp_ns": 6245000000,
+      "x": -2.978793556821021,
+      "y": -1.9999890972258418,
+      "yaw": 0.0007057816191410517,
+      "position_std": 0.01011354225301071,
+      "yaw_std": 0.012971413887762162,
+      "covariance": [
+        0.00010228366642550668,
+        8.488756542135434e-08,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        8.488756542135434e-08,
+        4.0394265710119726e-08,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.00016825757824762906
+      ]
+    },
+    {
+      "t": 10.522,
+      "stamp_ns": 6845000000,
+      "x": -2.851010342613173,
+      "y": -2.000311866889321,
+      "yaw": -0.0012672258492862566,
+      "position_std": 0.05341854248719665,
+      "yaw_std": 0.07282907465488539,
+      "covariance": [
+        0.002853539990072207,
+        1.3918232992793378e-06,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.3918232992793378e-06,
+        5.166580180038238e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.005304074115086869
+      ]
+    },
+    {
+      "t": 11.1109,
+      "stamp_ns": 7445000000,
+      "x": -2.7212219552369254,
+      "y": -2.0001074446038083,
+      "yaw": 0.004727658564755495,
+      "position_std": 0.07451917546212775,
+      "yaw_std": 0.09237196458562139,
+      "covariance": [
+        0.005553056658789579,
+        1.6429870435707983e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.6429870435707983e-05,
+        0.00024482902824374264,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008532579841407291
+      ]
+    },
+    {
+      "t": 11.7922,
+      "stamp_ns": 8045000000,
+      "x": -2.5921779830975247,
+      "y": -1.9991656844156003,
+      "yaw": 0.011670422228381069,
+      "position_std": 0.08556245841695787,
+      "yaw_std": 0.10162173370075779,
+      "covariance": [
+        0.007316429686057724,
+        0.00017399291738673384,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.00017399291738762201,
+        0.0006003583391382961,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.01032697676034773
+      ]
+    },
+    {
+      "t": 12.2175,
+      "stamp_ns": 8445000000,
+      "x": -2.5426265788502493,
+      "y": -2.0012824862945107,
+      "yaw": -0.10513830223477282,
+      "position_std": 0.0931414370200917,
+      "yaw_std": 0.09401516298257666,
+      "covariance": [
+        0.008675205600289893,
+        -3.1167895770067844e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -3.1167895770067844e-05,
+        0.0006924305679367748,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008838850870640453
+      ]
+    }
+  ],
+  "tf_samples": [
+    {
+      "t": 3.6488,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 278000000,
+      "header_age_seconds": -0.018
+    },
+    {
+      "t": 3.8408,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 1444000000,
+      "header_age_seconds": -0.984
+    },
+    {
+      "t": 3.8549,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 482000000,
+      "header_age_seconds": -0.002
+    },
+    {
+      "t": 4.2861,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 856000000,
+      "header_age_seconds": -0.016
+    },
+    {
+      "t": 4.2902,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 1844000000,
+      "header_age_seconds": -1.004
+    },
+    {
+      "t": 4.4922,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1060000000,
+      "header_age_seconds": 0.0
+    },
+    {
+      "t": 4.4956,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 2044000000,
+      "header_age_seconds": -0.984
+    },
+    {
+      "t": 4.6967,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1264000000,
+      "header_age_seconds": -0.004
+    },
+    {
+      "t": 4.8987,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1468000000,
+      "header_age_seconds": -0.008
+    },
+    {
+      "t": 4.9081,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 2444000000,
+      "header_age_seconds": -0.984
+    },
+    {
+      "t": 5.1101,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1672000000,
+      "header_age_seconds": -0.012
+    },
+    {
+      "t": 5.1114,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 2644000000,
+      "header_age_seconds": -0.984
+    },
+    {
+      "t": 5.328,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 1876000000,
+      "header_age_seconds": -0.016
+    },
+    {
+      "t": 5.3322,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 2845000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 5.7191,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 3245000000,
+      "header_age_seconds": -1.005
+    },
+    {
+      "t": 5.7821,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 2318000000,
+      "header_age_seconds": -0.018
+    },
+    {
+      "t": 5.9348,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 3445000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 5.985,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 2522000000,
+      "header_age_seconds": -0.002
+    },
+    {
+      "t": 6.195,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 2726000000,
+      "header_age_seconds": -0.006
+    },
+    {
+      "t": 6.3975,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 2930000000,
+      "header_age_seconds": -0.01
+    },
+    {
+      "t": 6.5404,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 4045000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 6.6073,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3134000000,
+      "header_age_seconds": -0.014
+    },
+    {
+      "t": 6.7568,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 4245000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 6.8359,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3338000000,
+      "header_age_seconds": -0.018
+    },
+    {
+      "t": 7.0518,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3542000000,
+      "header_age_seconds": -0.002
+    },
+    {
+      "t": 7.1921,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 4645000000,
+      "header_age_seconds": -0.965
+    },
+    {
+      "t": 7.2634,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3746000000,
+      "header_age_seconds": -0.006
+    },
+    {
+      "t": 7.4712,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 3950000000,
+      "header_age_seconds": -0.01
+    },
+    {
+      "t": 7.5768,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 5045000000,
+      "header_age_seconds": -1.005
+    },
+    {
+      "t": 7.787,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 5245000000,
+      "header_age_seconds": -1.005
+    },
+    {
+      "t": 7.8893,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4358000000,
+      "header_age_seconds": -0.018
+    },
+    {
+      "t": 7.9958,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 5445000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 8.0983,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4562000000,
+      "header_age_seconds": -0.002
+    },
+    {
+      "t": 8.2072,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 5645000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 8.3112,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4766000000,
+      "header_age_seconds": -0.006
+    },
+    {
+      "t": 8.563,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 4970000000,
+      "header_age_seconds": -0.01
+    },
+    {
+      "t": 8.7831,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 5072000000,
+      "header_age_seconds": 0.068
+    },
+    {
+      "t": 8.7918,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 6045000000,
+      "header_age_seconds": -0.885
+    },
+    {
+      "t": 8.9941,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 5378000000,
+      "header_age_seconds": -0.018
+    },
+    {
+      "t": 9.0669,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 6445000000,
+      "header_age_seconds": -1.005
+    },
+    {
+      "t": 9.2714,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 6645000000,
+      "header_age_seconds": -1.005
+    },
+    {
+      "t": 9.4114,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 5786000000,
+      "header_age_seconds": -0.006
+    },
+    {
+      "t": 9.4792,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 6845000000,
+      "header_age_seconds": -1.005
+    },
+    {
+      "t": 9.6178,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 5990000000,
+      "header_age_seconds": -0.01
+    },
+    {
+      "t": 9.6907,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 7045000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 9.8981,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 7245000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 10.0292,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 6398000000,
+      "header_age_seconds": -0.018
+    },
+    {
+      "t": 10.1032,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 7445000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 10.2387,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 6602000000,
+      "header_age_seconds": -0.002
+    },
+    {
+      "t": 10.3097,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 7645000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 10.5223,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 7845000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 10.6569,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 7010000000,
+      "header_age_seconds": -0.01
+    },
+    {
+      "t": 10.7265,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 8045000000,
+      "header_age_seconds": -0.965
+    },
+    {
+      "t": 10.8635,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 7214000000,
+      "header_age_seconds": -0.014
+    },
+    {
+      "t": 11.0682,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 7418000000,
+      "header_age_seconds": -0.018
+    },
+    {
+      "t": 11.1112,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 8445000000,
+      "header_age_seconds": -1.005
+    },
+    {
+      "t": 11.3703,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 8645000000,
+      "header_age_seconds": -1.005
+    },
+    {
+      "t": 11.5078,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 7792000000,
+      "header_age_seconds": -0.012
+    },
+    {
+      "t": 11.5801,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 8845000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 11.7149,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 7996000000,
+      "header_age_seconds": -0.016
+    },
+    {
+      "t": 11.7938,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 9045000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 12.0016,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 9245000000,
+      "header_age_seconds": -0.985
+    },
+    {
+      "t": 12.1413,
+      "parent": "odom",
+      "child": "base_footprint",
+      "stamp_ns": 8404000000,
+      "header_age_seconds": -0.004
+    },
+    {
+      "t": 12.2178,
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 9445000000,
+      "header_age_seconds": -0.985
+    }
+  ],
+  "path_samples": [
+    {
+      "t": 9.609,
+      "stamp_ns": 5760000000,
+      "points": [
+        [
+          -2.974999968335032,
+          -1.974999968335032
+        ],
+        [
+          -2.92812496763654,
+          -1.974999968335032
+        ],
+        [
+          -2.8812499669380482,
+          -1.974999968335032
+        ],
+        [
+          -2.8343749662395563,
+          -1.974999968335032
+        ],
+        [
+          -2.7874999655410644,
+          -1.974999968335032
+        ],
+        [
+          -2.7406249648425725,
+          -1.974999968335032
+        ],
+        [
+          -2.6937499641440805,
+          -1.974999968335032
+        ],
+        [
+          -2.6468749634455886,
+          -1.974999968335032
+        ],
+        [
+          -2.5999999627470967,
+          -1.974999968335032
+        ],
+        [
+          -2.5531249620486047,
+          -1.974999968335032
+        ],
+        [
+          -2.506249961350113,
+          -1.974999968335032
+        ],
+        [
+          -2.459374960651621,
+          -1.974999968335032
+        ],
+        [
+          -2.412499959953129,
+          -1.974999968335032
+        ],
+        [
+          -2.365624959254637,
+          -1.974999968335032
+        ],
+        [
+          -2.318749958556145,
+          -1.974999968335032
+        ],
+        [
+          -2.271874957857653,
+          -1.974999968335032
+        ],
+        [
+          -2.224999957159161,
+          -1.974999968335032
+        ],
+        [
+          -2.1781249564606693,
+          -1.974999968335032
+        ],
+        [
+          -2.1312499557621774,
+          -1.974999968335032
+        ],
+        [
+          -2.0843749550636854,
+          -1.974999968335032
+        ],
+        [
+          -2.0374999543651935,
+          -1.974999968335032
+        ],
+        [
+          -1.9906249536667016,
+          -1.974999968335032
+        ],
+        [
+          -1.9437499529682096,
+          -1.974999968335032
+        ],
+        [
+          -1.8968749522697177,
+          -1.974999968335032
+        ],
+        [
+          -1.8499999515712258,
+          -1.974999968335032
+        ],
+        [
+          -1.8031249508727338,
+          -1.974999968335032
+        ],
+        [
+          -1.756249950174242,
+          -1.974999968335032
+        ],
+        [
+          -1.70937494947575,
+          -1.974999968335032
+        ],
+        [
+          -1.662499948777258,
+          -1.974999968335032
+        ],
+        [
+          -1.615624948078766,
+          -1.974999968335032
+        ],
+        [
+          -1.5687499473802742,
+          -1.974999968335032
+        ],
+        [
+          -1.5218749466817822,
+          -1.974999968335032
+        ],
+        [
+          -1.4749999459832903,
+          -1.974999968335032
+        ],
+        [
+          -1.4281249452847984,
+          -1.974999968335032
+        ],
+        [
+          -1.3812499445863065,
+          -1.974999968335032
+        ],
+        [
+          -1.3343749438878145,
+          -1.974999968335032
+        ],
+        [
+          -1.2874999431893226,
+          -1.974999968335032
+        ],
+        [
+          -1.2406249424908307,
+          -1.974999968335032
+        ],
+        [
+          -1.1937499417923387,
+          -1.974999968335032
+        ],
+        [
+          -1.1468749410938468,
+          -1.974999968335032
+        ],
+        [
+          -1.0999999403953549,
+          -1.974999968335032
+        ],
+        [
+          -1.053124939696863,
+          -1.974999968335032
+        ],
+        [
+          -1.006249938998371,
+          -1.974999968335032
+        ],
+        [
+          -0.9593749382998791,
+          -1.974999968335032
+        ],
+        [
+          -0.9124999376013871,
+          -1.974999968335032
+        ],
+        [
+          -0.8656249369028952,
+          -1.974999968335032
+        ],
+        [
+          -0.8187499362044033,
+          -1.974999968335032
+        ],
+        [
+          -0.7718749355059114,
+          -1.974999968335032
+        ],
+        [
+          -0.7249999348074194,
+          -1.974999968335032
+        ],
+        [
+          -0.6781249341089275,
+          -1.974999968335032
+        ],
+        [
+          -0.6312499334104356,
+          -1.974999968335032
+        ],
+        [
+          -0.5843749327119436,
+          -1.974999968335032
+        ],
+        [
+          -0.5374999320134517,
+          -1.974999968335032
+        ],
+        [
+          -0.49062493131495977,
+          -1.974999968335032
+        ],
+        [
+          -0.44374993061646784,
+          -1.974999968335032
+        ],
+        [
+          -0.3968749299179759,
+          -1.974999968335032
+        ],
+        [
+          -0.349999929219484,
+          -1.974999968335032
+        ],
+        [
+          -0.30312492852099204,
+          -1.974999968335032
+        ],
+        [
+          -0.2562499278225001,
+          -1.974999968335032
+        ],
+        [
+          -0.20937492712400818,
+          -1.974999968335032
+        ],
+        [
+          -0.16249992642551625,
+          -1.974999968335032
+        ],
+        [
+          -0.11562492572702432,
+          -1.974999968335032
+        ],
+        [
+          -0.06874992502853239,
+          -1.974999968335032
+        ],
+        [
+          -0.021874924330040457,
+          -1.974999968335032
+        ],
+        [
+          0.025000076368451474,
+          -1.974999968335032
+        ],
+        [
+          0.0718750770669434,
+          -1.974999968335032
+        ],
+        [
+          0.11875007776543534,
+          -1.974999968335032
+        ],
+        [
+          0.16562507846392727,
+          -1.974999968335032
+        ],
+        [
+          0.2125000791624192,
+          -1.974999968335032
+        ],
+        [
+          0.25937507986091113,
+          -1.974999968335032
+        ],
+        [
+          0.30625008055940306,
+          -1.974999968335032
+        ],
+        [
+          0.353125081257895,
+          -1.974999968335032
+        ],
+        [
+          0.4000000819563869,
+          -1.974999968335032
+        ],
+        [
+          0.44687508265487885,
+          -1.974999968335032
+        ],
+        [
+          0.4937500833533708,
+          -1.974999968335032
+        ],
+        [
+          0.5320313339238059,
+          -1.9757812183466736
+        ],
+        [
+          0.5703125844942409,
+          -1.9765624683583152
+        ],
+        [
+          0.608593835064676,
+          -1.9773437183699567
+        ],
+        [
+          0.6468750856351111,
+          -1.9781249683815982
+        ],
+        [
+          0.6864584195582824,
+          -1.9802083017459755
+        ],
+        [
+          0.7260417534814527,
+          -1.9822916351103532
+        ],
+        [
+          0.765625087404624,
+          -1.9843749684747305
+        ],
+        [
+          0.8078125880332667,
+          -1.9890624685445797
+        ],
+        [
+          0.8500000886619095,
+          -1.9937499686144289
+        ],
+        [
+          0.8750000890344385,
+          -1.9999999687075611
+        ],
+        [
+          0.9000000894069675,
+          -2.0062499688006934
+        ],
+        [
+          0.9375000899657611,
+          -2.015624968940392
+        ],
+        [
+          0.9625000903382901,
+          -2.021874969033524
+        ],
+        [
+          0.9750000905245546,
+          -2.02499996908009
+        ]
+      ]
+    },
+    {
+      "t": 11.7646,
+      "stamp_ns": 7820000000,
+      "points": [
+        [
+          -2.6249999631196257,
+          -2.02499996908009
+        ],
+        [
+          -2.5749999623745676,
+          -2.0749999698251482
+        ],
+        [
+          -2.5249999616295096,
+          -2.1249999705702063
+        ],
+        [
+          -2.4749999608844515,
+          -2.1749999713152643
+        ],
+        [
+          -2.4249999601393935,
+          -2.2249999720603224
+        ],
+        [
+          -2.3749999593943354,
+          -2.2749999728053805
+        ],
+        [
+          -2.3249999586492773,
+          -2.3249999735504385
+        ],
+        [
+          -2.2749999579042193,
+          -2.3749999742954966
+        ],
+        [
+          -2.224999957159161,
+          -2.4249999750405546
+        ],
+        [
+          -2.174999956414103,
+          -2.4749999757856127
+        ],
+        [
+          -2.124999955669045,
+          -2.5249999765306708
+        ],
+        [
+          -2.074999954923987,
+          -2.574999977275729
+        ],
+        [
+          -2.024999954178929,
+          -2.624999978020787
+        ],
+        [
+          -1.974999953433871,
+          -2.674999978765845
+        ],
+        [
+          -1.9249999526888129,
+          -2.674999978765845
+        ],
+        [
+          -1.8749999519437548,
+          -2.674999978765845
+        ],
+        [
+          -1.8249999511986967,
+          -2.674999978765845
+        ],
+        [
+          -1.7749999504536387,
+          -2.674999978765845
+        ],
+        [
+          -1.7249999497085806,
+          -2.674999978765845
+        ],
+        [
+          -1.6749999489635226,
+          -2.674999978765845
+        ],
+        [
+          -1.6249999482184645,
+          -2.674999978765845
+        ],
+        [
+          -1.5749999474734064,
+          -2.674999978765845
+        ],
+        [
+          -1.5249999467283484,
+          -2.674999978765845
+        ],
+        [
+          -1.4749999459832903,
+          -2.674999978765845
+        ],
+        [
+          -1.4249999452382323,
+          -2.674999978765845
+        ],
+        [
+          -1.3749999444931742,
+          -2.624999978020787
+        ],
+        [
+          -1.3249999437481161,
+          -2.574999977275729
+        ],
+        [
+          -1.274999943003058,
+          -2.5249999765306708
+        ],
+        [
+          -1.224999942258,
+          -2.4749999757856127
+        ],
+        [
+          -1.174999941512942,
+          -2.4249999750405546
+        ],
+        [
+          -1.124999940767884,
+          -2.3749999742954966
+        ],
+        [
+          -1.0749999400228258,
+          -2.3249999735504385
+        ],
+        [
+          -1.0249999392777678,
+          -2.2749999728053805
+        ],
+        [
+          -0.9749999385327097,
+          -2.2249999720603224
+        ],
+        [
+          -0.9249999377876517,
+          -2.1749999713152643
+        ],
+        [
+          -0.8749999370425936,
+          -2.1749999713152643
+        ],
+        [
+          -0.8249999362975355,
+          -2.1749999713152643
+        ],
+        [
+          -0.7749999355524775,
+          -2.1749999713152643
+        ],
+        [
+          -0.7249999348074194,
+          -2.1749999713152643
+        ],
+        [
+          -0.6749999340623614,
+          -2.1749999713152643
+        ],
+        [
+          -0.6249999333173033,
+          -2.1749999713152643
+        ],
+        [
+          -0.5749999325722452,
+          -2.1749999713152643
+        ],
+        [
+          -0.5249999318271872,
+          -2.1749999713152643
+        ],
+        [
+          -0.4749999310821291,
+          -2.1749999713152643
+        ],
+        [
+          -0.42499993033707106,
+          -2.1749999713152643
+        ],
+        [
+          -0.374999929592013,
+          -2.1749999713152643
+        ],
+        [
+          -0.32499992884695494,
+          -2.1749999713152643
+        ],
+        [
+          -0.2749999281018969,
+          -2.1749999713152643
+        ],
+        [
+          -0.22499992735683882,
+          -2.1749999713152643
+        ],
+        [
+          -0.17499992661178077,
+          -2.1749999713152643
+        ],
+        [
+          -0.1249999258667227,
+          -2.1749999713152643
+        ],
+        [
+          -0.07499992512166465,
+          -2.1749999713152643
+        ],
+        [
+          -0.024999924376606586,
+          -2.1749999713152643
+        ],
+        [
+          0.025000076368451474,
+          -2.1749999713152643
+        ],
+        [
+          0.07500007711350953,
+          -2.1749999713152643
+        ],
+        [
+          0.1250000778585676,
+          -2.1749999713152643
+        ],
+        [
+          0.17500007860362565,
+          -2.1749999713152643
+        ],
+        [
+          0.2250000793486837,
+          -2.1749999713152643
+        ],
+        [
+          0.27500008009374177,
+          -2.1249999705702063
+        ],
+        [
+          0.32500008083879983,
+          -2.1249999705702063
+        ],
+        [
+          0.3750000815838579,
+          -2.1249999705702063
+        ],
+        [
+          0.42500008232891595,
+          -2.1249999705702063
+        ],
+        [
+          0.475000083073974,
+          -2.1249999705702063
+        ],
+        [
+          0.5250000838190321,
+          -2.1249999705702063
+        ],
+        [
+          0.5750000845640901,
+          -2.1249999705702063
+        ],
+        [
+          0.6250000853091482,
+          -2.1249999705702063
+        ],
+        [
+          0.6750000860542062,
+          -2.1249999705702063
+        ],
+        [
+          0.7250000867992643,
+          -2.1249999705702063
+        ],
+        [
+          0.7750000875443224,
+          -2.1249999705702063
+        ],
+        [
+          0.8250000882893804,
+          -2.1249999705702063
+        ],
+        [
+          0.8750000890344385,
+          -2.1249999705702063
+        ],
+        [
+          0.9250000897794965,
+          -2.0749999698251482
+        ],
+        [
+          0.9750000905245546,
+          -2.02499996908009
+        ]
+      ]
+    },
+    {
+      "t": 11.8882,
+      "stamp_ns": 8040000000,
+      "points": [
+        [
+          -2.6249999631196257,
+          -2.02499996908009
+        ],
+        [
+          -2.5749999623745676,
+          -2.0749999698251482
+        ],
+        [
+          -2.5249999616295096,
+          -2.1249999705702063
+        ],
+        [
+          -2.4749999608844515,
+          -2.1749999713152643
+        ],
+        [
+          -2.4249999601393935,
+          -2.2249999720603224
+        ],
+        [
+          -2.3749999593943354,
+          -2.2749999728053805
+        ],
+        [
+          -2.3249999586492773,
+          -2.3249999735504385
+        ],
+        [
+          -2.2749999579042193,
+          -2.3749999742954966
+        ],
+        [
+          -2.2749999579042193,
+          -2.4249999750405546
+        ],
+        [
+          -2.2749999579042193,
+          -2.4749999757856127
+        ],
+        [
+          -2.224999957159161,
+          -2.5249999765306708
+        ],
+        [
+          -2.224999957159161,
+          -2.574999977275729
+        ],
+        [
+          -2.174999956414103,
+          -2.624999978020787
+        ],
+        [
+          -2.124999955669045,
+          -2.674999978765845
+        ],
+        [
+          -2.074999954923987,
+          -2.724999979510903
+        ],
+        [
+          -2.024999954178929,
+          -2.774999980255961
+        ],
+        [
+          -1.974999953433871,
+          -2.774999980255961
+        ],
+        [
+          -1.9249999526888129,
+          -2.774999980255961
+        ],
+        [
+          -1.8749999519437548,
+          -2.774999980255961
+        ],
+        [
+          -1.8249999511986967,
+          -2.774999980255961
+        ],
+        [
+          -1.7749999504536387,
+          -2.774999980255961
+        ],
+        [
+          -1.7249999497085806,
+          -2.774999980255961
+        ],
+        [
+          -1.6749999489635226,
+          -2.774999980255961
+        ],
+        [
+          -1.6249999482184645,
+          -2.774999980255961
+        ],
+        [
+          -1.5749999474734064,
+          -2.774999980255961
+        ],
+        [
+          -1.5249999467283484,
+          -2.774999980255961
+        ],
+        [
+          -1.4749999459832903,
+          -2.774999980255961
+        ],
+        [
+          -1.4249999452382323,
+          -2.774999980255961
+        ],
+        [
+          -1.3749999444931742,
+          -2.724999979510903
+        ],
+        [
+          -1.3249999437481161,
+          -2.674999978765845
+        ],
+        [
+          -1.274999943003058,
+          -2.624999978020787
+        ],
+        [
+          -1.224999942258,
+          -2.574999977275729
+        ],
+        [
+          -1.224999942258,
+          -2.5249999765306708
+        ],
+        [
+          -1.174999941512942,
+          -2.4749999757856127
+        ],
+        [
+          -1.174999941512942,
+          -2.4249999750405546
+        ],
+        [
+          -1.124999940767884,
+          -2.3749999742954966
+        ],
+        [
+          -1.0749999400228258,
+          -2.3249999735504385
+        ],
+        [
+          -1.0249999392777678,
+          -2.2749999728053805
+        ],
+        [
+          -0.9749999385327097,
+          -2.2249999720603224
+        ],
+        [
+          -0.9249999377876517,
+          -2.1749999713152643
+        ],
+        [
+          -0.8749999370425936,
+          -2.1749999713152643
+        ],
+        [
+          -0.8249999362975355,
+          -2.1749999713152643
+        ],
+        [
+          -0.7749999355524775,
+          -2.1749999713152643
+        ],
+        [
+          -0.7249999348074194,
+          -2.1749999713152643
+        ],
+        [
+          -0.6749999340623614,
+          -2.1749999713152643
+        ],
+        [
+          -0.6249999333173033,
+          -2.1749999713152643
+        ],
+        [
+          -0.5749999325722452,
+          -2.1749999713152643
+        ],
+        [
+          -0.5249999318271872,
+          -2.1749999713152643
+        ],
+        [
+          -0.4749999310821291,
+          -2.1749999713152643
+        ],
+        [
+          -0.42499993033707106,
+          -2.1749999713152643
+        ],
+        [
+          -0.374999929592013,
+          -2.1749999713152643
+        ],
+        [
+          -0.32499992884695494,
+          -2.1749999713152643
+        ],
+        [
+          -0.2749999281018969,
+          -2.1749999713152643
+        ],
+        [
+          -0.22499992735683882,
+          -2.1749999713152643
+        ],
+        [
+          -0.17499992661178077,
+          -2.1749999713152643
+        ],
+        [
+          -0.1249999258667227,
+          -2.1749999713152643
+        ],
+        [
+          -0.07499992512166465,
+          -2.1749999713152643
+        ],
+        [
+          -0.024999924376606586,
+          -2.1749999713152643
+        ],
+        [
+          0.025000076368451474,
+          -2.1749999713152643
+        ],
+        [
+          0.07500007711350953,
+          -2.1749999713152643
+        ],
+        [
+          0.1250000778585676,
+          -2.1749999713152643
+        ],
+        [
+          0.17500007860362565,
+          -2.1749999713152643
+        ],
+        [
+          0.2250000793486837,
+          -2.1749999713152643
+        ],
+        [
+          0.27500008009374177,
+          -2.1249999705702063
+        ],
+        [
+          0.32500008083879983,
+          -2.1249999705702063
+        ],
+        [
+          0.3750000815838579,
+          -2.1249999705702063
+        ],
+        [
+          0.42500008232891595,
+          -2.1249999705702063
+        ],
+        [
+          0.475000083073974,
+          -2.1249999705702063
+        ],
+        [
+          0.5250000838190321,
+          -2.1249999705702063
+        ],
+        [
+          0.5750000845640901,
+          -2.1249999705702063
+        ],
+        [
+          0.6250000853091482,
+          -2.1249999705702063
+        ],
+        [
+          0.6750000860542062,
+          -2.1249999705702063
+        ],
+        [
+          0.7250000867992643,
+          -2.1249999705702063
+        ],
+        [
+          0.7750000875443224,
+          -2.1249999705702063
+        ],
+        [
+          0.8250000882893804,
+          -2.1249999705702063
+        ],
+        [
+          0.8750000890344385,
+          -2.1249999705702063
+        ],
+        [
+          0.9250000897794965,
+          -2.0749999698251482
+        ],
+        [
+          0.9750000905245546,
+          -2.02499996908009
+        ]
+      ]
+    }
+  ],
+  "planner_samples": [
+    {
+      "t": 2.3288,
+      "status": "IDLE",
+      "message": "Waiting for an explicit goal",
+      "goal": null,
+      "goal_stamp": null,
+      "plan_kind": "NONE",
+      "local_detour_state": "NONE",
+      "local_attempt_id": 0,
+      "global_plan_count": 0,
+      "sent_at_ns": 0
+    },
+    {
+      "t": 8.525,
+      "status": "IDLE",
+      "message": "Manually stopped; send a newly ROS-stamped goal to resume",
+      "goal": null,
+      "goal_stamp": null,
+      "plan_kind": "NONE",
+      "local_detour_state": "NONE",
+      "local_attempt_id": 0,
+      "global_plan_count": 0,
+      "sent_at_ns": 4940000000
+    },
+    {
+      "t": 9.4017,
+      "status": "PLANNING",
+      "message": "Planning to retained goal",
+      "goal": {
+        "x": 1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "plan_kind": "GLOBAL",
+      "local_detour_state": "NONE",
+      "local_attempt_id": 0,
+      "global_plan_count": 0,
+      "sent_at_ns": 5760000000
+    },
+    {
+      "t": 9.6104,
+      "status": "READY",
+      "message": "A* route ready: 89 poses; collision-checked smoothing",
+      "goal": {
+        "x": 1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "plan_kind": "GLOBAL",
+      "local_detour_state": "NONE",
+      "local_attempt_id": 0,
+      "global_plan_count": 1,
+      "global_duration_ms": 197.67131800017523,
+      "sent_at_ns": 5760000000
+    },
+    {
+      "t": 11.6752,
+      "status": "PLANNING",
+      "message": "Planning to retained goal",
+      "goal": {
+        "x": 1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "plan_kind": "GLOBAL",
+      "local_detour_state": "FAILED",
+      "local_attempt_id": 1,
+      "global_plan_count": 1,
+      "global_duration_ms": 197.67131800017523,
+      "search_duration_ms": 40.00729899962607,
+      "adapter_duration_ms": 111.92508099975385,
+      "expansions": 546,
+      "detour_reason": "time_budget",
+      "rejoin_progress": null,
+      "occlusion_reserved_cells": 100,
+      "occlusion_extension": 0.5,
+      "rejoin_buffer": 0.15,
+      "observation_reserved_cells": 46,
+      "observation_margin": 0.05,
+      "sent_at_ns": 7820000000
+    },
+    {
+      "t": 11.7662,
+      "status": "READY",
+      "message": "A* route ready: 73 poses; original grid route",
+      "goal": {
+        "x": 1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "plan_kind": "GLOBAL",
+      "local_detour_state": "FAILED",
+      "local_attempt_id": 1,
+      "global_plan_count": 2,
+      "global_duration_ms": 79.63510599984147,
+      "search_duration_ms": 40.00729899962607,
+      "adapter_duration_ms": 111.92508099975385,
+      "expansions": 546,
+      "detour_reason": "time_budget",
+      "rejoin_progress": null,
+      "occlusion_reserved_cells": 100,
+      "occlusion_extension": 0.5,
+      "rejoin_buffer": 0.15,
+      "observation_reserved_cells": 46,
+      "observation_margin": 0.05,
+      "sent_at_ns": 7820000000
+    },
+    {
+      "t": 11.8886,
+      "status": "READY",
+      "message": "Local detour active; original forward suffix retained",
+      "goal": {
+        "x": 1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "plan_kind": "LOCAL_DETOUR",
+      "local_detour_state": "ACTIVE",
+      "local_attempt_id": 2,
+      "global_plan_count": 2,
+      "global_duration_ms": 79.63510599984147,
+      "search_duration_ms": 35.3503450005519,
+      "adapter_duration_ms": 94.44967600029486,
+      "expansions": 360,
+      "detour_reason": "local_detour_ready",
+      "rejoin_progress": 1.8227922332975064,
+      "occlusion_reserved_cells": 0,
+      "occlusion_extension": 0.5,
+      "rejoin_buffer": 0.15,
+      "observation_reserved_cells": 28,
+      "observation_margin": 0.05,
+      "rejoin_point": {
+        "x": -1.174999941512942,
+        "y": -2.4249999750405546
+      },
+      "sent_at_ns": 8040000000
+    },
+    {
+      "t": 11.9097,
+      "status": "IDLE",
+      "message": "Manually stopped; send a newly ROS-stamped goal to resume",
+      "goal": {
+        "x": 1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "plan_kind": "LOCAL_DETOUR",
+      "local_detour_state": "NONE",
+      "local_attempt_id": 2,
+      "global_plan_count": 2,
+      "global_duration_ms": 79.63510599984147,
+      "search_duration_ms": 35.3503450005519,
+      "adapter_duration_ms": 94.44967600029486,
+      "expansions": 360,
+      "detour_reason": "local_detour_ready",
+      "rejoin_progress": 1.8227922332975064,
+      "occlusion_reserved_cells": 0,
+      "occlusion_extension": 0.5,
+      "rejoin_buffer": 0.15,
+      "observation_reserved_cells": 28,
+      "observation_margin": 0.05,
+      "rejoin_point": {
+        "x": -1.174999941512942,
+        "y": -2.4249999750405546
+      },
+      "sent_at_ns": 8160000000
+    }
+  ],
+  "memory_samples": [
+    {
+      "t": 2.8292,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 160000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 3.3289,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 240000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 3.839,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 440000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 4.3292,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 880000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 4.8292,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 1380000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 5.3324,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 1860000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 5.8293,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 2360000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 6.332,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 2840000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 6.8305,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 3320000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 7.3295,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 3800000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 7.8292,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 4280000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 8.3292,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 4780000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 8.8309,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 5200000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 9.3291,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": null,
+      "sent_at_ns": 5700000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 9.8308,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "sent_at_ns": 6180000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 10.3295,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "sent_at_ns": 6680000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 10.8306,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "sent_at_ns": 7180000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 11.3291,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "sent_at_ns": 7600000000,
+      "retry_count": 0,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 0,
+      "clear_wait_seconds": 2.0
+    },
+    {
+      "t": 11.9094,
+      "state": "CLEAR",
+      "reason": "",
+      "count": 0,
+      "active": [],
+      "last_failure_id": null,
+      "rejoin_verified": false,
+      "recovery_attempts": 0,
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "sent_at_ns": 8040000000,
+      "retry_count": 1,
+      "retry_limit": 3,
+      "blocked_obstacle_count": 10,
+      "clear_wait_seconds": 2.0
+    }
+  ],
+  "navigation_transitions": [
+    {
+      "t": 2.2084,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": null,
+      "goal_stamp": null,
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 0,
+        "nanosec": 0
+      }
+    },
+    {
+      "t": 9.6932,
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": 1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 4,
+        "nanosec": 940000000
+      },
+      "distance_remaining": 3.954562589773953,
+      "controller_distance_remaining": 3.9545626640319824,
+      "measured_speed": 0.20842105150222778,
+      "curve_speed_limit": 0.0
+    },
+    {
+      "t": 11.6765,
+      "status": "WAIT_REPLAN",
+      "message": "Planner has no safe route; waiting for replan",
+      "goal": {
+        "x": 1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 4,
+        "nanosec": 940000000
+      }
+    },
+    {
+      "t": 11.7775,
+      "status": "MOVING",
+      "message": "Following A* route",
+      "goal": {
+        "x": 1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "manual_stop": false,
+      "stop_stamp": {
+        "sec": 4,
+        "nanosec": 940000000
+      }
+    },
+    {
+      "t": 11.9095,
+      "status": "CANCELED",
+      "message": "Navigation manually stopped",
+      "goal": {
+        "x": 1.0,
+        "y": -2.0,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 5,
+        "nanosec": 760000000
+      },
+      "manual_stop": true,
+      "stop_stamp": {
+        "sec": 8,
+        "nanosec": 160000000
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "t": 0.0986,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": false,
+        "control_seq": -1
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": null,
+        "scan_tf_error": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 1.205,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": null,
+        "estop_latched": null,
+        "stop_acknowledged": false,
+        "control_seq": null
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": null,
+        "scan_tf_error": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 2.9513,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 30
+      },
+      "health": {
+        "level": "unknown",
+        "reasons": [
+          "추정 상태 수신 대기"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": null,
+        "amcl_update_responses": null,
+        "amcl_stationary_update_requests": null,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": null,
+        "scan_tf_error": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 3.1735,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 31
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "map_unavailable",
+          "odom_tf_unavailable",
+          "odom_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": null,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_SCAN",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 0,
+        "dynamic_tf_transform_count": 0,
+        "dynamic_tf_receive_age_seconds": null,
+        "dynamic_tf_receive_interval_seconds": null,
+        "dynamic_tf_latest_header_age_seconds": null,
+        "dynamic_tf_map_odom_count": 0,
+        "dynamic_tf_map_odom_header_age_seconds": null,
+        "dynamic_tf_map_odom_receive_age_seconds": null,
+        "dynamic_tf_map_odom_receive_interval_seconds": null,
+        "dynamic_tf_odom_base_count": 0,
+        "dynamic_tf_odom_base_header_age_seconds": null,
+        "dynamic_tf_odom_base_receive_age_seconds": null,
+        "dynamic_tf_odom_base_receive_interval_seconds": null
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 3.8375,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 38
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "map_unavailable",
+          "scan_map_check_unavailable",
+          "scan_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": null,
+        "odom_age_seconds": 0.010519047000343562,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_SCAN",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 5,
+        "dynamic_tf_transform_count": 5,
+        "dynamic_tf_receive_age_seconds": 0.009661018000770127,
+        "dynamic_tf_receive_interval_seconds": 0.03570879399921978,
+        "dynamic_tf_latest_header_age_seconds": 0.006,
+        "dynamic_tf_map_odom_count": 0,
+        "dynamic_tf_map_odom_header_age_seconds": null,
+        "dynamic_tf_map_odom_receive_age_seconds": null,
+        "dynamic_tf_map_odom_receive_interval_seconds": null,
+        "dynamic_tf_odom_base_count": 5,
+        "dynamic_tf_odom_base_header_age_seconds": 0.006,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.009661018000770127,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.03570879399921978
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 4.2539,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 42
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "map_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 0,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.014511690999825078,
+        "odom_age_seconds": 0.019441032000031555,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_SCAN",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 12,
+        "dynamic_tf_transform_count": 12,
+        "dynamic_tf_receive_age_seconds": 0.019958751999183733,
+        "dynamic_tf_receive_interval_seconds": 0.03547952400003851,
+        "dynamic_tf_latest_header_age_seconds": 0.008,
+        "dynamic_tf_map_odom_count": 0,
+        "dynamic_tf_map_odom_header_age_seconds": null,
+        "dynamic_tf_map_odom_receive_age_seconds": null,
+        "dynamic_tf_map_odom_receive_interval_seconds": null,
+        "dynamic_tf_odom_base_count": 12,
+        "dynamic_tf_odom_base_header_age_seconds": 0.008,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.019958751999183733,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.03547952400003851
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 4.8723,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": null,
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 48
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "amcl_covariance_unavailable",
+          "map_tf_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": null,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 0,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.11822139900050388,
+        "odom_age_seconds": 0.033549445000062406,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_SCAN",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 38,
+        "dynamic_tf_transform_count": 42,
+        "dynamic_tf_receive_age_seconds": 0.03156188400043902,
+        "dynamic_tf_receive_interval_seconds": 0.03436678499929258,
+        "dynamic_tf_latest_header_age_seconds": -0.884,
+        "dynamic_tf_map_odom_count": 2,
+        "dynamic_tf_map_odom_header_age_seconds": -0.884,
+        "dynamic_tf_map_odom_receive_age_seconds": 0.09863018000032753,
+        "dynamic_tf_map_odom_receive_interval_seconds": 0.20239009600027202,
+        "dynamic_tf_odom_base_count": 32,
+        "dynamic_tf_odom_base_header_age_seconds": 0.028,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.03156188400043902,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.03629724699931103
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 5.0826,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.000009753995122,
+        "y": -1.999999907916337,
+        "yaw": 1.5078257507480542e-06
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 51
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "map_tf_unavailable",
+          "scan_map_check_unavailable",
+          "initializing"
+        ],
+        "position_std_m": 7.619149244648765e-06,
+        "scan_map_agreement": null,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.17130402100065112,
+        "odom_age_seconds": 0.006234383999981219,
+        "map_tf_age_seconds": null,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the past.  Requested time 1.444000 but the earliest data is at time 2.044000, when looking up transform from frame [base_footprint] to frame [map]",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 51,
+        "dynamic_tf_transform_count": 59,
+        "dynamic_tf_receive_age_seconds": 0.00494731800063164,
+        "dynamic_tf_receive_interval_seconds": 0.03428235899991705,
+        "dynamic_tf_latest_header_age_seconds": -0.844,
+        "dynamic_tf_map_odom_count": 3,
+        "dynamic_tf_map_odom_header_age_seconds": -0.844,
+        "dynamic_tf_map_odom_receive_age_seconds": 0.13770204200045555,
+        "dynamic_tf_map_odom_receive_interval_seconds": 0.21089814900005877,
+        "dynamic_tf_odom_base_count": 40,
+        "dynamic_tf_odom_base_header_age_seconds": -0.004,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.00494731800063164,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.035182943000108935
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 5.7032,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.0000339864909122,
+        "y": -1.9999998596193354,
+        "yaw": 2.2940421988069166e-06
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 57
+      },
+      "health": {
+        "level": "warning",
+        "reasons": [
+          "initializing"
+        ],
+        "position_std_m": 7.619149244648765e-06,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 1,
+        "amcl_update_responses": 1,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.03138182499969844,
+        "odom_age_seconds": 0.03367101399999228,
+        "map_tf_age_seconds": 0.014,
+        "scan_tf_state": "READY",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 74,
+        "dynamic_tf_transform_count": 89,
+        "dynamic_tf_receive_age_seconds": 0.029660651000085636,
+        "dynamic_tf_receive_interval_seconds": 0.0025647909997132956,
+        "dynamic_tf_latest_header_age_seconds": -0.985,
+        "dynamic_tf_map_odom_count": 6,
+        "dynamic_tf_map_odom_header_age_seconds": -0.985,
+        "dynamic_tf_map_odom_receive_age_seconds": 0.029660651000085636,
+        "dynamic_tf_map_odom_receive_interval_seconds": 0.1883414650001214,
+        "dynamic_tf_odom_base_count": 53,
+        "dynamic_tf_odom_base_header_age_seconds": 0.014,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.034767498999826785,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.0321612110001297
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 7.8337,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -3.0000619229896386,
+        "y": -1.9999997849172695,
+        "yaw": 5.032270627390663e-06
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 79
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 2.8802614921184616e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 1,
+        "scan_age_seconds": 0.023071177999554493,
+        "odom_age_seconds": 0.01318365199949767,
+        "map_tf_age_seconds": 0.004,
+        "scan_tf_state": "READY",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 182,
+        "dynamic_tf_transform_count": 229,
+        "dynamic_tf_receive_age_seconds": 0.011984089999714342,
+        "dynamic_tf_receive_interval_seconds": 0.0018204090001745499,
+        "dynamic_tf_latest_header_age_seconds": -0.985,
+        "dynamic_tf_map_odom_count": 17,
+        "dynamic_tf_map_odom_header_age_seconds": -0.985,
+        "dynamic_tf_map_odom_receive_age_seconds": 0.011984089999714342,
+        "dynamic_tf_map_odom_receive_interval_seconds": 0.20736784400014585,
+        "dynamic_tf_odom_base_count": 118,
+        "dynamic_tf_odom_base_header_age_seconds": 0.004,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.013804498999888892,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.03255138500026078
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 8.05,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9999525663946516,
+        "y": -1.9999999719728956,
+        "yaw": 4.463964007945333e-06
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 1
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 2.8802614921184616e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 1,
+        "scan_age_seconds": 0.023071177999554493,
+        "odom_age_seconds": 0.01318365199949767,
+        "map_tf_age_seconds": 0.004,
+        "scan_tf_state": "READY",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 182,
+        "dynamic_tf_transform_count": 229,
+        "dynamic_tf_receive_age_seconds": 0.011984089999714342,
+        "dynamic_tf_receive_interval_seconds": 0.0018204090001745499,
+        "dynamic_tf_latest_header_age_seconds": -0.985,
+        "dynamic_tf_map_odom_count": 17,
+        "dynamic_tf_map_odom_header_age_seconds": -0.985,
+        "dynamic_tf_map_odom_receive_age_seconds": 0.011984089999714342,
+        "dynamic_tf_map_odom_receive_interval_seconds": 0.20736784400014585,
+        "dynamic_tf_odom_base_count": 118,
+        "dynamic_tf_odom_base_header_age_seconds": 0.004,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.013804498999888892,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.03255138500026078
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 8.6942,
+      "mission_state": "CANCELED",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9999693261661533,
+        "y": -1.999999924513098,
+        "yaw": 5.1840292838869785e-06
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 82
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 2.8802614921184616e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.15877015000023675,
+        "odom_age_seconds": 0.053211020000162534,
+        "map_tf_age_seconds": 0.024,
+        "scan_tf_state": "READY",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 215,
+        "dynamic_tf_transform_count": 272,
+        "dynamic_tf_receive_age_seconds": 0.05368861399983871,
+        "dynamic_tf_receive_interval_seconds": 0.014716751000378281,
+        "dynamic_tf_latest_header_age_seconds": -0.885,
+        "dynamic_tf_map_odom_count": 20,
+        "dynamic_tf_map_odom_header_age_seconds": -0.885,
+        "dynamic_tf_map_odom_receive_age_seconds": 0.1327276370002437,
+        "dynamic_tf_map_odom_receive_interval_seconds": 0.20808895699974528,
+        "dynamic_tf_odom_base_count": 138,
+        "dynamic_tf_odom_base_header_age_seconds": 0.024,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.05368861399983871,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.018663236000065808
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 8.9,
+      "mission_state": "NAVIGATING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.999975685790294,
+        "y": -1.9999999781239586,
+        "yaw": 5.472376521537249e-06
+      },
+      "safety": {
+        "mode": "hold",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 84
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 2.8802614921184616e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.016535931000362325,
+        "odom_age_seconds": 0.030923017000532127,
+        "map_tf_age_seconds": 0.02,
+        "scan_tf_state": "READY",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 225,
+        "dynamic_tf_transform_count": 285,
+        "dynamic_tf_receive_age_seconds": 0.015100001000064367,
+        "dynamic_tf_receive_interval_seconds": 0.016201407000153267,
+        "dynamic_tf_latest_header_age_seconds": -0.885,
+        "dynamic_tf_map_odom_count": 21,
+        "dynamic_tf_map_odom_header_age_seconds": -0.885,
+        "dynamic_tf_map_odom_receive_age_seconds": 0.015100001000064367,
+        "dynamic_tf_map_odom_receive_interval_seconds": 0.3685983680006757,
+        "dynamic_tf_odom_base_count": 144,
+        "dynamic_tf_odom_base_header_age_seconds": 0.02,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.031301408000217634,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.025812529999711842
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 9.5217,
+      "mission_state": "NAVIGATING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.9999980861981768,
+        "y": -1.9999998970797748,
+        "yaw": 6.3307580756251544e-06
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": true,
+        "control_seq": 90
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 2.8802614921184616e-05,
+        "scan_map_agreement": 1.0,
+        "amcl_update_requests": 2,
+        "amcl_update_responses": 2,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.031734255000628764,
+        "odom_age_seconds": 0.027204400000300666,
+        "map_tf_age_seconds": 0.01,
+        "scan_tf_state": "READY",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 251,
+        "dynamic_tf_transform_count": 319,
+        "dynamic_tf_receive_age_seconds": 0.0246489669998482,
+        "dynamic_tf_receive_interval_seconds": 0.0013342450001800898,
+        "dynamic_tf_latest_header_age_seconds": -0.985,
+        "dynamic_tf_map_odom_count": 24,
+        "dynamic_tf_map_odom_header_age_seconds": -0.985,
+        "dynamic_tf_map_odom_receive_age_seconds": 0.02598321200002829,
+        "dynamic_tf_map_odom_receive_interval_seconds": 0.20425390099990182,
+        "dynamic_tf_odom_base_count": 159,
+        "dynamic_tf_odom_base_header_age_seconds": 0.01,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.027609298000243143,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.032717791000322904
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 11.6323,
+      "mission_state": "NAVIGATING",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.640782016303054,
+        "y": -2.0005794213138057,
+        "yaw": -0.001269488416357892
+      },
+      "safety": {
+        "mode": "auto",
+        "estop_latched": false,
+        "stop_acknowledged": false,
+        "control_seq": 90
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.07451917546212775,
+        "scan_map_agreement": 0.9,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.18661367900040204,
+        "odom_age_seconds": 0.0050944129998242715,
+        "map_tf_age_seconds": -0.006,
+        "scan_tf_state": "READY",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 357,
+        "dynamic_tf_transform_count": 457,
+        "dynamic_tf_receive_age_seconds": 0.002785286999824166,
+        "dynamic_tf_receive_interval_seconds": 0.0008447230002275319,
+        "dynamic_tf_latest_header_age_seconds": -0.825,
+        "dynamic_tf_map_odom_count": 34,
+        "dynamic_tf_map_odom_header_age_seconds": -0.825,
+        "dynamic_tf_map_odom_receive_age_seconds": 0.1755500690005647,
+        "dynamic_tf_map_odom_receive_interval_seconds": 0.25866208099978394,
+        "dynamic_tf_odom_base_count": 223,
+        "dynamic_tf_odom_base_header_age_seconds": -0.006,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.0036300100000516977,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.03387196400035464
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    },
+    {
+      "t": 12.0581,
+      "mission_state": "ESTOP",
+      "localization_state": "IDLE",
+      "control": {
+        "state": "IDLE",
+        "reason": ""
+      },
+      "pose": {
+        "x": -2.568255189480794,
+        "y": -2.000822989511297,
+        "yaw": -0.021152822387073514
+      },
+      "safety": {
+        "mode": "estop",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "control_seq": 92
+      },
+      "health": {
+        "level": "ok",
+        "reasons": [],
+        "position_std_m": 0.08556245841695787,
+        "scan_map_agreement": 0.89375,
+        "amcl_update_requests": 3,
+        "amcl_update_responses": 3,
+        "amcl_stationary_update_requests": 0,
+        "scan_age_seconds": 0.028642059000048903,
+        "odom_age_seconds": 0.009351670999421913,
+        "map_tf_age_seconds": -0.004,
+        "scan_tf_state": "READY",
+        "scan_tf_error": "",
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 369,
+        "dynamic_tf_transform_count": 472,
+        "dynamic_tf_receive_age_seconds": 0.002020330999584985,
+        "dynamic_tf_receive_interval_seconds": 0.004670914000598714,
+        "dynamic_tf_latest_header_age_seconds": -0.985,
+        "dynamic_tf_map_odom_count": 36,
+        "dynamic_tf_map_odom_header_age_seconds": -0.985,
+        "dynamic_tf_map_odom_receive_age_seconds": 0.002020330999584985,
+        "dynamic_tf_map_odom_receive_interval_seconds": 0.21534441499989043,
+        "dynamic_tf_odom_base_count": 230,
+        "dynamic_tf_odom_base_header_age_seconds": -0.004,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.006691245000183699,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.03923827599919605
+      },
+      "marker_alignment": {
+        "state": "IDLE",
+        "reason": "섹터 도착 후 표식을 탐색합니다."
+      }
+    }
+  ],
+  "ground_truth_samples": [
+    {
+      "t": 3.6236,
+      "x": -3.00000000269086,
+      "y": -1.999999983504805,
+      "yaw": 3.6983246869946747e-09
+    },
+    {
+      "t": 4.1577,
+      "x": -2.9999233339599067,
+      "y": -1.9999995156624055,
+      "yaw": 1.4094202054429888e-06
+    },
+    {
+      "t": 4.6823,
+      "x": -2.9999545512883268,
+      "y": -1.999999433414432,
+      "yaw": 1.994426727839117e-06
+    },
+    {
+      "t": 5.1903,
+      "x": -2.999986970986501,
+      "y": -1.9999995768189343,
+      "yaw": 2.5926552911271844e-06
+    },
+    {
+      "t": 5.7136,
+      "x": -3.0000010229178815,
+      "y": -1.99999941230374,
+      "yaw": 3.1617928204620367e-06
+    },
+    {
+      "t": 6.217,
+      "x": -3.000017429085495,
+      "y": -1.9999994218725083,
+      "yaw": 4.0150354803417435e-06
+    },
+    {
+      "t": 6.7349,
+      "x": -3.0000338438419334,
+      "y": -1.9999993829263492,
+      "yaw": 4.5628107638045466e-06
+    },
+    {
+      "t": 7.266,
+      "x": -3.0000501424877983,
+      "y": -1.9999993766789614,
+      "yaw": 5.193389206646532e-06
+    },
+    {
+      "t": 7.7763,
+      "x": -3.000066464693055,
+      "y": -1.999999348369137,
+      "yaw": 5.930675221137997e-06
+    },
+    {
+      "t": 8.2929,
+      "x": -3.0000827795110574,
+      "y": -1.999999381365601,
+      "yaw": 6.60416632071338e-06
+    },
+    {
+      "t": 8.8192,
+      "x": -3.0000974474351554,
+      "y": -1.999999394578665,
+      "yaw": 7.228239935626807e-06
+    },
+    {
+      "t": 9.3215,
+      "x": -3.000113811299462,
+      "y": -1.9999993381591157,
+      "yaw": 7.8253587112409e-06
+    },
+    {
+      "t": 9.8306,
+      "x": -2.9876101889874476,
+      "y": -1.9999993977311634,
+      "yaw": 8.922353782728819e-06
+    },
+    {
+      "t": 10.3392,
+      "x": -2.8844519556953214,
+      "y": -1.9999987385848164,
+      "yaw": 9.220058043581958e-06
+    },
+    {
+      "t": 10.85,
+      "x": -2.7799408419225573,
+      "y": -1.999998405768836,
+      "yaw": 8.428533996770032e-06
+    },
+    {
+      "t": 11.3631,
+      "x": -2.6868177403083964,
+      "y": -1.9999981475694077,
+      "yaw": 6.7746198665816975e-06
+    },
+    {
+      "t": 11.8773,
+      "x": -2.5856141259475725,
+      "y": -2.000009832982885,
+      "yaw": -0.0032336249853483615
+    }
+  ],
+  "classification": "All three production Nav2 participant dynamic TF BEST_EFFORT policies and unchanged reliable/transient-local static TF were verified before actual motion. The first local search safely exhausted its unchanged 40ms time budget at 546 expansions and fell back to global search; a second local patch then succeeded, so the required first-local-before-global assertion failed and stopped the run. No goal arrival assessment. Performance diagnosis is pending; this is not a passing whole scenario.",
+  "evidence_sampling": {
+    "method": "Uniform bounded samples including first/last. Assertions, events and selected failure proofs are retained separately. Full raw telemetry is unchanged at the referenced path/hash.",
+    "arrays": {
+      "navigation_input_samples": {
+        "before": 54,
+        "retained": 24
+      },
+      "observed_obstacle_samples": {
+        "before": 35,
+        "retained": 24
+      },
+      "projection": {
+        "before": 47,
+        "retained": 24
+      },
+      "scan_receipts": {
+        "before": 42,
+        "retained": 24
+      },
+      "tf_samples": {
+        "before": 76,
+        "retained": 64
+      },
+      "owned_amcl_process_samples": {
+        "before": 9,
+        "retained": 4
+      }
+    }
+  },
+  "metadata_note": "Legacy default initial-std argument 0.446m was unused by this scenario. Actual recorded priors/launch configuration are authoritative; no additional covariance input was published by this observer."
+}

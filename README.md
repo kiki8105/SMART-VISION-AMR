@@ -1,9 +1,14 @@
 # SMART-VISION-AMR
 
 TurtleBot3 Waffle Pi가 저장 지도에서 A* 경로를 만들고 Nav2로 이동하는 프로젝트입니다.
-Gazebo에서 먼저 시험하고, 실제 로봇과 웹 배송 관제로 이어서 사용할 수 있습니다.
+실제 로봇과 웹 배송 관제로 사용하며, Gazebo에서도 시험할 수 있습니다.
 
 **처음 사용하는 팀원:** [클론·설치부터 터미널별 실행까지 최종 매뉴얼](docs/TEAM_QUICKSTART.md)을 순서대로 따라 하세요.
+
+[초기 위치 확인·후방 카메라와 벽 직각 정렬 개선](docs/STARTUP_AND_ALIGNMENT.md)에
+변경 동작과 섹터별 도착 자세를 정리했습니다.
+[국소 우회와 원래 경로 합류](docs/LOCAL_DETOUR.md)는 가까운 장애물을 피한 뒤
+앞쪽 경로로 돌아가는 동작과 전체 재계획·후진 복구 조건을 설명합니다.
 
 경로를 따라가지 못하면 목표를 유지하고 실패한 접근 방향을 잠시 피해서 재계획합니다.
 장애물 때문에 기본 3회 실패하면 웹에 대기 안내를 표시하고, 제거가 2초간 확인되면 재개합니다.
@@ -17,37 +22,27 @@ Gazebo에서 먼저 시험하고, 실제 로봇과 웹 배송 관제로 이어�
 예시 작업공간은 `~/Team2_workspace`입니다. 저장소를 `src` 안에 두어야
 제공된 스크립트가 작업공간을 올바르게 찾습니다.
 
-**1. 필요한 프로그램 설치**
-
 ```bash
 sudo apt update
-sudo apt install -y git build-essential cmake python3-colcon-common-extensions gazebo \
-  ros-humble-desktop ros-humble-gazebo-ros-pkgs ros-humble-nav2-bringup \
-  ros-humble-xacro ros-humble-slam-toolbox ros-humble-robot-localization \
-  ros-humble-compressed-image-transport \
-  ros-humble-teleop-twist-keyboard \
-  python3-opencv python3-pyqt5 python3-numpy python3-yaml python3-pil
-```
-
-**2. GitHub에서 코드 받기**
-
-```bash
+sudo apt install -y git build-essential python3-colcon-common-extensions
 mkdir -p ~/Team2_workspace/src
 cd ~/Team2_workspace/src
 git clone https://github.com/kiki8105/SMART-VISION-AMR.git
 cd SMART-VISION-AMR
+./scripts/setup_pc_runtime.sh
+./scripts/check_classroom_deployment.sh
 ```
 
-**3. TurtleBot3 시뮬레이션 파일 준비 및 빌드**
-
-```bash
-./scripts/setup_sim.sh
-```
-
-이 스크립트가 필요한 ROBOTIS 저장소를 가져오고 `~/Team2_workspace`에서
-`colcon build`를 실행합니다. 처음에는 다운로드와 빌드에 시간이 걸립니다.
+실차 PC의 주행·웹 의존성을 설치하고 이 저장소의 ROS 패키지만 빌드합니다.
+의존성이 이미 설치되어 있으면 `setup_pc_runtime.sh --no-install`을 사용합니다.
+실차 설치에는 Gazebo나 시뮬레이션 소스가 필요 없습니다.
+이후 [실차 세 터미널 실행 순서](docs/TEAM_QUICKSTART.md#3-매일-실행--이-세-터미널을-켜-둡니다)를 따르세요.
+[읽기 전용 배포 점검](docs/DEPLOYMENT_CHECK.md)으로 작업공간·도메인·시계·센서를 확인할 수 있습니다.
 
 ## Gazebo에서 주행 시험하기
+
+시뮬레이션이 필요할 때만 [Gazebo 의존성](docs/GAZEBO.md)을 설치하고
+`./scripts/setup_sim.sh`로 공식 시뮬레이션 소스를 준비·빌드합니다.
 
 **터미널 1 — 시뮬레이터 실행**
 

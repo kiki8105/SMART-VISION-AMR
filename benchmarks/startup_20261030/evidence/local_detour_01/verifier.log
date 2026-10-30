@@ -1,0 +1,3 @@
+{"t": 7.8041, "event": "explicit_dynamic_obstacle_goal"}
+{"t": 10.1685, "event": "failure", "error": "TypeError(\"main.<locals>.event() got multiple values for argument 'name'\")"}
+FAIL /home/kiki/Team2_workspace/src/SMART-VISION-AMR/benchmarks/startup_20261030/evidence/local_detour_01/result.json

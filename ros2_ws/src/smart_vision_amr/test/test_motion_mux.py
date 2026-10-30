@@ -142,7 +142,7 @@ class MotionMuxTest(unittest.TestCase):
                     {'source_id': 'x', 'seq': 1, 'mode': [], 'sent_at_ns': 0}]
         for payload in invalids:
             self.assertFalse(self.mux.receive_control(payload, 0))
-        for value in (math.nan, math.inf, -math.inf, '0.1', True):
+        for value in (math.nan, math.inf, -math.inf, '0.1', True, 10**1000):
             self.assertFalse(self.control('manual', linear=value))
         self.assertEqual(self.mux.output(), (0.0, 0.0))
 
@@ -402,6 +402,156 @@ class OutputOwnershipTest(unittest.TestCase):
             self.assertTrue(node.on_emergency_stop(None, SimpleNamespace()).success)
             self.assertTrue(node.on_emergency_stop(None, SimpleNamespace()).success)
             self.assertEqual(node.status_pub.publish.call_count, before+2)
+
+
+class LocalizationLeaseTest(unittest.TestCase):
+    setUp = MotionMuxTest.setUp
+    control = MotionMuxTest.control
+
+    def ready(self, allowed=True):
+        self.mux.receive_localization_health({'level': 'warning',
+            'autonomous_allowed': False, 'allow_localization': allowed})
+
+    def test_explicit_localization_is_yaw_only_capped_and_fails_closed(self):
+        self.assertTrue(self.control('localization', angular=.8))
+        self.assertEqual(self.mux.output(), (0., 0.))
+        self.ready()
+        self.assertEqual(self.mux.output(), (0., .25))
+        self.assertFalse(self.control('localization', linear=.01, angular=.2))
+        self.assertIn('yaw only', self.mux.status()['control_rejected_reason'])
+        self.assertEqual(self.mux.output(), (0., .25))
+        self.ready(False)
+        self.assertEqual(self.mux.output(), (0., 0.))
+        self.ready()
+        self.now += .501
+        self.assertEqual(self.mux.output(), (0., 0.))
+        self.assertEqual(self.mux.status()['mode'], 'hold')
+
+    def test_localization_health_expiry_blocks_rotation_even_during_live_lease(self):
+        self.ready()
+        self.control('localization', angular=.2)
+        self.mux.localization_health_timeout = .1
+        self.now += .11
+        self.assertEqual(self.mux.output(), (0., 0.))
+        self.assertFalse(self.mux.status()['allow_localization'])
+
+    def test_manual_priority_and_explicit_hold_handoff(self):
+        self.ready()
+        self.control('manual', linear=.1)
+        self.assertFalse(self.control('localization', angular=.2))
+        self.assertFalse(self.control('localization', source='web-b', angular=.2))
+        self.assertEqual(self.mux.output(), (.05, 0.))
+        self.control('hold')
+        self.assertTrue(self.control('localization', angular=.2))
+        self.assertTrue(self.control('manual', source='web-b', linear=.1))
+        self.assertEqual(self.mux.status()['source_id'], 'web-b')
+        self.assertEqual(self.mux.output(), (.05, 0.))
+
+    def test_localization_never_replays_auto_and_estop_always_wins(self):
+        self.ready()
+        self.control('localization', angular=.2)
+        self.assertFalse(self.mux.receive_auto(.2, 0.))
+        self.assertTrue(self.control('estop', source='other'))
+        self.assertFalse(self.control('localization', angular=.2))
+        self.assertEqual(self.mux.output(), (0., 0.))
+
+    def test_receipts_are_once_per_packet_and_rejections_remain_visible(self):
+        self.assertFalse(self.mux.receive_control([], 0))
+        rejected = self.mux.status()['last_control_rejection']
+        self.assertIn('JSON object', rejected['reason'])
+        self.assertTrue(self.control('hold'))
+        status = self.mux.status()
+        self.assertEqual((status['control_received'], status['control_accepted'],
+                          status['control_rejected']), (2, 1, 1))
+        self.assertEqual(status['last_control_rejection'], rejected)
+        self.assertEqual(status['control_seq'], self.seq)
+        self.assertEqual(status['last_control']['origin'], 'core')
+        packet = {'source_id': 'nav', 'seq': 1, 'sent_at_ns': 1,
+                  'linear': .1, 'angular': 0.}
+        self.control('auto')
+        self.assertTrue(self.mux.receive_stamped_auto(packet, 1))
+        self.assertEqual(self.mux.auto_received, 1)
+        self.assertEqual(self.mux.last_auto['origin'], 'topic')
+        self.mux.receive_auto(.1, 0.)
+        self.assertEqual(self.mux.auto_received, 2)
+        self.assertEqual(self.mux.last_auto['origin'], 'legacy')
+
+
+class ControlDiagnosticsNodeTest(unittest.TestCase):
+    harness = OutputOwnershipTest.harness
+
+    def configured(self):
+        from unittest.mock import Mock
+        node, own = self.harness([])
+        node.get_publishers_info_by_topic.return_value = [own]
+        node.service_source = 'mux-service:test'
+        node.service_seq = 0
+        node.allow_topic_reset = False
+        node.auto_started_ns = 0
+        node.pending_reset = None
+        node.control_pub = Mock()
+        return node
+
+    def test_malformed_precache_reset_and_service_loopback_receipts(self):
+        import json
+        from types import SimpleNamespace
+        node = self.configured()
+        node.on_control(SimpleNamespace(data='{'))
+        node.on_control(SimpleNamespace(data=json.dumps({'source_id': 'web', 'seq': 1,
+            'mode': 'reset', 'sent_at_ns': 0})))
+        self.assertEqual(node.core.control_received, 2)
+        self.assertEqual(node.core.last_control['origin'], 'topic')
+        self.assertIn('service', node.core.last_control['reason'])
+        node.on_control(SimpleNamespace(data=json.dumps({'source_id': node.service_source,
+            'seq': 1, 'mode': 'reset', 'sent_at_ns': 0})))
+        self.assertEqual(node.core.control_received, 2)
+        node.on_emergency_stop(None, SimpleNamespace())
+        self.assertEqual(node.core.control_received, 3)
+        self.assertEqual(node.core.last_control['origin'], 'service')
+        self.assertEqual(node.core.control_by_origin['topic'],
+                         {'received': 2, 'accepted': 0, 'rejected': 2})
+        self.assertEqual(node.core.control_by_origin['service'],
+                         {'received': 1, 'accepted': 1, 'rejected': 0})
+        node.on_navigation_control(SimpleNamespace(data='{'))
+        self.assertEqual(node.core.auto_received, 1)
+        self.assertIn('Malformed', node.core.last_auto['reason'])
+        node.auto_started_ns = 2
+        node.on_navigation_control(SimpleNamespace(data=json.dumps({'sent_at_ns': 1})))
+        self.assertEqual(node.core.auto_received, 2)
+        self.assertIn('startup', node.core.last_auto['reason'])
+
+    def test_manual_heartbeat_counts_do_not_bypass_status_publish_cap(self):
+        import json
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        node = self.configured()
+        with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=10.):
+            for seq in range(1, 101):
+                node.on_control(SimpleNamespace(data=json.dumps({'source_id': 'web',
+                    'seq': seq, 'mode': 'manual', 'linear': .1, 'sent_at_ns': 0})))
+            self.assertEqual(node.status_pub.publish.call_count, 1)
+            self.assertEqual(node.core.control_received, 100)
+        with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=10.11):
+            self.assertTrue(node.publish_status())
+        status = json.loads(node.status_pub.publish.call_args.args[0].data)
+        self.assertEqual(status['control_received'], 100)
+        self.assertEqual(status['control_seq'], 100)
+
+    def test_hold_ack_is_a_recent_zero_publication_not_physical_standstill(self):
+        import json
+        from unittest.mock import patch
+        node = self.configured()
+        with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=10.):
+            node.core.receive_control({'source_id': 'web', 'seq': 1,
+                'mode': 'hold', 'sent_at_ns': 0}, 0)
+            node.publish_status()
+            self.assertFalse(json.loads(node.status_pub.publish.call_args.args[0].data)['stop_acknowledged'])
+            node.publish_output()
+            node.publish_status(force=True)
+            self.assertTrue(json.loads(node.status_pub.publish.call_args.args[0].data)['stop_acknowledged'])
+        with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=10.21):
+            node.publish_status()
+            self.assertFalse(json.loads(node.status_pub.publish.call_args.args[0].data)['stop_acknowledged'])
 
 
 if __name__ == '__main__':
