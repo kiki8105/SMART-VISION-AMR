@@ -137,6 +137,14 @@ class MotionMuxTest(unittest.TestCase):
             self.assertFalse(self.control('manual', sent_at_ns=stamp, linear=.1))
         self.assertEqual(self.mux.output(), (0.0, 0.0))
 
+    def test_slow_estop_heartbeat_does_not_weaken_stale_packet_guard(self):
+        self.assertTrue(self.control('estop'))
+        self.assertFalse(self.control('estop', source=MotionMuxCore.EKF_SENSOR_SAFETY_SOURCE,
+                                      sent_at_ns=18_999_999_999))
+        self.assertIn('timestamp differs', self.mux.control_rejected_reason)
+        self.assertTrue(self.mux.estop_latched)
+        self.assertEqual(self.mux.output(), (0.0, 0.0))
+
     def test_invalid_json_shapes_and_nonfinite_velocities_do_not_move(self):
         invalids = [None, [], {}, {'mode': []}, {'mode': {}},
                     {'source_id': 'x', 'seq': 1, 'mode': [], 'sent_at_ns': 0}]

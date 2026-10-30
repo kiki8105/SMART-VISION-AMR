@@ -1471,6 +1471,10 @@ def create_ros_bridge(app, options, context):
             self.last_planner_status_stamp_ns = -1
             self.motion_gate = False
             self.sent_estop = False
+            # A latched stop needs an immediate packet and a slow heartbeat,
+            # not a fresh control packet on every 10 Hz bridge tick. Repeated
+            # packets otherwise contend with the robot's sensor callbacks.
+            self.last_estop_control_at = -math.inf
             self.cancel_client = self.create_client(Trigger, '/smart_vision_amr/cancel_navigation')
             self.estop_client = self.create_client(Trigger, '/smart_vision_amr/emergency_stop')
             self.reset_client = self.create_client(Trigger, '/smart_vision_amr/reset_emergency_stop')
@@ -2028,6 +2032,15 @@ def create_ros_bridge(app, options, context):
             if app.safety_request == 'reset' or (self.safety_future is not None and self.safety_kind == 'reset'):
                 # Keep the mux reset source stable during guard verification.
                 return
+            if mode == 'estop':
+                now = time.monotonic()
+                if now-self.last_estop_control_at < 1.0:
+                    return
+                self.last_estop_control_at = now
+            else:
+                # A later emergency stop must go out immediately, even if a
+                # previous stop heartbeat was sent less than one second ago.
+                self.last_estop_control_at = -math.inf
             self.motion_seq += 1
             message = String()
             message.data = json.dumps({'source_id': self.motion_source, 'seq': self.motion_seq,

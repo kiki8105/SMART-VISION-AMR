@@ -114,21 +114,36 @@ def scan_map_agreement(points, pose, metadata, distance, tolerance=.15):
              & (cells[:, 1] >= 0) & (cells[:, 1] < metadata['height']))
     matched = np.zeros(len(points), dtype=bool)
     matched[valid] = distance[cells[valid, 1], cells[valid, 0]] <= tolerance
-    for index in np.flatnonzero(matched):
-        delta = local[index]-robot
-        length = float(np.linalg.norm(delta))
-        if length <= .45:
-            continue
-        # Half-cell spacing samples walls even when the ray crosses obliquely.
-        count = max(2, int(math.ceil((length-.45)/(metadata['resolution']*.5)))+1)
-        fractions = np.linspace(.25/length, 1.-.20/length, count)
-        ray = np.floor((robot+fractions[:, None]*delta)/metadata['resolution']).astype(int)
-        inside = ((ray[:, 0] >= 0) & (ray[:, 0] < metadata['width'])
-                  & (ray[:, 1] >= 0) & (ray[:, 1] < metadata['height']))
-        if not np.all(inside):
-            matched[index] = False
-            continue
-        clearance = distance[ray[:, 1], ray[:, 0]]
-        if not np.all(np.isfinite(clearance) & (clearance > 0.)):
-            matched[index] = False
+    # Generate the same half-cell samples in bounded batches. A Python loop
+    # creating several arrays for each of 160 rays was costly on the Pi at the
+    # scan rate; batching leaves the wall/unknown-cell decisions unchanged.
+    indices = np.flatnonzero(matched)
+    if len(indices):
+        deltas = local[indices]-robot
+        lengths = np.linalg.norm(deltas, axis=1)
+        long = lengths > .45
+        indices, deltas, lengths = indices[long], deltas[long], lengths[long]
+        resolution = metadata['resolution']
+        for first in range(0, len(indices), 32):
+            batch_indices = indices[first:first+32]
+            batch_deltas = deltas[first:first+32]
+            batch_lengths = lengths[first:first+32]
+            # Each ray keeps the original count and np.linspace endpoints.
+            counts = np.maximum(2, np.ceil((batch_lengths-.45)/(resolution*.5)).astype(int)+1)
+            starts = np.concatenate(([0], np.cumsum(counts)[:-1]))
+            owners = np.repeat(np.arange(len(batch_indices)), counts)
+            offsets = np.arange(int(np.sum(counts)))-starts[owners]
+            start = .25/batch_lengths
+            stop = 1.-.20/batch_lengths
+            fractions = start[owners]+offsets*((stop-start)/(counts-1))[owners]
+            fractions[starts+counts-1] = stop
+            ray = np.floor((robot+fractions[:, None]*batch_deltas[owners])/resolution).astype(int)
+            inside = ((ray[:, 0] >= 0) & (ray[:, 0] < metadata['width'])
+                      & (ray[:, 1] >= 0) & (ray[:, 1] < metadata['height']))
+            # Clip only for safe indexing; an out-of-bounds sample still fails.
+            x = np.clip(ray[:, 0], 0, metadata['width']-1)
+            y = np.clip(ray[:, 1], 0, metadata['height']-1)
+            clearance = distance[y, x]
+            clear = inside & np.isfinite(clearance) & (clearance > 0.)
+            matched[batch_indices] = np.logical_and.reduceat(clear, starts)
     return float(np.mean(matched))

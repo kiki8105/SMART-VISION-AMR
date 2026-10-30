@@ -1523,6 +1523,36 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(self.packets()[-1]['mode'], 'estop')
         self.assertEqual(self.packets()[-1]['angular'], 0.)
 
+    def test_latched_estop_sends_immediately_then_one_second_heartbeats(self):
+        # A freshly connected bridge must send the first stop at once. While
+        # latched, 10 Hz ticks must not fill the robot mux's control queue.
+        self.assertEqual(self.node.last_estop_control_at, -math.inf)
+        self.app.command('/api/emergency-stop', {})
+        self.tick()
+        stops = [packet for packet in self.packets() if packet['mode'] == 'estop']
+        self.assertEqual(len(stops), 1)
+        self.assertEqual((stops[0]['linear'], stops[0]['angular']), (0., 0.))
+        for _ in range(9):
+            self.tick(.1)
+        self.assertEqual(len([p for p in self.packets() if p['mode'] == 'estop']), 1)
+        self.tick(.11)
+        stops = [packet for packet in self.packets() if packet['mode'] == 'estop']
+        self.assertEqual(len(stops), 2)
+        self.assertEqual(stops[0]['source_id'], stops[1]['source_id'])
+        self.assertGreater(stops[1]['seq'], stops[0]['seq'])
+
+        # A confirmed reset returns to hold; the next emergency must bypass
+        # the old heartbeat timer even if it occurs in the same second.
+        self.assertTrue(self.app.complete_safety_result('stop', True, 'stop acknowledged'))
+        self.app.safety_request = 'reset'
+        self.assertTrue(self.app.complete_safety_result('reset', True, 'reset acknowledged'))
+        self.tick(.1)
+        self.assertEqual(self.packets()[-1]['mode'], 'hold')
+        self.app.command('/api/emergency-stop', {})
+        self.tick(.01)
+        self.assertEqual(len([p for p in self.packets() if p['mode'] == 'estop']), 3)
+        self.assertEqual(self.packets()[-1]['mode'], 'estop')
+
     def test_terminal_result_preserves_paused_route_and_sends_only_hold(self):
         start_mid_mission(self.app)
         before = mission_bookkeeping(self.app)
