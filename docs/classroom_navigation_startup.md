@@ -9,8 +9,7 @@
 
 ```bash
 ssh robot@192.168.0.187
-cd ~/SMART-VISION-AMR
-./scripts/robot_bringup_camera_16.sh
+~/turtlebot16
 ```
 
 주소와 LiDAR·카메라 장치는 실제 로봇에 맞춥니다. 시작 후 2초 이상 정지해 IMU 바이어스를 측정합니다.
@@ -32,7 +31,15 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/run_classroom_web_16.sh
 ```
 
-상시 서비스가 포트 8790을 이미 사용한다면 이 터미널을 중복 실행하지 않습니다. 웹에서 비상정지를 명시적으로 해제하고, 실제 홈에 있을 때 자세 초기화, 위치 준비 확인, 적재 확인, 임무 시작을 순서대로 진행합니다. 자세 초기화만으로 임무를 자동 출발시키지 않습니다.
+상시 서비스가 포트 8790을 이미 사용한다면 이 터미널을 중복 실행하지 않습니다. 웹에서 비상정지를 명시적으로 해제하고, 실제 홈에 있을 때 초기 위치 지정, 위치 준비 확인, 적재 확인, 임무 시작을 순서대로 진행합니다. 초기 위치 지정만으로 임무를 자동 출발시키지 않습니다.
+
+임무를 시작해도 경로만 표시되고 로봇이 정지해 있다면 웹의 속도 제어 상태를 확인합니다.
+웹은 로봇 `motion_mux`가 새 `auto` 제어권을 수락했다는 응답을 받은 뒤에만 목표를
+전달합니다. 응답이 없으면 최대 8초간 재시도하고 임무를 일시정지하며 이유를 표시합니다.
+`/smart_vision_amr/navigation_cmd_vel`에 값이 있는데 `/cmd_vel`이 계속 0이면
+경로 계산보다 제어권·비상정지·시각 동기화 상태를 먼저 확인합니다. 로봇을 움직이기 전에
+`/smart_vision_amr/motion_status`의 `mode`, `last_control`,
+`last_control_rejection`, `autonomous_allowed`를 확인하세요.
 
 ## 처음마다 map/TF 오류가 나타날 때
 

@@ -713,6 +713,7 @@ class LocalizationBridgeTests(unittest.TestCase):
         packet = self.packets()[-1] if self.controls.messages else {'mode': 'hold', 'seq': 0}
         self.app.manual_mux_status = {'mode': packet['mode'], 'source_id': self.node.motion_source,
             'control_seq': packet['seq'], 'available': True, 'allow_localization': True,
+            'autonomous_allowed': True, 'estop_latched': self.app.mission.estop_latched,
             'stop_acknowledged': packet.get('linear', 0.) == 0. and packet.get('angular', 0.) == 0.}
 
     def tick(self, delta=0., refresh=True):
@@ -1841,6 +1842,19 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.cancel.acknowledge(success=True)
         self.tick(.1)
         self.tick(.9)
+        # The goal waits until the robot-side mux confirms this bridge's
+        # freshly sent auto packet; advancing time alone cannot release it.
+        packet = self.packets()[-1]
+        self.assertEqual(packet['mode'], 'auto')
+        self.assertEqual(len(self.goals.messages), 0)
+        self.app.manual_mux_status.update({
+            'mode': 'auto', 'source_id': packet['source_id'],
+            'control_seq': packet['seq'],
+            'last_control': {'source_id': packet['source_id'],
+                             'seq': packet['seq'], 'mode': 'auto',
+                             'origin': 'topic', 'accepted': True},
+        })
+        self.node.tick()
         self.assertEqual(len(self.goals.messages), 1)
         self.assertAlmostEqual(self.goals.messages[0].pose.position.x, home['x'])
         self.assertAlmostEqual(self.goals.messages[0].pose.position.y, home['y'])

@@ -583,6 +583,7 @@ class ManualBridgeTests(unittest.TestCase):
         self.monotonic.start()
         self.app.manual.clock = lambda: self.now
         self.sequence = 0
+        self.last_auto_ack_seq = 0
         self.control_id = str(uuid4())
         self.refresh()
 
@@ -597,13 +598,35 @@ class ManualBridgeTests(unittest.TestCase):
         self.app.pose = {'x': -.7, 'y': -1.2, 'yaw': .1}
         self.app.pose_at = self.app.scan_at = self.app.odom_at = self.app.camera_at = self.now
         self.app.manual_mux_at = self.now
-        self.app.manual_mux_status = {'mode': 'hold', 'source_id': self.node.motion_source}
+        self.app.manual_mux_status = {
+            'mode': 'hold', 'source_id': self.node.motion_source,
+            'available': True, 'autonomous_allowed': True,
+            'estop_latched': False,
+        }
 
     def tick(self, delta=0, refresh=True):
         self.now += delta
         if refresh:
             self.refresh()
         self.node.tick()
+        # Model the robot-side mux accepting an auto lease only after the
+        # bridge has sent its zero-speed handover packet.
+        for message in reversed(self.controls.messages):
+            packet = json.loads(message.data)
+            if packet['mode'] != 'auto' or packet['seq'] <= self.last_auto_ack_seq:
+                continue
+            self.last_auto_ack_seq = packet['seq']
+            self.app.manual_mux_at = self.now
+            self.app.manual_mux_status = {
+                'mode': 'auto', 'source_id': packet['source_id'],
+                'control_seq': packet['seq'], 'available': True,
+                'autonomous_allowed': True, 'estop_latched': False,
+                'last_control': {'source_id': packet['source_id'],
+                                 'seq': packet['seq'], 'mode': 'auto',
+                                 'origin': 'topic', 'accepted': True},
+            }
+            self.node.tick()
+            break
 
     def command(self, active=True):
         self.sequence += 1
@@ -697,7 +720,7 @@ class ManualBridgeTests(unittest.TestCase):
         self.assertEqual(self.app.manual.state, 'WAIT_REPLAN')
         self.navigation('PLANNED', new_goal)
         self.assertEqual(self.app.manual.state, 'WAIT_REPLAN')
-        self.assertNotIn('auto', [message['mode'] for message in self.modes(first)])
+        self.assertIn('auto', [message['mode'] for message in self.modes(first)])
         self.navigation('MOVING', new_goal)
         self.assertEqual(self.app.manual.state, 'IDLE')
         self.assertEqual(self.modes()[-1]['mode'], 'auto')

@@ -63,20 +63,174 @@ class MissionLifecycleTests(unittest.TestCase):
         self.node.goal_pub, self.node.motion_pub, self.node.cancel_client = self.goals, self.stops, self.cancel
         self.estop_service, self.reset_service = ControlledCancelClient(), ControlledCancelClient()
         self.node.estop_client, self.node.reset_client = self.estop_service, self.reset_service
+        self.last_auto_ack_seq = 0
 
     def tearDown(self):
         self.node.destroy_node()
         self.context.shutdown()
         self.temporary.cleanup()
 
-    def tick(self):
+    def tick(self, *, auto_ack=True):
         self.app.pose_at = self.app.scan_at = self.app.odom_at = self.app.camera_at = time.monotonic()
+        if not self.app.manual_mux_status:
+            self.app.manual_mux_status = {
+                'mode': 'hold', 'source_id': 'mux-service:reset',
+                'available': True, 'autonomous_allowed': True,
+                'estop_latched': False, 'stop_acknowledged': True,
+            }
+        self.app.manual_mux_at = time.monotonic()
         self.node.tick()
+        if auto_ack:
+            for message in reversed(self.stops.messages):
+                packet = json.loads(message.data)
+                if packet['mode'] != 'auto' or packet['seq'] <= self.last_auto_ack_seq:
+                    continue
+                self.last_auto_ack_seq = packet['seq']
+                self.app.manual_mux_at = time.monotonic()
+                self.app.manual_mux_status = {
+                    'mode': 'auto', 'source_id': packet['source_id'],
+                    'control_seq': packet['seq'], 'available': True,
+                    'autonomous_allowed': True, 'estop_latched': False,
+                    'last_control': {'source_id': packet['source_id'],
+                                     'seq': packet['seq'], 'mode': 'auto',
+                                     'origin': 'topic', 'accepted': True},
+                }
+                self.node.tick()
+                break
 
     def publish_first(self):
         self.app.mission.start(home={'x': -1., 'y': -2., 'yaw': .2})
         self.tick()
         self.assertEqual(len(self.goals.messages), 1)
+
+    def test_goal_waits_for_fresh_own_auto_ack_and_retries_lost_packet(self):
+        self.app.mission.start(home={'x': -1., 'y': -2., 'yaw': .2})
+        self.tick(auto_ack=False)
+        first = json.loads(self.stops.messages[-1].data)
+        self.assertEqual(first['mode'], 'auto')
+        self.assertEqual(first['linear'], 0.)
+        self.assertEqual(first['angular'], 0.)
+        self.assertEqual(len(self.goals.messages), 0)
+
+        # An old accepted auto receipt, even inside a fresh status envelope,
+        # must not acknowledge this goal's new control handoff.
+        self.app.manual_mux_status.update({
+            'mode': 'auto', 'source_id': self.node.motion_source,
+            'control_seq': first['seq']-1,
+            'last_control': {'source_id': self.node.motion_source,
+                             'seq': first['seq']-1, 'mode': 'auto',
+                             'origin': 'topic', 'accepted': True},
+        })
+        self.tick(auto_ack=False)
+        self.assertEqual(len(self.goals.messages), 0)
+        self.node.auto_handover_last_sent -= .5
+        self.tick(auto_ack=False)
+        retry = json.loads(self.stops.messages[-1].data)
+        self.assertEqual(retry['mode'], 'auto')
+        self.assertGreater(retry['seq'], first['seq'])
+        self.assertGreater(retry['sent_at_ns'], first['sent_at_ns'])
+        self.assertEqual(len(self.goals.messages), 0)
+
+        self.app.manual_mux_status.update({
+            'control_seq': retry['seq'],
+            'last_control': {'source_id': self.node.motion_source,
+                             'seq': retry['seq'], 'mode': 'auto',
+                             'origin': 'topic', 'accepted': True},
+        })
+        self.node.auto_handover_sent[retry['seq']] -= .8
+        self.tick(auto_ack=False)
+        self.assertEqual(len(self.goals.messages), 0,
+                         'an old receipt cannot authorize a fresh goal')
+        self.node.auto_handover_last_sent -= .5
+        self.tick(auto_ack=False)
+        latest = json.loads(self.stops.messages[-1].data)
+        self.assertGreater(latest['seq'], retry['seq'])
+        self.app.manual_mux_status.update({
+            'control_seq': latest['seq'],
+            'last_control': {'source_id': self.node.motion_source,
+                             'seq': latest['seq'], 'mode': 'auto',
+                             'origin': 'topic', 'accepted': True},
+        })
+        count = len(self.stops.messages)
+        self.tick(auto_ack=False)
+        self.assertEqual(len(self.goals.messages), 1)
+        self.assertEqual(len(self.stops.messages), count,
+                         'the goal dispatch tick must not overwrite auto with hold')
+
+    def test_reset_hold_completes_before_auto_handover(self):
+        self.node.sent_estop = True
+        self.app.mission.start(home={'x': -1., 'y': -2., 'yaw': .2})
+        self.tick(auto_ack=False)
+        self.assertEqual(json.loads(self.stops.messages[-1].data)['mode'], 'hold')
+        self.assertEqual(len(self.goals.messages), 0)
+        self.tick(auto_ack=False)
+        packet = json.loads(self.stops.messages[-1].data)
+        self.assertEqual(packet['mode'], 'auto')
+        self.assertEqual(len(self.goals.messages), 0)
+        self.app.manual_mux_status.update({
+            'mode': 'auto', 'source_id': self.node.motion_source,
+            'control_seq': packet['seq'],
+            'last_control': {'source_id': self.node.motion_source,
+                             'seq': packet['seq'], 'mode': 'auto',
+                             'origin': 'topic', 'accepted': True},
+        })
+        self.tick(auto_ack=False)
+        self.assertEqual(len(self.goals.messages), 1)
+        self.assertEqual(json.loads(self.stops.messages[-1].data)['mode'], 'auto')
+
+    def test_handover_timeout_pauses_and_late_auto_ack_cannot_start(self):
+        self.app.mission.start(home={'x': -1., 'y': -2., 'yaw': .2})
+        self.tick(auto_ack=False)
+        auto = json.loads(self.stops.messages[-1].data)
+        self.node.auto_handover_started -= self.node.auto_handover_timeout+.1
+        self.tick(auto_ack=False)
+        hold = json.loads(self.stops.messages[-1].data)
+        self.assertEqual(self.app.mission.state, 'PAUSED')
+        self.assertIn('제어권 인계 확인 실패', self.app.mission.reason)
+        self.assertIsNone(self.node.goal_waiting)
+        self.assertEqual(len(self.goals.messages), 0)
+        self.assertEqual(hold['mode'], 'hold')
+        self.assertGreater(hold['seq'], auto['seq'])
+        self.app.manual_mux_status.update({
+            'mode': 'auto', 'source_id': self.node.motion_source,
+            'control_seq': auto['seq'],
+            'last_control': {'source_id': self.node.motion_source,
+                             'seq': auto['seq'], 'mode': 'auto',
+                             'origin': 'topic', 'accepted': True},
+        })
+        self.tick(auto_ack=False)
+        self.assertEqual(len(self.goals.messages), 0)
+
+    def test_estop_clears_unacknowledged_handover(self):
+        self.app.mission.start(home={'x': -1., 'y': -2., 'yaw': .2})
+        self.tick(auto_ack=False)
+        self.assertTrue(self.node.auto_handover_sent)
+        self.app.mission.emergency_stop()
+        self.tick(auto_ack=False)
+        self.assertIsNone(self.node.goal_waiting)
+        self.assertFalse(self.node.auto_handover_sent)
+        self.assertEqual(len(self.goals.messages), 0)
+        self.assertEqual(json.loads(self.stops.messages[-1].data)['mode'], 'estop')
+
+    def test_manual_release_waits_for_auto_ack_before_replan_goal(self):
+        self.app.manual.state = 'WAIT_REPLAN'
+        self.app.manual.resume_mission = True
+        self.app.mission.start(home={'x': -1., 'y': -2., 'yaw': .2})
+        self.tick(auto_ack=False)
+        packet = json.loads(self.stops.messages[-1].data)
+        self.assertEqual(packet['mode'], 'auto')
+        self.assertEqual(len(self.goals.messages), 0)
+        self.app.manual_mux_status.update({
+            'mode': 'auto', 'source_id': self.node.motion_source,
+            'control_seq': packet['seq'],
+            'last_control': {'source_id': self.node.motion_source,
+                             'seq': packet['seq'], 'mode': 'auto',
+                             'origin': 'topic', 'accepted': True},
+        })
+        self.tick(auto_ack=False)
+        self.assertEqual(len(self.goals.messages), 1)
+        self.assertEqual(self.app.manual.state, 'WAIT_REPLAN')
+        self.assertEqual(json.loads(self.stops.messages[-1].data)['mode'], 'auto')
 
     def test_restart_waits_for_ack_and_stamps_after_it(self):
         self.publish_first()

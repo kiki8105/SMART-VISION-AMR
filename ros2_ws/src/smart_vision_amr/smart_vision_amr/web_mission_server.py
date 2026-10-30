@@ -1473,6 +1473,13 @@ def create_ros_bridge(app, options, context):
             self.last_planner_status_stamp_ns = -1
             self.motion_gate = False
             self.sent_estop = False
+            # A goal must not reach the planner until this bridge has an
+            # accepted, fresh auto-mode receipt from the robot-side mux.
+            self.auto_handover_started = None
+            self.auto_handover_last_sent = None
+            self.auto_handover_sent = {}
+            self.auto_handover_timeout = 8.0
+            self.auto_handover_retry = .4
             # A latched stop needs an immediate packet and a slow heartbeat,
             # not a fresh control packet on every 10 Hz bridge tick. Repeated
             # packets otherwise contend with the robot's sensor callbacks.
@@ -2071,6 +2078,7 @@ def create_ros_bridge(app, options, context):
                     and (not stopped or status.get('stop_acknowledged') is True))
 
         def stop(self):
+            self.clear_auto_handover()
             self.motion_gate = True
             self.send_control('estop' if app.mission.estop_latched else 'hold')
 
@@ -2096,13 +2104,85 @@ def create_ros_bridge(app, options, context):
             self.owns_navigation = True
             app.navigation_active = True
             self.goal_pub.publish(message)
-            # When no manual handover is pending, a fresh goal can restore the
-            # normal mux mode. A joystick release waits for its MOVING status.
-            if not app.manual.in_progress and not app.localization.active:
-                self.motion_gate = False
-                self.send_control('auto')
+            # Auto ownership was acknowledged before the goal was published.
+            # A joystick release still waits for the new route's MOVING status.
+            self.motion_gate = False
             app.mission.event('홈 복귀 목표를 A*에 전달했습니다.' if app.mission.returning_home
                               else f'마커 {marker["id"]} 관측 목표를 A*에 전달했습니다.')
+
+        def clear_auto_handover(self):
+            self.auto_handover_started = None
+            self.auto_handover_last_sent = None
+            self.auto_handover_sent.clear()
+
+        def auto_handover_acknowledged(self, now):
+            status = app.manual_mux_status
+            receipt = status.get('last_control') or {}
+            seq = receipt.get('seq')
+            sent_at = self.auto_handover_sent.get(seq) if type(seq) is int else None
+            return (sent_at is not None and 0. <= now-sent_at <= .75
+                    and 0. <= now-app.manual_mux_at <= .75
+                    and status.get('available') is True
+                    and status.get('autonomous_allowed') is True
+                    and status.get('estop_latched') is False
+                    and status.get('mode') == 'auto'
+                    and status.get('source_id') == self.motion_source
+                    and type(status.get('control_seq')) is int
+                    and status['control_seq'] >= seq
+                    and receipt.get('source_id') == self.motion_source
+                    and receipt.get('mode') == 'auto'
+                    and receipt.get('origin') == 'topic'
+                    and receipt.get('accepted') is True)
+
+        def tick_auto_handover(self, now):
+            """Retry zero-speed control, then dispatch only after the exact ACK.
+
+            A pause or timeout sends a newer hold sequence. Delayed auto packets
+            cannot revive the route, because no goal has been published yet.
+            """
+            if self.auto_handover_started is None:
+                self.auto_handover_started = now
+                app.mission.reason = '출발 준비: 차량 속도 제어권 인계를 확인하고 있습니다.'
+            if self.auto_handover_acknowledged(now):
+                marker, self.goal_waiting = self.goal_waiting, None
+                self.clear_auto_handover()
+                self.publish_goal(marker)
+                return
+            if now-self.auto_handover_started >= self.auto_handover_timeout:
+                rejection = app.manual_mux_status.get('last_control_rejection') or {}
+                detail = (str(rejection.get('reason', ''))
+                          if rejection.get('source_id') == self.motion_source else '')
+                reason = ('속도 제어권 인계 확인 실패. motion_mux 연결·시각 동기화·수동 조종 상태를 확인한 뒤 '
+                          '임무 재개를 누르세요.' + (' 최근 거부 사유: '+detail if detail else ''))
+                self.goal_waiting = None
+                self.clear_auto_handover()
+                app.mission.pause()
+                app.mission.reason = reason
+                app.mission.event(reason, 'warning')
+                self.stop()
+                return
+            status = app.manual_mux_status
+            if (now-app.manual_mux_at > 1.0 or status.get('available') is not True
+                    or status.get('estop_latched') is True
+                    or status.get('autonomous_allowed') is not True
+                    or self.motion_pub.get_subscription_count() == 0
+                    or self.goal_pub.get_subscription_count() == 0):
+                return
+            # Do not steal another bridge's control lease. The reset service
+            # is a permitted handoff source; it always leaves the mux held.
+            owner = status.get('source_id')
+            if (owner not in (None, self.motion_source)
+                    and not (isinstance(owner, str) and owner.startswith('mux-service:'))):
+                return
+            if (self.auto_handover_last_sent is None
+                    or now-self.auto_handover_last_sent >= self.auto_handover_retry):
+                seq = self.send_control('auto')
+                if seq is not None:
+                    self.auto_handover_sent[seq] = now
+                    self.auto_handover_last_sent = now
+                    # Only recent attempts can acknowledge this goal.
+                    self.auto_handover_sent = {key: sent for key, sent in self.auto_handover_sent.items()
+                                               if now-sent <= .75}
 
         def observe_marker_wall(self, now):
             """Use a centered camera axis and the matching fresh LiDAR surface.
@@ -2775,6 +2855,8 @@ def create_ros_bridge(app, options, context):
                     elif kind == 'stop':
                         self.stop_until = now+.8
                     elif kind == 'goal':
+                        if self.goal_waiting is not None:
+                            self.clear_auto_handover()
                         self.goal_waiting = value
                 cancelled = (not self.cancel_required and self.cancel_future is None
                              and now-self.cancel_completed_at > .2 and now > self.stop_until)
@@ -2804,15 +2886,13 @@ def create_ros_bridge(app, options, context):
                 if app.manual.state == 'WAIT_REPLAN':
                     for kind, value in app.mission.drain_commands():
                         if kind == 'goal':
+                            if self.goal_waiting is not None:
+                                self.clear_auto_handover()
                             self.goal_waiting = value
                         elif kind == 'cancel':
                             self.cancel()
                         elif kind == 'stop':
                             self.stop_until = now+.8
-                if self.goal_waiting and not self.cancel_future and not self.cancel_required and now-self.cancel_completed_at > .2 and now > self.stop_until:
-                    if app.mission.state in {'NAVIGATING', 'RETURNING_HOME'} and self.goal_pub.get_subscription_count() > 0:
-                        marker, self.goal_waiting = self.goal_waiting, None
-                        self.publish_goal(marker)
                 if app.mission.estop_latched:
                     self.sent_estop = True
                     self.stop()
@@ -2836,6 +2916,17 @@ def create_ros_bridge(app, options, context):
                                           operation='marker_alignment')
                     else:
                         self.stop()
+                elif (self.goal_waiting is not None and cancelled
+                      and app.mission.state in {'NAVIGATING', 'RETURNING_HOME'}
+                      and app.manual.state in {'IDLE', 'WAIT_REPLAN'}
+                      and app.safety_request is None and self.safety_future is None):
+                    # This is the only place that can publish a waiting goal.
+                    # No later hold/ESTOP branch may overwrite its auto ACK.
+                    self.tick_auto_handover(now)
+                elif app.manual.state == 'WAIT_REPLAN' and self.owns_navigation:
+                    # The new goal was sent after auto ACK. Wait for the
+                    # matching MOVING status before finishing manual handoff.
+                    pass
                 elif app.manual.in_progress or now < self.stop_until or self.motion_gate:
                     self.stop()
                 app.cancel_pending = self.cancel_required or self.cancel_future is not None
