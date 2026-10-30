@@ -260,7 +260,12 @@ class MotionMuxCore:
             return self._reject_control('Safety watchdog sources may only request estop')
         if type(stamp) is not int or stamp < 0 or type(ros_now_ns) is not int:
             return self._reject_control('Control sent_at_ns must be a nonnegative integer')
-        if abs(ros_now_ns-stamp) > 1_000_000_000:
+        safety_estop = source in self.SAFETY_REASONS and mode == 'estop'
+        # A delayed safety watchdog must still latch a stop. Only its estop
+        # packets bypass the old-stamp limit; future stamps and all other
+        # control packets retain the same one-second limit.
+        if (stamp-ros_now_ns > 1_000_000_000
+                or (ros_now_ns-stamp > 1_000_000_000 and not safety_estop)):
             return self._reject_control('Control timestamp differs by over 1s; check PC/robot clock sync and packet delay')
         if source in self.retired_sources:
             return self._reject_control('Control source was retired; reconnect the current bridge')
@@ -273,7 +278,7 @@ class MotionMuxCore:
             return self._reject_control(str(exc))
         if mode == 'localization' and velocity[0] != 0.0:
             return self._reject_control('Localization control permits yaw only; linear must be zero')
-        if source in self.SAFETY_REASONS:
+        if safety_estop:
             # Independent safety watchdogs can stop even a live manual lease.
             # Keep the web bridge as owner so its explicit emergency-reset
             # button remains the only way to clear the latched stop.

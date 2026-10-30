@@ -137,13 +137,55 @@ class MotionMuxTest(unittest.TestCase):
             self.assertFalse(self.control('manual', sent_at_ns=stamp, linear=.1))
         self.assertEqual(self.mux.output(), (0.0, 0.0))
 
-    def test_slow_estop_heartbeat_does_not_weaken_stale_packet_guard(self):
-        self.assertTrue(self.control('estop'))
-        self.assertFalse(self.control('estop', source=MotionMuxCore.EKF_SENSOR_SAFETY_SOURCE,
-                                      sent_at_ns=18_999_999_999))
-        self.assertIn('timestamp differs', self.mux.control_rejected_reason)
-        self.assertTrue(self.mux.estop_latched)
+    def test_delayed_trusted_safety_estops_latch_but_stale_resets_do_not(self):
+        self.assertTrue(self.control('manual', linear=.1))
+        for source in MotionMuxCore.SAFETY_REASONS:
+            with self.subTest(source=source):
+                self.assertTrue(self.control('estop', source=source, sent_at_ns=0))
+                self.assertTrue(self.mux.estop_latched)
+                self.assertEqual(self.mux.output(), (0.0, 0.0))
+                self.assertEqual(self.mux.source_id, 'web-a')
+                self.assertFalse(self.control('reset', sent_at_ns=0))
+                self.assertTrue(self.mux.estop_latched)
+                self.assertTrue(self.control('reset'))
+                self.assertTrue(self.control('manual', linear=.1))
+
+    def test_old_untrusted_or_future_safety_estops_cannot_latch(self):
+        self.assertTrue(self.control('manual', linear=.1))
+        for mode in ('estop', 'reset', 'manual', 'auto'):
+            with self.subTest(mode=mode):
+                self.assertFalse(self.control(mode, sent_at_ns=0, linear=.2))
+                self.assertIn('timestamp differs', self.mux.control_rejected_reason)
+                self.assertEqual(self.mux.output(), (.1, 0.0))
+        source = MotionMuxCore.EKF_SENSOR_SAFETY_SOURCE
+        for mode in ('reset', 'manual', 'auto'):
+            with self.subTest(safety_mode=mode):
+                self.assertFalse(self.control(mode, source=source, sent_at_ns=0))
+                self.assertIn('may only request estop', self.mux.control_rejected_reason)
+                self.assertEqual(self.mux.output(), (.1, 0.0))
+        self.assertFalse(self.control('estop', source=source,
+                                      sent_at_ns=21_000_000_001))
+        self.assertEqual(self.mux.output(), (.1, 0.0))
+        self.assertTrue(self.control('estop', source=source,
+                                     sent_at_ns=21_000_000_000))
         self.assertEqual(self.mux.output(), (0.0, 0.0))
+
+    def test_delayed_safety_estop_still_requires_fresh_sequence_and_source(self):
+        source = MotionMuxCore.LOCALIZATION_SAFETY_SOURCE
+        self.assertTrue(self.control('estop', source=source, sent_at_ns=0))
+        accepted_seq = self.seq
+        self.assertTrue(self.control('reset'))
+        replay = {'source_id': source, 'seq': accepted_seq, 'mode': 'estop',
+                  'sent_at_ns': 0}
+        self.assertFalse(self.mux.receive_control(replay, 20_000_000_000))
+        self.assertIn('Replayed', self.mux.control_rejected_reason)
+        self.assertFalse(self.mux.estop_latched)
+        self.assertTrue(self.control('estop', source=source, sent_at_ns=0))
+        self.assertTrue(self.control('reset'))
+        self.mux.retired_sources.add(source)
+        self.assertFalse(self.control('estop', source=source, sent_at_ns=0))
+        self.assertIn('retired', self.mux.control_rejected_reason)
+        self.assertFalse(self.mux.estop_latched)
 
     def test_invalid_json_shapes_and_nonfinite_velocities_do_not_move(self):
         invalids = [None, [], {}, {'mode': []}, {'mode': {}},

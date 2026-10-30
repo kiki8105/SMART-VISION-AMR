@@ -147,12 +147,13 @@ def test_slow_guard_publish_is_reported_on_next_heartbeat_without_restamping(mon
     second = json.loads(publisher.messages[1].data)
     assert second['timing_diagnostics']['metrics']['control_publish']['max_seconds'] == pytest.approx(1.2)
     mux = mux_harness(clock)
-    # The newly received heartbeat is fresh and reports the preceding source
-    # write. Diagnostics never make its delayed predecessor acceptable.
+    # The delayed, sequence-fresh safety stop still latches. The next
+    # heartbeat reports the preceding source write without restamping it.
     mux.on_control(SimpleNamespace(data=json.dumps(first)))
-    assert mux.core.control_rejected == 1
-    assert 'timestamp' in mux.core.control_rejected_reason
+    assert mux.core.control_accepted == 1
+    assert mux.core.estop_latched
     mux.on_control(SimpleNamespace(data=json.dumps(second)))
+    assert mux.core.control_accepted == 2
     assert mux.core.estop_latched
     assert mux._guard_timing['metrics']['control_publish']['max_seconds'] == pytest.approx(1.2)
 
