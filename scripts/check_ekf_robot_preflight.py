@@ -18,7 +18,7 @@ STAMPED_TOPICS = ('/joint_states', '/imu', '/scan')
 ROBOT_STAMPED_TOPICS = STAMPED_TOPICS + ('/odom', '/wheel/odom_raw', '/battery_state')
 BATTERY_MAX_AGE_SEC = 5.0
 # Provisional physical departure floor; tune from measured battery/load behavior.
-DEFAULT_MIN_BATTERY_VOLTAGE = 11.2
+DEFAULT_MIN_BATTERY_VOLTAGE = 10.8
 
 
 def assess_publishers(counts, estimation_location='pc', localization_mode='ekf_independent'):
@@ -148,7 +148,7 @@ def valid_battery_voltage(voltage, minimum_voltage=0.0):
         value = float(voltage)
     except (TypeError, ValueError, OverflowError):
         return False
-    # BatteryState.voltage is float32; 11.2 V can arrive as 11.19999981.
+    # BatteryState.voltage is float32; 10.8 V can arrive slightly below 10.8.
     return math.isfinite(value) and value > 0.0 and value >= minimum_voltage - 0.001
 
 
@@ -161,7 +161,7 @@ def main():
     parser.add_argument('--minimum-battery-voltage', type=float,
                         default=os.environ.get('SMART_VISION_MIN_BATTERY_VOLTAGE',
                                                str(DEFAULT_MIN_BATTERY_VOLTAGE)),
-                        help='Physical start floor in V (default 11.2; env SMART_VISION_MIN_BATTERY_VOLTAGE)')
+                        help='Physical start floor in V (default 10.8; env SMART_VISION_MIN_BATTERY_VOLTAGE)')
     parser.add_argument('--estimation-location', choices=('pc', 'robot'), default='pc')
     parser.add_argument('--localization-mode', choices=('baseline', 'ekf_independent'), default='ekf_independent')
     args = parser.parse_args()

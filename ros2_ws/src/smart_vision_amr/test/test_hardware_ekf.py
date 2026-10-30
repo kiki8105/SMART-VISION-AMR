@@ -242,15 +242,15 @@ def test_robot_preflight_requires_live_driver_node_and_usable_battery_sample():
     assert preflight.assess_required_nodes(nodes) == []
     assert '/turtlebot3_node' in '; '.join(preflight.assess_required_nodes(nodes[1:]))
     assert '/ekf_sensor_guard' in '; '.join(preflight.assess_required_nodes(nodes[:-1]))
-    assert preflight.valid_battery_voltage(11.2)
-    assert preflight.valid_battery_voltage(11.2, minimum_voltage=11.2)
-    assert preflight.valid_battery_voltage(11.19999981, minimum_voltage=11.2)
-    assert not preflight.valid_battery_voltage(11.198, minimum_voltage=11.2)
-    assert not preflight.valid_battery_voltage(10.97, minimum_voltage=11.2)
-    assert preflight.DEFAULT_MIN_BATTERY_VOLTAGE == 11.2
+    assert preflight.valid_battery_voltage(10.8)
+    assert preflight.valid_battery_voltage(10.8, minimum_voltage=10.8)
+    assert preflight.valid_battery_voltage(10.80000019, minimum_voltage=10.8)
+    assert not preflight.valid_battery_voltage(10.798, minimum_voltage=10.8)
+    assert preflight.valid_battery_voltage(10.97, minimum_voltage=10.8)
+    assert preflight.DEFAULT_MIN_BATTERY_VOLTAGE == 10.8
     for voltage in (0.0, -1.0, math.nan, math.inf):
         assert not preflight.valid_battery_voltage(voltage)
-    assert not preflight.valid_battery_voltage(None, minimum_voltage=11.2)
+    assert not preflight.valid_battery_voltage(None, minimum_voltage=10.8)
 
 
 def test_robot_preflight_needs_advancing_raw_stamps_for_full_healthy_dwell():

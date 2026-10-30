@@ -78,10 +78,10 @@ def test_physical_runtime_passes_battery_limit_only_to_ekf_guard(tmp_path, monke
     module = load_launch()
     monkeypatch.setattr(module, 'get_package_share_directory', lambda _: str(ROOT))
     monkeypatch.setattr(module, 'Node', lambda **kwargs: kwargs)
-    context, _ = make_context(tmp_path, minimum_battery_voltage='11.2')
+    context, _ = make_context(tmp_path, minimum_battery_voltage='10.8')
     nodes = {node['name']: node for node in module._runtime(context)}
-    assert {'minimum_battery_voltage': 11.2} in nodes['ekf_sensor_guard']['parameters']
-    assert all({'minimum_battery_voltage': 11.2} not in node['parameters']
+    assert {'minimum_battery_voltage': 10.8} in nodes['ekf_sensor_guard']['parameters']
+    assert all({'minimum_battery_voltage': 10.8} not in node['parameters']
                for name, node in nodes.items() if name != 'ekf_sensor_guard')
 
 

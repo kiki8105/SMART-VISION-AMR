@@ -105,7 +105,7 @@ def test_ekf_robot_wrapper_selects_independent_mode(tmp_path):
     env.pop('SMART_VISION_MIN_BATTERY_VOLTAGE', None)
     result = subprocess.run(['bash', str(scripts/'robot_bringup_camera_16_ekf.sh'), 'test=1'],
                             text=True, capture_output=True, check=True, timeout=5, env=env)
-    assert result.stdout.splitlines() == ['ekf_independent', 'rate_limited', '11.2', 'test=1']
+    assert result.stdout.splitlines() == ['ekf_independent', 'rate_limited', '10.8', 'test=1']
     env['CAMERA_BACKEND'] = 'v4l2'
     env['SMART_VISION_MIN_BATTERY_VOLTAGE'] = '11.0'
     override = subprocess.run(['bash', str(scripts/'robot_bringup_camera_16_ekf.sh')],

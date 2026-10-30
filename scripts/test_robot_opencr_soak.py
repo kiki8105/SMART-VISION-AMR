@@ -60,14 +60,14 @@ def test_missing_stream_fails_after_startup_grace():
 
 def test_voltage_floor_and_serial_error_fail_immediately():
     monitor = MODULE.SoakWindow()
-    monitor.record('/battery_state', int(100e9), 0.0, int(100e9), voltage=10.97)
+    monitor.record('/battery_state', int(100e9), 0.0, int(100e9), voltage=10.79)
     assert 'below trial floor' in monitor.failure
-    monitor = MODULE.SoakWindow(min_voltage=11.2)
+    monitor = MODULE.SoakWindow(min_voltage=10.8)
     monitor.record('/battery_state', int(100e9), 0.0, int(100e9),
-                   voltage=11.19999981)
+                   voltage=10.80000019)
     assert monitor.failure is None  # BatteryState.voltage is float32.
     monitor.record('/battery_state', int(100.1e9), 0.1, int(100.1e9),
-                   voltage=11.198)
+                   voltage=10.798)
     assert 'below trial floor' in monitor.failure
     monitor = MODULE.SoakWindow()
     monitor.record_log('DynamixelSDKWrapper', 40,

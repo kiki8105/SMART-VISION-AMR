@@ -122,21 +122,21 @@ def test_battery_gate_is_opt_in_and_rejects_bad_or_stale_readings_when_enabled()
     # The zero default preserves existing launches without /battery_state.
     assert 'battery' not in core.required
     assert core.operator_reset(10.3)
-    core.set_battery_limits(11.2, 0.2)
+    core.set_battery_limits(10.8, 0.2)
     assert 'battery' in core.tick(10.4)
     assert core.latched
-    assert core.observe_battery(11.1, 10_500_000_000, 10_500_000_000, 10.5) is False
-    assert '11.20 V' in ' '.join(core.missing(10.5))
-    assert not core.observe_battery(11.3, 10_550_000_000, 10_550_000_000, 10.55)
-    assert '11.40 V' in ' '.join(core.missing(10.55))
+    assert core.observe_battery(10.7, 10_500_000_000, 10_500_000_000, 10.5) is False
+    assert '10.80 V' in ' '.join(core.missing(10.5))
+    assert not core.observe_battery(10.9, 10_550_000_000, 10_550_000_000, 10.55)
+    assert '11.00 V' in ' '.join(core.missing(10.55))
     for now in (10.6, 10.9):
         feed_all(core, now)
         stamp = int(now*1e9)
-        assert core.observe_battery(11.4, stamp, stamp, now)
+        assert core.observe_battery(11.0, stamp, stamp, now)
         core.tick(now)
     assert core.operator_reset(10.9)
     feed_all(core, 11.0)
-    assert not core.observe_battery(11.1, 11_000_000_000, 11_000_000_000, 11.0)
+    assert not core.observe_battery(10.7, 11_000_000_000, 11_000_000_000, 11.0)
     assert 'battery voltage' in core.trip_reason
     assert core.latched and not core.armed
     feed_all(core, 11.1)
@@ -144,12 +144,12 @@ def test_battery_gate_is_opt_in_and_rejects_bad_or_stale_readings_when_enabled()
                                     11_100_000_000, 11.1)
     assert 'invalid battery voltage' in ' '.join(core.missing(11.1))
     feed_all(core, 11.2)
-    assert not core.observe_battery(11.3, 11_200_000_000, 11_200_000_000, 11.2)
+    assert not core.observe_battery(10.9, 11_200_000_000, 11_200_000_000, 11.2)
     assert not core.operator_reset(11.2)
     for now in (11.3, 11.6):
         feed_all(core, now)
         stamp = int(now*1e9)
-        assert core.observe_battery(11.4, stamp, stamp, now)
+        assert core.observe_battery(11.0, stamp, stamp, now)
         core.tick(now)
     assert core.operator_reset(11.6)
     feed_all(core, 16.7)
@@ -158,7 +158,7 @@ def test_battery_gate_is_opt_in_and_rejects_bad_or_stale_readings_when_enabled()
 
 
 def test_battery_has_separate_five_second_receive_and_header_freshness():
-    core = EkfSensorGuardCore(minimum_battery_voltage=11.2,
+    core = EkfSensorGuardCore(minimum_battery_voltage=10.8,
                               battery_stale_seconds=5.0)
     feed_all(core, 10.0)
     assert core.observe_battery(11.5, 10_000_000_000, 10_000_000_000, 10.0)
@@ -175,25 +175,25 @@ def test_battery_has_separate_five_second_receive_and_header_freshness():
 
 
 def test_initial_battery_above_trip_limit_can_arm_without_recovery_margin():
-    core = EkfSensorGuardCore(arm_seconds=0.2, minimum_battery_voltage=11.2,
+    core = EkfSensorGuardCore(arm_seconds=0.2, minimum_battery_voltage=10.8,
                               battery_rearm_margin_voltage=0.2)
     for now in (10.0, 10.3):
         feed_all(core, now)
         stamp = int(now*1e9)
-        assert core.observe_battery(11.3, stamp, stamp, now)
+        assert core.observe_battery(10.9, stamp, stamp, now)
         core.tick(now)
     assert not core.battery_recovery_required
     assert core.operator_reset(10.3)
     feed_all(core, 10.4)
-    assert not core.observe_battery(11.1, 10_400_000_000, 10_400_000_000, 10.4)
+    assert not core.observe_battery(10.7, 10_400_000_000, 10_400_000_000, 10.4)
     assert core.latched and core.battery_recovery_required
     feed_all(core, 10.5)
-    assert not core.observe_battery(11.3, 10_500_000_000, 10_500_000_000, 10.5)
-    assert '11.40 V' in ' '.join(core.missing(10.5))
+    assert not core.observe_battery(10.9, 10_500_000_000, 10_500_000_000, 10.5)
+    assert '11.00 V' in ' '.join(core.missing(10.5))
 
 
 def test_one_bad_battery_sample_latches_and_publishes_before_timer_runs(monkeypatch):
-    core = EkfSensorGuardCore(arm_seconds=0.2, minimum_battery_voltage=11.2)
+    core = EkfSensorGuardCore(arm_seconds=0.2, minimum_battery_voltage=10.8)
     for now in (10.0, 10.3):
         feed_all(core, now)
         stamp = int(now*1e9)
@@ -220,10 +220,10 @@ def test_one_bad_battery_sample_latches_and_publishes_before_timer_runs(monkeypa
     guard = FakeGuard()
     message = BatteryState()
     message.header.stamp.sec = 11
-    message.voltage = 11.1
+    message.voltage = 10.7
     EkfSensorGuard.on_battery(guard, message)
     assert core.latched and guard.estops == 1
-    assert 'battery voltage 11.10 V' in core.trip_reason
+    assert 'battery voltage 10.70 V' in core.trip_reason
     message.header.stamp.nanosec = 20_000_000
     message.voltage = 11.5
     EkfSensorGuard.on_battery(guard, message)
@@ -232,12 +232,12 @@ def test_one_bad_battery_sample_latches_and_publishes_before_timer_runs(monkeypa
 
 
 def test_battery_gate_rejects_invalid_limits_and_voltage():
-    assert battery_voltage_issues(-1., 11.2) == ['invalid battery voltage']
-    assert battery_voltage_issues(float('inf'), 11.2) == ['invalid battery voltage']
-    assert battery_voltage_issues(11.2, 11.2) == []
+    assert battery_voltage_issues(-1., 10.8) == ['invalid battery voltage']
+    assert battery_voltage_issues(float('inf'), 10.8) == ['invalid battery voltage']
+    assert battery_voltage_issues(10.8, 10.8) == []
     encoded = BatteryState()
-    encoded.voltage = 11.4
-    assert battery_voltage_issues(encoded.voltage, 11.4) == []
+    encoded.voltage = 11.0
+    assert battery_voltage_issues(encoded.voltage, 11.0) == []
     core = EkfSensorGuardCore()
     for limit in (-1., float('nan'), float('inf'), True):
         try:

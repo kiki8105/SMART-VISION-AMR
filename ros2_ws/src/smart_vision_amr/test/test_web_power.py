@@ -159,15 +159,17 @@ class PowerStateTests(unittest.TestCase):
 
     def test_physical_departure_requires_fresh_valid_battery_when_enabled(self):
         self.app.require_battery_health = True
-        self.app.minimum_battery_voltage = 11.2
+        self.app.minimum_battery_voltage = 10.8
         self.assertFalse(self.app.readiness()['ready'])
         self.assertTrue(any('/battery_state' in item for item in self.app.readiness()['missing']))
+        self.app.update_battery(10.79)
+        self.assertTrue(any('10.80V' in item for item in self.app.readiness()['missing']))
+        self.app.update_battery(10.80000019)
+        self.assertFalse(any('10.80V' in item for item in self.app.readiness()['missing']))
         self.app.update_battery(10.97)
-        self.assertTrue(any('11.20V' in item for item in self.app.readiness()['missing']))
-        self.app.update_battery(11.19999981)
-        self.assertFalse(any('11.20V' in item for item in self.app.readiness()['missing']))
+        self.assertFalse(any('10.80V' in item for item in self.app.readiness()['missing']))
         self.app.update_battery(11.9)
-        self.assertFalse(any('/battery_state' in item or '11.20V' in item
+        self.assertFalse(any('/battery_state' in item or '10.80V' in item
                              for item in self.app.readiness()['missing']))
         self.app.update_battery(float('nan'))
         self.assertTrue(any('/battery_state' in item for item in self.app.readiness()['missing']))

@@ -22,7 +22,7 @@ import sys
 import time
 
 
-MIN_VOLTAGE_DEFAULT = 11.2  # Provisional trial floor, not a battery specification.
+MIN_VOLTAGE_DEFAULT = 10.8  # 3S LiPo trial floor, not a battery specification.
 VOLTAGE_FLOAT32_EPSILON = 0.001
 STREAM_MAX_GAP = {
     '/joint_states': 2.0,
