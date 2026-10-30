@@ -34,6 +34,7 @@ try:
     from rclpy.signals import SignalHandlerOptions
     from geometry_msgs.msg import PoseWithCovarianceStamped
     from lifecycle_msgs.srv import GetState
+    from nav2_msgs.srv import SetInitialPose
     from nav_msgs.msg import Odometry
     from sensor_msgs.msg import LaserScan
     from sensor_msgs.msg import Image
@@ -456,6 +457,101 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.node.destroy_node()
         self.context.shutdown()
         self.temp.cleanup()
+
+    def start_stopped_manual_pose_validation(self):
+        raster = np.zeros((10, 10), dtype=np.int16)
+        self.app._show_map(self.app.map, raster,
+                           preview=False, source='ros', match=True)
+        self.app.localization_distance = occupied_distance(raster, .1)
+        self.app.mission.emergency_stop()
+        self.app.mission.drain_commands()
+        self.app.manual_mux_status.update(
+            mode='estop', available=True, estop_latched=True,
+            stop_acknowledged=True, output_linear=0., output_angular=0.)
+        self.app.manual_mux_at = self.now
+        self.app.manual_pose_service_ready = True
+        self.node.initial_pose_client = _Client(SetInitialPose.Response)
+        self.app.command('/api/localization/initial-pose',
+                         {'x': .5, 'y': .5, 'yaw_deg': 0., 'confirm': True})
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'WAITING')
+        self.assertEqual(len(self.node.initial_pose_client.requests), 1)
+
+    def refresh_stopped_manual_pose_inputs(self):
+        for name in ('scan_at', 'odom_at', 'localization_scan_at',
+                     'localization_odom_at', 'localization_amcl_active_at',
+                     'manual_mux_at'):
+            setattr(self.app, name, self.now)
+
+    def test_manual_pose_waits_through_one_false_stop_ack_then_verifies_only_after_ack(self):
+        self.start_stopped_manual_pose_validation()
+        self.node.initial_pose_client.acknowledge()
+        self.now += .2
+        self.refresh_stopped_manual_pose_inputs()
+        self.app.manual_mux_status['stop_acknowledged'] = False
+        self.app.manual_pose_amcl_at = self.app.pose_at = self.now
+        self.app.pose = {'x': .5, 'y': .5, 'yaw': 0.}
+        self.app.pose_tf_stamp_ns = self.node.manual_pose_ros_stamp_ns+1
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'WAITING')
+        self.assertTrue(self.app.localization_invalidated)
+
+        self.now += .2
+        self.refresh_stopped_manual_pose_inputs()
+        self.app.manual_mux_status['stop_acknowledged'] = True
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'VERIFIED')
+        self.assertTrue(self.app.mission.estop_latched)
+
+    def test_manual_pose_fails_when_stop_ack_is_missing_for_1_5_seconds(self):
+        self.start_stopped_manual_pose_validation()
+        self.now += .1
+        self.refresh_stopped_manual_pose_inputs()
+        self.app.manual_mux_status['stop_acknowledged'] = False
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'WAITING')
+
+        self.now += 1.4
+        self.refresh_stopped_manual_pose_inputs()
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'FAILED')
+        self.assertTrue(self.app.mission.estop_latched)
+
+    def test_manual_pose_waits_briefly_for_missing_mux_status_but_checks_sensors(self):
+        self.start_stopped_manual_pose_validation()
+        self.now += 1.1
+        for name in ('scan_at', 'odom_at', 'localization_scan_at',
+                     'localization_odom_at', 'localization_amcl_active_at'):
+            setattr(self.app, name, self.now)
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'WAITING')
+        self.assertTrue(self.app.mission.estop_latched)
+
+        self.app.scan_at = 0.
+        self.now += .1
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'FAILED')
+        self.assertIn('LiDAR', self.app.manual_pose_result)
+
+    def test_manual_pose_fails_immediately_if_estop_or_zero_output_is_lost(self):
+        for change in ('estop', 'output', 'mux'):
+            with self.subTest(change=change):
+                self.start_stopped_manual_pose_validation()
+                self.now += .1
+                self.refresh_stopped_manual_pose_inputs()
+                self.app.manual_mux_status['stop_acknowledged'] = False
+                if change == 'estop':
+                    self.app.manual_mux_status['estop_latched'] = False
+                elif change == 'output':
+                    self.app.manual_mux_status['output_linear'] = .02
+                else:
+                    self.app.manual_mux_status['available'] = False
+                self.node.tick_manual_pose(self.now)
+                self.assertEqual(self.app.manual_pose_state, 'FAILED')
+                self.assertTrue(self.app.mission.estop_latched)
+                self.app.manual_mux_status.update(
+                    available=True, estop_latched=True, output_linear=0.,
+                    stop_acknowledged=True)
 
     def test_stalled_amcl_state_query_is_removed_and_fresh_reply_is_required(self):
         self.app.localization_amcl_active_at = 0.

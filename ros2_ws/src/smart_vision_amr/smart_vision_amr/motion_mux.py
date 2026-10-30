@@ -736,11 +736,17 @@ class MotionMuxNode(Node):
 
 def main(args=None):
     import signal
+    from rclpy.executors import SingleThreadedExecutor
     from rclpy.signals import SignalHandlerOptions
     # Publish the final stop before invalidating the context on normal launch
     # shutdown. SIGKILL/power loss still requires the motor firmware watchdog.
     rclpy.init(args=args, signal_handler_options=SignalHandlerOptions.NO)
     node = MotionMuxNode()
+    # Keep the node registered for the entire run. Repeated rclpy.spin_once(node)
+    # removes and re-adds it on every pass, which can starve control subscriptions
+    # behind the output/status timers on a busy Raspberry Pi.
+    executor = SingleThreadedExecutor(context=node.context)
+    executor.add_node(node)
     stop_requested = [False]
 
     def stop(_signum, _frame):
@@ -750,7 +756,7 @@ def main(args=None):
                 for signum in (signal.SIGINT, signal.SIGTERM)}
     try:
         while rclpy.ok() and not stop_requested[0]:
-            rclpy.spin_once(node, timeout_sec=.05)
+            executor.spin_once(timeout_sec=.05)
     except KeyboardInterrupt:
         pass
     finally:
@@ -759,6 +765,7 @@ def main(args=None):
             node.core.estop_latched = True
             node.publish_output()
             time.sleep(.05)  # Give DDS's transport thread time to flush the stop.
+        executor.shutdown()
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()

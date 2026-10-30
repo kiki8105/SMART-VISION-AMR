@@ -1008,12 +1008,14 @@ class MissionApplication:
         self.mission.event('운용자가 등록 홈 위치·방향을 확인했습니다. 정지 상태에서 초기 가설만 입력합니다.')
         return self.state()
 
-    def manual_pose_readiness(self):
+    def manual_pose_readiness(self, *, require_stop_ack=True):
         """Manual map pose is only a prior while the robot is stopped in ESTOP."""
         now = time.monotonic()
-        if (not self.mission.estop_latched or now-self.manual_mux_at >= 1.
+        if not self.mission.estop_latched:
+            return False, '차량 비상정지와 정지 확인 응답이 필요합니다.'
+        if (require_stop_ack and (now-self.manual_mux_at >= 1.
                 or self.manual_mux_status.get('estop_latched') is not True
-                or self.manual_mux_status.get('stop_acknowledged') is not True):
+                or self.manual_mux_status.get('stop_acknowledged') is not True)):
             return False, '차량 비상정지와 정지 확인 응답이 필요합니다.'
         if not self.connected or self.pending_connection is not None:
             return False, 'ROS 연결을 확인하세요.'
@@ -1488,6 +1490,7 @@ def create_ros_bridge(app, options, context):
             self.amcl_state_future = self.localization_future = self.nomotion_future = None
             self.manual_pose_future = None
             self.manual_pose_ros_stamp_ns = 0
+            self.manual_pose_last_stop_ack_at = None
             self.amcl_state_checked_at = self.nomotion_at = 0.
             self.localization_epoch_ns = self.last_amcl_stamp_ns = 0
             self.manual_initial_pose_ns = None
@@ -2245,12 +2248,35 @@ def create_ros_bridge(app, options, context):
                 self.initial_pose_client.remove_pending_request(self.manual_pose_future)
                 self.manual_pose_future.cancel()
             self.manual_pose_future = None
+            self.manual_pose_last_stop_ack_at = None
             app.manual_pose_request = None
             app.manual_pose_state = 'FAILED'
             app.manual_pose_result = '초기 위치 확인 실패: '+reason+' 비상정지를 유지합니다.'
             app.localization_invalidated = True
             self.manual_initial_pose_ns = None
             app.mission.event(app.manual_pose_result, 'warning')
+
+        def manual_pose_stop_ack_grace(self, now):
+            """Keep a stopped pose prior pending through a brief mux ACK gap.
+
+            A missed status/output tick must not invalidate an AMCL prior that
+            was already accepted. This grace cannot certify the pose, and it
+            never applies if ESTOP, mux ownership, or zero output is lost.
+            """
+            status = app.manual_mux_status
+            speed = app.speed
+            last_ack = self.manual_pose_last_stop_ack_at
+            return bool(
+                last_ack is not None and 0. <= now-last_ack < 1.5
+                and app.mission.estop_latched
+                and status.get('available') is True
+                and status.get('estop_latched') is True
+                and type(status.get('output_linear')) in (int, float)
+                and type(status.get('output_angular')) in (int, float)
+                and status['output_linear'] == status['output_angular'] == 0.
+                and type(speed.get('linear')) in (int, float)
+                and type(speed.get('angular')) in (int, float)
+                and abs(speed['linear']) < .01 and abs(speed['angular']) < .03)
 
         def tick_manual_pose(self, now):
             if app.manual_pose_state != 'WAITING':
@@ -2287,6 +2313,7 @@ def create_ros_bridge(app, options, context):
                     self.fail_manual_pose('AMCL 초기 위치 서비스 요청 오류: '+str(exc))
                     return
                 self.manual_pose_ros_stamp_ns = self.manual_initial_pose_ns = self.localization_epoch_ns = stamp
+                self.manual_pose_last_stop_ack_at = now
                 app.manual_pose_request = None
                 app.manual_pose_sent_at = now
                 app.localization_invalidated = True
@@ -2304,9 +2331,19 @@ def create_ros_bridge(app, options, context):
                     self.fail_manual_pose('AMCL 초기 위치 서비스 응답이 없습니다.')
                     return
             available, reason = app.manual_pose_readiness()
-            if not available:
-                self.fail_manual_pose('검증 중 출발 조건이 사라졌습니다: '+reason)
-                return
+            if available:
+                self.manual_pose_last_stop_ack_at = now
+            else:
+                if (reason == '차량 비상정지와 정지 확인 응답이 필요합니다.'
+                        and self.manual_pose_stop_ack_grace(now)):
+                    context_ready, context_reason = app.manual_pose_readiness(require_stop_ack=False)
+                    if not context_ready:
+                        reason = context_reason
+                else:
+                    context_ready = False
+                if not context_ready:
+                    self.fail_manual_pose('검증 중 출발 조건이 사라졌습니다: '+reason)
+                    return
             if app.map_version != app.manual_pose_map_version:
                 self.fail_manual_pose('운용 지도가 바뀌었습니다.')
                 return
@@ -2321,7 +2358,8 @@ def create_ros_bridge(app, options, context):
                 self.fail_manual_pose(reason)
                 return
             requested = app.manual_pose_requested
-            if (self.manual_pose_future is None and app.manual_pose_amcl_at > app.manual_pose_sent_at
+            if (available and self.manual_pose_future is None
+                    and app.manual_pose_amcl_at > app.manual_pose_sent_at
                     and now-app.manual_pose_amcl_at < 2. and now-app.pose_at < 2.
                     and app.pose_tf_stamp_ns > self.manual_pose_ros_stamp_ns and requested is not None
                     and app.pose is not None):
@@ -2333,6 +2371,7 @@ def create_ros_bridge(app, options, context):
                     app.manual_pose_result = 'AMCL 위치와 새 map→base TF 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.'
                     app.localization_invalidated = False
                     self.manual_initial_pose_ns = None
+                    self.manual_pose_last_stop_ack_at = None
                     app.mission.event(app.manual_pose_result)
 
         def tick_localization(self, now, cancelled, mux_held):
