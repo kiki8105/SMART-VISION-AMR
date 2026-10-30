@@ -38,11 +38,19 @@ if "$INSTALL_DEPS"; then
     ros-humble-robot-localization ros-humble-compressed-image-transport \
     ros-humble-diagnostic-msgs python3-opencv python3-numpy python3-yaml python3-pil
 fi
+WORKSPACE_ROOT=$(realpath -m -- "$WORKSPACE_ROOT")
 unset AMENT_PREFIX_PATH CMAKE_PREFIX_PATH COLCON_PREFIX_PATH ROS_PACKAGE_PATH PYTHONPATH LD_LIBRARY_PATH
 source /opt/ros/humble/setup.bash
+# Reuse dependencies built in this selected workspace, such as the official
+# TurtleBot3 packages. local_setup avoids importing unrelated underlay chains;
+# a new clone without an install directory still uses the apt packages above.
+if [[ -f "$WORKSPACE_ROOT/install/local_setup.bash" ]]; then
+  source "$WORKSPACE_ROOT/install/local_setup.bash"
+fi
 for package in nav2_bringup turtlebot3_navigation2 robot_localization compressed_image_transport; do
   if ! ros2 pkg prefix "$package" >/dev/null 2>&1; then
-    printf 'Missing ROS package %s; rerun without --no-install.\n' "$package" >&2
+    printf 'Missing ROS package %s in Humble and selected workspace %s; rerun without --no-install.\n' \
+      "$package" "$WORKSPACE_ROOT" >&2
     exit 2
   fi
 done

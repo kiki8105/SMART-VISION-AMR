@@ -208,6 +208,11 @@ systemctl --user restart smart-vision-classroom-web.service
 [주행 시작 문제 해결](classroom_navigation_startup.md)을 참고하세요.
 `/map`은 지도 서버 하나, `/odom`은 로봇 EKF 하나, `/cmd_vel`은 로봇 mux 하나가 발행해야 합니다.
 
+`setup_pc_runtime.sh --no-install`에서 `Missing ROS package`가 나오면 필요한 의존성이
+ROS Humble과 선택한 작업공간 양쪽에서 발견되지 않은 것입니다. `--no-install`을 빼고
+`./scripts/setup_pc_runtime.sh`를 실행하면 의존성 설치와 빌드를 함께 진행합니다.
+이미 같은 작업공간에 빌드된 TurtleBot3 의존성은 검사에 포함합니다.
+
 선택 PyQt 조종기는 `sudo apt install python3-pyqt5`로 준비한 후
 `./scripts/run_classroom_controller_16.sh`를 실행합니다. 수동 운전은 웹 조이스틱을 사용합니다.
 
