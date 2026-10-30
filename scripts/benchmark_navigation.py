@@ -92,7 +92,10 @@ class NavigationMetrics:
         self.status_by_source[source] = status
         goal_stamp = payload.get('goal_stamp') or {}
         stamp = goal_stamp.get('sec', 0)*1_000_000_000+goal_stamp.get('nanosec', 0)
-        if self.active_goal is not None and stamp == self.active_goal['stamp_ns']:
+        if (self.active_goal is not None and stamp == self.active_goal['stamp_ns']
+                and self.active_goal['result'] == 'running'):
+            # A later cancel/status update (including shutdown cleanup) must
+            # not erase a terminal result already observed for this goal.
             if status in ('SUCCEEDED', 'CANCELED'):
                 self.active_goal.update(result=status.lower(), ended_seconds=now)
 
@@ -197,6 +200,93 @@ def benchmark_auto_packet(status, received_at, now, ros_now_ns, source_id, seq,
             'mode': 'auto', 'linear': 0.0, 'angular': 0.0}
 
 
+def benchmark_control_subscriber_ready(match_count, endpoints):
+    """Require a DDS match to the robot mux, not an unrelated topic reader."""
+    return match_count > 0 and any(
+        getattr(endpoint, 'node_name', None) == 'motion_mux' for endpoint in endpoints)
+
+
+def benchmark_cleanup_actions(execute, owns_route, active_goal, last_sent_stamp,
+                              auto_owned=False):
+    """Stop only after our control was ACKed; cancel only our active goal."""
+    if not execute or not (owns_route or auto_owned):
+        return ()
+    own_goal_running = (active_goal is not None
+                        and active_goal['stamp_ns'] == last_sent_stamp
+                        and active_goal['result'] == 'running')
+    return (('cancel_navigation',) if own_goal_running else ()) + ('emergency_stop',)
+
+
+def benchmark_predeparture_wait_expired(now, ready_wait_started_at,
+                                        startup_timeout, auto_handover):
+    """Use the startup deadline only until zero-speed handover begins."""
+    if auto_handover is None:
+        return now-ready_wait_started_at > startup_timeout
+    return (auto_handover.started_at is not None
+            and now-auto_handover.started_at > auto_handover.timeout_seconds)
+
+
+class AutoModeHandshake:
+    """Send only zero-velocity, ordered auto requests until this source is ACKed."""
+
+    def __init__(self, source_id, initial_seq=0, timeout_seconds=25.0,
+                 retry_seconds=0.5, ack_max_age_seconds=0.75):
+        self.source_id = source_id
+        self.timeout_seconds = timeout_seconds
+        self.retry_seconds = retry_seconds
+        self.ack_max_age_seconds = ack_max_age_seconds
+        self.started_at = self.last_sent_at = self.first_seq = None
+        self.sent_at_by_seq = {}
+        self.seq = initial_seq
+
+    def step(self, status, received_at, now, ros_now_ns, subscriber_ready,
+             foreign_navigation_active=False):
+        """Return (packet_to_publish, acknowledged), or fail closed on timeout."""
+        if self.started_at is None:
+            self.started_at = now
+        if now-self.started_at > self.timeout_seconds:
+            if self.first_seq is None:
+                raise TimeoutError('Motion mux control subscriber did not match before benchmark timeout')
+            rejection = (status or {}).get('last_control_rejection') or {}
+            detail = rejection.get('reason', '') if rejection.get('source_id') == self.source_id else ''
+            suffix = f' (last rejection: {detail})' if detail else ''
+            raise TimeoutError('Motion mux did not acknowledge benchmark auto mode'+suffix)
+        if status is None or received_at is None or not 0.0 <= now-received_at <= 1.0:
+            return None, False
+        # Check safety and ownership on *every* retry, even after a request
+        # was sent. A manual/localization lease, ESTOP, or another mission wins.
+        packet = benchmark_auto_packet(status, received_at, now, ros_now_ns,
+                                       self.source_id, self.seq+1,
+                                       foreign_navigation_active)
+        if not subscriber_ready:
+            return None, False
+        receipt = status.get('last_control') or {}
+        # The robot's monotonic receipt timestamp has a different epoch from
+        # this PC's. Bound ACK age using our own send time for that exact seq.
+        if (self.first_seq is not None
+                and status.get('source_id') == self.source_id
+                and status.get('mode') == 'auto'
+                and type(status.get('control_seq')) is int
+                and status['control_seq'] >= self.first_seq
+                and receipt.get('source_id') == self.source_id
+                and receipt.get('mode') == 'auto'
+                and receipt.get('origin') == 'topic'
+                and receipt.get('accepted') is True
+                and type(receipt.get('seq')) is int
+                and receipt['seq'] >= self.first_seq
+                and receipt['seq'] in self.sent_at_by_seq
+                and 0.0 <= now-self.sent_at_by_seq[receipt['seq']] <= self.ack_max_age_seconds):
+            return None, True
+        if self.last_sent_at is not None and now-self.last_sent_at < self.retry_seconds:
+            return None, False
+        self.seq += 1
+        self.last_sent_at = now
+        self.sent_at_by_seq[self.seq] = now
+        if self.first_seq is None:
+            self.first_seq = self.seq
+        return packet, False
+
+
 def run(args, route):
     import rclpy
     from geometry_msgs.msg import PoseStamped, Twist
@@ -226,8 +316,10 @@ def run(args, route):
             self.control_seq = 0
             self.motion_status = self.motion_status_at = None
             self.foreign_navigation_active = False
-            self.auto_requested_at = None
+            self.auto_handover = None
+            self.auto_owned = False
             self.owns_route = False
+            self.predeparture_started_at = 0.0
             self.stop_client = self.create_client(Trigger, '/smart_vision_amr/emergency_stop')
             self.cancel_client = self.create_client(Trigger, '/smart_vision_amr/cancel_navigation')
             self.route_index = 0
@@ -321,34 +413,46 @@ def run(args, route):
                          and now-self.health_at <= 1.0)
                 if (not self.metrics.samples or (args.use_sim_time and not self.clock_seen)
                         or not ready):
-                    if now > args.startup_timeout:
-                        self.failure, self.done = 'Fresh TF, localization confidence or simulation /clock not ready', True
+                    if benchmark_predeparture_wait_expired(
+                            now, self.predeparture_started_at, args.startup_timeout,
+                            self.auto_handover):
+                        phase = ('startup' if self.auto_handover is None else 'auto handover')
+                        self.failure, self.done = (
+                            f'Fresh TF, localization confidence or simulation /clock not ready during {phase}', True)
                     return
                 if self.route_index >= len(route):
                     self.done = True
                     return
                 if self.motion_status is None:
-                    if now > args.startup_timeout:
-                        self.failure, self.done = 'No fresh motion mux status before startup timeout', True
+                    if benchmark_predeparture_wait_expired(
+                            now, self.predeparture_started_at, args.startup_timeout,
+                            self.auto_handover):
+                        phase = ('startup' if self.auto_handover is None else 'auto handover')
+                        self.failure, self.done = f'No fresh motion mux status during {phase}', True
                     return
+                if self.auto_handover is None:
+                    self.auto_handover = AutoModeHandshake(
+                        self.control_source, initial_seq=self.control_seq,
+                        timeout_seconds=args.handover_timeout)
+                subscriber_ready = benchmark_control_subscriber_ready(
+                    self.control_pub.get_subscription_count(),
+                    self.get_subscriptions_info_by_topic('/smart_vision_amr/manual_control'))
+                foreign_goal = (self.metrics.active_goal is not None
+                                and self.metrics.active_goal['result'] == 'running'
+                                and self.metrics.active_goal['stamp_ns'] != self.last_sent_stamp)
                 try:
-                    packet = benchmark_auto_packet(
+                    packet, acknowledged = self.auto_handover.step(
                         self.motion_status, self.motion_status_at, now,
-                        self.get_clock().now().nanoseconds, self.control_source,
-                        self.control_seq+1, self.foreign_navigation_active)
-                except ValueError as exc:
+                        self.get_clock().now().nanoseconds, subscriber_ready,
+                        self.foreign_navigation_active or foreign_goal)
+                except (ValueError, TimeoutError) as exc:
                     self.failure, self.done = str(exc), True
                     return
-                if self.auto_requested_at is None:
-                    self.control_seq += 1
+                if packet is not None:
                     self.control_pub.publish(String(data=json.dumps(packet)))
-                    self.auto_requested_at = now
+                if not acknowledged:
                     return
-                if (self.motion_status.get('source_id') != self.control_source
-                        or self.motion_status.get('mode') != 'auto'):
-                    if now-self.auto_requested_at > 2.0:
-                        self.failure, self.done = 'Motion mux did not acknowledge benchmark auto mode', True
-                    return
+                self.auto_owned = True
                 message = PoseStamped()
                 message.header.frame_id = args.map_frame
                 message.header.stamp = self.get_clock().now().to_msg()
@@ -359,7 +463,8 @@ def run(args, route):
                 self.metrics.goal(x, y, self.last_sent_stamp, now)
                 self.owns_route = True
                 self.goal_pub.publish(message)
-                self.auto_requested_at = None
+                self.control_seq = self.auto_handover.seq
+                self.auto_handover = None
                 self.active_since = now
                 self.get_logger().info(f'Benchmark goal {self.route_index+1}/{len(route)}: {x}, {y}')
             else:
@@ -367,20 +472,23 @@ def run(args, route):
                 if active and active['stamp_ns'] == self.last_sent_stamp and active['result'] == 'succeeded':
                     self.route_index += 1
                     self.active_since = None
+                    self.predeparture_started_at = now
+                    if self.route_index >= len(route):
+                        self.done = True
+                        return
                 elif now-self.active_since > args.goal_timeout:
                     self.failure, self.done = f'Goal {self.route_index+1} timeout', True
             if now >= args.duration:
                 self.failure, self.done = 'Overall wall duration reached', True
 
         def stop_owned_route(self):
-            if not args.execute or not self.owns_route:
-                return
-            # A route published by this tool is always explicitly canceled on
-            # exit. Failure/interruption additionally latches the common stop.
-            clients = [self.cancel_client]
-            if self.failure:
-                clients.append(self.stop_client)
-            for client in clients:
+            actions = benchmark_cleanup_actions(args.execute, self.owns_route,
+                                                self.metrics.active_goal, self.last_sent_stamp,
+                                                auto_owned=self.auto_owned)
+            clients = {'cancel_navigation': self.cancel_client,
+                       'emergency_stop': self.stop_client}
+            for action in actions:
+                client = clients[action]
                 result = {'service': client.srv_name, 'requested': False, 'acknowledged': False}
                 if client.wait_for_service(timeout_sec=.5):
                     future = client.call_async(Trigger.Request())
@@ -390,6 +498,8 @@ def run(args, route):
                         response = future.result()
                         result.update(acknowledged=bool(response.success), message=response.message)
                 self.cleanup_requests.append(result)
+                if not result['acknowledged'] and self.failure is None:
+                    self.failure = f'{action} was not acknowledged during benchmark cleanup'
 
     rclpy.init()
     node = Trial()
@@ -441,13 +551,18 @@ def main():
     parser.add_argument('--duration', type=float, default=180.0, help='Overall wall-clock recording limit')
     parser.add_argument('--goal-timeout', type=float, default=90.0)
     parser.add_argument('--startup-timeout', type=float, default=20.0)
+    parser.add_argument('--handover-timeout', type=float, default=25.0,
+                        help='Maximum seconds to retry zero-speed auto ownership handover')
     parser.add_argument('--config', action='append', default=[], type=Path, help='Config file to hash into report')
     parser.add_argument('--map-frame', default='map')
     parser.add_argument('--base-frame', default='base_footprint')
     parser.add_argument('--output', type=Path, default=Path('benchmarks')/('navigation_'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')))
     args = parser.parse_args()
     try:
-        if args.repeat < 1 or not 0 <= args.domain <= 232 or min(args.duration, args.goal_timeout, args.startup_timeout) <= 0:
+        if (args.repeat < 1 or not 0 <= args.domain <= 232
+                or not all(math.isfinite(value) and value > 0 for value in
+                           (args.duration, args.goal_timeout, args.startup_timeout,
+                            args.handover_timeout))):
             raise ValueError('Invalid repeat, domain, or duration')
         route = []
         for text in args.waypoint:

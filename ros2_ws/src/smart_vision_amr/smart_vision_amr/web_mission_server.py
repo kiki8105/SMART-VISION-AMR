@@ -1489,6 +1489,8 @@ def create_ros_bridge(app, options, context):
             self.initial_pose_client = self.create_client(SetInitialPose, '/set_initial_pose')
             self.amcl_state_future = self.localization_future = self.nomotion_future = None
             self.manual_pose_future = None
+            self.manual_pose_nomotion_future = None
+            self.manual_pose_nomotion_at = 0.
             self.manual_pose_ros_stamp_ns = 0
             self.manual_pose_last_stop_ack_at = None
             self.amcl_state_checked_at = self.nomotion_at = 0.
@@ -2248,6 +2250,7 @@ def create_ros_bridge(app, options, context):
                 self.initial_pose_client.remove_pending_request(self.manual_pose_future)
                 self.manual_pose_future.cancel()
             self.manual_pose_future = None
+            self.clear_manual_pose_nomotion()
             self.manual_pose_last_stop_ack_at = None
             app.manual_pose_request = None
             app.manual_pose_state = 'FAILED'
@@ -2255,6 +2258,16 @@ def create_ros_bridge(app, options, context):
             app.localization_invalidated = True
             self.manual_initial_pose_ns = None
             app.mission.event(app.manual_pose_result, 'warning')
+
+        def clear_manual_pose_nomotion(self):
+            future = self.manual_pose_nomotion_future
+            if future is not None and not future.done():
+                try:
+                    self.nomotion_client.remove_pending_request(future)
+                    future.cancel()
+                except Exception:
+                    pass
+            self.manual_pose_nomotion_future = None
 
         def manual_pose_stop_ack_grace(self, now):
             """Keep a stopped pose prior pending through a brief mux ACK gap.
@@ -2314,6 +2327,8 @@ def create_ros_bridge(app, options, context):
                     return
                 self.manual_pose_ros_stamp_ns = self.manual_initial_pose_ns = self.localization_epoch_ns = stamp
                 self.manual_pose_last_stop_ack_at = now
+                self.clear_manual_pose_nomotion()
+                self.manual_pose_nomotion_at = 0.
                 app.manual_pose_request = None
                 app.manual_pose_sent_at = now
                 app.localization_invalidated = True
@@ -2347,6 +2362,29 @@ def create_ros_bridge(app, options, context):
             if app.map_version != app.manual_pose_map_version:
                 self.fail_manual_pose('운용 지도가 바뀌었습니다.')
                 return
+            # AMCL may accept a stopped initial pose without publishing a new
+            # posterior until another laser update is requested. The robot-side
+            # health node can retain a healthy estimate from a previous AMCL
+            # instance, so it cannot always trigger this refresh for us.
+            # A service response never verifies the pose; only on_amcl does.
+            if self.manual_pose_nomotion_future is not None:
+                if self.manual_pose_nomotion_future.done():
+                    self.manual_pose_nomotion_future = None
+                elif now-self.manual_pose_nomotion_at >= 2.:
+                    self.clear_manual_pose_nomotion()
+            if (available and self.manual_pose_future is None
+                    and app.manual_pose_amcl_received_at <= app.manual_pose_sent_at
+                    and now-app.manual_pose_sent_at >= 1.
+                    and now-app.manual_pose_sent_at < 12.
+                    and now-self.manual_pose_nomotion_at >= 2.
+                    and self.manual_pose_nomotion_future is None
+                    and self.nomotion_client.service_is_ready()):
+                self.manual_pose_nomotion_at = now
+                try:
+                    self.manual_pose_nomotion_future = self.nomotion_client.call_async(Empty.Request())
+                except Exception:
+                    # Keep the normal verification deadline and fail closed.
+                    pass
             if now-app.manual_pose_sent_at >= 12.:
                 if app.manual_pose_amcl_received_at <= app.manual_pose_sent_at:
                     reason = '새 /amcl_pose가 수신되지 않았습니다. /scan과 AMCL 상태를 확인하세요.'
@@ -2372,6 +2410,7 @@ def create_ros_bridge(app, options, context):
                     app.localization_invalidated = False
                     self.manual_initial_pose_ns = None
                     self.manual_pose_last_stop_ack_at = None
+                    self.clear_manual_pose_nomotion()
                     app.mission.event(app.manual_pose_result)
 
         def tick_localization(self, now, cancelled, mux_held):

@@ -1,9 +1,11 @@
 """Confidence lifecycle, data outages and reset invariants without hardware."""
 
 import math
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+import yaml
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from sensor_msgs.msg import LaserScan
@@ -70,6 +72,28 @@ def test_receive_age_half_second_blocks_auto_before_fault_latches():
     assert not warning['autonomous_allowed']
     assert not warning['stop_latched']
     assert core.evaluate(2.61, delayed)['stop_latched']
+
+
+def test_physical_sensor_jitter_margin_is_bounded_below_independent_guard():
+    package = Path(__file__).resolve().parents[1]
+    settings = yaml.safe_load((package/'config/localization_health.yaml').read_text())[
+        'localization_health']['ros__parameters']
+    guard = yaml.safe_load((package/'config/ekf_hardware.yaml').read_text())[
+        'ekf_sensor_guard']['ros__parameters']
+    assert settings['sensor_timeout'] == pytest.approx(.7)
+    assert settings['sensor_timeout'] < guard['stale_seconds'] == 1.0
+
+    core = LocalizationHealthCore(stable_seconds=1.0,
+                                  sensor_timeout=settings['sensor_timeout'])
+    core.evaluate(0., healthy())
+    core.evaluate(1.1, healthy())
+    assert core.evaluate(2., healthy(scan_age_seconds=.6,
+                                     scan_header_age_seconds=.6,
+                                     odom_age_seconds=.6,
+                                     odom_header_age_seconds=.6))['autonomous_allowed']
+    delayed = core.evaluate(2.1, healthy(scan_age_seconds=.71))
+    assert not delayed['autonomous_allowed']
+    assert not delayed['stop_latched']
 
 
 def test_short_dynamic_obstruction_does_not_latch_but_sustained_disagreement_does():

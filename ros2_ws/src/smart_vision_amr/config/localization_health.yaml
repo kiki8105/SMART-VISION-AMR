@@ -13,10 +13,11 @@ localization_health:
     stable_seconds: 2.0
     fault_seconds: 0.5
     agreement_fault_seconds: 3.0  # Ignore brief occlusions by moving objects.
-    # At 5 Hz scan period is 0.2 s. A 0.5 s receive-age limit leaves 0.3 s
-    # margin; the next 0.25 s health tick blocks auto before a 1 s outage.
+    # At 5 Hz scan period is 0.2 s. Allow up to 0.5 s extra transient
+    # receive/header delay at departure. The next 0.25 s health tick blocks
+    # auto before a 1 s outage; the independent EKF guard still trips at 1 s.
     # The separate fault_seconds debounce controls the later latched ESTOP.
-    sensor_timeout: 0.5
+    sensor_timeout: 0.7
     tf_timeout: 1.0
     future_tolerance: 1.5  # AMCL map->odom may be intentionally future-dated.
     position_warning: 0.35  # Largest x/y position standard deviation.

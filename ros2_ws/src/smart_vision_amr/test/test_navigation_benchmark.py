@@ -2,6 +2,7 @@
 
 import importlib.util
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -34,6 +35,53 @@ def test_summary_counts_matching_goal_completion_replans_and_blocked_transitions
     assert report['completion_rate'] == 1.
     assert report['replans'] == 1 and report['plans'] == 2
     assert report['blocked_transitions'] == 1
+
+
+def test_successful_goal_cannot_be_overwritten_by_shutdown_cancel_status():
+    metrics = module.NavigationMetrics()
+    metrics.goal(0.35, -0.59, 123, 0.0)
+    stamp = {'sec': 0, 'nanosec': 123}
+    metrics.status('navigation', {'status': 'SUCCEEDED', 'goal_stamp': stamp}, 3.0)
+    metrics.status('navigation', {'status': 'CANCELED', 'goal_stamp': stamp}, 3.1)
+    assert metrics.summary(3.2)['completed_goals'] == 1
+    assert metrics.active_goal['result'] == 'succeeded'
+    assert metrics.active_goal['ended_seconds'] == 3.0
+
+
+def test_cleanup_cancels_only_owned_active_goal_and_always_latches_stop_after_route():
+    running = {'stamp_ns': 123, 'result': 'running'}
+    succeeded = {'stamp_ns': 123, 'result': 'succeeded'}
+    assert module.benchmark_cleanup_actions(True, True, running, 123) == (
+        'cancel_navigation', 'emergency_stop')
+    assert module.benchmark_cleanup_actions(True, True, succeeded, 123) == (
+        'emergency_stop',)
+    assert module.benchmark_cleanup_actions(True, True, running, 999) == (
+        'emergency_stop',)
+    assert module.benchmark_cleanup_actions(True, False, running, 123) == ()
+    assert module.benchmark_cleanup_actions(False, True, running, 123) == ()
+    # A benchmark that never acquired control must leave another operator alone.
+    assert module.benchmark_cleanup_actions(True, False, None, None,
+                                            auto_owned=False) == ()
+    # An ACKed zero-speed handover requires a stop even if no goal was sent.
+    assert module.benchmark_cleanup_actions(True, False, None, None,
+                                            auto_owned=True) == ('emergency_stop',)
+
+
+def test_startup_timeout_does_not_abort_an_active_bounded_auto_handover():
+    handover = module.AutoModeHandshake('benchmark:wait', timeout_seconds=25.)
+    assert not module.benchmark_predeparture_wait_expired(19.9, 0., 20., None)
+    assert module.benchmark_predeparture_wait_expired(20.1, 0., 20., None)
+
+    packet, acknowledged = handover.step(mux_status(), 10., 10., 20_000_000_000, True)
+    assert packet is not None and not acknowledged
+    # Readiness can briefly drop after the 20 s startup deadline. The zero
+    # handover has its own deadline and must not start a goal on stale data.
+    assert not module.benchmark_predeparture_wait_expired(20.1, 0., 20., handover)
+    assert not module.benchmark_predeparture_wait_expired(34.9, 0., 20., handover)
+    assert module.benchmark_predeparture_wait_expired(35.1, 0., 20., handover)
+    # Each later waypoint gets a fresh, bounded readiness interval.
+    assert not module.benchmark_predeparture_wait_expired(45., 40., 20., None)
+    assert module.benchmark_predeparture_wait_expired(60.1, 40., 20., None)
 
 
 def test_stop_fraction_does_not_treat_missing_commands_as_stopped():
@@ -122,3 +170,116 @@ def test_benchmark_requires_fresh_mux_and_no_foreign_navigation():
     with pytest.raises(ValueError, match='Another navigation'):
         module.benchmark_auto_packet(mux_status(), 10., 10.1, 20_000_000_000,
                                      'benchmark:test', 1, foreign_navigation_active=True)
+
+
+def test_benchmark_waits_for_matched_motion_mux_subscriber():
+    endpoint = SimpleNamespace(node_name='motion_mux')
+    unrelated = SimpleNamespace(node_name='debug_listener')
+    assert not module.benchmark_control_subscriber_ready(0, [endpoint])
+    assert not module.benchmark_control_subscriber_ready(1, [unrelated])
+    assert module.benchmark_control_subscriber_ready(1, [unrelated, endpoint])
+
+
+def test_auto_handover_retries_lost_packet_and_accepts_only_own_sequence_receipt():
+    handover = module.AutoModeHandshake('benchmark:test')
+    status = mux_status()
+    assert handover.step(status, 10., 10.1, 20_000_000_000, False) == (None, False)
+    packet, acknowledged = handover.step(status, 10.1, 10.2, 20_100_000_000, True)
+    assert not acknowledged
+    assert packet == {'source_id': 'benchmark:test', 'seq': 1,
+                      'sent_at_ns': 20_100_000_000, 'mode': 'auto',
+                      'linear': 0.0, 'angular': 0.0}
+    assert handover.step(status, 10.2, 10.3, 20_200_000_000, True) == (None, False)
+    packet, acknowledged = handover.step(status, 10.3, 10.7, 20_600_000_000, True)
+    assert not acknowledged and packet['seq'] == 2
+    assert packet['sent_at_ns'] > 20_100_000_000  # Fresh stamp, not replay.
+
+    # A stale/no receipt cannot be mistaken for ACK, even if mode/source match.
+    own = mux_status(mode='auto', source_id='benchmark:test', control_seq=1,
+                     last_control={'source_id': 'other', 'seq': 1,
+                                   'mode': 'auto', 'origin': 'topic', 'accepted': True})
+    assert handover.step(own, 10.7, 10.8, 20_700_000_000, True) == (None, False)
+    own['last_control']['source_id'] = 'benchmark:test'
+    assert handover.step(own, 10.8, 10.9, 20_800_000_000, True) == (None, True)
+    assert handover.seq == 2
+
+    next_goal = module.AutoModeHandshake('benchmark:test', initial_seq=handover.seq)
+    packet, acknowledged = next_goal.step(own, 10.9, 11., 20_900_000_000, True)
+    assert not acknowledged and packet['seq'] == 3
+
+
+def test_auto_handover_does_not_send_on_stale_status_or_override_other_control():
+    handover = module.AutoModeHandshake('benchmark:test')
+    status = mux_status()
+    assert handover.step(status, 8.9, 10., 20_000_000_000, True) == (None, False)
+    packet, _ = handover.step(status, 10., 10.1, 20_100_000_000, True)
+    assert packet['seq'] == 1
+    for changed in (mux_status(mode='manual', source_id='operator'),
+                    mux_status(estop_latched=True),
+                    mux_status(mode='auto', source_id='other-benchmark')):
+        with pytest.raises(ValueError):
+            handover.step(changed, 10.1, 10.2, 20_200_000_000, True)
+    with pytest.raises(ValueError, match='Another navigation'):
+        handover.step(status, 10.1, 10.2, 20_200_000_000, True,
+                      foreign_navigation_active=True)
+
+
+def test_auto_handover_times_out_without_subscription_or_ack():
+    no_subscriber = module.AutoModeHandshake('benchmark:test', timeout_seconds=1.)
+    assert no_subscriber.step(mux_status(), 10., 10., 20_000_000_000, False) == (None, False)
+    with pytest.raises(TimeoutError, match='subscriber did not match'):
+        no_subscriber.step(mux_status(), 11.1, 11.1, 21_100_000_000, False)
+
+    missing_ack = module.AutoModeHandshake('benchmark:test', timeout_seconds=1.)
+    packet, _ = missing_ack.step(mux_status(), 10., 10., 20_000_000_000, True)
+    assert packet['seq'] == 1
+    rejection = mux_status(last_control_rejection={'source_id': 'benchmark:test',
+                                                   'reason': 'Clock skew'})
+    with pytest.raises(TimeoutError, match='Clock skew'):
+        missing_ack.step(rejection, 11.1, 11.1, 21_100_000_000, True)
+
+
+def test_auto_handover_accepts_real_mux_receipt_before_goal():
+    from smart_vision_amr.motion_mux import MotionMuxCore
+    mux = MotionMuxCore(clock=lambda: 10.)
+    handover = module.AutoModeHandshake('benchmark:receipt')
+    lost_packet, acknowledged = handover.step(mux.status(), 1., 1.1, 20_000_000_000, True)
+    assert not acknowledged and lost_packet['seq'] == 1
+    packet, acknowledged = handover.step(mux.status(), 1.6, 1.7, 20_600_000_000, True)
+    assert not acknowledged and packet['seq'] == 2
+    assert mux.receive_control(packet, 20_600_000_000, origin='topic')
+    assert handover.step(mux.status(), 1.7, 1.8, 20_700_000_000, True) == (None, True)
+    assert mux.output() == (0.0, 0.0)
+
+
+def test_auto_handover_tolerates_short_outage_but_has_bounded_deadline():
+    handover = module.AutoModeHandshake('benchmark:jitter')
+    status = mux_status()
+    packet, acknowledged = handover.step(status, 0., 0., 20_000_000_000, True)
+    assert packet['seq'] == 1 and not acknowledged
+    # The former 8 s deadline would abort even while zero-speed retries continue.
+    packet, acknowledged = handover.step(status, 8.5, 8.5, 28_500_000_000, True)
+    assert packet['seq'] == 2 and not acknowledged
+    own = mux_status(mode='auto', source_id='benchmark:jitter', control_seq=2,
+                     last_control={'source_id': 'benchmark:jitter', 'seq': 2,
+                                   'mode': 'auto', 'origin': 'topic', 'accepted': True})
+    assert handover.step(own, 8.7, 8.8, 28_800_000_000, True) == (None, True)
+
+    expired = module.AutoModeHandshake('benchmark:expired')
+    expired.step(status, 0., 0., 20_000_000_000, True)
+    with pytest.raises(TimeoutError, match='did not acknowledge'):
+        expired.step(status, 25.1, 25.1, 45_100_000_000, True)
+
+
+def test_auto_handover_does_not_accept_old_receipt_with_fresh_status():
+    handover = module.AutoModeHandshake('benchmark:stale')
+    first, _ = handover.step(mux_status(), 0., 0., 20_000_000_000, True)
+    own = mux_status(mode='auto', source_id='benchmark:stale', control_seq=first['seq'],
+                     last_control={'source_id': 'benchmark:stale', 'seq': first['seq'],
+                                   'mode': 'auto', 'origin': 'topic', 'accepted': True})
+    next_packet, acknowledged = handover.step(own, 1.0, 1.0, 21_000_000_000, True)
+    assert not acknowledged and next_packet['seq'] == 2
+    assert next_packet['linear'] == next_packet['angular'] == 0.0
+    own['control_seq'] = 2
+    own['last_control']['seq'] = 2
+    assert handover.step(own, 1.3, 1.3, 21_300_000_000, True) == (None, True)

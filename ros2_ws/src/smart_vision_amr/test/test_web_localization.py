@@ -503,6 +503,64 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(self.app.manual_pose_state, 'VERIFIED')
         self.assertTrue(self.app.mission.estop_latched)
 
+    def test_stopped_manual_pose_requests_bounded_real_amcl_updates(self):
+        self.start_stopped_manual_pose_validation()
+        self.node.initial_pose_client.acknowledge()
+
+        self.now += 1.1
+        self.refresh_stopped_manual_pose_inputs()
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(len(self.nomotion.requests), 1)
+        self.assertEqual(self.app.manual_pose_state, 'WAITING')
+        self.assertEqual(self.app.manual_pose_amcl_at, 0.)
+
+        self.now += 1.
+        self.refresh_stopped_manual_pose_inputs()
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(len(self.nomotion.requests), 1)
+
+        first = self.nomotion.future
+        self.now += 1.1
+        self.refresh_stopped_manual_pose_inputs()
+        self.node.tick_manual_pose(self.now)
+        self.assertIn(first, self.nomotion.removed_requests)
+        self.assertTrue(first.cancelled())
+        self.assertEqual(len(self.nomotion.requests), 2)
+        self.assertEqual(self.app.manual_pose_state, 'WAITING')
+
+        # A fresh AMCL observation stops requests, even when its map agreement
+        # is insufficient to verify the operator's initial pose.
+        self.app.manual_pose_amcl_received_at = self.now
+        self.app.manual_pose_match = .4
+        self.now += 2.1
+        self.refresh_stopped_manual_pose_inputs()
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(len(self.nomotion.requests), 2)
+        self.assertEqual(self.app.manual_pose_state, 'WAITING')
+        self.assertTrue(self.app.mission.estop_latched)
+
+        self.now += 6.8
+        self.refresh_stopped_manual_pose_inputs()
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'FAILED')
+        self.assertIn('40%', self.app.manual_pose_result)
+        self.assertTrue(self.app.mission.estop_latched)
+
+    def test_manual_pose_nomotion_does_not_bypass_stop_ack(self):
+        self.start_stopped_manual_pose_validation()
+        self.node.initial_pose_client.acknowledge()
+        self.now += 1.1
+        self.refresh_stopped_manual_pose_inputs()
+        self.app.manual_mux_status['stop_acknowledged'] = False
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.nomotion.requests, [])
+        self.assertEqual(self.app.manual_pose_state, 'WAITING')
+        self.now += 1.6
+        self.refresh_stopped_manual_pose_inputs()
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.nomotion.requests, [])
+        self.assertEqual(self.app.manual_pose_state, 'FAILED')
+
     def test_manual_pose_fails_when_stop_ack_is_missing_for_1_5_seconds(self):
         self.start_stopped_manual_pose_validation()
         self.now += .1

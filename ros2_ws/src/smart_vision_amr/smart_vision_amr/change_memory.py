@@ -11,6 +11,7 @@ from pathlib import Path
 import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import OccupancyGrid
+from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy, qos_profile_sensor_data
 from sensor_msgs.msg import LaserScan
@@ -429,11 +430,17 @@ class ChangeMemoryNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = ChangeMemoryNode()
+    # The scan projection can be CPU-heavy. TransformListener already uses a
+    # reentrant callback group, so a second worker keeps TF arriving while the
+    # default mutually-exclusive group processes a scan or memory write.
+    executor = MultiThreadedExecutor(num_threads=2, context=node.context)
+    executor.add_node(node)
     try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
+        executor.spin()
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
+        executor.shutdown()
         node.persist()
         node.destroy_node()
         if rclpy.ok():
