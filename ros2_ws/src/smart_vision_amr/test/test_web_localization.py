@@ -358,6 +358,7 @@ class _Client:
         self.available = True
         self.future = None
         self.requests = []
+        self.removed_requests = []
         self.response_factory = response_factory
 
     def service_is_ready(self):
@@ -373,6 +374,9 @@ class _Client:
         for key, value in values.items():
             setattr(response, key, value)
         self.future.set_result(response)
+
+    def remove_pending_request(self, future):
+        self.removed_requests.append(future)
 
 
 @unittest.skipUnless(HAS_ROS, 'source ROS Humble to run isolated domain 218 tests')
@@ -976,6 +980,153 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.tick(1.1)
         self.assertEqual(len(self.global_reset.requests), 0)
         self.assertTrue(all(packet['angular'] == 0. for packet in self.packets()))
+
+    def test_lost_cancel_reply_is_removed_and_retried_without_authorizing_reset(self):
+        self.app.localization_invalidated = True
+        self.app.command('/api/localization/start', {})
+        self.tick()
+        expired = self.cancel.future
+        self.tick(5.1)
+        self.assertEqual(self.cancel.removed_requests, [expired])
+        self.assertTrue(expired.cancelled())
+        self.assertEqual(len(self.cancel.requests), 2)
+        self.assertIsNot(self.node.cancel_future, expired)
+        self.assertTrue(self.node.cancel_required)
+        self.assertTrue(self.app.cancel_pending)
+        self.assertFalse(self.app.localization_control['cancelled'])
+        self.assertEqual(self.app.localization.state, 'ACQUIRING')
+        self.assertFalse(self.global_reset.requests)
+        self.assertFalse(self.seed_poses.messages)
+        self.assertTrue(all(packet['mode'] == 'hold' and packet['angular'] == 0.
+                            for packet in self.packets()))
+
+    def test_retry_requires_a_new_success_reply_before_global_initialization(self):
+        self.app.localization_invalidated = True
+        self.app.command('/api/localization/start', {})
+        self.tick()
+        self.tick(5.1)
+        self.cancel.acknowledge(success=True)
+        self.tick(.1)
+        self.assertEqual(self.app.localization.state, 'ACQUIRING')
+        self.assertFalse(self.global_reset.requests)
+        self.tick(.3)
+        self.assertEqual(self.app.localization.state, 'INITIALIZING')
+        self.assertEqual(len(self.global_reset.requests), 1)
+        self.assertFalse(self.node.cancel_required)
+        self.assertFalse(self.app.cancel_pending)
+        self.assertEqual(self.app.connection_error, '')
+        self.assertFalse(self.seed_poses.messages)
+        self.assertTrue(all(packet['mode'] == 'hold' for packet in self.packets()))
+
+    def test_late_expired_cancel_success_cannot_replace_current_reply(self):
+        self.app.localization_invalidated = True
+        self.app.command('/api/localization/start', {})
+        self.tick()
+        expired = self.cancel.future
+        # An already-running response callback may be impossible to cancel.
+        expired.set_running_or_notify_cancel()
+        self.tick(5.1)
+        replacement = self.node.cancel_future
+        expired.set_result(Trigger.Response(success=True))
+        self.tick(.3)
+        self.assertIs(self.node.cancel_future, replacement)
+        self.assertTrue(self.node.cancel_required)
+        self.assertFalse(self.global_reset.requests)
+        self.cancel.acknowledge(success=False)
+        self.tick(.1)
+        self.assertTrue(self.node.cancel_required)
+        self.assertFalse(self.global_reset.requests)
+        self.assertTrue(all(packet['mode'] == 'hold' for packet in self.packets()))
+
+    def test_acquisition_timeout_preserves_foreign_hold_and_subscription_evidence(self):
+        self.app.localization_invalidated = True
+        self.app.command('/api/localization/start', {})
+        self.tick()
+        hold_seq = self.node.localization_hold_seq
+        self.cancel.acknowledge(success=True)
+        self.tick(.1)
+        self.now += 8.
+        self.refresh()
+        rejection = {'source_id': self.node.motion_source, 'seq': hold_seq,
+                     'reason': 'Control timestamp differs by more than 1 second'}
+        self.app.manual_mux_status.update(source_id='mux-service:reset', control_seq=1,
+            control_rejected_reason=rejection['reason'], last_control_rejection=rejection)
+        self.controls.get_subscription_count = lambda: 0
+        self.node.tick()
+        status = self.app.localization_control
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertEqual(status['state'], 'FAILED')
+        self.assertTrue(status['cancelled'])
+        self.assertFalse(status['cancel_pending'])
+        self.assertTrue(status['health_fresh'] and status['sweep_allowed'] and status['stationary'])
+        self.assertFalse(status['hold_acknowledged'])
+        self.assertEqual(status['hold_seq'], hold_seq)
+        self.assertEqual(status['expected_source_id'], self.node.motion_source)
+        self.assertEqual(status['mux_source_id'], 'mux-service:reset')
+        self.assertEqual(status['mux_control_seq'], 1)
+        self.assertEqual(status['mux_mode'], 'hold')
+        self.assertEqual(status['control_subscribers'], 0)
+        self.assertEqual(status['mux_last_control_rejection'], rejection)
+        self.assertIn('새 정지 명령 응답', self.app.localization.reason)
+        self.assertFalse(self.global_reset.requests)
+        self.assertFalse(self.seed_poses.messages)
+        self.assertEqual(self.packets()[-1]['mode'], 'hold')
+
+    def test_acquisition_timeout_identifies_pending_cancel_without_hiding_good_hold(self):
+        self.app.command('/api/localization/start', {})
+        self.tick()
+        self.tick(5.1)
+        self.tick(3.)
+        status = self.app.localization_control
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertFalse(status['cancelled'])
+        self.assertTrue(status['cancel_pending'])
+        self.assertTrue(status['hold_acknowledged'])
+        self.assertIn('주행 취소 확인', status['waiting_for'])
+        self.assertIn('주행 취소 확인', self.app.localization.reason)
+        self.assertFalse(self.global_reset.requests)
+        self.assertEqual(self.packets()[-1]['mode'], 'hold')
+
+    def test_acquisition_timeout_identifies_health_permission_and_actual_motion(self):
+        self.app.command('/api/localization/start', {})
+        self.tick()
+        self.cancel.acknowledge(success=True)
+        self.tick(.1)
+        self.now += 8.
+        self.refresh()
+        self.app.localization_health.update(level='warning', allow_localization=False,
+                                            autonomous_allowed=False)
+        self.app.speed['angular'] = .08
+        self.node.tick()
+        status = self.app.localization_control
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertTrue(status['cancelled'] and status['hold_acknowledged'] and status['health_fresh'])
+        self.assertFalse(status['sweep_allowed'] or status['stationary'])
+        self.assertIn('위치 확인 회전 허용', status['waiting_for'])
+        self.assertIn('실제 정지 확인', status['waiting_for'])
+        self.assertFalse(self.global_reset.requests)
+        self.assertTrue(all(packet['angular'] == 0. for packet in self.packets()))
+
+    def test_acquisition_stop_latch_reports_actual_readiness_reason_with_fresh_sensors(self):
+        self.app.command('/api/localization/start', {})
+        self.tick()
+        self.now += .1
+        self.refresh()
+        self.app.mission.estop_latched = True
+        self.app.manual_mux_status.update(mode='estop', estop_latched=True)
+        self.node.tick()
+        self.assertEqual(self.app.localization.state, 'FAILED')
+        self.assertIn('비상정지를 먼저 해제하세요', self.app.localization.reason)
+        self.assertEqual(self.app.localization_control['reason'], self.app.localization.reason)
+        self.assertTrue(self.app.localization_control['stationary'])
+        self.assertTrue(self.app.localization_control['health_fresh'])
+        self.assertTrue(self.app.localization_control['sweep_allowed'])
+        self.assertLess(self.now-self.app.scan_at, .5)
+        self.assertLess(self.now-self.app.odom_at, .5)
+        self.assertFalse(self.app.map_is_preview)
+        self.assertFalse(self.global_reset.requests)
+        self.assertFalse(self.seed_poses.messages)
+        self.assertEqual(self.packets()[-1]['mode'], 'estop')
 
     def test_cancel_ack_without_exclusive_mux_hold_cannot_reset_or_move(self):
         self.app.command('/api/localization/start', {})

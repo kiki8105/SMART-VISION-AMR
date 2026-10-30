@@ -24,6 +24,7 @@ from std_msgs.msg import String
 from tf2_ros import Buffer, TransformException, TransformListener
 
 from smart_vision_amr.sensor_stamp_guard import SensorStampGuard
+from smart_vision_amr.runtime_timing import GUARD_METRICS, RuntimeTiming, timed_call
 
 
 def publisher_issues(get_publishers, expected_publishers):
@@ -180,6 +181,9 @@ class EkfSensorGuard(Node):
         self.declare_parameter('max_linear_velocity_variance', 0.25)
         self.declare_parameter('max_angular_velocity_variance', 1.0)
         self.declare_parameter('base_frame', 'base_footprint')
+        self.declare_parameter('enable_timing_diagnostics', False)
+        self._timing = (RuntimeTiming(GUARD_METRICS, warning=self.get_logger().warning)
+                        if self.get_parameter('enable_timing_diagnostics').value else None)
         self.base_frame = str(self.get_parameter('base_frame').value)
         self.tf_buffer = Buffer(node=self)
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -238,8 +242,9 @@ class EkfSensorGuard(Node):
 
     def update_tf(self, now):
         try:
-            transform = self.tf_buffer.lookup_transform(
-                'odom', self.base_frame, rclpy.time.Time())
+            transform = timed_call(getattr(self, '_timing', None), 'tf_lookup',
+                                   self.tf_buffer.lookup_transform,
+                                   'odom', self.base_frame, rclpy.time.Time())
             t, q = transform.transform.translation, transform.transform.rotation
             values = (t.x, t.y, t.z, q.x, q.y, q.z, q.w)
             if (not all(math.isfinite(value) for value in values)
@@ -253,14 +258,17 @@ class EkfSensorGuard(Node):
             self.core.reject('odom_tf', ['odom to base TF unavailable'])
 
     def on_tick(self):
+        timing = getattr(self, '_timing', None)
+        if timing is not None:
+            timing.gap('tick_gap', .1)
         now = time.monotonic()
         if (self.last_owner_check_at is None or
                 now - self.last_owner_check_at >= 0.5):
             self.last_owner_check_at = now
             self.update_tf(now)
             try:
-                issues = publisher_issues(self.get_publishers_info_by_topic,
-                                          self.EXPECTED_PUBLISHERS)
+                issues = timed_call(timing, 'ownership_query', publisher_issues,
+                                    self.get_publishers_info_by_topic, self.EXPECTED_PUBLISHERS)
             except Exception as exc:
                 self.get_logger().warning(f'Cannot inspect ROS publishers: {exc}')
                 issues = [f'ROS publisher graph query failed: {exc}']
@@ -280,13 +288,20 @@ class EkfSensorGuard(Node):
         # The mux remembers safety-source sequences across guard restarts.
         self.safety_seq = max(self.safety_seq + 1, time.monotonic_ns())
         message = String()
-        message.data = json.dumps({
+        payload = {
             'source_id': self.SAFETY_SOURCE,
             'seq': self.safety_seq,
             'sent_at_ns': self.get_clock().now().nanoseconds,
             'mode': 'estop', 'linear': 0.0, 'angular': 0.0,
-        })
-        self.control_pub.publish(message)
+        }
+        timing = getattr(self, '_timing', None)
+        if timing is not None:
+            # A publish cannot report its own completed duration. The next
+            # safety heartbeat carries the previous result, without restamping
+            # or retransmitting this control packet after a slow publication.
+            payload['timing_diagnostics'] = {'metrics': timing.snapshot()}
+        message.data = json.dumps(payload)
+        timed_call(timing, 'control_publish', self.control_pub.publish, message)
         self.last_estop_at = now
 
     def on_control(self, message):

@@ -1,0 +1,91 @@
+{
+  "result": "BLOCKED_REAL_HARDWARE_DRIVER_FAILURE",
+  "physical_test": "guarded generic localization; 188.7975 degrees rotation; no translational mission goal sent",
+  "failure_evidence": [
+    "DynamixelSDKWrapper: no status packet (10 repeated errors)",
+    "turtlebot3_ros: stack smashing detected, exit -6",
+    "ekf_sensor_guard: wheel, imu sensor stream stale; emergency stop latched"
+  ],
+  "last_voltage_v": 10.969999313354492,
+  "battery_causation": "Not proven; Pi throttled=0x0, user confirmed physical standstill",
+  "mitigation": "Latched stop; test-owned robot runtime and PC navigation stopped; required-process exit now shuts down the entire owned robot runtime. Patch deployed on Pi without another hardware startup.",
+  "localization_result": "Not converged; scan/map match .3875 and position std .485m. No autonomous path drive started.",
+  "measured_mux_timing": {
+    "enabled": true,
+    "mux": {
+      "ownership_query": {
+        "count": 345,
+        "last_seconds": 0.0004742359999454493,
+        "max_seconds": 0.03740598499985026
+      },
+      "status_publish": {
+        "count": 612,
+        "last_seconds": 0.0004994399998849985,
+        "max_seconds": 0.12632376999999906
+      },
+      "control_receipt_age": {
+        "count": 663,
+        "last_seconds": 0.028928003,
+        "max_seconds": 1.277823531
+      },
+      "cmd_vel_publish": {
+        "count": 2444,
+        "last_seconds": 0.0004595699999754288,
+        "max_seconds": 0.3037240959999963
+      },
+      "status_gap": {
+        "count": 1702,
+        "last_seconds": 0.06064131899984204,
+        "max_seconds": 0.34113735899995845
+      },
+      "control_callback": {
+        "count": 663,
+        "last_seconds": 0.0019525350001003972,
+        "max_seconds": 0.1224553829999877
+      },
+      "reset_tick_gap": {
+        "count": 2954,
+        "last_seconds": 0.025121037999952023,
+        "max_seconds": 0.3062417539999842
+      },
+      "output_gap": {
+        "count": 2443,
+        "last_seconds": 0.010547743999950399,
+        "max_seconds": 0.30643112200004907
+      }
+    },
+    "ekf_sensor_guard": {
+      "reported_on_seq": 1524614443827,
+      "metrics": {
+        "control_publish": {
+          "count": 44,
+          "last_seconds": 0.0012220430000979832,
+          "max_seconds": 0.21800891099996988
+        },
+        "tick_gap": {
+          "count": 744,
+          "last_seconds": 0.10093583000002582,
+          "max_seconds": 0.22466657999984818
+        },
+        "ownership_query": {
+          "count": 134,
+          "last_seconds": 0.002557176999971489,
+          "max_seconds": 0.02179845099999511
+        },
+        "tf_lookup": {
+          "count": 134,
+          "last_seconds": 0.00045632899991687736,
+          "max_seconds": 0.0032070390000171756
+        }
+      }
+    }
+  },
+  "software_verification": {
+    "focused_tests_passed": 264,
+    "colcon_build": "PASS: smart_vision_amr, 2.42 seconds",
+    "failfast_local_real_subprocess_test": "PASS: companion stopped in 0.336 seconds, no ROS/hardware"
+  },
+  "timing_sample_wall_ns": 1793328983369571548,
+  "control_accepted_at_sample": 662,
+  "control_rejected_at_sample": 2
+}

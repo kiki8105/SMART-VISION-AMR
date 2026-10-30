@@ -7,16 +7,39 @@ no navigation, map server, web server, camera, or Gazebo process.
 
 import os
 import math
+import uuid
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, Shutdown
+from launch.actions import (
+    DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, OpaqueFunction,
+    RegisterEventHandler, SetEnvironmentVariable, Shutdown,
+)
+from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 from smart_vision_amr.wheel_joint_odometry import load_stock_wheel_geometry
+
+
+RUNTIME_INSTANCE_ENV = 'SMART_VISION_REQUIRED_RUNTIME_INSTANCE'
+
+
+def _required_process_exited(event, context, instance):
+    """A stock OpenCR/LDS exit must stop estimation, guards and final output.
+
+    Included bringup actions are created later, so per-Node exit hooks here
+    cannot cover them. The scoped environment tag identifies every process
+    owned by this runtime without affecting unrelated parent-launch processes.
+    There are no intentionally short-lived subprocesses in this group.
+    """
+    if context.is_shutdown or (event.env or {}).get(RUNTIME_INSTANCE_ENV) != instance:
+        return []
+    return [Shutdown(reason=(
+        f'Required robot process {event.process_name} exited unexpectedly '
+        f'(code {event.returncode}); stopping robot runtime'))]
 
 
 def _bool_argument(context, name):
@@ -34,6 +57,7 @@ def _runtime(context):
     if use_sim_time:
         raise ValueError('The physical robot runtime requires use_sim_time:=false')
     enable_bringup = _bool_argument(context, 'enable_bringup')
+    timing = {'enable_timing_diagnostics': _bool_argument(context, 'timing_diagnostics')}
     own = get_package_share_directory('smart_vision_amr')
     stock_params = LaunchConfiguration('stock_params').perform(context)
     usb_port = LaunchConfiguration('usb_port').perform(context)
@@ -73,12 +97,12 @@ def _runtime(context):
                  parameters=[ekf_params, common], remappings=[('odometry/filtered', '/odom')],
                  output='screen', on_exit=Shutdown(reason='EKF output exited')),
             Node(package='smart_vision_amr', executable='ekf_sensor_guard',
-                 name='ekf_sensor_guard', parameters=[ekf_params, common],
+                 name='ekf_sensor_guard', parameters=[ekf_params, common, timing],
                  output='screen', on_exit=Shutdown(reason='EKF sensor guard exited')),
         ])
     actions.extend([
         Node(package='smart_vision_amr', executable='motion_mux', name='motion_mux',
-             parameters=[common, {'allow_legacy_auto_input': False,
+             parameters=[common, timing, {'allow_legacy_auto_input': False,
                                   'require_localization_health': True,
                                   'startup_estop': True, 'allow_topic_reset': False}],
              output='screen', on_exit=Shutdown(reason='Final velocity mux exited')),
@@ -91,9 +115,16 @@ def _runtime(context):
 
 def generate_launch_description():
     stock = FindPackageShare('turtlebot3_bringup')
+    instance = uuid.uuid4().hex
     return LaunchDescription([
+        # Register before starting even the nested stock bringup. Clean exit
+        # code zero is still unexpected for these continuous runtime nodes.
+        RegisterEventHandler(OnProcessExit(
+            on_exit=lambda event, context: _required_process_exited(event, context, instance))),
         DeclareLaunchArgument('localization_mode', default_value='ekf_independent'),
         DeclareLaunchArgument('enable_bringup', default_value='true'),
+        DeclareLaunchArgument('timing_diagnostics', default_value='false',
+                              description='Observe runtime delays without changing safety or QoS'),
         DeclareLaunchArgument('use_sim_time', default_value='false'),
         DeclareLaunchArgument('usb_port', default_value='/dev/ttyACM0'),
         DeclareLaunchArgument('wheel_radius', default_value='',
@@ -102,5 +133,8 @@ def generate_launch_description():
                               description='Metres; empty reads stock Pi separation, explicit value is calibrated override'),
         DeclareLaunchArgument('stock_params', default_value=PathJoinSubstitution([
             stock, 'param', 'humble', 'waffle_pi.yaml'])),
-        OpaqueFunction(function=_runtime),
+        GroupAction(actions=[
+            SetEnvironmentVariable(RUNTIME_INSTANCE_ENV, instance),
+            OpaqueFunction(function=_runtime),
+        ], scoped=True),
     ])

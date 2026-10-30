@@ -14,7 +14,8 @@ PROFILE = PACKAGE / 'config/dds_udp.xml'
 
 def run_shell(command, **overrides):
     environment = dict(os.environ)
-    for key in ('SMART_VISION_DDS_TRANSPORT', 'RMW_IMPLEMENTATION',
+    for key in ('SMART_VISION_DDS_TRANSPORT', 'SMART_VISION_DDS_PUBLICATION_MODE',
+                'RMW_FASTRTPS_PUBLICATION_MODE', 'RMW_FASTRTPS_USE_QOS_FROM_XML', 'RMW_IMPLEMENTATION',
                 'FASTRTPS_DEFAULT_PROFILES_FILE', 'FASTDDS_DEFAULT_PROFILES_FILE',
                 '_SMART_VISION_DDS_OWN_PROFILE', 'ROS_LOCALHOST_ONLY'):
         environment.pop(key, None)
@@ -42,6 +43,93 @@ def test_default_rollback_clears_only_helper_owned_values():
     ''')
     assert result.returncode == 0, result.stderr
     assert result.stdout.splitlines() == ['unset', '/site/later-profile.xml']
+
+
+def test_publication_mode_is_opt_in_and_blank_preserves_current_default():
+    for requested in ({}, {'SMART_VISION_DDS_PUBLICATION_MODE': ''}):
+        result = run_shell('''
+          source "$1" "$2"
+          printf '%s\\n' "${RMW_FASTRTPS_PUBLICATION_MODE-unset}"
+        ''', **requested)
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == 'unset'
+        result = run_shell('''
+          source "$1" "$2"
+          printf '%s\\n' "$RMW_FASTRTPS_PUBLICATION_MODE"
+        ''', RMW_FASTRTPS_PUBLICATION_MODE='AUTO', **requested)
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == 'AUTO'
+
+
+def test_supported_publication_modes_are_exported_only_to_child_processes():
+    for mode in ('ASYNCHRONOUS', 'SYNCHRONOUS', 'AUTO'):
+        result = run_shell('''
+          (source "$1" "$2"; bash -c 'printf "%s\\n" "$RMW_FASTRTPS_PUBLICATION_MODE"')
+          printf 'parent=%s\\n' "${RMW_FASTRTPS_PUBLICATION_MODE-unset}"
+        ''', SMART_VISION_DDS_PUBLICATION_MODE=mode)
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.splitlines() == [mode, 'parent=unset']
+
+
+def test_explicit_caller_publication_mode_has_priority_including_blank():
+    for mode in ('ASYNCHRONOUS', 'SYNCHRONOUS', 'AUTO', ''):
+        result = run_shell('''
+          source "$1" "$2"
+          printf 'publication=%s\\n' "$RMW_FASTRTPS_PUBLICATION_MODE"
+        ''', SMART_VISION_DDS_PUBLICATION_MODE='ASYNCHRONOUS',
+            RMW_FASTRTPS_PUBLICATION_MODE=mode)
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == 'publication='+mode
+
+
+def test_publication_mode_applies_with_native_transport_and_site_xml():
+    for overrides in ({'SMART_VISION_DDS_TRANSPORT': 'default'},
+                      {'FASTRTPS_DEFAULT_PROFILES_FILE': '/site/custom.xml'}):
+        result = run_shell('''
+          source "$1" /does/not/exist.xml
+          printf '%s|%s\\n' "$RMW_FASTRTPS_PUBLICATION_MODE" "${FASTRTPS_DEFAULT_PROFILES_FILE-unset}"
+        ''', SMART_VISION_DDS_PUBLICATION_MODE='ASYNCHRONOUS', **overrides)
+        assert result.returncode == 0, result.stderr
+        expected = '/site/custom.xml' if 'FASTRTPS_DEFAULT_PROFILES_FILE' in overrides else 'unset'
+        assert result.stdout.strip() == 'ASYNCHRONOUS|'+expected
+
+
+def test_publication_override_leaves_other_middleware_untouched():
+    for requested in ('ASYNCHRONOUS', 'invalid'):
+        result = run_shell('''
+          source "$1" /does/not/exist.xml
+          printf '%s|%s\\n' "${RMW_FASTRTPS_PUBLICATION_MODE-unset}" "${FASTRTPS_DEFAULT_PROFILES_FILE-unset}"
+        ''', RMW_IMPLEMENTATION='rmw_cyclonedds_cpp', SMART_VISION_DDS_PUBLICATION_MODE=requested)
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == 'unset|unset'
+
+
+def test_unsupported_publication_mode_fails_before_changing_any_setting():
+    for mode in ('async', 'asynchronous', ' ', 'INVALID'):
+        result = run_shell('''
+          source "$1" "$2"
+          status=$?
+          printf '%s|%s\\n' "${RMW_FASTRTPS_PUBLICATION_MODE-unset}" "${FASTRTPS_DEFAULT_PROFILES_FILE-unset}"
+          exit "$status"
+        ''', SMART_VISION_DDS_PUBLICATION_MODE=mode)
+        assert result.returncode == 2
+        assert 'SMART_VISION_DDS_PUBLICATION_MODE must be' in result.stderr
+        assert result.stdout.strip() == 'unset|unset'
+
+
+def test_publication_override_preserves_xml_qos_policy_and_later_caller_replacement():
+    result = run_shell('''
+      source "$1" "$2"
+      printf '%s|%s\\n' "$RMW_FASTRTPS_PUBLICATION_MODE" "$RMW_FASTRTPS_USE_QOS_FROM_XML"
+      export RMW_FASTRTPS_PUBLICATION_MODE=SYNCHRONOUS
+      smart_vision_dds_env "$2"
+      printf '%s\\n' "$RMW_FASTRTPS_PUBLICATION_MODE"
+      export SMART_VISION_DDS_PUBLICATION_MODE=
+      smart_vision_dds_env "$2"
+      printf '%s\\n' "$RMW_FASTRTPS_PUBLICATION_MODE"
+    ''', SMART_VISION_DDS_PUBLICATION_MODE='ASYNCHRONOUS', RMW_FASTRTPS_USE_QOS_FROM_XML='1')
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.splitlines() == ['ASYNCHRONOUS|1', 'SYNCHRONOUS', 'SYNCHRONOUS']
 
 
 def test_user_profiles_are_never_overwritten():

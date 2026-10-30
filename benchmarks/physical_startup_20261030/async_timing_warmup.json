@@ -1,0 +1,665 @@
+{
+  "source": "Filtered live HTTP snapshots; full copies retained only in PC smart_vision_logs",
+  "samples": [
+    {
+      "wall_ns": 1793328738166356363,
+      "odom_age": 0.1,
+      "scan_age": 0.1,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 3,
+      "control_receipt_age": {
+        "count": 38,
+        "last_seconds": 1.603192208,
+        "max_seconds": 1.962520451
+      },
+      "cmd_vel_publish": {
+        "count": 454,
+        "last_seconds": 0.0007012870000835392,
+        "max_seconds": 0.3644750280000153
+      },
+      "output_gap": {
+        "count": 453,
+        "last_seconds": 0.3823921389998759,
+        "max_seconds": 0.3823921389998759
+      },
+      "status_publish": {
+        "count": 135,
+        "last_seconds": 0.00013520199991035042,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 11,
+        "last_seconds": 0.00010935000000245054,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328739169294073,
+      "odom_age": 0.23,
+      "scan_age": 0.28,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 3,
+      "control_receipt_age": {
+        "count": 38,
+        "last_seconds": 1.603192208,
+        "max_seconds": 1.962520451
+      },
+      "cmd_vel_publish": {
+        "count": 468,
+        "last_seconds": 0.04415467100011483,
+        "max_seconds": 0.3644750280000153
+      },
+      "output_gap": {
+        "count": 467,
+        "last_seconds": 0.049368802000117284,
+        "max_seconds": 0.3823921389998759
+      },
+      "status_publish": {
+        "count": 139,
+        "last_seconds": 0.00012629499997274252,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 11,
+        "last_seconds": 0.00010935000000245054,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328740173814542,
+      "odom_age": 0.19,
+      "scan_age": 0.01,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 3,
+      "control_receipt_age": {
+        "count": 38,
+        "last_seconds": 1.603192208,
+        "max_seconds": 1.962520451
+      },
+      "cmd_vel_publish": {
+        "count": 481,
+        "last_seconds": 0.04470853500015437,
+        "max_seconds": 0.3644750280000153
+      },
+      "output_gap": {
+        "count": 480,
+        "last_seconds": 0.05518748300005427,
+        "max_seconds": 0.3823921389998759
+      },
+      "status_publish": {
+        "count": 143,
+        "last_seconds": 0.00014968300001783064,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 11,
+        "last_seconds": 0.00010935000000245054,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328741177133890,
+      "odom_age": 0.32,
+      "scan_age": 0.1,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 3,
+      "control_receipt_age": {
+        "count": 38,
+        "last_seconds": 1.603192208,
+        "max_seconds": 1.962520451
+      },
+      "cmd_vel_publish": {
+        "count": 500,
+        "last_seconds": 0.00013446100001601735,
+        "max_seconds": 0.3644750280000153
+      },
+      "output_gap": {
+        "count": 499,
+        "last_seconds": 0.08523831299999074,
+        "max_seconds": 0.3823921389998759
+      },
+      "status_publish": {
+        "count": 148,
+        "last_seconds": 0.00013951699997960532,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 11,
+        "last_seconds": 0.00010935000000245054,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328742179679832,
+      "odom_age": 0.21,
+      "scan_age": 0.3,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 5,
+      "control_receipt_age": {
+        "count": 40,
+        "last_seconds": 9.211924347,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 519,
+        "last_seconds": 0.0001306090000525728,
+        "max_seconds": 0.3644750280000153
+      },
+      "output_gap": {
+        "count": 518,
+        "last_seconds": 0.10295412799996484,
+        "max_seconds": 0.3823921389998759
+      },
+      "status_publish": {
+        "count": 154,
+        "last_seconds": 0.0001224240002102306,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 16,
+        "last_seconds": 0.00026484800014259235,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328743182617603,
+      "odom_age": 0.02,
+      "scan_age": 0.17,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 5,
+      "control_receipt_age": {
+        "count": 40,
+        "last_seconds": 9.211924347,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 534,
+        "last_seconds": 0.11919583300004888,
+        "max_seconds": 0.3644750280000153
+      },
+      "output_gap": {
+        "count": 533,
+        "last_seconds": 0.049226938999936465,
+        "max_seconds": 0.3823921389998759
+      },
+      "status_publish": {
+        "count": 159,
+        "last_seconds": 0.0002482190000137052,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 16,
+        "last_seconds": 0.00026484800014259235,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328744185750992,
+      "odom_age": 0.06,
+      "scan_age": 0.06,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 5,
+      "control_receipt_age": {
+        "count": 40,
+        "last_seconds": 9.211924347,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 554,
+        "last_seconds": 0.00014573899989045458,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 553,
+        "last_seconds": 0.05677520699987326,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 164,
+        "last_seconds": 0.0001519229999757954,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 16,
+        "last_seconds": 0.00026484800014259235,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328745188685983,
+      "odom_age": 0.03,
+      "scan_age": 0.04,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 5,
+      "control_receipt_age": {
+        "count": 40,
+        "last_seconds": 9.211924347,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 582,
+        "last_seconds": 0.00044167900000502414,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 581,
+        "last_seconds": 0.04772338800012221,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 171,
+        "last_seconds": 0.00012494299994614266,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 16,
+        "last_seconds": 0.00026484800014259235,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328746191438512,
+      "odom_age": 0.1,
+      "scan_age": 0.01,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 5,
+      "control_receipt_age": {
+        "count": 40,
+        "last_seconds": 9.211924347,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 606,
+        "last_seconds": 0.04570232399987617,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 605,
+        "last_seconds": 0.0355567770000107,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 178,
+        "last_seconds": 0.003411417000052097,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 16,
+        "last_seconds": 0.00026484800014259235,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328747194360094,
+      "odom_age": 0.27,
+      "scan_age": 0.27,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 5,
+      "control_receipt_age": {
+        "count": 40,
+        "last_seconds": 9.211924347,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 613,
+        "last_seconds": 0.006882870000026742,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 612,
+        "last_seconds": 0.04618707600002381,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 180,
+        "last_seconds": 0.0001437389998955041,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 16,
+        "last_seconds": 0.00026484800014259235,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328748198765606,
+      "odom_age": 0.11,
+      "scan_age": 0.06,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 5,
+      "control_receipt_age": {
+        "count": 40,
+        "last_seconds": 9.211924347,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 643,
+        "last_seconds": 0.0037589309999930265,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 642,
+        "last_seconds": 0.05200222100006613,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 188,
+        "last_seconds": 0.00017588600007911737,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 16,
+        "last_seconds": 0.00026484800014259235,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328749201905429,
+      "odom_age": 0.11,
+      "scan_age": 0.01,
+      "configured_map_match": null,
+      "control_accepted": 35,
+      "control_rejected": 5,
+      "control_receipt_age": {
+        "count": 40,
+        "last_seconds": 9.211924347,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 665,
+        "last_seconds": 0.0001447199999802251,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 664,
+        "last_seconds": 0.04738196900007097,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 194,
+        "last_seconds": 0.00015684900017731707,
+        "max_seconds": 0.014984271000002991
+      },
+      "guard_control_publish": {
+        "count": 16,
+        "last_seconds": 0.00026484800014259235,
+        "max_seconds": 0.014674310999907902
+      }
+    },
+    {
+      "wall_ns": 1793328750221678376,
+      "odom_age": 0.0,
+      "scan_age": 0.0,
+      "configured_map_match": null,
+      "control_accepted": 36,
+      "control_rejected": 14,
+      "control_receipt_age": {
+        "count": 50,
+        "last_seconds": 0.58135138,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 685,
+        "last_seconds": 0.005477111000118384,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 684,
+        "last_seconds": 0.05113906799988399,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 200,
+        "last_seconds": 0.02172559500013449,
+        "max_seconds": 0.02172559500013449
+      },
+      "guard_control_publish": {
+        "count": 32,
+        "last_seconds": 0.002513057999976809,
+        "max_seconds": 0.01958330599995861
+      }
+    },
+    {
+      "wall_ns": 1793328751224864916,
+      "odom_age": 0.23,
+      "scan_age": 0.16,
+      "configured_map_match": null,
+      "control_accepted": 37,
+      "control_rejected": 14,
+      "control_receipt_age": {
+        "count": 51,
+        "last_seconds": 0.001657607,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 717,
+        "last_seconds": 0.00018294200003765582,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 716,
+        "last_seconds": 0.05920497800002522,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 209,
+        "last_seconds": 0.0001924600001075305,
+        "max_seconds": 0.02172559500013449
+      },
+      "guard_control_publish": {
+        "count": 33,
+        "last_seconds": 0.00015860900020925328,
+        "max_seconds": 0.01958330599995861
+      }
+    },
+    {
+      "wall_ns": 1793328752227339415,
+      "odom_age": 0.32,
+      "scan_age": 0.12,
+      "configured_map_match": null,
+      "control_accepted": 38,
+      "control_rejected": 15,
+      "control_receipt_age": {
+        "count": 53,
+        "last_seconds": 0.401223722,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 732,
+        "last_seconds": 0.0001752020000367338,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 731,
+        "last_seconds": 0.32353950900005657,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 213,
+        "last_seconds": 0.0001545719999285211,
+        "max_seconds": 0.02172559500013449
+      },
+      "guard_control_publish": {
+        "count": 34,
+        "last_seconds": 0.00012357200012047542,
+        "max_seconds": 0.01958330599995861
+      }
+    },
+    {
+      "wall_ns": 1793328753230347310,
+      "odom_age": 0.26,
+      "scan_age": 0.02,
+      "configured_map_match": null,
+      "control_accepted": 38,
+      "control_rejected": 16,
+      "control_receipt_age": {
+        "count": 54,
+        "last_seconds": 1.641218734,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 755,
+        "last_seconds": 0.00933039300002747,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 754,
+        "last_seconds": 0.08860138199997891,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 219,
+        "last_seconds": 0.00029329299991331936,
+        "max_seconds": 0.02172559500013449
+      },
+      "guard_control_publish": {
+        "count": 34,
+        "last_seconds": 0.00012357200012047542,
+        "max_seconds": 0.01958330599995861
+      }
+    },
+    {
+      "wall_ns": 1793328754233233806,
+      "odom_age": 0.05,
+      "scan_age": 0.06,
+      "configured_map_match": null,
+      "control_accepted": 38,
+      "control_rejected": 17,
+      "control_receipt_age": {
+        "count": 55,
+        "last_seconds": 1.917306957,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 775,
+        "last_seconds": 0.042512687999987975,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 774,
+        "last_seconds": 0.04913884000006874,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 225,
+        "last_seconds": 0.00013162799996280228,
+        "max_seconds": 0.02172559500013449
+      },
+      "guard_control_publish": {
+        "count": 34,
+        "last_seconds": 0.00012357200012047542,
+        "max_seconds": 0.01958330599995861
+      }
+    },
+    {
+      "wall_ns": 1793328755237519120,
+      "odom_age": 0.25,
+      "scan_age": 0.09,
+      "configured_map_match": null,
+      "control_accepted": 38,
+      "control_rejected": 20,
+      "control_receipt_age": {
+        "count": 58,
+        "last_seconds": 1.441148868,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 790,
+        "last_seconds": 0.09455467600014344,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 789,
+        "last_seconds": 0.050879224999789585,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 229,
+        "last_seconds": 0.00018160900003749703,
+        "max_seconds": 0.02172559500013449
+      },
+      "guard_control_publish": {
+        "count": 36,
+        "last_seconds": 0.004564587000004394,
+        "max_seconds": 0.01958330599995861
+      }
+    },
+    {
+      "wall_ns": 1793328756241460351,
+      "odom_age": 0.1,
+      "scan_age": 0.1,
+      "configured_map_match": null,
+      "control_accepted": 38,
+      "control_rejected": 21,
+      "control_receipt_age": {
+        "count": 59,
+        "last_seconds": 1.3621185,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 804,
+        "last_seconds": 0.23734733900005267,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 803,
+        "last_seconds": 0.04461543899992648,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 233,
+        "last_seconds": 0.014143550999961008,
+        "max_seconds": 0.02172559500013449
+      },
+      "guard_control_publish": {
+        "count": 36,
+        "last_seconds": 0.004564587000004394,
+        "max_seconds": 0.01958330599995861
+      }
+    },
+    {
+      "wall_ns": 1793328757245349901,
+      "odom_age": 0.13,
+      "scan_age": 0.24,
+      "configured_map_match": null,
+      "control_accepted": 38,
+      "control_rejected": 22,
+      "control_receipt_age": {
+        "count": 60,
+        "last_seconds": 1.855909514,
+        "max_seconds": 10.179262208
+      },
+      "cmd_vel_publish": {
+        "count": 822,
+        "last_seconds": 0.00014223900006982149,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 821,
+        "last_seconds": 0.12808135999989645,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_publish": {
+        "count": 237,
+        "last_seconds": 0.000226053000005777,
+        "max_seconds": 0.02172559500013449
+      },
+      "guard_control_publish": {
+        "count": 36,
+        "last_seconds": 0.004564587000004394,
+        "max_seconds": 0.01958330599995861
+      }
+    }
+  ]
+}

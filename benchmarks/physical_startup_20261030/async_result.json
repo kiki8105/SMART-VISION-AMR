@@ -1,0 +1,82 @@
+{
+  "phase": "Fast DDS ASYNCHRONOUS",
+  "result": "FAIL: stale control receipts persist; localization manager RPC did not finish; no motion attempted",
+  "robot_voltage": 11.050000190734863,
+  "safety": {
+    "enabled": true,
+    "mux": {
+      "ownership_query": {
+        "count": 172,
+        "last_seconds": 0.000561418999950547,
+        "max_seconds": 0.015625711999973646
+      },
+      "status_publish": {
+        "count": 237,
+        "last_seconds": 0.000226053000005777,
+        "max_seconds": 0.02172559500013449
+      },
+      "reset_tick_gap": {
+        "count": 1155,
+        "last_seconds": 0.13043910700002925,
+        "max_seconds": 0.4052601539999614
+      },
+      "cmd_vel_publish": {
+        "count": 822,
+        "last_seconds": 0.00014223900006982149,
+        "max_seconds": 0.4033013480000136
+      },
+      "output_gap": {
+        "count": 821,
+        "last_seconds": 0.12808135999989645,
+        "max_seconds": 0.40525759900015146
+      },
+      "status_gap": {
+        "count": 535,
+        "last_seconds": 0.16953921299977992,
+        "max_seconds": 0.5026472140000351
+      },
+      "control_receipt_age": {
+        "count": 60,
+        "last_seconds": 1.855909514,
+        "max_seconds": 10.179262208
+      },
+      "control_callback": {
+        "count": 60,
+        "last_seconds": 0.00044766099995285913,
+        "max_seconds": 0.11486289899994517
+      }
+    },
+    "ekf_sensor_guard": {
+      "reported_on_seq": 1294482202533,
+      "metrics": {
+        "ownership_query": {
+          "count": 66,
+          "last_seconds": 0.0024511330000223097,
+          "max_seconds": 0.02823215499984144
+        },
+        "tf_lookup": {
+          "count": 66,
+          "last_seconds": 0.0003371440000137227,
+          "max_seconds": 0.003705836999870371
+        },
+        "tick_gap": {
+          "count": 361,
+          "last_seconds": 0.1099471889999677,
+          "max_seconds": 0.442250506000164
+        },
+        "control_publish": {
+          "count": 36,
+          "last_seconds": 0.004564587000004394,
+          "max_seconds": 0.01958330599995861
+        }
+      }
+    }
+  },
+  "control_rejected": 22,
+  "map": {
+    "preview": true,
+    "configured_file": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/maps/classroom_20261027_cleaned.yaml",
+    "configured_match": null,
+    "received": null
+  }
+}

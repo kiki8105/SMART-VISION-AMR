@@ -1,0 +1,34 @@
+[
+  {
+    "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/runtime_timing.py",
+    "before_sha256": null,
+    "after_sha256": "eb81c4b93daab3aaa06d79b6c73f5df267eda6818e9f0166e5b5f25eb522ef33"
+  },
+  {
+    "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py",
+    "before_sha256": "18cca91965119f7b99688e6c0de1d1ab77bbed3800142c73d64d298997214225",
+    "after_sha256": "02c2147d7bdf0df005c0640036920bbbfe4b6209bc8a41e3248bf4b9d78edb04"
+  },
+  {
+    "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/ekf_sensor_guard.py",
+    "before_sha256": "04789a8aedec7572fa1f715195fc272897134887e688a442bbc5a234edc3e8e1",
+    "after_sha256": "8207a158df4d57a387b37380750459e4a061821db6a0e23efff0ebed8c5e45ad"
+  },
+  {
+    "file": "ros2_ws/src/smart_vision_amr/launch/hardware_robot_runtime.launch.py",
+    "before_sha256": "25ab3bb6d50eee83bf6e1ddc05add57ffd6a3934e1af8818d6d901274f69c01a",
+    "after_sha256": "7fc3094732255cea25b2f530e25b26785fd916526d89a537f3ea16a6835581fc",
+    "intermediate_timing_only_sha256": "eada9c2a435e6c278a1f533350f4ab9de1c476cdf72d598cdfeafb230188b686",
+    "failfast_deployed_without_hardware_restart": true
+  },
+  {
+    "file": "scripts/robot_bringup_camera_16.sh",
+    "before_sha256": "220454b4325de031cf2a48271b3cbffb74c28291b3d1f1bfc266f91dbcd2c9bb",
+    "after_sha256": "799cd6d561806fa49075edc47b804276a8e0f0ca7c9dbdc18644a12eef677ed5"
+  },
+  {
+    "file": "scripts/dds_env.bash",
+    "before_sha256": "148fa262c1127640e850826bd3d5d300d0ada77b26ed75144fb3948240ed5e63",
+    "after_sha256": "588eaec59fde36dcbdf4d54a8c0c36b4c0b9b259f37b9e7b1fb898088bd9bd4e"
+  }
+]

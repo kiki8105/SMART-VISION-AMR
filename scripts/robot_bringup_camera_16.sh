@@ -16,6 +16,7 @@ CAMERA_JPEG_QUALITY=${CAMERA_JPEG_QUALITY:-60}
 CAMERA_PUBLISH_FPS=${CAMERA_PUBLISH_FPS:-5}
 LOCALIZATION_MODE=${TURTLEBOT3_LOCALIZATION_MODE:-ekf_independent}
 ESTIMATION_LOCATION=${SMART_VISION_ESTIMATION_LOCATION:-robot}
+TIMING_DIAGNOSTICS=${SMART_VISION_TIMING_DIAGNOSTICS:-false}
 RUNTIME_WORKSPACE=${SMART_VISION_RUNTIME_WORKSPACE:-$HOME/smart_vision_runtime_ws}
 LEGACY_EKF_LAUNCH=${SMART_VISION_ROBOT_EKF_LAUNCH:-$SCRIPT_DIR/hardware_robot_ekf.launch.py}
 if [[ ! -f "$LEGACY_EKF_LAUNCH" && -f "$SCRIPT_DIR/../ros2_ws/src/smart_vision_amr/launch/hardware_robot_ekf.launch.py" ]]; then
@@ -24,6 +25,10 @@ fi
 case "$ESTIMATION_LOCATION" in
   pc|robot) ;;
   *) printf 'SMART_VISION_ESTIMATION_LOCATION must be pc or robot.\n' >&2; exit 2 ;;
+esac
+case "$TIMING_DIAGNOSTICS" in
+  true|false) ;;
+  *) printf 'SMART_VISION_TIMING_DIAGNOSTICS must be true or false.\n' >&2; exit 2 ;;
 esac
 case "$LOCALIZATION_MODE" in
   baseline|ekf_independent) ;;
@@ -253,6 +258,7 @@ if [[ "$ESTIMATION_LOCATION" == robot ]]; then
   if [[ -n "${WHEEL_SEPARATION:-}" ]]; then geometry_args+=(wheel_separation:="$WHEEL_SEPARATION"); fi
   setsid ros2 launch smart_vision_amr hardware_robot_runtime.launch.py \
     localization_mode:="$LOCALIZATION_MODE" usb_port:="$OPENCR_DEVICE" \
+    timing_diagnostics:="$TIMING_DIAGNOSTICS" \
     "${geometry_args[@]}" &
 elif [[ "$LOCALIZATION_MODE" == ekf_independent ]]; then
   setsid ros2 launch "$LEGACY_EKF_LAUNCH" usb_port:="$OPENCR_DEVICE" &

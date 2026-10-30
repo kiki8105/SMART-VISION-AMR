@@ -1,0 +1,133 @@
+{
+  "phase": "baseline",
+  "robot_ip": "192.168.0.187",
+  "pc_ip": "192.168.0.110",
+  "domain_id": 16,
+  "location_attempt_rotation_degrees": 0,
+  "failure_stage": "control acquisition; odom safety watchdog estop",
+  "internal_rejected_packets": [
+    {
+      "source_id": "ekf_sensor_safety",
+      "seq": 716980606367,
+      "delay_s": 1.845842529,
+      "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay"
+    },
+    {
+      "source_id": "ekf_sensor_safety",
+      "seq": 718086301737,
+      "delay_s": 2.082093884,
+      "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay"
+    },
+    {
+      "source_id": "ekf_sensor_safety",
+      "seq": 719184434081,
+      "delay_s": 1.768047833,
+      "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay"
+    },
+    {
+      "source_id": "ekf_sensor_safety",
+      "seq": 723381000517,
+      "delay_s": 1.93939473,
+      "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay"
+    },
+    {
+      "source_id": "ekf_sensor_safety",
+      "seq": 724481638251,
+      "delay_s": 1.141949571,
+      "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay"
+    },
+    {
+      "source_id": "ekf_sensor_safety",
+      "seq": 726680680460,
+      "delay_s": 1.25025048,
+      "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay"
+    },
+    {
+      "source_id": "ekf_sensor_safety",
+      "seq": 727684711265,
+      "delay_s": 1.0498469,
+      "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay"
+    }
+  ],
+  "code_changes_at_measurement": "web cancellation retry and acquisition gate diagnostics; robot sources unchanged",
+  "root_cause_limit": "These are same-Pi generation-to-mux callback delays. Exact source publish vs DDS vs receiver execution attribution needs timing instrumentation.",
+  "passive_probe_same_robot_packets": [
+    {
+      "seq": 751780428469,
+      "receipt_monotonic_ns": 755499363531,
+      "same_robot_delay_seconds": 3.718935062,
+      "accepted": false,
+      "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay"
+    },
+    {
+      "seq": 753880626676,
+      "receipt_monotonic_ns": 756431735812,
+      "same_robot_delay_seconds": 2.551109136,
+      "accepted": false,
+      "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay"
+    },
+    {
+      "seq": 756081160542,
+      "receipt_monotonic_ns": 756832856625,
+      "same_robot_delay_seconds": 0.751696083,
+      "accepted": true,
+      "reason": ""
+    },
+    {
+      "seq": 754998072621,
+      "receipt_monotonic_ns": 756820607464,
+      "same_robot_delay_seconds": 1.822534843,
+      "accepted": false,
+      "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay"
+    },
+    {
+      "seq": 757180346145,
+      "receipt_monotonic_ns": 758522875361,
+      "same_robot_delay_seconds": 1.342529216,
+      "accepted": false,
+      "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay"
+    },
+    {
+      "seq": 758283775525,
+      "receipt_monotonic_ns": 758920751099,
+      "same_robot_delay_seconds": 0.636975574,
+      "accepted": true,
+      "reason": ""
+    }
+  ],
+  "same_packet_pc_join": {
+    "read_only": true,
+    "internal_packet_join": [
+      {
+        "seq": 757180346145,
+        "pc_passive_receipt_minus_robot_publish_stamp_seconds": -0.001667742,
+        "mux_receipts": [
+          {
+            "received_at_monotonic_ns": 758522875361,
+            "accepted": false,
+            "reason": "Control timestamp differs by over 1s; check PC/robot clock sync and packet delay",
+            "same_robot_publish_to_mux_callback_seconds": 1.342529216
+          }
+        ]
+      },
+      {
+        "seq": 758283775525,
+        "pc_passive_receipt_minus_robot_publish_stamp_seconds": -0.000983595,
+        "mux_receipts": [
+          {
+            "received_at_monotonic_ns": 758920751099,
+            "accepted": true,
+            "reason": "",
+            "same_robot_publish_to_mux_callback_seconds": 0.636975574
+          }
+        ]
+      },
+      {
+        "seq": 759383362692,
+        "pc_passive_receipt_minus_robot_publish_stamp_seconds": -0.000123085,
+        "mux_receipts": []
+      }
+    ],
+    "limits": "No robot CPU profile or reader cache instrumentation; receiver callback delay does not distinguish DDS reader queue from executor contention."
+  }
+}

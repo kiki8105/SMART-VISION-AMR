@@ -1995,6 +1995,7 @@ def create_ros_bridge(app, options, context):
 
         def tick_localization(self, now, cancelled, mux_held):
             loc = app.localization
+            acquiring = loc.state == 'ACQUIRING'
             if self.localization_future is not None and self.localization_future.done():
                 app.localization_service_pending = False
                 try:
@@ -2006,9 +2007,11 @@ def create_ros_bridge(app, options, context):
                     loc.fail('AMCL 초기화 서비스 오류: '+str(exc), now)
                 self.localization_future = None
             if loc.active:
-                if (not app.manual_readiness()[0] or app.map_is_preview or app.map is None
+                manual_ready, manual_reason = app.manual_readiness()
+                if (not manual_ready or app.map_is_preview or app.map is None
                         or app.map_matches_configured is False):
-                    loc.fail('센서·지도 또는 속도 제어 연결이 끊겨 위치 확인을 중단합니다.', now)
+                    detail = manual_reason if not manual_ready else '설정한 저장 지도와 /map 수신을 확인하세요.'
+                    loc.fail('위치 확인을 중단합니다: '+detail, now)
                 elif now-app.localization_amcl_active_at > 3. or not app.localization_services_ready:
                     loc.fail('AMCL 활성 상태를 확인할 수 없어 회전을 중단합니다.', now)
             hold_ack = self.localization_acknowledged(now, 'hold', self.localization_hold_seq,
@@ -2026,11 +2029,32 @@ def create_ros_bridge(app, options, context):
                 loc.fail('등록 홈 또는 출발 Homepoint가 바뀌어 자세 초기화를 중단합니다.', now)
             stationary = (now-app.odom_at < .5 and abs(app.speed['linear']) < .025
                           and abs(app.speed['angular']) < .06)
-            if loc.state == 'ACQUIRING':
+            if acquiring:
+                waiting = []
+                if not cancelled:
+                    waiting.append('주행 취소 확인')
+                if not hold_ack:
+                    waiting.append('새 정지 명령 응답')
+                if not health_fresh:
+                    waiting.append('최신 위치 감시 응답')
+                elif not sweep_allowed:
+                    waiting.append('위치 확인 회전 허용')
+                if not stationary:
+                    waiting.append('실제 정지 확인')
+                mux_status = app.manual_mux_status
                 app.localization_control = {'state': 'WAIT_HOLD', 'reason':
-                    '주행 취소·새 정지 명령 응답·위치 확인 전용 회전 허용을 기다립니다.',
+                    '대기: '+', '.join(waiting) if waiting else '정지·제어권 확인 완료',
+                    'waiting_for': waiting, 'cancelled': cancelled,
+                    'cancel_pending': self.cancel_required or self.cancel_future is not None,
                     'hold_seq': self.localization_hold_seq, 'hold_acknowledged': hold_ack,
-                    'sweep_allowed': sweep_allowed}
+                    'health_fresh': health_fresh, 'sweep_allowed': sweep_allowed,
+                    'stationary': stationary, 'expected_source_id': self.motion_source,
+                    'control_subscribers': self.motion_pub.get_subscription_count(),
+                    'mux_source_id': mux_status.get('source_id'),
+                    'mux_control_seq': mux_status.get('control_seq'),
+                    'mux_mode': mux_status.get('mode'),
+                    'mux_control_rejected_reason': mux_status.get('control_rejected_reason'),
+                    'mux_last_control_rejection': deepcopy(mux_status.get('last_control_rejection'))}
             if loc.state == 'ACQUIRING' and cancelled and hold_ack and sweep_allowed:
                 if stationary:
                     loc.acquired(now)
@@ -2158,6 +2182,10 @@ def create_ros_bridge(app, options, context):
                 sensors_ready=sensors_ready,
                 rotation_clear=app.localization_clear,
                 stationary=stationary, settled_health_ok=settled_health_ok)
+            if previous_state == 'ACQUIRING' and loc.state == 'FAILED':
+                waiting = app.localization_control.get('waiting_for') or []
+                if waiting:
+                    loc.reason += ' 대기 항목: '+', '.join(waiting)+'.'
             if previous_state != 'RETURNING' and loc.state == 'RETURNING':
                 # A new return phase cannot inherit the sweep's accepted lease.
                 self.localization_lease_seq = None
@@ -2170,7 +2198,8 @@ def create_ros_bridge(app, options, context):
                     self.localization_epoch_ns = self.get_clock().now().nanoseconds
             if self.localization_running and not loc.active:
                 self.localization_running = False
-                app.localization_control = {'state': loc.state, 'reason': loc.reason}
+                app.localization_control = dict(app.localization_control,
+                                                state=loc.state, reason=loc.reason)
                 self.localization_hold_seq = self.localization_lease_seq = None
                 self.localization_lease_at = None
                 self.localization_policy_gap_since = self.localization_policy_gap_reason = None
@@ -2296,6 +2325,8 @@ def create_ros_bridge(app, options, context):
                                 self.cancel_required = False
                                 self.owns_navigation = False
                                 app.navigation_active = False
+                                if app.connection_error == '주행 취소 서비스 응답 지연':
+                                    app.connection_error = ''
                             else:
                                 app.mission.event('주행 취소가 확인되지 않았습니다. 정지를 유지합니다.', 'warning')
                         except Exception as exc:
@@ -2305,6 +2336,12 @@ def create_ros_bridge(app, options, context):
                     elif now-self.cancel_sent_at > 5.0:
                         app.connection_error = '주행 취소 서비스 응답 지연'
                         self.stop_until = now+.8
+                        # A lost reply must not retain one pending request
+                        # forever. Cancellation is idempotent; retry it while
+                        # preserving the stop and requiring a new success ACK.
+                        self.cancel_client.remove_pending_request(self.cancel_future)
+                        self.cancel_future.cancel()
+                        self.cancel_future = None
                 if self.cancel_required:
                     self.stop_until = now+.2
                     if self.cancel_future is None and now-self.cancel_sent_at > 1.0 and self.cancel_client.service_is_ready():

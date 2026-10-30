@@ -1,0 +1,1044 @@
+{
+  "source": "Filtered live HTTP snapshots; full copies retained only in PC smart_vision_logs",
+  "samples": [
+    {
+      "wall_ns": 1793328964243448486,
+      "localization_state": "ACQUIRING",
+      "reason": "주행을 멈추고 위치 확인 제어권을 확보합니다.",
+      "rotation_degrees": 0.0,
+      "estimate": null,
+      "scan_match": null,
+      "lease_acknowledged": null,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.0
+      },
+      "reported_speed": {
+        "linear": 0.0003896380978951761,
+        "angular": 1.0639591412531453e-06
+      },
+      "odom_age": 0.05,
+      "scan_age": 0.1
+    },
+    {
+      "wall_ns": 1793328964746507082,
+      "localization_state": "INITIALIZING",
+      "reason": "저장된 지도에서 AMCL 위치 가설을 초기화합니다.",
+      "rotation_degrees": 0.0,
+      "estimate": null,
+      "scan_match": null,
+      "lease_acknowledged": null,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.0
+      },
+      "reported_speed": {
+        "linear": 2.6971041141055237e-06,
+        "angular": 1.0119408056361837e-06
+      },
+      "odom_age": 0.06,
+      "scan_age": 0.03
+    },
+    {
+      "wall_ns": 1793328965251396384,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 2.2416082972971745e-05,
+      "estimate": {
+        "x": 0.7491000305409424,
+        "y": -1.778674944664283,
+        "yaw": -2.502939960539015,
+        "position_std": 1.2111683067243697,
+        "yaw_std": 2.6608938509916875,
+        "quality_ok": false
+      },
+      "scan_match": 0.075,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.0
+      },
+      "reported_speed": {
+        "linear": -1.5209731023898894e-08,
+        "angular": 9.576554875680518e-07
+      },
+      "odom_age": 0.01,
+      "scan_age": 0.01
+    },
+    {
+      "wall_ns": 1793328965755204397,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 4.919964831832256e-05,
+      "estimate": {
+        "x": 0.7255153399626308,
+        "y": -1.8251197684322824,
+        "yaw": -1.2061692876215515,
+        "position_std": 1.2157301319608098,
+        "yaw_std": 2.448254747696993,
+        "quality_ok": false
+      },
+      "scan_match": 0.08125,
+      "lease_acknowledged": false,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 7.602496029276804e-09,
+        "angular": 9.108351783598535e-07
+      },
+      "odom_age": 0.01,
+      "scan_age": 0.03
+    },
+    {
+      "wall_ns": 1793328966257630726,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 2.829730595534644,
+      "estimate": {
+        "x": 0.7255153399626308,
+        "y": -1.8251197684322824,
+        "yaw": -1.2061692876215515,
+        "position_std": 1.2157301319608098,
+        "yaw_std": 2.448254747696993,
+        "quality_ok": false
+      },
+      "scan_match": 0.08125,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 0.00041123458133805995,
+        "angular": 0.19044429597280427
+      },
+      "odom_age": 0.02,
+      "scan_age": 0.02
+    },
+    {
+      "wall_ns": 1793328966761717662,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 8.370273439603011,
+      "estimate": {
+        "x": 0.7657567524598159,
+        "y": -1.7051168401113095,
+        "yaw": -1.9419731076234408,
+        "position_std": 1.222348077368966,
+        "yaw_std": 2.2121482943920934,
+        "quality_ok": false
+      },
+      "scan_match": 0.21875,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 0.00031959894318622865,
+        "angular": 0.19464351915197212
+      },
+      "odom_age": 0.02,
+      "scan_age": 0.04
+    },
+    {
+      "wall_ns": 1793328967264756553,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 13.910489247558575,
+      "estimate": {
+        "x": 0.7822920875359286,
+        "y": -1.6568099078523426,
+        "yaw": -1.6432580833919073,
+        "position_std": 1.2210909063316768,
+        "yaw_std": 1.9741887583935147,
+        "quality_ok": false
+      },
+      "scan_match": 0.24375,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 4.6589142224629735e-05,
+        "angular": 0.19167724858445054
+      },
+      "odom_age": 0.03,
+      "scan_age": 0.04
+    },
+    {
+      "wall_ns": 1793328967767921540,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 17.235795539872065,
+      "estimate": {
+        "x": 0.7743686962263142,
+        "y": -1.623895534542459,
+        "yaw": -1.2267244650115423,
+        "position_std": 1.2193991384036251,
+        "yaw_std": 1.8831115396778486,
+        "quality_ok": false
+      },
+      "scan_match": 0.25,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.00011491907567714896,
+        "angular": 0.1979912365113706
+      },
+      "odom_age": 0.03,
+      "scan_age": 0.05
+    },
+    {
+      "wall_ns": 1793328968270946350,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 25.078891275978165,
+      "estimate": {
+        "x": 0.757889739958555,
+        "y": -1.5241382270227033,
+        "yaw": -0.960905190457984,
+        "position_std": 1.23658859629126,
+        "yaw_std": 1.8313723132307131,
+        "quality_ok": false
+      },
+      "scan_match": 0.1875,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.00024174469246605824,
+        "angular": 0.19365813800667625
+      },
+      "odom_age": 0.03,
+      "scan_age": 0.05
+    },
+    {
+      "wall_ns": 1793328968774042886,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 29.538724524855077,
+      "estimate": {
+        "x": 0.757889739958555,
+        "y": -1.5241382270227033,
+        "yaw": -0.960905190457984,
+        "position_std": 1.23658859629126,
+        "yaw_std": 1.8313723132307131,
+        "quality_ok": false
+      },
+      "scan_match": 0.1875,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 0.00017814599610630323,
+        "angular": 0.192634245774301
+      },
+      "odom_age": 0.14,
+      "scan_age": 0.16
+    },
+    {
+      "wall_ns": 1793328969277127099,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 35.68420324309862,
+      "estimate": {
+        "x": 0.7472445166978525,
+        "y": -1.365762238438509,
+        "yaw": -0.7651840221548315,
+        "position_std": 1.2455211720903527,
+        "yaw_std": 1.6311629134319061,
+        "quality_ok": false
+      },
+      "scan_match": 0.1125,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 0.00016517679991696996,
+        "angular": 0.1892218566245313
+      },
+      "odom_age": 0.0,
+      "scan_age": 0.16
+    },
+    {
+      "wall_ns": 1793328969780687396,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 41.798235760286474,
+      "estimate": {
+        "x": 0.38183055561851537,
+        "y": -1.9206958425996303,
+        "yaw": 1.3627604572609302,
+        "position_std": 1.2152755730541045,
+        "yaw_std": 1.4452642298002347,
+        "quality_ok": false
+      },
+      "scan_match": 0.125,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.00034793408753798727,
+        "angular": 0.1933293723954006
+      },
+      "odom_age": 0.02,
+      "scan_age": 0.02
+    },
+    {
+      "wall_ns": 1793328970283711062,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 47.342862795385535,
+      "estimate": {
+        "x": 0.49168840358868243,
+        "y": -1.9163867908313,
+        "yaw": 1.008968700020637,
+        "position_std": 1.1561341002007552,
+        "yaw_std": 1.2995717660506498,
+        "quality_ok": false
+      },
+      "scan_match": 0.0875,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.0007996955426202255,
+        "angular": 0.19784348770528437
+      },
+      "odom_age": 0.03,
+      "scan_age": 0.08
+    },
+    {
+      "wall_ns": 1793328970786678238,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 53.42114450449437,
+      "estimate": {
+        "x": 0.49168840358868243,
+        "y": -1.9163867908313,
+        "yaw": 1.008968700020637,
+        "position_std": 1.1561341002007552,
+        "yaw_std": 1.2995717660506498,
+        "quality_ok": false
+      },
+      "scan_match": 0.0875,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 0.00042212848842675864,
+        "angular": 0.19155316584087448
+      },
+      "odom_age": 0.0,
+      "scan_age": 0.06
+    },
+    {
+      "wall_ns": 1793328971289624989,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 57.83590945892915,
+      "estimate": {
+        "x": 0.7098010875903257,
+        "y": -0.937970864905196,
+        "yaw": -0.19324260870917048,
+        "position_std": 1.1097773169236453,
+        "yaw_std": 1.2037293746672824,
+        "quality_ok": false
+      },
+      "scan_match": 0.06875,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.00016577882962737558,
+        "angular": 0.19368018281990804
+      },
+      "odom_age": 0.05,
+      "scan_age": 0.02
+    },
+    {
+      "wall_ns": 1793328971793061670,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 64.46123042732904,
+      "estimate": {
+        "x": 0.9739741120857915,
+        "y": -0.12330782923767997,
+        "yaw": -0.39355572641229397,
+        "position_std": 1.0198541483047678,
+        "yaw_std": 1.0943817541344032,
+        "quality_ok": false
+      },
+      "scan_match": 0.45,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 0.0012509943392915925,
+        "angular": 0.19138351050247532
+      },
+      "odom_age": 0.0,
+      "scan_age": 0.08
+    },
+    {
+      "wall_ns": 1793328972296079862,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 70.02144826194167,
+      "estimate": {
+        "x": 0.9828285717446357,
+        "y": -0.1197220127333791,
+        "yaw": -0.2563542366979525,
+        "position_std": 0.9258074276324372,
+        "yaw_std": 0.9577609424970706,
+        "quality_ok": false
+      },
+      "scan_match": 0.4875,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 7.90622947160857e-05,
+        "angular": 0.19534535603296127
+      },
+      "odom_age": 0.01,
+      "scan_age": 0.09
+    },
+    {
+      "wall_ns": 1793328972798882835,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 75.03526571879466,
+      "estimate": {
+        "x": 0.9828285717446357,
+        "y": -0.1197220127333791,
+        "yaw": -0.2563542366979525,
+        "position_std": 0.9258074276324372,
+        "yaw_std": 0.9577609424970706,
+        "quality_ok": false
+      },
+      "scan_match": 0.4875,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 0.0006843058978561567,
+        "angular": 0.19051171923493165
+      },
+      "odom_age": 0.05,
+      "scan_age": 0.09
+    },
+    {
+      "wall_ns": 1793328973302546128,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 81.12422637142315,
+      "estimate": {
+        "x": 0.9909870609867301,
+        "y": -0.11835547949075774,
+        "yaw": -0.1279477048103113,
+        "position_std": 0.8110563192367087,
+        "yaw_std": 0.8967174707528338,
+        "quality_ok": false
+      },
+      "scan_match": 0.4625,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.0007838980935156658,
+        "angular": 0.19142722623246444
+      },
+      "odom_age": 0.01,
+      "scan_age": 0.09
+    },
+    {
+      "wall_ns": 1793328973807823828,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 86.6509331101385,
+      "estimate": {
+        "x": 0.9926381318822559,
+        "y": -0.1252537130070121,
+        "yaw": -0.014997007764984725,
+        "position_std": 0.724474911700709,
+        "yaw_std": 0.8327598496465801,
+        "quality_ok": false
+      },
+      "scan_match": 0.43125,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.001058999766083092,
+        "angular": 0.19411717063461395
+      },
+      "odom_age": 0.02,
+      "scan_age": 0.1
+    },
+    {
+      "wall_ns": 1793328974311190834,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 92.22596116305274,
+      "estimate": {
+        "x": 0.9975761666551406,
+        "y": -0.12509097325231602,
+        "yaw": 0.057735319556459185,
+        "position_std": 0.6575654416927206,
+        "yaw_std": 0.7947788088045348,
+        "quality_ok": false
+      },
+      "scan_match": 0.4375,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.00017651117415847287,
+        "angular": 0.18877386729879692
+      },
+      "odom_age": 0.03,
+      "scan_age": 0.08
+    },
+    {
+      "wall_ns": 1793328974814318414,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 97.764375230673,
+      "estimate": {
+        "x": 0.9870420265854895,
+        "y": -0.11737670365853346,
+        "yaw": 0.2234700163731646,
+        "position_std": 0.6150518646856473,
+        "yaw_std": 0.759116294150338,
+        "quality_ok": false
+      },
+      "scan_match": 0.475,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.0008278616108583297,
+        "angular": 0.19704635087959832
+      },
+      "odom_age": 0.02,
+      "scan_age": 0.0
+    },
+    {
+      "wall_ns": 1793328975318266677,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 103.33126853550607,
+      "estimate": {
+        "x": 0.9870420265854895,
+        "y": -0.11737670365853346,
+        "yaw": 0.2234700163731646,
+        "position_std": 0.6150518646856473,
+        "yaw_std": 0.759116294150338,
+        "quality_ok": false
+      },
+      "scan_match": 0.475,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.00011449549854249721,
+        "angular": 0.19747573646826447
+      },
+      "odom_age": 0.03,
+      "scan_age": 0.02
+    },
+    {
+      "wall_ns": 1793328975820861812,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 108.97658557893571,
+      "estimate": {
+        "x": 0.9764659921895062,
+        "y": -0.12083776828354714,
+        "yaw": 0.3900823419229165,
+        "position_std": 0.5383871884620876,
+        "yaw_std": 0.7056095778746435,
+        "quality_ok": false
+      },
+      "scan_match": 0.45,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -9.493905423375013e-05,
+        "angular": 0.19485033828104834
+      },
+      "odom_age": 0.03,
+      "scan_age": 0.01
+    },
+    {
+      "wall_ns": 1793328976323753947,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 114.53056756486569,
+      "estimate": {
+        "x": 0.9802103329289514,
+        "y": -0.1166598524050762,
+        "yaw": 0.499798811973482,
+        "position_std": 0.5168803858804386,
+        "yaw_std": 0.687696236011924,
+        "quality_ok": false
+      },
+      "scan_match": 0.45625,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 9.538078329226238e-05,
+        "angular": 0.19449233919670092
+      },
+      "odom_age": 0.03,
+      "scan_age": 0.01
+    },
+    {
+      "wall_ns": 1793328976829268651,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 120.07255930860589,
+      "estimate": {
+        "x": 0.9762446319404179,
+        "y": -0.11717705150268827,
+        "yaw": 0.6299652948005783,
+        "position_std": 0.5169640586322345,
+        "yaw_std": 0.6909776319435403,
+        "quality_ok": false
+      },
+      "scan_match": 0.475,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 0.0009695990690330905,
+        "angular": 0.19410208705738174
+      },
+      "odom_age": 0.05,
+      "scan_age": 0.0
+    },
+    {
+      "wall_ns": 1793328977332714182,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 125.60126914848593,
+      "estimate": {
+        "x": 0.9762446319404179,
+        "y": -0.11717705150268827,
+        "yaw": 0.6299652948005783,
+        "position_std": 0.5169640586322345,
+        "yaw_std": 0.6909776319435403,
+        "quality_ok": false
+      },
+      "scan_match": 0.475,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 0.0009987803973567062,
+        "angular": 0.18988593538542486
+      },
+      "odom_age": 0.04,
+      "scan_age": 0.02
+    },
+    {
+      "wall_ns": 1793328977835970748,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 131.1069866095718,
+      "estimate": {
+        "x": 0.9767960295176299,
+        "y": -0.11842856800775424,
+        "yaw": 0.7340999448524601,
+        "position_std": 0.4968731615525931,
+        "yaw_std": 0.6796820410681709,
+        "quality_ok": false
+      },
+      "scan_match": 0.4625,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 9.857991976372672e-05,
+        "angular": 0.19426700457275384
+      },
+      "odom_age": 0.05,
+      "scan_age": 0.03
+    },
+    {
+      "wall_ns": 1793328978340402325,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 137.1884645449381,
+      "estimate": {
+        "x": 0.9829873994637426,
+        "y": -0.11284850872861588,
+        "yaw": 0.8623321354863686,
+        "position_std": 0.5047654348954607,
+        "yaw_std": 0.688652090542903,
+        "quality_ok": false
+      },
+      "scan_match": 0.45625,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 0.00042889468636888434,
+        "angular": 0.18977853175317932
+      },
+      "odom_age": 0.0,
+      "scan_age": 0.03
+    },
+    {
+      "wall_ns": 1793328978843653652,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 142.66368362384662,
+      "estimate": {
+        "x": 0.9803221655666425,
+        "y": -0.12569392822351996,
+        "yaw": 0.9955674463938196,
+        "position_std": 0.5163060980195142,
+        "yaw_std": 0.7244494769765036,
+        "quality_ok": false
+      },
+      "scan_match": 0.44375,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.00041924564569937055,
+        "angular": 0.19680157372348223
+      },
+      "odom_age": 0.0,
+      "scan_age": 0.04
+    },
+    {
+      "wall_ns": 1793328979346693122,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 147.67297459486727,
+      "estimate": {
+        "x": 0.9803221655666425,
+        "y": -0.12569392822351996,
+        "yaw": 0.9955674463938196,
+        "position_std": 0.5163060980195142,
+        "yaw_std": 0.7244494769765036,
+        "quality_ok": false
+      },
+      "scan_match": 0.44375,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.000886134363876724,
+        "angular": 0.19856250518203516
+      },
+      "odom_age": 0.06,
+      "scan_age": 0.04
+    },
+    {
+      "wall_ns": 1793328979849753390,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 153.79206237916702,
+      "estimate": {
+        "x": 0.9846129723886038,
+        "y": -0.1255323377459469,
+        "yaw": 1.1075584008746167,
+        "position_std": 0.504265871040606,
+        "yaw_std": 0.716980708018673,
+        "quality_ok": false
+      },
+      "scan_match": 0.49375,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 0.0003182326310038583,
+        "angular": 0.19474374318907753
+      },
+      "odom_age": 0.02,
+      "scan_age": 0.04
+    },
+    {
+      "wall_ns": 1793328980352448387,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 159.3307390801276,
+      "estimate": {
+        "x": 0.9839067131223758,
+        "y": -0.12741337169526518,
+        "yaw": 1.2268980732638413,
+        "position_std": 0.5003397665766623,
+        "yaw_std": 0.7126207232479528,
+        "quality_ok": false
+      },
+      "scan_match": 0.48125,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -0.0002626059180043641,
+        "angular": 0.19555055544955682
+      },
+      "odom_age": 0.01,
+      "scan_age": 0.06
+    },
+    {
+      "wall_ns": 1793328980855347474,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 164.87686484076002,
+      "estimate": {
+        "x": 0.9851578479366283,
+        "y": -0.12675363138815038,
+        "yaw": 1.3705815074622734,
+        "position_std": 0.5052270726108323,
+        "yaw_std": 0.7211004553011323,
+        "quality_ok": false
+      },
+      "scan_match": 0.4625,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -7.040899465971716e-05,
+        "angular": 0.19703549984284796
+      },
+      "odom_age": 0.02,
+      "scan_age": 0.06
+    },
+    {
+      "wall_ns": 1793328981358375341,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 169.30104803208596,
+      "estimate": {
+        "x": 0.9851578479366283,
+        "y": -0.12675363138815038,
+        "yaw": 1.3705815074622734,
+        "position_std": 0.5052270726108323,
+        "yaw_std": 0.7211004553011323,
+        "quality_ok": false
+      },
+      "scan_match": 0.4625,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": -8.008172232711904e-05,
+        "angular": 0.19585378514547683
+      },
+      "odom_age": 0.12,
+      "scan_age": 0.14
+    },
+    {
+      "wall_ns": 1793328981860753621,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 175.2795323738562,
+      "estimate": {
+        "x": 0.9799708111083267,
+        "y": -0.13054136038210457,
+        "yaw": 1.5054027086485102,
+        "position_std": 0.5076535677265417,
+        "yaw_std": 0.7201457718824222,
+        "quality_ok": false
+      },
+      "scan_match": 0.43125,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 8.22421692053476e-07,
+        "angular": 0.19661714994033902
+      },
+      "odom_age": 0.07,
+      "scan_age": 0.06
+    },
+    {
+      "wall_ns": 1793328982363891771,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 180.11535927583924,
+      "estimate": {
+        "x": 0.9743945578658513,
+        "y": -0.1435025050366905,
+        "yaw": 1.587446983996559,
+        "position_std": 0.4709715241006288,
+        "yaw_std": 0.6593896089970283,
+        "quality_ok": false
+      },
+      "scan_match": 0.44375,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 6.42073315619957e-07,
+        "angular": 0.19661716508402624
+      },
+      "odom_age": 0.09,
+      "scan_age": 0.06
+    },
+    {
+      "wall_ns": 1793328982866643225,
+      "localization_state": "ROTATING",
+      "reason": "천천히 회전하며 라이다와 지도를 대조합니다.",
+      "rotation_degrees": 184.29091687015833,
+      "estimate": {
+        "x": 0.9743945578658513,
+        "y": -0.1435025050366905,
+        "yaw": 1.587446983996559,
+        "position_std": 0.4709715241006288,
+        "yaw_std": 0.6593896089970283,
+        "quality_ok": false
+      },
+      "scan_match": 0.44375,
+      "lease_acknowledged": true,
+      "estop_latched": false,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.2
+      },
+      "reported_speed": {
+        "linear": 1.7479235678299393e-05,
+        "angular": 0.19661716508402624
+      },
+      "odom_age": 0.33,
+      "scan_age": 0.05
+    },
+    {
+      "wall_ns": 1793328983369571548,
+      "localization_state": "FAILED",
+      "reason": "위치 확인을 중단합니다: 비상정지를 먼저 해제하세요.",
+      "rotation_degrees": 188.79752082868262,
+      "estimate": {
+        "x": 0.9836862325189498,
+        "y": -0.1395800218100939,
+        "yaw": 1.6870245696844324,
+        "position_std": 0.48466010842370694,
+        "yaw_std": 0.6555924894059337,
+        "quality_ok": false
+      },
+      "scan_match": 0.3875,
+      "lease_acknowledged": true,
+      "estop_latched": true,
+      "requested_output": {
+        "linear": 0.0,
+        "angular": 0.0
+      },
+      "reported_speed": {
+        "linear": 5.381724661051617e-05,
+        "angular": 0.19661716508402624
+      },
+      "odom_age": 0.04,
+      "scan_age": 0.06
+    }
+  ]
+}

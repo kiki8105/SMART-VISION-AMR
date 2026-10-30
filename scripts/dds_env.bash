@@ -8,6 +8,7 @@ fi
 
 smart_vision_dds_env() {
   local mode=${SMART_VISION_DDS_TRANSPORT:-udp}
+  local publication_mode=${SMART_VISION_DDS_PUBLICATION_MODE:-}
   local helper_dir profile=${1:-} prefix profile_name=dds_udp.xml
   case "$mode" in
     udp|default) ;;
@@ -17,6 +18,16 @@ smart_vision_dds_env() {
     rmw_fastrtps_cpp|rmw_fastrtps_dynamic_cpp) ;;
     *) return 0 ;; # A Fast DDS profile must not configure another middleware.
   esac
+  case "$publication_mode" in
+    ''|ASYNCHRONOUS|SYNCHRONOUS|AUTO) ;;
+    *) printf 'SMART_VISION_DDS_PUBLICATION_MODE must be ASYNCHRONOUS, SYNCHRONOUS, AUTO, or empty.\n' >&2
+       return 2 ;;
+  esac
+  # Publication mode is independent of transport/XML selection. Preserve any
+  # explicit middleware setting, including an explicitly empty caller value.
+  if [[ -n "$publication_mode" && ! ${RMW_FASTRTPS_PUBLICATION_MODE+x} ]]; then
+    export RMW_FASTRTPS_PUBLICATION_MODE="$publication_mode"
+  fi
   if [[ "$mode" == default ]]; then
     # Undo only values installed by this helper. Keep later user replacements.
     if [[ -n "${_SMART_VISION_DDS_OWN_PROFILE:-}" ]]; then

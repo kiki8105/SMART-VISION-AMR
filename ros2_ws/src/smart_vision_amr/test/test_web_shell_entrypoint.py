@@ -5,6 +5,8 @@ from pathlib import Path
 import shutil
 import subprocess
 
+import pytest
+
 
 REPO = Path(__file__).resolve().parents[4]
 SCRIPTS = REPO / 'scripts'
@@ -108,7 +110,12 @@ fi
     assert 'navigation-launch-started' in result.stdout
 
 
-def test_robot_bringup_omits_unset_wheel_geometry_launch_arguments(tmp_path):
+@pytest.mark.parametrize('estimation,mode,timing', [
+    ('robot', 'ekf_independent', 'false'),
+    ('robot', 'ekf_independent', 'true'),
+    ('pc', 'baseline', 'true'),
+])
+def test_robot_bringup_omits_unset_wheel_geometry_launch_arguments(tmp_path, estimation, mode, timing):
     environment = _workspace(tmp_path)
     stock = tmp_path / 'stock'
     (stock / 'install').mkdir(parents=True)
@@ -156,8 +163,9 @@ fi
         'CAMERA_BACKEND': 'v4l2',
         'ENABLE_FRONT_CAMERA': 'false',
         'SMART_VISION_DDS_TRANSPORT': 'default',
-        'SMART_VISION_ESTIMATION_LOCATION': 'robot',
-        'TURTLEBOT3_LOCALIZATION_MODE': 'ekf_independent',
+        'SMART_VISION_ESTIMATION_LOCATION': estimation,
+        'TURTLEBOT3_LOCALIZATION_MODE': mode,
+        'SMART_VISION_TIMING_DIAGNOSTICS': timing,
     })
     result = subprocess.run(
         [str(SCRIPTS / 'robot_bringup_camera_16.sh')],
@@ -167,6 +175,19 @@ fi
     assert result.returncode == 1  # The fake launch exits, so the wrapper stops its children.
     assert 'wheel_radius:=' not in log.read_text()
     assert 'wheel_separation:=' not in log.read_text()
+    if estimation == 'robot':
+        assert f'timing_diagnostics:={timing}' in log.read_text()
+    else:
+        assert 'timing_diagnostics:=' not in log.read_text()
+
+
+def test_invalid_timing_flag_is_rejected_before_hardware_checks():
+    result = subprocess.run(
+        ['bash', str(SCRIPTS/'robot_bringup_camera_16.sh')],
+        env={**os.environ, 'SMART_VISION_TIMING_DIAGNOSTICS': 'invalid'},
+        text=True, capture_output=True, timeout=3)
+    assert result.returncode == 2
+    assert 'SMART_VISION_TIMING_DIAGNOSTICS must be true or false' in result.stderr
 
 
 def test_static_deployment_checks_selected_overlay_without_live_nodes(tmp_path):

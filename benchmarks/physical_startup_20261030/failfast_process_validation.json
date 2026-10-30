@@ -1,0 +1,7 @@
+{
+  "test": "real local subprocess required-driver exit causes scoped runtime shutdown; no ROS participants or hardware",
+  "returncode": 0,
+  "elapsed_seconds": 0.3362311970013252,
+  "companion_completed": false,
+  "result": "PASS"
+}

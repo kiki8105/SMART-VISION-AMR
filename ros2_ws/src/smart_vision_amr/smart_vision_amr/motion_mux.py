@@ -10,6 +10,10 @@ import math
 import time
 import uuid
 
+from smart_vision_amr.runtime_timing import (
+    MUX_METRICS, RuntimeTiming, guard_timing_report, timed_call,
+)
+
 
 class MotionMuxCore:
     """Arbitrate commands using a monotonic dead-man lease, never ROS time."""
@@ -412,7 +416,7 @@ class MotionMuxNode(Node):
                 ('localization_rotation_limit', .25),
                 ('marker_alignment_rotation_limit', .15),
                 ('startup_estop', False), ('allow_topic_reset', True),
-                ('allow_legacy_auto_input', True)):
+                ('allow_legacy_auto_input', True), ('enable_timing_diagnostics', False)):
             self.declare_parameter(name, default)
         self.core = MotionMuxCore(**{
             name: self.get_parameter(name).value for name in (
@@ -424,6 +428,9 @@ class MotionMuxNode(Node):
                 'marker_alignment_rotation_limit',
                 'startup_estop')})
         self.allow_topic_reset = self.get_parameter('allow_topic_reset').value
+        self._timing = (RuntimeTiming(MUX_METRICS, warning=self.get_logger().warning)
+                        if self.get_parameter('enable_timing_diagnostics').value else None)
+        self._guard_timing = None
         self.output_pub = self.create_publisher(Twist, '/cmd_vel', 1)
         self.output_available = False
         self.output_conflict = 'Checking exclusive /cmd_vel ownership'
@@ -554,6 +561,9 @@ class MotionMuxNode(Node):
         return response
 
     def advance_reset(self):
+        timing = getattr(self, '_timing', None)
+        if timing is not None:
+            timing.gap('reset_tick_gap', .025)
         reset = self.pending_reset
         if reset is None:
             return
@@ -586,6 +596,12 @@ class MotionMuxNode(Node):
             reset['future'].set_result(accepted)
 
     def on_control(self, message):
+        return timed_call(getattr(self, '_timing', None), 'control_callback',
+                          self._on_control, message)
+
+    def _on_control(self, message):
+        timing = getattr(self, '_timing', None)
+        receipt_ns = self.get_clock().now().nanoseconds if timing is not None else None
         try:
             payload = json.loads(message.data)
         except (ValueError, TypeError):
@@ -596,6 +612,16 @@ class MotionMuxNode(Node):
         # never applied by DDS loopback ahead of the reset-intent grace period.
         if isinstance(payload, dict) and payload.get('source_id') == self.service_source:
             return
+        if timing is not None and isinstance(payload, dict):
+            stamp = payload.get('sent_at_ns')
+            if type(stamp) is int:
+                timing.observe('control_receipt_age', (receipt_ns-stamp)/1e9)
+            if payload.get('source_id') == self.core.EKF_SENSOR_SAFETY_SOURCE:
+                report = guard_timing_report(payload)
+                if report is not None:
+                    sequence = payload.get('seq')
+                    self._guard_timing = {'reported_on_seq': sequence if type(sequence) is int else None,
+                                          'metrics': report}
         if (isinstance(payload, dict) and payload.get('mode') == 'reset'
                 and not self.allow_topic_reset):
             self.core.reject_control(payload, 'Topic reset is disabled; use reset_emergency_stop service')
@@ -606,6 +632,9 @@ class MotionMuxNode(Node):
         self.publish_status()
 
     def publish_output(self):
+        timing = getattr(self, '_timing', None)
+        if timing is not None:
+            timing.gap('output_gap', .05)
         self.check_output_ownership()
         if not self.output_available:
             # Even a zero command would interfere with an existing, unmanaged
@@ -617,7 +646,7 @@ class MotionMuxNode(Node):
         # even if a delayed UI/navigation packet is accepted by the core.
         message.linear.x, message.angular.z = ((0.0, 0.0) if
             getattr(self, 'pending_reset', None) is not None else self.core.output())
-        self.output_pub.publish(message)
+        timed_call(timing, 'cmd_vel_publish', self.output_pub.publish, message)
         self.last_output_was_zero = message.linear.x == 0.0 and message.angular.z == 0.0
         if self.last_output_was_zero:
             self.last_zero_published_at = time.monotonic()
@@ -629,7 +658,8 @@ class MotionMuxNode(Node):
             return
         self._ownership_checked_at = now
         try:
-            endpoints = self.get_publishers_info_by_topic(self.output_pub.topic_name)
+            endpoints = timed_call(getattr(self, '_timing', None), 'ownership_query',
+                                   self.get_publishers_info_by_topic, self.output_pub.topic_name)
             self.output_publishers = len(endpoints)
             own_endpoint = (len(endpoints) == 1
                             and endpoints[0].node_name == self.get_name()
@@ -650,6 +680,9 @@ class MotionMuxNode(Node):
             self.output_conflict = 'Cannot verify exclusive /cmd_vel ownership: '+str(exc)
 
     def publish_status(self, force=False):
+        timing = getattr(self, '_timing', None)
+        if timing is not None:
+            timing.gap('status_gap', .1)
         self.check_output_ownership()
         status = self.core.status()
         transition = (status['mode'], status['source_id'], status['estop_latched'],
@@ -679,9 +712,16 @@ class MotionMuxNode(Node):
             status['output_owner'] = 'safety_reset'
         if not self.output_available:
             status['reason'] = self.output_conflict
+        if timing is not None:
+            # Publish duration is available on the next status sample. Guard
+            # timings likewise describe completed earlier publishes, never the
+            # time spent before its currently arriving packet was stamped.
+            status['timing_diagnostics'] = {
+                'enabled': True, 'mux': timing.snapshot(),
+                'ekf_sensor_guard': getattr(self, '_guard_timing', None)}
         message = String()
         message.data = json.dumps(status, separators=(',', ':'))
-        self.status_pub.publish(message)
+        timed_call(timing, 'status_publish', self.status_pub.publish, message)
         return True
 
 
