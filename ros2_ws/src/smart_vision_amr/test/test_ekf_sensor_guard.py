@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from rcl_interfaces.msg import Log
 from sensor_msgs.msg import BatteryState
 from std_msgs.msg import String
+from tf2_ros import TransformException
 
 from smart_vision_amr.ekf_sensor_guard import (
     EkfSensorGuard, EkfSensorGuardCore, ROS_ERROR_LEVEL, battery_voltage_issues,
@@ -108,10 +109,50 @@ def test_filter_publisher_without_fresh_odom_or_tf_trips_the_guard():
         core.tick(now)
     assert core.operator_reset(10.3)
     for name in ('wheel', 'imu', 'scan'):
-        feed(core, name, 11.4)
-    core.update_graph([], 11.4)  # Graph alone is healthy but filter is stalled.
-    reason = core.tick(11.4)
+        feed(core, name, 11.9)
+    core.update_graph([], 11.9)  # Graph alone is healthy but filter is stalled.
+    reason = core.tick(11.9)
     assert 'odom' in reason and 'odom_tf' in reason and core.latched
+
+
+def test_one_missed_tf_lookup_does_not_trip_but_sustained_loss_does():
+    core = EkfSensorGuardCore(arm_seconds=0.2, odom_tf_stale_seconds=1.5)
+    for now in (10.0, 10.3):
+        feed_all(core, now)
+        core.tick(now)
+    assert core.operator_reset(10.3)
+
+    class MissingTf:
+        def lookup_transform(self, *_args):
+            raise TransformException('temporary lookup miss')
+
+    guard = SimpleNamespace(core=core, tf_buffer=MissingTf(), base_frame='base_footprint')
+    EkfSensorGuard.update_tf(guard, 10.5)
+    for now in (10.5, 11.4):
+        for name in ('wheel', 'imu', 'scan', 'odom'):
+            feed(core, name, now)
+        core.update_graph([], now)
+        assert core.tick(now) is None
+        assert not core.latched
+    for name in ('wheel', 'imu', 'scan', 'odom'):
+        feed(core, name, 11.81)
+    core.update_graph([], 11.81)
+    reason = core.tick(11.81)
+    assert 'odom_tf: odom to base TF unavailable: temporary lookup miss' in reason
+    assert core.latched
+
+
+def test_scan_still_trips_after_one_second_while_tf_has_separate_tolerance():
+    core = EkfSensorGuardCore(arm_seconds=0.2, odom_tf_stale_seconds=1.5)
+    for now in (10.0, 10.3):
+        feed_all(core, now)
+        core.tick(now)
+    assert core.operator_reset(10.3)
+    for name in ('wheel', 'imu', 'odom', 'odom_tf'):
+        feed(core, name, 11.4)
+    core.update_graph([], 11.4)
+    assert 'scan' in core.tick(11.4)
+    assert core.latched
 
 
 def test_battery_gate_is_opt_in_and_rejects_bad_or_stale_readings_when_enabled():
@@ -457,6 +498,7 @@ def test_latched_guard_reasserts_estop_after_ack_if_mux_restart_status_is_lost()
         core = EkfSensorGuardCore()
         acknowledged = True
         last_estop_at = now - 1.1
+        last_tf_check_at = now
         last_owner_check_at = now
         estop_count = 0
 

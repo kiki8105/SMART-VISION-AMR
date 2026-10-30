@@ -102,14 +102,21 @@ class EkfSensorGuardCore:
     def __init__(self, arm_seconds=2.0, stale_seconds=1.0,
                  max_header_age_seconds=1.0, future_tolerance_seconds=0.25,
                  minimum_battery_voltage=0.0, battery_rearm_margin_voltage=0.2,
-                 battery_stale_seconds=5.0):
-        if arm_seconds <= 0.0 or stale_seconds <= 0.0:
+                 battery_stale_seconds=5.0, odom_tf_stale_seconds=1.5):
+        if (arm_seconds <= 0.0 or stale_seconds <= 0.0 or
+                type(odom_tf_stale_seconds) not in (int, float) or
+                not math.isfinite(odom_tf_stale_seconds) or
+                odom_tf_stale_seconds <= 0.0):
             raise ValueError('Guard durations must be positive')
         self.arm_seconds = arm_seconds
         self.stale_seconds = stale_seconds
+        self.odom_tf_stale_seconds = float(odom_tf_stale_seconds)
         self.stamps = {name: SensorStampGuard(max_header_age_seconds,
                                              future_tolerance_seconds)
                        for name in self.REQUIRED}
+        # TF ingress can briefly lag its 20 Hz EKF source. Keep the tighter
+        # one-second wheel/IMU/scan/odom watchdog unchanged.
+        self.stamps['odom_tf'].max_age_ns = int(self.odom_tf_stale_seconds * 1e9)
         self.stamps['battery'] = SensorStampGuard(battery_stale_seconds,
                                                  future_tolerance_seconds)
         self.last_seen = {name: None for name in self.stamps}
@@ -195,8 +202,9 @@ class EkfSensorGuardCore:
         self.value_issues.pop(name, None)
         return True
 
-    def reject(self, name, issues):
-        self.last_seen[name] = None
+    def reject(self, name, issues, *, invalidate=True):
+        if invalidate:
+            self.last_seen[name] = None
         self.value_issues[name] = ', '.join(issues)
 
     def missing(self, monotonic_seconds):
@@ -204,7 +212,9 @@ class EkfSensorGuardCore:
                    for name in self.required
                    if self.last_seen[name] is None or
                    monotonic_seconds - self.last_seen[name] >= (
-                       self.battery_stale_seconds if name == 'battery' else self.stale_seconds)]
+                       self.battery_stale_seconds if name == 'battery' else
+                       self.odom_tf_stale_seconds if name == 'odom_tf' else
+                       self.stale_seconds)]
         if (self.graph_checked_at is None or
                 monotonic_seconds - self.graph_checked_at >= self.stale_seconds):
             missing.append('ROS publisher graph stale')
@@ -268,6 +278,8 @@ class EkfSensorGuard(Node):
         super().__init__('ekf_sensor_guard')
         self.declare_parameter('arm_seconds', 2.0)
         self.declare_parameter('stale_seconds', 1.0)
+        self.declare_parameter('odom_tf_stale_seconds', 1.5)
+        self.declare_parameter('dynamic_tf_best_effort', True)
         self.declare_parameter('max_position_variance', 0.0)
         self.declare_parameter('max_yaw_variance', 0.0)
         self.declare_parameter('max_linear_velocity_variance', 0.25)
@@ -283,10 +295,18 @@ class EkfSensorGuard(Node):
                         if self.get_parameter('enable_timing_diagnostics').value else None)
         self.base_frame = str(self.get_parameter('base_frame').value)
         self.tf_buffer = Buffer(node=self)
-        self.tf_listener = TransformListener(self.tf_buffer, self)
+        # /tf is an ongoing stream. Best-effort depth 20 prevents delayed
+        # reliable samples from starving the guard's latest transform. The
+        # listener's separate /tf_static QoS remains reliable/transient-local.
+        tf_qos = QoSProfile(depth=20, reliability=ReliabilityPolicy.BEST_EFFORT,
+                            durability=DurabilityPolicy.VOLATILE)
+        self.tf_listener = TransformListener(
+            self.tf_buffer, self,
+            **({'qos': tf_qos} if self.get_parameter('dynamic_tf_best_effort').value else {}))
         self.core = EkfSensorGuardCore(
             arm_seconds=float(self.get_parameter('arm_seconds').value),
             stale_seconds=float(self.get_parameter('stale_seconds').value),
+            odom_tf_stale_seconds=float(self.get_parameter('odom_tf_stale_seconds').value),
             minimum_battery_voltage=float(self.get_parameter('minimum_battery_voltage').value),
             battery_rearm_margin_voltage=float(
                 self.get_parameter('battery_rearm_margin_voltage').value),
@@ -300,6 +320,7 @@ class EkfSensorGuard(Node):
         self.mux_instance_id = None
         self.retired_mux_instances = set()
         self.last_status_seq = -1
+        self.last_tf_check_at = None
         self.last_owner_check_at = None
         self.control_pub = self.create_publisher(
             String, '/smart_vision_amr/manual_control', 10)
@@ -325,7 +346,10 @@ class EkfSensorGuard(Node):
         self.create_subscription(String, '/smart_vision_amr/motion_status',
                                  self.on_motion_status, durable)
         self.create_subscription(String, '/smart_vision_amr/manual_control',
-                                 self.on_control, 10)
+                                 self.on_control,
+                                 QoSProfile(depth=1,
+                                            reliability=ReliabilityPolicy.BEST_EFFORT,
+                                            durability=DurabilityPolicy.VOLATILE))
         self.create_timer(0.1, self.on_tick,
                           clock=Clock(clock_type=ClockType.STEADY_TIME))
         self._publish_estop(time.monotonic())
@@ -404,20 +428,30 @@ class EkfSensorGuard(Node):
                 self.core.reject('odom_tf', ['invalid TF values'])
                 return
             stamp = transform.header.stamp
-            self.core.observe('odom_tf', stamp.sec*1_000_000_000+stamp.nanosec,
-                              self.get_clock().now().nanoseconds, now)
-        except TransformException:
-            self.core.reject('odom_tf', ['odom to base TF unavailable'])
+            stamp_ns = stamp.sec*1_000_000_000+stamp.nanosec
+            wall_ns = self.get_clock().now().nanoseconds
+            if not self.core.observe('odom_tf', stamp_ns, wall_ns, now):
+                age = (wall_ns-stamp_ns)/1e9
+                self.core.reject('odom_tf', [f'odom to base TF header rejected (age {age:.2f}s)'],
+                                 invalidate=False)
+        except TransformException as exc:
+            # A single missed lookup is not a sustained TF outage. Keep the
+            # last valid sample until its independent TF deadline expires.
+            self.core.reject('odom_tf', [f'odom to base TF unavailable: {exc}'],
+                             invalidate=False)
 
     def on_tick(self):
         timing = getattr(self, '_timing', None)
         if timing is not None:
             timing.gap('tick_gap', .1)
         now = time.monotonic()
+        if (self.last_tf_check_at is None or
+                now - self.last_tf_check_at >= 0.2):
+            self.last_tf_check_at = now
+            self.update_tf(now)
         if (self.last_owner_check_at is None or
                 now - self.last_owner_check_at >= 0.5):
             self.last_owner_check_at = now
-            self.update_tf(now)
             try:
                 expected = self.EXPECTED_PUBLISHERS.copy()
                 if self.core.minimum_battery_voltage > 0.0:

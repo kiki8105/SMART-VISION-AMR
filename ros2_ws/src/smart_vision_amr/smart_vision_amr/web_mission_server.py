@@ -1464,7 +1464,11 @@ def create_ros_bridge(app, options, context):
                                  reliability=ReliabilityPolicy.RELIABLE)
             self.goal_pub = self.create_publisher(PoseStamped, '/smart_vision_amr/goal', 10)
             self.initial_pose_pub = self.create_publisher(PoseWithCovarianceStamped, '/initialpose', 10)
-            self.motion_pub = self.create_publisher(String, '/smart_vision_amr/manual_control', 10)
+            # Control packets carry a sequence and expire after one second at
+            # the mux. A delayed reliable queue cannot make them useful; send
+            # only the newest packet and rely on the exact ACK/retry handshake.
+            control_qos = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
+            self.motion_pub = self.create_publisher(String, '/smart_vision_amr/manual_control', control_qos)
             self.motion_source = secrets.token_urlsafe(18)
             self.motion_seq = 0
             self.localization_hold_seq = self.localization_lease_seq = None
@@ -1478,12 +1482,16 @@ def create_ros_bridge(app, options, context):
             self.auto_handover_started = None
             self.auto_handover_last_sent = None
             self.auto_handover_sent = {}
+            self.auto_handover_first_seq = None
             self.auto_handover_timeout = 8.0
             self.auto_handover_retry = .4
             # A latched stop needs an immediate packet and a slow heartbeat,
             # not a fresh control packet on every 10 Hz bridge tick. Repeated
             # packets otherwise contend with the robot's sensor callbacks.
             self.last_estop_control_at = -math.inf
+            self.last_hold_control_at = -math.inf
+            self.last_control_mode = None
+            self.last_control_operation = None
             self.cancel_client = self.create_client(Trigger, '/smart_vision_amr/cancel_navigation')
             self.estop_client = self.create_client(Trigger, '/smart_vision_amr/emergency_stop')
             self.reset_client = self.create_client(Trigger, '/smart_vision_amr/reset_emergency_stop')
@@ -1649,6 +1657,10 @@ def create_ros_bridge(app, options, context):
                     app.localization.pause_for_sensor_gap(scan_now)
                 self.localization_scan = message
                 app.localization_clear = False
+                # A previous safe range does not describe this scan. If the
+                # laser-to-base TF is briefly unavailable, report unknown
+                # clearance instead of showing a stale distance as current.
+                app.localization_clearance = None
                 app.localization_scan_at = scan_now
                 try:
                     transform = self.tf_buffer.lookup_transform(options.base_frame, message.header.frame_id, rclpy.time.Time())
@@ -2044,8 +2056,9 @@ def create_ros_bridge(app, options, context):
             if app.safety_request == 'reset' or (self.safety_future is not None and self.safety_kind == 'reset'):
                 # Keep the mux reset source stable during guard verification.
                 return
+            now = time.monotonic()
+            operation = operation or ('localization' if self.localization_running else 'drive')
             if mode == 'estop':
-                now = time.monotonic()
                 if now-self.last_estop_control_at < 1.0:
                     return
                 self.last_estop_control_at = now
@@ -2053,13 +2066,21 @@ def create_ros_bridge(app, options, context):
                 # A later emergency stop must go out immediately, even if a
                 # previous stop heartbeat was sent less than one second ago.
                 self.last_estop_control_at = -math.inf
+            if (mode == 'hold' and self.last_control_mode == mode
+                    and self.last_control_operation == operation
+                    and now-self.last_hold_control_at < 1.0
+                    and not (self.localization_running and self.localization_hold_seq is None)):
+                return
             self.motion_seq += 1
             message = String()
             message.data = json.dumps({'source_id': self.motion_source, 'seq': self.motion_seq,
                                        'sent_at_ns': self.get_clock().now().nanoseconds,
                                        'mode': mode, 'linear': linear, 'angular': angular,
-                                       'operation': operation or ('localization' if self.localization_running else 'drive')})
+                                       'operation': operation})
             self.motion_pub.publish(message)
+            self.last_control_mode, self.last_control_operation = mode, operation
+            if mode == 'hold':
+                self.last_hold_control_at = now
             if mode == 'hold' and self.localization_running and self.localization_hold_seq is None:
                 self.localization_hold_seq = self.motion_seq
             if mode == 'localization' and self.localization_lease_seq is None:
@@ -2114,6 +2135,37 @@ def create_ros_bridge(app, options, context):
             self.auto_handover_started = None
             self.auto_handover_last_sent = None
             self.auto_handover_sent.clear()
+            self.auto_handover_first_seq = None
+
+        def auto_handover_failure_detail(self, now):
+            """Report only evidence from this attempt, never an older rejection."""
+            status = app.manual_mux_status
+            if now-app.manual_mux_at > 1.0:
+                return '로봇의 제어 상태 수신이 지연되고 있습니다.'
+            if status.get('estop_latched') is True:
+                return '비상정지가 유지 중입니다.'
+            if status.get('available') is not True:
+                return '로봇 속도 출력 제어권을 확인할 수 없습니다.'
+            if status.get('autonomous_allowed') is not True:
+                return '로봇의 자율주행 허용 조건이 충족되지 않았습니다.'
+            if self.motion_pub.get_subscription_count() == 0:
+                return '로봇 제어 토픽 구독자가 없습니다.'
+            if self.goal_pub.get_subscription_count() == 0:
+                return '경로 목표 토픽 구독자가 없습니다.'
+            owner = status.get('source_id')
+            if (owner not in (None, self.motion_source)
+                    and not (isinstance(owner, str) and owner.startswith('mux-service:'))):
+                return '다른 조종기가 현재 속도 제어권을 보유 중입니다.'
+            first_seq = self.auto_handover_first_seq
+            rejection = status.get('last_control_rejection') or {}
+            if (first_seq is not None and rejection.get('source_id') == self.motion_source
+                    and rejection.get('origin') == 'topic'
+                    and type(rejection.get('seq')) is int
+                    and rejection['seq'] >= first_seq):
+                return '이번 인계 거부 사유: '+str(rejection.get('reason') or '알 수 없음')
+            if first_seq is None:
+                return '인계 명령을 발행할 준비 조건이 충족되지 않았습니다.'
+            return '이번 인계 명령에 대한 로봇 수신 확인이 없습니다.'
 
         def auto_handover_acknowledged(self, now):
             status = app.manual_mux_status
@@ -2149,11 +2201,8 @@ def create_ros_bridge(app, options, context):
                 self.publish_goal(marker)
                 return
             if now-self.auto_handover_started >= self.auto_handover_timeout:
-                rejection = app.manual_mux_status.get('last_control_rejection') or {}
-                detail = (str(rejection.get('reason', ''))
-                          if rejection.get('source_id') == self.motion_source else '')
                 reason = ('속도 제어권 인계 확인 실패. motion_mux 연결·시각 동기화·수동 조종 상태를 확인한 뒤 '
-                          '임무 재개를 누르세요.' + (' 최근 거부 사유: '+detail if detail else ''))
+                          '임무 재개를 누르세요. '+self.auto_handover_failure_detail(now))
                 self.goal_waiting = None
                 self.clear_auto_handover()
                 app.mission.pause()
@@ -2178,6 +2227,8 @@ def create_ros_bridge(app, options, context):
                     or now-self.auto_handover_last_sent >= self.auto_handover_retry):
                 seq = self.send_control('auto')
                 if seq is not None:
+                    if self.auto_handover_first_seq is None:
+                        self.auto_handover_first_seq = seq
                     self.auto_handover_sent[seq] = now
                     self.auto_handover_last_sent = now
                     # Only recent attempts can acknowledge this goal.

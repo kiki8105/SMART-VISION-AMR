@@ -1,20 +1,70 @@
 """Confidence lifecycle, data outages and reset invariants without hardware."""
 
+import json
 import math
+import os
+import time
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import pytest
+import rclpy
 import yaml
+from rclpy.context import Context
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovarianceStamped
+from rclpy.executors import SingleThreadedExecutor
+from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
+from rclpy.signals import SignalHandlerOptions
 from sensor_msgs.msg import LaserScan
+from std_msgs.msg import String
 
 from smart_vision_amr.ekf_sensor_guard import odometry_issues
 from smart_vision_amr.localization_health_math import LocalizationHealthCore
 from smart_vision_amr.localization_health import LocalizationHealth
 from smart_vision_amr.wheel_joint_odometry import WheelIntegrator, load_stock_wheel_geometry
 from smart_vision_amr.sensor_stamp_guard import SensorStampGuard
+
+
+def test_localization_receives_best_effort_reset_intent():
+    # The same subscription must match low-latency web packets and reliable
+    # service reset intents while retaining the reset sequence guard.
+    context = Context()
+    with patch.dict(os.environ, {'ROS_LOCALHOST_ONLY': '1'}):
+        rclpy.init(args=[], context=context, domain_id=232,
+                   signal_handler_options=SignalHandlerOptions.NO)
+    health = LocalizationHealth(context=context)
+    probe = Node('localization_control_qos_probe', context=context)
+    executor = SingleThreadedExecutor(context=context)
+    executor.add_node(health)
+    executor.add_node(probe)
+    control = probe.create_publisher(
+        String, '/smart_vision_amr/manual_control',
+        QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT,
+                   durability=DurabilityPolicy.VOLATILE))
+    service_control = probe.create_publisher(String, '/smart_vision_amr/manual_control', 10)
+    sources = (('web-qos-test', control), ('mux-service:qos-test', service_control))
+    try:
+        deadline = time.monotonic()+3.
+        while (control.get_subscription_count() == 0
+               or service_control.get_subscription_count() == 0) and time.monotonic() < deadline:
+            executor.spin_once(timeout_sec=.05)
+        assert control.get_subscription_count() > 0
+        assert service_control.get_subscription_count() > 0
+        for source, publisher in sources:
+            while health.last_reset_seq.get(source) != 1 and time.monotonic() < deadline:
+                publisher.publish(String(data=json.dumps({
+                    'source_id': source, 'seq': 1, 'mode': 'reset',
+                    'sent_at_ns': probe.get_clock().now().nanoseconds})))
+                executor.spin_once(timeout_sec=.05)
+            assert health.last_reset_seq[source] == 1
+    finally:
+        executor.shutdown()
+        probe.destroy_node()
+        health.destroy_node()
+        rclpy.shutdown(context=context)
 
 
 def healthy(**changes):

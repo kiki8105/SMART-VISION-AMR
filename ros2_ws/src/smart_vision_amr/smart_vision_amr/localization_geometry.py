@@ -18,11 +18,12 @@ def scan_points(message, laser_pose):
 def rotation_clearance(message, laser_pose, radius=.30):
     """No translation: all observed obstacle endpoints must clear the sweep circle.
 
-    Positive infinity means no return within the sensor range. A few isolated
-    zero/NaN LDS dropouts may be bounded by nearby finite hits: no adjacent gaps,
-    at most 2% of beams, and at most two degrees between the bounding beams.
-    Such inferred clearance needs an extra 8 cm after the laser-to-base offset
-    and angular uncertainty are applied. Larger or unbounded gaps stay unsafe;
+    Positive infinity means no return within the sensor range. A few sparse
+    zero/NaN LDS dropouts may be bounded by nearby finite hits: runs of at most
+    two beams, at most 2% of beams, and at most three degrees between the
+    bounding beams. Inferred clearance needs an extra 8 cm for one missing beam
+    or 10 cm for two after the laser-to-base offset and angular uncertainty are
+    applied. Larger or unbounded gaps stay unsafe;
     neither the physical sweep radius nor valid close returns are relaxed.
     """
     values = np.asarray(message.ranges, dtype=float)
@@ -55,10 +56,30 @@ def rotation_clearance(message, laser_pose, radius=.30):
 
     if np.any(dropouts):
         step = abs(message.angle_increment)
-        if np.count_nonzero(dropouts)/len(values) > .02 or 2.*step > math.radians(2.)+1e-12:
+        if np.count_nonzero(dropouts)/len(values) > .02:
             return False, None
-        for index in np.flatnonzero(dropouts):
-            before, after = (index-1) % len(values), (index+1) % len(values)
+        # The end bins may describe the same bearing. Never bridge a gap that
+        # wraps around the scan's representation without an interior bound.
+        if dropouts[0] or dropouts[-1]:
+            return False, None
+        indices = np.flatnonzero(dropouts)
+        run_start = run_end = int(indices[0])
+        runs = []
+        for index in indices[1:]:
+            index = int(index)
+            if index == run_end+1:
+                run_end = index
+            else:
+                runs.append((run_start, run_end))
+                run_start = run_end = index
+        runs.append((run_start, run_end))
+        for start, end in runs:
+            run_length = end-start+1
+            gap_angle = (run_length+1)*step
+            if (run_length > 2 or
+                    gap_angle > math.radians(2. if run_length == 1 else 3.)+1e-12):
+                return False, None
+            before, after = (start-1) % len(values), (end+1) % len(values)
             if not finite_hits[before] or not finite_hits[after]:
                 return False, None
             neighbor_ranges = values[[before, after]]
@@ -68,14 +89,16 @@ def rotation_clearance(message, laser_pose, radius=.30):
                                          laser_pose[1]+neighbor_ranges*np.sin(neighbor_angles)))
             neighbor_distance = float(np.min(np.linalg.norm(neighbors, axis=1)))
             bounded_range = float(np.min(neighbor_ranges))
-            angle = message.angle_min+int(index)*message.angle_increment+laser_pose[2]
-            bounded_distance = math.hypot(laser_pose[0]+bounded_range*math.cos(angle),
-                                          laser_pose[1]+bounded_range*math.sin(angle))
-            # Moving an endpoint by one beam angle can reduce its body-frame
-            # distance by at most this chord length, regardless of laser offset.
-            bounded_distance -= 2.*bounded_range*math.sin(step*.5)
+            missing_angles = (message.angle_min
+                + np.arange(start, end+1)*message.angle_increment + laser_pose[2])
+            bounded_distance = float(np.min(np.hypot(
+                laser_pose[0]+bounded_range*np.cos(missing_angles),
+                laser_pose[1]+bounded_range*np.sin(missing_angles))))
+            # A hidden hit may lie up to ``run_length`` beam intervals from
+            # the nearest measured endpoint; subtract the full chord length.
+            bounded_distance -= 2.*bounded_range*math.sin(run_length*step*.5)
             clearance = min(neighbor_distance, bounded_distance)
-            if clearance < radius+.08:
+            if clearance < radius+(.08 if run_length == 1 else .10):
                 return False, clearance
             distance = min(distance, clearance)
     return distance >= radius, distance

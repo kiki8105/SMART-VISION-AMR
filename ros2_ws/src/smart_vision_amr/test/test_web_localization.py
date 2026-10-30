@@ -1205,6 +1205,22 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(self.app.localization_scan_at, self.now-2.)
         self.assertFalse(self.app.localization_readiness()[0])
 
+    def test_fresh_scan_without_laser_tf_invalidates_previous_clearance(self):
+        self.node.source_fresh = lambda *_args, **_kwargs: True
+        self.app.localization_clear = True
+        self.app.localization_clearance = .42
+        message = LaserScan()
+        message.header.frame_id = 'isolated_laser'
+        message.range_min, message.range_max = .12, 3.5
+        message.angle_increment = 2*math.pi/360
+        message.ranges = [1.]*360
+
+        # The bridge test fixture deliberately has no live laser TF.
+        self.node.on_scan(message)
+
+        self.assertFalse(self.app.localization_clear)
+        self.assertIsNone(self.app.localization_clearance)
+
     def test_delayed_odometry_cannot_keep_autonomous_rotation_alive(self):
         self.initialize()
         message = Odometry()

@@ -31,14 +31,19 @@ def main(args=None):
     import rclpy
     from geometry_msgs.msg import Twist
     from rclpy.node import Node
+    from rclpy.qos import QoSProfile, ReliabilityPolicy
     from std_msgs.msg import String
 
     class CommandStamper(Node):
         def __init__(self):
             super().__init__('command_stamper')
             self.core = CommandStamperCore()
+            # Velocity packets are short-lived: an old reliable DDS packet can
+            # arrive after the mux's age limit and stall motion. The mux checks
+            # sequence, stamp, and a short dead-man timeout on every packet.
+            fast_control = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
             self.publisher = self.create_publisher(
-                String, '/smart_vision_amr/navigation_control', 1)
+                String, '/smart_vision_amr/navigation_control', fast_control)
             self.create_subscription(Twist, '/smart_vision_amr/navigation_cmd_vel',
                                      self.forward, 1)
 

@@ -65,6 +65,10 @@ ekf_sensor_guard:
   ros__parameters:
     arm_seconds: 2.0
     stale_seconds: 1.0
+    # /tf is independently checked at 5 Hz. Brief receipt/lookup jitter must
+    # not latch an ESTOP while wheel, IMU, scan and EKF odom remain fresh.
+    odom_tf_stale_seconds: 1.5
+    dynamic_tf_best_effort: true
     # The physical EKF launcher supplies a provisional threshold for trials.
     # Zero keeps standalone/simulation launches backward compatible.
     minimum_battery_voltage: 0.0

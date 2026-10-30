@@ -88,6 +88,7 @@ class MarkerAlignment:
         self.started_at = self.last_yaw = self.last_frame_id = None
         self.last_frame_at = self.last_seen_at = self.centered_since = None
         self.stationary_since = self.camera_gap_since = None
+        self.clearance_gap_since = None
         self.heading_offset = self.rotation = self.angular = 0.0
         self.direction, self.bounces, self.frames = 1.0, 0, 0
         self.center_error = None
@@ -102,6 +103,7 @@ class MarkerAlignment:
         self._reset_wall()
         self.last_frame_id = self.last_frame_at = self.last_seen_at = None
         self.centered_since = self.stationary_since = self.camera_gap_since = None
+        self.clearance_gap_since = None
         self.heading_offset = self.rotation = self.angular = 0.0
         self.direction, self.bounces, self.frames = 1.0, 0, 0
         self.center_error = None
@@ -231,12 +233,31 @@ class MarkerAlignment:
         if now-self.last_tick_at > min(self.frame_timeout, self.wall_timeout):
             self.stationary_since = None
         self.last_tick_at = now
-        if estop or manual_active or not pose_ok or not scan_clear or not translation_stopped:
+        if estop or manual_active or not pose_ok or not translation_stopped:
             reason = ('비상정지 우선' if estop else '조이스틱 조작 우선' if manual_active
-                      else '위치 신뢰도 부족' if not pose_ok else '회전 공간 부족' if not scan_clear
+                      else '위치 신뢰도 부족' if not pose_ok
                       else '전진·후진 정지가 확인되지 않음')
             self.fail(reason+' · 목표를 유지하고 마커 정렬을 일시정지합니다.')
             return 0.0
+        if not scan_clear:
+            # A single dropped scan or laser transform must stop the rotation,
+            # but should not permanently pause a mission whose next scan is safe.
+            # No image or wall stability proof may accumulate while clearance
+            # is unknown or physically insufficient.
+            if self.clearance_gap_since is None:
+                self.clearance_gap_since = now
+            self._clear_centering()
+            self.center_error = self.last_seen_at = None
+            if now-self.clearance_gap_since >= 1.0:
+                self.fail('회전 공간 부족 · 목표를 유지하고 마커 정렬을 일시정지합니다.')
+            else:
+                self.state, self.reason = 'HOLD', '라이다 회전 여유를 재확인하며 정지합니다.'
+            return 0.0
+        if self.clearance_gap_since is not None:
+            # Require fresh post-gap camera and wall proof before confirmation.
+            self.clearance_gap_since = None
+            self._clear_centering()
+            self.center_error = self.last_seen_at = None
         delta = angle_difference(yaw, self.last_yaw)
         self.last_yaw = yaw
         self.heading_offset += delta

@@ -13,6 +13,7 @@ from geometry_msgs.msg import Twist
 from rclpy.context import Context
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from std_msgs.msg import String
 
 from smart_vision_amr.motion_mux import MotionMuxCore, MotionMuxNode
@@ -27,6 +28,50 @@ def _until(predicate, timeout=3.):
     return predicate()
 
 
+def test_best_effort_control_and_navigation_packets_drive_then_hold():
+    context = Context()
+    with patch.dict(os.environ, {'ROS_LOCALHOST_ONLY': '1'}):
+        rclpy.init(context=context, domain_id=231)
+    mux = MotionMuxNode(context=context)
+    probe = Node('mux_best_effort_probe', context=context)
+    executor = MultiThreadedExecutor(num_threads=4, context=context)
+    executor.add_node(mux)
+    executor.add_node(probe)
+    low_latency = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT,
+                             durability=DurabilityPolicy.VOLATILE)
+    control = probe.create_publisher(String, '/smart_vision_amr/manual_control', low_latency)
+    navigation = probe.create_publisher(String, '/smart_vision_amr/navigation_control',
+                                        low_latency)
+    outputs = []
+    probe.create_subscription(Twist, '/cmd_vel',
+                              lambda message: outputs.append(message.linear.x), 10)
+    spinner = threading.Thread(target=executor.spin, daemon=True)
+    spinner.start()
+    try:
+        assert _until(lambda: control.get_subscription_count() > 0
+                      and navigation.get_subscription_count() > 0
+                      and mux.output_available)
+        control.publish(String(data=json.dumps({
+            'source_id': 'qos-test-web', 'seq': 1, 'mode': 'auto',
+            'sent_at_ns': probe.get_clock().now().nanoseconds})))
+        assert _until(lambda: mux.core.mode == 'auto')
+        navigation.publish(String(data=json.dumps({
+            'source_id': 'qos-test-stamper', 'seq': 1,
+            'sent_at_ns': probe.get_clock().now().nanoseconds,
+            'linear': .08, 'angular': 0.})))
+        assert _until(lambda: mux.core.auto_accepted == 1 and .08 in outputs)
+        control.publish(String(data=json.dumps({
+            'source_id': 'qos-test-web', 'seq': 2, 'mode': 'hold',
+            'sent_at_ns': probe.get_clock().now().nanoseconds})))
+        assert _until(lambda: mux.core.mode == 'hold' and outputs[-1] == 0.)
+    finally:
+        executor.shutdown()
+        spinner.join(timeout=3.)
+        probe.destroy_node()
+        mux.destroy_node()
+        context.shutdown()
+
+
 def test_topic_estop_is_processed_while_status_publication_is_blocked():
     context = Context()
     with patch.dict(os.environ, {'ROS_LOCALHOST_ONLY': '1'}):
@@ -36,7 +81,10 @@ def test_topic_estop_is_processed_while_status_publication_is_blocked():
     executor = MultiThreadedExecutor(num_threads=4, context=context)
     executor.add_node(mux)
     executor.add_node(probe)
-    control = probe.create_publisher(String, '/smart_vision_amr/manual_control', 10)
+    low_latency = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT,
+                             durability=DurabilityPolicy.VOLATILE)
+    control = probe.create_publisher(String, '/smart_vision_amr/manual_control',
+                                     low_latency)
     outputs = []
     probe.create_subscription(Twist, '/cmd_vel',
                               lambda msg: outputs.append(msg.linear.x), 10)

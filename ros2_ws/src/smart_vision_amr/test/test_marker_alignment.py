@@ -87,7 +87,7 @@ def test_wrong_camera_id_low_quality_and_duplicate_frames_cannot_confirm():
 
 
 @pytest.mark.parametrize('failure', [{'manual_active': True}, {'estop': True},
-                                   {'pose_ok': False}, {'scan_clear': False},
+                                   {'pose_ok': False},
                                    {'translation_stopped': False}])
 def test_priority_or_safety_failures_stop_and_require_explicit_retry(failure):
     alignment = MarkerAlignment()
@@ -98,6 +98,45 @@ def test_priority_or_safety_failures_stop_and_require_explicit_retry(failure):
     assert alignment.state == 'FAILED'
     assert alignment.tick(.3, 0.) == 0.
     assert alignment.marker_id == 3
+
+
+def test_single_clearance_gap_stops_and_recovers_without_resuming_old_proof():
+    alignment = MarkerAlignment(require_wall_alignment=True)
+    alignment.start(3, 'rear', 0., 0.)
+    alignment.observe(1, detection(), 'rear', .1, .1)
+    alignment.observe_wall(wall_evidence(1, .1), .1)
+    assert alignment.tick(.1, 0., stationary=True) == 0.
+    assert alignment.frames == alignment.wall_samples == 1
+
+    assert alignment.tick(.2, 0., stationary=True, scan_clear=False) == 0.
+    assert alignment.state == 'HOLD'
+    assert alignment.frames == alignment.wall_samples == 0
+    assert alignment.center_error is None
+    alignment.observe(2, detection(.5), 'rear', .3, .3)
+    assert alignment.tick(.3, 0., stationary=True, scan_clear=False) == 0.
+    assert alignment.state == 'HOLD'
+    assert alignment.angular == 0.
+
+    assert alignment.tick(.4, 0., stationary=True, scan_clear=True) == .12
+    assert alignment.state != 'CONFIRMED'
+    assert alignment.frames == alignment.wall_samples == 0
+    alignment.observe(3, detection(.5), 'rear', .45, .45)
+    assert alignment.tick(.45, 0., stationary=True, scan_clear=True) < 0.
+    assert alignment.state == 'CENTERING'
+
+
+def test_sustained_clearance_loss_fails_after_one_second_and_keeps_stop():
+    alignment = MarkerAlignment()
+    alignment.start(3, 'rear', 0., 0.)
+    alignment.observe(1, detection(.5), 'rear', .1, .1)
+    assert alignment.tick(.1, 0.) < 0.
+    assert alignment.tick(.2, 0., scan_clear=False) == 0.
+    assert alignment.state == 'HOLD'
+    assert alignment.tick(1.19, 0., scan_clear=False) == 0.
+    assert alignment.state == 'HOLD'
+    assert alignment.tick(1.2, 0., scan_clear=False) == 0.
+    assert alignment.state == 'FAILED'
+    assert alignment.tick(1.3, 0., scan_clear=True) == 0.
 
 
 def test_camera_gap_stops_immediately_but_has_bounded_recovery_grace():
@@ -160,13 +199,23 @@ def test_non_numeric_or_invalid_pose_yaw_stops_without_throwing(yaw):
 
 
 @pytest.mark.parametrize('failure', [{'estop': True}, {'manual_active': True},
-                                   {'pose_ok': False}, {'scan_clear': False}])
+                                   {'pose_ok': False}])
 def test_confirmed_approval_is_immediately_revoked_by_priority_stop(failure):
     alignment = MarkerAlignment()
     confirm(alignment)
     assert alignment.tick(.7, 0., stationary=True, **failure) == 0.
     assert alignment.state == 'FAILED'
     assert alignment.frames == 0
+
+
+def test_confirmed_approval_is_revoked_during_clearance_gap():
+    alignment = MarkerAlignment()
+    confirm(alignment)
+    assert alignment.tick(.7, 0., stationary=True, scan_clear=False) == 0.
+    assert alignment.state == 'HOLD'
+    assert alignment.frames == 0
+    assert alignment.tick(.8, 0., stationary=True, scan_clear=True) == .12
+    assert alignment.state != 'CONFIRMED'
 
 
 def wall_evidence(stamp, now, error=0., reliable=True, reason='single wall'):

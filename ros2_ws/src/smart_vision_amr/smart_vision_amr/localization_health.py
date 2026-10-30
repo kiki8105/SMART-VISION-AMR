@@ -128,8 +128,8 @@ class HealthTransformListener(TransformListener):
 class LocalizationHealth(Node):
     SAFETY_SOURCE = 'localization_safety'
 
-    def __init__(self):
-        super().__init__('localization_health')
+    def __init__(self, *, context=None):
+        super().__init__('localization_health', context=context)
         defaults = {
             'stable_seconds': 2.0, 'fault_seconds': 0.5,
             'agreement_fault_seconds': 3.0, 'sensor_timeout': 0.5,
@@ -211,7 +211,11 @@ class LocalizationHealth(Node):
         self.create_subscription(Odometry, '/odom', self.on_odom, qos_profile_sensor_data)
         self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.on_amcl, durable)
         self.create_subscription(PoseWithCovarianceStamped, '/initialpose', self.on_initialpose, 10)
-        self.create_subscription(String, '/smart_vision_amr/manual_control', self.on_control, 10)
+        # Only the latest stamped control intent is relevant to reset tracking.
+        latest_control = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT,
+                                    durability=DurabilityPolicy.VOLATILE)
+        self.create_subscription(String, '/smart_vision_amr/manual_control',
+                                 self.on_control, latest_control)
         self.create_timer(0.25, self.on_tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
         self.create_timer(0.05, lambda: self.update_agreement(time.monotonic()),
                           clock=Clock(clock_type=ClockType.STEADY_TIME))

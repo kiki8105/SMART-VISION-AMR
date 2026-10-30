@@ -235,8 +235,11 @@ class FlightRecorder(Node):
                       '/smart_vision_amr/failure_memory_status',
                       '/smart_vision_amr/navigation_control'):
             self.periods[topic] = max(.02, float(value('status_sample_period')))
+            qos = (QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT,
+                              durability=DurabilityPolicy.VOLATILE)
+                   if topic == '/smart_vision_amr/navigation_control' else 10)
             self.create_subscription(String, topic,
-                lambda msg, source=topic: self.receive(source, msg), 10)
+                lambda msg, source=topic: self.receive(source, msg), qos)
         from rclpy.clock import Clock, ClockType
         self.create_timer(.1, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
         self.publish_status('BUFFERING', 'Waiting for incident triggers')

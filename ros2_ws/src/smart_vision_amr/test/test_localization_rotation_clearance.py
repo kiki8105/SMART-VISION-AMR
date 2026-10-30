@@ -28,12 +28,47 @@ def test_zero_dropout_stays_unknown_when_driver_reports_zero_range_min():
     assert rotation_clearance(message, (0., 0., 0.))[0]
 
 
-@pytest.mark.parametrize('indices', [(1, 2), (0, 400), (200, 201, 202)])
-def test_adjacent_or_cyclic_dropout_gap_is_unsafe(indices):
+@pytest.mark.parametrize('indices', [(0,), (400,), (0, 400), (200, 201, 202)])
+def test_unbounded_or_three_beam_dropout_gap_is_unsafe(indices):
     message = scan()
     for index in indices:
         message.ranges[index] = 0.
     assert not rotation_clearance(message, (0., 0., 0.))[0]
+
+
+def test_two_consecutive_lds_dropouts_with_42cm_body_clearance_are_safe():
+    message = scan()
+    message.ranges[99] = message.ranges[102] = .43
+    message.ranges[100:102] = [0., math.nan]
+    # The physical laser is 6.4 cm behind the body center. The missing beams
+    # are lateral, so the bounded body-frame distance remains above 40 cm.
+    safe, distance = rotation_clearance(message, (-.064, 0., 0.))
+    assert safe
+    assert .40 <= distance < .43
+
+
+def test_two_consecutive_lds_dropouts_with_39cm_clearance_are_unsafe():
+    message = scan()
+    message.ranges[100:102] = [0., math.nan]
+    message.ranges[99] = message.ranges[102] = .39
+    safe, distance = rotation_clearance(message, (0., 0., 0.))
+    assert not safe
+    assert distance < .40
+
+
+def test_two_beam_gap_with_invalid_boundary_stays_unsafe():
+    message = scan()
+    message.ranges[99:103] = [math.inf, 0., math.nan, .45]
+    assert not rotation_clearance(message, (0., 0., 0.))[0]
+
+
+def test_valid_close_hit_blocks_even_with_safe_two_beam_gap():
+    message = scan()
+    message.ranges[100:102] = [0., math.nan]
+    message.ranges[200] = .29
+    safe, distance = rotation_clearance(message, (0., 0., 0.))
+    assert not safe
+    assert distance == pytest.approx(.29)
 
 
 def test_more_than_two_percent_missing_is_unsafe_even_when_isolated():
@@ -48,6 +83,14 @@ def test_wide_angular_gap_is_not_bridged():
     message.ranges = [1.2]*181
     message.angle_increment = 2.*math.pi/180
     message.ranges[80] = 0.
+    assert not rotation_clearance(message, (0., 0., 0.))[0]
+
+
+def test_two_beam_gap_wider_than_three_degrees_is_not_bridged():
+    message = scan()
+    message.ranges = [1.2]*301
+    message.angle_increment = 2.*math.pi/300
+    message.ranges[80:82] = [0., math.nan]
     assert not rotation_clearance(message, (0., 0., 0.))[0]
 
 

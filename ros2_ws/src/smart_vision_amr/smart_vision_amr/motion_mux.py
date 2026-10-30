@@ -469,11 +469,16 @@ class MotionMuxNode(Node):
         self.pending_reset = None
         self._reset_services_active = 0
         self.last_zero_published_at = None
+        # Stamped velocity and control leases are only useful while fresh.
+        # Prefer the latest packet over reliable DDS queue replay. Emergency
+        # stop/reset services and the independent safety publishers stay reliable.
+        latest_control = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT,
+                                    durability=DurabilityPolicy.VOLATILE)
         if self.get_parameter('allow_legacy_auto_input').value:
             self.create_subscription(Twist, '/smart_vision_amr/navigation_cmd_vel',
                                      self.on_auto, 1)
         self.create_subscription(String, '/smart_vision_amr/navigation_control',
-                                 self.on_navigation_control, 1)
+                                 self.on_navigation_control, latest_control)
         self.create_subscription(String, '/smart_vision_amr/localization_health',
                                  self.on_localization_health, 1)
         from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
@@ -481,7 +486,8 @@ class MotionMuxNode(Node):
         self.output_group = MutuallyExclusiveCallbackGroup()
         self.status_group = MutuallyExclusiveCallbackGroup()
         self.create_subscription(String, '/smart_vision_amr/manual_control',
-                                 self.on_control, 1, callback_group=self.control_group)
+                                 self.on_control, latest_control,
+                                 callback_group=self.control_group)
         # ROS timers stop when simulation time pauses. Dead-man watchdogs
         # must continue to run even then, so use a steady clock explicitly.
         from rclpy.clock import Clock, ClockType

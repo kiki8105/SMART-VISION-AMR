@@ -222,9 +222,33 @@ class BridgeTests(unittest.TestCase):
                 self.app.localization_health['autonomous_allowed'] = False
             self.node.tick_marker_alignment(self.now, True, True)
             self.assertEqual(self.node.marker_alignment_angular, 0.)
+            if bad_field == 'clearance':
+                self.assertEqual(self.app.mission.state, 'CONFIRMING')
+                self.assertEqual(self.node.marker_alignment.state, 'HOLD')
+                self.now += 1.01
+                self.refresh()
+                self.app.localization_clear = False
+                self.node.tick_marker_alignment(self.now, True, True)
             self.assertEqual(self.app.mission.state, 'PAUSED')
             self.assertEqual(self.app.mission.expected_id, 3)
             self.assertEqual(self.app.mission.completed_ids, [])
+
+    def test_one_bad_clearance_scan_holds_then_restarts_alignment_without_pausing(self):
+        self.tick()
+        self.assertFalse(self.frame_at(75.))
+        self.tick(.1)
+        self.assertLess(self.node.marker_alignment_angular, 0.)
+        self.app.localization_clear = False
+        self.node.tick_marker_alignment(self.now, True, True)
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.assertEqual(self.node.marker_alignment.state, 'HOLD')
+        self.assertEqual(self.app.mission.state, 'CONFIRMING')
+        self.tick(.1)
+        self.assertEqual(self.app.mission.state, 'CONFIRMING')
+        self.assertEqual(self.node.marker_alignment.frames, 0)
+        self.assertFalse(self.frame_at(75.))
+        self.tick(.1)
+        self.assertLess(self.node.marker_alignment_angular, 0.)
 
     def test_confirmation_is_revoked_when_a_new_frame_moves_off_center(self):
         self.tick()
