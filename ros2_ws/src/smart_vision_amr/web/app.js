@@ -325,7 +325,10 @@
   }
   function renderMarkerAlignment({homeMode=false,manualHolding=false,manualResuming=false}={}){
     const alignment=snapshot?.marker_alignment,mission=currentMission(),panel=$('#marker-alignment');
-    const phases={SEARCHING:'표식 탐색 · 저속 회전',CENTERING:'카메라 중앙 정렬',WALL_ALIGNING:'후방 카메라 · 벽 정면 정렬',HOLD:'벽 방향 확인 · 정지 유지',SETTLING:'정지 · 안정 확인',CONFIRMED:'표식·차체 정렬 확인 완료',FAILED:'표식 확인 일시정지'};
+    const recognitionOnly=alignment?.confirmation_mode==='recognized';
+    const phases=recognitionOnly
+      ?{SEARCHING:'표식 탐색 · 저속 회전',HOLD:'안전 확인 · 정지 유지',SETTLING:'표식 연속 인식 · 정지 확인',CONFIRMED:'표식 인식 확인 완료',FAILED:'표식 확인 일시정지'}
+      :{SEARCHING:'표식 탐색 · 저속 회전',CENTERING:'카메라 중앙 정렬',WALL_ALIGNING:'후방 카메라 · 벽 정면 정렬',HOLD:'벽 방향 확인 · 정지 유지',SETTLING:'정지 · 안정 확인',CONFIRMED:'표식·차체 정렬 확인 완료',FAILED:'표식 확인 일시정지'};
     const state=String(alignment?.state||'IDLE').toUpperCase();
     const expected=mission.current_marker_id??snapshot?.detection?.expected_id;
     const sameTarget=expected==null||alignment?.marker_id==null||Number(expected)===Number(alignment.marker_id);
@@ -338,7 +341,8 @@
     const camera=alignment.camera==='front'?'전방 카메라':alignment.camera==='rear'?'후방 카메라':'카메라 확인 중';
     $('#marker-alignment-camera').textContent=camera+(Number.isInteger(alignment.marker_id)?` · ID ${alignment.marker_id}`:'');
     const metrics=[],error=alignment.center_error,required=alignment.required??alignment.required_frames;
-    if(typeof error==='number'&&Number.isFinite(error)){
+    if(recognitionOnly)metrics.push(error==null?'목표 표식 대기':'목표 표식 검출');
+    else if(typeof error==='number'&&Number.isFinite(error)){
       const offset=Math.abs(error)*50;
       metrics.push(offset<0.05?'중심 오차 0.0%':`중심 오차 ${error<0?'왼쪽':'오른쪽'} ${offset.toFixed(1)}%`);
       metrics.push('영상 폭 기준');

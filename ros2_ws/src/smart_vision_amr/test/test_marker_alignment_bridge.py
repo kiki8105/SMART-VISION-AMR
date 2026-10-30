@@ -143,6 +143,30 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(self.node.marker_alignment.snapshot()['wall_required'], True)
         self.assertEqual(self.node.goal_pub.messages, [])
 
+    def test_recognized_rear_marker_advances_mission_without_wall_or_center_servo(self):
+        self.app.mission.markers[3]['camera'] = 'rear'
+        self.node.marker_alignment = MarkerAlignment(confirmation_mode='recognized')
+        self.node.marker_alignment_key = None
+        self.tick()
+        # The marker is fully visible but 60% of the half-image width right
+        # of center. Repeated fresh, stopped correct-ID observations suffice.
+        self.assertFalse(self.frame_at(80., camera='rear', ids=np.array([[2]])))
+        self.tick(.1)
+        self.assertEqual(self.node.marker_alignment_angular, .12)
+        verified = False
+        for _ in range(12):
+            verified = self.frame_at(80., camera='rear')
+            self.app.mission.observe(self.frame, [3], self.app.pose, True, self.now,
+                                     alignment_verified=verified)
+            if self.app.mission.state == 'COMPLETED':
+                break
+            self.tick(.15)
+            self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.assertTrue(verified)
+        self.assertEqual(self.app.mission.completed_ids, [3])
+        self.assertFalse(self.node.marker_alignment.snapshot()['wall_required'])
+        self.assertEqual(self.node.marker_alignment.snapshot()['confirmation_mode'], 'recognized')
+
     def test_rear_arrival_never_uses_front_wall_or_pixel_center_alone(self):
         self.enable_rear_wall_alignment()
         self.tick()

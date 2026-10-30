@@ -19,6 +19,88 @@ def confirm(alignment):
     assert alignment.state == 'CONFIRMED'
 
 
+def test_recognition_mode_confirms_offcenter_marker_without_extra_rotation():
+    alignment = MarkerAlignment(confirmation_mode='recognized')
+    alignment.start(3, 'rear', 0., 0.)
+    for frame, now in enumerate((0., .2, .4, .61)):
+        assert alignment.observe(frame, detection(.85), 'rear', now, now)
+        assert alignment.tick(now, 0., stationary=True) == 0.
+    assert alignment.state == 'CONFIRMED'
+    assert alignment.snapshot()['confirmation_mode'] == 'recognized'
+    assert alignment.snapshot()['center_error'] == .85
+    assert alignment.snapshot()['wall_required'] is False
+    assert alignment.snapshot()['rotation_degrees'] == 0.
+    assert '인식' in alignment.reason
+
+
+def test_recognition_mode_still_searches_until_correct_marker_and_fresh_stable_proof():
+    alignment = MarkerAlignment(confirmation_mode='recognized')
+    alignment.start(3, 'rear', 0., 0.)
+    alignment.observe(1, detection(marker_id=2), 'rear', .1, .1)
+    assert alignment.tick(.1, 0., stationary=True) == .12
+    assert alignment.state == 'SEARCHING'
+    alignment.observe(2, detection(quality=.2), 'rear', .2, .2)
+    assert alignment.tick(.2, 0., stationary=True) == .12
+    alignment.observe(3, detection(.9), 'rear', .3, .3)
+    assert alignment.tick(.3, 0., stationary=False) == 0.
+    assert alignment.frames == 1
+    assert not alignment.observe(3, detection(.9), 'rear', .3, .3)
+    assert alignment.frames == 1
+    for frame, now in ((4, .5), (5, .7), (6, .91)):
+        alignment.observe(frame, detection(.9), 'rear', now, now)
+        assert alignment.tick(now, 0., stationary=True) == 0.
+    assert alignment.state != 'CONFIRMED'  # Stop proof began after the first detection.
+    alignment.observe(7, detection(.9), 'rear', 1.11, 1.11)
+    assert alignment.tick(1.11, 0., stationary=True) == 0.
+    assert alignment.state == 'CONFIRMED'
+
+
+def test_recognition_mode_revokes_proof_on_wrong_id_stale_image_or_scan_gap():
+    for failure in ('wrong_id', 'stale', 'scan'):
+        alignment = MarkerAlignment(confirmation_mode='recognized')
+        alignment.start(3, 'rear', 0., 0.)
+        for frame, now in enumerate((0., .2, .4, .61)):
+            alignment.observe(frame, detection(.95), 'rear', now, now)
+            alignment.tick(now, 0., stationary=True)
+        assert alignment.state == 'CONFIRMED'
+        if failure == 'wrong_id':
+            alignment.observe(4, detection(marker_id=2), 'rear', .7, .7)
+            alignment.tick(.7, 0., stationary=True)
+        elif failure == 'stale':
+            alignment.tick(1.2, 0., stationary=True)
+        else:
+            alignment.tick(.7, 0., stationary=True, scan_clear=False)
+        assert alignment.state != 'CONFIRMED'
+        assert alignment.frames == 0
+        if failure == 'wrong_id':
+            assert alignment.state == 'SEARCHING'  # Bounded search may continue.
+        else:
+            assert alignment.angular == 0.
+
+
+@pytest.mark.parametrize('failure', [{'manual_active': True}, {'estop': True},
+                                     {'pose_ok': False}, {'translation_stopped': False}])
+def test_recognition_mode_safety_priority_still_fails_closed(failure):
+    alignment = MarkerAlignment(confirmation_mode='recognized')
+    alignment.start(3, 'rear', 0., 0.)
+    alignment.observe(1, detection(.9), 'rear', .1, .1)
+    assert alignment.tick(.1, 0., stationary=True, **failure) == 0.
+    assert alignment.state == 'FAILED'
+    assert alignment.frames == 0
+
+
+def test_recognition_mode_rejects_wall_requirement_and_ignores_wall_reports():
+    with pytest.raises(ValueError):
+        MarkerAlignment(confirmation_mode='recognized', require_wall_alignment=True)
+    alignment = MarkerAlignment(confirmation_mode='recognized')
+    alignment.start(3, 'rear', 0., 0.)
+    for frame, now in enumerate((0., .2, .4, .61)):
+        alignment.observe(frame, detection(.8), 'rear', now, now)
+        assert not alignment.observe_wall({'reason': 'wall unavailable'}, now)
+        alignment.tick(now, 0., stationary=True)
+    assert alignment.state == 'CONFIRMED'
+
+
 def test_centered_distinct_frames_need_both_stationary_stability_and_minimum_count():
     alignment = MarkerAlignment()
     alignment.start(3, 'rear', 0., 0.)

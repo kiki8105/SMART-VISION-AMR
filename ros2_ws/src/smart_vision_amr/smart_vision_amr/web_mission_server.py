@@ -1571,6 +1571,7 @@ def create_ros_bridge(app, options, context):
                 search_speed=getattr(options, 'marker_search_speed', .12),
                 center_gain=getattr(options, 'marker_center_gain', .35),
                 center_tolerance=getattr(options, 'marker_center_tolerance', .08),
+                confirmation_mode=getattr(options, 'marker_confirmation_mode', 'aligned'),
                 timeout=getattr(options, 'marker_search_timeout', 45.),
                 required_frames=max(2, app.confirmations),
                 require_wall_alignment=getattr(options, 'require_marker_wall_alignment', False),
@@ -1796,7 +1797,8 @@ def create_ros_bridge(app, options, context):
                     and abs(app.speed['angular']) < .06)
             return (safe and self.marker_alignment.state == 'CONFIRMED'
                     and any(item['id'] == expected
-                            and abs(item['center_x']) <= self.marker_alignment.center_tolerance
+                            and (self.marker_alignment.confirmation_mode == 'recognized'
+                                 or abs(item['center_x']) <= self.marker_alignment.center_tolerance)
                             for item in measurements))
 
         def on_image(self, message):
@@ -3264,6 +3266,9 @@ def build_parser():
                         help='Yaw gain on normalized horizontal pixel error')
     parser.add_argument('--marker-center-tolerance', type=float, default=.08,
                         help='Normalized image center tolerance; .08 is +/-4%% image width')
+    parser.add_argument('--marker-confirmation-mode', choices=('aligned', 'recognized'),
+                        default='aligned',
+                        help='aligned centers the marker; recognized confirms repeated fresh correct-ID detections while stopped')
     parser.add_argument('--marker-search-timeout', type=float, default=45.,
                         help='Maximum seconds for one arrival marker search attempt')
     parser.add_argument('--require-marker-wall-alignment', action='store_true',

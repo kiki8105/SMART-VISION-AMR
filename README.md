@@ -5,7 +5,7 @@ TurtleBot3 Waffle Pi가 저장 지도에서 A* 경로를 만들고 Nav2로 이�
 
 **처음 사용하는 팀원:** [클론·설치부터 터미널별 실행까지 최종 매뉴얼](docs/TEAM_QUICKSTART.md)을 순서대로 따라 하세요.
 
-[초기 위치 확인·후방 카메라와 벽 직각 정렬 개선](docs/STARTUP_AND_ALIGNMENT.md)에
+[초기 위치 확인·후방 아루코 도착 판정](docs/STARTUP_AND_ALIGNMENT.md)에
 변경 동작과 섹터별 도착 자세를 정리했습니다.
 [국소 우회와 원래 경로 합류](docs/LOCAL_DETOUR.md)는 가까운 장애물을 피한 뒤
 앞쪽 경로로 돌아가는 동작과 전체 재계획·후진 복구 조건을 설명합니다.

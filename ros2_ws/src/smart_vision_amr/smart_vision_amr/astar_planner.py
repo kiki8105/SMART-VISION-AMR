@@ -532,7 +532,9 @@ class AStarPlannerNode(Node):
         if reference_cells is not None:
             info = self.map[0].info
             corridor = inflate_cells(set(reference_cells), info.width, info.height,
-                                    int(self.get_parameter("obstacle_inflation_cells").value)+1)
+                                    max(int(self.get_parameter("obstacle_inflation_cells").value)+1,
+                                        ceil((float(self.get_parameter("robot_radius").value)+.05)
+                                             / info.resolution)))
             nearby = hits & corridor
         else:
             nearby = {cell for cell, p in centers.items() if hypot(p[0]-x, p[1]-y) < 1.5}
@@ -688,6 +690,12 @@ class AStarPlannerNode(Node):
     def on_execution_failure(self, msg):
         if not self._goal_is_active() or not self.get_parameter("failure_memory_enabled").value:
             return
+        # A terminal result may arrive before the latched map on startup.
+        # Without map geometry there is no safe scope or corridor for its
+        # failure memory, so retain the goal and wait for /map instead.
+        if self.map is None:
+            self._invalidate_path("Waiting for /map after execution failure")
+            return
         try:
             data = json.loads(msg.data)
             event_id, created = data.get("event_id"), data.get("created_at_ns")
@@ -727,8 +735,18 @@ class AStarPlannerNode(Node):
         self.rejoin_anchor, self.rejoin_verified = None, False
         self.failure_state, self.failure_reason = "AVOIDING", data["reason"]
         self._invalidate_path("Execution failure remembered; seeking a different approach")
-        if self._register_obstacle_failure(pose["x"], pose["y"], failure_id=self.last_failure_id):
-            return
+        # A Nav2 progress abort is not itself proof that a physical object
+        # blocked the chassis. Only count an observed hit intersecting the
+        # attempted local segment (with the configured footprint margin).
+        if self.map is not None:
+            info = self.map[0].info
+            start_cell = world_to_cell(info, segment["start"]["x"], segment["start"]["y"])
+            end_cell = world_to_cell(info, segment["end"]["x"], segment["end"]["y"])
+            attempted_cells = route_cells([(start_cell[0]+.5, start_cell[1]+.5),
+                                           (end_cell[0]+.5, end_cell[1]+.5)])
+            if self._register_obstacle_failure(pose["x"], pose["y"], attempted_cells,
+                                               failure_id=self.last_failure_id):
+                return
         self.last_plan_time = float("-inf")
         self._request_replan("Execution failure recorded")
 
@@ -1531,7 +1549,7 @@ class AStarPlannerNode(Node):
                 throttle_duration_sec=10.0)
             self._invalidate_path(f"No safe A* route from {start} to {end}; retrying")
             self.failure_state, self.failure_reason = "WAIT_ALTERNATIVE", "No safe alternative; goal retained"
-            if (not grid.is_static_obstacle(end) and self._register_obstacle_failure(
+            if (reference_hits and not grid.is_static_obstacle(end) and self._register_obstacle_failure(
                     tf.transform.translation.x, tf.transform.translation.y, reference_path)):
                 return
             self._maybe_request_reverse(start, end, map_msg, grid, raw_grid,

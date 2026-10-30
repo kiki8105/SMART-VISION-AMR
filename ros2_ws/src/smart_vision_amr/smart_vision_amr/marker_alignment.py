@@ -1,9 +1,12 @@
-"""Bounded, rotation-only ArUco search and horizontal image-center alignment.
+"""Bounded ArUco search with selectable recognition or image-center alignment.
 
 Pure logic: no ROS, OpenCV, coordinates, motor publisher or mission completion.
 All times use the same monotonic clock. The adapter must reject camera captures
 older than mission arrival and supply normalized, upright image coordinates.
 ``confidence`` is geometric corner/detection quality, not an ML probability.
+``recognized`` confirmation accepts a correctly identified marker after fresh,
+consecutive detections and a stationary settling period; ``aligned`` retains
+the optional image-center and wall-normal alignment behavior.
 """
 
 from math import atan2, isfinite, pi, sin, cos
@@ -51,7 +54,7 @@ class MarkerAlignment:
                  require_wall_alignment=False, strict_center_tolerance=.05,
                  wall_angle_tolerance=.05, wall_gain=.5,
                  wall_max_angular_velocity=.08, wall_timeout=.5,
-                 wall_required_samples=3):
+                 wall_required_samples=3, confirmation_mode='aligned'):
         positive = (search_speed, max_angular_velocity, center_gain, center_tolerance,
                     stable_seconds, sweep_angle, max_total_rotation,
                     timeout, frame_timeout, camera_loss_timeout, strict_center_tolerance,
@@ -65,9 +68,12 @@ class MarkerAlignment:
                 or strict_center_tolerance >= 1.0
                 or wall_angle_tolerance >= pi/2
                 or sweep_angle >= pi
-                or front_yaw_sign not in (-1., 1.) or rear_yaw_sign not in (-1., 1.)):
+                or front_yaw_sign not in (-1., 1.) or rear_yaw_sign not in (-1., 1.)
+                or confirmation_mode not in ('aligned', 'recognized')
+                or (confirmation_mode == 'recognized' and require_wall_alignment)):
             raise ValueError('Invalid marker alignment limits')
         self.search_speed, self.max_angular_velocity = search_speed, max_angular_velocity
+        self.confirmation_mode = confirmation_mode
         self.require_wall_alignment = bool(require_wall_alignment)
         self.center_gain = center_gain
         self.center_tolerance = min(center_tolerance, strict_center_tolerance) if self.require_wall_alignment else center_tolerance
@@ -139,6 +145,13 @@ class MarkerAlignment:
             return True
         _, self.center_error = max(candidates, key=lambda pair: pair[0])
         self.last_seen_at = frame_time
+        if self.confirmation_mode == 'recognized':
+            if self.centered_since is None:
+                self.centered_since = now
+            self.frames += 1
+            if self.state != 'CONFIRMED':
+                self.state, self.reason = 'SETTLING', '목표 마커 인식 확인 · 정지 상태에서 연속 영상을 확인합니다.'
+            return True
         if abs(self.center_error) <= self.center_tolerance:
             if self.centered_since is None:
                 self.centered_since = now
@@ -168,7 +181,8 @@ class MarkerAlignment:
         is wall normal yaw minus the selected camera yaw, in base coordinates;
         it is not inferred from image skew or an assumed field of view.
         """
-        if self.state not in self.ACTIVE | {'CONFIRMED'} or not finite_number(now):
+        if (self.confirmation_mode == 'recognized'
+                or self.state not in self.ACTIVE | {'CONFIRMED'} or not finite_number(now)):
             return False
         evidence = evidence if isinstance(evidence, dict) else {}
         stamp, observed_at = evidence.get('frame_id'), evidence.get('observed_at')
@@ -269,7 +283,9 @@ class MarkerAlignment:
         if not fresh:
             self._clear_centering()
             if self.state == 'CONFIRMED':
-                self.state, self.reason = 'SETTLING', '최신 영상 확인을 기다리며 중앙 정렬 승인을 해제했습니다.'
+                self.state, self.reason = 'SETTLING', ('최신 영상 확인을 기다리며 마커 인식 승인을 해제했습니다.'
+                    if self.confirmation_mode == 'recognized' else
+                    '최신 영상 확인을 기다리며 중앙 정렬 승인을 해제했습니다.')
             if self.camera_gap_since is None:
                 self.camera_gap_since = now
             if now-self.camera_gap_since >= self.camera_loss_timeout:
@@ -278,6 +294,18 @@ class MarkerAlignment:
         self.camera_gap_since = None
         detected = self.last_seen_at is not None and now-self.last_seen_at <= self.frame_timeout
         if detected and self.center_error is not None:
+            if self.confirmation_mode == 'recognized':
+                self.state = 'SETTLING'
+                if stationary:
+                    if self.stationary_since is None:
+                        self.stationary_since = now
+                    if (self.frames >= self.required_frames and self.centered_since is not None
+                            and now-self.centered_since >= self.stable_seconds
+                            and now-self.stationary_since >= self.stable_seconds):
+                        self.state, self.reason = 'CONFIRMED', '목표 마커 인식·정지 및 연속 영상 확인을 완료했습니다.'
+                else:
+                    self.stationary_since = None
+                return 0.0
             if abs(self.center_error) <= self.center_tolerance:
                 if self.require_wall_alignment:
                     if not self._wall_fresh(now):
@@ -336,6 +364,7 @@ class MarkerAlignment:
 
     def snapshot(self):
         return {'state': self.state, 'reason': self.reason, 'marker_id': self.marker_id,
+                'confirmation_mode': self.confirmation_mode,
                 'camera': self.camera, 'center_error': self.center_error,
                 'center_tolerance': self.center_tolerance, 'frames': self.frames,
                 'wall_required': self.require_wall_alignment, 'wall_reliable': self.wall_reliable,
