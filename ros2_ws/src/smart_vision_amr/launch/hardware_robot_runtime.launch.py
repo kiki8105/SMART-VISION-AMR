@@ -76,6 +76,10 @@ def _runtime(context):
             launch_arguments={'stock_params': stock_params, 'tb3_param_dir': stock_params,
                               'usb_port': usb_port, 'use_sim_time': 'false'}.items()))
     if mode == 'ekf_independent':
+        minimum_battery_voltage = float(
+            LaunchConfiguration('minimum_battery_voltage').perform(context))
+        if not math.isfinite(minimum_battery_voltage) or minimum_battery_voltage < 0.0:
+            raise ValueError('minimum_battery_voltage must be finite and nonnegative')
         # Reading the installed Pi's geometry avoids silently using dimensions
         # from a PC simulation file. The parser preserves repeated /** roots.
         dimensions = load_stock_wheel_geometry(stock_params)
@@ -97,7 +101,8 @@ def _runtime(context):
                  parameters=[ekf_params, common], remappings=[('odometry/filtered', '/odom')],
                  output='screen', on_exit=Shutdown(reason='EKF output exited')),
             Node(package='smart_vision_amr', executable='ekf_sensor_guard',
-                 name='ekf_sensor_guard', parameters=[ekf_params, common, timing],
+                 name='ekf_sensor_guard', parameters=[ekf_params, common, timing,
+                                                      {'minimum_battery_voltage': minimum_battery_voltage}],
                  output='screen', on_exit=Shutdown(reason='EKF sensor guard exited')),
         ])
     actions.extend([
@@ -125,6 +130,8 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_bringup', default_value='true'),
         DeclareLaunchArgument('timing_diagnostics', default_value='false',
                               description='Observe runtime delays without changing safety or QoS'),
+        DeclareLaunchArgument('minimum_battery_voltage', default_value='0.0',
+                              description='Volts; 0 disables robot-local battery cutoff'),
         DeclareLaunchArgument('use_sim_time', default_value='false'),
         DeclareLaunchArgument('usb_port', default_value='/dev/ttyACM0'),
         DeclareLaunchArgument('wheel_radius', default_value='',

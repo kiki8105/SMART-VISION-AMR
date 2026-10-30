@@ -259,6 +259,7 @@ if [[ "$ESTIMATION_LOCATION" == robot ]]; then
   setsid ros2 launch smart_vision_amr hardware_robot_runtime.launch.py \
     localization_mode:="$LOCALIZATION_MODE" usb_port:="$OPENCR_DEVICE" \
     timing_diagnostics:="$TIMING_DIAGNOSTICS" \
+    minimum_battery_voltage:="${SMART_VISION_MIN_BATTERY_VOLTAGE:-0.0}" \
     "${geometry_args[@]}" &
 elif [[ "$LOCALIZATION_MODE" == ekf_independent ]]; then
   setsid ros2 launch "$LEGACY_EKF_LAUNCH" usb_port:="$OPENCR_DEVICE" &

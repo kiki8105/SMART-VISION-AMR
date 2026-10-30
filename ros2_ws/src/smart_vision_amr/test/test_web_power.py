@@ -157,6 +157,24 @@ class PowerStateTests(unittest.TestCase):
         options = build_parser().parse_args(['--battery-topic', '/robot_2/battery_state'])
         self.assertEqual(options.battery_topic, '/robot_2/battery_state')
 
+    def test_physical_departure_requires_fresh_valid_battery_when_enabled(self):
+        self.app.require_battery_health = True
+        self.app.minimum_battery_voltage = 11.2
+        self.assertFalse(self.app.readiness()['ready'])
+        self.assertTrue(any('/battery_state' in item for item in self.app.readiness()['missing']))
+        self.app.update_battery(10.97)
+        self.assertTrue(any('11.20V' in item for item in self.app.readiness()['missing']))
+        self.app.update_battery(11.19999981)
+        self.assertFalse(any('11.20V' in item for item in self.app.readiness()['missing']))
+        self.app.update_battery(11.9)
+        self.assertFalse(any('/battery_state' in item or '11.20V' in item
+                             for item in self.app.readiness()['missing']))
+        self.app.update_battery(float('nan'))
+        self.assertTrue(any('/battery_state' in item for item in self.app.readiness()['missing']))
+        self.app.update_battery(11.9)
+        self.app.battery_at -= 6.0
+        self.assertTrue(any('/battery_state' in item for item in self.app.readiness()['missing']))
+
 
 @unittest.skipUnless(HAS_ROS, 'source ROS Humble setup for battery adapter tests')
 class PowerROSAdapterTests(unittest.TestCase):

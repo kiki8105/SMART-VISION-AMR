@@ -319,6 +319,7 @@ class MissionApplication:
         self.connection_error = ''
         self.pending_connection = None
         self.pose = None
+        self.pose_tf_stamp_ns = 0
         self.odom_pose = None
         self.pose_at = self.odom_at = self.scan_at = self.camera_at = 0.0
         self.speed = {'linear': 0.0, 'angular': 0.0}
@@ -360,6 +361,8 @@ class MissionApplication:
         self.failure_memory_status = {}
         self.failure_memory_at = 0.
         self.require_localization_health = False
+        self.require_battery_health = False
+        self.minimum_battery_voltage = 0.0
         self.safety_request = None
         self.safety_result = ''
         self.navigation_command_publishers = 0
@@ -394,6 +397,16 @@ class MissionApplication:
         self.home_seed_match_at = 0.
         self.home_seed_match_key = None
         self.home_prior_evidence = None
+        self.manual_pose_service_ready = False
+        self.manual_pose_request = None
+        self.manual_pose_requested = None
+        self.manual_pose_state = 'IDLE'
+        self.manual_pose_result = ''
+        self.manual_pose_sent_at = 0.
+        self.manual_pose_amcl_at = 0.
+        self.manual_pose_amcl_received_at = 0.
+        self.manual_pose_match = None
+        self.manual_pose_map_version = 0
         self.aruco_available = hasattr(cv2, 'aruco')
         self.pairing_code = f'{secrets.randbelow(1000000):06d}'
         self.sessions = {}
@@ -521,6 +534,9 @@ class MissionApplication:
                             (now-self.odom_at < 2.0, '최신 /odom'),
                             (self.goal_available and self.planner_available, 'A* 계획 노드'),
                             (self.cancel_available, '주행 취소 서비스')]
+        if (self.connected and self.map is not None and not self.map_is_preview and
+                now-self.scan_at < 2.0 and now-self.odom_at < 2.0 and self.pose is None):
+            conditions.append((False, 'AMCL 초기 위치·수렴 대기: 자세 초기화 또는 실제 위치 지정'))
         if self.map_matches_configured is False:
             conditions.append((False, '설정 지도와 다른 /map'))
         if self.require_localization_health:
@@ -528,6 +544,14 @@ class MissionApplication:
                                self.localization_health.get('autonomous_allowed') is True,
                                '위치 신뢰도: '+(' · '.join(localization_explanations(self.localization_health))
                                 or '위치 추정 상태 수신 대기')))
+        if self.require_battery_health:
+            power = self.power_state(now)
+            conditions.append((power['status'] == 'online',
+                               '최신 유효한 /battery_state 전압 ('+power['status']+')'))
+            if self.minimum_battery_voltage > 0.0:
+                conditions.append((power['status'] == 'online' and
+                                   power['voltage'] >= self.minimum_battery_voltage - 0.001,
+                                   f'배터리 전압 {self.minimum_battery_voltage:.2f}V 이상'))
         warnings = []
         if not for_home:
             if marker_ids is None:
@@ -615,6 +639,8 @@ class MissionApplication:
 
     def command(self, endpoint, payload):
         with self.lock:
+            if endpoint == '/api/localization/initial-pose':
+                return self.manual_pose_command(payload)
             if endpoint == '/api/localization/seed-home':
                 return self.seed_home_command(payload)
             if endpoint in {'/api/localization/start', '/api/localization/start-home', '/api/localization/stop'}:
@@ -700,6 +726,8 @@ class MissionApplication:
                 if reset:
                     if self.home_seed_request is not None:
                         raise MissionError('등록 홈 초기 위치 입력이 끝난 뒤 해제하세요.')
+                    if self.manual_pose_state == 'WAITING':
+                        raise MissionError('초기 위치 검증이 끝난 뒤 비상정지를 해제하세요.')
                     # Never clear the UI latch before the shared mux/guard
                     # handshake acknowledges the operator's reset request.
                     if not self.mission.estop_latched:
@@ -860,6 +888,25 @@ class MissionApplication:
                       home_seed_result=self.home_seed_result,
                       home_seed_match=self.home_seed_match,
                       home_prior_evidence=deepcopy(self.home_prior_evidence))
+        pose_available, pose_reason = self.manual_pose_readiness()
+        result['manual_pose'] = {
+            'available': pose_available, 'reason': pose_reason,
+            'pending': self.manual_pose_request is not None or self.manual_pose_state == 'WAITING',
+            'result': self.manual_pose_result,
+            'requested_pose': deepcopy(self.manual_pose_requested),
+            'scan_match': self.manual_pose_match,
+            'state': self.manual_pose_state,
+            'verified': (self.manual_pose_state == 'VERIFIED' and self.connected
+                         and self.map is not None and not self.map_is_preview
+                         and self.map_matches_configured is True
+                         and self.manual_pose_map_version == self.map_version
+                         and not self.localization_invalidated
+                         and self.pose is not None and self.pose_tf_stamp_ns > 0
+                         and time.monotonic()-self.pose_at < 2.
+                         and time.monotonic()-self.scan_at < 2.
+                         and time.monotonic()-self.odom_at < 2.
+                         and time.monotonic()-self.localization_amcl_active_at < 3.),
+        }
         use_existing_pose = (self.can_refine_localization() if self.localization.state == 'IDLE'
                              else self.localization_use_existing_pose)
         mode = 'home' if self.localization_startup_home else 'local' if use_existing_pose else 'global'
@@ -931,7 +978,7 @@ class MissionApplication:
                 or self._display_map_data is None):
             return False, '설정한 저장 지도와 일치하는 /map 수신이 필요합니다.'
         if (self.localization.active or self.manual.in_progress or self.navigation_active
-                or self.cancel_pending):
+                or self.manual_pose_state == 'WAITING' or self.cancel_pending):
             return False, '회전·조종·주행 취소가 모두 끝날 때까지 기다리세요.'
         if (now-self.scan_at >= .8 or now-self.odom_at >= .8
                 or now-self.localization_scan_at >= .8 or now-self.localization_odom_at >= .8):
@@ -961,6 +1008,114 @@ class MissionApplication:
         self.mission.event('운용자가 등록 홈 위치·방향을 확인했습니다. 정지 상태에서 초기 가설만 입력합니다.')
         return self.state()
 
+    def manual_pose_readiness(self):
+        """Manual map pose is only a prior while the robot is stopped in ESTOP."""
+        now = time.monotonic()
+        if (not self.mission.estop_latched or now-self.manual_mux_at >= 1.
+                or self.manual_mux_status.get('estop_latched') is not True
+                or self.manual_mux_status.get('stop_acknowledged') is not True):
+            return False, '차량 비상정지와 정지 확인 응답이 필요합니다.'
+        if not self.connected or self.pending_connection is not None:
+            return False, 'ROS 연결을 확인하세요.'
+        if (self.map is None or self.map_is_preview or self.map_matches_configured is not True
+                or self._display_map_data is None or self.localization_distance is None):
+            return False, '설정한 저장 지도와 일치하는 실제 /map 수신이 필요합니다.'
+        if (self.localization.active or self.localization_requested or self.localization_stop_requested
+                or self.localization_service_pending or self.manual.in_progress or self.navigation_active
+                or self.cancel_pending or self.delivery.active or self.home_seed_request is not None
+                or any(kind in {'goal', 'cancel'} for kind, _ in self.mission.commands)):
+            return False, '회전·조종·주행·주행 취소가 모두 끝날 때까지 기다리세요.'
+        if (now-self.scan_at >= .8 or now-self.odom_at >= .8
+                or now-self.localization_scan_at >= .8 or now-self.localization_odom_at >= .8):
+            return False, '최신 LiDAR와 오도메트리 수신이 필요합니다.'
+        speeds = (self.speed.get('linear'), self.speed.get('angular'))
+        if (any(type(value) not in (float, int) or not math.isfinite(value) for value in speeds)
+                or abs(speeds[0]) >= .01 or abs(speeds[1]) >= .03):
+            return False, '차량이 완전히 정지해야 초기 위치를 입력할 수 있습니다.'
+        if not self.manual_pose_service_ready:
+            return False, 'AMCL 초기 위치 서비스를 기다립니다.'
+        if now-self.localization_amcl_active_at >= 3.:
+            return False, 'AMCL 활성 상태를 기다립니다.'
+        return True, '실제 차량 위치와 방향을 지도 좌표로 입력하세요. 입력 후에도 비상정지를 유지합니다.'
+
+    def manual_pose_geometry_error(self, pose):
+        """Require known free space around the full Waffle Pi footprint.
+
+        Grid coordinates identify cells, not point obstacles. Check distance to
+        each unknown/occupied *cell rectangle* plus half a cell diagonal; a
+        center-only distance transform can miss an unknown cell beside the base.
+        """
+        try:
+            metadata = self._display_map_metadata
+            data = self._display_map_data
+            origin = metadata['origin']
+            resolution = float(metadata['resolution'])
+            width, height = int(metadata['width']), int(metadata['height'])
+            if (not math.isfinite(resolution) or resolution <= 0. or width <= 0 or height <= 0
+                    or data is None or data.shape != (height, width)):
+                raise ValueError('invalid grid')
+            dx, dy = pose['x']-float(origin['x']), pose['y']-float(origin['y'])
+            c, s = math.cos(float(origin['yaw'])), math.sin(float(origin['yaw']))
+            local_x, local_y = c*dx+s*dy, -s*dx+c*dy
+            column, row = math.floor(local_x/resolution), math.floor(local_y/resolution)
+            if not (0 <= row < height and 0 <= column < width):
+                return '초기 위치가 운용 지도 범위 밖입니다.'
+            if data[row, column] < 0:
+                return '초기 위치가 지도에서 확인되지 않은 영역입니다.'
+            if data[row, column] >= 65:
+                return '초기 위치가 지도상의 장애물과 겹칩니다.'
+            required = .22+resolution/math.sqrt(2.)
+            if min(local_x, local_y, width*resolution-local_x, height*resolution-local_y) <= required:
+                return '초기 위치의 차체가 지도 밖과 겹칩니다. 지도 안쪽 위치를 입력하세요.'
+            min_column = max(0, math.floor((local_x-required)/resolution)-1)
+            max_column = min(width-1, math.floor((local_x+required)/resolution)+1)
+            min_row = max(0, math.floor((local_y-required)/resolution)-1)
+            max_row = min(height-1, math.floor((local_y+required)/resolution)+1)
+            for nearby_row in range(min_row, max_row+1):
+                for nearby_column in range(min_column, max_column+1):
+                    occupancy = data[nearby_row, nearby_column]
+                    if 0 <= occupancy < 65:
+                        continue
+                    nearest_x = min(max(local_x, nearby_column*resolution),
+                                    (nearby_column+1)*resolution)
+                    nearest_y = min(max(local_y, nearby_row*resolution),
+                                    (nearby_row+1)*resolution)
+                    if math.hypot(nearest_x-local_x, nearest_y-local_y) <= required:
+                        return ('초기 위치의 차체가 미확인 영역과 겹칩니다.' if occupancy < 0 else
+                                '초기 위치의 차체가 지도 장애물과 겹칩니다.')
+        except (AttributeError, KeyError, TypeError, ValueError, OverflowError, ZeroDivisionError):
+            return '초기 위치를 확인할 지도 데이터가 올바르지 않습니다.'
+        return ''
+
+    def manual_pose_command(self, payload):
+        if payload.get('confirm') is not True:
+            raise MissionError('차량의 실제 지도 위치와 방향을 확인한 뒤 확인란을 선택하세요.')
+        if self.manual_pose_request is not None or self.manual_pose_state == 'WAITING':
+            raise MissionError('이전 초기 위치 입력의 AMCL 응답을 기다리고 있습니다.')
+        available, reason = self.manual_pose_readiness()
+        if not available:
+            raise MissionError(reason)
+        values = (payload.get('x'), payload.get('y'), payload.get('yaw_deg'))
+        if any(type(value) not in (int, float) or not math.isfinite(value) for value in values):
+            raise MissionError('x, y, 방향각에는 유한한 숫자를 입력하세요.')
+        x, y, yaw_deg = (float(value) for value in values)
+        if not -180. <= yaw_deg <= 180.:
+            raise MissionError('방향각은 -180~180도 범위로 입력하세요.')
+        pose = {'x': x, 'y': y, 'yaw': math.radians(yaw_deg)}
+        error = self.manual_pose_geometry_error(pose)
+        if error:
+            raise MissionError(error)
+        self.manual_pose_request = {'pose': pose, 'at': time.monotonic(), 'map_version': self.map_version}
+        self.manual_pose_map_version = self.map_version
+        self.manual_pose_requested = {'x': x, 'y': y, 'yaw_deg': yaw_deg}
+        self.manual_pose_state = 'WAITING'
+        self.manual_pose_result = 'AMCL에 초기 위치를 입력하는 중입니다. 비상정지를 유지합니다.'
+        self.manual_pose_amcl_at = self.manual_pose_sent_at = 0.
+        self.manual_pose_amcl_received_at = 0.
+        self.manual_pose_match = None
+        self.mission.event(f'운용자가 지도 초기 위치 x={x:.2f}, y={y:.2f}, 방향={yaw_deg:.1f}°를 지정했습니다. 정지 상태에서 입력합니다.')
+        return self.state()
+
     def cancel_localization(self, reason):
         if self.localization.active:
             self.localization.cancel(reason)
@@ -986,6 +1141,8 @@ class MissionApplication:
         if endpoint.endswith('/stop'):
             self.cancel_localization('사용자가 위치 확인을 중단했습니다. 차량은 정지 상태를 유지합니다.')
             return self.state()
+        if self.manual_pose_state == 'WAITING':
+            raise MissionError('초기 위치 입력 검증이 끝난 뒤 라이다 위치 확인을 시작하세요.')
         if self.localization.active:
             raise MissionError('이미 위치 확인 중입니다.')
         if self.localization_service_pending:
@@ -1286,6 +1443,7 @@ def create_ros_bridge(app, options, context):
     from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Twist
     from lifecycle_msgs.srv import GetState
     from nav_msgs.msg import OccupancyGrid, Odometry, Path as ROSPath
+    from nav2_msgs.srv import SetInitialPose
     from rclpy.node import Node
     from rclpy.parameter import Parameter
     from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy, qos_profile_sensor_data
@@ -1322,7 +1480,10 @@ def create_ros_bridge(app, options, context):
             self.global_localization_client = self.create_client(Empty, '/reinitialize_global_localization')
             self.nomotion_client = self.create_client(Empty, '/request_nomotion_update')
             self.amcl_state_client = self.create_client(GetState, '/amcl/get_state')
+            self.initial_pose_client = self.create_client(SetInitialPose, '/set_initial_pose')
             self.amcl_state_future = self.localization_future = self.nomotion_future = None
+            self.manual_pose_future = None
+            self.manual_pose_ros_stamp_ns = 0
             self.amcl_state_checked_at = self.nomotion_at = 0.
             self.localization_epoch_ns = self.last_amcl_stamp_ns = 0
             self.manual_initial_pose_ns = None
@@ -1514,6 +1675,8 @@ def create_ros_bridge(app, options, context):
                 if stamp in self.startup_seed_stamps:
                     self.startup_seed_stamps.remove(stamp)
                     return
+                if app.manual_pose_state == 'WAITING':
+                    self.fail_manual_pose('다른 초기 위치 입력이 수신되어 웹 요청을 중단했습니다.')
                 app.cancel_localization('수동 초기 위치 입력으로 위치 확인을 중단했습니다.')
                 self.manual_initial_pose_ns = self.get_clock().now().nanoseconds
 
@@ -1550,9 +1713,20 @@ def create_ros_bridge(app, options, context):
                         math.sqrt(largest_variance), math.sqrt(covariance[35]),
                         quality_ok=bool(match >= .90))
                 if (self.manual_initial_pose_ns is not None and stamp > self.manual_initial_pose_ns
-                        and not app.localization.active and match >= .60):
-                    app.localization_invalidated = False
-                    self.manual_initial_pose_ns = None
+                        and not app.localization.active):
+                    if app.manual_pose_state == 'WAITING':
+                        app.manual_pose_amcl_received_at = time.monotonic()
+                        app.manual_pose_match = match
+                        requested = app.manual_pose_requested
+                        if requested is not None and match >= .60:
+                            yaw_delta = math.atan2(math.sin(yaw-math.radians(requested['yaw_deg'])),
+                                                   math.cos(yaw-math.radians(requested['yaw_deg'])))
+                            if (math.hypot(position['x']-requested['x'], position['y']-requested['y']) < .5
+                                    and abs(yaw_delta) < math.radians(30.)):
+                                app.manual_pose_amcl_at = time.monotonic()
+                    elif match >= .60:
+                        app.localization_invalidated = False
+                        self.manual_initial_pose_ns = None
 
         def on_battery(self, message):
             # Cached/duplicate packets must not keep a disconnected vehicle "online".
@@ -2017,6 +2191,7 @@ def create_ros_bridge(app, options, context):
         def update_localization_services(self, now):
             app.localization_services_ready = (self.global_localization_client.service_is_ready()
                 and self.nomotion_client.service_is_ready() and self.amcl_state_client.service_is_ready())
+            app.manual_pose_service_ready = self.initial_pose_client.service_is_ready()
             if self.amcl_state_future is not None and self.amcl_state_future.done():
                 try:
                     response = self.amcl_state_future.result()
@@ -2024,12 +2199,107 @@ def create_ros_bridge(app, options, context):
                 except Exception:
                     app.localization_amcl_active_at = 0.
                 self.amcl_state_future = None
-            if (app.localization_services_ready and self.amcl_state_future is None
+            if (self.amcl_state_client.service_is_ready() and self.amcl_state_future is None
                     and now-self.amcl_state_checked_at >= 1.):
                 self.amcl_state_checked_at = now
                 self.amcl_state_future = self.amcl_state_client.call_async(GetState.Request())
             if self.nomotion_future is not None and self.nomotion_future.done():
                 self.nomotion_future = None
+
+        def fail_manual_pose(self, reason):
+            if self.manual_pose_future is not None and not self.manual_pose_future.done():
+                self.initial_pose_client.remove_pending_request(self.manual_pose_future)
+                self.manual_pose_future.cancel()
+            self.manual_pose_future = None
+            app.manual_pose_request = None
+            app.manual_pose_state = 'FAILED'
+            app.manual_pose_result = '초기 위치 확인 실패: '+reason+' 비상정지를 유지합니다.'
+            app.localization_invalidated = True
+            self.manual_initial_pose_ns = None
+            app.mission.event(app.manual_pose_result, 'warning')
+
+        def tick_manual_pose(self, now):
+            if app.manual_pose_state != 'WAITING':
+                return
+            if self.localization_future is not None:
+                self.fail_manual_pose('다른 AMCL 초기화 서비스가 처리 중입니다.')
+                return
+            request = app.manual_pose_request
+            if request is not None:
+                available, reason = app.manual_pose_readiness()
+                if (not available or now-request['at'] >= 2.
+                        or request['map_version'] != app.map_version):
+                    self.fail_manual_pose(reason if not available else '요청이 오래되었거나 운용 지도가 바뀌었습니다.')
+                    return
+                error = app.manual_pose_geometry_error(request['pose'])
+                if error:
+                    self.fail_manual_pose(error)
+                    return
+                pose = request['pose']
+                seed = PoseWithCovarianceStamped()
+                seed.header.frame_id = 'map'
+                stamp = self.get_clock().now().nanoseconds
+                seed.header.stamp.sec, seed.header.stamp.nanosec = divmod(stamp, 1_000_000_000)
+                seed.pose.pose.position.x, seed.pose.pose.position.y = pose['x'], pose['y']
+                seed.pose.pose.orientation.z = math.sin(pose['yaw']/2.)
+                seed.pose.pose.orientation.w = math.cos(pose['yaw']/2.)
+                seed.pose.covariance[0] = seed.pose.covariance[7] = .25**2
+                seed.pose.covariance[35] = .35**2
+                service = SetInitialPose.Request()
+                service.pose = seed
+                try:
+                    self.manual_pose_future = self.initial_pose_client.call_async(service)
+                except Exception as exc:
+                    self.fail_manual_pose('AMCL 초기 위치 서비스 요청 오류: '+str(exc))
+                    return
+                self.manual_pose_ros_stamp_ns = self.manual_initial_pose_ns = self.localization_epoch_ns = stamp
+                app.manual_pose_request = None
+                app.manual_pose_sent_at = now
+                app.localization_invalidated = True
+                app.manual_pose_result = 'AMCL 초기 위치 서비스 응답과 새 map→base TF를 기다립니다. 비상정지 유지.'
+            if self.manual_pose_future is not None:
+                if self.manual_pose_future.done():
+                    try:
+                        self.manual_pose_future.result()
+                    except Exception as exc:
+                        self.fail_manual_pose('AMCL 서비스 오류: '+str(exc))
+                        return
+                    self.manual_pose_future = None
+                    app.manual_pose_result = 'AMCL이 초기 위치 입력을 수신했습니다. LiDAR·지도와 새 TF 검증 중입니다.'
+                elif now-app.manual_pose_sent_at > 5.:
+                    self.fail_manual_pose('AMCL 초기 위치 서비스 응답이 없습니다.')
+                    return
+            available, reason = app.manual_pose_readiness()
+            if not available:
+                self.fail_manual_pose('검증 중 출발 조건이 사라졌습니다: '+reason)
+                return
+            if app.map_version != app.manual_pose_map_version:
+                self.fail_manual_pose('운용 지도가 바뀌었습니다.')
+                return
+            if now-app.manual_pose_sent_at >= 12.:
+                if app.manual_pose_amcl_received_at <= app.manual_pose_sent_at:
+                    reason = '새 /amcl_pose가 수신되지 않았습니다. /scan과 AMCL 상태를 확인하세요.'
+                elif app.manual_pose_match is not None and app.manual_pose_match < .60:
+                    reason = (f'라이다·지도 일치율 {app.manual_pose_match:.0%}가 60%보다 낮습니다. '
+                              '실제 좌표·방향 또는 지도를 확인하세요.')
+                else:
+                    reason = '새 AMCL 추정값과 map→base TF가 입력 위치에서 확인되지 않았습니다.'
+                self.fail_manual_pose(reason)
+                return
+            requested = app.manual_pose_requested
+            if (self.manual_pose_future is None and app.manual_pose_amcl_at > app.manual_pose_sent_at
+                    and now-app.manual_pose_amcl_at < 2. and now-app.pose_at < 2.
+                    and app.pose_tf_stamp_ns > self.manual_pose_ros_stamp_ns and requested is not None
+                    and app.pose is not None):
+                yaw_delta = math.atan2(math.sin(app.pose['yaw']-math.radians(requested['yaw_deg'])),
+                                       math.cos(app.pose['yaw']-math.radians(requested['yaw_deg'])))
+                if (math.hypot(app.pose['x']-requested['x'], app.pose['y']-requested['y']) < .5
+                        and abs(yaw_delta) < math.radians(30.)):
+                    app.manual_pose_state = 'VERIFIED'
+                    app.manual_pose_result = 'AMCL 위치와 새 map→base TF 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.'
+                    app.localization_invalidated = False
+                    self.manual_initial_pose_ns = None
+                    app.mission.event(app.manual_pose_result)
 
         def tick_localization(self, now, cancelled, mux_held):
             loc = app.localization
@@ -2300,6 +2570,7 @@ def create_ros_bridge(app, options, context):
                     for endpoint in self.get_publishers_info_by_topic('/cmd_vel')
                     if endpoint.node_name != 'motion_mux']
                 self.update_localization_services(now)
+                self.tick_manual_pose(now)
                 if app.localization_stop_requested:
                     self.cancel()
                     app.localization_stop_requested = False
@@ -2342,6 +2613,7 @@ def create_ros_bridge(app, options, context):
                         app.pose = {'x': transform.transform.translation.x, 'y': transform.transform.translation.y,
                                     'yaw': math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))}
                         app.pose_at = now
+                        app.pose_tf_stamp_ns = tf_ns
                 except TransformException:
                     pass
                 app.sync_delivery()
@@ -2753,6 +3025,10 @@ def build_parser():
                         help='Start a separate cmd_vel arbiter process (legacy PC deployment only)')
     parser.add_argument('--require-localization-health', action='store_true',
                         help='Gate autonomous dispatch on current localization quality')
+    parser.add_argument('--require-battery-health', action='store_true',
+                        help='Gate physical autonomous dispatch on fresh valid /battery_state')
+    parser.add_argument('--minimum-battery-voltage', type=float, default=0.0,
+                        help='Physical departure minimum in volts; 0 disables the voltage floor')
     clock = parser.add_mutually_exclusive_group()
     clock.add_argument('--use-sim-time', action='store_true', dest='use_sim_time')
     clock.add_argument('--no-use-sim-time', action='store_false', dest='use_sim_time')
@@ -2764,6 +3040,8 @@ def main(args=None):
     options = build_parser().parse_args(args)
     if not 0 <= options.domain_id <= 232 or not 1 <= options.port <= 65535:
         raise SystemExit('domain_id=0..232, port=1..65535 required')
+    if not math.isfinite(options.minimum_battery_voltage) or options.minimum_battery_voltage < 0.0:
+        raise SystemExit('minimum_battery_voltage must be finite and nonnegative')
     markers = load_markers(options.markers_file)
     if options.web_dir is None:
         from ament_index_python.packages import get_package_share_directory
@@ -2771,6 +3049,8 @@ def main(args=None):
     app = MissionApplication(markers, options.domain_id, options.use_sim_time, options.config_file, options.confirmations,
                              access_mode=options.access_mode)
     app.require_localization_health = options.require_localization_health
+    app.require_battery_health = options.require_battery_health
+    app.minimum_battery_voltage = options.minimum_battery_voltage
     if options.map_file:
         app.load_map_preview(options.map_file)
     if options.floorplan_file:
@@ -2841,6 +3121,7 @@ def main(args=None):
                     app.pending_connection = None
                     app.connected = False
                     app.pose = None
+                    app.pose_tf_stamp_ns = 0
                     app.pose_at = app.odom_at = app.scan_at = app.camera_at = app.front_camera_at = 0.0
                     app.reset_power()
                     app.camera_jpeg = None
@@ -2861,6 +3142,14 @@ def main(args=None):
                     app.home_seed_match_key = None
                     app.home_prior_evidence = None
                     app.home_seed_result = ''
+                    app.manual_pose_service_ready = False
+                    app.manual_pose_request = app.manual_pose_requested = None
+                    app.manual_pose_state = 'IDLE'
+                    app.manual_pose_result = ''
+                    app.manual_pose_sent_at = app.manual_pose_amcl_at = 0.
+                    app.manual_pose_amcl_received_at = 0.
+                    app.manual_pose_match = None
+                    app.manual_pose_map_version = 0
                     app.manual_cancel_requested = app.manual_auto_ready = False
                     app.localization = AssistedLocalization()
                     app.localization_requested = app.localization_stop_requested = False

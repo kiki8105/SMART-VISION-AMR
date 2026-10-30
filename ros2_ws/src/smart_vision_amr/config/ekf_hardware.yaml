@@ -65,6 +65,11 @@ ekf_sensor_guard:
   ros__parameters:
     arm_seconds: 2.0
     stale_seconds: 1.0
+    # The physical EKF launcher supplies a provisional threshold for trials.
+    # Zero keeps standalone/simulation launches backward compatible.
+    minimum_battery_voltage: 0.0
+    battery_rearm_margin_voltage: 0.2
+    battery_stale_seconds: 5.0
     base_frame: base_footprint
     # 0 disables magnitude limits on unobservable local absolute pose.
     # AMCL covariance and independent scan/map agreement guard global pose.

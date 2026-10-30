@@ -103,6 +103,44 @@ def test_missing_hits_or_expired_failure_ttl_never_prove_obstacle_removed(prepar
     assert not path_points(node)
 
 
+def test_passing_robot_requires_visible_free_space_before_resuming_retained_goal(prepared):
+    """A moving LiDAR hit may vanish, but disappearance alone is not clearance."""
+    node = prepared
+    goal = node.last_goal
+    original_map = list(node.map[0].data)
+    for attempt in range(3):
+        ready(node, 100.+attempt*2.1)
+        if attempt:
+            node.retry_transform()
+        assert path_points(node)
+        # The other robot moves across the route; only its latest scan hit is
+        # present, and no persistent map overlay is published.
+        node.on_observed(hit_message(node, {newly_blocking_cell(node)}))
+        assert node.obstacle_hold.attempts == attempt+1
+        assert node.last_goal is goal
+    assert node.obstacle_hold.holding
+    tracked = set(node.obstacle_hold.blocked_cells)
+    assert tracked and not path_points(node)
+
+    ready(node, 107.)
+    node.on_observed(hit_message(node, set()))  # Live TTL expiry is not free-ray evidence.
+    node.on_visibility(visibility(node))        # Old footprint is still unobserved.
+    node.retry_transform()
+    assert node.obstacle_hold.holding and not path_points(node)
+
+    for now in (108., 108.5, 109., 109.5):
+        ready(node, now)
+        node.on_visibility(visibility(node, free=tracked))
+        assert node.obstacle_hold.holding
+    ready(node, 110.)
+    node.on_visibility(visibility(node, free=tracked))
+    assert not node.obstacle_hold.holding
+    assert node.obstacle_hold.attempts == 0
+    assert node.last_goal is goal
+    assert path_points(node)
+    assert list(node.map[0].data) == original_map
+
+
 @pytest.mark.parametrize('fault', ['stale', 'replayed', 'frame', 'origin', 'shape',
                                    'partial_free', 'occupied', 'nearby_hit', 'scan_fault'])
 def test_bad_visibility_or_sensor_evidence_breaks_clear_confirmation(prepared, fault):

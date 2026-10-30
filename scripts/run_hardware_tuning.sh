@@ -70,8 +70,8 @@ if [[ "$needs_ekf" == true ]] && ! ros2 pkg prefix robot_localization >/dev/null
   printf 'Independent EKF requires ros-humble-robot-localization on the PC.\n' >&2
   exit 2
 fi
-if [[ "$needs_ekf" == true || "$estimation_location" == robot ]] && ! timeout 12s /usr/bin/python3 \
-    "$SCRIPT_DIR/check_ekf_robot_preflight.py" --timeout 8 \
+if [[ "$needs_ekf" == true || "$estimation_location" == robot ]] && ! timeout 18s /usr/bin/python3 \
+    "$SCRIPT_DIR/check_ekf_robot_preflight.py" --timeout 12 --dwell 3 \
     --estimation-location "$estimation_location" --localization-mode "$localization_mode"; then
   if [[ "$estimation_location" == robot ]]; then
     printf 'Start the robot-local runtime first (scripts/setup_robot_runtime.sh builds it).\n' >&2

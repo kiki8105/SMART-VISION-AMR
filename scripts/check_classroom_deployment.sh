@@ -13,7 +13,8 @@ Usage: check_classroom_deployment.sh [--pc|--robot] [--workspace PATH] [--live]
 Check the selected Humble overlay and physical ROS domain 16 without launching
 nodes, publishing, changing system clocks, or connecting by SSH. --robot defaults
 to ~/smart_vision_runtime_ws. --live (PC only) also observes robot publishers and
-sensor timestamps for 8s after terminal 1 is running. It sends no commands.
+sensor timestamps and robot node presence over a continuous dwell after terminal 1
+is running. It sends no commands.
 EOF
 }
 WORKSPACE_GIVEN=false
@@ -85,8 +86,8 @@ if command -v timedatectl >/dev/null; then
 fi
 printf 'Compare PC/robot UTC clocks. Unsynchronized clocks can reject command/sensor timestamps.\n'
 if "$LIVE"; then
-  timeout 12s /usr/bin/python3 "$SCRIPT_DIR/check_ekf_robot_preflight.py" \
-    --timeout 8 --estimation-location robot --localization-mode ekf_independent
+  timeout 18s /usr/bin/python3 "$SCRIPT_DIR/check_ekf_robot_preflight.py" \
+    --timeout 12 --dwell 3 --estimation-location robot --localization-mode ekf_independent
 else
   printf 'Static checks passed. After terminal 1, PC --live checks discovery and clock-stamped sensors.\n'
 fi

@@ -70,6 +70,13 @@ class WebMissionTests(unittest.TestCase):
         self.assertIn('/map', content['error'])
         self.assertEqual(self.app.mission.state, 'IDLE')
 
+    def test_missing_map_tf_with_live_sensors_explains_initial_localization(self):
+        self.ready()
+        self.app.pose = None
+        missing = self.app.readiness()['missing']
+        self.assertIn('최신 map→base TF', missing)
+        self.assertTrue(any('AMCL 초기 위치·수렴 대기' in reason for reason in missing))
+
     def test_camera_outage_allows_existing_route_resume_but_not_new_departure(self):
         self.ready()
         self.assertEqual(self.request('POST', '/api/mission/start', {})[0], 200)

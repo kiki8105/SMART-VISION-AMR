@@ -136,6 +136,40 @@
     $('#localization-stop').disabled=!paired||!snapshot?.localization?.active;
     renderDispatchReadiness({paired,localizing,manualBusy});
     renderStartupRecovery();
+    renderInitialPose();
+  }
+  function initialPoseValues(){
+    const values=['#initial-pose-x','#initial-pose-y','#initial-pose-yaw'].map(selector=>String($(selector).value||'').trim());
+    if(values.some(value=>value===''))return null;
+    const [x,y,yaw_deg]=values.map(Number);
+    return [x,y,yaw_deg].every(Number.isFinite)&&yaw_deg>=-180&&yaw_deg<=180?{x,y,yaw_deg}:null;
+  }
+  function renderInitialPose(){
+    const loc=snapshot?.localization?.manual_pose||{},robot=snapshot?.robot||{},home=delivery().registered_homepoint;
+    const connected=initialized&&!disconnected&&snapshot?.connection?.connected===true;
+    const context=JSON.stringify([snapshot?.connection?.domain_id,snapshot?.connection?.use_sim_time,snapshot?.map_version,snapshot?.health?.map?.configured_file]);
+    const panel=$('#initial-pose-panel');
+    if(context!==panel.dataset.contextKey||!connected){$('#initial-pose-confirm').checked=false;panel.dataset.contextKey=context;}
+    const mapMatched=snapshot?.health?.map?.configured_match!==false&&snapshot?.map?.configured_match!==false;
+    const tfBlocked=(snapshot?.health?.missing||[]).includes('최신 map→base TF');
+    const freshPose=connected&&mapMatched&&!tfBlocked&&Number.isFinite(robot.pose_age)&&robot.pose_age<2&&robot.pose&&[robot.pose.x,robot.pose.y,robot.pose.yaw].every(Number.isFinite);
+    const confirmed=!!$('#initial-pose-confirm').checked,values=initialPoseValues();
+    const available=connected&&loc.available===true&&!loc.pending&&!busy;
+    $('#initial-pose-home').disabled=!connected||!home||![home.x,home.y,home.yaw].every(Number.isFinite)||busy||!!loc.pending;
+    $('#initial-pose-submit').disabled=!available||!confirmed||!values;
+    const state=String(loc.state||'IDLE').toUpperCase(),verified=state==='VERIFIED'&&loc.verified===true&&freshPose;
+    const badge=$('#initial-pose-state');
+    badge.dataset.state=verified?'verified':state==='FAILED'?'failed':'waiting';
+    badge.textContent=verified?'AMCL · TF 확인됨':loc.pending||state==='WAITING'?'AMCL · TF 확인 중':state==='FAILED'?'초기 위치 미확인':state==='VERIFIED'?'TF 재확인 필요':freshPose?'현재 위치 추정 중':'초기 위치 입력 대기';
+    const result=loc.pending||state==='WAITING'?'초기 위치를 보냈습니다. AMCL 위치와 최신 map→base TF 응답을 확인하는 중입니다.':
+      state==='FAILED'?loc.result||'초기 위치를 확인하지 못했습니다. 센서·시계·AMCL 상태를 확인한 뒤 다시 입력하세요.':
+      state==='VERIFIED'&&!freshPose?'이전에 초기 위치를 확인했지만 현재 map→base TF가 지연됩니다. /scan·/odom·AMCL을 확인하세요.':
+      verified?'AMCL 위치와 최신 map→base TF를 확인했습니다. 아래 추정 좌표가 실제 로봇과 일치하는지 확인하세요. 임무는 자동으로 시작되지 않습니다.':
+      !connected?'차량 연결을 확인하세요. 초기 위치 요청은 전송되지 않았습니다.':
+      loc.reason||'지도에서 실제 로봇의 위치·방향을 입력하거나 등록 홈 좌표를 불러오세요.';
+    $('#initial-pose-result').textContent=result;
+    const pose=robot.pose;
+    $('#initial-pose-observed').textContent=freshPose?`현재 추정 위치 x ${pose.x.toFixed(2)} · y ${pose.y.toFixed(2)} m · 차체 방향 ${(pose.yaw*180/Math.PI).toFixed(1)}°`:'현재 추정 위치 · 최신 map→base TF 대기';
   }
   function explainReadiness(raw){
     const reasons=Array.isArray(raw)?raw.filter(reason=>typeof reason==='string'&&reason.trim()):[];
@@ -150,8 +184,8 @@
       if(reason==='최신 map→base TF'){
         if(mismatch)return '최신 map→base TF 대기: 먼저 지도 불일치를 해결한 뒤 AMCL 위치 추정을 확인하세요.';
         if(!hasFreshSensors||!snapshot?.map||map.preview)return '최신 map→base TF 대기: /map·/scan·/odom 수신과 AMCL(map→odom) 실행을 확인하세요.';
-        if(physicalClassroom)return '최신 map→base TF 대기: AMCL 초기 위치를 확인하세요. 차량이 실제 등록 홈에 있고 후방 카메라가 0번 마커를 볼 때만 홈 위치로 초기화하세요.';
-        return '최신 map→base TF 대기: AMCL에서 실제 차량 위치로 초기 위치를 지정하고 지도상의 위치를 확인하세요.';
+        if(physicalClassroom)return '최신 map→base TF 대기: 위의 초기 위치 지정에 실제 지도 좌표와 차체 방향을 입력하세요. 차량이 실제 등록 홈에 있고 후방 카메라가 0번 마커를 볼 때만 등록 홈 좌표를 사용하세요.';
+        return '최신 map→base TF 대기: 위의 초기 위치 지정에 실제 차량의 지도 좌표와 차체 방향을 입력하세요.';
       }
       return reason;
     }))];
@@ -228,7 +262,7 @@
       sensorReasons.length?sensorReasons.join(' · '):inputs?'라이다·오도메트리·운용 지도 응답을 확인했습니다. 위치 신뢰도와 회전 허용은 다음 단계에서 별도로 확인합니다.':'운용 지도와 좌표 변환을 기다립니다. 등록 홈이 맞다면 아래의 초기 위치 입력 조건을 확인하세요.');
     $('#startup-home-position').textContent=home&&['x','y','yaw'].every(key=>Number.isFinite(home[key]))?`등록 홈 x ${home.x.toFixed(2)} · y ${home.y.toFixed(2)} m · 차체 방향 ${(home.yaw*180/Math.PI).toFixed(1)}°`:'등록 홈 좌표를 확인하고 있습니다.';
     $('#startup-confirm-home').disabled=!waiting||!paired||!stopped||!fresh('scan_age',.5)||manual||!!loc.active||busy;
-    step('home',confirmed,confirmed?'실제 홈 확인됨':'직접 확인 필요',!confirmed?'홈이 아니거나 위치·방향이 확실하지 않으면 체크하지 마세요. 일반 위치 확인 또는 지도 조종기에서 실제 초기 위치를 지정하세요.':
+    step('home',confirmed,confirmed?'실제 홈 확인됨':'직접 확인 필요',!confirmed?'홈이 아니거나 위치·방향이 확실하지 않으면 체크하지 마세요. 위의 초기 위치 지정에 실제 지도 좌표를 직접 입력할 수 있습니다.':
       loc.home_seed_pending?'등록 홈 초기 위치 입력 검증 중 · 비상정지는 유지됩니다.':loc.home_seed_result||
       (latched?loc.home_seed_reason||'홈 초기 위치만 입력할 조건을 확인합니다.':'홈 위치 입력은 비상정지 중 복구용입니다. 해제 상태에서는 5단계 자세 초기화를 사용하세요.'));
     $('#startup-seed-home').disabled=!waiting||!paired||!stopped||!confirmed||$('#seed-home-pose').disabled;
@@ -399,8 +433,8 @@
     $('#operation-action').textContent=o.next_action?.action||'';
     const target=o.next_action?.target,button=$('#operation-action-button');
     button.hidden=!['connection','localize','camera','safety'].includes(target);
-    button.textContent={connection:'연결 설정',localize:'위치 확인으로 이동',camera:'영상 확인',safety:'정지 제어 확인'}[target]||'확인하기';
-    button.onclick=()=>{if(target==='connection')$('#connection-open').click();else if(target==='localize')openStartupRecovery();else if(target==='camera')$('.camera-panel').scrollIntoView({behavior:'smooth',block:'center'});else $('#emergency-stop').focus();};
+    button.textContent={connection:'연결 설정',localize:'초기 위치 지정으로 이동',camera:'영상 확인',safety:'정지 제어 확인'}[target]||'확인하기';
+    button.onclick=()=>{if(target==='connection')$('#connection-open').click();else if(target==='localize'){$('#initial-pose-panel').scrollIntoView({behavior:'smooth',block:'center'});$('#initial-pose-x').focus({preventScroll:true});}else if(target==='camera')$('.camera-panel').scrollIntoView({behavior:'smooth',block:'center'});else $('#emergency-stop').focus();};
     const diagnostics=$('#operation-diagnostics');diagnostics.replaceChildren();
     const items=[...(snapshot.health?.missing||[]),...(snapshot.health?.warnings||[])];
     const q=snapshot.localization_health;if(q?.level&&q.level!=='unknown')items.push(`위치 신뢰도 ${{ok:'정상',healthy:'정상',warning:'주의',critical:'정지'}[q.level]||q.level}: ${(q.explanations||q.reasons||[]).join(' · ')||'정상'}`);
@@ -582,6 +616,28 @@
   $('#startup-localize-home').addEventListener('click',()=>{if(!$('#startup-localize-home').disabled&&$('#startup-confirm-home').checked)$('#localization-start-home').click();});
   $('#startup-localize-general').addEventListener('click',()=>{if(!$('#startup-localize-general').disabled)$('#localization-start').click();});
   $('#startup-stop-localization').addEventListener('click',()=>{if(!$('#startup-stop-localization').disabled)$('#localization-stop').click();});
+  $('#initial-pose-home').addEventListener('click',()=>{
+    const home=delivery().registered_homepoint;
+    if(!home||![home.x,home.y,home.yaw].every(Number.isFinite))return;
+    $('#initial-pose-x').value=home.x.toFixed(2);
+    $('#initial-pose-y').value=home.y.toFixed(2);
+    $('#initial-pose-yaw').value=(Math.atan2(Math.sin(home.yaw),Math.cos(home.yaw))*180/Math.PI).toFixed(1);
+    $('#initial-pose-confirm').checked=false;
+    renderControls();
+    notify('등록 홈 좌표를 입력란에 채웠습니다. 실제 위치·방향을 확인한 뒤 적용하세요.');
+    $('#initial-pose-confirm').focus();
+  });
+  for(const selector of ['#initial-pose-x','#initial-pose-y','#initial-pose-yaw'])$(selector).addEventListener('input',()=>{$('#initial-pose-confirm').checked=false;renderControls();});
+  $('#initial-pose-confirm').addEventListener('change',renderControls);
+  $('#initial-pose-form').addEventListener('submit',async event=>{
+    event.preventDefault();
+    const pose=initialPoseValues();
+    if(!pose||!$('#initial-pose-confirm').checked||$('#initial-pose-submit').disabled){notify('실제 로봇의 지도 좌표·방향과 확인란을 확인하세요.',true);return;}
+    if(await action('/api/localization/initial-pose',{...pose,confirm:true},'초기 위치를 보냈습니다. AMCL 위치와 TF 확인 결과를 기다립니다.')){
+      $('#initial-pose-confirm').checked=false;
+      renderControls();
+    }
+  });
   $('#dispatch-start').addEventListener('click',async()=>{if(await action('/api/dispatch/start',{loaded:true},'적재 확인 완료. 접수 순서대로 배송을 시작합니다.'))$('#load-confirmed').checked=false;});
   $('#set-home').addEventListener('click',()=>action('/api/home/set',{},'현재 위치를 고정 Homepoint로 저장했습니다.'));
   $('#reset-home').addEventListener('click',()=>action('/api/home/reset',{},'지도에 등록된 홈으로 복원했습니다. 차량의 실제 위치는 별도로 확인하세요.'));

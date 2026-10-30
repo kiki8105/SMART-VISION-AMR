@@ -37,9 +37,9 @@
 .camera-feed+.camera-feed{border-top:1px solid var(--line)}.camera-feed-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;background:var(--panel);font-size:11px}.camera-feed-heading strong{font-weight:600}.camera-feed .camera-view{height:155px}.camera-feed .empty-state{padding:10px;text-align:center}
 @media(max-width:560px){.camera-feed .camera-view{height:180px}}
 
-.operation-summary{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;margin-bottom:18px;padding:20px;border-left:4px solid var(--accent)}
+.operation-summary{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;margin:0 24px 18px;padding:20px;border-left:4px solid var(--accent)}
 .operation-summary h2{margin:5px 0;font-size:21px}.operation-summary p{margin:7px 0;line-height:1.5}.operation-summary[data-level=critical]{border-left-color:#bd2828}.operation-summary[data-level=warning]{border-left-color:#b77a1b}.operation-summary details{grid-column:1/-1}.operation-summary summary{cursor:pointer}.operation-summary ul{padding-left:22px}.active-route{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}.active-route li{border:1px solid #d4dedb;border-radius:8px;padding:8px 12px}.active-route [aria-current=step]{border-color:var(--accent);color:var(--accent);font-weight:700}.active-route .completed{opacity:.65}
-@media(max-width:650px){.operation-summary{grid-template-columns:1fr;padding:16px}.operation-summary details,.active-route{grid-column:1}}
+@media(max-width:650px){.operation-summary{grid-template-columns:1fr;margin:0 12px 13px;padding:16px}.operation-summary details,.active-route{grid-column:1}}
 
 /* Arrival alignment stays within the existing camera panel on phone and PC. */
 .marker-alignment{border-top:1px solid var(--line);padding:10px 14px;background:var(--soft);font-size:12px}
@@ -71,3 +71,20 @@
 .startup-recovery-policy{border-top:1px solid var(--line);padding-top:12px;margin-bottom:0}
 .dispatch-readiness>button{margin-top:9px;font-size:12px}
 @media(max-width:650px){.startup-recovery{margin:0 16px 16px;padding:14px}.startup-recovery-steps{grid-template-columns:minmax(0,1fr)}.startup-recovery-heading{gap:10px}.startup-recovery-heading>div{min-width:0}.startup-step-actions button{flex:1;min-width:min(100%,190px)}.startup-recovery-steps button{min-height:44px}.operation-actions button{min-height:44px}}
+
+/* Initial AMCL pose is a visible operator action, separate from Homepoint editing. */
+.initial-pose-panel{margin:0 24px 18px;padding:16px 20px;border-left:4px solid var(--amber)}
+.initial-pose-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.initial-pose-heading h2{font-size:16px}.initial-pose-heading p,.initial-pose-help{font-size:12px;line-height:1.6;color:var(--muted);margin:4px 0 0}
+.initial-pose-state{flex-shrink:0;padding:4px 8px;border-radius:6px;background:var(--amberbg);color:var(--amber);font-size:11px}
+.initial-pose-state[data-state=verified]{background:var(--tint);color:var(--accent)}
+.initial-pose-state[data-state=failed]{background:var(--redbg);color:var(--red)}
+.initial-pose-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.initial-pose-fields label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600}
+.initial-pose-fields small{font-size:10px;color:var(--muted);font-weight:400}
+.initial-pose-fields input{width:100%;min-height:44px;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font-size:16px;font-weight:400}
+.initial-pose-panel .checkbox{font-size:12px;line-height:1.5;align-items:flex-start}.initial-pose-panel .checkbox input{flex-shrink:0;margin-top:2px}
+.initial-pose-actions{display:flex;gap:8px;flex-wrap:wrap}.initial-pose-actions button{min-height:40px}
+.initial-pose-result{margin:12px 0 0;padding:9px 11px;border-radius:7px;background:var(--soft);font-size:12px;line-height:1.55}
+.initial-pose-observed{margin:5px 0 0;color:var(--muted);font-size:11px}
+@media(max-width:650px){.initial-pose-panel{margin:0 12px 13px;padding:14px}.initial-pose-heading{flex-wrap:wrap}.initial-pose-fields{grid-template-columns:1fr;gap:9px}.initial-pose-actions{display:grid;grid-template-columns:1fr}.initial-pose-actions button{min-height:44px}}

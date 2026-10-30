@@ -166,6 +166,7 @@ fi
         'SMART_VISION_ESTIMATION_LOCATION': estimation,
         'TURTLEBOT3_LOCALIZATION_MODE': mode,
         'SMART_VISION_TIMING_DIAGNOSTICS': timing,
+        'SMART_VISION_MIN_BATTERY_VOLTAGE': '11.2',
     })
     result = subprocess.run(
         [str(SCRIPTS / 'robot_bringup_camera_16.sh')],
@@ -177,8 +178,10 @@ fi
     assert 'wheel_separation:=' not in log.read_text()
     if estimation == 'robot':
         assert f'timing_diagnostics:={timing}' in log.read_text()
+        assert 'minimum_battery_voltage:=11.2' in log.read_text()
     else:
         assert 'timing_diagnostics:=' not in log.read_text()
+        assert 'minimum_battery_voltage:=' not in log.read_text()
 
 
 def test_invalid_timing_flag_is_rejected_before_hardware_checks():

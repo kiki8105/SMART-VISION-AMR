@@ -8,6 +8,7 @@ MAP_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/maps/classroom_20261027_cleaned.
 FLOORPLAN_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/config/classroom_floorplan.yaml
 SETTINGS_FILE=${SMART_VISION_CLASSROOM_CONFIG:-$HOME/.config/smart-vision-amr/classroom-16.json}
 CAMERA_TRANSPORT=${SMART_VISION_CLASSROOM_CAMERA_TRANSPORT:-compressed}
+MINIMUM_BATTERY_VOLTAGE=${SMART_VISION_MIN_BATTERY_VOLTAGE:-11.2}
 MUX_OPTIONS=()
 case "${SMART_VISION_ESTIMATION_LOCATION:-robot}" in
   pc) MUX_OPTIONS+=(--with-motion-mux) ;;
@@ -54,7 +55,7 @@ PY
 exec "$SCRIPT_DIR/run_web_mission.sh" \
   --domain-id 16 --no-use-sim-time --markers-file "$MARKERS" \
   -- --map-file "$MAP_FILE" --floorplan-file "$FLOORPLAN_FILE" \
-  --config-file "$SETTINGS_FILE" --access-mode domain --require-localization-health --require-marker-wall-alignment "${MUX_OPTIONS[@]}" \
+  --config-file "$SETTINGS_FILE" --access-mode domain --require-localization-health --require-battery-health --minimum-battery-voltage "$MINIMUM_BATTERY_VOLTAGE" --require-marker-wall-alignment "${MUX_OPTIONS[@]}" \
   --camera-topic "/camera/image_raw$CAMERA_SUFFIX" --camera-rotation 180 \
   --front-camera-topic "/camera/front/image_raw$CAMERA_SUFFIX" \
   --front-camera-rotation 0 "$@"

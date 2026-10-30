@@ -189,6 +189,39 @@ def test_robot_preflight_requires_fresh_sensor_samples_and_matching_clocks():
     assert '/imu' in future and '-0.500s' in future and 'clock sync' in future
 
 
+def test_robot_preflight_battery_has_five_second_freshness_but_motion_keeps_one_second():
+    preflight = preflight_module()
+    now_ns = 20_000_000_000
+    monitored, advancing = preflight.monitored_topics('robot', 'ekf_independent')
+    assert '/battery_state' in monitored
+    assert '/battery_state' not in advancing
+    assert '/wheel/odom_raw' in advancing
+    stamps = {topic: now_ns-100_000_000 for topic in monitored}
+    stamps['/battery_state'] = now_ns-4_900_000_000
+    assert preflight.assess_sensor_stamps(stamps, now_ns, topics=monitored) == []
+    assert '/scan' in '; '.join(preflight.assess_sensor_stamps(
+        {**stamps, '/scan': now_ns-1_100_000_000}, now_ns, topics=monitored))
+    assert '/battery_state' in '; '.join(preflight.assess_sensor_stamps(
+        {**stamps, '/battery_state': now_ns-5_100_000_000},
+        now_ns, topics=monitored))
+
+
+def test_robot_preflight_three_second_dwell_does_not_require_three_battery_messages():
+    preflight = preflight_module()
+    monitored, advancing = preflight.monitored_topics('robot', 'ekf_independent')
+    window = preflight.StableSensorWindow(advancing, dwell_seconds=3.0)
+    battery_stamp = 19_000_000_000
+    for elapsed in (0.0, 1.0, 2.0, 3.1):
+        now_ns = 20_000_000_000 + int(elapsed * 1e9)
+        stamps = {topic: now_ns-100_000_000 for topic in advancing}
+        stamps['/battery_state'] = battery_stamp
+        reasons = preflight.assess_sensor_stamps(stamps, now_ns, topics=monitored)
+        assert reasons == []
+        assert window.observe(stamps, elapsed, reasons) is (elapsed == 3.1)
+    assert '/battery_state' in '; '.join(preflight.assess_sensor_stamps(
+        stamps, 24_100_000_000, topics=monitored))
+
+
 def test_robot_local_preflight_rejects_stock_odom_in_ekf_mode():
     assess = preflight_module().assess_runtime_owners
     ready = {'/odom': ['ekf_hardware'], '/wheel/odom': ['wheel_joint_odometry'],
@@ -199,6 +232,55 @@ def test_robot_local_preflight_rejects_stock_odom_in_ekf_mode():
     assert '/odom' in '; '.join(assess({**ready, '/odom': ['turtlebot3_node']}))
     assert '/cmd_vel' in '; '.join(assess({**ready, '/cmd_vel': ['motion_mux', 'legacy']}))
     assert assess({**ready, '/odom': ['turtlebot3_node']}, 'baseline') == []
+
+
+def test_robot_preflight_requires_live_driver_node_and_usable_battery_sample():
+    preflight = preflight_module()
+    nodes = [(name, '/') for name in ('turtlebot3_node', 'lidar_node',
+        'motion_mux', 'localization_health', 'wheel_joint_odometry',
+        'imu_ekf_conditioner', 'ekf_hardware', 'ekf_sensor_guard')]
+    assert preflight.assess_required_nodes(nodes) == []
+    assert '/turtlebot3_node' in '; '.join(preflight.assess_required_nodes(nodes[1:]))
+    assert '/ekf_sensor_guard' in '; '.join(preflight.assess_required_nodes(nodes[:-1]))
+    assert preflight.valid_battery_voltage(11.2)
+    assert preflight.valid_battery_voltage(11.2, minimum_voltage=11.2)
+    assert preflight.valid_battery_voltage(11.19999981, minimum_voltage=11.2)
+    assert not preflight.valid_battery_voltage(11.198, minimum_voltage=11.2)
+    assert not preflight.valid_battery_voltage(10.97, minimum_voltage=11.2)
+    assert preflight.DEFAULT_MIN_BATTERY_VOLTAGE == 11.2
+    for voltage in (0.0, -1.0, math.nan, math.inf):
+        assert not preflight.valid_battery_voltage(voltage)
+    assert not preflight.valid_battery_voltage(None, minimum_voltage=11.2)
+
+
+def test_robot_preflight_needs_advancing_raw_stamps_for_full_healthy_dwell():
+    preflight = preflight_module()
+    topics = ('/joint_states', '/imu', '/scan', '/odom', '/battery_state')
+    window = preflight.StableSensorWindow(topics, dwell_seconds=3.0)
+    first = {topic: 10_000_000_000 for topic in topics}
+    assert not window.observe(first, 0.0, [])
+    assert not window.observe(first, 3.1, []), 'one fresh-looking sample is insufficient'
+    second = {topic: 11_000_000_000 for topic in topics}
+    assert not window.observe(second, 3.2, [])
+    third = {topic: 12_000_000_000 for topic in topics}
+    assert window.observe(third, 3.4, [])
+    assert not window.observe(third, 3.5, ['/turtlebot3_node disappeared'])
+    assert not window.observe(third, 6.8, []), 'the entire dwell restarts after graph loss'
+    assert not window.observe({topic: 13_000_000_000 for topic in topics}, 7.0, [])
+    assert window.observe({topic: 14_000_000_000 for topic in topics}, 10.0, [])
+
+
+def test_robot_preflight_rejects_rewound_raw_stamp_and_missing_battery_topic():
+    preflight = preflight_module()
+    window = preflight.StableSensorWindow(('/joint_states', '/battery_state'), 2.0)
+    assert not window.observe({'/joint_states': 200, '/battery_state': 200}, 0.0, [])
+    assert not window.observe({'/joint_states': 300, '/battery_state': 300}, 1.0, [])
+    assert not window.observe({'/joint_states': 100, '/battery_state': 400}, 2.0, [])
+    assert 'window not started' in window.pending(2.0)
+    reasons = preflight.assess_sensor_stamps(
+        {'/joint_states': 4_900_000_000}, 5_000_000_000,
+        topics=('/joint_states', '/battery_state'))
+    assert '/battery_state: no sample received' in reasons
 
 
 def test_stationary_gyro_calibration_reduces_bias_but_does_not_learn_motion():

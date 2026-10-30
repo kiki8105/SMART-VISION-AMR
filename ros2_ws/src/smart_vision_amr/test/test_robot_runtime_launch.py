@@ -44,6 +44,7 @@ def make_context(tmp_path, mode='ekf_independent', **overrides):
         'localization_mode': mode, 'use_sim_time': 'false',
         'enable_bringup': 'false', 'stock_params': str(stock),
         'timing_diagnostics': 'false',
+        'minimum_battery_voltage': '0.0',
         'wheel_radius': '', 'wheel_separation': '',
         'usb_port': '/dev/ttyACM-test', **overrides})
     return context, stock
@@ -70,6 +71,27 @@ def test_robot_runtime_has_one_mux_and_local_health_and_uses_pi_geometry(tmp_pat
     assert stock.read_text() == original
     assert {'enable_timing_diagnostics': False} in nodes['motion_mux']['parameters']
     assert {'enable_timing_diagnostics': False} in nodes['ekf_sensor_guard']['parameters']
+    assert {'minimum_battery_voltage': 0.0} in nodes['ekf_sensor_guard']['parameters']
+
+
+def test_physical_runtime_passes_battery_limit_only_to_ekf_guard(tmp_path, monkeypatch):
+    module = load_launch()
+    monkeypatch.setattr(module, 'get_package_share_directory', lambda _: str(ROOT))
+    monkeypatch.setattr(module, 'Node', lambda **kwargs: kwargs)
+    context, _ = make_context(tmp_path, minimum_battery_voltage='11.2')
+    nodes = {node['name']: node for node in module._runtime(context)}
+    assert {'minimum_battery_voltage': 11.2} in nodes['ekf_sensor_guard']['parameters']
+    assert all({'minimum_battery_voltage': 11.2} not in node['parameters']
+               for name, node in nodes.items() if name != 'ekf_sensor_guard')
+
+
+@pytest.mark.parametrize('value', ['-0.1', 'nan', 'inf', 'bad'])
+def test_physical_runtime_rejects_invalid_battery_limit(tmp_path, monkeypatch, value):
+    module = load_launch()
+    monkeypatch.setattr(module, 'get_package_share_directory', lambda _: str(ROOT))
+    context, _ = make_context(tmp_path, minimum_battery_voltage=value)
+    with pytest.raises(ValueError):
+        module._runtime(context)
 
 
 def test_timing_flag_only_enables_observations_in_mux_and_guard(tmp_path, monkeypatch):

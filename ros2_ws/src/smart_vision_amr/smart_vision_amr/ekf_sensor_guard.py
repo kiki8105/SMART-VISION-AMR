@@ -14,17 +14,20 @@ import time
 
 import rclpy
 from nav_msgs.msg import Odometry
+from rcl_interfaces.msg import Log, SetParametersResult
 from rclpy.clock import Clock, ClockType
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import (DurabilityPolicy, QoSProfile, ReliabilityPolicy,
                        qos_profile_sensor_data)
-from sensor_msgs.msg import Imu, LaserScan
+from sensor_msgs.msg import BatteryState, Imu, LaserScan
 from std_msgs.msg import String
 from tf2_ros import Buffer, TransformException, TransformListener
 
 from smart_vision_amr.sensor_stamp_guard import SensorStampGuard
 from smart_vision_amr.runtime_timing import GUARD_METRICS, RuntimeTiming, timed_call
+
+ROS_ERROR_LEVEL = Log.ERROR[0] if isinstance(Log.ERROR, bytes) else int(Log.ERROR)
 
 
 def publisher_issues(get_publishers, expected_publishers):
@@ -75,11 +78,31 @@ def odometry_issues(message, *, max_position_variance=0.0,
     return []
 
 
+def battery_voltage_issues(voltage, minimum_voltage):
+    """A missing/invalid voltage cannot satisfy an enabled battery gate."""
+    if not isinstance(voltage, (int, float)) or not math.isfinite(voltage) or voltage <= 0.0:
+        return ['invalid battery voltage']
+    # BatteryState.voltage is float32; values such as 11.4 can arrive a few
+    # millionths below their decimal representation after serialization.
+    if voltage < minimum_voltage - 0.001:
+        return [f'battery voltage {voltage:.2f} V below {minimum_voltage:.2f} V']
+    return []
+
+
+def dynamixel_log_failure(message):
+    """Only OpenCR transaction failures reported by the hardware driver."""
+    return (message.level >= ROS_ERROR_LEVEL and
+            message.name.lstrip('/') == 'DynamixelSDKWrapper' and
+            message.msg.startswith(('Failed to read[', 'Failed to write[')))
+
+
 class EkfSensorGuardCore:
     REQUIRED = ('wheel', 'imu', 'scan', 'odom', 'odom_tf')
 
     def __init__(self, arm_seconds=2.0, stale_seconds=1.0,
-                 max_header_age_seconds=1.0, future_tolerance_seconds=0.25):
+                 max_header_age_seconds=1.0, future_tolerance_seconds=0.25,
+                 minimum_battery_voltage=0.0, battery_rearm_margin_voltage=0.2,
+                 battery_stale_seconds=5.0):
         if arm_seconds <= 0.0 or stale_seconds <= 0.0:
             raise ValueError('Guard durations must be positive')
         self.arm_seconds = arm_seconds
@@ -87,7 +110,9 @@ class EkfSensorGuardCore:
         self.stamps = {name: SensorStampGuard(max_header_age_seconds,
                                              future_tolerance_seconds)
                        for name in self.REQUIRED}
-        self.last_seen = {name: None for name in self.REQUIRED}
+        self.stamps['battery'] = SensorStampGuard(battery_stale_seconds,
+                                                 future_tolerance_seconds)
+        self.last_seen = {name: None for name in self.stamps}
         self.value_issues = {}
         self.graph_issues = ['ROS publisher graph not yet checked']
         self.graph_checked_at = None
@@ -95,6 +120,65 @@ class EkfSensorGuardCore:
         self.armed = False
         self.latched = True
         self.trip_reason = 'EKF inputs not yet validated'
+        self.minimum_battery_voltage = 0.0
+        self.battery_rearm_margin_voltage = 0.0
+        self.battery_stale_seconds = 0.0
+        self.battery_recovery_required = False
+        self.required = self.REQUIRED
+        self.set_battery_stale_seconds(battery_stale_seconds)
+        self.set_battery_limits(minimum_battery_voltage, battery_rearm_margin_voltage)
+
+    def set_battery_stale_seconds(self, seconds):
+        if (type(seconds) not in (int, float) or not math.isfinite(seconds)
+                or seconds <= 0.0):
+            raise ValueError('battery_stale_seconds must be finite and positive')
+        self.battery_stale_seconds = float(seconds)
+        self.stamps['battery'].max_age_ns = int(seconds * 1e9)
+
+    def set_battery_limits(self, minimum_voltage, rearm_margin):
+        if (type(minimum_voltage) not in (int, float) or
+                not math.isfinite(minimum_voltage) or minimum_voltage < 0.0 or
+                type(rearm_margin) not in (int, float) or
+                not math.isfinite(rearm_margin) or rearm_margin < 0.0):
+            raise ValueError('Battery voltage limits must be finite and nonnegative')
+        if (minimum_voltage, rearm_margin) == (self.minimum_battery_voltage,
+                                                self.battery_rearm_margin_voltage):
+            return
+        self.minimum_battery_voltage = float(minimum_voltage)
+        self.battery_rearm_margin_voltage = float(rearm_margin)
+        if minimum_voltage == 0.0:
+            self.battery_recovery_required = False
+        self.required = (self.REQUIRED + ('battery',)
+                         if minimum_voltage > 0.0 else self.REQUIRED)
+        # A changed limit needs a newly measured sample and a fresh arm interval.
+        self.last_seen['battery'] = None
+        self.value_issues.pop('battery', None)
+        self.healthy_since = None
+
+    def observe_battery(self, voltage, stamp_ns, wall_ns, monotonic_seconds):
+        if self.minimum_battery_voltage <= 0.0:
+            return True
+        threshold = self.minimum_battery_voltage + (
+            self.battery_rearm_margin_voltage if self.battery_recovery_required else 0.0)
+        if not self.observe('battery', stamp_ns, wall_ns, monotonic_seconds):
+            return False
+        issues = battery_voltage_issues(voltage, threshold)
+        if issues:
+            self.battery_recovery_required = True
+            self.reject('battery', issues)
+            if not self.latched:
+                # A brief low sample must not be overwritten by a healthy
+                # sample before the next 10 Hz safety timer fires.
+                self.force_trip(f'battery: {issues[0]}')
+            return False
+        return True
+
+    def force_trip(self, reason):
+        """A direct hardware fault invalidates the current arm immediately."""
+        self.armed = False
+        self.latched = True
+        self.healthy_since = None
+        self.trip_reason = reason
 
     def observe(self, name, stamp_ns, wall_ns, monotonic_seconds):
         if name not in self.stamps:
@@ -111,9 +195,10 @@ class EkfSensorGuardCore:
 
     def missing(self, monotonic_seconds):
         missing = [f'{name}: {self.value_issues[name]}' if name in self.value_issues else name
-                   for name in self.REQUIRED
+                   for name in self.required
                    if self.last_seen[name] is None or
-                   monotonic_seconds - self.last_seen[name] >= self.stale_seconds]
+                   monotonic_seconds - self.last_seen[name] >= (
+                       self.battery_stale_seconds if name == 'battery' else self.stale_seconds)]
         if (self.graph_checked_at is None or
                 monotonic_seconds - self.graph_checked_at >= self.stale_seconds):
             missing.append('ROS publisher graph stale')
@@ -157,6 +242,7 @@ class EkfSensorGuardCore:
         self.latched = False
         self.armed = True
         self.trip_reason = ''
+        self.battery_recovery_required = False
         return True
 
 
@@ -181,6 +267,11 @@ class EkfSensorGuard(Node):
         self.declare_parameter('max_linear_velocity_variance', 0.25)
         self.declare_parameter('max_angular_velocity_variance', 1.0)
         self.declare_parameter('base_frame', 'base_footprint')
+        # Zero disables this optional threshold until the pack's loaded
+        # voltage has been measured on the particular physical robot.
+        self.declare_parameter('minimum_battery_voltage', 0.0)
+        self.declare_parameter('battery_rearm_margin_voltage', 0.2)
+        self.declare_parameter('battery_stale_seconds', 5.0)
         self.declare_parameter('enable_timing_diagnostics', False)
         self._timing = (RuntimeTiming(GUARD_METRICS, warning=self.get_logger().warning)
                         if self.get_parameter('enable_timing_diagnostics').value else None)
@@ -189,7 +280,12 @@ class EkfSensorGuard(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.core = EkfSensorGuardCore(
             arm_seconds=float(self.get_parameter('arm_seconds').value),
-            stale_seconds=float(self.get_parameter('stale_seconds').value))
+            stale_seconds=float(self.get_parameter('stale_seconds').value),
+            minimum_battery_voltage=float(self.get_parameter('minimum_battery_voltage').value),
+            battery_rearm_margin_voltage=float(
+                self.get_parameter('battery_rearm_margin_voltage').value),
+            battery_stale_seconds=float(self.get_parameter('battery_stale_seconds').value))
+        self.add_on_set_parameters_callback(self.on_parameters)
         self.acknowledged = False
         self.last_estop_at = None
         self.safety_seq = 0
@@ -209,6 +305,12 @@ class EkfSensorGuard(Node):
                                  qos_profile_sensor_data)
         self.create_subscription(Odometry, '/odom', self.on_odom,
                                  qos_profile_sensor_data)
+        self.create_subscription(BatteryState, '/battery_state', self.on_battery,
+                                 qos_profile_sensor_data)
+        self.create_subscription(Log, '/rosout', self.on_rosout,
+                                 QoSProfile(depth=20,
+                                            reliability=ReliabilityPolicy.RELIABLE,
+                                            durability=DurabilityPolicy.VOLATILE))
         durable = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                              durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.create_subscription(String, '/smart_vision_amr/motion_status',
@@ -221,6 +323,47 @@ class EkfSensorGuard(Node):
         self.get_logger().warning(
             'EKF motion held until wheel, IMU, LiDAR, /odom output, odom TF and sole EKF /odom '
             'publisher are healthy for 2 s and the operator explicitly resets')
+
+    def on_parameters(self, parameters):
+        minimum = self.core.minimum_battery_voltage
+        margin = self.core.battery_rearm_margin_voltage
+        battery_stale = self.core.battery_stale_seconds
+        for parameter in parameters:
+            if parameter.name == 'minimum_battery_voltage':
+                minimum = parameter.value
+            elif parameter.name == 'battery_rearm_margin_voltage':
+                margin = parameter.value
+            elif parameter.name == 'battery_stale_seconds':
+                battery_stale = parameter.value
+        try:
+            if (type(battery_stale) not in (int, float) or
+                    not math.isfinite(battery_stale) or battery_stale <= 0.0):
+                raise ValueError('battery_stale_seconds must be finite and positive')
+            self.core.set_battery_limits(minimum, margin)
+            self.core.set_battery_stale_seconds(battery_stale)
+        except ValueError as exc:
+            return SetParametersResult(successful=False, reason=str(exc))
+        return SetParametersResult(successful=True)
+
+    def on_battery(self, message):
+        stamp = message.header.stamp
+        was_latched = self.core.latched
+        self.core.observe_battery(
+            message.voltage, stamp.sec*1_000_000_000+stamp.nanosec,
+            self.get_clock().now().nanoseconds, time.monotonic())
+        if not was_latched and self.core.latched:
+            self.get_logger().error(f'{self.core.trip_reason}; emergency stop latched')
+            self._publish_estop(time.monotonic())
+
+    def on_rosout(self, message):
+        if not dynamixel_log_failure(message):
+            return
+        if self.core.trip_reason.startswith('OpenCR transaction failed:'):
+            return  # Repeated driver errors must not flood safety publications.
+        reason = f'OpenCR transaction failed: {message.msg}'
+        self.core.force_trip(reason)
+        self.get_logger().error(f'{reason}; emergency stop latched')
+        self._publish_estop(time.monotonic())
 
     def on_sensor(self, name, message):
         stamp = message.header.stamp
@@ -267,8 +410,11 @@ class EkfSensorGuard(Node):
             self.last_owner_check_at = now
             self.update_tf(now)
             try:
+                expected = self.EXPECTED_PUBLISHERS.copy()
+                if self.core.minimum_battery_voltage > 0.0:
+                    expected['/battery_state'] = None
                 issues = timed_call(timing, 'ownership_query', publisher_issues,
-                                    self.get_publishers_info_by_topic, self.EXPECTED_PUBLISHERS)
+                                    self.get_publishers_info_by_topic, expected)
             except Exception as exc:
                 self.get_logger().warning(f'Cannot inspect ROS publishers: {exc}')
                 issues = [f'ROS publisher graph query failed: {exc}']

@@ -97,17 +97,20 @@ def test_ekf_robot_wrapper_selects_independent_mode(tmp_path):
                     scripts/'robot_bringup_camera_16_ekf.sh')
     baseline = scripts/'robot_bringup_camera_16.sh'
     baseline.write_text('#!/usr/bin/env bash\nprintf "%s\\n" '
-                        '"$TURTLEBOT3_LOCALIZATION_MODE" "$CAMERA_BACKEND" "$@"\n')
+                        '"$TURTLEBOT3_LOCALIZATION_MODE" "$CAMERA_BACKEND" '
+                        '"$SMART_VISION_MIN_BATTERY_VOLTAGE" "$@"\n')
     baseline.chmod(0o755)
     env = os.environ.copy()
     env.pop('CAMERA_BACKEND', None)
+    env.pop('SMART_VISION_MIN_BATTERY_VOLTAGE', None)
     result = subprocess.run(['bash', str(scripts/'robot_bringup_camera_16_ekf.sh'), 'test=1'],
                             text=True, capture_output=True, check=True, timeout=5, env=env)
-    assert result.stdout.splitlines() == ['ekf_independent', 'rate_limited', 'test=1']
+    assert result.stdout.splitlines() == ['ekf_independent', 'rate_limited', '11.2', 'test=1']
     env['CAMERA_BACKEND'] = 'v4l2'
+    env['SMART_VISION_MIN_BATTERY_VOLTAGE'] = '11.0'
     override = subprocess.run(['bash', str(scripts/'robot_bringup_camera_16_ekf.sh')],
                               text=True, capture_output=True, check=True, timeout=5, env=env)
-    assert override.stdout.splitlines() == ['ekf_independent', 'v4l2']
+    assert override.stdout.splitlines() == ['ekf_independent', 'v4l2', '11.0']
 
 
 def test_robot_bringup_defaults_to_local_runtime_and_legacy_pc_is_explicit(tmp_path):
