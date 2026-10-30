@@ -457,6 +457,51 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.context.shutdown()
         self.temp.cleanup()
 
+    def test_stalled_amcl_state_query_is_removed_and_fresh_reply_is_required(self):
+        self.app.localization_amcl_active_at = 0.
+        self.node.update_localization_services(self.now)
+        lost = self.amcl_state.future
+        self.assertEqual(len(self.amcl_state.requests), 1)
+
+        self.now += 1.9
+        self.node.update_localization_services(self.now)
+        self.assertIs(self.node.amcl_state_future, lost)
+        self.assertEqual(self.app.localization_amcl_active_at, 0.)
+
+        self.now += .2
+        self.node.update_localization_services(self.now)
+        self.assertIn(lost, self.amcl_state.removed_requests)
+        self.assertTrue(lost.cancelled())
+        self.assertEqual(len(self.amcl_state.requests), 2)
+        self.assertEqual(self.app.localization_amcl_active_at, 0.)
+
+        response = GetState.Response()
+        response.current_state.id = 3  # ACTIVE
+        self.amcl_state.future.set_result(response)
+        self.now += .1
+        self.node.update_localization_services(self.now)
+        self.assertEqual(self.app.localization_amcl_active_at, self.now)
+
+    def test_disappearing_amcl_service_discards_pending_and_active_state(self):
+        self.node.update_localization_services(self.now)
+        response = GetState.Response()
+        response.current_state.id = 3
+        self.amcl_state.future.set_result(response)
+        self.now += .1
+        self.node.update_localization_services(self.now)
+        self.assertEqual(self.app.localization_amcl_active_at, self.now)
+
+        self.now += 1.
+        self.node.update_localization_services(self.now)
+        pending = self.amcl_state.future
+        self.amcl_state.available = False
+        self.node.update_localization_services(self.now)
+        self.assertFalse(self.app.localization_services_ready)
+        self.assertEqual(self.app.localization_amcl_active_at, 0.)
+        self.assertIn(pending, self.amcl_state.removed_requests)
+        self.assertTrue(pending.cancelled())
+        self.assertIsNone(self.node.amcl_state_future)
+
     def test_failure_memory_subscriber_rejects_stale_foreign_and_replayed_status(self):
         self.app.mission.state = 'NAVIGATING'
         self.app.mission.goal_stamp = (8, 9)
@@ -504,6 +549,13 @@ class LocalizationBridgeTests(unittest.TestCase):
 
     def refresh(self):
         ready_application(self.app, self.now)
+        # Most bridge tests model a responsive, active AMCL. The dedicated
+        # stalled-query test calls update_localization_services directly so
+        # it can leave this service future unanswered on purpose.
+        if self.node.amcl_state_future is not None and not self.node.amcl_state_future.done():
+            response = GetState.Response()
+            response.current_state.id = 3
+            self.node.amcl_state_future.set_result(response)
         packet = self.packets()[-1] if self.controls.messages else {'mode': 'hold', 'seq': 0}
         self.app.manual_mux_status = {'mode': packet['mode'], 'source_id': self.node.motion_source,
             'control_seq': packet['seq'], 'available': True, 'allow_localization': True,

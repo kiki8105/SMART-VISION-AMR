@@ -472,7 +472,12 @@ class MotionMuxNode(Node):
                             self.on_emergency_stop, callback_group=self.safety_group)
         self.create_service(Trigger, '/smart_vision_amr/reset_emergency_stop',
                             self.on_reset_emergency_stop, callback_group=self.safety_group)
-        self.create_timer(.025, self.advance_reset, clock=self.steady_clock)
+        # Reset verification needs 25 ms polling for only the short, pending
+        # handshake. An always-ready idle timer competes with control packets
+        # on the single-threaded Pi executor even when no reset is requested.
+        self.reset_timer = self.create_timer(
+            .025, self.advance_reset, clock=self.steady_clock)
+        self.reset_timer.cancel()
         self.create_timer(.05, self.publish_output, clock=self.steady_clock)
         self.create_timer(.1, self.publish_status, clock=self.steady_clock)
         self.publish_status()
@@ -526,6 +531,7 @@ class MotionMuxNode(Node):
         if self.pending_reset is not None:
             self.pending_reset['future'].set_result(False)
             self.pending_reset = None
+            self.reset_timer.cancel()
         packet = self._service_packet('estop')
         self.core.receive_control(packet, self.get_clock().now().nanoseconds, origin='service')
         self.control_pub.publish(String(data=json.dumps(packet)))
@@ -553,6 +559,7 @@ class MotionMuxNode(Node):
         self.control_pub.publish(String(data=json.dumps(packet)))
         self.pending_reset = {'future': future, 'packet': packet,
                               'at': time.monotonic(), 'applied': False}
+        self.reset_timer.reset()
         accepted = await future
         response.success = bool(accepted)
         response.message = ('Emergency reset acknowledged; motion remains held. '
@@ -566,6 +573,7 @@ class MotionMuxNode(Node):
             timing.gap('reset_tick_gap', .025)
         reset = self.pending_reset
         if reset is None:
+            self.reset_timer.cancel()
             return
         age = time.monotonic()-reset['at']
         if not reset['applied'] and age >= .1:
@@ -591,6 +599,7 @@ class MotionMuxNode(Node):
                 self.core.mode, self.core.reason = 'hold', 'Safety reset confirmed; explicit resume required'
                 self.core.manual_velocity, self.core.auto_at = (0.0, 0.0), None
             self.pending_reset = None
+            self.reset_timer.cancel()
             self.publish_output()
             self.publish_status(force=True)
             reset['future'].set_result(accepted)

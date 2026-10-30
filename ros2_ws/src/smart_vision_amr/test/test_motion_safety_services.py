@@ -57,12 +57,18 @@ def test_robot_side_services_acknowledge_zero_and_allow_a_guard_to_veto_reset():
 
     def call(client):
         future = client.call_async(Trigger.Request())
+        if client is reset:
+            until(lambda: mux.pending_reset is not None)
+            assert not mux.reset_timer.is_canceled()
         until(future.done)
+        if client is reset:
+            assert mux.reset_timer.is_canceled()
         return future.result()
 
     try:
         until(lambda: stop.service_is_ready() and reset.service_is_ready()
               and mux.output_available and bool(outputs))
+        assert mux.reset_timer.is_canceled()
         mux.core.receive_auto(.15, .0)
         until(lambda: .15 in outputs)
         assert call(stop).success
@@ -78,6 +84,14 @@ def test_robot_side_services_acknowledge_zero_and_allow_a_guard_to_veto_reset():
         assert not call(reset).success
         assert mux.core.estop_latched
         assert mux.core.output() == (0.0, 0.0)
+        veto[0] = False
+        future = reset.call_async(Trigger.Request())
+        until(lambda: mux.pending_reset is not None)
+        assert not mux.reset_timer.is_canceled()
+        assert call(stop).success
+        until(future.done)
+        assert not future.result().success
+        assert mux.reset_timer.is_canceled()
     finally:
         executor.shutdown()
         probe.destroy_node()

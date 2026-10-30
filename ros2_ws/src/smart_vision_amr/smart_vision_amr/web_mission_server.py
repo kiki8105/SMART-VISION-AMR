@@ -2202,20 +2202,41 @@ def create_ros_bridge(app, options, context):
                 mission.event(mission.reason, 'warning')
 
         def update_localization_services(self, now):
+            amcl_ready = self.amcl_state_client.service_is_ready()
             app.localization_services_ready = (self.global_localization_client.service_is_ready()
-                and self.nomotion_client.service_is_ready() and self.amcl_state_client.service_is_ready())
+                and self.nomotion_client.service_is_ready() and amcl_ready)
             app.manual_pose_service_ready = self.initial_pose_client.service_is_ready()
-            if self.amcl_state_future is not None and self.amcl_state_future.done():
+            if not amcl_ready or (self.amcl_state_future is not None
+                    and not self.amcl_state_future.done()
+                    and now-self.amcl_state_checked_at >= 2.):
+                # An unanswered request can otherwise pin this future forever
+                # after AMCL restarts, leaving the web unable to verify its state.
+                # Never use the last ACTIVE reply after the query is lost.
+                pending = self.amcl_state_future
+                self.amcl_state_future = None
+                if pending is not None and not pending.done():
+                    try:
+                        self.amcl_state_client.remove_pending_request(pending)
+                    except Exception:
+                        # The old future is abandoned even if the service
+                        # vanished while its pending request was removed.
+                        pass
+                    pending.cancel()
+                app.localization_amcl_active_at = 0.
+            if amcl_ready and self.amcl_state_future is not None and self.amcl_state_future.done():
                 try:
                     response = self.amcl_state_future.result()
                     app.localization_amcl_active_at = now if response.current_state.id == 3 else 0.
                 except Exception:
                     app.localization_amcl_active_at = 0.
                 self.amcl_state_future = None
-            if (self.amcl_state_client.service_is_ready() and self.amcl_state_future is None
+            if (amcl_ready and self.amcl_state_future is None
                     and now-self.amcl_state_checked_at >= 1.):
                 self.amcl_state_checked_at = now
-                self.amcl_state_future = self.amcl_state_client.call_async(GetState.Request())
+                try:
+                    self.amcl_state_future = self.amcl_state_client.call_async(GetState.Request())
+                except Exception:
+                    app.localization_amcl_active_at = 0.
             if self.nomotion_future is not None and self.nomotion_future.done():
                 self.nomotion_future = None
 
