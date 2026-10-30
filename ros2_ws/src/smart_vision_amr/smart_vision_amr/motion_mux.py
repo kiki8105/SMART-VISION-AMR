@@ -7,8 +7,10 @@ the supplied launch files; only this node does.
 
 import json
 import math
+import threading
 import time
 import uuid
+from contextlib import nullcontext
 
 from smart_vision_amr.runtime_timing import (
     MUX_METRICS, RuntimeTiming, guard_timing_report, timed_call,
@@ -404,12 +406,20 @@ except ImportError:
 
 
 class MotionMuxNode(Node):
+    OWNERSHIP_MAX_AGE = .5
+
     def __init__(self, context=None, use_sim_time=None):
         overrides = []
         if use_sim_time is not None:
             from rclpy.parameter import Parameter
             overrides.append(Parameter('use_sim_time', value=bool(use_sim_time)))
         super().__init__('motion_mux', context=context, parameter_overrides=overrides)
+        # The control subscription runs in a different executor group from
+        # navigation, graph queries, and status writes. Serialize the small
+        # arbitration/publish critical section across those groups.
+        self._state_lock = threading.RLock()
+        self._status_write_lock = threading.Lock()
+        self._closing = False
         for name, default in (
                 ('manual_timeout', .5), ('auto_timeout', .5),
                 ('max_linear_velocity', .25), ('max_angular_velocity', 1.0),
@@ -441,6 +451,8 @@ class MotionMuxNode(Node):
         self.output_conflict = 'Checking exclusive /cmd_vel ownership'
         self.output_publishers = 0
         self._ownership_checked_at = -math.inf
+        self._ownership_completed_at = -math.inf
+        self._ownership_query_inflight = False
         durable = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                              durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.status_pub = self.create_publisher(
@@ -455,6 +467,7 @@ class MotionMuxNode(Node):
         self._status_published_at = -math.inf
         self._status_transition = None
         self.pending_reset = None
+        self._reset_services_active = 0
         self.last_zero_published_at = None
         if self.get_parameter('allow_legacy_auto_input').value:
             self.create_subscription(Twist, '/smart_vision_amr/navigation_cmd_vel',
@@ -463,48 +476,60 @@ class MotionMuxNode(Node):
                                  self.on_navigation_control, 1)
         self.create_subscription(String, '/smart_vision_amr/localization_health',
                                  self.on_localization_health, 1)
+        from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
+        self.control_group = MutuallyExclusiveCallbackGroup()
+        self.output_group = MutuallyExclusiveCallbackGroup()
+        self.status_group = MutuallyExclusiveCallbackGroup()
         self.create_subscription(String, '/smart_vision_amr/manual_control',
-                                 self.on_control, 1)
+                                 self.on_control, 1, callback_group=self.control_group)
         # ROS timers stop when simulation time pauses. Dead-man watchdogs
         # must continue to run even then, so use a steady clock explicitly.
         from rclpy.clock import Clock, ClockType
         self.steady_clock = Clock(clock_type=ClockType.STEADY_TIME)
         # Reentrant services yield while steady timers/subscriptions process the
         # reset intent and independent sensor watchdogs can veto it.
-        from rclpy.callback_groups import ReentrantCallbackGroup
         self.safety_group = ReentrantCallbackGroup()
         self.create_service(Trigger, '/smart_vision_amr/emergency_stop',
                             self.on_emergency_stop, callback_group=self.safety_group)
         self.create_service(Trigger, '/smart_vision_amr/reset_emergency_stop',
                             self.on_reset_emergency_stop, callback_group=self.safety_group)
-        # Reset verification needs 25 ms polling for only the short, pending
-        # handshake. An always-ready idle timer competes with control packets
-        # on the single-threaded Pi executor even when no reset is requested.
+        # Reset verification needs 25 ms polling only during its short
+        # handshake. An idle timer otherwise needlessly competes for workers.
         self.reset_timer = self.create_timer(
-            .025, self.advance_reset, clock=self.steady_clock)
+            .025, self.advance_reset, clock=self.steady_clock,
+            callback_group=self.safety_group)
         self.reset_timer.cancel()
-        self.create_timer(.05, self.publish_output, clock=self.steady_clock)
-        self.create_timer(.1, self.publish_status, clock=self.steady_clock)
+        self.create_timer(.05, self.publish_output, clock=self.steady_clock,
+                          callback_group=self.output_group)
+        self.create_timer(.1, self.publish_status, clock=self.steady_clock,
+                          callback_group=self.status_group)
         self.publish_status()
 
+    def _state_guard(self):
+        # Small test harnesses construct only the fields they exercise.
+        return getattr(self, '_state_lock', nullcontext())
+
     def on_auto(self, message):
-        self.core.receive_auto(message.linear.x, message.angular.z)
+        with self._state_guard():
+            if not getattr(self, '_closing', False):
+                self.core.receive_auto(message.linear.x, message.angular.z)
 
     def on_navigation_control(self, message):
         try:
             payload = json.loads(message.data)
         except (ValueError, TypeError):
-            self.core.reject_auto(None, 'Malformed autonomous JSON')
-            self.publish_status()
+            with self._state_guard():
+                self.core.reject_auto(None, 'Malformed autonomous JSON')
             return
         # Do not accept a packet already in transit when this mux restarted.
-        if (isinstance(payload, dict) and type(payload.get('sent_at_ns')) is int
-                and payload['sent_at_ns'] < self.auto_started_ns):
-            self.core.reject_auto(payload, 'Autonomous command predates mux startup')
-            self.publish_status()
-            return
-        self.core.receive_stamped_auto(payload, self.get_clock().now().nanoseconds)
-        self.publish_status()
+        with self._state_guard():
+            if getattr(self, '_closing', False):
+                return
+            if (isinstance(payload, dict) and type(payload.get('sent_at_ns')) is int
+                    and payload['sent_at_ns'] < self.auto_started_ns):
+                self.core.reject_auto(payload, 'Autonomous command predates mux startup')
+            else:
+                self.core.receive_stamped_auto(payload, self.get_clock().now().nanoseconds)
 
     def on_localization_health(self, message):
         try:
@@ -513,17 +538,20 @@ class MotionMuxNode(Node):
             return
         if not isinstance(payload, dict):
             return
-        stamp = payload.get('sent_at_ns')
-        if stamp is not None or self.core.require_localization_health:
-            now_ns = self.get_clock().now().nanoseconds
-            if (type(stamp) is not int or stamp < self._health_sent_ns
-                    or stamp < 0 or stamp > now_ns+50_000_000
-                    or now_ns-stamp > int(self.core.localization_health_timeout*1e9)):
+        with self._state_guard():
+            if getattr(self, '_closing', False):
                 return
-            self._health_sent_ns = stamp
-        if self.core.receive_localization_health(payload):
-            self.publish_output()
-            self.publish_status()
+            stamp = payload.get('sent_at_ns')
+            if stamp is not None or self.core.require_localization_health:
+                now_ns = self.get_clock().now().nanoseconds
+                if (type(stamp) is not int or stamp < self._health_sent_ns
+                        or stamp < 0 or stamp > now_ns+50_000_000
+                        or now_ns-stamp > int(self.core.localization_health_timeout*1e9)):
+                    return
+                self._health_sent_ns = stamp
+            accepted = self.core.receive_localization_health(payload)
+            if accepted:
+                self._publish_output_locked()
 
     def _service_packet(self, mode):
         self.service_seq += 1
@@ -533,38 +561,69 @@ class MotionMuxNode(Node):
 
     def on_emergency_stop(self, request, response):
         del request
-        if self.pending_reset is not None:
-            self.pending_reset['future'].set_result(False)
-            self.pending_reset = None
-            self.reset_timer.cancel()
-        packet = self._service_packet('estop')
-        self.core.receive_control(packet, self.get_clock().now().nanoseconds, origin='service')
+        with self._state_guard():
+            canceled = self.pending_reset['future'] if self.pending_reset is not None else None
+            if canceled is not None:
+                self.pending_reset = None
+                self.reset_timer.cancel()
+            packet = self._service_packet('estop')
+            self.core.receive_control(packet, self.get_clock().now().nanoseconds, origin='service')
+            self._publish_output_locked()
+            success = bool(self.output_available and self.core.estop_latched
+                           and self.last_zero_published_at is not None
+                           and time.monotonic()-self.last_zero_published_at < .1)
+            conflict = self.output_conflict
+        if canceled is not None:
+            canceled.set_result(False)
         self.control_pub.publish(String(data=json.dumps(packet)))
-        self.publish_output()
-        self.publish_status(force=True)
-        response.success = bool(self.output_available and self.core.estop_latched
-                                and self.last_zero_published_at is not None
-                                and time.monotonic()-self.last_zero_published_at < .1)
+        self.publish_status(force=True, refresh_ownership=False)
+        response.success = success
         response.message = ('Emergency stop latched; zero velocity published. '
                             'Physical standstill is not measured.' if response.success else
                             'Stop latched but exclusive /cmd_vel output is unavailable: '
-                            + self.output_conflict)
+                            + conflict)
         return response
 
     async def on_reset_emergency_stop(self, request, response):
+        with self._state_guard():
+            self._reset_services_active += 1
+        try:
+            return await self._handle_reset_emergency_stop(request, response)
+        finally:
+            with self._state_guard():
+                self._reset_services_active -= 1
+
+    async def _handle_reset_emergency_stop(self, request, response):
         del request
-        if self.pending_reset is not None:
-            response.success, response.message = False, 'A reset is already pending'
-            return response
         from rclpy.task import Future
-        future = Future()
-        packet = self._service_packet('reset')
+        with self._state_guard():
+            if getattr(self, '_closing', False):
+                response.success, response.message = False, 'Motion mux is shutting down'
+                return response
+            if self.pending_reset is not None:
+                response.success, response.message = False, 'A reset is already pending'
+                return response
+            future = Future()
+            packet = self._service_packet('reset')
+            reset = {'future': future, 'packet': packet,
+                     'at': time.monotonic(), 'applied': False}
+            self.pending_reset = reset
         # Publish intent before changing state; ekf_sensor_guard correlates this
         # source with the subsequent unlatched motion_status and can re-latch.
-        self.control_pub.publish(String(data=json.dumps(packet)))
-        self.pending_reset = {'future': future, 'packet': packet,
-                              'at': time.monotonic(), 'applied': False}
-        self.reset_timer.reset()
+        with self._state_guard():
+            still_pending = self.pending_reset is reset
+        if still_pending:
+            try:
+                self.control_pub.publish(String(data=json.dumps(packet)))
+            except Exception:
+                with self._state_guard():
+                    if self.pending_reset is reset:
+                        self.pending_reset = None
+                response.success, response.message = False, 'Cannot publish safety reset intent'
+                return response
+        with self._state_guard():
+            if self.pending_reset is reset:
+                self.reset_timer.reset()
         accepted = await future
         response.success = bool(accepted)
         response.message = ('Emergency reset acknowledged; motion remains held. '
@@ -576,38 +635,77 @@ class MotionMuxNode(Node):
         timing = getattr(self, '_timing', None)
         if timing is not None:
             timing.gap('reset_tick_gap', .025)
-        reset = self.pending_reset
-        if reset is None:
-            self.reset_timer.cancel()
-            return
-        age = time.monotonic()-reset['at']
-        if not reset['applied'] and age >= .1:
-            reset['applied'] = True
-            packet = reset['packet']
-            reset['accepted'] = self.core.receive_control(
-                packet, self.get_clock().now().nanoseconds, origin='service')
-            self.publish_output()
-            self.publish_status(force=True)
-        if age >= .5:
-            factor, _, _, _ = self.core._localization_policy()
-            accepted = (reset.get('accepted', False) and not self.core.estop_latched
-                        and self.core.source_id == self.service_source
-                        and self.output_available and factor > 0)
-            if not accepted:
-                self.core.estop_latched = True
-                self.core.mode, self.core.reason = 'estop', 'Safety reset rejected'
-                self.publish_output()
-                self.publish_status()
-            else:
-                # Late manual/navigation packets may have arrived while guards
-                # verified the reset. Completion always returns to explicit hold.
-                self.core.mode, self.core.reason = 'hold', 'Safety reset confirmed; explicit resume required'
-                self.core.manual_velocity, self.core.auto_at = (0.0, 0.0), None
-            self.pending_reset = None
-            self.reset_timer.cancel()
-            self.publish_output()
-            self.publish_status(force=True)
-            reset['future'].set_result(accepted)
+        applied = completed = False
+        with self._state_guard():
+            reset = self.pending_reset
+            if reset is None or getattr(self, '_closing', False):
+                self.reset_timer.cancel()
+                return
+            if reset.get('finishing'):
+                return
+            age = time.monotonic()-reset['at']
+            if not reset['applied'] and age >= .1:
+                reset['applied'] = True
+                packet = reset['packet']
+                reset['accepted'] = self.core.receive_control(
+                    packet, self.get_clock().now().nanoseconds, origin='service')
+                self._publish_output_locked()
+                applied = True
+            # Give safety guards their full veto window after the unlatched
+            # status was actually published, even when that write was slow.
+            if (reset.get('reported_at') is not None
+                    and time.monotonic()-reset['reported_at'] >= .4):
+                factor, _, _, _ = self.core._localization_policy()
+                accepted = (reset.get('accepted', False) and not self.core.estop_latched
+                            and self.core.source_id == self.service_source
+                            and self.output_available and factor > 0)
+                if not accepted:
+                    self.core.estop_latched = True
+                    self.core.mode, self.core.reason = 'estop', 'Safety reset rejected'
+                else:
+                    # Late manual/navigation packets may have arrived while guards
+                    # verified the reset. Completion always returns to explicit hold.
+                    self.core.mode, self.core.reason = 'hold', 'Safety reset confirmed; explicit resume required'
+                    self.core.manual_velocity, self.core.auto_at = (0.0, 0.0), None
+                reset['finishing'] = True
+                self.reset_timer.cancel()
+                self._publish_output_locked()
+                completed = True
+        if applied:
+            try:
+                self.publish_status(force=True, refresh_ownership=False)
+            except Exception:
+                with self._state_guard():
+                    if self.pending_reset is reset:
+                        self.core.estop_latched = True
+                        self.core.mode, self.core.reason = 'estop', 'Safety reset status unavailable'
+                        self._publish_output_locked()
+                        self.pending_reset = None
+                        self.reset_timer.cancel()
+                        reset['future'].set_result(False)
+                return
+            with self._state_guard():
+                if self.pending_reset is reset:
+                    reset['reported_at'] = time.monotonic()
+        if completed:
+            try:
+                # Report a completed hold while retaining the internal zero
+                # barrier until the service result has been committed.
+                self.publish_status(force=True, refresh_ownership=False)
+            except Exception:
+                with self._state_guard():
+                    if self.pending_reset is reset:
+                        self.core.estop_latched = True
+                        self.core.mode, self.core.reason = 'estop', 'Safety reset status unavailable'
+                        self._publish_output_locked()
+                        self.pending_reset = None
+                        reset['future'].set_result(False)
+                return
+            with self._state_guard():
+                if self.pending_reset is reset:
+                    self.pending_reset = None
+                    accepted = bool(accepted and not self.core.estop_latched)
+                    reset['future'].set_result(accepted)
 
     def on_control(self, message):
         return timed_call(getattr(self, '_timing', None), 'control_callback',
@@ -619,37 +717,70 @@ class MotionMuxNode(Node):
         try:
             payload = json.loads(message.data)
         except (ValueError, TypeError):
-            self.core.reject_control(None, 'Malformed control JSON')
-            self.publish_status()
+            with self._state_guard():
+                self.core.reject_control(None, 'Malformed control JSON')
             return
         # Locally created service packets are published for guard observation,
         # never applied by DDS loopback ahead of the reset-intent grace period.
         if isinstance(payload, dict) and payload.get('source_id') == self.service_source:
             return
-        if timing is not None and isinstance(payload, dict):
-            stamp = payload.get('sent_at_ns')
-            if type(stamp) is int:
-                timing.observe('control_receipt_age', (receipt_ns-stamp)/1e9)
-            if payload.get('source_id') == self.core.EKF_SENSOR_SAFETY_SOURCE:
-                report = guard_timing_report(payload)
-                if report is not None:
-                    sequence = payload.get('seq')
-                    self._guard_timing = {'reported_on_seq': sequence if type(sequence) is int else None,
-                                          'metrics': report}
-        if (isinstance(payload, dict) and payload.get('mode') == 'reset'
-                and not self.allow_topic_reset):
-            self.core.reject_control(payload, 'Topic reset is disabled; use reset_emergency_stop service')
-            self.publish_status()
-            return
-        if self.core.receive_control(payload, self.get_clock().now().nanoseconds, origin='topic'):
-            self.publish_output()
-        self.publish_status()
+        # A slow status write would hold this mutually exclusive callback group
+        # and queue later ESTOP packets. The independent status timer publishes
+        # the resulting state, while command acceptance and /cmd_vel remain
+        # serialized below.
+        canceled = None
+        with self._state_guard():
+            if getattr(self, '_closing', False):
+                return
+            if timing is not None and isinstance(payload, dict):
+                stamp = payload.get('sent_at_ns')
+                if type(stamp) is int:
+                    timing.observe('control_receipt_age', (receipt_ns-stamp)/1e9)
+                if payload.get('source_id') == self.core.EKF_SENSOR_SAFETY_SOURCE:
+                    report = guard_timing_report(payload)
+                    if report is not None:
+                        sequence = payload.get('seq')
+                        self._guard_timing = {
+                            'reported_on_seq': sequence if type(sequence) is int else None,
+                            'metrics': report}
+            if (isinstance(payload, dict) and payload.get('mode') == 'reset'
+                    and not self.allow_topic_reset):
+                self.core.reject_control(
+                    payload, 'Topic reset is disabled; use reset_emergency_stop service')
+                return
+            if (self.pending_reset is not None and self.pending_reset.get('finishing')
+                    and (not isinstance(payload, dict) or payload.get('mode') != 'estop')):
+                self.core.reject_control(payload, 'Safety reset finalizing; explicit resume required')
+                return
+            if self.core.receive_control(
+                    payload, self.get_clock().now().nanoseconds, origin='topic'):
+                reset = self.pending_reset
+                if (isinstance(payload, dict) and payload.get('mode') == 'estop'
+                        and reset is not None
+                        and (payload.get('source_id') != self.core.EKF_SENSOR_SAFETY_SOURCE
+                             or reset['applied'])):
+                    # An operator STOP or a fresh safety veto must not be
+                    # cleared by the delayed service reset tick. The EKF
+                    # guard's pre-apply heartbeat is still part of its normal
+                    # reset handshake; it may veto after status goes unlatched.
+                    canceled = reset['future']
+                    self.pending_reset = None
+                    self.reset_timer.cancel()
+                self._publish_output_locked()
+        if canceled is not None:
+            canceled.set_result(False)
 
-    def publish_output(self):
+    def _publish_output_locked(self):
         timing = getattr(self, '_timing', None)
         if timing is not None:
             timing.gap('output_gap', .05)
-        self.check_output_ownership()
+        completed_at = getattr(self, '_ownership_completed_at', None)
+        if (self.output_available and completed_at is not None
+                and time.monotonic()-completed_at > self.OWNERSHIP_MAX_AGE):
+            # A stalled graph query must not leave an old positive result
+            # authorizing motion indefinitely.
+            self.output_available = False
+            self.output_conflict = 'Exclusive /cmd_vel ownership check is stale'
         if not self.output_available:
             # Even a zero command would interfere with an existing, unmanaged
             # controller. Wait for an explicit exclusive handover instead.
@@ -659,89 +790,129 @@ class MotionMuxNode(Node):
         # explicit reset. Keep the motor output at zero throughout that window,
         # even if a delayed UI/navigation packet is accepted by the core.
         message.linear.x, message.angular.z = ((0.0, 0.0) if
-            getattr(self, 'pending_reset', None) is not None else self.core.output())
+            getattr(self, 'pending_reset', None) is not None
+            or getattr(self, '_closing', False) else self.core.output())
         timed_call(timing, 'cmd_vel_publish', self.output_pub.publish, message)
         self.last_output_was_zero = message.linear.x == 0.0 and message.angular.z == 0.0
         if self.last_output_was_zero:
             self.last_zero_published_at = time.monotonic()
 
+    def publish_output(self, refresh_ownership=True):
+        if refresh_ownership:
+            self.check_output_ownership()
+        with self._state_guard():
+            self._publish_output_locked()
+
     def check_output_ownership(self):
         """Back off completely if any other publisher can command the robot."""
         now = time.monotonic()
-        if now-self._ownership_checked_at < .2:
-            return
-        self._ownership_checked_at = now
+        with self._state_guard():
+            if getattr(self, '_ownership_query_inflight', False):
+                return
+            if now-self._ownership_checked_at < .2:
+                return
+            self._ownership_checked_at = now
+            self._ownership_query_inflight = True
         try:
             endpoints = timed_call(getattr(self, '_timing', None), 'ownership_query',
                                    self.get_publishers_info_by_topic, self.output_pub.topic_name)
-            self.output_publishers = len(endpoints)
             own_endpoint = (len(endpoints) == 1
                             and endpoints[0].node_name == self.get_name()
                             and endpoints[0].node_namespace == self.get_namespace())
-            self.output_available = own_endpoint
+            publishers = len(endpoints)
             if own_endpoint:
-                self.output_conflict = ''
+                conflict = ''
             elif not endpoints:
-                self.output_conflict = 'Waiting for local /cmd_vel publisher discovery'
+                conflict = 'Waiting for local /cmd_vel publisher discovery'
             else:
                 names = [f'{item.node_namespace.rstrip("/")}/{item.node_name}'
                          for item in endpoints]
-                self.output_conflict = ('Unmanaged /cmd_vel publisher: '
-                                        + ', '.join(names))
+                conflict = 'Unmanaged /cmd_vel publisher: '+', '.join(names)
         except Exception as exc:
             # Failure to inspect the graph must never imply exclusive access.
-            self.output_available = False
-            self.output_conflict = 'Cannot verify exclusive /cmd_vel ownership: '+str(exc)
+            own_endpoint, publishers = False, 0
+            conflict = 'Cannot verify exclusive /cmd_vel ownership: '+str(exc)
+        with self._state_guard():
+            completed_at = time.monotonic()
+            duration = completed_at-now
+            if duration > self.OWNERSHIP_MAX_AGE:
+                # A slow graph lookup may have taken its snapshot long before
+                # returning. Retry promptly and do not trust a stale success.
+                own_endpoint = False
+                conflict = 'Exclusive /cmd_vel ownership check timed out'
+                self._ownership_checked_at = -math.inf
+            self._ownership_query_inflight = False
+            self._ownership_completed_at = completed_at
+            self.output_publishers = publishers
+            self.output_available = own_endpoint
+            self.output_conflict = conflict
 
-    def publish_status(self, force=False):
+    def publish_status(self, force=False, refresh_ownership=True):
         timing = getattr(self, '_timing', None)
-        if timing is not None:
-            timing.gap('status_gap', .1)
-        self.check_output_ownership()
-        status = self.core.status()
-        transition = (status['mode'], status['source_id'], status['estop_latched'],
-                      status['reason'], self.output_available, self.output_conflict,
-                      status['localization_speed_factor'], status['autonomous_allowed'],
-                      getattr(self, 'pending_reset', None) is not None)
-        now = time.monotonic()
-        if (not force and transition == getattr(self, '_status_transition', None)
-                and now-getattr(self, '_status_published_at', -math.inf) < .1):
-            return False
-        self._status_published_at, self._status_transition = now, transition
-        self.status_sequence = getattr(self, 'status_sequence', 0)+1
-        status['status_seq'] = self.status_sequence
-        status['sent_at_ns'] = self.get_clock().now().nanoseconds
-        status['mux_instance_id'] = getattr(self, 'service_source', '')
-        status['available'] = self.output_available
-        status['output_publishers'] = self.output_publishers
-        status['stop_acknowledged'] = bool(
-            self.output_available and getattr(self, 'last_output_was_zero', False)
-            and (getattr(self, 'pending_reset', None) is not None
-                 or self.core.output() == (0.0, 0.0))
-            and getattr(self, 'last_zero_published_at', None) is not None
-            and time.monotonic()-self.last_zero_published_at < .2)
-        status['reset_pending'] = getattr(self, 'pending_reset', None) is not None
-        if status['reset_pending']:
-            status['output_linear'] = status['output_angular'] = 0.0
-            status['output_owner'] = 'safety_reset'
-        if not self.output_available:
-            status['reason'] = self.output_conflict
-        if timing is not None:
-            # Publish duration is available on the next status sample. Guard
-            # timings likewise describe completed earlier publishes, never the
-            # time spent before its currently arriving packet was stamped.
-            status['timing_diagnostics'] = {
-                'enabled': True, 'mux': timing.snapshot(),
-                'ekf_sensor_guard': getattr(self, '_guard_timing', None)}
-        message = String()
-        message.data = json.dumps(status, separators=(',', ':'))
-        timed_call(timing, 'status_publish', self.status_pub.publish, message)
-        return True
+        with getattr(self, '_status_write_lock', nullcontext()):
+            if timing is not None:
+                timing.gap('status_gap', .1)
+            if refresh_ownership:
+                self.check_output_ownership()
+            with self._state_guard():
+                status = self.core.status()
+                reset = getattr(self, 'pending_reset', None)
+                reset_pending = reset is not None and not reset.get('finishing')
+                transition = (status['mode'], status['source_id'], status['estop_latched'],
+                              status['reason'], self.output_available, self.output_conflict,
+                              status['localization_speed_factor'], status['autonomous_allowed'],
+                              reset_pending)
+                now = time.monotonic()
+                if (not force and transition == getattr(self, '_status_transition', None)
+                        and now-getattr(self, '_status_published_at', -math.inf) < .1):
+                    return False
+                self._status_published_at, self._status_transition = now, transition
+                self.status_sequence = getattr(self, 'status_sequence', 0)+1
+                status['status_seq'] = self.status_sequence
+                status['sent_at_ns'] = self.get_clock().now().nanoseconds
+                status['mux_instance_id'] = getattr(self, 'service_source', '')
+                status['available'] = self.output_available
+                status['output_publishers'] = self.output_publishers
+                status['stop_acknowledged'] = bool(
+                    self.output_available and getattr(self, 'last_output_was_zero', False)
+                    and (reset_pending
+                         or self.core.output() == (0.0, 0.0))
+                    and getattr(self, 'last_zero_published_at', None) is not None
+                    and time.monotonic()-self.last_zero_published_at < .2)
+                status['reset_pending'] = reset_pending
+                if status['reset_pending']:
+                    status['output_linear'] = status['output_angular'] = 0.0
+                    status['output_owner'] = 'safety_reset'
+                if not self.output_available:
+                    status['reason'] = self.output_conflict
+                if timing is not None:
+                    # Publish duration is available on the next status sample.
+                    status['timing_diagnostics'] = {
+                        'enabled': True, 'mux': timing.snapshot(),
+                        'ekf_sensor_guard': getattr(self, '_guard_timing', None)}
+                message = String()
+                message.data = json.dumps(status, separators=(',', ':'))
+            timed_call(timing, 'status_publish', self.status_pub.publish, message)
+            return True
+
+    def begin_shutdown(self):
+        with self._state_guard():
+            self._closing = True
+            canceled = self.pending_reset['future'] if self.pending_reset is not None else None
+            if canceled is not None:
+                self.pending_reset = None
+                self.reset_timer.cancel()
+            self.core.mode, self.core.reason = 'hold', 'Motion mux shutting down'
+            self.core.estop_latched = True
+            self.core.manual_velocity, self.core.auto_at = (0.0, 0.0), None
+            self._publish_output_locked()
+        if canceled is not None:
+            canceled.set_result(False)
 
 
 def main(args=None):
     import signal
-    from rclpy.executors import SingleThreadedExecutor
+    from rclpy.executors import MultiThreadedExecutor
     from rclpy.signals import SignalHandlerOptions
     # Publish the final stop before invalidating the context on normal launch
     # shutdown. SIGKILL/power loss still requires the motor firmware watchdog.
@@ -750,7 +921,7 @@ def main(args=None):
     # Keep the node registered for the entire run. Repeated rclpy.spin_once(node)
     # removes and re-adds it on every pass, which can starve control subscriptions
     # behind the output/status timers on a busy Raspberry Pi.
-    executor = SingleThreadedExecutor(context=node.context)
+    executor = MultiThreadedExecutor(num_threads=4, context=node.context)
     executor.add_node(node)
     stop_requested = [False]
 
@@ -766,11 +937,23 @@ def main(args=None):
         pass
     finally:
         if rclpy.ok():
-            node.core.mode = 'hold'
-            node.core.estop_latched = True
-            node.publish_output()
+            node.begin_shutdown()
+            # Resolving an awaited reset Future queues its service task for a
+            # later executor spin. Drain that task before shutdown waits for
+            # worker completion, or Humble can wait forever.
+            deadline = time.monotonic()+2.0
+            while time.monotonic() < deadline:
+                with node._state_guard():
+                    if not node._reset_services_active:
+                        break
+                executor.spin_once(timeout_sec=.01)
             time.sleep(.05)  # Give DDS's transport thread time to flush the stop.
-        executor.shutdown()
+        executor.shutdown(timeout_sec=2.0)
+        if rclpy.ok():
+            # All callbacks have finished; no old worker can follow this with
+            # a nonzero command.
+            node.publish_output(refresh_ownership=False)
+            time.sleep(.05)
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()

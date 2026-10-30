@@ -180,6 +180,12 @@ class EkfSensorGuardCore:
         self.healthy_since = None
         self.trip_reason = reason
 
+    def latch_external_stop(self):
+        """Honor an operator/mux stop without erasing healthy sensor history."""
+        self.armed = False
+        self.latched = True
+        self.trip_reason = 'Motion mux emergency stop'
+
     def observe(self, name, stamp_ns, wall_ns, monotonic_seconds):
         if name not in self.stamps:
             raise ValueError(f'Unknown sensor stream: {name}')
@@ -291,6 +297,9 @@ class EkfSensorGuard(Node):
         self.safety_seq = 0
         self.pending_reset = None
         self.last_reset_seq = {}
+        self.mux_instance_id = None
+        self.retired_mux_instances = set()
+        self.last_status_seq = -1
         self.last_owner_check_at = None
         self.control_pub = self.create_publisher(
             String, '/smart_vision_amr/manual_control', 10)
@@ -451,22 +460,43 @@ class EkfSensorGuard(Node):
         self.last_estop_at = now
 
     def on_control(self, message):
-        """Record an explicit non-safety reset intent before mux state clears."""
+        """Track reset intent and invalidate it when an external stop follows."""
         try:
             payload = json.loads(message.data)
         except (ValueError, TypeError):
             return
-        if not isinstance(payload, dict) or payload.get('mode') != 'reset':
+        if not isinstance(payload, dict) or payload.get('mode') not in {'reset', 'estop'}:
             return
+        mode = payload['mode']
         source = payload.get('source_id')
         seq = payload.get('seq')
         stamp_ns = payload.get('sent_at_ns')
         now_ns = self.get_clock().now().nanoseconds
+        safety_sources = ('ekf_sensor_safety', 'path_follower_recovery_safety',
+                          'localization_safety')
         if (not isinstance(source, str) or not source or
-                source in ('ekf_sensor_safety', 'path_follower_recovery_safety',
-                           'localization_safety') or
+                (mode == 'reset' and source in safety_sources) or
+                (mode == 'estop' and source == EkfSensorGuard.SAFETY_SOURCE) or
                 type(seq) is not int or seq <= self.last_reset_seq.get(source, -1) or
                 type(stamp_ns) is not int or abs(now_ns - stamp_ns) > 1_000_000_000):
+            return
+        if source.startswith('mux-service:'):
+            retired = getattr(self, 'retired_mux_instances', set())
+            if source in retired:
+                return
+            current = getattr(self, 'mux_instance_id', None)
+            if current != source:
+                if current is not None:
+                    retired.add(current)
+                self.retired_mux_instances = retired
+                self.mux_instance_id = source
+                self.last_status_seq = -1
+        if mode == 'estop':
+            self.last_reset_seq[source] = seq
+            self.pending_reset = None
+            self.acknowledged = False
+            if not self.core.latched:
+                self.core.latch_external_stop()
             return
         self.last_reset_seq[source] = seq
         self.pending_reset = (source, time.monotonic())
@@ -476,11 +506,32 @@ class EkfSensorGuard(Node):
             status = json.loads(message.data)
         except (ValueError, TypeError):
             return
-        if not isinstance(status, dict) or not self.core.latched:
+        if not isinstance(status, dict):
             return
+        metadata = ('mux_instance_id', 'status_seq', 'sent_at_ns')
+        if any(key in status for key in metadata):
+            instance, seq, stamp = (status.get(key) for key in metadata)
+            if (not isinstance(instance, str) or not instance or type(seq) is not int
+                    or seq < 0 or type(stamp) is not int
+                    or abs(self.get_clock().now().nanoseconds-stamp) > 1_000_000_000
+                    or instance in getattr(self, 'retired_mux_instances', set())):
+                return
+            current = getattr(self, 'mux_instance_id', None)
+            if current != instance:
+                if current is not None:
+                    self.retired_mux_instances.add(current)
+                self.mux_instance_id = instance
+                self.last_status_seq = -1
+            if seq <= getattr(self, 'last_status_seq', -1):
+                return
+            self.last_status_seq = seq
+        elif getattr(self, 'mux_instance_id', None) is not None:
+            return  # Legacy packets cannot bypass an identified mux stream.
         if status.get('estop_latched') is True:
+            if not self.core.latched:
+                self.core.latch_external_stop()
             self.acknowledged = True
-        elif status.get('estop_latched') is False and self.acknowledged:
+        elif status.get('estop_latched') is False and self.core.latched and self.acknowledged:
             # A mux/web restart also produces true->false without a reset.
             # Require a fresh, matching web reset packet to distinguish it.
             self.acknowledged = False

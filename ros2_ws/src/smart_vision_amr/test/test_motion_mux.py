@@ -579,6 +579,9 @@ class ControlDiagnosticsNodeTest(unittest.TestCase):
             for seq in range(1, 101):
                 node.on_control(SimpleNamespace(data=json.dumps({'source_id': 'web',
                     'seq': seq, 'mode': 'manual', 'linear': .1, 'sent_at_ns': 0})))
+            # The control path leaves status publication to its own timer.
+            self.assertEqual(node.status_pub.publish.call_count, 0)
+            self.assertTrue(node.publish_status())
             self.assertEqual(node.status_pub.publish.call_count, 1)
             self.assertEqual(node.core.control_received, 100)
         with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=10.11):

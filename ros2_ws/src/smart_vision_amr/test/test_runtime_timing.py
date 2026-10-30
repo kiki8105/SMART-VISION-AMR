@@ -1,6 +1,7 @@
 """Delay attribution uses fake clocks/publishers, with no ROS node or robot."""
 
 import json
+import threading
 from types import SimpleNamespace
 
 import pytest
@@ -67,6 +68,41 @@ def test_instrumentation_preserves_results_and_exceptions():
     assert timed_call(None, 'write', lambda: 'unchanged') == 'unchanged'
 
 
+def test_timing_snapshots_are_safe_during_parallel_callbacks():
+    timing = RuntimeTiming({'control', 'status'})
+    errors = []
+    started, release = threading.Event(), threading.Event()
+
+    def slow_callback():
+        started.set()
+        assert release.wait(2.)
+
+    worker = threading.Thread(target=lambda: timed_call(timing, 'status', slow_callback))
+    worker.start()
+    assert started.wait(2.)
+    # timed_call must not hold the map lock across the callback itself.
+    def observe_many():
+        for _ in range(1000):
+            timing.observe('control', .01)
+
+    observers = [threading.Thread(target=observe_many) for _ in range(2)]
+    for observer in observers:
+        observer.start()
+    for _ in range(1000):
+        try:
+            timing.snapshot()
+        except RuntimeError as exc:
+            errors.append(exc)
+    for observer in observers:
+        observer.join(timeout=2.)
+        assert not observer.is_alive()
+    release.set()
+    worker.join(timeout=2.)
+    assert not worker.is_alive()
+    assert not errors
+    assert timing.snapshot()['control']['count'] == 2000
+
+
 def mux_harness(clock, timing=True):
     from smart_vision_amr.motion_mux import MotionMuxCore, MotionMuxNode
 
@@ -108,18 +144,22 @@ def test_slow_status_publish_is_separate_from_control_arrival_age(monkeypatch):
     mux = mux_harness(clock)
     mux.status_pub.delay = .35
     mux.output_pub.delay = .02
+    mux.output_available = True  # Cached exclusive ownership; control avoids a graph query.
     payload = {'source_id': 'web', 'seq': 1, 'mode': 'hold',
                'sent_at_ns': int((clock()-.15)*1e9)}
     mux.on_control(SimpleNamespace(data=json.dumps(payload)))
     metrics = mux._timing.snapshot()
     assert metrics['control_receipt_age']['last_seconds'] == pytest.approx(.15)
-    assert metrics['ownership_query']['max_seconds'] == pytest.approx(.025)
+    assert 'ownership_query' not in metrics
     assert metrics['cmd_vel_publish']['max_seconds'] == pytest.approx(.02)
-    assert metrics['status_publish']['max_seconds'] == pytest.approx(.35)
-    assert metrics['control_callback']['max_seconds'] == pytest.approx(.395)
+    assert 'status_publish' not in metrics
+    assert metrics['control_callback']['max_seconds'] == pytest.approx(.02)
     assert mux.core.last_control['accepted'] is True
-    # Completed status-write time appears in the NEXT snapshot, without
-    # rewriting the preceding control's original stamp or receive observation.
+    # The independent status write can be slow without delaying control.
+    mux.publish_status(force=True)
+    assert mux._timing.snapshot()['status_publish']['max_seconds'] == pytest.approx(.35)
+    assert mux._timing.snapshot()['ownership_query']['max_seconds'] == pytest.approx(.025)
+    # Completed status-write time appears in the next snapshot.
     mux.publish_status(force=True)
     status = json.loads(mux.status_pub.messages[-1].data)
     assert status['timing_diagnostics']['mux']['status_publish']['max_seconds'] == pytest.approx(.35)
@@ -166,6 +206,7 @@ def test_disabled_mux_omits_diagnostics_and_does_not_accept_old_commands():
         'sent_at_ns': int((clock()-2.)*1e9)})))
     assert mux.core.control_rejected == 1
     assert mux.core.output() == (0., 0.)
+    mux.publish_status()
     assert 'timing_diagnostics' not in json.loads(mux.status_pub.messages[-1].data)
 
 

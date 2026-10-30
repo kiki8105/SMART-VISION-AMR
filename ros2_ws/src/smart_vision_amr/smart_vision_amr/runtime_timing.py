@@ -1,6 +1,7 @@
 """Optional, bounded runtime observations; never evidence for motion permission."""
 
 import math
+import threading
 import time
 
 
@@ -26,22 +27,27 @@ class RuntimeTiming:
         self.metrics = {}
         self.previous = {}
         self.last_warning_at = -math.inf
+        self._lock = threading.Lock()
 
     def observe(self, name, value, *, warning_excess=None):
         if name not in self.names or type(value) not in (int, float) or not math.isfinite(value):
             return
         value = float(value)
-        metric = self.metrics.get(name)
-        if metric is None:
-            self.metrics[name] = {'count': 1, 'last_seconds': value, 'max_seconds': value}
-        else:
-            metric['count'] += 1
-            metric['last_seconds'] = value
-            metric['max_seconds'] = max(metric['max_seconds'], value)
-        slow = abs(value) if warning_excess is None else warning_excess
-        now = self.clock()
-        if self.warning is not None and slow >= .1 and now-self.last_warning_at >= 1.:
-            self.last_warning_at = now
+        warn = False
+        with self._lock:
+            metric = self.metrics.get(name)
+            if metric is None:
+                self.metrics[name] = {'count': 1, 'last_seconds': value, 'max_seconds': value}
+            else:
+                metric['count'] += 1
+                metric['last_seconds'] = value
+                metric['max_seconds'] = max(metric['max_seconds'], value)
+            slow = abs(value) if warning_excess is None else warning_excess
+            now = self.clock()
+            if self.warning is not None and slow >= .1 and now-self.last_warning_at >= 1.:
+                self.last_warning_at = now
+                warn = True
+        if warn:
             try:
                 self.warning(f'Runtime timing: {name}={value:.3f}s (diagnostic only)')
             except Exception:
@@ -49,15 +55,17 @@ class RuntimeTiming:
 
     def gap(self, name, expected_period):
         now = self.clock()
-        previous = self.previous.get(name)
-        if name in self.names:
-            self.previous[name] = now
+        with self._lock:
+            previous = self.previous.get(name)
+            if name in self.names:
+                self.previous[name] = now
         if previous is not None:
             elapsed = max(0., now-previous)
             self.observe(name, elapsed, warning_excess=max(0., elapsed-expected_period))
 
     def snapshot(self):
-        return {name: dict(metric) for name, metric in self.metrics.items()}
+        with self._lock:
+            return {name: dict(metric) for name, metric in self.metrics.items()}
 
 
 def timed_call(timing, name, callback, *args, **kwargs):

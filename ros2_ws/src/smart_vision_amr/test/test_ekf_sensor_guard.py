@@ -349,6 +349,107 @@ def test_mux_restart_cannot_clear_guard_without_explicit_reset_packet():
     assert not core.latched and core.armed
 
 
+def test_late_unlatched_reset_status_cannot_rearm_after_estop_in_either_order():
+    def make_guard():
+        core = EkfSensorGuardCore(arm_seconds=.001)
+        now = time.monotonic()
+        feed_all(core, now)
+        core.tick(now)
+        core.healthy_since = now-.1
+
+        class FakeGuard:
+            def __init__(self):
+                self.core = core
+                self.acknowledged = False
+                self.pending_reset = None
+                self.last_reset_seq = {}
+                self.mux_instance_id = None
+                self.retired_mux_instances = set()
+                self.last_status_seq = -1
+                self.estop_count = 0
+
+            def get_clock(self):
+                return SimpleNamespace(now=lambda: SimpleNamespace(nanoseconds=20_000_000_000))
+
+            def get_logger(self):
+                return SimpleNamespace(info=lambda *_: None, error=lambda *_: None)
+
+            def _publish_estop(self, _now):
+                self.estop_count += 1
+
+        return FakeGuard()
+
+    def status(seq, latched, instance='mux-service:current'):
+        return String(data=json.dumps({
+            'mux_instance_id': instance, 'status_seq': seq,
+            'sent_at_ns': 20_000_000_000, 'source_id': 'mux-service:current',
+            'estop_latched': latched}))
+
+    def control(source, seq, mode):
+        return String(data=json.dumps({
+            'source_id': source, 'seq': seq, 'mode': mode,
+            'sent_at_ns': 20_000_000_000}))
+
+    for stop_first in (True, False):
+        guard = make_guard()
+        EkfSensorGuard.on_motion_status(guard, status(1, True))
+        EkfSensorGuard.on_control(guard, control('mux-service:current', 1, 'reset'))
+        assert guard.pending_reset is not None
+        if stop_first:
+            EkfSensorGuard.on_control(guard, control('mux-service:current', 2, 'estop'))
+            EkfSensorGuard.on_motion_status(guard, status(2, False))
+        else:
+            EkfSensorGuard.on_motion_status(guard, status(2, False))
+            assert not guard.core.latched  # The stale status briefly rearmed it.
+            EkfSensorGuard.on_control(guard, control('mux-service:current', 2, 'estop'))
+        assert guard.pending_reset is None
+        assert guard.core.latched and not guard.core.armed
+        EkfSensorGuard.on_motion_status(guard, status(3, True))
+        EkfSensorGuard.on_motion_status(guard, status(2, False))
+        assert guard.core.latched and guard.last_status_seq == 3
+        # An operator stop must not discard the already-healthy sensor window.
+        # A subsequent deliberate reset can arm immediately if sensors remain
+        # healthy; only a genuine sensor fault restarts the arm interval.
+        EkfSensorGuard.on_control(guard, control('mux-service:current', 3, 'reset'))
+        EkfSensorGuard.on_motion_status(guard, status(4, False))
+        assert guard.core.armed and not guard.core.latched
+        EkfSensorGuard.on_motion_status(guard, status(1, True, 'mux-service:new'))
+        assert guard.mux_instance_id == 'mux-service:new'
+        EkfSensorGuard.on_motion_status(guard, status(99, False))
+        assert guard.mux_instance_id == 'mux-service:new' and guard.core.latched
+
+
+def test_fresh_ui_estop_invalidates_reset_intent_but_guard_heartbeat_does_not():
+    class FakeGuard:
+        def __init__(self):
+            self.core = EkfSensorGuardCore()
+            self.acknowledged = True
+            self.pending_reset = None
+            self.last_reset_seq = {}
+            self.mux_instance_id = 'mux-service:current'
+            self.retired_mux_instances = set()
+
+        def get_clock(self):
+            return SimpleNamespace(now=lambda: SimpleNamespace(nanoseconds=20_000_000_000))
+
+    guard = FakeGuard()
+
+    def send(source, seq, mode, stamp=20_000_000_000):
+        EkfSensorGuard.on_control(guard, String(data=json.dumps({
+            'source_id': source, 'seq': seq, 'mode': mode, 'sent_at_ns': stamp})))
+
+    send('mux-service:current', 1, 'reset')
+    assert guard.pending_reset is not None
+    send('ekf_sensor_safety', 10, 'estop')
+    assert guard.pending_reset is not None  # Its own periodic latched heartbeat.
+    send('web', 1, 'estop', stamp=0)
+    assert guard.pending_reset is not None  # Stale external packets are ignored.
+    send('web', 2, 'estop')
+    assert guard.pending_reset is None
+    send('mux-service:current', 1, 'reset')
+    assert guard.pending_reset is None  # The old intent cannot be replayed.
+
+
 def test_latched_guard_reasserts_estop_after_ack_if_mux_restart_status_is_lost():
     now = time.monotonic()
 

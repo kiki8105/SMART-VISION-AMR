@@ -8,7 +8,7 @@ from unittest.mock import patch
 import rclpy
 from geometry_msgs.msg import Twist
 from rclpy.context import Context
-from rclpy.executors import SingleThreadedExecutor
+from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
@@ -22,7 +22,7 @@ def test_robot_side_services_acknowledge_zero_and_allow_a_guard_to_veto_reset():
         rclpy.init(context=context, domain_id=228)
     mux = MotionMuxNode(context=context)
     probe = Node('safety_protocol_probe', context=context)
-    executor = SingleThreadedExecutor(context=context)
+    executor = MultiThreadedExecutor(num_threads=4, context=context)
     executor.add_node(mux)
     executor.add_node(probe)
     outputs, intents = [], []
