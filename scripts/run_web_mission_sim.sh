@@ -98,7 +98,8 @@ exec ros2 launch smart_vision_amr simulation.launch.py \
   world:="$WORLD" map:="$MAP_FILE" \
   nav_params_file:="$NAV_PARAMS" \
   nodes_params_file:="$NODES_PARAMS" \
-  slam:=false gui:=true use_rviz:=false memory_enabled:=false \
+  slam:=false gui:=true use_rviz:=false \
+  memory_enabled:=true memory_persist_to_disk:=false \
   x_pose:=-3.0 y_pose:=-2.0 yaw:=0.0 \
   initial_x:=-3.000799585626671 initial_y:=-2.0010944835652884 \
   initial_yaw:=0.0008724678696151052 \

@@ -15,7 +15,8 @@ from smart_vision_amr.change_memory import ChangeMemoryNode
 
 class ScanHarness(ChangeMemoryNode):
     def __init__(self):
-        self.params = {'memory_enabled': False, 'map_frame': 'map', 'base_frame': 'base_footprint',
+        self.params = {'memory_enabled': False, 'memory_persist_to_disk': False,
+                       'map_frame': 'map', 'base_frame': 'base_footprint',
                        'odom_frame': 'odom',
                        'occupied_threshold': 65, 'mapped_wall_range_tolerance_m': .05,
                        'live_obstacle_max_range_m': 0.,
@@ -44,6 +45,8 @@ class ScanHarness(ChangeMemoryNode):
         self.transform.transform.translation.y = 1.5
         self.transform.transform.rotation.w = 1.
         self.map_to_odom = TransformStamped()
+        self.map_to_odom.header.frame_id = 'map'
+        self.map_to_odom.child_frame_id = 'odom'
         self.map_to_odom.transform.rotation.w = 1.
         self.tf_buffer.lookup_transform.side_effect = (
             lambda target, source, when: self.map_to_odom if source == 'odom' else self.transform)
@@ -73,6 +76,7 @@ class ScanHarness(ChangeMemoryNode):
         msg.header.frame_id = 'base_scan'
         msg.header.stamp.sec, msg.header.stamp.nanosec = divmod(self.ros_ns, 1_000_000_000)
         self.transform.header.stamp = deepcopy(msg.header.stamp)
+        self.map_to_odom.header.stamp = deepcopy(msg.header.stamp)
         msg.angle_min, msg.angle_increment = angle, .01
         msg.range_min, msg.range_max = .12, 4.
         msg.ranges = [float(distance)]
@@ -193,7 +197,7 @@ def test_physical_401_beam_scan_dropouts_protect_only_their_angular_sectors():
         assert (-1, 1) not in node.live_obstacles
 
 
-def test_relocalization_translation_jump_rebuilds_transient_cells_only():
+def test_relocalization_translation_jump_rebuilds_transient_cells_and_memory():
     with harness() as node:
         node.scan()
         original_map = list(node.map['message'].data)
@@ -202,7 +206,9 @@ def test_relocalization_translation_jump_rebuilds_transient_cells_only():
         node.scan(1., math.pi/2)
         assert (2, 1) not in node.live_obstacles
         assert node.live_obstacles  # The fresh scan has already rebuilt its actual hits.
-        assert node.memory is persistent
+        assert node.memory is not persistent
+        assert not node.memory.cells
+        assert list(node.overlay_pub.publish.call_args.args[0].data) == []
         assert list(node.map['message'].data) == original_map
 
 
@@ -235,11 +241,12 @@ def test_initial_pose_invalidates_old_cells_without_announcing_fresh_empty_obser
         node.on_initial_pose(message)
         assert node.live_obstacles
         message.header.frame_id = 'map'
+        message.pose.pose.orientation.w = 1.
         node.on_initial_pose(message)
         assert node.live_obstacles == {}
         assert node.last_scan_stamp_ns == stamp  # A duplicate scan cannot revive the old layer.
         assert node.observation_pub.publish.call_count == count
-        assert node.memory is persistent
+        assert node.memory is not persistent
         assert list(node.map['message'].data) == original_map
         node.scan(1., math.pi/2)
         assert node.observation_pub.publish.call_count == count+1
@@ -379,6 +386,7 @@ def test_tf_pending_queue_is_bounded_and_cleared_on_initial_pose_or_map_replacem
         assert node.projection_dropped == 7
         reset = PoseWithCovarianceStamped()
         reset.header.frame_id = 'map'
+        reset.pose.pose.orientation.w = 1.
         node.on_initial_pose(reset)
         assert not node.pending_scans
         node.scan()

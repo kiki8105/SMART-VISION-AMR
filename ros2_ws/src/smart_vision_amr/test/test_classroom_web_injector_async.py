@@ -87,6 +87,35 @@ def test_final_bypass_proof_includes_current_observed_cells():
     assert newly_observed_route_clear(route, (), info)
 
 
+def test_box_candidate_rejected_when_prior_sector_memory_seals_bypass():
+    # Regress the classroom Home-leg geometry that passed a box-only preflight
+    # but had no route once five already-confirmed cells were considered.
+    pgm = ROOT/'ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm'
+    with pgm.open('rb') as stream:
+        assert stream.readline() == b'P5\n'
+        width, height = map(int, stream.readline().split())
+        assert stream.readline() == b'255\n'
+        pixels = stream.read()
+    assert len(pixels) == width*height
+    occupancy = []
+    for y in range(height):
+        for x in range(width):
+            gray = pixels[(height-1-y)*width+x]
+            occupancy.append(100 if gray == 0 else 0 if gray == 254 else -1)
+    info = SimpleNamespace(width=width, height=height, resolution=.05,
+        origin=SimpleNamespace(position=SimpleNamespace(x=-1.65, y=-5.25),
+                               orientation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
+    grid = SimpleNamespace(info=info, data=occupancy)
+    start, goal = cell_to_world(info, (28, 62)), cell_to_world(info, (29, 100))
+    box = (-.43228848911467943, -2.8310737200051856)
+    previous_memory = (5110, 5196, 5986, 6072, 6158)
+    assert current_observed_bypass_route(
+        grid, start, goal, box, (), world_to_cell, cell_to_world)
+    assert current_observed_bypass_route(
+        grid, start, goal, box, (), world_to_cell, cell_to_world,
+        remembered_indices=previous_memory) is None
+
+
 def test_candidate_search_skips_snapshot_observed_closed_box(monkeypatch):
     width = height = 80
     info = SimpleNamespace(width=width, height=height, resolution=.05,
@@ -129,26 +158,29 @@ def test_candidate_search_keeps_ros_thread_free_and_uses_snapshot():
     release = threading.Event()
     original_path = [[0., 0.], [1., 0.]]
     original_observed = {13}
+    original_remembered = {17}
     seen = {}
 
     def slow_selector(path, robot, goal, grid, world_to_cell,
-                      cell_to_world, observed, diagnostics):
+                      cell_to_world, observed, diagnostics, *, remembered_indices):
         entered.set()
         assert release.wait(2.)
         seen.update(path=path, robot=robot, goal=goal,
-                    observed=observed, grid=grid)
+                    observed=observed, remembered=remembered_indices, grid=grid)
         diagnostics['reason'] = 'FEASIBLE_BYPASS'
         return {'x': .7, 'y': .1}
 
     started = time.monotonic()
     job = CandidateSearch(original_path, (0., 0.), (1., 0.), 'grid',
-                          original_observed, selector=slow_selector)
+                          original_observed, selector=slow_selector,
+                          remembered_indices=original_remembered)
     assert time.monotonic() - started < .2
     assert entered.wait(1.)
     # Simulated ROS callbacks can continue changing the live route while the
     # pure topology search is still running on the frozen snapshot.
     original_path[1][0] = 99.
     original_observed.add(42)
+    original_remembered.add(99)
     callbacks_serviced = 0
     for _ in range(5):
         assert not job.done.is_set()
@@ -160,12 +192,12 @@ def test_candidate_search_keeps_ros_thread_free_and_uses_snapshot():
     assert job.candidate == {'x': .7, 'y': .1}
     assert seen == {'path': ((0., 0.), (1., 0.)),
                     'robot': (0., 0.), 'goal': (1., 0.),
-                    'observed': (13,), 'grid': 'grid'}
+                    'observed': (13,), 'remembered': (17,), 'grid': 'grid'}
     assert job.diagnostics['reason'] == 'FEASIBLE_BYPASS'
 
 
 def test_candidate_search_reports_worker_failure_without_hanging():
-    def broken_selector(*args):
+    def broken_selector(*args, **kwargs):
         raise ValueError('bad map')
 
     job = CandidateSearch([], (0., 0.), (1., 0.), 'grid', (),

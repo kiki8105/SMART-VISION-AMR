@@ -66,6 +66,10 @@ flowchart LR
 | 실차 Sector 2 왕복 | **팀원 보고 1회 완료** | 웹 재고 요청·왕복 주행 영상 있음. 장애물 없음; 두 번째 출발은 비상정지와 위치/방향 불확실도로 중단 |
 | 실차 장애물·반복 검증 | **미검증** | 10/30 지도·초기 위치를 맞춘 상태에서 반복 시험 필요 |
 | 실차 설정값 Gazebo 비교 | **엄격 PASS 1회 (저장소 설정값)** | 체크인된 Nav2·교실 노드·EKF 설정값과 시뮬 생성본의 시계 항목 제외 일치 9/9, 웹 1→2→3→Home, 출발 20/20, 안전 위반 0. 중간 재계획 대기 후 자율 복구. 실차의 현재 ROS 파라미터·하드웨어 성능은 미검증 |
+| 런타임 장애물 기억 Stage 20 | **Gazebo PASS 1회** | 악조건 교실 웹 1→2→3→Home, 출발 전 검사 통과, 안전 위반 0. 기억 ON·라이다 Speckle 필터 OFF |
+| 런타임 장애물 기억 Stage 21·22 | **Gazebo 각 PASS 1회** | Sector 2 단독→Home 및 1→2→3→Home 통합, 출발 전 검사 통과, 안전 위반 0. 기억 ON·필터 OFF |
+| 런타임 장애물 기억 Stage 23 | **Gazebo PASS 1회** | 1→2→3→Home 통합 주행 중 이동 상자를 추가·이동·제거했다. 실시간 장애물 관측과 경로 대응, 제거 뒤 2.604초 내 관측 해제, 충돌 여유 0.10278m 이상을 확인했다. 기억 ON·필터 OFF |
+| 런타임 장애물 기억 Stage 24 | **Gazebo PASS 2회** | 1→2→3→Home에서 Sector 1의 상자를 기억했고, Sector 2 첫 계획 시 상자는 라이다 시야 밖이었다. Sector 2 이동 중 상자를 치운 뒤 유효한 빈 공간 스캔으로 해당 기억 셀이 지워졌지만 기존 경로를 유지했다. 제거 시점과 최종 전역 계획 횟수는 두 회차 모두 2→2였고, Home 복귀까지 완료했다. 기억 ON·필터 OFF |
 
 위 표의 초기 통합·고정 상자 결과는 2026-11-02의 **각 1회 시험**이다. 필터 선택 기능의 A/B 결과와 원본/오프라인 재판정 차이는 [라이다 필터 A/B](LASER_FILTER_AB.md)를 참조한다. 재출발
 결과와 엄격 Gazebo 판정은 별도 반복 시험이며, 웹에서 완료로 보여도 독립적인
@@ -203,6 +207,15 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 PC와 로봇의 시계 차이·전송 지연이 크면 해당 입력과 이유를 표시합니다.
 점검 실패 시 그 이유를 해결한 후 다시 실행하세요.
 주행은 저장 지도·AMCL·A*·Nav2를 켭니다. PC에 EKF·최종 mux를 중복 실행하지 않습니다.
+이 스크립트는 라이다로 확인한 장애물을 **현재 주행 프로세스 안에서 섹터 간 기억**합니다.
+같은 지도 셀을 5회 이상·최소 2초 동안 장애물로 확인해야 확정하며, 해당 셀을
+유효한 라이다 레이가 5회 이상·최소 2초 동안 비어 있다고 직접 확인해야 삭제합니다.
+시야에서 사라졌다는 이유만으로 기억을 지우지 않습니다. 기본 인자는
+`memory_enabled:=true memory_persist_to_disk:=false`이므로 주행 프로세스를 재시작하면
+기억은 비워지고, 저장한 SLAM 지도는 수정되지 않습니다. 단발 반사 제거용
+`laser_filter_for_change_memory`는 기본 **OFF**입니다. 실패한 접근을 잠시 피하는
+`failure_memory_enabled`는 장애물 셀 기억과 별도 기능입니다.
+자세한 동작은 [저장 지도에 없는 실제 장애물](live_obstacle_avoidance.md)을 확인하세요.
 PC의 **별도 진단 터미널**에서 다음을 한 줄씩 실행하면 실제 지도 서버의 파일과
 중복 발행자를 확인할 수 있습니다. `yaml_filename` 결과에는 `20261030_cleaned.yaml`이
 들어 있어야 하고, `/map` 발행자는 `/map_server` **하나**여야 합니다.
@@ -213,7 +226,15 @@ source ~/Team2_workspace/install/local_setup.bash
 export ROS_DOMAIN_ID=16 ROS_LOCALHOST_ONLY=0
 ros2 param get /map_server yaml_filename
 ros2 topic info /map -v
+ros2 param get /change_memory memory_enabled
+ros2 param get /change_memory memory_persist_to_disk
+ros2 param get /change_memory scan_topic
 ```
+
+마지막 세 결과는 각각 `True`, `False`, `/scan`이어야 합니다. `False`인 기억 설정으로
+실행 중이라면 터미널 2의 오래된 주행 프로세스를 종료하고 최신 스크립트를 다시 실행합니다.
+
+웹 운용지도의 원본·정리된 지도에서 현재 라이다 관측은 **빨간 셀**, 확인되어 섹터 사이에 남는 기억은 **진한 빨간 셀**로 보입니다. 기억은 시야 이탈로 지워지지 않고 해당 위치를 직접 빈 공간으로 확인해야 해제됩니다. 상세 기준은 [저장 지도에 없는 실제 장애물](live_obstacle_avoidance.md)을 확인하세요.
 
 `20261027`이 나오거나 `/map` 발행자가 둘 이상이면 임무를 시작하지 마세요.
 SLAM/Cartographer가 실행 중이라면 해당 터미널에서 종료하고, 터미널 2·3의
@@ -417,3 +438,30 @@ Gazebo를 시험할 때만 `./scripts/setup_sim.sh`로 시뮬레이션 의존성
 `./scripts/run_classroom_replay_web.sh`를 실행합니다. 웹은
 `http://127.0.0.1:8791/`이며 실제 로봇 도메인 16에는 연결되지 않습니다.
 [강의실 Gazebo 재현과 검증 범위](classroom_replay_simulation.md)를 참고하세요.
+
+### Gazebo에서 기억 ON·필터 OFF 단계별 재시험
+
+다른 PC에서도 동일한 시험을 하려면 시뮬레이션 의존성을 `./scripts/setup_sim.sh`로 설치·빌드한 다음 아래를 **하나씩** 실행합니다. 이 하네스는 실차 도메인 16과 분리된 ROS 도메인 **176**에서 Gazebo, 웹, 출발 전 검사, A*·추종·ArUco 확인까지 실행합니다. `--laser-filter-for-change-memory`를 주지 않으므로 Speckle 필터는 OFF입니다. Stage 24는 Sector 1에서 상자를 발견·기억하고 Sector 2의 첫 계획에 반영한 뒤 상자를 치웁니다. 제거 후에는 유효한 빈 공간 스캔에 의한 기억 해제와 **기존 경로 유지/새 계획** 중 어느 일이 일어났는지 증거 파일에 기록합니다.
+
+```bash
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+./scripts/setup_sim.sh
+
+/usr/bin/python3 scripts/run_classroom_staged_validation.py \
+  --run 21_web_memory_sector2 --leg-timeout 600 --obstacle-hold-timeout 300 \
+  --output /tmp/classroom-memory-sector2-$(date +%Y%m%d-%H%M%S)
+
+/usr/bin/python3 scripts/run_classroom_staged_validation.py \
+  --run 22_web_memory_integrated_clean --leg-timeout 600 --obstacle-hold-timeout 300 \
+  --output /tmp/classroom-memory-integrated-$(date +%Y%m%d-%H%M%S)
+
+/usr/bin/python3 scripts/run_classroom_staged_validation.py \
+  --run 23_web_memory_integrated_obstacle --leg-timeout 600 --obstacle-hold-timeout 300 \
+  --output /tmp/classroom-memory-obstacle-$(date +%Y%m%d-%H%M%S)
+
+/usr/bin/python3 scripts/run_classroom_staged_validation.py \
+  --run 24_web_memory_sector1_to_sector2_removal --leg-timeout 600 --obstacle-hold-timeout 300 \
+  --output /tmp/classroom-memory-removal-$(date +%Y%m%d-%H%M%S)
+```
+
+각 출력 폴더의 `staged_report.json`에서 단계별 `passed: true`를 확인합니다. Stage 24는 `24_web_memory_sector1_to_sector2_removal/memory_transition_injection.json`에서 `after_removal`, `sector2_path_hash_at_delete`, `sector2_final_path_hash`, 제거 시점과 최종 `global_plan_count`를 비교하세요. 두 번의 Gazebo 시험에서 모두 `CONTINUED_EXISTING_PATH`였고, 기억 셀이 지워져도 이미 유효한 우회 경로는 유지했습니다. 이후 경로가 새 장애물과 겹치거나 더 이상 유효하지 않으면 재계획할 수 있습니다. Stage 23의 초기 판정 실패는 기억 셀을 시험용 장애물 집합에서 빠뜨린 하네스 오류였고, 수정 후 통합 주행을 다시 완료했습니다. 이 Gazebo 결과만으로 실차 반복 주행이 검증되지는 않습니다.

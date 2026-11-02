@@ -34,6 +34,7 @@ RECORD_INCIDENTS=false
 EXPECT_SUSTAINED_OUTAGE_HOLD=false
 TF_SOURCE_BEST_EFFORT=false
 LASER_FILTER_FOR_CHANGE_MEMORY=false
+MEMORY_SESSION=false
 LASER_FILTER_PREFIX=${SMART_VISION_LASER_FILTER_PREFIX:-}
 GAZEBO_SEED=4242
 MEASURE_SCAN_FILTER=false
@@ -56,6 +57,7 @@ Usage: run_classroom_fault_sim.sh [--mode baseline|ekf_independent]
        [--record-incidents]  # enable high-CPU flight recorder diagnostics
        [--tf-source-best-effort]  # sim-only raw TF QoS A/B; forwarded /tf stays reliable
        [--laser-filter-for-change-memory]  # weak speckle filter on A* change_memory input only
+       [--memory-session]  # remember confirmed cells only while this navigation process runs
        [--measure-scan-filter]  # equal raw/filtered scan observer in both A/B trials
        [--laser-filter-prefix PATH]  # optional extracted ROS Humble laser_filters prefix
        [--gazebo-seed INTEGER]  # fixed 4242 by default for comparable A/B scans
@@ -91,6 +93,7 @@ while (($#)); do
     --record-incidents) RECORD_INCIDENTS=true; shift;;
     --tf-source-best-effort) TF_SOURCE_BEST_EFFORT=true; shift;;
     --laser-filter-for-change-memory) LASER_FILTER_FOR_CHANGE_MEMORY=true; shift;;
+    --memory-session) MEMORY_SESSION=true; shift;;
     --measure-scan-filter) MEASURE_SCAN_FILTER=true; shift;;
     --expect-sustained-outage-hold) EXPECT_SUSTAINED_OUTAGE_HOLD=true; shift;;
     --sector1-candidate) MISSION_ROUTE=true; SECTOR1_CANDIDATE=true; shift;;
@@ -216,7 +219,7 @@ NAV_PARAMS=$OUTPUT/classroom_nav_sim_time.yaml
   "$REPO/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml" "$NAV_PARAMS_SOURCE" \
   "$REPO/ros2_ws/src/smart_vision_amr/config/change_memory_speckle.yaml" \
   "$MASTER" "$RECORD_INCIDENTS" "$LASER_FILTER_FOR_CHANGE_MEMORY" "$GAZEBO_SEED" \
-  "$MEASURE_SCAN_FILTER" <<'PY'
+  "$MEASURE_SCAN_FILTER" "$MEMORY_SESSION" <<'PY'
 import hashlib, json, sys
 from pathlib import Path
 files = [Path(path) for path in sys.argv[3:8]]
@@ -231,6 +234,7 @@ payload = {'domain': 176, 'localhost_only': True, 'mode': sys.argv[2],
            'laser_filter_output_topic': '/scan_filtered_for_change',
            'laser_filter_consumer': 'change_memory only; raw /scan retained by Nav2, AMCL and motion_mux',
            'scan_pair_observer': sys.argv[12] == 'true',
+           'memory_session': sys.argv[13] == 'true',
            'gazebo_seed': int(sys.argv[11]),
            'simulated_battery': ({'topic': '/battery_state', 'voltage_v': 12.0,
                                   'percentage': 0.75, 'rate_hz': 2.0,
@@ -309,16 +313,41 @@ BATTERY_PID=
 PAIR_PID=
 VERIFY_PID=
 cleanup() {
-  trap - EXIT INT TERM
+  trap '' INT TERM HUP
+  trap - EXIT
+  # Every PID below is the leader of a setsid group started by this isolated
+  # runner. A stuck Nav2 lifecycle client can outlive ros2 launch and ignore
+  # INT/TERM, so finish by reaping only these owned process groups.
+  local pid tick alive
+  local -a groups=()
   for pid in "$VERIFY_PID" "$LAUNCH_PID" "$RELAY_PID" "$CONDITIONER_PID" "$BATTERY_PID" "$PAIR_PID"; do
-    if [[ -n "$pid" ]]; then kill -INT -- "-$pid" 2>/dev/null || true; fi
+    if [[ -n "$pid" ]]; then groups+=("$pid"); fi
   done
-  sleep 2
-  for pid in "$VERIFY_PID" "$LAUNCH_PID" "$RELAY_PID" "$CONDITIONER_PID" "$BATTERY_PID" "$PAIR_PID"; do
-    if [[ -n "$pid" ]]; then kill -TERM -- "-$pid" 2>/dev/null || true; fi
+  for pid in "${groups[@]}"; do kill -INT -- "-$pid" 2>/dev/null || true; done
+  for ((tick=0; tick<20; tick++)); do
+    alive=false
+    for pid in "${groups[@]}"; do
+      if kill -0 -- "-$pid" 2>/dev/null; then alive=true; fi
+    done
+    if [[ "$alive" == false ]]; then break; fi
+    sleep 0.1
   done
+  for pid in "${groups[@]}"; do kill -TERM -- "-$pid" 2>/dev/null || true; done
+  for ((tick=0; tick<20; tick++)); do
+    alive=false
+    for pid in "${groups[@]}"; do
+      if kill -0 -- "-$pid" 2>/dev/null; then alive=true; fi
+    done
+    if [[ "$alive" == false ]]; then break; fi
+    sleep 0.1
+  done
+  for pid in "${groups[@]}"; do kill -KILL -- "-$pid" 2>/dev/null || true; done
+  for pid in "${groups[@]}"; do wait "$pid" 2>/dev/null || true; done
 }
-trap cleanup EXIT INT TERM
+trap cleanup EXIT
+trap 'cleanup; exit 130' INT
+trap 'cleanup; exit 143' TERM
+trap 'cleanup; exit 129' HUP
 
 EKF_ARGS=()
 if [[ "$MODE" == ekf_independent ]]; then
@@ -376,6 +405,7 @@ setsid ros2 launch smart_vision_amr simulation.launch.py \
   "localization_mode:=$MODE" "camera_layout:=classroom_dual" \
   "gazebo_seed:=$GAZEBO_SEED" \
   "laser_filter_for_change_memory:=$LASER_FILTER_FOR_CHANGE_MEMORY" \
+  "memory_enabled:=$MEMORY_SESSION" "memory_persist_to_disk:=false" \
   "gui:=false" "use_rviz:=false" "record_incidents:=$RECORD_INCIDENTS" \
   "${EKF_ARGS[@]}" >"$OUTPUT/gazebo_launch.log" 2>&1 &
 LAUNCH_PID=$!

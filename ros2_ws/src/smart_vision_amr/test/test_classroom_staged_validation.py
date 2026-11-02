@@ -48,6 +48,50 @@ def test_final_physical_value_stage_is_web_owned_and_stress_world():
     assert stage.route == ('Sector 1', 'Sector 2', 'Sector 3', 'Home')
 
 
+def test_memory_stages_keep_filter_off_and_require_runtime_memory():
+    for key, route, kind in (
+            ('21_web_memory_sector2', ('Sector 2', 'Home'), 'web_dwell'),
+            ('22_web_memory_integrated_clean',
+             ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'web_dwell'),
+            ('23_web_memory_integrated_obstacle',
+             ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'web_moving_obstacle'),
+            ('24_web_memory_sector1_to_sector2_removal',
+             ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'web_dwell')):
+        stage = staged.BY_KEY[key]
+        assert stage.route == route and stage.kind == kind
+        assert stage.options == ('--memory-session',)
+        assert stage.key in staged.WEB_FULL_STACK_STAGES
+    hashes = staged.web_runtime_source_hashes(
+        staged.BY_KEY['24_web_memory_sector1_to_sector2_removal'])
+    assert 'scripts/inject_classroom_memory_transition.py' in hashes
+
+
+def test_sector1_to_sector2_memory_stage_rejects_missing_transition():
+    stage = staged.BY_KEY['24_web_memory_sector1_to_sector2_removal']
+    evidence = {
+        'passed': True, 'domain': 176, 'localhost_only': True,
+        'physical_robot_touched': False,
+        'web_runtime_manifest': {
+            'mode': 'ekf_independent', 'record_incidents': True,
+            'memory_session': True, 'laser_filter_for_change_memory': False},
+    }
+    assert 'sector1_to_sector2_memory_transition_failed' in staged.assess(
+        stage, evidence)['reasons']
+    evidence['memory_transition'] = {
+        'passed': True, 'minimum_clearance_m': .04,
+        'after_removal': 'CONTINUED_EXISTING_PATH',
+        **{key: True for key in (
+            'spawned', 'truth_seen', 'observed_on_sector1',
+            'confirmed_on_sector1', 'sector2_planned_with_memory',
+            'sector2_initial_plan_without_live_hit', 'removed_on_sector2',
+            'free_ray_evidence_after_removal', 'memory_cleared')},
+    }
+    assert not any('memory_transition' in reason for reason in staged.assess(
+        stage, evidence)['reasons'])
+    evidence['web_runtime_manifest']['memory_session'] = False
+    assert 'runtime_memory_not_enabled' in staged.assess(stage, evidence)['reasons']
+
+
 def test_full_web_trial_fingerprints_loaded_runtime_sources():
     hashes = staged.web_runtime_source_hashes(
         staged.BY_KEY['12_web_integrated_stress_clean'])

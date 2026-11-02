@@ -13,6 +13,7 @@ const svg=(name,attrs={},text='')=>{const node=element(name,attrs);node.textCont
 const snapshot={map:{width:4,height:3,resolution:1,origin:{x:0,y:0,yaw:0},version:7,
                     preview:false,configured_match:true,raw_available:true},
   observed_obstacles:{map_version:7,cells:[1],age:.2},
+  remembered_obstacles:{map_version:7,cells:[1,6]},
   path:[{x:.5,y:.5},{x:2.5,y:1.5}],
   path_stamp:{sec:23,nanosec:4},
   local_detour:{available:true,state:'ACTIVE',plan_kind:'LOCAL_DETOUR',path_stamp:{sec:23,nanosec:4}},
@@ -32,13 +33,17 @@ const canvas=$('#map-svg');
 sandbox.draw();
 let obstacle=descendants(canvas,'path').find(el=>el.attrs.class==='map-live-obstacles');
 assert.equal(obstacle.attrs.d,'M1 2h1v1h-1Z','ROS bottom-left row becomes top-left pixel');
+let remembered=descendants(canvas,'path').find(el=>el.attrs.class==='map-remembered-obstacles');
+assert.equal(remembered.attrs.d,'M1 2h1v1h-1ZM2 1h1v1h-1Z','confirmed cells share the live map transform');
 assert.match(canvas.children[0].attrs.transform,/rotate\(-1\.57646181885 2 1\.5\)/,'floor uses display rotation');
-assert.match(canvas.children[1].attrs.transform,/rotate\(-1\.57646181885 2 1\.5\)/,'obstacles use identical rotation');
+assert.match(canvas.children[1].attrs.transform,/rotate\(-1\.57646181885 2 1\.5\)/,'memory uses identical rotation');
+assert.match(canvas.children[2].attrs.transform,/rotate\(-1\.57646181885 2 1\.5\)/,'live obstacles use identical rotation');
 let path=descendants(canvas,'polyline').find(el=>el.attrs['aria-label']==='국소 우회경로');
 assert.equal(path.attrs.stroke,'#d27b29');
 assert.equal($('#map-detour-legend').hidden,false);
 assert.equal($('#map-route-legend').hidden,true);
 assert.equal($('#map-obstacle-legend').hidden,false);
+assert.equal($('#map-remembered-obstacle-legend').hidden,false);
 snapshot.local_detour.path_stamp={sec:23,nanosec:5};
 sandbox.draw();
 path=descendants(canvas,'polyline').find(el=>el.attrs['aria-label']==='계획 경로');
@@ -63,6 +68,9 @@ snapshot.local_detour={available:true,state:'NONE',plan_kind:'GLOBAL'};
 sandbox.draw();
 assert.equal(descendants(canvas,'path').some(el=>el.attrs.class==='map-live-obstacles'),false);
 assert.equal($('#map-obstacle-legend').hidden,true);
+assert.equal(descendants(canvas,'path').some(el=>el.attrs.class==='map-remembered-obstacles'),true,
+  'confirmed memory remains visible when the live scan no longer sees it');
+assert.equal($('#map-remembered-obstacle-legend').hidden,false);
 path=descendants(canvas,'polyline').find(el=>el.attrs['aria-label']==='계획 경로');
 assert.equal(path.attrs.stroke,'var(--accent)');
 
@@ -72,6 +80,7 @@ assert.equal($('#map-obstacle-legend').hidden,true,'old-map cells never overlay 
 snapshot.observed_obstacles={map_version:7,cells:[1],age:3};
 sandbox.draw();
 assert.equal($('#map-obstacle-legend').hidden,true,'stale obstacle stream must disappear');
+assert.equal($('#map-remembered-obstacle-legend').hidden,false,'confirmed memory does not expire with live scans');
 
 snapshot.observed_obstacles={map_version:7,cells:[1],age:.1};
 sandbox.showRawMap=true;
@@ -82,8 +91,24 @@ assert.equal(raw.children[0].attrs.href,'/api/map/raw.png?v=7','raw view uses th
 assert.match(raw.attrs.transform,/rotate\(-1\.57646181885 2 1\.5\)/,
   'raw-map artwork has the same presentation rotation as the floorplan');
 assert.match(canvas.children[1].attrs.transform,/rotate\(-1\.57646181885 2 1\.5\)/,
+  'remembered obstacle pixels stay registered to the raw map');
+assert.match(canvas.children[2].attrs.transform,/rotate\(-1\.57646181885 2 1\.5\)/,
   'live obstacle pixels stay registered to the raw map');
 assert.equal($('#map-obstacle-legend').hidden,false);
+assert.equal($('#map-remembered-obstacle-legend').hidden,false);
+snapshot.remembered_obstacles={map_version:7,cells:[]};
+sandbox.draw();
+assert.equal(descendants(canvas,'path').some(el=>el.attrs.class==='map-remembered-obstacles'),false,
+  'a free-confirmed memory removal clears the overlay');
+assert.equal($('#map-remembered-obstacle-legend').hidden,true);
+snapshot.remembered_obstacles={map_version:6,cells:[6]};
+sandbox.draw();
+assert.equal($('#map-remembered-obstacle-legend').hidden,true,'old-map memory is never drawn');
+snapshot.remembered_obstacles={map_version:7,cells:[6]};
+snapshot.map.preview=true;
+sandbox.draw();
+assert.equal($('#map-remembered-obstacle-legend').hidden,true,'a saved preview cannot claim live memory');
+snapshot.map.preview=false;
 
 snapshot.mission.state='IDLE';
 sandbox.draw();

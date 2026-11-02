@@ -5,7 +5,7 @@ import time
 
 import numpy as np
 
-from smart_vision_amr.web_mission_server import DEFAULT_MARKERS, MissionApplication
+from smart_vision_amr.web_mission_server import DEFAULT_MARKERS, MissionApplication, map_png
 
 
 def setup_app(directory):
@@ -42,10 +42,63 @@ def test_bad_indices_cannot_replace_a_valid_overlay_and_stale_data_disappears():
         assert app.state()['observed_obstacles']['cells'] == []
 
 
+def test_confirmed_obstacle_remains_visible_after_live_scan_expires_until_free_confirmation():
+    with TemporaryDirectory() as directory:
+        app, _, _ = setup_app(directory)
+        assert app.receive_remembered_obstacles([6, 2, 1, 5, 6])
+        assert app.state()['remembered_obstacles'] == {
+            'map_version': app.map_version, 'cells': [1, 6]}
+        assert app.receive_observed_obstacles([1])
+        app.observed_obstacles_at -= 3.
+        state = app.state()
+        assert state['observed_obstacles']['cells'] == []
+        assert state['remembered_obstacles']['cells'] == [1, 6]
+        assert app.receive_remembered_obstacles([])
+        assert app.state()['remembered_obstacles']['cells'] == []
+
+
+def test_bad_remembered_message_does_not_replace_confirmed_cells():
+    with TemporaryDirectory() as directory:
+        app, _, _ = setup_app(directory)
+        assert app.receive_remembered_obstacles([1])
+        for bad in ([-1], [12], [1.0], [True], ['1'], [1] * 20_001):
+            assert not app.receive_remembered_obstacles(bad)
+            assert app.state()['remembered_obstacles']['cells'] == [1]
+
+
+def test_transient_local_remembered_message_before_live_map_binds_once_map_arrives():
+    with TemporaryDirectory() as directory:
+        app = MissionApplication(DEFAULT_MARKERS, 16, False, Path(directory) / 'web.json')
+        metadata = {'width': 4, 'height': 3, 'resolution': .05,
+                    'origin': {'x': 0., 'y': 0., 'yaw': 0.}, 'frame_id': 'map'}
+        assert app.receive_remembered_obstacles([1])
+        assert app.state()['remembered_obstacles']['cells'] == []
+        app.receive_map(metadata, np.zeros((3, 4), dtype=np.int16))
+        assert app.state()['remembered_obstacles']['cells'] == [1]
+
+
+def test_preview_to_identical_live_map_binds_early_remembered_cells():
+    with TemporaryDirectory() as directory:
+        app = MissionApplication(DEFAULT_MARKERS, 16, False, Path(directory) / 'web.json')
+        metadata = {'width': 4, 'height': 3, 'resolution': .05,
+                    'origin': {'x': 0., 'y': 0., 'yaw': 0.}, 'frame_id': 'map'}
+        grid = np.zeros((3, 4), dtype=np.int16)
+        app._configured_map = (metadata, grid, map_png(grid))
+        app.restore_map_preview()
+        preview_version = app.map_version
+        assert app.map_is_preview
+        assert app.receive_remembered_obstacles([1])
+        app.receive_map(metadata, grid.copy())
+        assert not app.map_is_preview
+        assert app.map_version == preview_version
+        assert app.state()['remembered_obstacles']['cells'] == [1]
+
+
 def test_overlay_clears_on_map_change_or_preview_and_refuses_old_map_cells():
     with TemporaryDirectory() as directory:
         app, metadata, grid = setup_app(directory)
         assert app.receive_observed_obstacles([1])
+        assert app.receive_remembered_obstacles([1])
         app.path = [{'x': 1., 'y': 1.}]
         app.path_stamp = {'sec': 23, 'nanosec': 4}
         assert app.state()['path_stamp'] == app.path_stamp
@@ -53,13 +106,17 @@ def test_overlay_clears_on_map_change_or_preview_and_refuses_old_map_cells():
         changed[0, 1] = 100
         app.receive_map(metadata, changed)
         assert app.state()['observed_obstacles']['cells'] == []
+        assert app.state()['remembered_obstacles']['cells'] == []
         assert app.state()['path'] == [], 'old-map route cannot overlay a new map'
         assert app.state()['path_stamp'] is None
         assert app.receive_observed_obstacles([1])
+        assert app.receive_remembered_obstacles([1])
         assert app.state()['observed_obstacles']['cells'] == [], 'new static wall is not unexpected'
+        assert app.state()['remembered_obstacles']['cells'] == [], 'new static wall is not a remembered addition'
         app.restore_map_preview()
         assert not app.receive_observed_obstacles([6])
         assert app.state()['observed_obstacles']['cells'] == []
+        assert app.state()['remembered_obstacles']['cells'] == []
         assert app.path == []
 
 

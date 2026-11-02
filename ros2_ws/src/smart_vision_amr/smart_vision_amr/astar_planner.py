@@ -90,6 +90,10 @@ class AStarPlannerNode(Node):
         self.raw_static_grid = None
         self.map_signature = None
         self.remembered = set()
+        # The latched memory overlay may arrive before the latched map. Keep
+        # its latest raw indices until map dimensions are known.
+        self.pending_memory_indices = None
+        self.memory_map_key = None
         self.observed = set()
         self.last_observation_time = None
         self.last_goal = None
@@ -155,11 +159,20 @@ class AStarPlannerNode(Node):
         # are harmless; a reload, new SLAM content, or source-frame change is not.
         info = msg.info
         origin = info.origin
-        map_key = (msg.header.frame_id, info.width, info.height,
-                   info.resolution, info.map_load_time.sec, info.map_load_time.nanosec,
-                   origin.position.x, origin.position.y, origin.position.z,
-                   origin.orientation.x, origin.orientation.y,
-                   origin.orientation.z, origin.orientation.w, tuple(msg.data))
+        # Memory indices refer to a particular map's cells. Match the memory
+        # producer's map identity (geometry + content, excluding load time),
+        # so reloading identical content does not discard valid memory.
+        memory_map_key = (msg.header.frame_id, info.width, info.height,
+                          info.resolution, origin.position.x, origin.position.y,
+                          origin.position.z, origin.orientation.x,
+                          origin.orientation.y, origin.orientation.z,
+                          origin.orientation.w, tuple(msg.data))
+        map_key = (memory_map_key[:4]
+                   + (info.map_load_time.sec, info.map_load_time.nanosec)
+                   + memory_map_key[4:])
+        previous_memory_map_key = getattr(self, "memory_map_key", None)
+        memory_map_replaced = (previous_memory_map_key is not None
+                               and memory_map_key != previous_memory_map_key)
         map_replaced = self.breadcrumb_map_key is not None and map_key != self.breadcrumb_map_key
         if map_replaced:
             self._clear_breadcrumbs()
@@ -172,6 +185,18 @@ class AStarPlannerNode(Node):
         self.raw_static_grid = occupancy_to_grid(msg, threshold, 0)
         self.map_signature = (threshold, inflation,
                               self.get_parameter("mapped_wall_return_tolerance_cells").value)
+        self.memory_map_key = memory_map_key
+        if memory_map_replaced:
+            # The memory publisher resets on a new saved map. Never interpret
+            # old linear indices in the replacement map while its new overlay
+            # is still in flight.
+            self.remembered.clear()
+            self.pending_memory_indices = None
+        elif previous_memory_map_key is None:
+            pending = getattr(self, "pending_memory_indices", None)
+            self.pending_memory_indices = None
+            if pending is not None:
+                self.remembered = self._memory_cells(pending)
         if self._goal_is_active():
             if getattr(self, "recovery_active", False):
                 if map_replaced and not self.recovery_cancel_due_map_change:
@@ -1266,10 +1291,11 @@ class AStarPlannerNode(Node):
 
     def on_memory(self, msg):
         if self.map is None:
+            # Preserve even an empty message: it can supersede an earlier
+            # nonempty latched overlay before the first map is delivered.
+            self.pending_memory_indices = tuple(msg.data)
             return
-        width, height = self.map[0].info.width, self.map[0].info.height
-        updated = {(index % width, index // width) for index in msg.data
-                   if 0 <= index < width * height}
+        updated = self._memory_cells(msg.data)
         if updated != self.remembered:
             added = updated - self.remembered
             removed = self.remembered - updated
@@ -1284,6 +1310,11 @@ class AStarPlannerNode(Node):
                         return
                     self._invalidate_path("Remembered obstacle intersects the route")
                 self._request_replan("Remembered obstacles changed")
+
+    def _memory_cells(self, indices):
+        width, height = self.map[0].info.width, self.map[0].info.height
+        return {(index % width, index // width) for index in indices
+                if 0 <= index < width * height}
 
     def on_observed(self, msg):
         if self.map is None:

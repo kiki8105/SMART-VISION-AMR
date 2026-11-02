@@ -76,6 +76,9 @@ class ChangeMemoryNode(Node):
         self.declare_parameter("min_observation_interval_sec", 0.25)
         self.declare_parameter("save_every_scans", 5)
         self.declare_parameter("memory_enabled", True)
+        # Runtime-only memory survives sector goals but starts empty with each
+        # navigation process. Disk persistence remains available explicitly.
+        self.declare_parameter("memory_persist_to_disk", True)
         # This short-lived layer is independent of optional persisted memory.
         self.declare_parameter("live_obstacle_ttl_sec", 2.0)
         self.declare_parameter("live_scan_max_age_sec", 1.0)
@@ -153,6 +156,9 @@ class ChangeMemoryNode(Node):
         if not self.get_parameter("memory_enabled").value:
             self.memory = self._new_memory(msg)
             self.get_logger().info("Persistent environment memory disabled for baseline condition")
+        elif not self.get_parameter("memory_persist_to_disk").value:
+            self.memory = self._new_memory(msg)
+            self.get_logger().info("Runtime obstacle memory started empty; disk restore disabled")
         elif path.exists():
             try:
                 payload = json.loads(path.read_text(encoding="utf-8"))
@@ -168,15 +174,46 @@ class ChangeMemoryNode(Node):
         self.publish_overlay()
 
     def on_initial_pose(self, message):
+        if self.map is None or self.memory is None:
+            return
         if message.header.frame_id.lstrip('/') != self.get_parameter("map_frame").value.lstrip('/'):
             return
-        # These cells were projected using the old localization solution. The
-        # next valid scan rebuilds them; do not announce a fresh empty scan here.
+        pose = message.pose.pose
+        q = pose.orientation
+        if not all(math.isfinite(value) for value in (
+                pose.position.x, pose.position.y, pose.position.z,
+                q.x, q.y, q.z, q.w)):
+            return
+        if q.x*q.x + q.y*q.y + q.z*q.z + q.w*q.w < 1e-12:
+            return
+        cell = world_to_cell(self.map["message"].info, pose.position.x, pose.position.y)
+        if not (0 <= cell[0] < self.memory.width and 0 <= cell[1] < self.memory.height):
+            return
+        self._discard_relocated_memory("Explicit initial pose accepted")
+        self.last_map_to_odom = None
+
+    def _discard_relocated_memory(self, reason):
+        """Discard cells projected with an obsolete map localization solution."""
         self.live_obstacles.clear()
         if hasattr(self, "near_scan_guard"):
             self.near_scan_guard.reset()
-        self.last_map_to_odom = None
         self.pending_scans.clear()
+        self.memory = self._new_memory(self.map["message"])
+        self.scans_since_save = 0
+        # A latched empty overlay removes the old cells for planners and UIs.
+        # /observed_obstacles remains measurement-driven: no fabricated scan.
+        self.publish_overlay()
+        try:
+            self.persist()
+        except OSError as exc:
+            # Never restore the old coordinate solution on the next launch.
+            try:
+                self.memory_path.unlink(missing_ok=True)
+            except OSError as unlink_exc:
+                self.get_logger().error(
+                    f"Cannot invalidate old obstacle memory file: {unlink_exc}")
+            self.get_logger().error(f"Cannot save cleared obstacle memory: {exc}")
+        self.get_logger().warning(f"{reason}; rebuilding obstacle memory from fresh LiDAR scans")
 
     def reset_live_on_localization_jump(self, target_frame, measurement_time):
         try:
@@ -184,10 +221,23 @@ class ChangeMemoryNode(Node):
                 target_frame, self.get_parameter("odom_frame").value, measurement_time)
         except TransformException:
             return
-        pose = (transform.transform.translation.x, transform.transform.translation.y,
-                self._yaw(transform.transform.rotation))
-        if not all(math.isfinite(value) for value in pose):
+        stamp = transform.header.stamp
+        stamp_ns = stamp.sec * 1_000_000_000 + stamp.nanosec
+        max_age_ns = max(.05, float(self.get_parameter(
+            "live_transform_max_age_sec").value)) * 1e9
+        if (stamp_ns == 0 or abs(stamp_ns - measurement_time.nanoseconds) > max_age_ns
+                or transform.header.frame_id.lstrip('/') != target_frame.lstrip('/')
+                or transform.child_frame_id.lstrip('/') != self.get_parameter(
+                    "odom_frame").value.lstrip('/')):
             return
+        q = transform.transform.rotation
+        if (not all(math.isfinite(value) for value in (
+                transform.transform.translation.x, transform.transform.translation.y,
+                transform.transform.translation.z, q.x, q.y, q.z, q.w))
+                or q.x*q.x + q.y*q.y + q.z*q.z + q.w*q.w < 1e-12):
+            return
+        pose = (transform.transform.translation.x, transform.transform.translation.y,
+                self._yaw(q))
         previous = self.last_map_to_odom
         self.last_map_to_odom = pose
         if previous is None:
@@ -196,11 +246,7 @@ class ChangeMemoryNode(Node):
         if (math.hypot(pose[0]-previous[0], pose[1]-previous[1])
                 > self.get_parameter("live_localization_jump_distance").value
                 or delta_yaw > self.get_parameter("live_localization_jump_angle").value):
-            self.live_obstacles.clear()
-            if hasattr(self, "near_scan_guard"):
-                self.near_scan_guard.reset()
-            self.get_logger().warning(
-                "Localization frame changed; rebuilding transient LiDAR obstacles from fresh scans")
+            self._discard_relocated_memory("Verified map-to-odom localization jump")
 
     @staticmethod
     def cell_in_unknown_sector(cell, info, sensor_xy, invalid_angles, angular_step):
@@ -500,13 +546,17 @@ class ChangeMemoryNode(Node):
         self.overlay_pub.publish(msg)
 
     def persist(self):
-        if self.memory is not None and self.get_parameter("memory_enabled").value:
+        if (self.memory is not None and self.get_parameter("memory_enabled").value
+                and self.get_parameter("memory_persist_to_disk").value):
             self.memory.map_signature = self.map["signature"]
             self.memory.save(self.memory_path)
 
     def save_service(self, request, response):
         if not self.get_parameter("memory_enabled").value:
             response.success, response.message = False, "Memory is disabled in baseline mode"
+            return response
+        if not self.get_parameter("memory_persist_to_disk").value:
+            response.success, response.message = False, "Disk persistence is disabled for this navigation session"
             return response
         try:
             self.persist()

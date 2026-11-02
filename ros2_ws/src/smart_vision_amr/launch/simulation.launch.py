@@ -164,6 +164,7 @@ def generate_launch_description():
         DeclareLaunchArgument('minimum_battery_voltage', default_value='0.0',
                               description='Battery gate for guarded Gazebo tests; 0 disables it'),
         DeclareLaunchArgument('memory_enabled', default_value='false'),
+        DeclareLaunchArgument('memory_persist_to_disk', default_value='true'),
         DeclareLaunchArgument('memory_path', default_value='~/.ros/smart_vision_amr/simulation_memory.json'),
         DeclareLaunchArgument('laser_filter_for_change_memory', default_value='false',
                               description='Experimental speckle filter for change_memory only; '
@@ -262,6 +263,8 @@ def generate_launch_description():
         Node(package='smart_vision_amr', executable='change_memory', name='change_memory',
              parameters=[nodes, sim, {
                  'memory_enabled': ParameterValue(LaunchConfiguration('memory_enabled'), value_type=bool),
+                 'memory_persist_to_disk': ParameterValue(
+                     LaunchConfiguration('memory_persist_to_disk'), value_type=bool),
                  'memory_path': LaunchConfiguration('memory_path'),
                  'scan_topic': filtered_change_scan}], output='screen',
              condition=navigation),

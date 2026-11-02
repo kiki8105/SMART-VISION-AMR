@@ -681,6 +681,12 @@
     }else{const raw=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`});raw.append(svg('image',{x:0,y:0,width:map.width,height:map.height,href:map.raw_available?`/api/map/raw.png?v=${encodeURIComponent(map.version)}`:mapImageUrl,preserveAspectRatio:'none',style:'image-rendering:pixelated'}));canvas.append(raw);}
     const origin=map.origin||{},yaw=Number(origin.yaw)||0,c=Math.cos(yaw),s=Math.sin(yaw),res=map.resolution;
     const xy=point=>{const dx=point.x-(origin.x||0),dy=point.y-(origin.y||0),[px,py]=rotateMapPoint((c*dx+s*dy)/res,map.height-(-s*dx+c*dy)/res,map,displayRotation);return[left+px*scale,top+py*scale];};
+    const remembered=snapshot.remembered_obstacles||{},visibleRemembered=!map.preview&&map.configured_match!==false&&remembered.map_version===map.version&&Array.isArray(remembered.cells)?remembered.cells:[];
+    const rememberedPath=obstacleCellPath(visibleRemembered,map);
+    if(rememberedPath){const layer=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`,'aria-label':`기억한 장애물 ${visibleRemembered.length}셀`});layer.append(svg('path',{d:rememberedPath,class:'map-remembered-obstacles','shape-rendering':'crispEdges'}));canvas.append(layer);}
+    $('#map-remembered-obstacle-legend').hidden=!rememberedPath;
+    // A presently observed return is drawn over its remembered counterpart.
+    // Once outside LiDAR view, only the confirmed memory remains on the map.
     const observed=snapshot.observed_obstacles||{},visibleObstacles=!map.preview&&map.configured_match!==false&&observed.map_version===map.version&&Number.isFinite(observed.age)&&observed.age<2.0?observed.cells:[];
     const obstaclePath=obstacleCellPath(visibleObstacles,map);
     if(obstaclePath){const layer=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`,'aria-label':`새 장애물 ${visibleObstacles.length}셀`});layer.append(svg('path',{d:obstaclePath,class:'map-live-obstacles','shape-rendering':'crispEdges'}));canvas.append(layer);}

@@ -20,7 +20,7 @@ from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from rclpy.signals import SignalHandlerOptions
 from rclpy.time import Time
-from std_msgs.msg import String
+from std_msgs.msg import Int32MultiArray, String
 from tf2_msgs.msg import TFMessage
 
 from smart_vision_amr.web_mission_server import DEFAULT_MARKERS, MissionApplication, create_ros_bridge
@@ -123,6 +123,8 @@ def test_sim_epoch_rebind_replays_map_and_static_tf_published_before_clock_reset
         durable = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL,
                              reliability=ReliabilityPolicy.RELIABLE)
         map_pub = source.create_publisher(OccupancyGrid, '/map', durable)
+        memory_pub = source.create_publisher(Int32MultiArray,
+                                             '/smart_vision_amr/remembered_cells', durable)
         tf_pub = source.create_publisher(TFMessage, '/tf_static', durable)
 
         def until(predicate, timeout=3.):
@@ -136,6 +138,7 @@ def test_sim_epoch_rebind_replays_map_and_static_tf_published_before_clock_reset
         try:
             node.get_clock().set_ros_time_override(Time(seconds=100))
             assert until(lambda: map_pub.get_subscription_count() > 0
+                         and memory_pub.get_subscription_count() > 0
                          and tf_pub.get_subscription_count() > 0)
             occupancy = OccupancyGrid()
             occupancy.header.frame_id = 'map'
@@ -158,13 +161,16 @@ def test_sim_epoch_rebind_replays_map_and_static_tf_published_before_clock_reset
             moving.transform.translation.y = -.4
             moving.transform.rotation.w = 1.
             map_pub.publish(occupancy)
+            memory_pub.publish(Int32MultiArray(data=[1]))
             tf_pub.publish(TFMessage(transforms=[transform]))
             assert until(lambda: app.map is not None and not app.map_is_preview
-                         and node.tf_buffer.can_transform('map', 'odom', Time()))
+                         and node.tf_buffer.can_transform('map', 'odom', Time())
+                         and app.state()['remembered_obstacles']['cells'] == [1])
             node.tf_buffer.set_transform(moving, 'test_dynamic_tf')
             node.tick()
             assert app.state()['robot']['pose']['x'] == .25
-            old_map_sub, old_listener = node.map_sub, node.tf_listener
+            old_map_sub, old_memory_sub, old_listener = (
+                node.map_sub, node.memory_sub, node.tf_listener)
 
             # Neither source publishes again. Only a newly matched durable
             # subscription can replay the map and static transform.
@@ -173,9 +179,11 @@ def test_sim_epoch_rebind_replays_map_and_static_tf_published_before_clock_reset
             assert node.sim_epoch_rebind_pending
             node.tick()
             assert node.map_sub is not old_map_sub
+            assert node.memory_sub is not old_memory_sub
             assert node.tf_listener is not old_listener
             assert until(lambda: app.map is not None and not app.map_is_preview
-                         and node.tf_buffer.can_transform('map', 'odom', Time()))
+                         and node.tf_buffer.can_transform('map', 'odom', Time())
+                         and app.state()['remembered_obstacles']['cells'] == [1])
             # The durable map and static edge are back, but the old dynamic
             # odom->base transform must never count as a new-epoch pose.
             node.tick()

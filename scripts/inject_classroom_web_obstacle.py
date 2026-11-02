@@ -159,7 +159,7 @@ def prepare_preflight_context(grid_message, robot_xy, goal_xy, world_to_cell):
 
 def preflight_box_route(grid_message, robot_xy, goal_xy, center, path,
                         world_to_cell, cell_to_world, movement_side=None,
-                        prepared=None):
+                        prepared=None, *, observed_indices=(), remembered_indices=()):
     """Prove a full-size box leaves an inflated A* route at every moved pose.
 
     This is an injection-fixture gate. It uses the same static inflation and
@@ -167,7 +167,7 @@ def preflight_box_route(grid_message, robot_xy, goal_xy, center, path,
     clearance just to make a test pass.
     """
     from math import sqrt
-    from smart_vision_amr.map_utils import inflate_cells_circular
+    from smart_vision_amr.map_utils import inflate_cells, inflate_cells_circular
 
     prepared = prepared or prepare_preflight_context(
         grid_message, robot_xy, goal_xy, world_to_cell)
@@ -187,6 +187,11 @@ def preflight_box_route(grid_message, robot_xy, goal_xy, center, path,
     else:
         side = 0.
         perpendicular = (0., 0.)
+    observed = {(index % width, index // width) for index in observed_indices
+                if 0 <= index < width*height}
+    remembered = {(index % width, index // width) for index in remembered_indices
+                  if 0 <= index < width*height}
+    memory_blocked = inflate_cells(remembered, width, height, 5)
     routes = []
     for step in range(5):
         position = (center[0]+.025*step*side*perpendicular[0],
@@ -196,7 +201,8 @@ def preflight_box_route(grid_message, robot_xy, goal_xy, center, path,
         if box is None:
             return None
         radius_cells = (.22+.02)/info.resolution+sqrt(2)/2
-        blocked = inflate_cells_circular(box, width, height, radius_cells)
+        blocked = (inflate_cells_circular(box | observed, width, height,
+                                          radius_cells) | memory_blocked)
         route = planner.plan(static, start, goal, blocked)
         if not route:
             return None
@@ -208,15 +214,15 @@ def preflight_box_route(grid_message, robot_xy, goal_xy, center, path,
 
 def current_observed_bypass_route(grid_message, robot_xy, goal_xy, center,
                                   observed_indices, world_to_cell, cell_to_world,
-                                  prepared=None):
-    """One final inflated A* check using the latest observed cells and box.
+                                  prepared=None, *, remembered_indices=()):
+    """One final inflated A* check using the latest live and remembered cells.
 
     The five shifted-pose static preflights remain mandatory. This additional
     route proof rejects a candidate if live LiDAR obstacles elsewhere have
     closed the escape corridor since its background preflight snapshot.
     """
     from smart_vision_amr.astar import AStarPlanner
-    from smart_vision_amr.map_utils import (inflate_cells_circular,
+    from smart_vision_amr.map_utils import (inflate_cells, inflate_cells_circular,
                                             occupancy_to_grid)
 
     if prepared is None:
@@ -242,6 +248,13 @@ def current_observed_bypass_route(grid_message, robot_xy, goal_xy, center,
     radius_cells = .24/info.resolution + math.sqrt(2)/2
     blocked = inflate_cells_circular(
         box | observed, info.width, info.height, radius_cells)
+    remembered = {(index % info.width, index // info.width)
+                  for index in remembered_indices
+                  if 0 <= index < info.width*info.height}
+    # The classroom planner gives confirmed memory the same five-cell square
+    # inflation as the static map. A box that is feasible against the current
+    # scan alone may seal the only bypass when prior-sector memory is included.
+    blocked |= inflate_cells(remembered, info.width, info.height, 5)
     route = planner.plan(static, start, goal, blocked)
     return route or None
 
@@ -263,7 +276,7 @@ def newly_observed_route_clear(route, new_indices, info):
 
 def select_feasible_web_obstacle(path, robot_xy, goal_xy, grid,
                                  world_to_cell, cell_to_world, observed_indices=(),
-                                 diagnostics=None):
+                                 diagnostics=None, *, remembered_indices=()):
     """Select an unexpected box that blocks the path but preserves an A* bypass."""
     if not path or robot_xy is None or grid is None:
         return None
@@ -333,7 +346,8 @@ def select_feasible_web_obstacle(path, robot_xy, goal_xy, grid,
         # observations immediately before any Gazebo spawn.
         if current_observed_bypass_route(
                 grid, robot_xy, goal_xy, center, observed_indices,
-                world_to_cell, cell_to_world, prepared=prepared) is None:
+                world_to_cell, cell_to_world, prepared=prepared,
+                remembered_indices=remembered_indices) is None:
             observed_rejected += 1
             continue
         perpendicular = (-tangent[1], tangent[0])
@@ -344,7 +358,9 @@ def select_feasible_web_obstacle(path, robot_xy, goal_xy, grid,
         for movement_side in sides:
             result = preflight_box_route(grid, robot_xy, goal_xy,
                 center, path, world_to_cell, cell_to_world,
-                (tangent, movement_side), prepared=prepared)
+                (tangent, movement_side), prepared=prepared,
+                observed_indices=observed_indices,
+                remembered_indices=remembered_indices)
             if result is None:
                 continue
             candidate = {'index': index, 'x': center[0], 'y': center[1],
@@ -376,19 +392,21 @@ class CandidateSearch:
 
     def __init__(self, path, robot_xy, goal_xy, grid, observed_indices,
                  goal_stamp=None,
-                 selector=select_feasible_web_obstacle):
+                 selector=select_feasible_web_obstacle, *, remembered_indices=()):
         from smart_vision_amr.map_utils import cell_to_world, world_to_cell
 
         path_snapshot = tuple(tuple(point) for point in path)
         robot_snapshot = tuple(robot_xy)
         goal_snapshot = tuple(goal_xy)
         observed_snapshot = tuple(observed_indices)
+        remembered_snapshot = tuple(remembered_indices)
         self.started_at = time.monotonic()
         self.finished_at = None
         self.path_hash = hash_path(path_snapshot)
         self.goal_stamp = goal_stamp
         self.robot_xy = robot_snapshot
         self.observed_count = len(observed_snapshot)
+        self.remembered_count = len(remembered_snapshot)
         self.candidate = None
         self.diagnostics = {}
         self.error = None
@@ -399,7 +417,7 @@ class CandidateSearch:
                 self.candidate = selector(
                     path_snapshot, robot_snapshot, goal_snapshot, grid,
                     world_to_cell, cell_to_world, observed_snapshot,
-                    self.diagnostics)
+                    self.diagnostics, remembered_indices=remembered_snapshot)
             except Exception as exc:
                 self.error = repr(exc)
             finally:
@@ -484,6 +502,8 @@ def main():
             self.obstacle = None
             self.name = None
             self.observed = set()
+            self.remembered = set()
+            self.remembered_received = False
             self.observed_at = None
             self.before_observed = set()
             self.clear_observations = 0
@@ -507,6 +527,9 @@ def main():
             self.create_subscription(Int32MultiArray,
                                      '/smart_vision_amr/observed_obstacles',
                                      self.on_observed, 10)
+            self.create_subscription(Int32MultiArray,
+                                     '/smart_vision_amr/remembered_cells',
+                                     self.on_remembered, durable)
             self.create_subscription(String, '/smart_vision_amr/planner_status',
                                      self.on_planner, durable)
             self.create_subscription(String, '/smart_vision_amr/navigation_status',
@@ -643,6 +666,10 @@ def main():
                     evidence['observed_clear_latency_s'] = round(
                         time.monotonic()-self.removed_at, 3)
 
+        def on_remembered(self, message):
+            self.remembered = set(message.data)
+            self.remembered_received = True
+
         def on_planner(self, message):
             try:
                 state = json.loads(message.data)
@@ -709,10 +736,12 @@ def main():
             rclpy.spin_once(node, timeout_sec=.05)
             if not running or not rclpy.ok():
                 break
-            if node.grid is None or not node.goal_seen or node.robot is None:
+            if (node.grid is None or not node.goal_seen or node.robot is None
+                    or not node.remembered_received):
                 if node.goal_seen and time.monotonic() >= next_wait_log:
                     emit('injector_waiting_for_inputs', map_ready=node.grid is not None,
                          path_ready=bool(node.path), truth_ready=node.robot is not None,
+                         memory_ready=node.remembered_received,
                          spawn_service_ready=node.spawn.service_is_ready(),
                          move_service_ready=node.move.service_is_ready())
                     next_wait_log = time.monotonic()+5.
@@ -742,11 +771,12 @@ def main():
                 # post-search robot, path, and observations remain current.
                 search = CandidateSearch(node.path, node.robot,
                     (args.goal_x, args.goal_y), node.grid, node.observed,
-                    node.goal_stamp)
+                    node.goal_stamp, remembered_indices=node.remembered)
                 search_attempts += 1
                 emit('candidate_search_started', attempt=search_attempts,
                      path_sha256=search.path_hash, robot_xy=search.robot_xy,
-                     observed_cells=search.observed_count)
+                     observed_cells=search.observed_count,
+                     remembered_cells=search.remembered_count)
                 continue
             if not search.done.is_set():
                 continue
@@ -817,13 +847,16 @@ def main():
                 emit('candidate_rejected', reason='new_observed_cell_near_box')
                 continue
             observed_snapshot = set(node.observed)
+            remembered_snapshot = set(node.remembered)
             current_bypass = current_observed_bypass_route(
                 node.grid, node.robot, (args.goal_x, args.goal_y),
                 (candidate['x'], candidate['y']), observed_snapshot,
-                world_to_cell, cell_to_world)
+                world_to_cell, cell_to_world,
+                remembered_indices=remembered_snapshot)
             if current_bypass is None:
-                emit('candidate_rejected', reason='current_observed_bypass_closed',
-                     observed_cells=len(observed_snapshot))
+                emit('candidate_rejected', reason='current_obstacle_bypass_closed',
+                     observed_cells=len(observed_snapshot),
+                     remembered_cells=len(remembered_snapshot))
                 continue
             final_check_at = time.monotonic()
             while (running and rclpy.ok() and
@@ -846,6 +879,18 @@ def main():
                     current_bypass, node.observed-observed_snapshot, node.grid.info):
                 emit('candidate_rejected', reason='new_observation_blocks_bypass')
                 continue
+            if (node.observed != observed_snapshot or
+                    node.remembered != remembered_snapshot):
+                refreshed_route = current_observed_bypass_route(
+                    node.grid, node.robot, (args.goal_x, args.goal_y),
+                    (candidate['x'], candidate['y']), node.observed,
+                    world_to_cell, cell_to_world,
+                    remembered_indices=node.remembered)
+                if refreshed_route is None:
+                    emit('candidate_rejected', reason='new_memory_or_observation_blocks_bypass',
+                         observed_cells=len(node.observed),
+                         remembered_cells=len(node.remembered))
+                    continue
             if (not node.spawn.service_is_ready() or
                     not node.move.service_is_ready() or
                     not node.delete.service_is_ready()):

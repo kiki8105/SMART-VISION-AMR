@@ -46,6 +46,57 @@ def test_remembered_obstacle_behind_robot_does_not_cancel_current_action(prepare
     node._request_replan.assert_not_called()
 
 
+def test_cleared_remembered_obstacle_off_active_detour_keeps_current_sector_route(prepared):
+    node = prepared
+    goal = node.last_goal
+    node.params['local_detour_enabled'] = False
+    # The first observation blocks the direct remaining leg. The retained
+    # goal is replanned around it after the normal retry throttle.
+    node.on_memory(cell_message(node, 22, 15))
+    assert node.waiting_for_replan
+    node.clock.update(steady=102.1, ros=102.1)
+    refresh(node, x=1.55)
+    node.retry_transform()
+    assert node.planned_cells and (22, 15) not in node.planned_cells
+    assert not node.waiting_for_replan
+
+    current_path = node.path_pub.publish.call_args.args[0]
+    node.path_pub.publish.reset_mock()
+    node._request_replan = Mock()
+    node.on_memory(Int32MultiArray(data=[]))  # Direct free-space evidence arrived.
+
+    # The old obstacle was already off the active detour. Clearing it cannot
+    # cancel a safe FollowPath action just to seek a potentially shorter line.
+    assert node.remembered == set()
+    assert node.last_goal is goal
+    assert current_path.poses
+    node.path_pub.publish.assert_not_called()
+    node._request_replan.assert_not_called()
+    assert not node.waiting_for_replan
+
+
+def test_cleared_memory_retries_retained_goal_when_obstacle_blocked_all_routes(prepared):
+    node = prepared
+    goal = node.last_goal
+    width, height = node.map[0].info.width, node.map[0].info.height
+    barrier = Int32MultiArray(data=[y * width + 15 for y in range(height)])
+    node.on_memory(barrier)
+    node.clock.update(steady=102.1, ros=102.1)
+    refresh(node)
+    node.retry_transform()
+    assert node.waiting_for_replan
+    assert node.planned_cells == []
+
+    node.clock.update(steady=104.2, ros=104.2)
+    refresh(node)
+    node.on_memory(Int32MultiArray(data=[]))
+    assert node.remembered == set()
+    assert node.last_goal is goal
+    assert node.planned_cells
+    assert node.path_pub.publish.call_args.args[0].poses
+    assert not node.waiting_for_replan
+
+
 def test_map_change_behind_robot_may_replan_but_does_not_cancel(prepared):
     node = prepared
     moved_halfway(node)

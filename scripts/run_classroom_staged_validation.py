@@ -41,6 +41,11 @@ WEB_FULL_STACK_STAGES = {
     '12_web_integrated_stress_permuted',
     '12_web_integrated_stress_home_obstacle',
     '17_web_hardware_value_parity',
+    '20_web_memory_session',
+    '21_web_memory_sector2',
+    '22_web_memory_integrated_clean',
+    '23_web_memory_integrated_obstacle',
+    '24_web_memory_sector1_to_sector2_removal',
     '18_web_sector2_same_session_reentry',
     '19_web_inventory_sector2_same_session_reentry',
 }
@@ -155,6 +160,25 @@ STAGES = (
     Stage('17_web_hardware_value_parity',
           '실차 설정값 비교: 악조건 교실 웹 1→2→3→Home 최종 재시험',
           ('--stress',), ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'web_dwell'),
+    Stage('20_web_memory_session',
+          '런타임 장애물 기억: 악조건 교실 웹 1→2→3→Home',
+          ('--stress', '--memory-session'),
+          ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'web_dwell'),
+    Stage('21_web_memory_sector2',
+          '런타임 장애물 기억: 웹 Sector 2→Home 단독',
+          ('--memory-session',), ('Sector 2', 'Home'), 'web_dwell'),
+    Stage('22_web_memory_integrated_clean',
+          '런타임 장애물 기억: 웹 1→2→3→Home 통합',
+          ('--memory-session',),
+          ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'web_dwell'),
+    Stage('23_web_memory_integrated_obstacle',
+          '런타임 장애물 기억: 웹 1→2→3→Home 중 새 장애물',
+          ('--memory-session',),
+          ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'web_moving_obstacle'),
+    Stage('24_web_memory_sector1_to_sector2_removal',
+          '런타임 기억: Sector 1 장애물을 기억한 채 2번 계획 후 주행 중 제거',
+          ('--memory-session',),
+          ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'web_dwell'),
     Stage('18_web_sector2_same_session_reentry',
           '같은 웹·ROS 프로세스에서 Sector 2→Home 두 번: AMCL 수동 초기화·비상정지 해제',
           (), ('Sector 2', 'Home'), 'web_reentry'),
@@ -293,6 +317,11 @@ def assess(stage: Stage, evidence: dict) -> dict:
             if '--stress' in stage.options and evidence.get(
                     'stress_crate_assessment', {}).get('passed') is not True:
                 reasons.append('unmapped_stress_crate_bypass_unverified')
+            if '--memory-session' in stage.options:
+                if manifest.get('memory_session') is not True:
+                    reasons.append('runtime_memory_not_enabled')
+                if manifest.get('laser_filter_for_change_memory') is not False:
+                    reasons.append('laser_filter_not_disabled')
             if stage.key == '17_web_hardware_value_parity' and evidence.get(
                     'physical_value_parity', {}).get('passed') is not True:
                 reasons.append('physical_source_yaml_value_parity_unverified')
@@ -366,6 +395,23 @@ def assess(stage: Stage, evidence: dict) -> dict:
                              '12_web_integrated_stress_home_obstacle'} and evidence.get(
                     'home_obstacle_temporal_check', {}).get('passed') is not True:
                 reasons.append('home_return_obstacle_timing_unverified')
+        if stage.key == '24_web_memory_sector1_to_sector2_removal':
+            transition = evidence.get('memory_transition') or {}
+            if transition.get('passed') is not True:
+                reasons.append('sector1_to_sector2_memory_transition_failed')
+            for key in ('spawned', 'truth_seen', 'observed_on_sector1',
+                        'confirmed_on_sector1', 'sector2_planned_with_memory',
+                        'sector2_initial_plan_without_live_hit',
+                        'removed_on_sector2', 'free_ray_evidence_after_removal',
+                        'memory_cleared'):
+                if transition.get(key) is not True:
+                    reasons.append('memory_transition_'+key+'_unverified')
+            if transition.get('minimum_clearance_m') is None or transition[
+                    'minimum_clearance_m'] < .02:
+                reasons.append('memory_transition_clearance_unverified')
+            if transition.get('after_removal') not in {
+                    'CONTINUED_EXISTING_PATH', 'NEW_PATH_OR_REPLAN'}:
+                reasons.append('path_behavior_after_removal_unverified')
         return {'stage': stage.key,
                 'outcome': 'PASS' if not reasons else 'FAIL',
                 'passed': not reasons, 'reasons': reasons,
@@ -574,6 +620,29 @@ def start_stress_crate_observer(output: Path):
     return observer, log
 
 
+def start_memory_observer(output: Path):
+    """Observe remembered/live cell changes without publishing any commands."""
+    workspace = REPO.parents[1]
+    script = REPO/'scripts/observe_classroom_memory.py'
+    profile = REPO/'ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml'
+    shell = (
+        'unset AMENT_PREFIX_PATH CMAKE_PREFIX_PATH COLCON_PREFIX_PATH '
+        'ROS_PACKAGE_PATH PYTHONPATH LD_LIBRARY_PATH; '
+        'source /opt/ros/humble/setup.bash; '
+        f'source {shlex.quote(str(workspace/"install/local_setup.bash"))}; '
+        'export ROS_DOMAIN_ID=176 ROS_LOCALHOST_ONLY=1; '
+        f'export FASTRTPS_DEFAULT_PROFILES_FILE={shlex.quote(str(profile))}; '
+        'export FASTDDS_DEFAULT_PROFILES_FILE="$FASTRTPS_DEFAULT_PROFILES_FILE"; '
+        f'exec /usr/bin/python3 {shlex.quote(str(script))} '
+        f'--output {shlex.quote(str(output))}')
+    log = output.with_suffix('.observer.log')
+    with log.open('w') as stream:
+        observer = subprocess.Popen(['bash', '-c', shell], cwd=REPO,
+                                    stdout=stream, stderr=subprocess.STDOUT,
+                                    start_new_session=True)
+    return observer, log
+
+
 def start_web_obstacle_injector(stage: Stage, directory: Path):
     """Launch a Gazebo-only obstacle actor; the web server alone owns goals."""
     target = (-.25, -1.98) if stage.key == '06_web_sector3_moving_obstacle' else HOME[:2]
@@ -600,6 +669,30 @@ def start_web_obstacle_injector(stage: Stage, directory: Path):
     return actor
 
 
+def start_memory_transition_actor(directory: Path):
+    """Create/delete only an owned Gazebo box; the web server owns all goals."""
+    workspace = REPO.parents[1]
+    profile = REPO/'ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml'
+    script = REPO/'scripts/inject_classroom_memory_transition.py'
+    output = directory/'memory_transition_injection.json'
+    shell = (
+        'unset AMENT_PREFIX_PATH CMAKE_PREFIX_PATH COLCON_PREFIX_PATH '
+        'ROS_PACKAGE_PATH PYTHONPATH LD_LIBRARY_PATH; '
+        'source /opt/ros/humble/setup.bash; '
+        f'source {shlex.quote(str(workspace/"install/local_setup.bash"))}; '
+        'export ROS_DOMAIN_ID=176 ROS_LOCALHOST_ONLY=1; '
+        f'export FASTRTPS_DEFAULT_PROFILES_FILE={shlex.quote(str(profile))}; '
+        'export FASTDDS_DEFAULT_PROFILES_FILE="$FASTRTPS_DEFAULT_PROFILES_FILE"; '
+        f'exec /usr/bin/python3 {shlex.quote(str(script))} '
+        f'--output {shlex.quote(str(output))}')
+    log = directory/'memory_transition_injection.log'
+    with log.open('w') as stream:
+        actor = subprocess.Popen(['bash', '-c', shell], cwd=REPO,
+                                 stdout=stream, stderr=subprocess.STDOUT,
+                                 start_new_session=True)
+    return actor
+
+
 def web_stage_route(stage: Stage) -> str:
     route = [stop.removeprefix('Sector ') for stop in stage.route
              if stop.startswith('Sector ')]
@@ -607,14 +700,26 @@ def web_stage_route(stage: Stage) -> str:
 
 
 def terminate_group(child: subprocess.Popen, timeout: float = 20.) -> None:
-    if child.poll() is not None:
-        return
-    os.killpg(child.pid, signal.SIGINT)
+    # Every caller starts its own session. The leader can exit before a child
+    # (notably Nav2) does, so poll() alone does not prove its group is gone.
+    def signal_owned_group(sig: signal.Signals) -> None:
+        try:
+            os.killpg(child.pid, sig)
+        except ProcessLookupError:
+            pass
+
+    signal_owned_group(signal.SIGINT)
     try:
         child.wait(timeout=timeout)
     except subprocess.TimeoutExpired:
-        os.killpg(child.pid, signal.SIGTERM)
-        child.wait(timeout=10)
+        pass
+    signal_owned_group(signal.SIGTERM)
+    try:
+        child.wait(timeout=2.)
+    except subprocess.TimeoutExpired:
+        pass
+    signal_owned_group(signal.SIGKILL)
+    child.wait(timeout=2.)
 
 
 def execute_web_stage(stage: Stage, root: Path,
@@ -630,6 +735,9 @@ def execute_web_stage(stage: Stage, root: Path,
     stress_file = root/(stage.key+'.stress_crate_trace.jsonl')
     stress_observer, stress_log = (start_stress_crate_observer(stress_file)
                                    if '--stress' in stage.options else (None, None))
+    memory_file = root/(stage.key+'.memory_observer.jsonl')
+    memory_observer, memory_log = (start_memory_observer(memory_file)
+                                   if '--memory-session' in stage.options else (None, None))
     runner = None
     web = None
     injector = None
@@ -646,6 +754,8 @@ def execute_web_stage(stage: Stage, root: Path,
             command.append('--record-incidents')
         if '--stress' in stage.options:
             command.append('--stress')
+        if '--memory-session' in stage.options:
+            command.append('--memory-session')
         if laser_filter_for_change_memory:
             command.append('--laser-filter-for-change-memory')
         if measure_scan_filter:
@@ -660,6 +770,8 @@ def execute_web_stage(stage: Stage, root: Path,
             return 1
         if stage.kind == 'web_moving_obstacle':
             injector = start_web_obstacle_injector(stage, directory)
+        elif stage.key == '24_web_memory_sector1_to_sector2_removal':
+            injector = start_memory_transition_actor(directory)
         environment = dict(os.environ)
         environment.update({'SMART_VISION_CLASSROOM_SIM_DOMAIN': '176',
                             'SMART_VISION_CLASSROOM_SIM_PORT': '8792',
@@ -717,6 +829,8 @@ def execute_web_stage(stage: Stage, root: Path,
         terminate_group(observer, timeout=8.)
         if stress_observer is not None:
             terminate_group(stress_observer, timeout=8.)
+        if memory_observer is not None:
+            terminate_group(memory_observer, timeout=8.)
         if directory.is_dir():
             for source, destination in (
                     (timeline_file, directory/'safety_timeline.jsonl'),
@@ -728,6 +842,14 @@ def execute_web_stage(stage: Stage, root: Path,
                 for source, destination in (
                         (stress_file, directory/'stress_crate_trace.jsonl'),
                         (stress_log, directory/'stress_crate_observer.log')):
+                    if source.is_file():
+                        shutil.move(str(source), destination)
+            if memory_observer is not None:
+                for source, destination in (
+                        (memory_file, directory/'memory_observer.jsonl'),
+                        (memory_file.with_suffix('.summary.json'),
+                         directory/'memory_observer.summary.json'),
+                        (memory_log, directory/'memory_observer.log')):
                     if source.is_file():
                         shutil.move(str(source), destination)
 
@@ -1337,6 +1459,15 @@ def check_physical_source_value_parity(directory: Path, manifest: dict) -> dict:
 
 
 def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -> dict:
+    if '--memory-session' in stage.options:
+        memory_summary = directory/'memory_observer.summary.json'
+        if memory_summary.is_file():
+            try:
+                evidence['memory_session_observer'] = json.loads(memory_summary.read_text())
+            except (OSError, ValueError) as exc:
+                evidence['memory_session_observer'] = {'error': f'cannot_read_summary: {exc}'}
+        else:
+            evidence['memory_session_observer'] = {'error': 'observer_summary_missing'}
     timeline_file = directory/'safety_timeline.jsonl'
     if timeline_file.is_file():
         try:
@@ -1347,9 +1478,10 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
             # must keep the raw LiDAR stopping gate: the SDF fixture cannot
             # certify a newly inserted vehicle or box.
             static_fixture = directory/'fixture/classroom_fault.world'
-            geometry_allowed = stage.kind not in {
+            geometry_allowed = (stage.kind not in {
                 'moving_obstacle', 'route_obstacle', 'home_obstacle',
-                'web_moving_obstacle'}
+                'web_moving_obstacle'} and
+                stage.key != '24_web_memory_sector1_to_sector2_removal')
             boxes = (safety_timeline.load_static_world_boxes(static_fixture)
                      if geometry_allowed and static_fixture.is_file() else None)
             safety = safety_timeline.assess(records, static_world_boxes=boxes)
@@ -1400,6 +1532,10 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
                                      '12_web_integrated_stress_home_obstacle'}:
                         evidence['home_obstacle_temporal_check'] = check_home_obstacle_timing(
                             evidence)
+                if stage.key == '24_web_memory_sector1_to_sector2_removal':
+                    transition = directory/'memory_transition_injection.json'
+                    if transition.is_file():
+                        evidence['memory_transition'] = json.loads(transition.read_text())
             elif stage.kind == 'web_disconnect':
                 evidence['web_disconnect_truth'] = check_web_disconnect_truth(records, evidence)
         except (ValueError, OSError, TypeError) as exc:

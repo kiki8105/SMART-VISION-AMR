@@ -377,6 +377,9 @@ class MissionApplication:
         self.observed_obstacles = []
         self.observed_obstacles_at = 0.
         self.observed_obstacles_map_version = None
+        self.remembered_obstacles = []
+        self.remembered_obstacles_map_version = None
+        self.pending_remembered_obstacles = None
         self.navigation = {'status': 'IDLE', 'planner_status': 'IDLE', 'message': ''}
         self.planner_details, self.planner_details_at = {}, 0.
         self.goal_available = False
@@ -491,6 +494,10 @@ class MissionApplication:
                                match=self.map['configured_match'], encoded=self.map_png,
                                layout=layout, force=True)
                 self.clear_observed_obstacles()
+                # A floorplan is display geometry only; the ROS occupancy grid
+                # and its confirmed obstacle cells have not changed.
+                if self.remembered_obstacles_map_version is not None:
+                    self.remembered_obstacles_map_version = self.map_version
 
     def _show_map(self, metadata, data, *, preview, source, match, encoded=None, layout=None, force=False):
         """Cache raster/vector geometry; status changes alone do not invalidate it."""
@@ -510,6 +517,7 @@ class MissionApplication:
         """Reconnects must wait for a new live map, even if a preview is visible."""
         with self.lock:
             self.clear_observed_obstacles()
+            self.clear_remembered_obstacles()
             self.path = []
             self.path_stamp = None
             self.map_matches_configured = None
@@ -527,6 +535,7 @@ class MissionApplication:
         """Install a real ROS map and validate it against the configured map."""
         with self.lock:
             previous_version = self.map_version
+            was_preview = self.map_is_preview
             self.localization_distance = occupied_distance(data, metadata['resolution'])
             self.map_matches_configured = (maps_match(*self._configured_map[:2], metadata, data)
                                            if self._configured_map is not None else None)
@@ -542,8 +551,13 @@ class MissionApplication:
             else:
                 self._show_map(metadata, data, preview=False, source='ros', match=self.map_matches_configured,
                                layout=self._configured_layout if self.map_matches_configured is True else None)
-            if self.map_is_preview or self.map_version != previous_version:
+            if was_preview or self.map_is_preview or self.map_version != previous_version:
+                pending_memory = (self.pending_remembered_obstacles
+                                  if not self.map_is_preview else None)
                 self.clear_observed_obstacles()
+                self.clear_remembered_obstacles()
+                if pending_memory is not None:
+                    self.receive_remembered_obstacles(pending_memory)
                 self.path = []
                 self.path_stamp = None
             if self.map_matches_configured is False and self.mission.state in ACTIVE_STATES:
@@ -556,6 +570,42 @@ class MissionApplication:
         self.observed_obstacles = []
         self.observed_obstacles_at = 0.
         self.observed_obstacles_map_version = None
+
+    def clear_remembered_obstacles(self):
+        """Drop confirmed cells when their map can no longer be established."""
+        self.remembered_obstacles = []
+        self.remembered_obstacles_map_version = None
+        self.pending_remembered_obstacles = None
+
+    def receive_remembered_obstacles(self, indices):
+        """Display the planner's confirmed map cells without changing planning.
+
+        The transient-local memory topic can arrive before the map topic. Hold
+        that first message until a matching live map arrives, then bind it to
+        that map version. An empty message explicitly clears remembered cells.
+        """
+        with self.lock:
+            if (not isinstance(indices, (list, tuple)) or len(indices) > 20_000
+                    or any(type(index) is not int or index < 0 for index in indices)):
+                return False
+            if self.map is None or self.map_is_preview:
+                if self.map_matches_configured is False:
+                    self.clear_remembered_obstacles()
+                    return False
+                self.pending_remembered_obstacles = list(indices)
+                return True
+            if self.map_matches_configured is False or self._display_map_data is None:
+                self.clear_remembered_obstacles()
+                return False
+            width, height = self.map['width'], self.map['height']
+            if any(index >= width * height for index in indices):
+                return False
+            occupancy = self._display_map_data.reshape(-1)
+            self.remembered_obstacles = [index for index in sorted(set(indices))
+                                         if 0 <= occupancy[index] < 65]
+            self.remembered_obstacles_map_version = self.map_version
+            self.pending_remembered_obstacles = None
+            return True
 
     def receive_observed_obstacles(self, indices):
         """Display only fresh LiDAR additions in known-free cells of the live map.
@@ -708,6 +758,12 @@ class MissionApplication:
                                   and self.observed_obstacles_map_version == self.map_version
                                   and now-self.observed_obstacles_at < 2.0 else []),
                         'age': age(self.observed_obstacles_at)},
+                    'remembered_obstacles': {
+                        'map_version': self.remembered_obstacles_map_version,
+                        'cells': (list(self.remembered_obstacles)
+                                  if self.map is not None and not self.map_is_preview
+                                  and self.map_matches_configured is not False
+                                  and self.remembered_obstacles_map_version == self.map_version else [])},
                     'detection': {'ids': list(self.detected_ids) if now-self.camera_at < 2. else [],
                                   'front_ids': list(self.front_detected_ids) if now-self.front_camera_at < 2. else [],
                                   'expected_camera': (self.mission.markers[self.mission.expected_id].get('camera', 'rear')
@@ -1700,6 +1756,9 @@ def create_ros_bridge(app, options, context):
             self.create_subscription(ROSPath, '/smart_vision_amr/path', self.on_path, 10)
             self.create_subscription(Int32MultiArray, '/smart_vision_amr/observed_obstacles',
                                      self.on_observed_obstacles, 10)
+            self.memory_sub = self.create_subscription(
+                Int32MultiArray, '/smart_vision_amr/remembered_cells',
+                self.on_remembered_obstacles, durable)
             self.create_subscription(Odometry, '/odom', self.on_odom, qos_profile_sensor_data)
             self.create_subscription(LaserScan, '/scan', self.on_scan, qos_profile_sensor_data)
             rear_type = CompressedImage if options.camera_topic.endswith('/compressed') else Image
@@ -1826,7 +1885,7 @@ def create_ros_bridge(app, options, context):
                 app.failure_memory_status, app.failure_memory_at = {}, 0.
                 app.reset_power()
                 app.restore_map_preview()
-                # /map and /tf_static are usually published just once with
+            # /map, /remembered_cells and /tf_static are usually published just once with
                 # TRANSIENT_LOCAL durability. After clearing their cached data,
                 # a new subscription must request the current durable samples.
                 self.sim_epoch_rebind_pending = True
@@ -1839,10 +1898,16 @@ def create_ros_bridge(app, options, context):
             new_buffer = Buffer()
             new_listener = TransformListener(new_buffer, self)
             new_map_sub = self.create_subscription(OccupancyGrid, '/map', self.on_map, self.map_qos)
-            old_listener, old_map_sub = self.tf_listener, self.map_sub
-            self.tf_buffer, self.tf_listener, self.map_sub = new_buffer, new_listener, new_map_sub
+            new_memory_sub = self.create_subscription(
+                Int32MultiArray, '/smart_vision_amr/remembered_cells',
+                self.on_remembered_obstacles, self.map_qos)
+            old_listener, old_map_sub, old_memory_sub = (
+                self.tf_listener, self.map_sub, self.memory_sub)
+            self.tf_buffer, self.tf_listener, self.map_sub, self.memory_sub = (
+                new_buffer, new_listener, new_map_sub, new_memory_sub)
             old_listener.unregister()
             self.destroy_subscription(old_map_sub)
+            self.destroy_subscription(old_memory_sub)
             self.sim_epoch_rebind_pending = False
 
         def on_map(self, message):
@@ -1873,6 +1938,9 @@ def create_ros_bridge(app, options, context):
 
         def on_observed_obstacles(self, message):
             app.receive_observed_obstacles(list(message.data))
+
+        def on_remembered_obstacles(self, message):
+            app.receive_remembered_obstacles(list(message.data))
 
         def source_fresh(self, stamp, max_age=2.0):
             stamp_ns = stamp.sec*1000000000+stamp.nanosec

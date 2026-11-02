@@ -34,6 +34,6 @@ exec "$SCRIPT_DIR/run_hardware_tuning.sh" "$MAP_FILE" \
   use_composition:=false \
   lifecycle_bond_timeout:=15.0 \
   use_motion_mux:=false \
-  memory_enabled:=false "${LAUNCH_ARGUMENTS[@]}" \
+  memory_enabled:=true memory_persist_to_disk:=false "${LAUNCH_ARGUMENTS[@]}" \
   estimation_location:="$ESTIMATION_LOCATION" \
   localization_mode:="$LOCALIZATION_MODE"
