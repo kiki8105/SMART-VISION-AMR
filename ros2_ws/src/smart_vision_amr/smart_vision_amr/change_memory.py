@@ -20,8 +20,10 @@ from std_srvs.srv import Trigger
 from tf2_ros import Buffer, TransformException, TransformListener
 
 from smart_vision_amr.obstacle_memory import ObstacleMemory
+from smart_vision_amr.scan_outlier_guard import NearScanOutlierGuard
 from smart_vision_amr.map_utils import (bresenham, cell_to_world, world_to_cell,
-                                       occupancy_to_grid, first_static_obstacle_distance)
+                                       occupancy_to_grid, first_static_obstacle_distance,
+                                       distance_to_known_wall_area, wall_echo_reference_grid)
 
 
 class ChangeMemoryNode(Node):
@@ -36,6 +38,9 @@ class ChangeMemoryNode(Node):
         self.declare_parameter("occupied_threshold", 65)
         # Compare measured range with the first known wall, not wall proximity.
         self.declare_parameter("mapped_wall_range_tolerance_m", 0.05)
+        # 0 disables the cap. Only obstacle hits are range-limited; free-ray
+        # evidence still traverses to the actual return or scan.range_max.
+        self.declare_parameter("live_obstacle_max_range_m", 0.0)
         self.declare_parameter("confirm_observations", 5)
         self.declare_parameter("clear_observations", 5)
         self.declare_parameter("confirm_min_duration_sec", 2.0)
@@ -54,9 +59,11 @@ class ChangeMemoryNode(Node):
         self.declare_parameter("live_localization_jump_distance", 0.25)
         self.declare_parameter("live_localization_jump_angle", 0.25)
         self.raw_static_grid = None
+        self.wall_echo_grid = None
         self.map = None
         self.memory = None
         self.live_obstacles = {}
+        self.near_scan_guard = NearScanOutlierGuard()
         self.last_scan_stamp_ns = None
         self.last_map_to_odom = None
         self.scans_since_save = 0
@@ -104,7 +111,13 @@ class ChangeMemoryNode(Node):
         self.raw_static_grid = occupancy_to_grid(
             msg, self.get_parameter("occupied_threshold").value,
             unknown_is_obstacle=False)
+        # Only the unknown fringe attached to a known wall shares its static
+        # boundary. Isolated unknown frontiers must not hide a new object.
+        self.wall_echo_grid = wall_echo_reference_grid(
+            msg, self.get_parameter("occupied_threshold").value)
         self.live_obstacles.clear()
+        if hasattr(self, "near_scan_guard"):
+            self.near_scan_guard.reset()
         self.last_scan_stamp_ns = None
         self.last_map_to_odom = None
         self.pending_scans.clear()
@@ -132,6 +145,8 @@ class ChangeMemoryNode(Node):
         # These cells were projected using the old localization solution. The
         # next valid scan rebuilds them; do not announce a fresh empty scan here.
         self.live_obstacles.clear()
+        if hasattr(self, "near_scan_guard"):
+            self.near_scan_guard.reset()
         self.last_map_to_odom = None
         self.pending_scans.clear()
 
@@ -154,6 +169,8 @@ class ChangeMemoryNode(Node):
                 > self.get_parameter("live_localization_jump_distance").value
                 or delta_yaw > self.get_parameter("live_localization_jump_angle").value):
             self.live_obstacles.clear()
+            if hasattr(self, "near_scan_guard"):
+                self.near_scan_guard.reset()
             self.get_logger().warning(
                 "Localization frame changed; rebuilding transient LiDAR obstacles from fresh scans")
 
@@ -268,7 +285,10 @@ class ChangeMemoryNode(Node):
         try:
             tf = self.tf_buffer.lookup_transform(target_frame, sensor_frame, measurement_time)
         except TransformException as exc:
-            self.get_logger().warning(f"Waiting for scan-stamped TF: {exc}", throttle_duration_sec=5.0)
+            # A LiDAR measurement often reaches this process 10-100 ms before
+            # the matching odom/AMCL transform. The queued retry below handles
+            # that normal ordering; warn only if the bounded wait expires.
+            self.get_logger().debug(f"Scan-stamped TF not yet ready: {exc}", throttle_duration_sec=5.0)
             return False
         tf_ns = tf.header.stamp.sec * 1_000_000_000 + tf.header.stamp.nanosec
         tf_max_age = max(.05, float(self.get_parameter("live_transform_max_age_sec").value))
@@ -287,14 +307,31 @@ class ChangeMemoryNode(Node):
         info = self.map["message"].info
         origin = world_to_cell(info, tf.transform.translation.x, tf.transform.translation.y)
         yaw = self._yaw(tf.transform.rotation)
-        occupied_cells, free_cells = set(), set()
+        occupied_cells, free_cells, uncertain_cells = set(), set(), set()
+        unmatched_hits = []
         invalid_angles = []
         valid_beams = 0
+        # Hold even a multi-beam near-minimum cluster as unknown until a
+        # second scan confirms it. Raw /scan still reaches Nav2 unchanged.
+        guard = getattr(self, "near_scan_guard", None)
+        if guard is None:  # Lightweight test harnesses bypass Node.__init__.
+            guard = self.near_scan_guard = NearScanOutlierGuard()
+        outliers = guard.classify(scan, stamp_ns)
+        if not outliers.accepted:
+            return True
         wall_tolerance = float(self.get_parameter("mapped_wall_range_tolerance_m").value)
         # Invalid tolerance must never discard actual obstacles.
         wall_tolerance = max(0., wall_tolerance) if math.isfinite(wall_tolerance) else 0.
+        obstacle_range = float(self.get_parameter("live_obstacle_max_range_m").value)
+        obstacle_range = obstacle_range if math.isfinite(obstacle_range) and obstacle_range > 0. else math.inf
         for index, distance in enumerate(scan.ranges):
             angle = yaw + scan.angle_min + index * scan.angle_increment
+            if index in outliers.unconfirmed:
+                uncertain_cells.add(world_to_cell(
+                    info, tf.transform.translation.x + distance*math.cos(angle),
+                    tf.transform.translation.y + distance*math.sin(angle)))
+                invalid_angles.append(angle)
+                continue
             # NaN, zero/below-minimum and out-of-range packets are not evidence
             # that the ray is free. Positive infinity is the LaserScan no-hit case.
             if (math.isnan(distance) or distance == -math.inf
@@ -312,7 +349,7 @@ class ChangeMemoryNode(Node):
             for cell in ray[:-1] if valid_hit else ray:
                 if self._is_free_in_base_map(cell):
                     free_cells.add(cell)
-            if valid_hit and self.raw_static_grid.contains(end_cell):
+            if valid_hit and distance <= obstacle_range and self.raw_static_grid.contains(end_cell):
                 wall_distance = first_static_obstacle_distance(
                     info, self.raw_static_grid, tf.transform.translation.x,
                     tf.transform.translation.y, angle, scan.range_max)
@@ -321,12 +358,25 @@ class ChangeMemoryNode(Node):
                 wall_echo = (wall_distance is not None
                              and abs(wall_distance-distance) <= wall_tolerance)
                 if not wall_echo:
-                    occupied_cells.add(end_cell)
+                    unmatched_hits.append((endpoint, end_cell))
         if not valid_beams:
             return True
+        for endpoint, end_cell in unmatched_hits:
+            # The SLAM map has a narrow unknown fringe on mapped walls. Do not
+            # inflate a return on that fringe a second time into a corridor.
+            # Match only the measured endpoint, never an earlier unknown cell
+            # crossed by the ray. Unattached unknown frontiers stay observable.
+            # Raw /scan remains in Nav2's costmap for immediate collision safety.
+            if distance_to_known_wall_area(
+                    info, self.wall_echo_grid, *endpoint, wall_tolerance) is not None:
+                continue
+            occupied_cells.add(end_cell)
         self.last_scan_stamp_ns = stamp_ns
         self.projection_valid += 1
         free_cells.difference_update(occupied_cells)
+        # Adjacent clear rays can traverse the same 5 cm map cell as one tiny
+        # uncertain return. That cell stays unknown until the next scan too.
+        free_cells.difference_update(uncertain_cells)
         now = time.monotonic()
         ttl = max(.05, float(self.get_parameter("live_obstacle_ttl_sec").value))
         # Keep briefly occluded returns, but clear a cell as soon as a valid ray
@@ -334,8 +384,11 @@ class ChangeMemoryNode(Node):
         # obstacle in the map: protect only each dropout's actual angular cone.
         # Neither TTL nor relocalization edits the saved SLAM grid.
         sensor_xy = (tf.transform.translation.x, tf.transform.translation.y)
+        cell_radius = info.resolution * math.sqrt(2.) * .5
         self.live_obstacles = {cell: seen for cell, seen in self.live_obstacles.items()
                                if self.raw_static_grid.contains(cell) and cell not in free_cells
+                               and math.dist(cell_to_world(info, cell), sensor_xy)
+                                   <= obstacle_range + cell_radius
                                and (now-seen < ttl or self.cell_in_unknown_sector(
                                    cell, info, sensor_xy, invalid_angles, scan.angle_increment))}
         self.live_obstacles.update((cell, now) for cell in occupied_cells)

@@ -98,5 +98,61 @@ if ! timeout 10s /usr/bin/python3 "$SCRIPT_DIR/check_map_publishers.py" --domain
   printf 'Refusing to start hardware navigation until ROS domain %s has one planned map source.\n' "$DOMAIN_ID" >&2
   exit 1
 fi
+# Humble's lifecycle manager can time out on amcl/get_state while the PC is
+# busy starting separate Nav2 processes. In that case it leaves map_server and
+# AMCL inactive. Retry STARTUP only for that exact, stopped state: never reset
+# active nodes or relax the drive interlocks. This watcher lives only as long
+# as this launch and makes no more than two calls in a bounded startup window.
+# BEGIN localization_startup_retry
+localization_startup_retry() {
+  local parent_pid=$$
+  local deadline=$((SECONDS + 80))
+  local attempts=0 polls=0 map_state amcl_state reply
+  sleep 15
+  while (( SECONDS < deadline && polls < 8 )); do
+    polls=$((polls + 1))
+    kill -0 "$parent_pid" 2>/dev/null || return 0
+    map_state=$(timeout 5s ros2 lifecycle get /map_server 2>/dev/null) || map_state=''
+    amcl_state=$(timeout 5s ros2 lifecycle get /amcl 2>/dev/null) || amcl_state=''
+    if [[ "$map_state" == *'active [3]'* && "$amcl_state" == *'active [3]'* ]]; then
+      if (( attempts > 0 )); then
+        printf '[localization-startup] map_server and AMCL are active after retry.\n' >&2
+      fi
+      return 0
+    fi
+    # An active/inactive pair is a partial transition, not a safe state for
+    # STARTUP. Leave it untouched for diagnosis rather than cycling a map.
+    if [[ ( "$map_state" == *'inactive [2]'* || "$map_state" == *'unconfigured [1]'* ) &&
+          ( "$amcl_state" == *'inactive [2]'* || "$amcl_state" == *'unconfigured [1]'* ) ]]; then
+      if (( attempts >= 2 )); then break; fi
+      attempts=$((attempts + 1))
+      kill -0 "$parent_pid" 2>/dev/null || return 0
+      printf '[localization-startup] map_server=%s, amcl=%s; STARTUP retry %d/2.\n' \
+        "$map_state" "$amcl_state" "$attempts" >&2
+      reply=$(timeout 20s ros2 service call \
+        /lifecycle_manager_localization/manage_nodes \
+        nav2_msgs/srv/ManageLifecycleNodes '{command: 0}' 2>&1) || reply=''
+      if [[ "$reply" == *'success=True'* ]]; then
+        printf '[localization-startup] Lifecycle manager accepted STARTUP; checking both nodes.\n' >&2
+      fi
+    fi
+    sleep 5
+  done
+  kill -0 "$parent_pid" 2>/dev/null || return 0
+  printf '[localization-startup] Automatic retry ended without both nodes active (map_server=%s, amcl=%s). Navigation remains stopped.\n' \
+    "${map_state:-unknown}" "${amcl_state:-unknown}" >&2
+}
+# END localization_startup_retry
+if [[ "${SMART_VISION_LOCALIZATION_RETRY:-true}" == true ]]; then
+  # The watcher must not hold the singleton launch lock after ros2 exits.
+  # A background child retaining the launch terminal's output descriptors
+  # also keeps callers waiting after a short-lived launch has exited.
+  retry_log_dir=${ROS_LOG_DIR:-$HOME/.ros/log}
+  mkdir -p -- "$retry_log_dir"
+  printf 'Localization startup retry log: %s\n' \
+    "$retry_log_dir/localization_startup_retry_${DOMAIN_ID}_$$.log"
+  localization_startup_retry 9>&- </dev/null \
+    >>"$retry_log_dir/localization_startup_retry_${DOMAIN_ID}_$$.log" 2>&1 &
+fi
 exec ros2 launch smart_vision_amr hardware.launch.py \
   map:="$MAP_FILE" params_file:="$(realpath -- "$PARAMS_FILE")" use_rviz:=false "$@"

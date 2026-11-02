@@ -11,5 +11,5 @@ source "$WORKSPACE_ROOT/install/local_setup.bash"
 export ROS_DOMAIN_ID=16 ROS_LOCALHOST_ONLY=0
 
 exec python3 -m smart_vision_amr.classroom_home_init \
-  --map "$REPO_DIR/ros2_ws/src/smart_vision_amr/maps/classroom_20261027_cleaned.yaml" \
-  --markers "$REPO_DIR/ros2_ws/src/smart_vision_amr/config/aruco_classroom_markers.yaml" "$@"
+  --map "$REPO_DIR/ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.yaml" \
+  --markers "$REPO_DIR/ros2_ws/src/smart_vision_amr/config/aruco_classroom_markers_20261030.yaml" "$@"

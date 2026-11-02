@@ -5,9 +5,11 @@ import pytest
 from smart_vision_amr.execution_progress import ExecutionProgress, ProgressSample
 
 
-def sample(t, x=0., y=0., progress=0., error=.8, linear=.1, angular=0., ros=None):
+def sample(t, x=0., y=0., progress=0., error=.8, linear=.1, angular=0., ros=None,
+           yaw=0., odom_yaw=None):
     return ProgressSample(t, int((t+10)*1e9) if ros is None else ros,
-                          x, y, error, progress, linear, angular)
+                          x, y, error, progress, linear, angular, yaw,
+                          yaw if odom_yaw is None else odom_yaw)
 
 
 def run(detector, factory, route='route'):
@@ -30,7 +32,7 @@ def test_alternating_turns_report_oscillation_with_bounded_evidence():
     results = run(ExecutionProgress(), lambda t: sample(t, linear=0., angular=.2 if int(t*2)%2 else -.2))
     assert results[0][0] == 'execution_oscillation'
     assert results[0][1]['sign_changes'] >= 4
-    assert len(results[0][1]) == 6
+    assert len(results[0][1]) == 11
 
 
 @pytest.mark.parametrize('speed', [.02, .10])
@@ -39,7 +41,59 @@ def test_forward_progress_is_productive(speed):
 
 
 def test_deliberate_in_place_alignment_is_productive():
-    assert not run(ExecutionProgress(), lambda t: sample(t, error=1.5-.1*t, linear=0., angular=.2))
+    assert not run(ExecutionProgress(), lambda t: sample(
+        t, error=1.5-.1*t, linear=0., angular=.2, yaw=.1*t))
+
+
+def test_real_turn_toward_window_start_heading_survives_a_moving_path_tangent():
+    # The robot advances too little to count as translation, yet rotates
+    # toward its original path heading. The current tangent moves with it, so
+    # instantaneous heading error alone would falsely label this as stuck.
+    assert not run(ExecutionProgress(), lambda t: sample(
+        t, x=.04*t/7, progress=.02*t/7, error=-1.2,
+        linear=.01, angular=-.25, yaw=-.14*t))
+
+
+def test_reversing_turns_remain_oscillation_even_if_last_heading_looks_better():
+    results = run(ExecutionProgress(), lambda t: sample(
+        t, error=1.2, linear=0.,
+        angular=.3 if int(t*2)%2 else -.3,
+        yaw=.2 if int(t*2)%2 else 0.))
+    assert results and results[0][0] == 'execution_oscillation'
+
+
+def test_full_spin_does_not_count_as_net_heading_progress():
+    results = run(ExecutionProgress(), lambda t: sample(
+        t, error=1.2, linear=0., angular=.4, yaw=2*math.pi*t/6.))
+    assert results and results[0][0] == 'execution_no_progress'
+
+
+def test_map_heading_jump_without_odom_rotation_does_not_mask_stall():
+    results = run(ExecutionProgress(), lambda t: sample(
+        t, error=1.2, linear=0., angular=.3, yaw=.14*t, odom_yaw=0.))
+    assert results and results[0][0] == 'execution_no_progress'
+    assert results[0][1]['yaw_consistent'] is False
+
+
+def test_moving_target_error_without_body_turn_does_not_mask_stall():
+    results = run(ExecutionProgress(), lambda t: sample(
+        t, error=1.2-.1*t, linear=0., angular=.3, yaw=0.))
+    assert results and results[0][0] == 'execution_no_progress'
+
+
+def test_two_turn_bounce_with_small_net_heading_gain_does_not_mask_stall():
+    # Fewer sign changes than the oscillation classifier's hard limit can
+    # still spend most of the window turning back and forth. A small net gain
+    # after large wasted travel must not be accepted as productive alignment.
+    def bouncing(t):
+        yaw = .4*t if t < 2 else 1.6-.4*t if t < 4 else .1*(t-4)
+        angular = .4 if t < 2 or t >= 4 else -.4
+        return sample(t, error=1.2, linear=0., angular=angular, yaw=yaw)
+
+    results = run(ExecutionProgress(), bouncing)
+    assert results and results[0][0] == 'execution_no_progress'
+    assert results[0][1]['sign_changes'] == 2
+    assert results[0][1]['yaw_directness'] < .5
 
 
 def test_pause_does_not_create_route_failure():

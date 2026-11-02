@@ -4,9 +4,11 @@ Pure logic: no ROS, OpenCV, coordinates, motor publisher or mission completion.
 All times use the same monotonic clock. The adapter must reject camera captures
 older than mission arrival and supply normalized, upright image coordinates.
 ``confidence`` is geometric corner/detection quality, not an ML probability.
-``recognized`` confirmation accepts a correctly identified marker after fresh,
-consecutive detections and a stationary settling period; ``aligned`` retains
-the optional image-center and wall-normal alignment behavior.
+``recognized`` briefly nudges a correctly identified marker toward a broad
+image-center band, then requires fresh consecutive centered detections and a
+stationary settling period. It pauses with the target retained if it cannot
+center within the bounded correction; it never approves an off-center marker.
+``aligned`` retains precise image-center and optional wall-normal alignment.
 """
 
 from math import atan2, isfinite, pi, sin, cos
@@ -27,7 +29,9 @@ def finite_number(value):
 class MarkerAlignment:
     """Lifecycle contract for the camera/mission adapter.
 
-    start(marker_id, camera, start_yaw, now)
+    start(marker_id, camera, start_yaw, now, target_yaw=None)
+      Both yaw values must use the same frame. The optional target yaw only
+      chooses the first blank-image search direction; camera evidence wins.
     observe(frame_id, detections, camera, frame_time, now)
       detections: [{id: int, center_x: -1..1, confidence: 0..1}]
       center_x is -1 at image left, +1 at image right, zero at center.
@@ -54,11 +58,16 @@ class MarkerAlignment:
                  require_wall_alignment=False, strict_center_tolerance=.05,
                  wall_angle_tolerance=.05, wall_gain=.5,
                  wall_max_angular_velocity=.08, wall_timeout=.5,
-                 wall_required_samples=3, confirmation_mode='aligned'):
+                 wall_required_samples=3, confirmation_mode='aligned',
+                 soft_center_tolerance=.30, soft_center_timeout=3.0,
+                 soft_center_max_rotation=.30,
+                 soft_center_max_angular_velocity=.10):
         positive = (search_speed, max_angular_velocity, center_gain, center_tolerance,
                     stable_seconds, sweep_angle, max_total_rotation,
                     timeout, frame_timeout, camera_loss_timeout, strict_center_tolerance,
-                    wall_angle_tolerance, wall_gain, wall_max_angular_velocity, wall_timeout)
+                    wall_angle_tolerance, wall_gain, wall_max_angular_velocity, wall_timeout,
+                    soft_center_tolerance, soft_center_timeout,
+                    soft_center_max_rotation, soft_center_max_angular_velocity)
         if (not all(finite_number(v) and v > 0.0 for v in positive)
                 or search_speed > max_angular_velocity
                 or not 0.0 < center_tolerance < 1.0
@@ -66,6 +75,10 @@ class MarkerAlignment:
                 or required_frames < 2 or max_bounces < 1
                 or type(wall_required_samples) is not int or wall_required_samples < 2
                 or strict_center_tolerance >= 1.0
+                or soft_center_tolerance >= 1.0
+                or (confirmation_mode == 'recognized'
+                    and (soft_center_timeout >= timeout
+                         or soft_center_max_rotation >= max_total_rotation))
                 or wall_angle_tolerance >= pi/2
                 or sweep_angle >= pi
                 or front_yaw_sign not in (-1., 1.) or rear_yaw_sign not in (-1., 1.)
@@ -77,6 +90,14 @@ class MarkerAlignment:
         self.require_wall_alignment = bool(require_wall_alignment)
         self.center_gain = center_gain
         self.center_tolerance = min(center_tolerance, strict_center_tolerance) if self.require_wall_alignment else center_tolerance
+        self.soft_center_tolerance = soft_center_tolerance
+        # A small exit hysteresis absorbs single-frame pixel jitter after the
+        # target has first entered the broad center band. It does not permit
+        # a never-centered target to bypass the entry threshold.
+        self.soft_center_exit_tolerance = min(.99, soft_center_tolerance + .06)
+        self.soft_center_timeout = soft_center_timeout
+        self.soft_center_max_rotation = soft_center_max_rotation
+        self.soft_center_max_angular_velocity = min(soft_center_max_angular_velocity, max_angular_velocity)
         self.wall_angle_tolerance, self.wall_gain = wall_angle_tolerance, wall_gain
         self.wall_max_angular_velocity = min(wall_max_angular_velocity, max_angular_velocity)
         self.wall_timeout, self.wall_required_samples = wall_timeout, wall_required_samples
@@ -95,12 +116,16 @@ class MarkerAlignment:
         self.last_frame_at = self.last_seen_at = self.centered_since = None
         self.stationary_since = self.camera_gap_since = None
         self.clearance_gap_since = None
+        self.awaiting_post_clearance_frame = False
+        self.post_clearance_frame_at = self.post_clearance_reacquire_since = None
         self.heading_offset = self.rotation = self.angular = 0.0
         self.direction, self.bounces, self.frames = 1.0, 0, 0
         self.center_error = None
+        self.soft_center_started_at = self.soft_center_rotation_at = None
+        self.soft_center_result = None
         self.last_tick_at = None
 
-    def start(self, marker_id, camera, start_yaw, now):
+    def start(self, marker_id, camera, start_yaw, now, target_yaw=None):
         if (type(marker_id) is not int or marker_id < 0 or camera not in self.yaw_sign
                 or not all(finite_number(value) for value in (start_yaw, now))):
             raise ValueError('A valid marker ID, selected camera, yaw and time are required')
@@ -110,9 +135,19 @@ class MarkerAlignment:
         self.last_frame_id = self.last_frame_at = self.last_seen_at = None
         self.centered_since = self.stationary_since = self.camera_gap_since = None
         self.clearance_gap_since = None
+        self.awaiting_post_clearance_frame = False
+        self.post_clearance_frame_at = self.post_clearance_reacquire_since = None
         self.heading_offset = self.rotation = self.angular = 0.0
         self.direction, self.bounces, self.frames = 1.0, 0, 0
+        if finite_number(target_yaw):
+            heading_error = angle_difference(target_yaw, start_yaw)
+            # Near-equal or unavailable registered headings provide no useful
+            # search sign, so retain the established bounded-search fallback.
+            if abs(heading_error) > .08:
+                self.direction = 1.0 if heading_error > 0.0 else -1.0
         self.center_error = None
+        self.soft_center_started_at = self.soft_center_rotation_at = None
+        self.soft_center_result = None
         self.state, self.reason = 'SEARCHING', f'선택한 {camera} 카메라로 마커 {marker_id}을 저속 탐색합니다.'
 
     def observe(self, frame_id, detections, camera, frame_time, now):
@@ -146,11 +181,35 @@ class MarkerAlignment:
         _, self.center_error = max(candidates, key=lambda pair: pair[0])
         self.last_seen_at = frame_time
         if self.confirmation_mode == 'recognized':
+            if self.soft_center_started_at is None:
+                self.soft_center_started_at = now
+                self.soft_center_rotation_at = self.rotation
+            if self.soft_center_result is None:
+                if abs(self.center_error) <= self.soft_center_tolerance:
+                    self.soft_center_result = 'centered'
+                    self._clear_centering()
+                elif self._soft_center_budget_exhausted(now):
+                    self._fail_soft_center()
+                    return True
+                else:
+                    self._clear_centering()
+                    self.state, self.reason = 'CENTERING', '목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.'
+                    return True
+            elif self.soft_center_result == 'centered' and abs(self.center_error) > self.soft_center_exit_tolerance:
+                # Do not reverse yaw for a jittering image. Revoke the center
+                # proof and wait for a fresh in-band frame; if it never returns,
+                # pause instead of falsely reporting sector arrival.
+                self._clear_centering()
+                if self._soft_center_budget_exhausted(now):
+                    self._fail_soft_center()
+                else:
+                    self.state, self.reason = 'SETTLING', '표식이 중앙 범위를 벗어나 정지 상태에서 다시 확인합니다.'
+                return True
             if self.centered_since is None:
                 self.centered_since = now
             self.frames += 1
             if self.state != 'CONFIRMED':
-                self.state, self.reason = 'SETTLING', '목표 마커 인식 확인 · 정지 상태에서 연속 영상을 확인합니다.'
+                self.state, self.reason = 'SETTLING', '마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.'
             return True
         if abs(self.center_error) <= self.center_tolerance:
             if self.centered_since is None:
@@ -230,9 +289,19 @@ class MarkerAlignment:
         self.centered_since = self.stationary_since = None
         self._clear_wall_proof()
 
+    def _soft_center_budget_exhausted(self, now):
+        return (now-self.soft_center_started_at >= self.soft_center_timeout
+                or self.rotation-self.soft_center_rotation_at >= self.soft_center_max_rotation)
+
+    def _fail_soft_center(self):
+        self.soft_center_result = 'out_of_band'
+        self.fail('마커가 영상 중앙 허용 범위 밖입니다. 안전 선회 한도에 도달하여 목표를 유지하고 임무를 일시정지합니다.')
+
     def fail(self, reason):
         self.angular = 0.0
         self._clear_centering()
+        self.awaiting_post_clearance_frame = False
+        self.post_clearance_frame_at = self.post_clearance_reacquire_since = None
         self.state, self.reason = 'FAILED', str(reason)
 
     def tick(self, now, yaw, *, pose_ok=True, scan_clear=True, stationary=False,
@@ -272,6 +341,13 @@ class MarkerAlignment:
             self.clearance_gap_since = None
             self._clear_centering()
             self.center_error = self.last_seen_at = None
+            # A frame received while clearance was unknown cannot authorize
+            # either confirmation or a new search turn. Wait for a frame
+            # captured after this safe-scan tick before choosing a direction.
+            self.awaiting_post_clearance_frame = True
+            self.post_clearance_frame_at = self.last_frame_at
+            self.post_clearance_reacquire_since = (now if self.confirmation_mode == 'recognized'
+                                                   and self.soft_center_result == 'centered' else None)
         delta = angle_difference(yaw, self.last_yaw)
         self.last_yaw = yaw
         self.heading_offset += delta
@@ -292,9 +368,45 @@ class MarkerAlignment:
                 self.fail('선택한 카메라 영상이 끊겨 목표를 유지하고 정렬을 일시정지합니다.')
             return 0.0
         self.camera_gap_since = None
+        if self.awaiting_post_clearance_frame:
+            if (self.last_frame_at is None or (self.post_clearance_frame_at is not None
+                                               and self.last_frame_at <= self.post_clearance_frame_at)):
+                self.state, self.reason = 'HOLD', '라이다 여유 회복 · 새로운 카메라 영상 확인 전까지 정지합니다.'
+                return 0.0
+            self.awaiting_post_clearance_frame = False
+            self.post_clearance_frame_at = None
         detected = self.last_seen_at is not None and now-self.last_seen_at <= self.frame_timeout
+        if self.post_clearance_reacquire_since is not None:
+            if detected and self.center_error is not None:
+                self.post_clearance_reacquire_since = None
+            elif now-self.post_clearance_reacquire_since >= self.camera_loss_timeout:
+                self.fail('라이다 여유 회복 후 목표 마커를 다시 확인하지 못해 임무를 일시정지합니다.')
+                return 0.0
+            else:
+                # A marker that was already centered should not trigger a
+                # speculative sweep because one post-gap image missed it.
+                self.state, self.reason = 'HOLD', '라이다 여유 회복 · 중앙 표식 재검출을 기다립니다.'
+                return 0.0
         if detected and self.center_error is not None:
             if self.confirmation_mode == 'recognized':
+                if self.soft_center_result is None:
+                    if self._soft_center_budget_exhausted(now):
+                        self._fail_soft_center()
+                        return 0.0
+                    self.state = 'CENTERING'
+                    speed = self.yaw_sign[self.camera]*self.center_gain*self.center_error
+                    self.angular = max(-self.soft_center_max_angular_velocity,
+                                       min(self.soft_center_max_angular_velocity, speed))
+                    # Never leave the bounded search envelope to claim arrival.
+                    if ((self.heading_offset >= self.sweep_angle and self.angular > 0.0)
+                            or (self.heading_offset <= -self.sweep_angle and self.angular < 0.0)):
+                        self._fail_soft_center()
+                        return 0.0
+                    return self.angular
+                if (abs(self.center_error) > self.soft_center_exit_tolerance
+                        and self._soft_center_budget_exhausted(now)):
+                    self._fail_soft_center()
+                    return 0.0
                 self.state = 'SETTLING'
                 if stationary:
                     if self.stationary_since is None:
@@ -302,7 +414,7 @@ class MarkerAlignment:
                     if (self.frames >= self.required_frames and self.centered_since is not None
                             and now-self.centered_since >= self.stable_seconds
                             and now-self.stationary_since >= self.stable_seconds):
-                        self.state, self.reason = 'CONFIRMED', '목표 마커 인식·정지 및 연속 영상 확인을 완료했습니다.'
+                        self.state, self.reason = 'CONFIRMED', '목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.'
                 else:
                     self.stationary_since = None
                 return 0.0
@@ -367,6 +479,11 @@ class MarkerAlignment:
                 'confirmation_mode': self.confirmation_mode,
                 'camera': self.camera, 'center_error': self.center_error,
                 'center_tolerance': self.center_tolerance, 'frames': self.frames,
+                'soft_center_tolerance': self.soft_center_tolerance,
+                'soft_center_exit_tolerance': self.soft_center_exit_tolerance,
+                'soft_center_result': self.soft_center_result,
+                'soft_center_timeout': self.soft_center_timeout,
+                'soft_center_max_rotation_degrees': self.soft_center_max_rotation*180.0/pi,
                 'wall_required': self.require_wall_alignment, 'wall_reliable': self.wall_reliable,
                 'wall_heading_error_rad': self.wall_heading_error,
                 'wall_angle_tolerance': self.wall_angle_tolerance,
@@ -374,6 +491,7 @@ class MarkerAlignment:
                 'wall_reason': self.wall_reason,
                 'required_frames': self.required_frames, 'linear': 0.0,
                 'angular': self.angular, 'rotation_degrees': self.rotation*180.0/pi,
+                'awaiting_post_clearance_frame': self.awaiting_post_clearance_frame,
                 'max_seconds': self.timeout,
                 'elapsed': 0.0 if self.started_at is None or self.last_tick_at is None
                 else self.last_tick_at-self.started_at}

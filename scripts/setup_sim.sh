@@ -43,7 +43,7 @@ APT_PACKAGES=(git build-essential cmake python3-colcon-common-extensions gazebo
   ros-humble-xacro ros-humble-slam-toolbox ros-humble-robot-localization
   ros-humble-compressed-image-transport
   ros-humble-teleop-twist-keyboard python3-opencv python3-pyqt5 python3-numpy
-  python3-yaml python3-pil)
+  python3-yaml python3-pil python3-pytest)
 
 missing_dependencies() {
   printf '\nRequired dependencies are missing. On Ubuntu 22.04 with ROS Humble apt sources, run:\n' >&2
@@ -76,8 +76,8 @@ for package in ament_cmake ament_package gazebo_ros gazebo_plugins nav2_bringup 
     MISSING=true
   fi
 done
-if ! /usr/bin/python3 -c 'from PyQt5 import QtWidgets; import cv2, numpy, yaml; from PIL import Image; assert hasattr(cv2, "aruco"), "OpenCV ArUco is required"'; then
-  printf 'Missing Python dependencies for the bundled controller, ArUco, or SLAM verification.\n' >&2
+if ! /usr/bin/python3 -c 'from PyQt5 import QtWidgets; import cv2, numpy, yaml, pytest; from PIL import Image; assert hasattr(cv2, "aruco"), "OpenCV ArUco is required"'; then
+  printf 'Missing Python dependencies for the bundled controller, ArUco, or simulation verification.\n' >&2
   MISSING=true
 fi
 if "$MISSING"; then missing_dependencies; fi

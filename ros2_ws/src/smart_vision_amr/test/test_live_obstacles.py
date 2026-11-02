@@ -18,6 +18,7 @@ class ScanHarness(ChangeMemoryNode):
         self.params = {'memory_enabled': False, 'map_frame': 'map', 'base_frame': 'base_footprint',
                        'odom_frame': 'odom',
                        'occupied_threshold': 65, 'mapped_wall_range_tolerance_m': .05,
+                       'live_obstacle_max_range_m': 0.,
                        'confirm_observations': 5,
                        'clear_observations': 5, 'confirm_min_duration_sec': 2.,
                        'clear_min_duration_sec': 2., 'min_observation_interval_sec': .25,
@@ -106,6 +107,40 @@ def test_live_obstacles_work_with_persistent_memory_disabled_and_never_mutate_ma
         node.scan(math.inf)
         assert node.observed() == set()  # A valid free ray clears it immediately.
         assert list(node.map['message'].data) == original
+
+
+def test_range_cap_ignores_far_hits_but_keeps_full_free_ray_clearing():
+    with harness() as node:
+        node.visibility_pub = Mock()
+        # First record a near dynamic obstacle with the hardware range cap.
+        node.params['live_obstacle_max_range_m'] = 2.5
+        node.scan(2.)
+        assert node.observed() == {8}
+
+        # A farther return is outside the detection radius. Its ray still
+        # crosses the old obstacle cell and provides positive clearing proof.
+        node.scan(3.)
+        assert node.observed() == set()
+        visibility = node.visibility_pub.publish.call_args.args[0]
+        assert visibility.data[8] == 0
+        assert visibility.data[9] == -1  # Far endpoint is not falsely "free".
+        assert not node.memory.confirmed_cells
+
+
+def test_range_cap_retains_near_obstacle_hits_and_default_has_full_range():
+    with harness() as node:
+        node.params['live_obstacle_max_range_m'] = 1.0
+        node.scan(1.)
+        assert node.observed() == {7}
+
+    with harness() as node:
+        node.params['live_obstacle_max_range_m'] = 1.0
+        node.scan(1.03)
+        assert node.observed() == set()
+
+    with harness() as node:
+        node.scan(3.)  # The default 0.0 preserves the old sensor-wide behavior.
+        assert node.observed() == {9}
 
 
 def test_briefly_occluded_obstacle_survives_one_scan_then_expires_without_map_memory():
@@ -293,6 +328,27 @@ def test_scan_just_ahead_of_tf_is_retried_without_latest_fallback():
         assert node.observation_pub.publish.call_count == 1
         assert node.observed() == {8}
         assert all(call.args[2].nanoseconds > 0 for call in node.tf_buffer.lookup_transform.call_args_list)
+
+
+def test_hardware_tf_wait_accepts_transform_after_250ms_without_losing_obstacle():
+    from tf2_ros import TransformException
+    with harness() as node:
+        node.params['scan_tf_wait_sec'] = .35
+        node.tf_buffer.lookup_transform.side_effect = TransformException('future extrapolation')
+        node.scan()
+        # A short real-robot TF scheduling spike used to exhaust the old
+        # 200 ms wait. Keep the scan pending, never substitute latest TF.
+        node.clock.return_value = 10.25
+        node.retry_pending_scans()
+        assert len(node.pending_scans) == 1
+        assert node.observation_pub.publish.call_count == 0
+        node.clock.return_value = 10.30
+        node.tf_buffer.lookup_transform.side_effect = (
+            lambda target, source, when: node.map_to_odom if source == 'odom' else node.transform)
+        node.retry_pending_scans()
+        assert not node.pending_scans
+        assert node.observed() == {8}
+        assert node.projection_dropped == 0
 
 
 def test_unavailable_measurement_tf_expires_and_never_heartbeats_safe_empty_layer():

@@ -67,6 +67,40 @@ Gazebo 기본 위치 추정은 기존 오도메트리(`baseline`)를 사용합�
 시뮬레이션은 로컬 통신으로 격리합니다. 실행 스크립트의 DDS 프로필 기본값과
 이전 설정으로 복귀하는 방법은 [운용 보완 안내](docs/UPGRADE_20261029.md)에 있습니다.
 
+**실제 강의실 지도 기반 재현**은 별도 월드로 실행합니다. 기본 월드는 새 지도에서
+측정된 벽·파티션을 재현하고, 가혹 월드는 지도에 없는 20cm 상자 하나로
+Sector 1→2 경로의 우회를 시험합니다. 수동 재현 스크립트는 도메인 76을 사용합니다.
+
+```bash
+./scripts/run_classroom_replay_sim.sh gui:=false
+./scripts/run_classroom_replay_sim.sh --stress gui:=false
+```
+
+위 두 명령은 **각각 별도로 실행**하세요. 이 월드에서 마커 0~3의 후방 영상 검출을
+확인했습니다. 웹이 소유한 1→2→3→Home 통합 임무는 기본 월드와, 고정 상자를
+라이다로 관측해 재계획·우회한 가혹 월드에서 각각 한 차례 전체 합격했습니다.
+이는 반복 성공률이나 실차 출발 보증은 아닙니다. 지도만으로는 실제 벽 높이·
+마커 부착 위치·센서 지연을 알 수 없습니다. 새 Ubuntu PC의 클론·설치·빌드·
+관제·전체 시험 명령은 [단계별 검증 안내](docs/classroom_staged_validation.md),
+월드 재현 방법과 한계는 [강의실 재현 시험 안내](docs/classroom_replay_simulation.md),
+단계별 결과는 [검증 기록](docs/classroom_staged_validation.md)에 있습니다.
+
+웹 배송 임무부터 A*·Nav2 추종, ArUco 중앙 확인, 섹터별 5초 대기, Home 복귀까지
+**같은 제어 흐름**으로 시험하려면 아래 격리된 단계별 하네스를 실행합니다. 도메인 176에서
+각 단계의 임무 소유 웹이 임시 포트 8792로 열렸다가 종료됩니다. 관제용 8791은
+[읽기 전용 프록시](docs/classroom_staged_validation.md#터미널-1-읽기-전용-웹-관제)를
+사용하고, 별도의 임무 웹 서버를 동시에 띄우지 마세요. ROS 목표를 직접 발행하는
+기존 단계는 주행 계층 진단이며 웹 배송 임무 합격을 뜻하지 않습니다.
+
+```bash
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+/usr/bin/python3 scripts/run_classroom_staged_validation.py --list
+/usr/bin/python3 scripts/run_classroom_staged_validation.py \
+  --run 03_web_sector3_clean --output /tmp/classroom-web-sector3-$(date +%Y%m%d-%H%M%S)
+```
+
+시뮬레이션 합격은 실차 배터리·OpenCR·무선망·카메라 상태의 합격을 대신하지 않습니다.
+
 카메라·지도·파라미터를 PyQt 조종기로 보려면 별도 터미널에서 실행합니다.
 조종기 소스는 저장소의 `tools/`에 포함되어 있습니다.
 

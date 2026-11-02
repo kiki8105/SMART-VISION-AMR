@@ -1,11 +1,12 @@
 'use strict';
 (() => {
   const $ = selector => document.querySelector(selector);
-  const states = {IDLE:'임무 대기',NAVIGATING:'마커로 이동',MOVING:'마커로 이동',WAIT_REPLAN:'재계획 대기',CONFIRMING:'표식 확인 중',ALIGNING:'관측 방향 정렬',WAIT_MARKER:'표식 확인 대기',PAUSED:'일시정지',COMPLETED:'임무 완료',CANCELED:'임무 취소',ERROR:'임무 확인 필요',ESTOP:'비상정지',STARTING:'시작 준비',RETURNING_HOME:'홈 복귀 중',HOME_REACHED:'홈 도착'};
+  const states = {IDLE:'임무 대기',NAVIGATING:'마커로 이동',MOVING:'마커로 이동',WAIT_REPLAN:'재계획 대기',CONFIRMING:'표식 확인 중',DWELLING:'섹터 인수 대기',ALIGNING:'관측 방향 정렬',WAIT_MARKER:'표식 확인 대기',PAUSED:'일시정지',COMPLETED:'임무 완료',CANCELED:'임무 취소',ERROR:'임무 확인 필요',ESTOP:'비상정지',STARTING:'시작 준비',RETURNING_HOME:'홈 복귀 중',HOME_REACHED:'홈 도착'};
   const terminal = new Set(['IDLE','COMPLETED','CANCELED','ERROR','HOME_REACHED']);
   const ns = 'http://www.w3.org/2000/svg';
   let snapshot = null, draft = [], dirty = false, initialized = false, busy = false;
-  let lastPath = [], mapImageUrl = '', mapVersion = null, toastTimer = null, cameraLoading = false, frontCameraLoading = false, disconnected = false;
+  let lastPath = [], lastMonitoredPathGoal = null, lastGoalStamp = null, lastObservedGoalStamp = null, mapImageUrl = '', mapVersion = null, toastTimer = null, cameraLoading = false, frontCameraLoading = false, disconnected = false;
+  function clearLastPath(){lastPath=[];lastMonitoredPathGoal=null;}
   let mapLayout = null, mapLayoutLoading = false, mapLayoutGeneration = 0, showRawMap = false;
   let pollRunning = false, cameraTimer = null, editorKey = '', deliveryKey = '', previousTripId = null;
   let accessMode = 'code';
@@ -43,10 +44,6 @@
     finally{busy=false;renderControls();}
   }
   function currentMission(){return snapshot?.mission||{state:'IDLE',route:[],pending_route:null,current_index:0,completed_ids:[]};}
-  function isPhysicalClassroom(){
-    const connection=snapshot?.connection||{},configured=String(snapshot?.health?.map?.configured_file||'');
-    return Number(connection.domain_id)===16&&!connection.use_sim_time&&configured.endsWith('/classroom_20261027_cleaned.yaml');
-  }
   function delivery(){return snapshot?.delivery||{homepoint:null,active:false,home_ready:false,requests:[],pending_count:0};}
   function homepoint(){return delivery().homepoint||currentMission().home;}
   function savedRoute(){const mission=currentMission();return mission.pending_route??mission.route??[];}
@@ -57,7 +54,7 @@
     const mission=currentMission(),sameActive=same(draft,mission.route||[]);
     if(!sameActive||dirty)return index===draft.length-1?'마지막 방문':'방문 위치';
     if(index<(mission.completed_ids||[]).length)return '표식 확인 완료';
-    if(!mission.returning_home&&index===mission.current_index&&!terminal.has(mission.state)&&mission.state!=='ESTOP')return states[mission.state]||mission.state;
+    if(!mission.returning_home&&index===mission.current_index&&!terminal.has(mission.state)&&!['ESTOP','DWELLING'].includes(mission.state))return states[mission.state]||mission.state;
     return index===draft.length-1?'마지막 방문':'방문 위치';
   }
   function renderEditor(){
@@ -68,7 +65,7 @@
     draft.forEach((id,index)=>{
       const row=document.createElement('li');row.className='route-row';
       const mission=currentMission(),sameActive=same(draft,mission.route||[])&&!dirty;
-      row.classList.toggle('current',sameActive&&!mission.returning_home&&index===mission.current_index&&!terminal.has(mission.state));
+      row.classList.toggle('current',sameActive&&!mission.returning_home&&index===mission.current_index&&!terminal.has(mission.state)&&mission.state!=='DWELLING');
       row.classList.toggle('done',sameActive&&index<(mission.completed_ids||[]).length);
       const number=document.createElement('span');number.className='marker-number';number.textContent=String(id);
       const copy=document.createElement('div');copy.className='route-copy';const title=document.createElement('strong');title.textContent=markerLabel(id);title.title=`ArUco ID ${id}`;const detail=document.createElement('small');detail.textContent=`${index+1}. ${routeDescription(index)}`;copy.append(title,detail);
@@ -116,7 +113,8 @@
     $('#delivery-resume').hidden=!shipping||mission.state!=='PAUSED';
     $('#delivery-resume').disabled=localizing||manualBusy||busy||!paired||!snapshot?.health?.ready||mission.estop_latched;
     const safety=snapshot?.safety||{};
-    $('#emergency-stop span').textContent=mission.estop_latched&&safety.pending!=='reset'&&safety.stop_acknowledged?'비상정지 해제':mission.estop_latched&&safety.pending!=='reset'?'비상정지 다시 요청':'비상정지';
+    const stopLatched=!!mission.estop_latched||!!safety.latched;
+    $('#emergency-stop span').textContent=stopLatched&&safety.pending!=='reset'&&safety.stop_acknowledged?'비상정지 해제':stopLatched&&safety.pending!=='reset'?'비상정지 다시 요청':'비상정지';
     const seed=snapshot?.localization||{};
     $('#seed-home-pose').disabled=busy||!paired||!$('#confirm-home-location').checked||!seed.home_seed_available||seed.home_seed_pending;
     $('#home-seed-note').textContent=seed.home_seed_result||seed.home_seed_reason||'등록 홈과 센서 상태를 확인하고 있습니다.';
@@ -327,7 +325,7 @@
     const alignment=snapshot?.marker_alignment,mission=currentMission(),panel=$('#marker-alignment');
     const recognitionOnly=alignment?.confirmation_mode==='recognized';
     const phases=recognitionOnly
-      ?{SEARCHING:'표식 탐색 · 저속 회전',HOLD:'안전 확인 · 정지 유지',SETTLING:'표식 연속 인식 · 정지 확인',CONFIRMED:'표식 인식 확인 완료',FAILED:'표식 확인 일시정지'}
+      ?{SEARCHING:'표식 탐색 · 저속 회전',CENTERING:'표식 중앙 보정 · 저속 회전',HOLD:'안전 확인 · 정지 유지',SETTLING:'표식 중앙·정지 확인',CONFIRMED:'표식 중앙 확인 완료',FAILED:'표식 중앙 확인 일시정지'}
       :{SEARCHING:'표식 탐색 · 저속 회전',CENTERING:'카메라 중앙 정렬',WALL_ALIGNING:'후방 카메라 · 벽 정면 정렬',HOLD:'벽 방향 확인 · 정지 유지',SETTLING:'정지 · 안정 확인',CONFIRMED:'표식·차체 정렬 확인 완료',FAILED:'표식 확인 일시정지'};
     const state=String(alignment?.state||'IDLE').toUpperCase();
     const expected=mission.current_marker_id??snapshot?.detection?.expected_id;
@@ -341,7 +339,13 @@
     const camera=alignment.camera==='front'?'전방 카메라':alignment.camera==='rear'?'후방 카메라':'카메라 확인 중';
     $('#marker-alignment-camera').textContent=camera+(Number.isInteger(alignment.marker_id)?` · ID ${alignment.marker_id}`:'');
     const metrics=[],error=alignment.center_error,required=alignment.required??alignment.required_frames;
-    if(recognitionOnly)metrics.push(error==null?'목표 표식 대기':'목표 표식 검출');
+    if(recognitionOnly){
+      metrics.push(error==null?'목표 표식 대기':'목표 표식 검출');
+      if(typeof error==='number'&&Number.isFinite(error))metrics.push(`중심 오차 ${error<0?'왼쪽':'오른쪽'} ${(Math.abs(error)*50).toFixed(1)}%`);
+      if(typeof alignment.soft_center_tolerance==='number'&&Number.isFinite(alignment.soft_center_tolerance))metrics.push(`허용 중심 오차 ±${(alignment.soft_center_tolerance*50).toFixed(0)}%`);
+      if(alignment.soft_center_result==='centered')metrics.push('중앙 보정 완료');
+      if(alignment.soft_center_result==='out_of_band')metrics.push('중앙 범위 밖 · 도착 미확인');
+    }
     else if(typeof error==='number'&&Number.isFinite(error)){
       const offset=Math.abs(error)*50;
       metrics.push(offset<0.05?'중심 오차 0.0%':`중심 오차 ${error<0?'왼쪽':'오른쪽'} ${offset.toFixed(1)}%`);
@@ -363,8 +367,18 @@
     $('#marker-alignment-detail').textContent=detail;
     return true;
   }
+  function externalRouteDisplay(data){
+    if(!terminal.has(data?.mission?.state)||!data?.observed_route?.monitoring)return null;
+    const observed=data.observed_route,goal=observed.goal&&Number.isFinite(observed.goal.x)&&Number.isFinite(observed.goal.y)?observed.goal:null;
+    if(observed.stale)return{goal:null,name:'연결 대기',reason:observed.reason||'모의 주행 시험 종료 또는 센서 연결 대기',stale:true};
+    const marker=goal?(data.markers||[]).find(item=>Math.hypot(item.x-goal.x,item.y-goal.y)<.15):null;
+    const name=goal?(marker?markerLabel(marker.id):`(${goal.x.toFixed(2)}, ${goal.y.toFixed(2)})`):'목표 수신 대기';
+    const reason={PLANNING:'외부 ROS 목표의 경로를 계산 중입니다.',WAIT_REPLAN:'경로를 재계획하는 중입니다. 회색 점선은 현재 주행 경로가 아닙니다.',RECOVERING:'외부 ROS 주행 노드가 복구 동작 중입니다.',READY:'외부 ROS 주행 노드의 경로를 관제 중입니다.'}[observed.phase]||'외부 ROS 주행 상태를 확인 중입니다.';
+    return{goal,name,reason};
+  }
   function renderStatus(){
     const mission=currentMission(),connection=snapshot.connection||{},robot=snapshot.robot||{},detection=snapshot.detection||{},navigation=snapshot.navigation||{};
+    const external=externalRouteDisplay(snapshot),externalGoal=external?.goal,externalGoalName=external?.name;
     VehiclePower.render($('#vehicle-power'),robot.power);
     $('#domain-label').textContent=`Domain ${connection.domain_id??'—'}`;$('#clock-label').textContent=connection.use_sim_time?'/clock':'실제 시간';$('#connection-dot').classList.toggle('online',!!connection.connected&&!!snapshot.health?.ready);
     const homeMode=!!mission.returning_home||mission.state==='HOME_REACHED';
@@ -372,22 +386,23 @@
     const missionTitle=mission.returning_home&&mission.state==='PAUSED'?'홈 복귀 일시정지':mission.returning_home&&mission.state==='WAIT_REPLAN'?'홈 복귀 · 재계획 대기':states[mission.state]||mission.state||'임무 대기';
     const localizing=!!snapshot.localization?.active;
     const title=mission.estop_latched?states.ESTOP:localizing?'라이다 위치 확인 중':manualHolding?'수동 우선':manualResuming?'임무 재개 준비':missionTitle;
-    $('#state-pill').textContent=title;$('#state-pill').classList.toggle('warning',localizing||manualHolding||manualResuming||['WAIT_REPLAN','WAIT_MARKER','CONFIRMING','PAUSED'].includes(mission.state));$('#state-pill').classList.toggle('error',['ESTOP','ERROR'].includes(mission.state));
-    $('#mission-title').textContent=title+(!localizing&&!homeMode&&mission.current_marker_id!=null?` · ${markerLabel(mission.current_marker_id)}`:'');
-    $('#mission-reason').textContent=mission.estop_latched?mission.reason||'비상정지가 적용되어 있습니다.':localizing?snapshot.localization.reason||'저속으로 회전하며 저장 지도에서 현재 위치를 추정합니다.':manualHolding?'수동 조종을 우선합니다. 목표·방문 순서·완료 기록은 유지됩니다.':manualResuming?snapshot.manual?.reason||'보관된 목표로 자동 주행을 다시 연결하고 있습니다.':mission.reason||navigation.message||'마커 순서를 저장한 뒤 임무를 시작하세요.';
+    $('#state-pill').textContent=title;$('#state-pill').classList.toggle('warning',localizing||manualHolding||manualResuming||['WAIT_REPLAN','WAIT_MARKER','CONFIRMING','DWELLING','PAUSED'].includes(mission.state));$('#state-pill').classList.toggle('error',['ESTOP','ERROR'].includes(mission.state));
+    const statusMarker=mission.state==='DWELLING'?mission.dwell_marker_id:mission.current_marker_id;
+    $('#mission-title').textContent=external?external.stale?'모의 주행 · 시험 종료/연결 대기':`모의 주행 · 현재 목표 ${externalGoalName}`:title+(!localizing&&!homeMode&&statusMarker!=null?` · ${markerLabel(statusMarker)}`:'');
+    $('#mission-reason').textContent=external?external.reason:mission.estop_latched?mission.reason||'비상정지가 적용되어 있습니다.':localizing?snapshot.localization.reason||'저속으로 회전하며 저장 지도에서 현재 위치를 추정합니다.':manualHolding?'수동 조종을 우선합니다. 목표·방문 순서·완료 기록은 유지됩니다.':manualResuming?snapshot.manual?.reason||'보관된 목표로 자동 주행을 다시 연결하고 있습니다.':mission.reason||navigation.message||'마커 순서를 저장한 뒤 임무를 시작하세요.';
     renderLocalization();
     const home=homepoint(),pose=robot.pose;
-    $('#mission-progress').textContent=mission.returning_home&&home&&pose?`홈까지 ${Math.hypot(home.x-pose.x,home.y-pose.y).toFixed(2)} m`:mission.state==='HOME_REACHED'?'HOME':`${(mission.completed_ids||[]).length} / ${(mission.route||[]).length}`;
+    $('#mission-progress').textContent=external?.stale?'시험 종료/연결 대기':externalGoal&&pose?`목표까지 ${Math.hypot(externalGoal.x-pose.x,externalGoal.y-pose.y).toFixed(2)} m`:external?'ROS 목표 관제':mission.returning_home&&home&&pose?`홈까지 ${Math.hypot(home.x-pose.x,home.y-pose.y).toFixed(2)} m`:mission.state==='HOME_REACHED'?'HOME':`${(mission.completed_ids||[]).length} / ${(mission.route||[]).length}`;
     $('#home-position').textContent=home?`Homepoint · x ${Number(home.x).toFixed(2)} · y ${Number(home.y).toFixed(2)} m`:'Homepoint: 미설정';
     $('#home-position').title=home?`고정 대기 위치 · 방향 ${(Number(home.yaw||0)*180/Math.PI).toFixed(1)}°`:'';
     const age=robot.camera_age;$('#camera-age').textContent=typeof age==='number'&&Number.isFinite(age)?`${age.toFixed(1)}초 전`:'수신 대기';
     const frontAge=robot.front_camera_age;$('#front-camera-age').textContent=typeof frontAge==='number'&&Number.isFinite(frontAge)?`${frontAge.toFixed(1)}초 전`:'수신 대기';
-    $('#expected-id').textContent=homeMode?'출발 홈으로 복귀':detection.expected_id==null?'확인 대상 —':`확인 대상 ID ${detection.expected_id} · ${detection.expected_camera==='front'?'전방':'후방'}`;
+    $('#expected-id').textContent=external?external.stale?'ROS 목표 수신 대기':`현재 ROS 목표 · ${externalGoalName}`:homeMode?'출발 홈으로 복귀':mission.state==='DWELLING'?`섹터 ${mission.dwell_marker_id} 인수 대기`:detection.expected_id==null?'확인 대상 —':`확인 대상 ID ${detection.expected_id} · ${detection.expected_camera==='front'?'전방':'후방'}`;
     const expectedIds=detection.expected_camera==='front'?detection.front_ids:detection.ids;
     $('#detected-ids').textContent=(detection.expected_camera==='front'?'전방':'후방')+' · '+(expectedIds?.length?`검출 ${expectedIds.join(', ')}`:'검출 없음');
     const approachingMarker=detection.expected_camera==='front'&&['NAVIGATING','MOVING'].includes(mission.state)&&expectedIds?.includes(Number(detection.expected_id));
-    $('#confirmation-status').textContent=homeMode?'홈 복귀는 저장된 위치와 방향으로 도착을 확인합니다.':detection.confirmed?'표식 확인 완료':mission.state==='CONFIRMING'&&detection.expected_camera==='front'&&!(typeof robot.front_camera_age==='number'&&robot.front_camera_age<2)?'전방 카메라 영상 대기 · 도착 후 표식 확인이 필요합니다.':mission.state==='CONFIRMING'?`연속 확인 ${detection.confirmations??0} / ${detection.required??3}`:approachingMarker?`전방에서 ID ${detection.expected_id} 검출 · 목표 위치로 접근 중`:'관측 위치 도착 후 표식을 확인합니다.';
-    $('#confirmation-status').classList.toggle('confirmed',!homeMode&&!!detection.confirmed);
+    $('#confirmation-status').textContent=homeMode?'홈 복귀는 저장된 위치와 방향으로 도착을 확인합니다.':mission.state==='DWELLING'?`표식 확인 완료 · 인수 대기 ${Math.ceil(Number(mission.dwell_remaining_seconds)||0)}초`:detection.confirmed?'표식 확인 완료':mission.state==='CONFIRMING'&&detection.expected_camera==='front'&&!(typeof robot.front_camera_age==='number'&&robot.front_camera_age<2)?'전방 카메라 영상 대기 · 도착 후 표식 확인이 필요합니다.':mission.state==='CONFIRMING'?`연속 확인 ${detection.confirmations??0} / ${detection.required??3}`:approachingMarker?`전방에서 ID ${detection.expected_id} 검출 · 목표 위치로 접근 중`:'관측 위치 도착 후 표식을 확인합니다.';
+    $('#confirmation-status').classList.toggle('confirmed',!homeMode&&(!!detection.confirmed||mission.state==='DWELLING'));
     $('#confirmation-status').hidden=renderMarkerAlignment({homeMode,manualHolding,manualResuming});
     $('#pose-label').textContent=pose?`x ${pose.x.toFixed(2)} · y ${pose.y.toFixed(2)} m`:'위치 수신 대기';
     $('#connection-banner').hidden=!!snapshot.health?.ready||!!snapshot.operation;
@@ -397,9 +412,13 @@
       $('#connection-banner').textContent=reasons.length?`${title}: ${reasons.join(' · ')}`:'ROS 데이터 수신 대기. 같은 Domain의 차량·지도·주행 노드가 실행 중인지 확인하세요.';
     }
     if(snapshot.map)$('#map-label').textContent=`${snapshot.map.configured_match===false?'설정 지도 불일치':snapshot.map.preview?'저장 지도 · ROS 연결 대기':snapshot.map.frame_id||'map'} · ${Number(snapshot.map.resolution).toFixed(2)} m/cell`;
-    if(Array.isArray(snapshot.path)&&snapshot.path.length)lastPath=snapshot.path;
-    const waiting=mission.state==='WAIT_REPLAN'||navigation.planner_status==='WAIT_REPLAN';
-    $('#path-label').hidden=!waiting;$('#path-label').textContent=lastPath.length?'재계획 대기 · 이전 경로':'재계획 대기 · 안전 정지';
+    const externalRoute=terminal.has(mission.state)&&snapshot.observed_route?.monitoring;
+    if(terminal.has(mission.state)&&!externalRoute)clearLastPath();
+    else if(externalRoute){
+      if((snapshot.observed_route.active||monitoredPendingPath(snapshot))&&monitoredPathMatchesGoal(snapshot))cacheMonitoredPath(snapshot);
+    }else if(Array.isArray(snapshot.path)&&snapshot.path.length)lastPath=snapshot.path;
+    const waiting=mission.state==='WAIT_REPLAN'||['WAIT_REPLAN','PLANNING'].includes(navigation.planner_status);
+    $('#path-label').hidden=!waiting;$('#path-label').textContent=externalRoute&&monitoredPendingPath(snapshot)?'새 경로 확인 중 · 주행 전 후보':lastPath.length?'이전 경로 · 현재 주행 아님':'경로 계산 중 · 안전 정지';
     const eventList=$('#event-list');eventList.replaceChildren();const events=(snapshot.events||[]).slice(-20).reverse();$('#event-count').textContent=String(events.length);
     events.forEach(event=>{const li=document.createElement('li');li.className=String(event.level||'').toLowerCase();const time=document.createElement('time');const stamp=typeof event.at==='number'?new Date(event.at*1000):new Date(event.at);time.textContent=Number.isNaN(stamp.getTime())?'—':stamp.toLocaleTimeString('ko-KR',{hour12:false});const text=document.createElement('span');text.textContent=event.message;li.append(time,text);eventList.append(li);});
   }
@@ -427,15 +446,17 @@
   function renderOperation(){
     renderFailureMemory();
     const o=snapshot.operation;if(!o)return;
-    $('#state-pill').textContent=o.label||'임무 대기';
+    const observed=snapshot.observed_route||{},external=externalRouteDisplay(snapshot);
+    const externalLabel=external?.stale?'외부 주행 시험 · 종료/연결 대기':observed.phase==='WAIT_REPLAN'?'외부 주행 시험 · 재계획 대기':observed.phase==='PLANNING'?'외부 주행 시험 · 경로 계산 중':observed.phase==='RECOVERING'?'외부 주행 시험 · 회복 중':'외부 주행 시험 · 관제 중';
+    $('#state-pill').textContent=external?externalLabel:o.label||'임무 대기';
     $('#state-pill').classList.toggle('warning',o.level==='warning');
     $('#state-pill').classList.toggle('error',o.level==='critical');
     $('#operation-summary').dataset.level=o.level||'info';
-    $('#operation-phase').textContent=o.label||'임무 대기';
-    $('#operation-detail').textContent=failureReason(o.detail);
-    $('#operation-action-title').textContent=o.next_action?.title||'다음 조치';
-    $('#operation-action').textContent=o.next_action?.action||'';
-    const target=o.next_action?.target,button=$('#operation-action-button');
+    $('#operation-phase').textContent=external?externalLabel:o.label||'임무 대기';
+    $('#operation-detail').textContent=external?external.stale?external.reason:'ROS 주행 노드가 보낸 경로를 읽기 전용으로 표시합니다. 이 웹은 해당 시험 임무를 소유하거나 제어하지 않습니다.':failureReason(o.detail);
+    $('#operation-action-title').textContent=external?'실시간 관제':o.next_action?.title||'다음 조치';
+    $('#operation-action').textContent=external?external.stale?'Gazebo와 센서 수신을 확인하세요. 이전 경로는 현재 주행 중인 경로로 표시하지 않습니다.':'빨간 셀은 라이다로 새로 관측한 장애물이며, 경로가 바뀌면 지도 선도 갱신됩니다.':o.next_action?.action||'';
+    const target=external?null:o.next_action?.target,button=$('#operation-action-button');
     button.hidden=!['connection','localize','camera','safety'].includes(target);
     button.textContent={connection:'연결 설정',localize:'초기 위치 지정으로 이동',camera:'영상 확인',safety:'정지 제어 확인'}[target]||'확인하기';
     button.onclick=()=>{if(target==='connection')$('#connection-open').click();else if(target==='localize'){$('#initial-pose-panel').scrollIntoView({behavior:'smooth',block:'center'});$('#initial-pose-x').focus({preventScroll:true});}else if(target==='camera')$('.camera-panel').scrollIntoView({behavior:'smooth',block:'center'});else $('#emergency-stop').focus();};
@@ -447,7 +468,9 @@
     const s=snapshot.safety||{};
     $('#safety-ack').textContent=s.pending==='reset'?'비상정지 해제 검증 중 · 자동 출발하지 않습니다.':s.latched?(s.stop_acknowledged?'정지 명령 0 발행 확인 · 실제 정지는 차량에서 확인하세요.':s.result||'정지 요청 중 · 제어 응답 대기'):s.result||'정지 제어 대기';
     const route=$('#active-route');route.replaceChildren();
-    (snapshot.route_preview||[]).forEach(step=>{const li=document.createElement('li');li.textContent=`${step.order}. ${step.name}${step.completed?' ✓':step.current?' · 현재 목표':''}`;if(step.current)li.setAttribute('aria-current','step');li.classList.toggle('completed',!!step.completed);route.append(li);});
+    route.setAttribute('aria-label',external?'외부 ROS의 현재 목표':'실제 방문 순서와 최종 홈 복귀');
+    if(external){const li=document.createElement('li');li.textContent=external.stale?'외부 ROS 경로 · 시험 종료/연결 대기':`외부 ROS 목표 · ${external.name}`;if(!external.stale)li.setAttribute('aria-current','step');route.append(li);}
+    else (snapshot.route_preview||[]).forEach(step=>{const li=document.createElement('li');li.textContent=`${step.order}. ${step.name}${step.completed?' ✓':step.current?' · 현재 목표':''}`;if(step.current)li.setAttribute('aria-current','step');li.classList.toggle('completed',!!step.completed);route.append(li);});
   }
   function requestTime(value){const time=typeof value==='number'?new Date(value*1000):new Date(value);return Number.isNaN(time.getTime())?'—':time.toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});}
   function renderDelivery(){
@@ -479,11 +502,15 @@
     try{
       const data=await api('/api/state');disconnected=false;
       if(data.connection?.access_mode&&data.connection.access_mode!==accessMode)setAccessMode(data.connection.access_mode);
-      if(snapshot?.connection?.domain_id!==undefined&&snapshot.connection.domain_id!==data.connection?.domain_id){lastPath=[];mapVersion=null;mapImageUrl='';mapLayout=null;mapLayoutGeneration++;initialized=false;dirty=false;}
+      if(snapshot?.connection?.domain_id!==undefined&&snapshot.connection.domain_id!==data.connection?.domain_id){clearLastPath();lastGoalStamp=null;lastObservedGoalStamp=null;mapVersion=null;mapImageUrl='';mapLayout=null;mapLayoutGeneration++;initialized=false;dirty=false;}
       snapshot=data;
+      const goalStamp=JSON.stringify(data.mission?.goal_stamp??null);
+      if(goalStamp!==lastGoalStamp){clearLastPath();lastGoalStamp=goalStamp;}
+      const observedGoalStamp=JSON.stringify(data.observed_route?.goal_stamp??null);
+      if(observedGoalStamp!==lastObservedGoalStamp){clearLastPath();lastObservedGoalStamp=observedGoalStamp;}
       if(!initialized||!dirty){draft=[...(data.mission?.pending_route??data.mission?.route??[])];initialized=true;}
       const nextMapVersion=data.map?.version??data.map_version;
-      if(data.map&&mapVersion!==nextMapVersion){mapVersion=nextMapVersion;mapImageUrl=`/api/map.png?v=${encodeURIComponent(mapVersion)}`;loadMapLayout(data.map,mapVersion);}
+      if(data.map&&mapVersion!==nextMapVersion){clearLastPath();mapVersion=nextMapVersion;mapImageUrl=`/api/map.png?v=${encodeURIComponent(mapVersion)}`;loadMapLayout(data.map,mapVersion);}
       renderMarkerButtons();renderEditor();renderDelivery();renderStatus();renderOperation();renderControls();drawMap();
     } catch(error){disconnected=true;VehiclePower.render($('#vehicle-power'),snapshot?.robot?.power,true);$('#connection-dot').classList.remove('online');$('#connection-banner').hidden=false;$('#connection-banner').textContent=error.message;$('#state-pill').textContent='웹 연결 확인 필요';renderControls();}
     finally{pollRunning=false;}
@@ -499,16 +526,73 @@
   function polygonPath(rings){
     return rings.filter(ring=>Array.isArray(ring)&&ring.length>=3&&ring.every(point=>Array.isArray(point)&&point.length>=2&&point.slice(0,2).every(Number.isFinite))).map(ring=>`M${ring.map(point=>`${point[0]},${point[1]}`).join('L')}Z`).join('');
   }
-  function layoutBounds(layout,map){
+  function rotateMapPoint(x,y,map,rotation){
+    if(!rotation)return[x,y];
+    const cx=map.width/2,cy=map.height/2,dx=x-cx,dy=y-cy,c=Math.cos(rotation),s=Math.sin(rotation);
+    return[cx+c*dx-s*dy,cy+s*dx+c*dy];
+  }
+  function layoutBounds(layout,map,rotation=0){
     let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
     for(const rings of [layout.free_paths,layout.occupied_paths,layout.obstacle_paths||[]])for(const ring of rings)for(const point of ring){
       if(!Array.isArray(point)||!point.slice(0,2).every(Number.isFinite))continue;
-      minX=Math.min(minX,point[0]);minY=Math.min(minY,point[1]);maxX=Math.max(maxX,point[0]);maxY=Math.max(maxY,point[1]);
+      const[x,y]=rotateMapPoint(point[0],point[1],map,rotation);
+      minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
     }
     // Ignore the unknown border for presentation, while retaining pixel/map coordinates.
     if(![minX,minY,maxX,maxY].every(Number.isFinite)||maxX<=minX||maxY<=minY)return{x:0,y:0,width:map.width,height:map.height};
-    minX=Math.max(0,minX-1);minY=Math.max(0,minY-1);maxX=Math.min(map.width,maxX+1);maxY=Math.min(map.height,maxY+1);
+    minX-=1;minY-=1;maxX+=1;maxY+=1;
     return{x:minX,y:minY,width:maxX-minX,height:maxY-minY};
+  }
+  function rotatedMapBounds(map,rotation){
+    if(!rotation)return{x:0,y:0,width:map.width,height:map.height};
+    const corners=[[0,0],[map.width,0],[map.width,map.height],[0,map.height]]
+      .map(([x,y])=>rotateMapPoint(x,y,map,rotation));
+    const xs=corners.map(point=>point[0]),ys=corners.map(point=>point[1]);
+    return{x:Math.min(...xs),y:Math.min(...ys),width:Math.max(...xs)-Math.min(...xs),
+           height:Math.max(...ys)-Math.min(...ys)};
+  }
+  function obstacleCellPath(indices,map){
+    if(!Array.isArray(indices))return'';
+    return indices.filter(index=>Number.isInteger(index)&&index>=0&&index<map.width*map.height)
+      .map(index=>`M${index%map.width} ${map.height-1-Math.floor(index/map.width)}h1v1h-1Z`).join('');
+  }
+  function samePathStamp(left,right){
+    const valid=stamp=>stamp&&Number.isInteger(stamp.sec)&&stamp.sec>=0
+      &&Number.isInteger(stamp.nanosec)&&stamp.nanosec>=0&&stamp.nanosec<1e9
+      &&(stamp.sec>0||stamp.nanosec>0);
+    return !!(valid(left)&&valid(right)&&left.sec===right.sec&&left.nanosec===right.nanosec);
+  }
+  function monitoredPathMatchesGoal(data){
+    const observed=data?.observed_route,points=data?.path,stamp=data?.path_stamp,goalStamp=observed?.goal_stamp,goal=observed?.goal;
+    if(!observed?.monitoring||!Array.isArray(points)||!points.length||!goal||!Number.isFinite(goal.x)||!Number.isFinite(goal.y)
+      ||!stamp||!goalStamp||!Number.isInteger(stamp.sec)||!Number.isInteger(stamp.nanosec)
+      ||!Number.isInteger(goalStamp.sec)||!Number.isInteger(goalStamp.nanosec))return false;
+    if(stamp.sec<goalStamp.sec||(stamp.sec===goalStamp.sec&&stamp.nanosec<goalStamp.nanosec))return false;
+    const endpoint=points[points.length-1];
+    return Number.isFinite(endpoint.x)&&Number.isFinite(endpoint.y)
+      &&Math.hypot(endpoint.x-goal.x,endpoint.y-goal.y)<.15;
+  }
+  function monitoredPendingPath(data){
+    const observed=data?.observed_route;
+    return !!(observed?.monitoring&&!observed.active&&['PLANNING','WAIT_REPLAN'].includes(observed.phase)
+      &&monitoredPathMatchesGoal(data));
+  }
+  function cacheMonitoredPath(data){
+    if(!monitoredPathMatchesGoal(data))return false;
+    const goal=data.observed_route.goal;
+    lastPath=data.path;
+    lastMonitoredPathGoal={stamp:JSON.stringify(data.observed_route.goal_stamp),x:goal.x,y:goal.y};
+    return true;
+  }
+  function cachedMonitoredPathMatchesGoal(data){
+    const goal=data?.observed_route?.goal,meta=lastMonitoredPathGoal;
+    return !!(meta&&goal&&Number.isFinite(goal.x)&&Number.isFinite(goal.y)
+      &&meta.stamp===JSON.stringify(data.observed_route.goal_stamp)
+      &&Math.hypot(meta.x-goal.x,meta.y-goal.y)<.05&&lastPath.length);
+  }
+  function markerScreenHeadingDegrees(marker,mapYaw,displayRotationDeg){
+    // Sector 3's icon is simplified for the drawing; its ROS/map yaw is untouched.
+    return Number(marker.id)===3?90:-(marker.yaw-mapYaw)*180/Math.PI+displayRotationDeg;
   }
   function drawMap(){
     const area=$('#map-area'),canvas=$('#map-svg'),map=snapshot?.map;canvas.replaceChildren();$('#map-empty').hidden=!!map;
@@ -517,32 +601,57 @@
     if(!map||!map.width||!map.height)return;
     const width=area.clientWidth,height=area.clientHeight,pad=width<450?42:52;
     const layoutReady=mapLayout&&mapLayout.width===map.width&&mapLayout.height===map.height&&String(mapLayout.version)===String(mapVersion),useLayout=layoutReady&&!showRawMap,architectural=useLayout&&mapLayout.style==='architectural';
-    const bounds=useLayout?layoutBounds(mapLayout,map):{x:0,y:0,width:map.width,height:map.height},sidePad=useLayout?Math.min(96,Math.max(32,width*.17)):pad,topPad=useLayout?48:pad,bottomPad=useLayout?42:pad;
+    const displayRotationDeg=layoutReady&&Number.isFinite(mapLayout.display_rotation_deg)&&Math.abs(mapLayout.display_rotation_deg)<=45?mapLayout.display_rotation_deg:0;
+    const displayRotation=displayRotationDeg*Math.PI/180;
+    const bounds=useLayout?layoutBounds(mapLayout,map,displayRotation):rotatedMapBounds(map,displayRotation),sidePad=useLayout?Math.min(96,Math.max(32,width*.17)):pad,topPad=useLayout?48:pad,bottomPad=useLayout?42:pad;
     if(width<=2*sidePad||height<=topPad+bottomPad)return;
     const scale=Math.min((width-2*sidePad)/bounds.width,(height-topPad-bottomPad)/bounds.height),left=(width-bounds.width*scale)/2-bounds.x*scale,top=topPad+(height-topPad-bottomPad-bounds.height*scale)/2-bounds.y*scale;
     canvas.setAttribute('viewBox',`0 0 ${width} ${height}`);
     area.classList.toggle('floorplan-mode',!!useLayout);
     area.classList.toggle('architectural-mode',!!architectural);
     $('#map-view-plan').textContent=layoutReady&&mapLayout.style==='architectural'?'평면도':'도면';
-    $('#map-view-state').textContent=showRawMap?'원본 점유 지도':useLayout?(mapLayout.label||(architectural?'강의실 평면도':'정리된 도면')):mapLayoutLoading?'도면 준비 중':'원본 지도';
-    $('#map-view-state').title='표시 방식만 변경됩니다. 실제 지도 좌표와 주행 데이터는 동일합니다.';
+    $('#map-view-raw').textContent=map.raw_available?'SLAM 원본':'원본';
+    const sector3=(snapshot.markers||[]).find(marker=>Number(marker.id)===3&&Number.isFinite(marker.yaw));
+    const sector3Yaw=sector3?(Math.atan2(Math.sin(sector3.yaw),Math.cos(sector3.yaw))*180/Math.PI).toFixed(0):null;
+    const sector3Note=sector3?` · Sector 3 ↓ 표시용 / 실제 yaw ${sector3Yaw}°`:'';
+    $('#map-view-state').textContent=(showRawMap?(map.raw_available?'SLAM 원본 지도':'원본 점유 지도'):useLayout?(mapLayout.label||(architectural?'강의실 평면도':'정리된 도면')):mapLayoutLoading?'도면 준비 중':'원본 지도')+(snapshot.observed_route?.stale?' · 모의 주행 종료/연결 대기':snapshot.observed_route?.monitoring?' · 모의 주행 관제':'')+sector3Note;
+    $('#map-view-state').title='표시 방식만 변경됩니다. 실제 지도 좌표와 주행 데이터는 동일합니다.'+(sector3?' Sector 3 화살표는 화면에서 수직 아래로 단순화했습니다. 실제 주행 목표의 차체 전방 yaw는 '+sector3Yaw+'°입니다.':'');
+    $('#map-heading-legend').textContent=sector3?`화살표 = 차체 전방 · Sector 3 ↓ 표시용(실제 yaw ${sector3Yaw}°)`:'화살표 = 차체 전방';
+    $('#map-heading-legend').title=sector3?`Sector 3 화살표는 화면에서 수직 아래로 단순화했습니다. 실제 주행 목표 yaw는 ${sector3Yaw}°이며 후방 카메라는 실제 차체 전방의 반대쪽을 봅니다.`:'섹터 화살표는 차체 전방입니다. 후방 카메라는 화살표의 반대쪽을 봅니다.';
     $('#map-localization-state').hidden=!map.preview&&map.configured_match!==false;
     $('#map-localization-state').textContent=map.configured_match===false?'지도 연결 확인 필요':'저장 지도 · 위치 추정 대기';
     if(useLayout){
-      const floor=svg('g',{transform:`translate(${left},${top}) scale(${scale})`,'aria-label':architectural?'실제 지도 좌표에 맞춘 강의실 평면도':'원본 지도의 벽과 자유 공간을 표시한 도면'});
+      const floor=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`,'aria-label':architectural?'실제 지도 좌표에 맞춘 강의실 평면도':'원본 지도의 벽과 자유 공간을 표시한 도면'});
       floor.append(svg('path',{d:polygonPath(mapLayout.free_paths),class:'floorplan-floor','fill-rule':'evenodd'}));
       // Architectural wall widths come from the drawing geometry, without a second outline.
       floor.append(svg('path',{d:polygonPath(mapLayout.occupied_paths),class:'floorplan-wall','fill-rule':architectural?'nonzero':'evenodd'}));
       if(Array.isArray(mapLayout.obstacle_paths))floor.append(svg('path',{d:polygonPath(mapLayout.obstacle_paths),class:'floorplan-obstacle','fill-rule':'nonzero','vector-effect':'non-scaling-stroke'}));
       canvas.append(floor);
-    }else canvas.append(svg('image',{x:left,y:top,width:map.width*scale,height:map.height*scale,href:mapImageUrl,preserveAspectRatio:'none',style:'image-rendering:pixelated'}));
+    }else{const raw=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`});raw.append(svg('image',{x:0,y:0,width:map.width,height:map.height,href:map.raw_available?`/api/map/raw.png?v=${encodeURIComponent(map.version)}`:mapImageUrl,preserveAspectRatio:'none',style:'image-rendering:pixelated'}));canvas.append(raw);}
     const origin=map.origin||{},yaw=Number(origin.yaw)||0,c=Math.cos(yaw),s=Math.sin(yaw),res=map.resolution;
-    const xy=point=>{const dx=point.x-(origin.x||0),dy=point.y-(origin.y||0);return[left+(c*dx+s*dy)/res*scale,top+(map.height-(-s*dx+c*dy)/res)*scale];};
-    const activePath=Array.isArray(snapshot.path)?snapshot.path:[],waiting=currentMission().state==='WAIT_REPLAN'||snapshot.navigation?.planner_status==='WAIT_REPLAN';
-    const path=map.preview||map.configured_match===false?[]:activePath.length?activePath:lastPath;
-    if(path.length){const coordinates=path.map(xy).filter(point=>point.every(Number.isFinite));canvas.append(svg('polyline',{points:coordinates.map(p=>p.join(',')).join(' '),fill:'none',stroke:'var(--panel)','stroke-width':7,opacity:0.8,'stroke-linejoin':'round','stroke-linecap':'round'}));canvas.append(svg('polyline',{points:coordinates.map(p=>p.join(',')).join(' '),fill:'none',stroke:waiting||!activePath.length?'#87919b':'var(--accent)','stroke-width':3,'stroke-linejoin':'round','stroke-linecap':'round','stroke-dasharray':waiting||!activePath.length?'5 5':'none'}));}
-    const home=homepoint(),markers=snapshot.markers||[],cards=[],physicalClassroom=isPhysicalClassroom();
-    const observationHeadings=markers.filter(marker=>Number.isFinite(marker.yaw)).map(marker=>{const[x,y]=xy(marker),angle=marker.yaw-yaw;return{x,y,dx:Math.cos(angle),dy:-Math.sin(angle)};});
+    const xy=point=>{const dx=point.x-(origin.x||0),dy=point.y-(origin.y||0),[px,py]=rotateMapPoint((c*dx+s*dy)/res,map.height-(-s*dx+c*dy)/res,map,displayRotation);return[left+px*scale,top+py*scale];};
+    const observed=snapshot.observed_obstacles||{},visibleObstacles=!map.preview&&map.configured_match!==false&&observed.map_version===map.version&&Number.isFinite(observed.age)&&observed.age<2.0?observed.cells:[];
+    const obstaclePath=obstacleCellPath(visibleObstacles,map);
+    if(obstaclePath){const layer=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`,'aria-label':`새 장애물 ${visibleObstacles.length}셀`});layer.append(svg('path',{d:obstaclePath,class:'map-live-obstacles','shape-rendering':'crispEdges'}));canvas.append(layer);}
+    $('#map-obstacle-legend').hidden=!obstaclePath;
+    const publishedPath=Array.isArray(snapshot.path)?snapshot.path:[],waiting=currentMission().state==='WAIT_REPLAN'||['WAIT_REPLAN','PLANNING'].includes(snapshot.navigation?.planner_status);
+    const missionActive=['NAVIGATING','MOVING','RETURNING_HOME','WAIT_REPLAN'].includes(currentMission().state);
+    const monitoring=!missionActive&&snapshot.observed_route?.monitoring===true;
+    const activePath=monitoring?((snapshot.observed_route.active&&monitoredPathMatchesGoal(snapshot))?publishedPath:[]):publishedPath;
+    const pendingPath=monitoring&&monitoredPendingPath(snapshot)?publishedPath:[];
+    const cachedPath=waiting&&monitoring&&cachedMonitoredPathMatchesGoal(snapshot)?lastPath:waiting&&!monitoring?lastPath:[];
+    const path=map.preview||map.configured_match===false||!(missionActive||monitoring)?[]:activePath.length?activePath:pendingPath.length?pendingPath:cachedPath;
+    const previousMonitoredPath=!!(monitoring&&path.length&&!activePath.length&&!pendingPath.length);
+    const detour=monitoring?snapshot.observed_route||{}:snapshot.local_detour||{};
+    const activeDetour=!!(activePath.length&&path.length&&!waiting&&samePathStamp(snapshot.path_stamp,detour.path_stamp)
+      &&(monitoring?detour.plan_kind==='LOCAL_DETOUR':detour.available&&detour.state==='ACTIVE'&&detour.plan_kind==='LOCAL_DETOUR'));
+    $('#map-detour-legend').hidden=!activeDetour;$('#map-route-legend').hidden=activeDetour;
+    if(path.length){const coordinates=path.map(xy).filter(point=>point.every(Number.isFinite));canvas.append(svg('polyline',{points:coordinates.map(p=>p.join(',')).join(' '),fill:'none',stroke:'var(--panel)','stroke-width':7,opacity:0.8,'stroke-linejoin':'round','stroke-linecap':'round'}));canvas.append(svg('polyline',{points:coordinates.map(p=>p.join(',')).join(' '),fill:'none',stroke:waiting||!activePath.length?'#87919b':activeDetour?'#d27b29':'var(--accent)','stroke-width':activeDetour?4:3,'stroke-linejoin':'round','stroke-linecap':'round','stroke-dasharray':waiting||!activePath.length?'5 5':activeDetour?'9 4':'none','aria-label':previousMonitoredPath?'이전 경로 · 현재 주행 아님':activeDetour?'국소 우회경로':monitoring?'모의 주행 경로':'계획 경로'}));}
+    const home=homepoint(),markers=snapshot.markers||[],cards=[];
+    const observedGoal=monitoring?snapshot.observed_route.goal:null;
+    const externalGoal=observedGoal&&Number.isFinite(observedGoal.x)&&Number.isFinite(observedGoal.y)?observedGoal:null;
+    const externalMarker=externalGoal?markers.find(marker=>Math.hypot(marker.x-externalGoal.x,marker.y-externalGoal.y)<.15):null;
+    const observationHeadings=markers.filter(marker=>Number.isFinite(marker.yaw)).map(marker=>{const[x,y]=xy(marker),angle=markerScreenHeadingDegrees(marker,yaw,displayRotationDeg)*Math.PI/180;return{x,y,dx:Math.cos(angle),dy:Math.sin(angle)};});
     const labelPosition=(x,y,w)=>{
       const h=32,preferLeft=x<width/2,candidates=preferLeft?[[x-w-16,y-h/2],[x+16,y-h/2],[x-w/2,y-48],[x-w/2,y+16]]:[[x+16,y-h/2],[x-w-16,y-h/2],[x-w/2,y-48],[x-w/2,y+16]];
       const choices=candidates.map(([cx,cy],index)=>{const box={x:Math.max(12,Math.min(width-w-12,cx)),y:Math.max(42,Math.min(height-h-36,cy)),w,h};const overlap=cards.reduce((sum,other)=>sum+Math.max(0,Math.min(box.x+w+5,other.x+other.w)-Math.max(box.x-5,other.x))*Math.max(0,Math.min(box.y+h+5,other.y+other.h)-Math.max(box.y-5,other.y)),0),coveredPins=markers.map(xy).filter(([px,py])=>px>box.x-9&&px<box.x+w+9&&py>box.y-9&&py<box.y+h+9).length,coveredHeadings=observationHeadings.reduce((count,heading)=>count+[13,19,25].filter(distance=>{const px=heading.x+heading.dx*distance,py=heading.y+heading.dy*distance;return px>box.x-5&&px<box.x+w+5&&py>box.y-5&&py<box.y+h+5;}).length,0);return{...box,cost:overlap*100+coveredPins*1000+coveredHeadings*1000+Math.abs(box.x-cx)+Math.abs(box.y-cy)+index*5};});
@@ -550,26 +659,39 @@
     };
     const drawLocation=(point,label,id,isHome=false)=>{
       const[x,y]=xy(point);if(![x,y].every(Number.isFinite))return;
-      const ordered=id!=null&&draft.includes(Number(id)),current=id!=null&&currentMission().current_marker_id!=null&&!currentMission().returning_home&&Number(currentMission().current_marker_id)===Number(id)&&!terminal.has(currentMission().state),group=svg('g',{class:`map-location${isHome?' home':''}${current?' current':''}`}),labelWidth=Math.max(76,Math.min(154,40+Array.from(label).reduce((sum,char)=>sum+(/[\u3131-\uD79D]/.test(char)?12:7),0))),box=labelPosition(x,y,labelWidth);
+      const ordered=id!=null&&draft.includes(Number(id)),current=id!=null&&((currentMission().current_marker_id!=null&&!currentMission().returning_home&&Number(currentMission().current_marker_id)===Number(id)&&!terminal.has(currentMission().state))||(externalMarker&&Number(externalMarker.id)===Number(id))),group=svg('g',{class:`map-location${isHome?' home':''}${current?' current':''}`}),labelWidth=Math.max(76,Math.min(154,40+Array.from(label).reduce((sum,char)=>sum+(/[\u3131-\uD79D]/.test(char)?12:7),0))),box=labelPosition(x,y,labelWidth);
       const hasHeading=Number.isFinite(point.yaw),heading=hasHeading?point.yaw-yaw:0,headingDirection=['오른쪽','오른쪽 위','위쪽','왼쪽 위','왼쪽','왼쪽 아래','아래쪽','오른쪽 아래'][((Math.round(heading/(Math.PI/4))%8)+8)%8],headingDegrees=hasHeading?Math.atan2(Math.sin(point.yaw),Math.cos(point.yaw))*180/Math.PI:0;
-      const cameraRole=point.camera==='front'?'전방':'후방';
-      const directionDescription=physicalClassroom?`차체 전방 ${headingDirection} · yaw ${headingDegrees.toFixed(0)}° · ${cameraRole} 카메라는 화살표 ${cameraRole==='front'?'방향':'반대 방향'}을 봅니다`:`관측 방향 ${headingDirection} · yaw ${headingDegrees.toFixed(0)}°`;
-      group.append(svg('title',{},`${label}${id==null?'':` · ArUco ID ${id}`} · x ${Number(point.x).toFixed(2)}, y ${Number(point.y).toFixed(2)} m${hasHeading?` · ${directionDescription}`:''}${ordered?' · 방문 순서 '+draft.flatMap((entry,index)=>entry===Number(id)?[index+1]:[]).join(', '):''}`));
+      const cameraRole=point.camera==='front'?'전방':'후방',simplifiedHeading=Number(id)===3&&hasHeading;
+      const directionDescription=simplifiedHeading?`화면 화살표 ↓는 표시용 · 실제 차체 전방 yaw ${headingDegrees.toFixed(0)}° · ${cameraRole} 카메라는 실제 차체 전방의 ${cameraRole==='front'?'같은':'반대'} 방향을 봅니다`:`차체 전방 ${headingDirection} · yaw ${headingDegrees.toFixed(0)}° · ${cameraRole} 카메라는 화살표 ${cameraRole==='front'?'방향':'반대 방향'}을 봅니다`;
+      group.append(svg('title',{},`${label}${id==null?'':` · ArUco ID ${id}`}${externalMarker&&Number(externalMarker.id)===Number(id)?' · 현재 모의 주행 목표':''} · x ${Number(point.x).toFixed(2)}, y ${Number(point.y).toFixed(2)} m${hasHeading?` · ${directionDescription}`:''}${ordered?' · 방문 순서 '+draft.flatMap((entry,index)=>entry===Number(id)?[index+1]:[]).join(', '):''}`));
       const endX=Math.max(box.x+8,Math.min(box.x+box.w-8,x)),endY=Math.max(box.y+8,Math.min(box.y+box.h-8,y));
       group.append(svg('line',{x1:x,y1:y,x2:endX,y2:endY,class:'map-location-leader'}));
-      // For the physical classroom this is base/front yaw; each marker declares its observing camera.
-      // In simulator profiles the same arrow retains the saved camera-observation heading meaning.
-      if(hasHeading)group.append(svg('path',{d:'M 13 0 H 25 M 20 -4 L 25 0 L 20 4',transform:`translate(${x},${y}) rotate(${-heading*180/Math.PI})`,class:'map-location-heading'}));
+      // Only Sector 3's drawn arrow is vertical; navigation still uses point.yaw.
+      if(hasHeading)group.append(svg('path',{d:'M 13 0 H 25 M 20 -4 L 25 0 L 20 4',transform:`translate(${x},${y}) rotate(${markerScreenHeadingDegrees({...point,id},yaw,displayRotationDeg)})`,class:'map-location-heading'}));
       group.append(svg('circle',{cx:x,cy:y,r:6,class:'map-location-point'}));
+      if(externalMarker&&Number(externalMarker.id)===Number(id))group.append(svg('circle',{cx:x,cy:y,r:15,fill:'none',stroke:'#c95322','stroke-width':3,'stroke-dasharray':'4 2','aria-label':'현재 모의 주행 목표'}));
       if(isHome)group.append(svg('circle',{cx:x,cy:y,r:10,class:'map-home-ring'}));
-      group.append(svg('rect',{x:box.x,y:box.y,width:box.w,height:box.h,rx:9,class:'map-location-card'}));
+      group.append(svg('rect',{x:box.x,y:box.y,width:box.w,height:box.h,rx:9,class:'map-location-card',...(externalMarker&&Number(externalMarker.id)===Number(id)?{stroke:'#c95322','stroke-width':2}:{})}));
       group.append(svg('rect',{x:box.x+6,y:box.y+6,width:20,height:20,rx:5,class:'map-location-number-bg'}));
       group.append(svg('text',{x:box.x+16,y:box.y+21,'text-anchor':'middle',class:'map-location-number'},id==null?'H':String(id)));
       group.append(svg('text',{x:box.x+33,y:box.y+21,class:'map-location-name'},label));canvas.append(group);
     };
     markers.forEach(marker=>drawLocation(marker,markerLabel(marker.id),marker.id,!!home&&Math.hypot(home.x-marker.x,home.y-marker.y)<0.08));
     if(home&&!markers.some(marker=>Math.hypot(home.x-marker.x,home.y-marker.y)<0.08))drawLocation(home,'홈 · 대기',null,true);
-    const pose=map.preview||map.configured_match===false?null:snapshot.robot?.pose;if(pose){const[x,y]=xy(pose),group=svg('g',{transform:`translate(${x},${y}) rotate(${-(pose.yaw-yaw)*180/Math.PI})`});group.append(svg('circle',{r:15,fill:'var(--accent)',opacity:0.12}));group.append(svg('circle',{r:10,fill:'var(--panel)',stroke:'var(--accent)','stroke-width':2}));group.append(svg('path',{d:'M 14 0 L -4 -5 L -1 0 L -4 5 Z',fill:'var(--accent)'}));canvas.append(group);}
+    if(externalGoal&&!externalMarker){const[x,y]=xy(externalGoal);if([x,y].every(Number.isFinite)){const target=svg('g',{'aria-label':'현재 모의 주행 목표'});target.append(svg('title',{},`현재 모의 주행 목표 · x ${externalGoal.x.toFixed(2)}, y ${externalGoal.y.toFixed(2)} m`));target.append(svg('circle',{cx:x,cy:y,r:13,fill:'var(--panel)',stroke:'var(--accent)','stroke-width':2}));target.append(svg('text',{x,y:y+4,'text-anchor':'middle',fill:'var(--accent)','font-size':10,'font-weight':700},'G'));canvas.append(target);}}
+    const pose=map.preview||map.configured_match===false?null:snapshot.robot?.pose;
+    if(pose){
+      const[x,y]=xy(pose),group=svg('g',{transform:`translate(${x},${y}) rotate(${-(pose.yaw-yaw)*180/Math.PI+displayRotationDeg})`,'aria-label':'현재 차량 위치'});
+      group.append(svg('title',{},`현재 차량 · x ${pose.x.toFixed(2)}, y ${pose.y.toFixed(2)} m`));
+      group.append(svg('circle',{r:20,fill:'#1e5aa8',opacity:.18}));
+      group.append(svg('circle',{r:13,fill:'#1e5aa8',stroke:'#ffffff','stroke-width':2.5}));
+      group.append(svg('path',{d:'M 12 0 L -6 -6 L -3 0 L -6 6 Z',fill:'#ffffff'}));
+      canvas.append(group);
+      const labelX=x>width-67?x-62:x+20,labelY=Math.max(4,Math.min(height-22,y-20)),badge=svg('g',{'aria-label':'현재 차량'});
+      badge.append(svg('rect',{x:labelX,y:labelY,width:42,height:19,rx:6,fill:'#1e5aa8',stroke:'#ffffff','stroke-width':1}));
+      badge.append(svg('text',{x:labelX+21,y:labelY+13,'text-anchor':'middle',fill:'#ffffff','font-size':10,'font-weight':700},'차량'));
+      canvas.append(badge);
+    }
     const pixelsPerMetre=scale/res,scaleMetres=[0.1,0.2,0.5,1,2,5,10].filter(value=>value*pixelsPerMetre<=90).pop()||0.1,scalePixels=scaleMetres*pixelsPerMetre,scaleGroup=svg('g',{transform:`translate(24,${height-23})`,class:'map-scale'});
     scaleGroup.append(svg('path',{d:`M 0 -4 V 0 H ${scalePixels} V -4`,fill:'none',stroke:'currentColor','stroke-width':1.5}));scaleGroup.append(svg('text',{x:scalePixels/2,y:-9,'text-anchor':'middle','font-size':10},`${scaleMetres} m`));canvas.append(scaleGroup);
   }
@@ -651,7 +773,7 @@
   $('#pause-mission').addEventListener('click',()=>action('/api/mission/pause',{},'임무 일시정지를 요청했습니다.'));
   $('#return-home').addEventListener('click',()=>action('/api/mission/home',{},'현재 운송을 종료하고 Homepoint로 복귀합니다.'));
   $('#cancel-mission').addEventListener('click',()=>action('/api/mission/cancel',{},'미완료 요청을 보류하고 Homepoint로 복귀합니다.'));
-  $('#emergency-stop').addEventListener('click',async()=>{ManualJoystick.release();if(currentMission().estop_latched&&snapshot?.safety?.stop_acknowledged&&snapshot?.safety?.pending!=='reset'){setHomeConfirmation(false);renderControls();$('#reset-dialog').showModal();return;}try{await api('/api/emergency-stop',{reset:false});notify('비상정지를 요청했습니다.');await refresh();}catch(error){notify(error.message,true);}});
+  $('#emergency-stop').addEventListener('click',async()=>{ManualJoystick.release();if((currentMission().estop_latched||snapshot?.safety?.latched)&&snapshot?.safety?.stop_acknowledged&&snapshot?.safety?.pending!=='reset'){setHomeConfirmation(false);renderControls();$('#reset-dialog').showModal();return;}try{await api('/api/emergency-stop',{reset:false});notify('비상정지를 요청했습니다.');await refresh();}catch(error){notify(error.message,true);}});
   $('#confirm-home-location').addEventListener('change',()=>{setHomeConfirmation($('#confirm-home-location').checked);renderControls();});
   $('#seed-home-pose').addEventListener('click',()=>action('/api/localization/seed-home',{confirm_actual_home:$('#confirm-home-location').checked},'등록 홈 초기 위치 입력을 요청했습니다. 비상정지는 유지됩니다.'));
   $('#confirm-reset').addEventListener('click',async()=>{if(await action('/api/emergency-stop',{reset:true},'비상정지 해제를 요청했습니다. 제어·센서 검증 응답 후 해제됩니다.'))$('#reset-dialog').close();});
@@ -665,7 +787,7 @@
     const d=delivery();$('#inventory-access').hidden=!domain&&!d.inventory_join_code;$('#inventory-join-code').textContent=d.inventory_join_code||'—';$('#inventory-domain').textContent=connection.domain_id??'—';$('#inventory-links').replaceChildren();(d.inventory_urls||[]).forEach(url=>{const link=document.createElement('a');link.href=url;link.textContent=url;$('#inventory-links').append(link);});
     (connection.lan_urls||[location.origin]).forEach(url=>{const link=document.createElement('a');link.href=url;link.textContent=url;$('#lan-links').append(link);});$('#connection-dialog').showModal();
   });
-  $('#connection-form').addEventListener('submit',async event=>{event.preventDefault();ManualJoystick.release();const button=event.submitter;button.disabled=true;try{await api('/api/connection',{domain_id:Number($('#domain-input').value),use_sim_time:$('#sim-time-input').checked});initialized=false;dirty=false;lastPath=[];mapVersion=null;await refresh();$('#connection-dialog').close();notify('차량 연결을 변경했습니다.');}catch(error){$('#connection-error').textContent=error.message;}finally{button.disabled=false;}});
+  $('#connection-form').addEventListener('submit',async event=>{event.preventDefault();ManualJoystick.release();const button=event.submitter;button.disabled=true;try{await api('/api/connection',{domain_id:Number($('#domain-input').value),use_sim_time:$('#sim-time-input').checked});initialized=false;dirty=false;clearLastPath();mapVersion=null;await refresh();$('#connection-dialog').close();notify('차량 연결을 변경했습니다.');}catch(error){$('#connection-error').textContent=error.message;}finally{button.disabled=false;}});
   $('#pair-form').addEventListener('submit',async event=>{event.preventDefault();const button=event.submitter;button.disabled=true;try{const value=$('#pair-code-input').value.trim();await api('/api/pair',accessMode==='domain'?{domain_id:Number(value)}:{code:value});$('#pair-dialog').close();$('#pair-code-input').value='';$('#pair-error').textContent='';await refresh();}catch(error){$('#pair-error').textContent=error.message;}finally{button.disabled=false;}});
   $('#pair-dialog').addEventListener('cancel',event=>event.preventDefault());
   new ResizeObserver(drawMap).observe($('#map-area'));

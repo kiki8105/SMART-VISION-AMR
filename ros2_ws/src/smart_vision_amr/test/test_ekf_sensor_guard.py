@@ -4,6 +4,7 @@ import json
 import time
 from types import SimpleNamespace
 
+import pytest
 from rcl_interfaces.msg import Log
 from sensor_msgs.msg import BatteryState
 from std_msgs.msg import String
@@ -11,7 +12,7 @@ from tf2_ros import TransformException
 
 from smart_vision_amr.ekf_sensor_guard import (
     EkfSensorGuard, EkfSensorGuardCore, ROS_ERROR_LEVEL, battery_voltage_issues,
-    dynamixel_log_failure, publisher_issues,
+    configured_publishers, dynamixel_log_failure, publisher_issues,
 )
 from smart_vision_amr.motion_mux import MotionMuxCore
 
@@ -25,6 +26,24 @@ def feed_all(core, now):
     for name in core.REQUIRED:
         feed(core, name, now)
     core.update_graph([], now)
+
+
+def test_gazebo_graph_names_keep_all_physical_ekf_guard_checks():
+    physical = EkfSensorGuard.EXPECTED_PUBLISHERS
+    simulated = configured_publishers(physical, 'ekf_independent', '/gazebo/odom_raw')
+    assert simulated['/odom'] == 'ekf_independent'
+    assert simulated['/gazebo/odom_raw'] is None
+    assert '/wheel/odom_raw' not in simulated
+    for topic, expected in physical.items():
+        if topic not in {'/odom', '/wheel/odom_raw'}:
+            assert simulated[topic] == expected
+    assert len(simulated) == len(physical)
+    assert configured_publishers(physical, 'ekf_hardware', '/wheel/odom_raw') == physical
+    for invalid_node, invalid_topic in (('', '/gazebo/odom_raw'),
+                                        ('ekf/other', '/gazebo/odom_raw'),
+                                        ('ekf_independent', '/odom')):
+        with pytest.raises(ValueError):
+            configured_publishers(physical, invalid_node, invalid_topic)
 
 
 def test_startup_remains_estopped_until_all_streams_stable_and_operator_resets():

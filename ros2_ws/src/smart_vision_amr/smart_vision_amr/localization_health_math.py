@@ -24,6 +24,7 @@ class LocalizationHealthCore:
     """
 
     def __init__(self, *, stable_seconds=2.0, fault_seconds=0.5,
+                 spatial_fault_seconds=1.25,
                  agreement_fault_seconds=3.0, sensor_timeout=0.5,
                  tf_timeout=1.0, future_tolerance=1.5,
                  position_warning=0.35, position_critical=0.8,
@@ -31,7 +32,8 @@ class LocalizationHealthCore:
                  agreement_warning=0.55, agreement_critical=0.20,
                  amcl_moving_timeout=4.0, motion_dt_limit=1.0,
                  mapping_mode=False):
-        values = (stable_seconds, fault_seconds, agreement_fault_seconds,
+        values = (stable_seconds, fault_seconds, spatial_fault_seconds,
+                  agreement_fault_seconds,
                   sensor_timeout, tf_timeout, position_warning,
                   position_critical, yaw_warning, yaw_critical, amcl_moving_timeout,
                   motion_dt_limit)
@@ -42,6 +44,10 @@ class LocalizationHealthCore:
             raise ValueError('Invalid localization health limits')
         self.stable_seconds = stable_seconds
         self.fault_seconds = fault_seconds
+        # TF/scan-to-map checks may miss a few scheduler ticks under load.
+        # They still block motion on the first bad tick; only the irreversible
+        # stop latch waits longer. Sensor loss and pose jumps keep fault_seconds.
+        self.spatial_fault_seconds = spatial_fault_seconds
         self.agreement_fault_seconds = agreement_fault_seconds
         self.sensor_timeout = sensor_timeout
         self.tf_timeout = tf_timeout
@@ -199,9 +205,12 @@ class LocalizationHealthCore:
                 self.acquired = True
         else:
             self.good_since = None
+        spatial_faults = {'map_tf_unavailable', 'odom_tf_unavailable',
+                          'scan_map_check_unavailable'}
         sustained = [reason for reason in critical
                      if now-self.fault_since[reason] >= (
                          self.agreement_fault_seconds if reason == 'scan_map_disagreement'
+                         else self.spatial_fault_seconds if reason in spatial_faults
                          else self.fault_seconds)]
         if self.acquired and sustained:
             self.stop_latched = True

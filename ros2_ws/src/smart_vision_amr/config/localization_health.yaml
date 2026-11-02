@@ -12,11 +12,17 @@ localization_health:
     dynamic_tf_best_effort: true
     stable_seconds: 2.0
     fault_seconds: 0.5
+    # TF lookup/scan-map projection gaps seen under load lasted about 0.5 s.
+    # Stop autonomous velocity immediately; only delay the latched ESTOP for
+    # these spatial checks. Real scan/odom loss and pose jumps still latch
+    # after fault_seconds, and the independent EKF input guard is unchanged.
+    spatial_fault_seconds: 1.25
     agreement_fault_seconds: 3.0  # Ignore brief occlusions by moving objects.
     # At 5 Hz scan period is 0.2 s. Allow up to 0.5 s extra transient
     # receive/header delay at departure. The next 0.25 s health tick blocks
     # auto before a 1 s outage; the independent EKF guard still trips at 1 s.
-    # The separate fault_seconds debounce controls the later latched ESTOP.
+    # fault_seconds debounces sensor loss; spatial_fault_seconds covers TF and
+    # scan-to-map projection gaps. Both immediately close autonomous motion.
     sensor_timeout: 0.7
     tf_timeout: 1.0
     future_tolerance: 1.5  # AMCL map->odom may be intentionally future-dated.

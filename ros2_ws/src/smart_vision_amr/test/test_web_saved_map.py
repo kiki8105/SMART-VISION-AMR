@@ -90,6 +90,31 @@ class SavedMapTests(unittest.TestCase):
             self.app.command('/api/mission/start', {})
         self.assertEqual(self.app.mission.commands, [])
 
+    def test_original_slam_artwork_uses_same_map_frame_and_never_replaces_navigation_map(self):
+        self.app.load_map_preview(self.path)
+        raw_path = self.directory/'raw.yaml'
+        raw_path.write_text(yaml.safe_dump(dict(self.document, image='raw.pgm')), encoding='utf-8')
+        Image.fromarray(np.array([[0, 205, 254], [255, 254, 127]], np.uint8)).save(self.directory/'raw.pgm')
+        self.app.load_raw_map_preview(raw_path)
+        self.assertTrue(self.app.state()['map']['raw_available'])
+        clean_png = cv2.imdecode(np.frombuffer(self.app.map_png, np.uint8), cv2.IMREAD_GRAYSCALE)
+        raw_png = cv2.imdecode(np.frombuffer(self.app.raw_map_png, np.uint8), cv2.IMREAD_GRAYSCALE)
+        self.assertNotEqual(int(clean_png[1, 1]), int(raw_png[1, 1]))
+        np.testing.assert_array_equal(raw_png, np.array([[0, 205, 254], [255, 254, 127]], np.uint8))
+        metadata, data = load_saved_map(self.path)
+        self.app.receive_map(metadata, data)
+        self.assertTrue(self.app.state()['map']['raw_available'])
+        np.testing.assert_array_equal(self.app._display_map_data, data)
+        self.assertEqual(self.app.map['source'], 'ros')
+
+    def test_original_slam_artwork_rejects_a_different_origin(self):
+        self.app.load_map_preview(self.path)
+        raw_path = self.directory/'raw.yaml'
+        raw_path.write_text(yaml.safe_dump(dict(self.document, origin=[0., 0., 0.])), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, '크기·해상도·원점'):
+            self.app.load_raw_map_preview(raw_path)
+        self.assertFalse(self.app.state()['map']['raw_available'])
+
     def test_matching_live_map_unlocks_only_map_condition(self):
         self.app.load_map_preview(self.path)
         metadata, data = load_saved_map(self.path)
@@ -274,6 +299,19 @@ class SavedMapTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.app.load_floorplan(path)
                 self.assertEqual(self.app.map_layout, original)
+
+    def test_display_rotation_is_bounded_and_does_not_change_map_geometry(self):
+        self.app.load_map_preview(self.path)
+        path, _ = self.write_floorplan(display_rotation_deg=-1.57646181885)
+        before = self.app._configured_map[1].copy()
+        self.app.load_floorplan(path)
+        self.assertAlmostEqual(self.app.map_layout['display_rotation_deg'], -1.57646181885)
+        np.testing.assert_array_equal(self.app._configured_map[1], before)
+        for rotation in (True, float('nan'), float('inf'), -46., 46.):
+            with self.subTest(rotation=rotation):
+                path, _ = self.write_floorplan(display_rotation_deg=rotation)
+                with self.assertRaisesRegex(ValueError, 'display_rotation_deg'):
+                    self.app.load_floorplan(path)
 
     def test_authored_polygons_reject_nonfinite_out_of_bounds_or_degenerate_vertices(self):
         self.app.load_map_preview(self.path)

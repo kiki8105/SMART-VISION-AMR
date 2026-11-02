@@ -150,6 +150,7 @@ class InventoryWebTests(unittest.TestCase):
     def test_manager_cannot_access_operator_controls_camera_or_codes(self):
         self.app.camera_jpeg, self.app.map_png = b'camera-private', b'map-private'
         for endpoint in ('/api/state', '/api/dispatch/state', '/api/camera.jpg',
+                         '/api/camera/raw.jpg',
                          '/api/map.png', '/api/health', '/api/markers'):
             with self.subTest(endpoint=endpoint):
                 self.assertEqual(self.request('GET', endpoint, cookie=self.manager)[0], 401)

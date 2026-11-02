@@ -19,18 +19,88 @@ def confirm(alignment):
     assert alignment.state == 'CONFIRMED'
 
 
-def test_recognition_mode_confirms_offcenter_marker_without_extra_rotation():
+def test_recognition_mode_confirms_roughly_centered_marker_without_extra_rotation():
     alignment = MarkerAlignment(confirmation_mode='recognized')
     alignment.start(3, 'rear', 0., 0.)
     for frame, now in enumerate((0., .2, .4, .61)):
-        assert alignment.observe(frame, detection(.85), 'rear', now, now)
+        assert alignment.observe(frame, detection(.2), 'rear', now, now)
         assert alignment.tick(now, 0., stationary=True) == 0.
     assert alignment.state == 'CONFIRMED'
     assert alignment.snapshot()['confirmation_mode'] == 'recognized'
-    assert alignment.snapshot()['center_error'] == .85
+    assert alignment.snapshot()['center_error'] == .2
+    assert alignment.snapshot()['soft_center_result'] == 'centered'
+    assert alignment.snapshot()['soft_center_tolerance'] == .30
     assert alignment.snapshot()['wall_required'] is False
     assert alignment.snapshot()['rotation_degrees'] == 0.
-    assert '인식' in alignment.reason
+    assert '중앙 근처' in alignment.reason
+
+
+def test_recognition_mode_gently_centers_visible_marker_then_stops_and_confirms():
+    alignment = MarkerAlignment(confirmation_mode='recognized')
+    alignment.start(3, 'rear', 0., 0.)
+    alignment.observe(1, detection(.8), 'rear', .1, .1)
+    assert alignment.tick(.1, 0.) == pytest.approx(-.10)
+    assert alignment.state == 'CENTERING'
+    assert alignment.frames == 0
+    alignment.observe(2, detection(.2), 'rear', .3, .3)
+    assert alignment.tick(.3, -.02, stationary=False) == 0.
+    assert alignment.snapshot()['soft_center_result'] == 'centered'
+    for frame, now in ((3, .5), (4, .7), (5, .9), (6, 1.1)):
+        alignment.observe(frame, detection(.2), 'rear', now, now)
+        assert alignment.tick(now, -.02, stationary=True) == 0.
+    assert alignment.state == 'CONFIRMED'
+
+
+def test_recognition_mode_small_center_jitter_does_not_reverse_yaw():
+    alignment = MarkerAlignment(confirmation_mode='recognized')
+    alignment.start(3, 'rear', 0., 0.)
+    for frame, now, error in ((1, .1, .25), (2, .3, .34),
+                              (3, .5, .33), (4, .7, .32), (5, .9, .34)):
+        alignment.observe(frame, detection(error), 'rear', now, now)
+        assert alignment.tick(now, 0., stationary=True) == 0.
+    assert alignment.state == 'CONFIRMED'
+    assert alignment.snapshot()['soft_center_result'] == 'centered'
+    assert alignment.snapshot()['soft_center_exit_tolerance'] == pytest.approx(.36)
+
+
+def test_recognition_mode_does_not_reverse_yaw_on_large_jitter_or_accept_early():
+    alignment = MarkerAlignment(confirmation_mode='recognized', soft_center_timeout=1.2)
+    alignment.start(3, 'rear', 0., 0.)
+    alignment.observe(1, detection(.7), 'rear', .1, .1)
+    assert alignment.tick(.1, 0.) < 0.
+    alignment.observe(2, detection(.2), 'rear', .3, .3)
+    assert alignment.tick(.3, -.02, stationary=True) == 0.
+    assert alignment.snapshot()['soft_center_result'] == 'centered'
+    for frame, now, error in ((3, .5, -.65), (4, .7, .6), (5, .9, -.7)):
+        alignment.observe(frame, detection(error), 'rear', now, now)
+        assert alignment.tick(now, -.02, stationary=True) == 0.
+        assert alignment.state != 'CONFIRMED'
+        assert alignment.snapshot()['soft_center_result'] == 'centered'
+    # Only after the bounded time does an off-center result fail; the robot
+    # never oscillates to chase a noisy marker or claim sector arrival.
+    alignment.observe(6, detection(.65), 'rear', 1.3, 1.3)
+    assert alignment.tick(1.3, -.02, stationary=True) == 0.
+    assert alignment.state == 'FAILED'
+    assert alignment.snapshot()['soft_center_result'] == 'out_of_band'
+
+
+def test_recognition_mode_pauses_after_bounded_centering_without_false_arrival():
+    alignment = MarkerAlignment(confirmation_mode='recognized', soft_center_timeout=1.0)
+    alignment.start(3, 'rear', 0., 0.)
+    for frame, now in enumerate((.1, .3, .5, .7, .9)):
+        alignment.observe(frame, detection(.85), 'rear', now, now)
+        assert alignment.tick(now, -.02*frame, stationary=False) < 0.
+    alignment.observe(5, detection(.85), 'rear', 1.1, 1.1)
+    assert alignment.tick(1.1, -.10, stationary=False) == 0.
+    assert alignment.snapshot()['soft_center_result'] == 'out_of_band'
+    assert alignment.state == 'FAILED'
+    # Even alternating image error may no longer send turn commands or revive approval.
+    for frame, now, error in ((6, 1.3, -.9), (7, 1.5, .9),
+                              (8, 1.7, -.9), (9, 1.9, .9), (10, 2.1, -.9)):
+        assert not alignment.observe(frame, detection(error), 'rear', now, now)
+        assert alignment.tick(now, -.10, stationary=True) == 0.
+    assert alignment.state == 'FAILED'
+    assert '중앙 허용 범위 밖' in alignment.reason
 
 
 def test_recognition_mode_still_searches_until_correct_marker_and_fresh_stable_proof():
@@ -41,16 +111,16 @@ def test_recognition_mode_still_searches_until_correct_marker_and_fresh_stable_p
     assert alignment.state == 'SEARCHING'
     alignment.observe(2, detection(quality=.2), 'rear', .2, .2)
     assert alignment.tick(.2, 0., stationary=True) == .12
-    alignment.observe(3, detection(.9), 'rear', .3, .3)
+    alignment.observe(3, detection(.2), 'rear', .3, .3)
     assert alignment.tick(.3, 0., stationary=False) == 0.
     assert alignment.frames == 1
     assert not alignment.observe(3, detection(.9), 'rear', .3, .3)
     assert alignment.frames == 1
     for frame, now in ((4, .5), (5, .7), (6, .91)):
-        alignment.observe(frame, detection(.9), 'rear', now, now)
+        alignment.observe(frame, detection(.2), 'rear', now, now)
         assert alignment.tick(now, 0., stationary=True) == 0.
     assert alignment.state != 'CONFIRMED'  # Stop proof began after the first detection.
-    alignment.observe(7, detection(.9), 'rear', 1.11, 1.11)
+    alignment.observe(7, detection(.2), 'rear', 1.11, 1.11)
     assert alignment.tick(1.11, 0., stationary=True) == 0.
     assert alignment.state == 'CONFIRMED'
 
@@ -60,7 +130,7 @@ def test_recognition_mode_revokes_proof_on_wrong_id_stale_image_or_scan_gap():
         alignment = MarkerAlignment(confirmation_mode='recognized')
         alignment.start(3, 'rear', 0., 0.)
         for frame, now in enumerate((0., .2, .4, .61)):
-            alignment.observe(frame, detection(.95), 'rear', now, now)
+            alignment.observe(frame, detection(.2), 'rear', now, now)
             alignment.tick(now, 0., stationary=True)
         assert alignment.state == 'CONFIRMED'
         if failure == 'wrong_id':
@@ -95,7 +165,7 @@ def test_recognition_mode_rejects_wall_requirement_and_ignores_wall_reports():
     alignment = MarkerAlignment(confirmation_mode='recognized')
     alignment.start(3, 'rear', 0., 0.)
     for frame, now in enumerate((0., .2, .4, .61)):
-        alignment.observe(frame, detection(.8), 'rear', now, now)
+        alignment.observe(frame, detection(.2), 'rear', now, now)
         assert not alignment.observe_wall({'reason': 'wall unavailable'}, now)
         alignment.tick(now, 0., stationary=True)
     assert alignment.state == 'CONFIRMED'
@@ -153,6 +223,57 @@ def test_blank_fresh_frames_enable_bounded_bouncing_search_only():
     assert alignment.marker_id == 3
 
 
+@pytest.mark.parametrize(('start_yaw', 'target_yaw', 'expected_sign'), [
+    (-1.09, -1.4, -1.),
+    (3.0, -3.1, 1.),  # shortest turn crosses the +/-pi boundary
+    (0., None, 1.),
+    (0., float('nan'), 1.),
+    (0., -.04, 1.),  # nearly equal: retain the established fallback
+])
+def test_initial_blank_image_search_uses_registered_heading_only_when_informative(
+        start_yaw, target_yaw, expected_sign):
+    alignment = MarkerAlignment()
+    alignment.start(3, 'rear', start_yaw, 0., target_yaw=target_yaw)
+    assert alignment.tick(0., start_yaw) == 0.  # No post-arrival image yet.
+    assert alignment.observe(1, [], 'rear', .1, .1)
+    assert alignment.tick(.1, start_yaw) == pytest.approx(expected_sign*.12)
+    assert alignment.snapshot()['linear'] == 0.
+
+
+def test_marker_detection_overrides_registered_initial_search_direction():
+    alignment = MarkerAlignment()
+    alignment.start(3, 'rear', 0., 0., target_yaw=-.4)
+    assert alignment.direction == -1.
+    assert alignment.observe(1, detection(-.6), 'rear', .1, .1)
+    assert alignment.tick(.1, 0.) > 0.  # Pixel error, not hint, controls centering.
+    assert alignment.state == 'CENTERING'
+
+
+def test_heading_guided_search_retains_clearance_and_bounded_rotation_interlocks():
+    alignment = MarkerAlignment(max_total_rotation=10.)
+    alignment.start(3, 'rear', 0., 0., target_yaw=-.4)
+    assert alignment.observe(1, [], 'rear', .1, .1)
+    assert alignment.tick(.1, 0., scan_clear=False) == 0.
+    assert alignment.tick(.2, 0., scan_clear=True) == 0.
+    assert alignment.state == 'HOLD'
+    assert alignment.observe(2, [], 'rear', .3, .3)
+    assert alignment.tick(.3, 0.) == -.12
+    assert alignment.observe(3, [], 'rear', .4, .4)
+    assert alignment.tick(.4, -1.05) == .12
+    assert alignment.observe(4, [], 'rear', .5, .5)
+    assert alignment.tick(.5, 1.05) == -.12
+    assert alignment.observe(5, [], 'rear', .6, .6)
+    assert alignment.tick(.6, -1.05) == 0.
+    assert alignment.state == 'FAILED'
+    assert alignment.tick(.7, -1.05) == 0.
+
+    unsafe = MarkerAlignment()
+    unsafe.start(3, 'rear', 0., 0., target_yaw=-.4)
+    assert unsafe.observe(1, [], 'rear', .1, .1)
+    assert unsafe.tick(.1, 0., pose_ok=False) == 0.
+    assert unsafe.state == 'FAILED'
+
+
 def test_wrong_camera_id_low_quality_and_duplicate_frames_cannot_confirm():
     alignment = MarkerAlignment()
     alignment.start(3, 'rear', 0., 1.)
@@ -199,12 +320,14 @@ def test_single_clearance_gap_stops_and_recovers_without_resuming_old_proof():
     assert alignment.state == 'HOLD'
     assert alignment.angular == 0.
 
-    assert alignment.tick(.4, 0., stationary=True, scan_clear=True) == .12
-    assert alignment.state != 'CONFIRMED'
+    assert alignment.tick(.4, 0., stationary=True, scan_clear=True) == 0.
+    assert alignment.state == 'HOLD'
+    assert alignment.snapshot()['awaiting_post_clearance_frame'] is True
     assert alignment.frames == alignment.wall_samples == 0
     alignment.observe(3, detection(.5), 'rear', .45, .45)
     assert alignment.tick(.45, 0., stationary=True, scan_clear=True) < 0.
     assert alignment.state == 'CENTERING'
+    assert alignment.snapshot()['awaiting_post_clearance_frame'] is False
 
 
 def test_sustained_clearance_loss_fails_after_one_second_and_keeps_stop():
@@ -219,6 +342,63 @@ def test_sustained_clearance_loss_fails_after_one_second_and_keeps_stop():
     assert alignment.tick(1.2, 0., scan_clear=False) == 0.
     assert alignment.state == 'FAILED'
     assert alignment.tick(1.3, 0., scan_clear=True) == 0.
+
+
+def test_recognized_marker_does_not_search_after_intermittent_scan_gaps():
+    alignment = MarkerAlignment(confirmation_mode='recognized')
+    alignment.start(3, 'rear', 0., 0.)
+    alignment.observe(1, detection(.2), 'rear', .1, .1)
+    assert alignment.tick(.1, 0., stationary=True) == 0.
+    assert alignment.soft_center_result == 'centered'
+
+    frame = 1
+    for gap_start in (.2, .8, 1.4):
+        assert alignment.tick(gap_start, 0., stationary=True, scan_clear=False) == 0.
+        assert alignment.state == 'HOLD'
+        frame += 1
+        # Even an image captured during the unsafe interval is not proof.
+        assert alignment.observe(frame, detection(.2), 'rear', gap_start+.05, gap_start+.05)
+        assert alignment.tick(gap_start+.05, 0., stationary=True, scan_clear=False) == 0.
+        assert alignment.tick(gap_start+.1, 0., stationary=True, scan_clear=True) == 0.
+        assert alignment.state == 'HOLD'
+        assert alignment.frames == 0
+        assert alignment.tick(gap_start+.15, 0., stationary=True, scan_clear=True) == 0.
+        assert alignment.state == 'HOLD'
+        frame += 1
+        # One missed post-gap frame cannot cause a speculative search turn.
+        assert alignment.observe(frame, [], 'rear', gap_start+.2, gap_start+.2)
+        assert alignment.tick(gap_start+.2, 0., stationary=True) == 0.
+        assert alignment.state == 'HOLD'
+        frame += 1
+        assert alignment.observe(frame, detection(.2), 'rear', gap_start+.3, gap_start+.3)
+        assert alignment.tick(gap_start+.3, 0., stationary=True) == 0.
+        assert alignment.state == 'SETTLING'
+        assert alignment.frames == 1
+        assert alignment.state != 'CONFIRMED'
+    assert alignment.rotation == 0.
+    assert alignment.bounces == 0
+
+    for now in (2., 2.2, 2.4, 2.61):
+        frame += 1
+        assert alignment.observe(frame, detection(.2), 'rear', now, now)
+        assert alignment.tick(now, 0., stationary=True) == 0.
+    assert alignment.state == 'CONFIRMED'
+
+
+def test_centered_marker_missing_after_clearance_recovery_pauses_without_turn():
+    alignment = MarkerAlignment(confirmation_mode='recognized')
+    alignment.start(3, 'rear', 0., 0.)
+    alignment.observe(1, detection(.2), 'rear', .1, .1)
+    alignment.tick(.1, 0., stationary=True)
+    alignment.tick(.2, 0., stationary=True, scan_clear=False)
+    assert alignment.tick(.3, 0., stationary=True, scan_clear=True) == 0.
+    for frame, now in ((2, .4), (3, .7), (4, 1.0), (5, 1.31)):
+        assert alignment.observe(frame, detection(marker_id=2), 'rear', now, now)
+        assert alignment.tick(now, 0., stationary=True) == 0.
+        assert alignment.state != 'CONFIRMED'
+    assert alignment.state == 'FAILED'
+    assert alignment.rotation == 0.
+    assert '다시 확인하지 못해' in alignment.reason
 
 
 def test_camera_gap_stops_immediately_but_has_bounded_recovery_grace():
@@ -296,7 +476,8 @@ def test_confirmed_approval_is_revoked_during_clearance_gap():
     assert alignment.tick(.7, 0., stationary=True, scan_clear=False) == 0.
     assert alignment.state == 'HOLD'
     assert alignment.frames == 0
-    assert alignment.tick(.8, 0., stationary=True, scan_clear=True) == .12
+    assert alignment.tick(.8, 0., stationary=True, scan_clear=True) == 0.
+    assert alignment.state == 'HOLD'
     assert alignment.state != 'CONFIRMED'
 
 

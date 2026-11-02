@@ -28,7 +28,12 @@ ekf_hardware:
                   false, false, false, false, false, true,
                   false, false, false]
     imu0_queue_size: 30
-    imu0_twist_rejection_threshold: 5.0
+    # A real ~0.9 rad/s turn was rejected at 5 sigma: the gyro measured
+    # ~42 deg while /odom integrated only ~14 deg, projecting LiDAR walls
+    # into false free-space obstacles. The conditioner already rejects
+    # stale/nonfinite and >3 rad/s gyro input. A 20-sigma EKF gate accepts
+    # the normal commanded turn while retaining gross outlier rejection.
+    imu0_twist_rejection_threshold: 20.0
     imu0_remove_gravitational_acceleration: false
 
 # Physical dimensions can be calibrated independently of the vendor's odom.

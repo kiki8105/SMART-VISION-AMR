@@ -961,7 +961,10 @@ class PathFollower(Node):
                 'segment': {'start': {'x': a[0], 'y': a[1]},
                             'end': {'x': b[0], 'y': b[1]}, 'heading': heading},
                 'progress': path_progress(stable_points, (p.x, p.y)),
-                'yaw_error': error, 'linear': linear, 'angular': angular}
+                'yaw_error': error, 'odom_yaw': atan2(
+                    2*(odom_q.w*odom_q.z+odom_q.x*odom_q.y),
+                    1-2*(odom_q.y*odom_q.y+odom_q.z*odom_q.z)),
+                'linear': linear, 'angular': angular}
 
     def _execution_payload(self, reason, observation, evidence):
         context = self.active_context or self._goal_context(self.active_path)
@@ -1013,7 +1016,8 @@ class PathFollower(Node):
                 return
         sample = ProgressSample(observation['at'], observation['ros_ns'],
             observation['pose']['x'], observation['pose']['y'], observation['yaw_error'],
-            observation['progress'], observation['linear'], observation['angular'])
+            observation['progress'], observation['linear'], observation['angular'],
+            observation['pose']['yaw'], observation['odom_yaw'])
         decision = detector.observe(sample, self.execution_route_id)
         if decision is None:
             return
@@ -1297,6 +1301,7 @@ class PathFollower(Node):
                 or sum((isfinite(value) and scan.range_min <= value <= scan.range_max)
                        or value == float('inf') for value in scan.ranges)/len(scan.ranges) < .8):
             return 'Invalid scan geometry or ranges'
+        geometry_stage = 'odometry pose'
         try:
             x, y, yaw = self._navigation_pose(odom.pose.pose.position, odom.pose.pose.orientation)
             if not all(isfinite(value) for value in (
@@ -1308,15 +1313,18 @@ class PathFollower(Node):
             if not scan.header.frame_id:
                 return 'Missing scan frame'
             if scan.header.frame_id != self.get_parameter('recovery_scan_frame').value:
+                geometry_stage = 'scan frame transform'
                 self._navigation_transform(base, scan.header.frame_id, now)
             info = costmap.info
             if (info.width <= 0 or info.height <= 0 or not isfinite(info.resolution)
                     or info.resolution <= 0 or len(costmap.data) != info.width*info.height
                     or any(value < -1 or value > 100 for value in costmap.data)):
                 return 'Invalid local costmap dimensions or data'
+            geometry_stage = 'local costmap origin'
             origin = self._navigation_pose(info.origin.position, info.origin.orientation)
             center = self._navigation_point((info.width*info.resolution/2,
                                              info.height*info.resolution/2), origin)
+            geometry_stage = 'local costmap frame transform'
             center = self._navigation_point(center, self._navigation_transform(
                 odom.header.frame_id, costmap.header.frame_id, now))
             if hypot(x-center[0], y-center[1]) > .35:
@@ -1324,6 +1332,7 @@ class PathFollower(Node):
             if footprint_fresh_header:
                 stamp = self.latest_footprint.header.stamp
                 footprint_ns = stamp.sec*1_000_000_000+stamp.nanosec
+                geometry_stage = 'footprint timestamp and odometry history'
                 footprint_pose = self._navigation_odom_at(footprint_ns, odom.header.frame_id, base)
             else:
                 proof = getattr(self, 'navigation_footprint_receipt_pose', None)
@@ -1332,9 +1341,13 @@ class PathFollower(Node):
                     return 'Old footprint has no fresh receipt-time odometry proof'
                 footprint_pose = proof[1][3:]
                 footprint_ns = self.navigation_footprint_receipt_ros_ns
+            geometry_stage = 'footprint frame transform'
             footprint_transform = self._navigation_transform(
                 odom.header.frame_id, self.latest_footprint.header.frame_id, now, footprint_ns)
-        except (TransformException, ValueError, AttributeError):
+        except (TransformException, ValueError, AttributeError) as exc:
+            self.get_logger().warning(
+                f'Navigation geometry validation failed at {geometry_stage}: '
+                f'{type(exc).__name__}: {exc}', throttle_duration_sec=2.0)
             return 'Invalid navigation pose or unavailable frame transform'
         points = self.latest_footprint.polygon.points
         if any(not all(isfinite(value) for value in (point.x, point.y, point.z)) for point in points):

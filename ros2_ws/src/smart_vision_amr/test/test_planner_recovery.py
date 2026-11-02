@@ -223,17 +223,28 @@ class PlannerRecoveryTests(unittest.TestCase):
         self.assertTrue(self.node.waiting_for_replan)
 
     def test_unmapped_obstacle_replans_around_it_without_changing_saved_map_or_goal(self):
+        # A 1 m/cell toy grid cannot represent the 22 cm robot footprint near
+        # one occupied cell. Use actual classroom resolution for this dynamic
+        # obstacle test; local repair is disabled to exercise global A* retry.
+        message = OccupancyGrid()
+        message.header.frame_id = "map"
+        message.info.resolution = .05
+        message.info.width, message.info.height = 100, 60
+        message.info.origin.orientation.w = 1.
+        message.data = [0] * (100 * 60)
+        self.node.params['local_detour_enabled'] = False
+        self.node.on_map(message)
         goal = make_goal()
         self.node.on_goal(goal)
         original_map = list(self.node.map[0].data)
-        self.assertIn((2, 1), self.node.planned_cells)
+        self.assertIn((50, 30), self.node.planned_cells)
         self.now.return_value = 100.1
-        self.node.on_observed(Int32MultiArray(data=[7]))
+        self.node.on_observed(Int32MultiArray(data=[30 * 100 + 50]))
         self.assertFalse(self.node.path_pub.publish.call_args.args[0].poses)
         self.now.return_value = 102.1
         self.node.retry_transform()
         self.assertTrue(self.node.planned_cells)
-        self.assertNotIn((2, 1), self.node.planned_cells)
+        self.assertNotIn((50, 30), self.node.planned_cells)
         self.assertIs(self.node.last_goal, goal)
         self.assertEqual(list(self.node.map[0].data), original_map)
 

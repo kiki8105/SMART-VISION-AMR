@@ -5,7 +5,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import pytest
-from geometry_msgs.msg import TransformStamped
+from geometry_msgs.msg import PoseWithCovarianceStamped, TransformStamped
 from nav_msgs.msg import OccupancyGrid
 from tf2_ros import TransformException
 
@@ -70,8 +70,70 @@ def test_uncertain_idle_refresh_needs_fresh_physical_evidence(fault):
 def test_healthy_idle_tracking_is_not_forced_to_update():
     node, _ = uncertain()
     node.core.acquired, node.position_std, node.yaw_std = True, .1, .1
+    node.core.last_result = {'level': 'ok', 'autonomous_allowed': True}
+    node.amcl_at, node.last_amcl_stamp_ns = 9.5, 9_500_000_000
     request(node)
     node.no_motion_client.call_async.assert_not_called()
+
+
+def test_healthy_idle_stale_pose_requests_real_bounded_refresh_without_faking_tf_or_pose():
+    node, _ = uncertain()
+    node.core.acquired, node.position_std, node.yaw_std = True, .1, .1
+    node.core.last_result = {'level': 'ok', 'autonomous_allowed': True}
+    epoch = node.amcl_at, node.last_amcl_stamp_ns, node.position_std, node.yaw_std
+    request(node)
+    assert node.refresh_mode == 'stationary'
+    assert node.stationary_refresh_requests == node.no_motion_requests == 1
+    assert (node.amcl_at, node.last_amcl_stamp_ns, node.position_std, node.yaw_std) == epoch
+    node.no_motion_future.set_result(object())
+    request(node, 10.1)
+    assert node.no_motion_responses == 1
+    assert (node.amcl_at, node.last_amcl_stamp_ns, node.position_std, node.yaw_std) == epoch
+
+
+@pytest.mark.parametrize('level,allowed,latched', [
+    ('warning', True, False), ('critical', False, False), ('ok', True, True),
+])
+def test_idle_stale_pose_does_not_request_from_unhealthy_tracking(level, allowed, latched):
+    node, _ = uncertain()
+    node.core.acquired, node.position_std, node.yaw_std = True, .1, .1
+    node.core.last_result = {'level': level, 'autonomous_allowed': allowed}
+    node.core.stop_latched = latched
+    request(node)
+    node.no_motion_client.call_async.assert_not_called()
+
+
+def test_healthy_idle_refresh_budget_resets_only_after_real_new_amcl_pose(monkeypatch):
+    node, clock = uncertain()
+    node.core.acquired, node.position_std, node.yaw_std = True, .1, .1
+    node.core.last_result = {'level': 'ok', 'autonomous_allowed': True}
+    node.get_parameter = lambda name: SimpleNamespace(value={
+        'stationary_refresh_max_requests': 2, 'stationary_refresh_timeout': 30.
+    }[name])
+    request(node)
+    node.no_motion_future.set_result(object())
+    fresh(node, clock, 12.)
+    request(node, 12.)
+    assert node.stationary_refresh_requests == 2
+    node.no_motion_future.set_result(object())
+    fresh(node, clock, 14.)
+    request(node, 14.)
+    assert node.refresh_state == 'STATIONARY_LIMIT_REACHED'
+    assert node.no_motion_client.call_async.call_count == 2
+    # Even with a healthy last safety result, an AMCL-less stationary episode
+    # must remain bounded. A completed RPC alone did not reset the budget.
+    message = PoseWithCovarianceStamped()
+    message.header.frame_id = 'map'
+    message.header.stamp.sec = 14
+    message.pose.pose.orientation.w = 1.
+    message.pose.covariance[0] = message.pose.covariance[7] = .01
+    message.pose.covariance[35] = .01
+    node.odom = None  # Exclude jump-detection setup from this refresh test.
+    monkeypatch.setattr('smart_vision_amr.localization_health.time.monotonic', lambda: 14.)
+    LocalizationHealth.on_amcl(node, message)
+    assert node.stationary_refresh_requests == 0
+    assert node.stationary_refresh_started is None
+    assert node.amcl_at == 14. and node.last_amcl_stamp_ns == 14_000_000_000
 
 
 def test_stationary_refresh_has_count_time_and_fresh_measurement_bounds():

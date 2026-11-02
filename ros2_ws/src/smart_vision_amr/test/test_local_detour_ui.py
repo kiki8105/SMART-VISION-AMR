@@ -7,7 +7,8 @@ from smart_vision_amr.operation_status import local_detour_snapshot, operation_s
 
 
 def packet():
-    return {'goal_stamp': {'sec': 15, 'nanosec': 7}, 'plan_kind': 'LOCAL_DETOUR',
+    return {'goal_stamp': {'sec': 15, 'nanosec': 7},
+            'path_stamp': {'sec': 23, 'nanosec': 4}, 'plan_kind': 'LOCAL_DETOUR',
             'local_detour_state': 'ACTIVE', 'local_attempt_id': 1, 'global_plan_count': 2,
             'search_duration_ms': 7.3, 'adapter_duration_ms': 9.5, 'expansions': 72,
             'rejoin_point': {'x': 1., 'y': 2.}, 'rejoin_progress': 1.8,
@@ -21,7 +22,19 @@ def test_detour_status_is_current_bounded_and_read_only():
     assert status['available'] and status['state'] == 'ACTIVE'
     assert status['rejoin_point'] == {'x': 1., 'y': 2.}
     assert status['search_duration_ms'] == 7.3
+    assert status['path_stamp'] == {'sec': 23, 'nanosec': 4}
     assert value == original
+
+
+@pytest.mark.parametrize('stamp', [None, {'sec': 0, 'nanosec': 0},
+    {'sec': 23, 'nanosec': True}, {'sec': -1, 'nanosec': 4},
+    {'sec': 23, 'nanosec': 1_000_000_000}, {'sec': '23', 'nanosec': 4}])
+def test_invalid_path_stamp_is_not_exposed(stamp):
+    value = packet()
+    value['path_stamp'] = stamp
+    status = local_detour_snapshot(value, (15, 7), 'NAVIGATING', .1)
+    assert status['available']
+    assert 'path_stamp' not in status
 
 
 @pytest.mark.parametrize('goal,state,age', [

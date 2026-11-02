@@ -9,6 +9,9 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
+import numpy as np
+from PIL import Image
+
 from smart_vision_amr.web_mission_server import (DEFAULT_MARKERS, MissionApplication,
                                                MissionHTTPServer, MissionHTTPRequestHandler, image_to_bgr, load_markers)
 
@@ -146,6 +149,31 @@ class WebMissionTests(unittest.TestCase):
         self.assertEqual(body['mission']['state'], 'CANCELED')
         self.assertFalse(body['mission']['estop_latched'])
 
+    def test_startup_mux_stop_can_reset_without_creating_or_canceling_a_mission(self):
+        self.assertEqual(self.app.mission.state, 'IDLE')
+        self.app.manual_mux_at = time.monotonic()
+        self.app.manual_mux_status = {'estop_latched': True, 'stop_acknowledged': True}
+        state = self.request('GET', '/api/state')[1]
+        self.assertTrue(state['safety']['latched'])
+        self.assertFalse(state['mission']['estop_latched'])
+        status, body, _ = self.request('POST', '/api/emergency-stop', {'reset': True})
+        self.assertEqual(status, 200)
+        self.assertEqual(body['safety']['pending'], 'reset')
+        self.assertEqual(self.app.mission.state, 'IDLE')
+        self.assertEqual(self.app.mission.commands, [])
+        self.app.complete_safety_result('reset', True, 'Robot safety reset acknowledged')
+        self.assertEqual(self.app.mission.state, 'IDLE')
+        self.assertEqual(self.app.mission.commands, [])
+
+    def test_startup_mux_stop_reset_requires_fresh_acknowledgement(self):
+        self.app.manual_mux_at = time.monotonic()-2.
+        self.app.manual_mux_status = {'estop_latched': True, 'stop_acknowledged': True}
+        self.assertEqual(self.request('POST', '/api/emergency-stop', {'reset': True})[0], 400)
+        self.app.manual_mux_at = time.monotonic()
+        self.app.manual_mux_status['stop_acknowledged'] = False
+        self.assertEqual(self.request('POST', '/api/emergency-stop', {'reset': True})[0], 400)
+        self.assertIsNone(self.app.safety_request)
+
     def test_connection_validation_and_busy_rejection(self):
         self.assertEqual(self.request('POST', '/api/connection', {'domain_id': '76'})[0], 400)
         self.assertEqual(self.request('POST', '/api/connection', {'domain_id': 233})[0], 400)
@@ -251,8 +279,35 @@ class WebMissionTests(unittest.TestCase):
         self.assertIn('HttpOnly', headers['Set-Cookie'])
         self.assertIn('SameSite=Strict', headers['Set-Cookie'])
         self.assertEqual(self.request('GET', '/api/camera.jpg')[0], 503)
+        self.assertEqual(self.request('GET', '/api/camera/raw.jpg')[0], 503)
         self.assertEqual(self.request('GET', '/api/camera/front.jpg')[0], 503)
         self.assertEqual(self.request('GET', '/api/map.png')[0], 503)
+        self.assertEqual(self.request('GET', '/api/map/raw.png')[0], 503)
+
+    def test_unannotated_rear_camera_endpoint_is_read_only_and_authenticated(self):
+        self.app.camera_raw_jpeg = b'\xff\xd8raw\xff\xd9'
+        status, content, headers = self.request('GET', '/api/camera/raw.jpg')
+        self.assertEqual(status, 200)
+        self.assertEqual(content, self.app.camera_raw_jpeg)
+        self.assertEqual(headers['Content-Type'], 'image/jpeg')
+
+    def test_raw_map_endpoint_serves_the_original_artwork_only_when_configured(self):
+        clean = self.directory/'clean.pgm'
+        raw = self.directory/'raw.pgm'
+        Image.fromarray(np.array([[254, 0], [254, 254]], np.uint8)).save(clean)
+        Image.fromarray(np.array([[254, 0], [0, 254]], np.uint8)).save(raw)
+        common = 'mode: trinary\nresolution: 0.05\norigin: [0, 0, 0]\nnegate: 0\noccupied_thresh: 0.65\nfree_thresh: 0.196\n'
+        (self.directory/'clean.yaml').write_text('image: clean.pgm\n'+common)
+        (self.directory/'raw.yaml').write_text('image: raw.pgm\n'+common)
+        self.app.load_map_preview(self.directory/'clean.yaml')
+        self.assertEqual(self.request('GET', '/api/map/raw.png')[0], 503)
+        self.app.load_raw_map_preview(self.directory/'raw.yaml')
+        status, clean_png, clean_headers = self.request('GET', '/api/map.png')
+        raw_status, raw_png, raw_headers = self.request('GET', '/api/map/raw.png')
+        self.assertEqual((status, raw_status), (200, 200))
+        self.assertEqual((clean_headers['Content-Type'], raw_headers['Content-Type']),
+                         ('image/png', 'image/png'))
+        self.assertNotEqual(clean_png, raw_png)
 
     def test_image_conversion_respects_rgb_padding(self):
         msg = SimpleNamespace(encoding='rgb8', width=2, height=2, step=8,

@@ -3,10 +3,13 @@
 set -eo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 REPO_DIR=$(cd -- "$SCRIPT_DIR/.." && pwd)
-MARKERS=$REPO_DIR/ros2_ws/src/smart_vision_amr/config/aruco_classroom_markers.yaml
-MAP_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/maps/classroom_20261027_cleaned.yaml
-FLOORPLAN_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/config/classroom_floorplan.yaml
-SETTINGS_FILE=${SMART_VISION_CLASSROOM_CONFIG:-$HOME/.config/smart-vision-amr/classroom-16.json}
+MARKERS=$REPO_DIR/ros2_ws/src/smart_vision_amr/config/aruco_classroom_markers_20261030.yaml
+MAP_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.yaml
+RAW_MAP_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/maps/classroom_20261030_raw.yaml
+FLOORPLAN_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/config/classroom_floorplan_20261030.yaml
+# A new map frame must not silently reuse Home coordinates from the 2026-10-27 map.
+# Inventory can be migrated separately; the original files remain untouched.
+SETTINGS_FILE=${SMART_VISION_CLASSROOM_CONFIG:-$HOME/.config/smart-vision-amr/classroom-16-20261030.json}
 CAMERA_TRANSPORT=${SMART_VISION_CLASSROOM_CAMERA_TRANSPORT:-compressed}
 MINIMUM_BATTERY_VOLTAGE=${SMART_VISION_MIN_BATTERY_VOLTAGE:-10.8}
 MUX_OPTIONS=()
@@ -54,7 +57,7 @@ PY
 
 exec "$SCRIPT_DIR/run_web_mission.sh" \
   --domain-id 16 --no-use-sim-time --markers-file "$MARKERS" \
-  -- --map-file "$MAP_FILE" --floorplan-file "$FLOORPLAN_FILE" \
+  -- --map-file "$MAP_FILE" --raw-map-file "$RAW_MAP_FILE" --floorplan-file "$FLOORPLAN_FILE" \
   --config-file "$SETTINGS_FILE" --access-mode domain --require-localization-health --require-battery-health --minimum-battery-voltage "$MINIMUM_BATTERY_VOLTAGE" --marker-confirmation-mode recognized "${MUX_OPTIONS[@]}" \
   --camera-topic "/camera/image_raw$CAMERA_SUFFIX" --camera-rotation 180 \
   --front-camera-topic "/camera/front/image_raw$CAMERA_SUFFIX" \

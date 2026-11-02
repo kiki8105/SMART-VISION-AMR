@@ -24,6 +24,7 @@ from std_msgs.msg import String
 from smart_vision_amr.ekf_sensor_guard import odometry_issues
 from smart_vision_amr.localization_health_math import LocalizationHealthCore
 from smart_vision_amr.localization_health import LocalizationHealth
+from smart_vision_amr.motion_mux import MotionMuxCore
 from smart_vision_amr.wheel_joint_odometry import WheelIntegrator, load_stock_wheel_geometry
 from smart_vision_amr.sensor_stamp_guard import SensorStampGuard
 
@@ -191,6 +192,82 @@ def test_physical_sensor_jitter_margin_is_bounded_below_independent_guard():
     assert not delayed['stop_latched']
 
 
+@pytest.mark.parametrize('spatial_fault', [
+    {'map_tf_age_seconds': None}, {'odom_tf_valid': False},
+    {'scan_map_agreement': None},
+    {'map_tf_age_seconds': None, 'odom_tf_valid': False,
+     'scan_map_agreement': None},
+])
+def test_short_spatial_gap_holds_zero_then_resumes_without_reset(spatial_fault):
+    package = Path(__file__).resolve().parents[1]
+    settings = yaml.safe_load((package/'config/localization_health.yaml').read_text())[
+        'localization_health']['ros__parameters']
+    assert settings['fault_seconds'] == pytest.approx(.5)
+    assert settings['spatial_fault_seconds'] == pytest.approx(1.25)
+    core = LocalizationHealthCore(stable_seconds=1.,
+                                  fault_seconds=settings['fault_seconds'],
+                                  spatial_fault_seconds=settings['spatial_fault_seconds'])
+    core.evaluate(0., healthy())
+    assert core.evaluate(1.1, healthy())['autonomous_allowed']
+    clock = [1.1]
+    mux = MotionMuxCore(clock=lambda: clock[0], require_localization_health=True)
+    mux.receive_localization_health(core.last_result)
+    assert mux.receive_auto(.1, 0.)
+    assert mux.output() == pytest.approx((.1, 0.))
+
+    clock[0] = 2.
+    blocked = core.evaluate(2., healthy(**spatial_fault))
+    assert blocked['level'] == 'warning'
+    assert not blocked['autonomous_allowed'] and not blocked['stop_latched']
+    mux.receive_localization_health(blocked)
+    assert mux.receive_auto(.1, 0.)
+    assert mux.output() == (0., 0.)
+    clock[0] = 2.9
+    blocked = core.evaluate(2.9, healthy(**spatial_fault))
+    assert not blocked['autonomous_allowed'] and not blocked['stop_latched']
+    mux.receive_localization_health(blocked)
+    assert mux.receive_auto(.1, 0.)
+    assert mux.output() == (0., 0.)
+
+    clock[0] = 3.0
+    recovered = core.evaluate(3., healthy())
+    assert recovered['autonomous_allowed'] and not recovered['stop_latched']
+    assert recovered['level'] == 'ok'
+    mux.receive_localization_health(recovered)
+    assert mux.receive_auto(.1, 0.)
+    assert mux.output() == pytest.approx((.1, 0.))
+
+
+@pytest.mark.parametrize('fault,expected', [
+    ({'map_tf_age_seconds': None}, 'map_tf_unavailable'),
+    ({'odom_tf_valid': False}, 'odom_tf_unavailable'),
+    ({'scan_map_agreement': None}, 'scan_map_check_unavailable'),
+])
+def test_sustained_spatial_gap_latches_and_needs_operator_reset(fault, expected):
+    core = armed()
+    core.evaluate(2., healthy(**fault))
+    warning = core.evaluate(3.2, healthy(**fault))
+    assert not warning['stop_latched'] and not warning['autonomous_allowed']
+    latched = core.evaluate(3.3, healthy(**fault))
+    assert latched['level'] == 'critical' and latched['stop_latched']
+    assert expected in latched['reasons']
+    assert not core.operator_reset(3.3)
+    assert not core.evaluate(3.4, healthy())['autonomous_allowed']
+
+
+@pytest.mark.parametrize('fault,expected', [
+    ({'scan_age_seconds': 2.}, 'scan_unavailable'),
+    ({'odom_age_seconds': 2.}, 'odom_unavailable'),
+    ({'pose_jump': True}, 'localization_jump'),
+])
+def test_sensor_or_pose_fault_keeps_fast_latch(fault, expected):
+    core = armed()
+    core.evaluate(2., healthy(**fault))
+    latched = core.evaluate(2.6, healthy(**fault))
+    assert latched['stop_latched'] and not latched['autonomous_allowed']
+    assert expected in latched['reasons']
+
+
 def test_short_dynamic_obstruction_does_not_latch_but_sustained_disagreement_does():
     core = armed()
     blocked = healthy(scan_map_agreement=0.1)
@@ -251,7 +328,9 @@ def test_plain_operator_reset_does_not_clear_the_motion_update_budget():
 
 
 @pytest.mark.parametrize('limits', [{'motion_dt_limit': 0.}, {'motion_dt_limit': math.nan},
-                                    {'amcl_moving_timeout': -1.}])
+                                    {'amcl_moving_timeout': -1.},
+                                    {'spatial_fault_seconds': 0.},
+                                    {'spatial_fault_seconds': math.nan}])
 def test_motion_integration_limits_must_be_finite_and_positive(limits):
     with pytest.raises(ValueError):
         LocalizationHealthCore(**limits)
@@ -271,16 +350,16 @@ def test_initialpose_reacquires_without_clearing_critical_stop():
 def test_explicit_initialpose_then_reset_can_enable_sweep_without_autonomous_motion():
     core = armed()
     core.evaluate(2.0, healthy(map_tf_age_seconds=None))
-    assert core.evaluate(2.6, healthy(map_tf_age_seconds=None))['stop_latched']
-    assert not core.operator_reset(2.6)  # Reset alone cannot bypass localization failure.
+    assert core.evaluate(3.3, healthy(map_tf_age_seconds=None))['stop_latched']
+    assert not core.operator_reset(3.3)  # Reset alone cannot bypass localization failure.
     core.reinitialize()
     acquiring = healthy(map_tf_age_seconds=None, scan_map_agreement=0.1,
                          position_std_m=0.6)
-    core.evaluate(3.0, acquiring)
-    assert not core.operator_reset(3.1)
-    assert core.evaluate(4.1, acquiring)['stop_latched']
-    assert core.operator_reset(4.1)
-    status = core.evaluate(4.2, acquiring)
+    core.evaluate(3.4, acquiring)
+    assert not core.operator_reset(3.5)
+    assert core.evaluate(4.5, acquiring)['stop_latched']
+    assert core.operator_reset(4.5)
+    status = core.evaluate(4.6, acquiring)
     assert status['level'] == 'warning'
     assert status['allow_localization'] and not status['autonomous_allowed']
 
@@ -295,7 +374,8 @@ def test_explicit_initialpose_then_reset_can_enable_sweep_without_autonomous_mot
 def test_uncertainty_numeric_errors_and_timestamp_errors_trip(change, reason):
     core = armed()
     core.evaluate(2.0, healthy(**change))
-    status = core.evaluate(2.6, healthy(**change))
+    status = core.evaluate(3.3 if reason in {'map_tf_unavailable', 'odom_tf_unavailable'}
+                           else 2.6, healthy(**change))
     assert status['level'] == 'critical'
     assert reason in status['reasons']
 

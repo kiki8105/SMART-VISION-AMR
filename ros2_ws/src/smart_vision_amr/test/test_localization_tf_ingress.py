@@ -127,7 +127,7 @@ def test_fresh_ingress_cannot_release_a_stale_lookup_or_a_safety_latch():
     core.evaluate(0., healthy())
     assert core.evaluate(2.1, healthy())['autonomous_allowed']
     assert not core.evaluate(2.2, metrics)['autonomous_allowed']
-    status = core.evaluate(2.8, metrics)
+    status = core.evaluate(3.5, metrics)
     assert status['stop_latched']
     assert {'map_tf_unavailable', 'odom_tf_unavailable'} <= set(status['reasons'])
     assert core.position_warning == .35 and core.tf_timeout == 1.

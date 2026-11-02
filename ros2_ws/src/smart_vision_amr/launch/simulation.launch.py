@@ -13,10 +13,12 @@ from launch.actions import (
 from launch.conditions import IfCondition, LaunchConfigurationEquals, UnlessCondition
 from launch.event_handlers import OnShutdown
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node, SetParameter
 from launch_ros.parameter_descriptions import ParameterValue
-from smart_vision_amr.gazebo_model_variant import make_independent_ekf_model, set_camera_update_rate
+from smart_vision_amr.gazebo_model_variant import (
+    add_classroom_dual_cameras, make_independent_ekf_model, set_camera_update_rate,
+)
 
 
 LOCALIZATION_MODES = ('baseline', 'ekf_overlay', 'ekf_independent')
@@ -26,6 +28,14 @@ def _validate_localization_mode(context):
     mode = LaunchConfiguration('localization_mode').perform(context)
     if mode not in LOCALIZATION_MODES:
         raise ValueError(f'localization_mode must be one of {LOCALIZATION_MODES}; got {mode!r}')
+    guarded = LaunchConfiguration('use_ekf_sensor_guard').perform(context).lower()
+    if guarded not in ('true', 'false'):
+        raise ValueError('use_ekf_sensor_guard must be true or false')
+    if guarded == 'true' and mode != 'ekf_independent':
+        raise ValueError('use_ekf_sensor_guard requires localization_mode:=ekf_independent')
+    if (guarded == 'true' and
+            LaunchConfiguration('use_motion_mux').perform(context).lower() != 'true'):
+        raise ValueError('use_ekf_sensor_guard requires use_motion_mux:=true')
     return []
 
 
@@ -49,14 +59,23 @@ def _nav2_dynamic_tf_group(node):
     ], scoped=True)
 
 
-def _spawn_robot(context, source_model):
+def _spawn_robot(context, default_source_model):
     mode = LaunchConfiguration('localization_mode').perform(context)
+    camera_layout = LaunchConfiguration('camera_layout').perform(context)
+    if camera_layout not in ('default', 'classroom_dual'):
+        raise ValueError(f'camera_layout must be default or classroom_dual; got {camera_layout!r}')
+    override = LaunchConfiguration('robot_model_file').perform(context)
+    source_model = Path(override) if override else default_source_model
+    if not source_model.is_file():
+        raise ValueError(f'robot_model_file does not exist: {source_model}')
     actions = []
     temporary_dir = Path(tempfile.mkdtemp(prefix='smart_vision_amr_model_'))
     model = temporary_dir / 'model.sdf'
     try:
         rate = float(LaunchConfiguration('camera_update_rate', default='8.0').perform(context))
         set_camera_update_rate(source_model, model, rate)
+        if camera_layout == 'classroom_dual':
+            add_classroom_dual_cameras(model, model)
         if mode == 'ekf_independent':
             # Only this mode moves Gazebo odom away from the EKF's output.
             make_independent_ekf_model(model, model)
@@ -112,6 +131,10 @@ def generate_launch_description():
         DeclareLaunchArgument('gui', default_value='true'),
         DeclareLaunchArgument('camera_update_rate', default_value='8.0',
                               description='Simulated camera FPS; lowers preview/transport load without changing geometry'),
+        DeclareLaunchArgument('robot_model_file', default_value='',
+                              description='Optional SDF override for isolated simulation fault injection'),
+        DeclareLaunchArgument('camera_layout', default_value='default',
+                              description='default or classroom_dual (front and rear ROS image topics)'),
         DeclareLaunchArgument('use_rviz', default_value='true'),
         DeclareLaunchArgument('nav2_dynamic_tf_best_effort', default_value='true',
                               description='Nav2 dynamic TF: best effort, depth 20; false restores installed defaults'),
@@ -120,6 +143,12 @@ def generate_launch_description():
         DeclareLaunchArgument('record_incidents', default_value='true'),
         DeclareLaunchArgument('localization_mode', default_value='baseline',
                               description='baseline, ekf_overlay (diagnostic), or ekf_independent'),
+        DeclareLaunchArgument('ekf_params_file', default_value=str(own / 'config/ekf_independent.yaml'),
+                              description='EKF independent YAML override for isolated simulation tests'),
+        DeclareLaunchArgument('ekf_wheel_params_file', default_value=str(own / 'config/ekf_hardware.yaml'),
+                              description='Use the same wheel integrator limits and covariance as hardware'),
+        DeclareLaunchArgument('use_ekf_sensor_guard', default_value='false',
+                              description='Full-system independent EKF test: latch until explicit operator reset'),
         DeclareLaunchArgument('memory_enabled', default_value='false'),
         DeclareLaunchArgument('memory_path', default_value='~/.ros/smart_vision_amr/simulation_memory.json'),
         OpaqueFunction(function=_validate_localization_mode),
@@ -135,16 +164,29 @@ def generate_launch_description():
              parameters=[sim, {'robot_description': robot_description}], output='screen'),
         OpaqueFunction(function=_spawn_robot,
                        args=[tb3 / 'models/turtlebot3_waffle_pi/model.sdf']),
+        Node(package='tf2_ros', executable='static_transform_publisher',
+             name='rear_camera_tf', output='screen',
+             arguments=['--x', '-0.080', '--y', '0', '--z', '0.140',
+                        '--roll', '0', '--pitch', '0', '--yaw', '3.141592653589793',
+                        '--frame-id', 'base_link', '--child-frame-id', 'rear_camera_link'],
+             condition=LaunchConfigurationEquals('camera_layout', 'classroom_dual')),
         Node(package='robot_localization', executable='ekf_node', name='ekf_overlay',
              parameters=[str(own / 'config/ekf_overlay.yaml'), sim], output='screen',
              condition=LaunchConfigurationEquals('localization_mode', 'ekf_overlay')),
         Node(package='smart_vision_amr', executable='wheel_joint_odometry',
-             name='wheel_joint_odometry', parameters=[sim], output='screen',
+             name='wheel_joint_odometry',
+             parameters=[LaunchConfiguration('ekf_wheel_params_file'), sim], output='screen',
              condition=LaunchConfigurationEquals('localization_mode', 'ekf_independent')),
         Node(package='robot_localization', executable='ekf_node', name='ekf_independent',
-             parameters=[str(own / 'config/ekf_independent.yaml'), sim], output='screen',
+             parameters=[LaunchConfiguration('ekf_params_file'), sim], output='screen',
              remappings=[('odometry/filtered', '/odom')],
              condition=LaunchConfigurationEquals('localization_mode', 'ekf_independent')),
+        Node(package='smart_vision_amr', executable='ekf_sensor_guard', name='ekf_sensor_guard',
+             parameters=[str(own / 'config/ekf_hardware.yaml'), sim,
+                         {'expected_ekf_odom_publisher': 'ekf_independent',
+                          'expected_raw_wheel_odom_topic': '/gazebo/odom_raw',
+                          'minimum_battery_voltage': 0.0}], output='screen',
+             condition=IfCondition(LaunchConfiguration('use_ekf_sensor_guard'))),
         Node(package='slam_toolbox', executable='async_slam_toolbox_node', name='slam_toolbox',
              parameters=[LaunchConfiguration('slam_params_file'), sim], output='screen',
              condition=IfCondition(LaunchConfiguration('slam'))),
@@ -167,7 +209,14 @@ def generate_launch_description():
              parameters=[config, sim], output='screen', condition=navigation,
              remappings=[('cmd_vel', '/smart_vision_amr/navigation_cmd_vel')])),
         Node(package='smart_vision_amr', executable='motion_mux', name='motion_mux',
-             parameters=[sim, {'allow_legacy_auto_input': False}], output='screen',
+             parameters=[sim, {'allow_legacy_auto_input': False,
+                               'startup_estop': ParameterValue(
+                                   LaunchConfiguration('use_ekf_sensor_guard'), value_type=bool),
+                               'require_localization_health': ParameterValue(
+                                   LaunchConfiguration('use_ekf_sensor_guard'), value_type=bool),
+                               'allow_topic_reset': ParameterValue(
+                                   PythonExpression(["not '", LaunchConfiguration('use_ekf_sensor_guard'),
+                                                     "'.lower() == 'true'"]), value_type=bool)}], output='screen',
              condition=IfCondition(LaunchConfiguration('use_motion_mux'))),
         Node(package='smart_vision_amr', executable='command_stamper', name='command_stamper',
              parameters=[sim], output='screen', condition=navigation),

@@ -79,6 +79,42 @@ class CameraBridgeTests(unittest.TestCase):
                 node.destroy_node()
                 context.shutdown()
 
+    def test_rear_raw_evidence_is_saved_before_aruco_preview_annotation(self):
+        with TemporaryDirectory() as tmp:
+            context = Context()
+            rclpy.init(args=[], context=context, domain_id=223,
+                       signal_handler_options=SignalHandlerOptions.NO)
+            app = MissionApplication(DEFAULT_MARKERS, 223, False,
+                                     Path(tmp)/'settings.json')
+            node = create_ros_bridge(app, SimpleNamespace(
+                camera_topic='/test/rear/compressed',
+                front_camera_topic='/test/front/compressed', base_frame='base_footprint'),
+                context)
+            try:
+                dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+                marker = (cv2.aruco.drawMarker(dictionary, 1, 120)
+                          if hasattr(cv2.aruco, 'drawMarker') else
+                          cv2.aruco.generateImageMarker(dictionary, 1, 120))
+                frame = np.full((480, 640, 3), 255, np.uint8)
+                frame[180:300, 260:380] = cv2.cvtColor(marker, cv2.COLOR_GRAY2BGR)
+                ok, encoded = cv2.imencode('.jpg', frame)
+                self.assertTrue(ok)
+                message = CompressedImage()
+                message.header.stamp = node.get_clock().now().to_msg()
+                message.format = 'jpeg'
+                message.data = encoded.tobytes()
+                node.on_image(message)
+                self.assertEqual(app.detected_ids, [1])
+                self.assertGreater(app.camera_raw_at, 0.)
+                raw = cv2.imdecode(np.frombuffer(app.camera_raw_jpeg, np.uint8),
+                                   cv2.IMREAD_GRAYSCALE)
+                corners, ids, _ = cv2.aruco.detectMarkers(raw, dictionary)
+                self.assertEqual(ids.flatten().tolist(), [1])
+                self.assertEqual(len(corners), 1)
+            finally:
+                node.destroy_node()
+                context.shutdown()
+
 
 if __name__ == '__main__':
     unittest.main()

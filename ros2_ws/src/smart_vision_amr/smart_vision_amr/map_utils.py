@@ -1,6 +1,6 @@
 """OccupancyGrid conversion helpers shared by the ROS nodes."""
 
-from math import cos, sin, atan2, floor, isfinite
+from math import cos, sin, atan2, ceil, floor, hypot, isfinite
 
 from smart_vision_amr.grid import Grid
 
@@ -52,6 +52,30 @@ def occupancy_to_grid(message, occupied_threshold=65, inflation_cells=0,
     return Grid(tuple(rows))
 
 
+def wall_echo_reference_grid(message, occupied_threshold=65):
+    """Known walls and unknown pixels touching one, for endpoint echo matching.
+
+    A narrow unknown fringe along a mapped wall belongs to the same static
+    barrier for path planning. An isolated unknown frontier does not: a new
+    obstacle just before that frontier must remain visible to the planner.
+    """
+    width, height = message.info.width, message.info.height
+    values = message.data
+    rows = []
+    for y in range(height):
+        row = []
+        for x in range(width):
+            value = values[y * width + x]
+            adjoining_wall = value < 0 and any(
+                values[ny * width + nx] >= occupied_threshold
+                for ny in range(max(0, y - 1), min(height, y + 2))
+                for nx in range(max(0, x - 1), min(width, x + 2))
+            )
+            row.append(value >= occupied_threshold or adjoining_wall)
+        rows.append(tuple(row))
+    return Grid(tuple(rows))
+
+
 def inflate_cells(cells, width, height, radius):
     if radius <= 0:
         return set(cells)
@@ -63,6 +87,24 @@ def inflate_cells(cells, width, height, radius):
                 if 0 <= nx < width and 0 <= ny < height:
                     result.add((nx, ny))
     return result
+
+
+def inflate_cells_circular(cells, width, height, radius):
+    """Block centers whose circular footprint reaches an occupied unit cell.
+
+    ``radius`` is measured in cells and includes the caller's footprint and
+    position uncertainty. Unlike square inflation, a diagonal cell is blocked
+    only if the circle actually approaches its occupied square. Raw hit cells
+    are always retained, even for a zero radius.
+    """
+    if not isfinite(radius) or radius < 0:
+        raise ValueError("Circular inflation radius must be finite and nonnegative")
+    reach = ceil(radius + .5)
+    offsets = [(dx, dy) for dy in range(-reach, reach + 1)
+               for dx in range(-reach, reach + 1)
+               if hypot(max(abs(dx) - .5, 0.), max(abs(dy) - .5, 0.)) <= radius + 1e-9]
+    return {(x + dx, y + dy) for x, y in cells for dx, dy in offsets
+            if 0 <= x + dx < width and 0 <= y + dy < height}
 
 
 def first_static_obstacle_distance(info, grid, origin_x, origin_y, angle, max_distance):
@@ -154,6 +196,38 @@ def first_static_obstacle_distance(info, grid, origin_x, origin_y, angle, max_di
             return None
         if touches_obstacle(cell):
             return max(0.0, entry)
+
+
+def distance_to_known_wall_area(info, grid, x, y, max_distance):
+    """Distance from a world point to nearby *known occupied* cell areas.
+
+    A grazing laser ray can land just outside an occupied grid corner while
+    its exact-angle map ray misses that cell. Check only a bounded neighborhood
+    of the measured endpoint. Unknown cells are never assumed to be walls.
+    """
+    resolution = float(info.resolution)
+    values = (resolution, float(x), float(y), float(max_distance))
+    if not all(isfinite(value) for value in values) or resolution <= 0 or max_distance < 0:
+        return None
+    yaw = yaw_from_quaternion(info.origin.orientation)
+    dx, dy = x - info.origin.position.x, y - info.origin.position.y
+    local_x = cos(yaw) * dx + sin(yaw) * dy
+    local_y = -sin(yaw) * dx + cos(yaw) * dy
+    cx, cy = floor(local_x / resolution), floor(local_y / resolution)
+    reach = ceil(max_distance / resolution) + 1
+    nearest = None
+    for iy in range(cy - reach, cy + reach + 1):
+        for ix in range(cx - reach, cx + reach + 1):
+            if not grid.contains((ix, iy)) or not grid.is_static_obstacle((ix, iy)):
+                continue
+            gap_x = max(ix * resolution - local_x, 0.0,
+                        local_x - (ix + 1) * resolution)
+            gap_y = max(iy * resolution - local_y, 0.0,
+                        local_y - (iy + 1) * resolution)
+            distance = hypot(gap_x, gap_y)
+            if distance <= max_distance + 1e-9:
+                nearest = distance if nearest is None else min(nearest, distance)
+    return nearest
 
 
 def split_mapped_wall_returns(cells, raw_static_grid, tolerance_cells):

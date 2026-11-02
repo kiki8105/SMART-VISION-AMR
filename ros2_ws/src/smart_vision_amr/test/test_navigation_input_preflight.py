@@ -202,6 +202,26 @@ def test_rotated_costmap_origin_and_static_connected_sensor_frame_are_valid():
     assert 'transform' in node._navigation_input_error()
 
 
+def test_navigation_geometry_log_identifies_missing_scan_transform_without_changing_hold_reason():
+    node = healthy_follower()
+    node.latest_scan.header.frame_id = 'unconnected_scan'
+
+    assert node._navigation_input_error() == 'Invalid navigation pose or unavailable frame transform'
+    message = node.logger.warning.call_args.args[0]
+    assert 'scan frame transform' in message
+    assert 'No test transform' in message
+
+
+def test_navigation_geometry_log_identifies_missing_footprint_odom_sample():
+    node = healthy_follower()
+    node.navigation_odom_history.clear()
+
+    assert node._navigation_input_error() == 'Invalid navigation pose or unavailable frame transform'
+    message = node.logger.warning.call_args.args[0]
+    assert 'footprint timestamp and odometry history' in message
+    assert 'No continuous odometry' in message
+
+
 def test_costmap_and_footprint_in_connected_frames_are_compared_in_odometry_frame():
     node = healthy_follower()
     node.latest_costmap.header.frame_id = node.latest_footprint.header.frame_id = 'local_grid'

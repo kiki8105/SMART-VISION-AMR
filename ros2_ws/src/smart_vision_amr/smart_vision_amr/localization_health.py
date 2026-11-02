@@ -132,6 +132,7 @@ class LocalizationHealth(Node):
         super().__init__('localization_health', context=context)
         defaults = {
             'stable_seconds': 2.0, 'fault_seconds': 0.5,
+            'spatial_fault_seconds': 1.25,
             'agreement_fault_seconds': 3.0, 'sensor_timeout': 0.5,
             'tf_timeout': 1.0, 'future_tolerance': 1.5,
             'position_warning': 0.35, 'position_critical': 0.8,
@@ -354,6 +355,10 @@ class LocalizationHealth(Node):
                 self.previous_amcl = current
             self.amcl_at = now
             self.last_amcl_stamp_ns = stamp
+            # A new, validated AMCL pose ends the stationary refresh episode.
+            # A service response or an otherwise healthy safety tick does not.
+            self.stationary_refresh_started = None
+            self.stationary_refresh_requests = 0
         except (ValueError, TypeError):
             self.position_std = self.yaw_std = None
 
@@ -510,9 +515,6 @@ class LocalizationHealth(Node):
         except (TransformException, ValueError) as exc:
             metrics['odom_tf_lookup_error'] = str(exc)[:300]
         status = self.core.evaluate(now, metrics)
-        if status['level'] == 'ok' and status['autonomous_allowed']:
-            self.stationary_refresh_started = None
-            self.stationary_refresh_requests = 0
         status['stamp_ns'] = ros_ns
         status['sent_at_ns'] = ros_ns
         if status['level'] != self.last_level:
@@ -530,9 +532,10 @@ class LocalizationHealth(Node):
         AMCL may otherwise wait for motion before refreshing covariance, while
         the safety mux correctly waits for covariance before allowing motion.
         Once localized, slow movement can stay below AMCL's update thresholds
-        and exhaust the motion watchdog. Ask for an actual filter update then,
-        too. A request/response never refreshes the AMCL observation epoch;
-        only ``on_amcl`` may do that. A failed service cannot stall evaluation.
+        and exhaust the motion watchdog. A healthy but stationary robot can
+        also lose its map TF when AMCL stops publishing; request a bounded
+        update before that happens. A request/response never refreshes the
+        AMCL observation epoch; only ``on_amcl`` may do that.
         """
         setting = lambda name, default: LocalizationHealth._refresh_setting(self, name, default)
         # Never permit a runtime typo to flood AMCL or indefinitely retain a
@@ -623,13 +626,18 @@ class LocalizationHealth(Node):
         """Refresh uncertain acquisition from fresh scans without issuing motion.
 
         A filter service response never edits covariance, confirms a pose, or
-        releases a safety latch. Already healthy idle tracking stays idle.
+        releases a safety latch. Healthy idle tracking requests a bounded
+        update only after its real AMCL pose becomes old.
         """
         self.stationary_refresh_scan_stamp = None
         acquiring = not getattr(self.core, 'acquired', True)
         elevated = (self.position_std >= self.core.position_warning
                     or (self.yaw_std is not None and self.yaw_std >= self.core.yaw_warning))
-        if not acquiring and not elevated:
+        last = getattr(self.core, 'last_result', None)
+        healthy_tracking = (not acquiring and not getattr(self.core, 'stop_latched', False)
+                            and isinstance(last, dict) and last.get('level') == 'ok'
+                            and last.get('autonomous_allowed') is True)
+        if not (acquiring or elevated or healthy_tracking):
             return False
         if not LocalizationHealth._refresh_evidence_ready(self, now, trigger_age):
             return False

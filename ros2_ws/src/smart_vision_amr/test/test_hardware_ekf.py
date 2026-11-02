@@ -129,7 +129,9 @@ def test_hardware_ekf_owns_only_odom_tf_and_nonoverlapping_sensor_axes():
     assert [i for i, enabled in enumerate(parameters['imu0_config']) if enabled] == [11]
     assert parameters['sensor_timeout'] <= 0.5
     assert parameters['odom0_twist_rejection_threshold'] > 0
-    assert parameters['imu0_twist_rejection_threshold'] > 0
+    # At 5 sigma the physical EKF rejected a valid 0.9 rad/s turn and
+    # under-reported yaw by roughly 27 degrees; that causes LiDAR ghosts.
+    assert parameters['imu0_twist_rejection_threshold'] >= 20.0
 
 
 def test_direct_hardware_launch_defaults_to_baseline_and_can_enable_ekf_nodes():

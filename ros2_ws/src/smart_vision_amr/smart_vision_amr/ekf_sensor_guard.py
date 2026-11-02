@@ -44,6 +44,20 @@ def publisher_issues(get_publishers, expected_publishers):
     return issues
 
 
+def configured_publishers(default, ekf_publisher, raw_wheel_topic):
+    """Retarget only Gazebo's EKF/raw-odom graph names; keep every safety check."""
+    if (not isinstance(ekf_publisher, str) or not ekf_publisher or '/' in ekf_publisher
+            or not isinstance(raw_wheel_topic, str)
+            or not raw_wheel_topic.startswith('/') or raw_wheel_topic == '/'
+            or (raw_wheel_topic in default and raw_wheel_topic != '/wheel/odom_raw')):
+        raise ValueError('Expected EKF publisher and raw wheel odom topic must be valid')
+    expected = default.copy()
+    expected['/odom'] = ekf_publisher
+    expected.pop('/wheel/odom_raw')
+    expected[raw_wheel_topic] = None
+    return expected
+
+
 def odometry_issues(message, *, max_position_variance=0.0,
                     max_yaw_variance=0.0, max_linear_velocity_variance=0.25,
                     max_angular_velocity_variance=1.0, base_frame='base_footprint'):
@@ -276,6 +290,15 @@ class EkfSensorGuard(Node):
 
     def __init__(self):
         super().__init__('ekf_sensor_guard')
+        # The physical runtime uses the stock wheel-only diagnostic topic and
+        # /ekf_hardware. Gazebo's isolated EKF has different graph names; make
+        # only those names configurable while retaining the same guard checks.
+        self.declare_parameter('expected_ekf_odom_publisher', 'ekf_hardware')
+        self.declare_parameter('expected_raw_wheel_odom_topic', '/wheel/odom_raw')
+        ekf_publisher = self.get_parameter('expected_ekf_odom_publisher').value
+        raw_wheel_topic = self.get_parameter('expected_raw_wheel_odom_topic').value
+        self.expected_publishers = configured_publishers(
+            self.EXPECTED_PUBLISHERS, ekf_publisher, raw_wheel_topic)
         self.declare_parameter('arm_seconds', 2.0)
         self.declare_parameter('stale_seconds', 1.0)
         self.declare_parameter('odom_tf_stale_seconds', 1.5)
@@ -453,7 +476,7 @@ class EkfSensorGuard(Node):
                 now - self.last_owner_check_at >= 0.5):
             self.last_owner_check_at = now
             try:
-                expected = self.EXPECTED_PUBLISHERS.copy()
+                expected = self.expected_publishers.copy()
                 if self.core.minimum_battery_voltage > 0.0:
                     expected['/battery_state'] = None
                 issues = timed_call(timing, 'ownership_query', publisher_issues,
@@ -577,9 +600,16 @@ class EkfSensorGuard(Node):
             if explicit_reset and self.core.operator_reset(now):
                 self.get_logger().info('Operator reset accepted; EKF sensor guard re-armed')
             else:
+                healthy_for = (None if self.core.healthy_since is None else
+                               round(now-self.core.healthy_since, 3))
                 self.get_logger().error(
                     'Motion reset rejected: no fresh explicit operator reset '
-                    'or EKF inputs not stable')
+                    'or EKF inputs not stable; '
+                    f'explicit_reset={explicit_reset}, '
+                    f'reset_source={reset[0] if reset else None}, '
+                    f'mux_source={status.get("source_id")}, '
+                    f'healthy_for_s={healthy_for}, '
+                    f'missing={self.core.missing(now)}')
                 self._publish_estop(now)
 
 

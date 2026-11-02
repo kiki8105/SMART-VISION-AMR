@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """Read live map/obstacles and check routes offline; never publish a drive goal."""
 import json
+from math import sqrt
 import os
 from pathlib import Path
 import time
 
 import rclpy
+import yaml
 from nav_msgs.msg import OccupancyGrid
 from rclpy.qos import QoSProfile, DurabilityPolicy
 from std_msgs.msg import Int32MultiArray
 from tf2_ros import Buffer, TransformListener, TransformException
 
 from smart_vision_amr.astar import AStarPlanner
-from smart_vision_amr.map_utils import occupancy_to_grid, world_to_cell, inflate_cells
+from smart_vision_amr.map_utils import occupancy_to_grid, world_to_cell, inflate_cells_circular
 from smart_vision_amr.web_mission_server import load_markers
 
 
@@ -45,13 +47,19 @@ def main():
         deadline = time.monotonic()+2.2
         while time.monotonic() < deadline:
             rclpy.spin_once(node, timeout_sec=.1)
+        transform = buffer.lookup_transform('map', 'base_footprint', rclpy.time.Time())
         message = received['map']
-        grid = occupancy_to_grid(message, 65, 5)
+        settings = yaml.safe_load((root/'ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml')
+                                  .read_text(encoding='utf-8'))['/astar_planner']['ros__parameters']
+        grid = occupancy_to_grid(message, settings['occupied_threshold'],
+                                 settings['obstacle_inflation_cells'])
         start = world_to_cell(message.info, transform.transform.translation.x, transform.transform.translation.y)
         raw = {(int(i)%message.info.width, int(i)//message.info.width)
                for i in received['observed'].data}
-        blocked = inflate_cells(raw, message.info.width, message.info.height, 5)
-        markers = load_markers(root/'ros2_ws/src/smart_vision_amr/config/aruco_classroom_markers.yaml')
+        radius_cells = ((settings['robot_radius'] + settings['local_detour_clearance_margin'])
+                        / message.info.resolution + sqrt(2.)/2.)
+        blocked = inflate_cells_circular(raw, message.info.width, message.info.height, radius_cells)
+        markers = load_markers(root/'ros2_ws/src/smart_vision_amr/config/aruco_classroom_markers_20261030.yaml')
         result = []
         for marker in markers:
             goal = world_to_cell(message.info, marker['x'], marker['y'])
@@ -61,8 +69,9 @@ def main():
                            'raw_observed_goal': goal in raw, 'observed_goal_blocked': goal in blocked,
                            'path_cells': len(route), 'reachable': bool(route)})
         report = {'domain': int(os.environ.get('ROS_DOMAIN_ID', '0')), 'start': start,
-                  'raw_obstacle_count': len(raw), 'routes': result, 'drive_goal_sent': False}
-        path = root/'docs/classroom_routes_live_20261027.json'
+                  'raw_obstacle_count': len(raw), 'observed_inflation': 'circular_footprint',
+                  'routes': result, 'drive_goal_sent': False}
+        path = root/'docs/classroom_routes_live_20261030.json'
         path.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
         print(json.dumps(report, ensure_ascii=False, indent=2))
         return 0 if all(item['reachable'] for item in result) else 1

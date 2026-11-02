@@ -57,6 +57,65 @@ def prove_free(node, start=101., duration=2.):
         node.on_visibility(visibility(node, free=PHYSICAL_HITS))
 
 
+def failure_edge_corridor(node, *, events=1, observed=False):
+    """A physically open 0.5 m corridor whose only eastbound lane is remembered."""
+    msg = copy.deepcopy(node.map[0])
+    width = msg.info.width
+    msg.data = [100 if y < 13 or y > 17 else 0
+                for y in range(msg.info.height) for _ in range(width)]
+    node.on_map(msg)
+    scopes = node._memory_scopes()
+    for index in range(events):
+        node.failure_memory.record_failure(
+            x=1.55, y=1.55, approach_heading=0.,
+            reason='execution_no_progress', now=100.+index,
+            map_scope=scopes[0], goal_scope=scopes[1],
+            failure_id=f'corridor-{index}')
+    ready(node, 102.1+events)
+    refresh(node, x=1.15, y=1.55)
+    node.latest_scan.header.frame_id = 'base_scan'
+    if observed:
+        node.observed.add((15, 15))
+    grid = node.map[1]
+    edges, _ = node._failure_constraints(grid)
+    assert node.planner.plan(grid, (11, 15), (25, 15))
+    assert edges
+    assert not node.planner.plan(grid, (11, 15), (25, 15), blocked_edges=edges)
+    return edges
+
+
+def test_nonphysical_failure_edge_can_use_bounded_penalty_route(prepared):
+    node = prepared
+    failure_edge_corridor(node)
+    node.plan_to(node.last_goal)
+    assert path_points(node)
+    assert node.plan_metrics['failure_edge_fallback'] is True
+    assert node.failure_state == 'REJOINING'
+    assert node.obstacle_hold.attempts == 0
+
+
+@pytest.mark.parametrize('unsafe', ['physical_hit', 'raw_scan_hit', 'bad_scan_tf',
+                                    'stale_scan', 'retry_limit'])
+def test_penalty_fallback_never_ignores_physical_or_stale_or_repeated_failure(prepared, unsafe):
+    node = prepared
+    failure_edge_corridor(node, events=3 if unsafe == 'retry_limit' else 1,
+                          observed=unsafe == 'physical_hit')
+    if unsafe == 'stale_scan':
+        node.latest_scan_at -= 2.
+    if unsafe == 'raw_scan_hit':
+        node.latest_scan.ranges[0] = .40
+    if unsafe == 'bad_scan_tf':
+        valid = node.tf_buffer.lookup_transform.return_value
+        invalid = copy.deepcopy(valid)
+        invalid.transform.rotation.w = 0.
+        node.tf_buffer.lookup_transform.side_effect = (
+            lambda target, source, when: invalid if source == 'base_scan' else valid)
+    node.plan_to(node.last_goal)
+    assert not path_points(node)
+    assert node.plan_metrics['failure_edge_fallback'] is False
+    assert node.failure_state in ('WAIT_ALTERNATIVE', 'SENSOR_HOLD')
+
+
 def test_three_confirmed_failures_hold_instead_of_replanning_forever(prepared):
     node = prepared
     goal = node.last_goal
@@ -103,9 +162,12 @@ def test_missing_hits_or_expired_failure_ttl_never_prove_obstacle_removed(prepar
     assert not path_points(node)
 
 
-def test_passing_robot_requires_visible_free_space_before_resuming_retained_goal(prepared):
-    """A moving LiDAR hit may vanish, but disappearance alone is not clearance."""
+def test_passing_robot_replans_without_spending_obstacle_hold_budget(prepared):
+    """A moving LiDAR hit warrants replanning, not a failed-approach charge."""
     node = prepared
+    # Exercise hold/retry independently of local repair. Place each transient
+    # hit beyond the real robot footprint's initial clearance band.
+    node.params['local_detour_enabled'] = False
     goal = node.last_goal
     original_map = list(node.map[0].data)
     for attempt in range(3):
@@ -115,28 +177,13 @@ def test_passing_robot_requires_visible_free_space_before_resuming_retained_goal
         assert path_points(node)
         # The other robot moves across the route; only its latest scan hit is
         # present, and no persistent map overlay is published.
-        node.on_observed(hit_message(node, {newly_blocking_cell(node)}))
-        assert node.obstacle_hold.attempts == attempt+1
+        node.on_observed(hit_message(node, {newly_blocking_cell(node, min_x=10)}))
+        assert node.obstacle_hold.attempts == 0
         assert node.last_goal is goal
-    assert node.obstacle_hold.holding
-    tracked = set(node.obstacle_hold.blocked_cells)
-    assert tracked and not path_points(node)
-
+        assert not node.obstacle_hold.holding
     ready(node, 107.)
-    node.on_observed(hit_message(node, set()))  # Live TTL expiry is not free-ray evidence.
-    node.on_visibility(visibility(node))        # Old footprint is still unobserved.
+    node.on_observed(hit_message(node, set()))
     node.retry_transform()
-    assert node.obstacle_hold.holding and not path_points(node)
-
-    for now in (108., 108.5, 109., 109.5):
-        ready(node, now)
-        node.on_visibility(visibility(node, free=tracked))
-        assert node.obstacle_hold.holding
-    ready(node, 110.)
-    node.on_visibility(visibility(node, free=tracked))
-    assert not node.obstacle_hold.holding
-    assert node.obstacle_hold.attempts == 0
-    assert node.last_goal is goal
     assert path_points(node)
     assert list(node.map[0].data) == original_map
 
@@ -295,18 +342,19 @@ def hit_message(node, cells):
     return Int32MultiArray(data=[y*width+x for x, y in cells])
 
 
-def newly_blocking_cell(node):
+def newly_blocking_cell(node, *, min_x=8):
     # Select a genuine still-ahead cell on this particular published approach,
     # rather than repeatedly reporting one hit while no approach is active.
     actual_remaining = sorted(node._remaining_path_cells(),
                               key=lambda cell: (cell[0], abs(cell[1]-15)))
     return next(cell for cell in actual_remaining
-                if 8 <= cell[0] <= 15 and cell not in node.observed)
+                if min_x <= cell[0] <= 15 and cell not in node.observed)
 
 
 @pytest.mark.parametrize('layer', ['observed', 'memory'])
-def test_three_distinct_published_approaches_blocked_by_new_hits_enter_hold(prepared, layer):
+def test_three_distinct_published_approaches_with_safe_detours_do_not_hold(prepared, layer):
     node = prepared
+    node.params['local_detour_enabled'] = False
     on_hits = node.on_observed if layer == 'observed' else node.on_memory
     observed = set()
     for index in range(3):
@@ -314,12 +362,14 @@ def test_three_distinct_published_approaches_blocked_by_new_hits_enter_hold(prep
         if index:
             node.retry_transform()
         assert path_points(node)
-        observed.add(newly_blocking_cell(node))
+        observed.add(newly_blocking_cell(node, min_x=10))
         on_hits(hit_message(node, observed))
-        assert node.obstacle_hold.attempts == index+1
+        assert node.obstacle_hold.attempts == 0
         assert not path_points(node)
-    assert node.obstacle_hold.holding
-    assert node.obstacle_hold.attempts == 3
+    ready(node, 107.)
+    node.retry_transform()
+    assert path_points(node)
+    assert not node.obstacle_hold.holding
 
 
 def test_unchanged_scans_or_hit_churn_without_a_new_path_do_not_spend_retries(prepared):
@@ -327,13 +377,13 @@ def test_unchanged_scans_or_hit_churn_without_a_new_path_do_not_spend_retries(pr
     ready(node, 100.)
     blocking = {newly_blocking_cell(node)}
     node.on_observed(hit_message(node, blocking))
-    assert node.obstacle_hold.attempts == 1
+    assert node.obstacle_hold.attempts == 0
     assert not node.planned_cells
     for index in range(1, 8):
         ready(node, 100.+index*.1)
         node.on_observed(hit_message(node, blocking))
         node.on_observed(hit_message(node, blocking | {(28, 28)}))
-    assert node.obstacle_hold.attempts == 1
+    assert node.obstacle_hold.attempts == 0
     assert not node.obstacle_hold.holding
 
 
@@ -392,6 +442,7 @@ def test_no_path_without_dynamic_hit_on_reference_does_not_claim_obstacle(prepar
 
     node.planner.plan = no_route_with_overlay
     node.params['reverse_recovery_enabled'] = False
+    node.params['local_detour_enabled'] = False
     for index in range(3):
         ready(node, 102.+index*2.1)
         node.plan_to(node.last_goal)
@@ -422,6 +473,44 @@ def test_repeated_no_path_with_same_dynamic_hit_does_not_count_new_attempts(prep
         assert node.obstacle_hold.attempts == 0
         assert not node.obstacle_hold.holding
     assert node.last_goal is goal
+
+
+def test_fresh_repeated_observations_of_genuinely_closed_route_eventually_hold(prepared):
+    """A real inflated A* bottleneck closes only after the physical hit."""
+    node = prepared
+    goal = node.last_goal
+    node.params['obstacle_inflation_cells'] = 2
+    changed = copy.deepcopy(node.map[0])
+    # Split the room with a wall whose central opening is traversable on
+    # the static map. The observed object blocks the entire inflated opening.
+    for y in list(range(0, 9)) + list(range(22, 30)):
+        changed.data[y * changed.info.width + 15] = 100
+    node.on_map(changed)
+    assert path_points(node)
+    node.params['reverse_recovery_enabled'] = False
+    node.params['local_detour_enabled'] = False
+    for index in range(3):
+        ready(node, 102. + index * 2.1)
+        node.on_observed(hit_message(node, {(15, y) for y in range(11, 20)}))
+        assert node.obstacle_hold.attempts == index + 1
+        assert node.obstacle_hold.holding is (index == 2)
+        assert not path_points(node)
+    assert node.last_goal is goal
+
+
+def test_live_hit_near_route_does_not_claim_unrelated_no_route_cause(prepared):
+    node = prepared
+    node.params['local_detour_enabled'] = False
+    node.params['reverse_recovery_enabled'] = False
+    # Simulate a separate hard planning constraint that defeats the route even
+    # after removing the current live hit. The hit is real but not causal.
+    node.planner.plan = lambda *args, **kwargs: []
+    for index in range(3):
+        ready(node, 102. + index * 2.1)
+        node.on_observed(hit_message(node, {(10, 15)}))
+        assert node.failure_state == 'WAIT_ALTERNATIVE'
+        assert node.obstacle_hold.attempts == 0
+        assert not node.obstacle_hold.holding
 
 
 @pytest.mark.parametrize('kind', ['manual', 'estop', 'sensor_fault'])

@@ -10,6 +10,7 @@ from types import SimpleNamespace
 import json
 import time
 import unittest
+from unittest.mock import patch
 
 try:
     import rclpy
@@ -22,6 +23,7 @@ except ImportError:
     HAS_ROS = False
 
 from smart_vision_amr.web_mission_server import DEFAULT_MARKERS, MissionApplication, create_ros_bridge
+from smart_vision_amr.mission_logic import MarkerMission
 
 
 class Publisher:
@@ -103,6 +105,73 @@ class MissionLifecycleTests(unittest.TestCase):
         self.app.mission.start(home={'x': -1., 'y': -2., 'yaw': .2})
         self.tick()
         self.assertEqual(len(self.goals.messages), 1)
+
+    def test_sector_dwell_sends_hold_and_delays_next_goal(self):
+        now = [10.]
+        mission = MarkerMission(DEFAULT_MARKERS, [2, 3], confirmations=2,
+                                clock=lambda: now[0], sector_dwell_seconds=5.)
+        self.app.mission = mission
+        mission.start(home={'x': -1., 'y': -2., 'yaw': .2}, auto_return_home=True)
+        mission.drain_commands()
+        mission.goal_dispatched((1, 0))
+        mission.on_navigation({'status': 'SUCCEEDED', 'goal_stamp': [1, 0]})
+        for frame in (1, 2):
+            mission.observe(frame, [2], DEFAULT_MARKERS[2], True, now[0],
+                            alignment_verified=True)
+        self.assertEqual(mission.state, 'DWELLING')
+        self.tick()
+        self.assertEqual(len(self.goals.messages), 0)
+        self.assertEqual(json.loads(self.stops.messages[-1].data)['mode'], 'hold')
+        # The 10 Hz bridge must observe each stopped interval. A single
+        # scheduler jump is not evidence that the robot stayed still.
+        for _ in range(49):
+            now[0] = round(now[0] + .1, 9)
+            mission.advance_dwell(True)
+        self.tick()
+        self.assertEqual(len(self.goals.messages), 0)
+        now[0] = round(now[0] + .1, 9)
+        self.tick()
+        self.assertEqual(mission.state, 'NAVIGATING')
+        self.assertEqual(len(self.goals.messages), 0,
+                         'a fresh mux handoff is still required after dwell')
+        # The ROS timer now collects its own current control ACK, then sends
+        # the queued next sector once. Time is not an authorization by itself.
+        self.node.stop_until = time.monotonic()-1.
+        self.tick()
+        self.tick()
+        self.assertEqual(len(self.goals.messages), 1)
+
+    def test_joystick_release_resumes_remaining_dwell_without_waiting_for_motion(self):
+        now = [10.]
+        mission = MarkerMission(DEFAULT_MARKERS, [2, 3], confirmations=1,
+                                clock=lambda: now[0], sector_dwell_seconds=5.)
+        self.app.mission = mission
+        mission.start(home={'x': -1., 'y': -2., 'yaw': .2}, auto_return_home=True)
+        mission.drain_commands()
+        mission.goal_dispatched((1, 0))
+        mission.on_navigation({'status': 'SUCCEEDED', 'goal_stamp': [1, 0]})
+        mission.observe(1, [2], DEFAULT_MARKERS[2], True, now[0],
+                        alignment_verified=True)
+        now[0] += 2.
+        mission.advance_dwell(True)
+        mission.pause()
+        self.app.manual.state = 'RELEASING'
+        self.app.manual.resume_mission = True
+        self.tick(auto_ack=False)
+        if self.cancel.future is not None:
+            self.cancel.ack()
+            self.tick(auto_ack=False)
+        self.node.stop_until = time.monotonic()-1.
+        self.node.cancel_completed_at = time.monotonic()-1.
+        with patch.object(self.app, 'readiness', return_value={'ready': True}):
+            self.tick(auto_ack=False)
+        self.assertEqual(mission.state, 'DWELLING')
+        self.assertEqual(self.app.manual.state, 'IDLE')
+        self.assertEqual(len(self.goals.messages), 0)
+        now[0] += 2.9
+        self.tick(auto_ack=False)
+        self.assertEqual(mission.state, 'DWELLING')
+        self.assertEqual(json.loads(self.stops.messages[-1].data)['mode'], 'hold')
 
     def test_manual_control_publisher_keeps_only_newest_best_effort_packet(self):
         publishers = [publisher for publisher in self.node.publishers
@@ -350,6 +419,25 @@ class MissionLifecycleTests(unittest.TestCase):
         self.reset_service.ack()
         self.tick()
         self.assertEqual(self.app.mission.state, 'CANCELED')
+
+    def test_idle_web_viewer_does_not_cancel_an_external_goal_on_mux_estop(self):
+        from std_msgs.msg import String
+        self.assertEqual(self.app.mission.state, 'IDLE')
+        self.assertFalse(self.node.owns_navigation)
+        message = String(data=json.dumps({
+            'mode': 'estop', 'estop_latched': True,
+            'sent_at_ns': self.node.get_clock().now().nanoseconds,
+            'stop_acknowledged': True,
+            'reason': 'Localization safety stop',
+            'source_id': 'localization_safety',
+        }))
+        self.node.on_motion(message)
+        self.assertTrue(self.app.state()['safety']['latched'])
+        self.assertEqual(self.app.mission.state, 'IDLE')
+        self.assertEqual(self.app.mission.drain_commands(), [])
+        self.tick()
+        self.assertEqual(self.cancel.requests, 0)
+        self.assertFalse(self.node.cancel_required)
 
     def test_connection_change_rejected_until_cancel_ack(self):
         self.publish_first()

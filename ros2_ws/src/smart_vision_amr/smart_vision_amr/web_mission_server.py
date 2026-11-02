@@ -8,6 +8,7 @@ from collections import deque
 from copy import deepcopy
 from http import cookies
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from io import BytesIO
 import ipaddress
 import json
 import math
@@ -39,7 +40,7 @@ from smart_vision_amr.home_prior_observer import HomePriorObserver
 from smart_vision_amr.operation_status import (operation_summary, route_preview, localization_explanations,
                                              failure_memory_snapshot, local_detour_snapshot)
 from smart_vision_amr.navigation_graph import goal_consumers_ready
-from smart_vision_amr.marker_alignment import MarkerAlignment
+from smart_vision_amr.marker_alignment import MarkerAlignment, angle_difference, finite_number
 from smart_vision_amr.wall_alignment import estimate_camera_axis_wall
 
 DEFAULT_MARKERS = [
@@ -220,6 +221,19 @@ def load_saved_map(path):
     return metadata, grid
 
 
+def original_map_png(path):
+    """Preserve the archived SLAM image pixels, including unknown gray values."""
+    path = Path(path).expanduser().resolve()
+    document = yaml.safe_load(path.read_text(encoding='utf-8'))
+    image_path = Path(document['image']).expanduser()
+    if not image_path.is_absolute():
+        image_path = path.parent/image_path
+    with PILImage.open(image_path) as image:
+        output = BytesIO()
+        image.save(output, format='PNG')
+        return output.getvalue()
+
+
 def map_geometry_matches(expected_metadata, metadata):
     """Compare the coordinate frames independently of their display artwork."""
     if (metadata['width'] != expected_metadata['width']
@@ -272,8 +286,12 @@ def load_floorplan(path, expected_metadata):
         raise ValueError('평면도의 크기, 해상도와 원점이 설정 지도와 일치해야 합니다.')
     if document.get('style', 'architectural') != 'architectural':
         raise ValueError('평면도 style은 architectural이어야 합니다.')
+    display_rotation = document.get('display_rotation_deg', 0.)
+    if not numeric(display_rotation) or abs(display_rotation) > 45.:
+        raise ValueError('평면도 display_rotation_deg는 -45~45도의 유한한 숫자여야 합니다.')
     layout = {'width': width, 'height': height, 'style': 'architectural',
-              'label': str(document.get('label', '평면도'))}
+              'label': str(document.get('label', '평면도')),
+              'display_rotation_deg': float(display_rotation)}
     for key in ('free_paths', 'occupied_paths', 'obstacle_paths'):
         rings = document.get(key, [])
         if not isinstance(rings, list) or (key != 'obstacle_paths' and not rings):
@@ -298,7 +316,7 @@ def load_floorplan(path, expected_metadata):
 
 class MissionApplication:
     def __init__(self, markers, domain_id=76, use_sim_time=False, config_file=None, confirmations=3,
-                 access_mode='code'):
+                 access_mode='code', sector_dwell_seconds=0.):
         if access_mode not in {'code', 'domain'}:
             raise ValueError('access_mode must be code or domain')
         self.lock = threading.RLock()
@@ -314,6 +332,7 @@ class MissionApplication:
         self.markers = deepcopy(markers)
         self.domain_id, self.use_sim_time = int(domain_id), bool(use_sim_time)
         self.confirmations = confirmations
+        self.sector_dwell_seconds = sector_dwell_seconds
         self.mission = self._new_mission()
         self.connected = False
         self.connection_error = ''
@@ -322,12 +341,17 @@ class MissionApplication:
         self.pose_tf_stamp_ns = 0
         self.odom_pose = None
         self.pose_at = self.odom_at = self.scan_at = self.camera_at = 0.0
+        self.sim_clock_at = 0.0
+        self.sim_external_goal_seen = False
         self.speed = {'linear': 0.0, 'angular': 0.0}
         self.battery_topic = '/battery_state'
         self.battery_at = None
         self.battery_voltage = self.battery_percentage = None
         self.map = None
         self.map_png = None
+        self.raw_map_png = None
+        self.raw_map_metadata = None
+        self.configured_raw_map_file = None
         self.map_layout = None
         self.map_version = 0
         self._display_map_metadata = self._display_map_data = None
@@ -339,6 +363,8 @@ class MissionApplication:
         self._configured_layout = None
         self.configured_floorplan_file = None
         self.camera_jpeg = None
+        self.camera_raw_jpeg = None
+        self.camera_raw_at = 0.0
         self.front_camera_jpeg = None
         self.front_camera_at = 0.0
         self.frame_number = 0
@@ -346,6 +372,10 @@ class MissionApplication:
         self.front_detected_ids = []
         self.marker_alignment = {'state': 'IDLE', 'reason': '섹터 도착 후 표식을 탐색합니다.'}
         self.path = []
+        self.path_stamp = None
+        self.observed_obstacles = []
+        self.observed_obstacles_at = 0.
+        self.observed_obstacles_map_version = None
         self.navigation = {'status': 'IDLE', 'planner_status': 'IDLE', 'message': ''}
         self.planner_details, self.planner_details_at = {}, 0.
         self.goal_available = False
@@ -427,7 +457,24 @@ class MissionApplication:
             self._configured_map = (metadata, data, encoded)
             self._configured_layout = map_layout(data)
             self.configured_floorplan_file = None
+            self.raw_map_png = None
+            self.raw_map_metadata = None
+            self.configured_raw_map_file = None
             self.restore_map_preview()
+
+    def load_raw_map_preview(self, path):
+        """Load a display-only SLAM archive in the configured map's exact frame."""
+        metadata, _ = load_saved_map(path)
+        with self.lock:
+            if self._configured_map is None:
+                raise ValueError('--raw-map-file에는 --map-file 설정이 필요합니다.')
+            if not map_geometry_matches(self._configured_map[0], metadata):
+                raise ValueError('원본 지도와 운용 지도의 크기·해상도·원점이 다릅니다.')
+            self.raw_map_png = original_map_png(path)
+            self.raw_map_metadata = metadata
+            self.configured_raw_map_file = str(Path(path).expanduser().resolve())
+            if self.map is not None:
+                self.map['raw_available'] = map_geometry_matches(metadata, self._display_map_metadata)
 
     def load_floorplan(self, path):
         """Replace display geometry only, invalidating a previously cached view."""
@@ -442,6 +489,7 @@ class MissionApplication:
                                preview=self.map['preview'], source=self.map['source'],
                                match=self.map['configured_match'], encoded=self.map_png,
                                layout=layout, force=True)
+                self.clear_observed_obstacles()
 
     def _show_map(self, metadata, data, *, preview, source, match, encoded=None, layout=None, force=False):
         """Cache raster/vector geometry; status changes alone do not invalidate it."""
@@ -453,11 +501,16 @@ class MissionApplication:
             self._display_map_metadata = deepcopy(metadata)
             self._display_map_data = data.copy()
         self.map = dict(deepcopy(metadata), version=self.map_version,
-                        preview=preview, source=source, configured_match=match)
+                        preview=preview, source=source, configured_match=match,
+                        raw_available=(self.raw_map_png is not None
+                                       and map_geometry_matches(self.raw_map_metadata, metadata)))
 
     def restore_map_preview(self):
         """Reconnects must wait for a new live map, even if a preview is visible."""
         with self.lock:
+            self.clear_observed_obstacles()
+            self.path = []
+            self.path_stamp = None
             self.map_matches_configured = None
             self.received_map_metadata = None
             self.map_is_preview = self._configured_map is not None
@@ -472,6 +525,7 @@ class MissionApplication:
     def receive_map(self, metadata, data):
         """Install a real ROS map and validate it against the configured map."""
         with self.lock:
+            previous_version = self.map_version
             self.localization_distance = occupied_distance(data, metadata['resolution'])
             self.map_matches_configured = (maps_match(*self._configured_map[:2], metadata, data)
                                            if self._configured_map is not None else None)
@@ -487,18 +541,53 @@ class MissionApplication:
             else:
                 self._show_map(metadata, data, preview=False, source='ros', match=self.map_matches_configured,
                                layout=self._configured_layout if self.map_matches_configured is True else None)
+            if self.map_is_preview or self.map_version != previous_version:
+                self.clear_observed_obstacles()
+                self.path = []
+                self.path_stamp = None
             if self.map_matches_configured is False and self.mission.state in ACTIVE_STATES:
                 self.mission.pause()
                 self.mission.reason = '설정 지도와 다른 /map이 수신되어 일시정지했습니다. 지도 확인 후 명시적으로 재개하세요.'
                 self.mission.event(self.mission.reason, 'warning')
 
+    def clear_observed_obstacles(self):
+        """Drop a transient display layer when its map frame is no longer valid."""
+        self.observed_obstacles = []
+        self.observed_obstacles_at = 0.
+        self.observed_obstacles_map_version = None
+
+    def receive_observed_obstacles(self, indices):
+        """Display only fresh LiDAR additions in known-free cells of the live map.
+
+        The planner receives the unfiltered ROS topic; this method cannot alter
+        collision checks or memory. ROS indices are bottom-left row-major.
+        """
+        with self.lock:
+            if (self.map is None or self.map_is_preview
+                    or self.map_matches_configured is False or self._display_map_data is None):
+                self.clear_observed_obstacles()
+                return False
+            width, height = self.map['width'], self.map['height']
+            if (not isinstance(indices, (list, tuple)) or len(indices) > min(width*height, 20_000)
+                    or any(type(index) is not int or index < 0 or index >= width*height
+                           for index in indices)):
+                return False
+            occupancy = self._display_map_data.reshape(-1)
+            self.observed_obstacles = [index for index in sorted(set(indices))
+                                       if 0 <= occupancy[index] < 65]
+            self.observed_obstacles_at = time.monotonic()
+            self.observed_obstacles_map_version = self.map_version
+            return True
+
     def _new_mission(self):
         domain_saved = self.saved.get('domains', {}).get(str(self.domain_id), {})
         route = domain_saved.get('route', [2, 3])
         try:
-            return MarkerMission(self.markers, route, confirmations=self.confirmations)
+            return MarkerMission(self.markers, route, confirmations=self.confirmations,
+                                 sector_dwell_seconds=self.sector_dwell_seconds)
         except (MissionError, KeyError):
-            return MarkerMission(self.markers, [self.markers[0]['id']], confirmations=self.confirmations)
+            return MarkerMission(self.markers, [self.markers[0]['id']], confirmations=self.confirmations,
+                                 sector_dwell_seconds=self.sector_dwell_seconds)
 
     def save(self):
         """Atomic user configuration, separate from source-control files."""
@@ -602,11 +691,22 @@ class MissionApplication:
                     'robot': {'pose': (None if self.map_is_preview or now-self.pose_at >= 2.
                                        else deepcopy(self.pose)), 'pose_age': age(self.pose_at),
                               'speed': dict(self.speed), 'scan_age': age(self.scan_at),
-                              'camera_age': age(self.camera_at), 'front_camera_age': age(self.front_camera_at),
+                              'camera_age': age(self.camera_at),
+                              'raw_camera_age': age(self.camera_raw_at),
+                              'front_camera_age': age(self.front_camera_at),
                               'odom_age': age(self.odom_at),
                               'power': self.power_state(now)},
                     'map': deepcopy(self.map), 'map_version': self.map_version,
                     'path': [] if self.map_is_preview else deepcopy(self.path),
+                    'path_stamp': None if self.map_is_preview else deepcopy(self.path_stamp),
+                    'observed_obstacles': {
+                        'map_version': self.observed_obstacles_map_version,
+                        'cells': (list(self.observed_obstacles)
+                                  if self.map is not None and not self.map_is_preview
+                                  and self.map_matches_configured is not False
+                                  and self.observed_obstacles_map_version == self.map_version
+                                  and now-self.observed_obstacles_at < 2.0 else []),
+                        'age': age(self.observed_obstacles_at)},
                     'detection': {'ids': list(self.detected_ids) if now-self.camera_at < 2. else [],
                                   'front_ids': list(self.front_detected_ids) if now-self.front_camera_at < 2. else [],
                                   'expected_camera': (self.mission.markers[self.mission.expected_id].get('camera', 'rear')
@@ -621,7 +721,8 @@ class MissionApplication:
                     'events': deepcopy(self.mission.events[-30:]), 'revision': self.mission.revision}
             mux_fresh = now-self.manual_mux_at < 1.0
             snapshot['safety'] = dict(self.manual_mux_status if mux_fresh else {},
-                                      latched=self.mission.estop_latched,
+                                      latched=(self.mission.estop_latched or bool(
+                                          mux_fresh and self.manual_mux_status.get('estop_latched'))),
                                       stop_acknowledged=bool(mux_fresh and self.manual_mux_status.get('stop_acknowledged')),
                                       pending=self.safety_request, result=self.safety_result)
             snapshot['localization_health'] = (deepcopy(self.localization_health)
@@ -633,6 +734,55 @@ class MissionApplication:
             snapshot['local_detour'] = local_detour_snapshot(
                 self.planner_details, self.mission.goal_stamp, self.mission.state,
                 now-self.planner_details_at)
+            # The isolated Gazebo trial may send goals directly over ROS. Show
+            # its published path for observation, without granting web mission
+            # ownership or changing any dispatch/stop control.
+            planner_phase = self.navigation.get('planner_status')
+            sim_context = bool(self.use_sim_time and self.domain_id != 16
+                               and not self.map_is_preview
+                               and self.map_matches_configured is not False)
+            sim_finished = bool(sim_context and self.sim_external_goal_seen
+                                and planner_phase == 'IDLE'
+                                and self.mission.state not in ACTIVE_STATES | {'PAUSED'})
+            sim_monitoring = bool(sim_context and (sim_finished or planner_phase in {
+                'PLANNING', 'READY', 'WAIT_REPLAN', 'RECOVERING'}))
+            stale_sources = ([label for label, received_at in (
+                ('/clock', self.sim_clock_at), ('/scan', self.scan_at), ('/odom', self.odom_at))
+                if now-received_at >= 2.0] if sim_monitoring else [])
+            if sim_monitoring and not self.planner_available:
+                stale_sources.append('A* 계획 노드')
+            sim_stale = bool(stale_sources or sim_finished)
+            stale_reason = ('모의 주행 시험 종료 · 새 목표 수신 대기'
+                            if sim_finished else '모의 주행 시험 종료 또는 연결 대기 · ' + ', '.join(stale_sources)
+                            if sim_stale else '')
+            if sim_stale and self.mission.state not in ACTIVE_STATES | {'PAUSED'}:
+                # This is a read-only external ROS trial. Its last published
+                # route is not a live route after the simulator or sensors stop.
+                snapshot['path'], snapshot['path_stamp'] = [], None
+                snapshot['navigation'] = {'status': 'STALE', 'planner_status': 'STALE',
+                    'message': stale_reason}
+            sim_observation = bool(sim_monitoring and not sim_stale and planner_phase == 'READY' and self.path
+                                   and self.path_stamp is not None
+                                   and self.path_stamp == self.planner_details.get('path_stamp'))
+            observed_goal = self.planner_details.get('goal') if sim_monitoring and not sim_stale else None
+            if not (isinstance(observed_goal, dict)
+                    and type(observed_goal.get('x')) in (int, float)
+                    and type(observed_goal.get('y')) in (int, float)
+                    and math.isfinite(observed_goal['x'])
+                    and math.isfinite(observed_goal['y'])
+                    and observed_goal.get('frame_id') == (self.map or {}).get('frame_id', 'map')):
+                observed_goal = None
+            snapshot['observed_route'] = {
+                'monitoring': sim_monitoring,
+                'stale': sim_stale,
+                'reason': stale_reason,
+                'phase': 'STALE' if sim_stale else planner_phase if sim_monitoring else None,
+                'active': sim_observation,
+                'goal_stamp': deepcopy(self.planner_details.get('goal_stamp')) if sim_monitoring and not sim_stale else None,
+                'goal': deepcopy(observed_goal),
+                'plan_kind': self.planner_details.get('plan_kind') if sim_observation else None,
+                'path_stamp': deepcopy(self.planner_details.get('path_stamp')) if sim_observation else None,
+            }
             snapshot['operation'] = operation_summary(snapshot)
             snapshot['route_preview'] = route_preview(snapshot)
             return snapshot
@@ -730,10 +880,16 @@ class MissionApplication:
                         raise MissionError('초기 위치 검증이 끝난 뒤 비상정지를 해제하세요.')
                     # Never clear the UI latch before the shared mux/guard
                     # handshake acknowledges the operator's reset request.
-                    if not self.mission.estop_latched:
+                    # At startup the robot-local mux deliberately starts
+                    # latched before this web process owns a mission. Its
+                    # fresh acknowledged stop must still be resettable from
+                    # the UI; do not fabricate a mission ESTOP/cancel merely
+                    # to expose the operator reset path.
+                    mux_latched = (time.monotonic()-self.manual_mux_at < 1.0
+                                   and self.manual_mux_status.get('estop_latched') is True)
+                    if not self.mission.estop_latched and not mux_latched:
                         raise MissionError('현재 비상정지 상태가 아닙니다.')
-                    if (time.monotonic()-self.manual_mux_at >= 1.0
-                            or self.manual_mux_status.get('estop_latched') is not True
+                    if (not mux_latched
                             or self.manual_mux_status.get('stop_acknowledged') is not True):
                         raise MissionError('차량의 비상정지 확인 응답을 받은 뒤 해제하세요.')
                     self.safety_request = 'reset'
@@ -1446,11 +1602,13 @@ def create_ros_bridge(app, options, context):
     from lifecycle_msgs.srv import GetState
     from nav_msgs.msg import OccupancyGrid, Odometry, Path as ROSPath
     from nav2_msgs.srv import SetInitialPose
+    from rclpy.clock import JumpThreshold
+    from rclpy.duration import Duration
     from rclpy.node import Node
     from rclpy.parameter import Parameter
     from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy, qos_profile_sensor_data
     from sensor_msgs.msg import BatteryState, CompressedImage, Image, LaserScan
-    from std_msgs.msg import String
+    from std_msgs.msg import Int32MultiArray, String
     from std_srvs.srv import Trigger, Empty
     from tf2_ros import Buffer, TransformListener, TransformException
 
@@ -1462,6 +1620,7 @@ def create_ros_bridge(app, options, context):
             self.tf_listener = TransformListener(self.tf_buffer, self)
             durable = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL,
                                  reliability=ReliabilityPolicy.RELIABLE)
+            self.map_qos = durable
             self.goal_pub = self.create_publisher(PoseStamped, '/smart_vision_amr/goal', 10)
             self.initial_pose_pub = self.create_publisher(PoseWithCovarianceStamped, '/initialpose', 10)
             # Control packets carry a sequence and expire after one second at
@@ -1525,8 +1684,10 @@ def create_ros_bridge(app, options, context):
             self.localization_policy_gap_reason = None
             self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.on_amcl, durable)
             self.create_subscription(PoseWithCovarianceStamped, '/initialpose', self.on_initial_pose, 10)
-            self.create_subscription(OccupancyGrid, '/map', self.on_map, durable)
+            self.map_sub = self.create_subscription(OccupancyGrid, '/map', self.on_map, durable)
             self.create_subscription(ROSPath, '/smart_vision_amr/path', self.on_path, 10)
+            self.create_subscription(Int32MultiArray, '/smart_vision_amr/observed_obstacles',
+                                     self.on_observed_obstacles, 10)
             self.create_subscription(Odometry, '/odom', self.on_odom, qos_profile_sensor_data)
             self.create_subscription(LaserScan, '/scan', self.on_scan, qos_profile_sensor_data)
             rear_type = CompressedImage if options.camera_topic.endswith('/compressed') else Image
@@ -1573,6 +1734,10 @@ def create_ros_bridge(app, options, context):
                 search_speed=getattr(options, 'marker_search_speed', .12),
                 center_gain=getattr(options, 'marker_center_gain', .35),
                 center_tolerance=getattr(options, 'marker_center_tolerance', .08),
+                soft_center_tolerance=getattr(options, 'marker_soft_center_tolerance', .30),
+                soft_center_timeout=getattr(options, 'marker_soft_center_timeout', 3.0),
+                soft_center_max_rotation=getattr(options, 'marker_soft_center_max_rotation', .30),
+                soft_center_max_angular_velocity=getattr(options, 'marker_soft_center_max_angular_velocity', .10),
                 confirmation_mode=getattr(options, 'marker_confirmation_mode', 'aligned'),
                 timeout=getattr(options, 'marker_search_timeout', 45.),
                 required_frames=max(2, app.confirmations),
@@ -1589,10 +1754,78 @@ def create_ros_bridge(app, options, context):
                 app.connected = True
                 app.connection_error = ''
                 app.mission.event(f'ROS 도메인 {app.domain_id}에 연결했습니다.')
+            self.sim_clock_jump_handle = None
+            self.sim_clock_reset_notice = False
+            self.sim_epoch_rebind_pending = False
+            self.last_tick_sim_clock_ns = 0
+            if app.use_sim_time and app.domain_id != 16:
+                self.sim_clock_jump_handle = self.get_clock().create_jump_callback(
+                    JumpThreshold(min_forward=None, min_backward=Duration(seconds=-.5),
+                                  on_clock_change=False),
+                    post_callback=self.on_sim_clock_jump)
 
         def destroy_node(self):
+            if self.sim_clock_jump_handle is not None:
+                self.sim_clock_jump_handle.unregister()
+                self.sim_clock_jump_handle = None
             self.home_prior_observer.close()
             return super().destroy_node()
+
+        def on_sim_clock_jump(self, jump):
+            """Forget one Gazebo epoch without publishing a goal or touching a mission."""
+            if jump.delta.nanoseconds >= -500_000_000:
+                return
+            with app.lock:
+                self.tf_buffer.clear()
+                self.last_planner_status_stamp_ns = -1
+                self.last_motion_status_stamp_ns = -1
+                self.last_health_stamp_ns = -1
+                self.last_amcl_stamp_ns = 0
+                self.last_battery_stamp_ns = None
+                self.last_goal_stamp = 0
+                self.manual_initial_pose_ns = None
+                self.manual_pose_ros_stamp_ns = 0
+                self.localization_epoch_ns = 0
+                self.observation_started_ros_ns = None
+                self.localization_scan = None
+                self.localization_laser_pose = None
+                app.pose = app.odom_pose = None
+                app.pose_tf_stamp_ns = 0
+                app.pose_at = app.odom_at = app.scan_at = 0.
+                app.sim_clock_at = 0.
+                app.sim_external_goal_seen = False
+                self.last_tick_sim_clock_ns = 0
+                app.camera_at = app.front_camera_at = 0.
+                app.camera_raw_at = 0.
+                app.camera_jpeg = app.front_camera_jpeg = None
+                app.camera_raw_jpeg = None
+                app.detected_ids = app.front_detected_ids = []
+                app.speed = {'linear': 0., 'angular': 0.}
+                app.navigation = {'status': 'IDLE', 'planner_status': 'IDLE', 'message': ''}
+                app.planner_details, app.planner_details_at = {}, 0.
+                app.manual_mux_status, app.manual_mux_at = {}, 0.
+                app.localization_health, app.localization_health_at = {}, 0.
+                app.failure_memory_status, app.failure_memory_at = {}, 0.
+                app.reset_power()
+                app.restore_map_preview()
+                # /map and /tf_static are usually published just once with
+                # TRANSIENT_LOCAL durability. After clearing their cached data,
+                # a new subscription must request the current durable samples.
+                self.sim_epoch_rebind_pending = True
+                self.sim_clock_reset_notice = True
+
+        def rebind_sim_epoch_topics(self):
+            """Reacquire durable map/static TF after a simulated clock reset."""
+            if not self.sim_epoch_rebind_pending:
+                return
+            new_buffer = Buffer()
+            new_listener = TransformListener(new_buffer, self)
+            new_map_sub = self.create_subscription(OccupancyGrid, '/map', self.on_map, self.map_qos)
+            old_listener, old_map_sub = self.tf_listener, self.map_sub
+            self.tf_buffer, self.tf_listener, self.map_sub = new_buffer, new_listener, new_map_sub
+            old_listener.unregister()
+            self.destroy_subscription(old_map_sub)
+            self.sim_epoch_rebind_pending = False
 
         def on_map(self, message):
             width, height = int(message.info.width), int(message.info.height)
@@ -1614,6 +1847,14 @@ def create_ros_bridge(app, options, context):
         def on_path(self, message):
             with app.lock:
                 app.path = [{'x': pose.pose.position.x, 'y': pose.pose.position.y} for pose in message.poses]
+                stamp = message.header.stamp
+                app.path_stamp = ({'sec': stamp.sec, 'nanosec': stamp.nanosec}
+                                  if type(stamp.sec) is int and type(stamp.nanosec) is int
+                                  and stamp.sec >= 0 and 0 <= stamp.nanosec < 1_000_000_000
+                                  and (stamp.sec or stamp.nanosec) else None)
+
+        def on_observed_obstacles(self, message):
+            app.receive_observed_obstacles(list(message.data))
 
         def source_fresh(self, stamp, max_age=2.0):
             stamp_ns = stamp.sec*1000000000+stamp.nanosec
@@ -1799,8 +2040,10 @@ def create_ros_bridge(app, options, context):
                     and abs(app.speed['angular']) < .06)
             return (safe and self.marker_alignment.state == 'CONFIRMED'
                     and any(item['id'] == expected
-                            and (self.marker_alignment.confirmation_mode == 'recognized'
-                                 or abs(item['center_x']) <= self.marker_alignment.center_tolerance)
+                            and abs(item['center_x']) <= (
+                                self.marker_alignment.soft_center_exit_tolerance
+                                if self.marker_alignment.confirmation_mode == 'recognized'
+                                else self.marker_alignment.center_tolerance)
                             for item in measurements))
 
         def on_image(self, message):
@@ -1818,16 +2061,27 @@ def create_ros_bridge(app, options, context):
                 if self.camera_rotation == 180:
                     image = cv2.rotate(image, cv2.ROTATE_180)
                 ids_list, corners, ids = [], [], None
+                raw_encoded = None
                 if app.aruco_available:
                     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                     corners, ids, _ = self.detector.detectMarkers(gray) if self.detector else cv2.aruco.detectMarkers(gray, self.dictionary, parameters=self.detector_parameters)
                     if ids is not None:
                         ids_list = [int(value) for value in ids.flatten()]
+                        # Preserve the detected frame before drawing the UI
+                        # outline/ID text. Re-detection on the annotated JPEG
+                        # is unreliable because those marks alter the code.
+                        raw_ok, raw_encoded = cv2.imencode(
+                            '.jpg', image, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                        if not raw_ok:
+                            raw_encoded = None
                         cv2.aruco.drawDetectedMarkers(image, corners, ids)
                 ok, encoded = cv2.imencode('.jpg', image, [cv2.IMWRITE_JPEG_QUALITY, 80])
                 with app.lock:
                     if ok:
                         app.camera_jpeg = encoded.tobytes()
+                    if raw_encoded is not None and capture_fresh:
+                        app.camera_raw_jpeg = raw_encoded.tobytes()
+                        app.camera_raw_at = now
                     if capture_fresh:
                         app.camera_at = now
                     app.frame_number += 1
@@ -1841,9 +2095,11 @@ def create_ros_bridge(app, options, context):
                     if rear_expected and not app.manual.in_progress and not app.localization.active:
                         aligned = self.process_marker_frame('rear', capture_ns, corners, ids, image, now,
                                                             capture_fresh and post_arrival, capture_age)
-                        app.mission.observe(capture_ns, ids_list, pose, stationary, now,
-                                            camera_fresh=capture_fresh and post_arrival,
-                                            alignment_verified=aligned)
+                        confirmed = app.mission.observe(capture_ns, ids_list, pose, stationary, now,
+                                                        camera_fresh=capture_fresh and post_arrival,
+                                                        alignment_verified=aligned)
+                        if confirmed and app.mission.state == 'DWELLING':
+                            app.path, app.path_stamp = [], None
                     app.sync_delivery()
             except (ValueError, cv2.error) as exc:
                 error = str(exc)
@@ -1888,8 +2144,11 @@ def create_ros_bridge(app, options, context):
                     if front_expected and not app.manual.in_progress and not app.localization.active:
                         aligned = self.process_marker_frame('front', stamp, corners, ids, image, now,
                                                             post_arrival, age)
-                        app.mission.observe(stamp, ids_list, pose, stationary, now,
-                                            camera_fresh=post_arrival, alignment_verified=aligned)
+                        confirmed = app.mission.observe(stamp, ids_list, pose, stationary, now,
+                                                        camera_fresh=post_arrival,
+                                                        alignment_verified=aligned)
+                        if confirmed and app.mission.state == 'DWELLING':
+                            app.path, app.path_stamp = [], None
                     app.sync_delivery()
             except (ValueError, cv2.error) as exc:
                 self.get_logger().warning('Front camera decode: '+str(exc))
@@ -1930,13 +2189,28 @@ def create_ros_bridge(app, options, context):
                 if not isinstance(payload, dict):
                     return
                 with app.lock:
-                    app.navigation['planner_status'] = payload.get('status', '')
                     stamp = payload.get('sent_at_ns')
-                    if (type(stamp) is int and stamp > self.last_planner_status_stamp_ns
-                            and -.25e9 <= self.get_clock().now().nanoseconds-stamp < 1e9):
+                    # Planner and Path arrive on separate topics. A busy simulator can
+                    # deliver the status more than a second late; its matching Path
+                    # stamp is still valid for display. Keep the monotonic ordering
+                    # and future-stamp guard, while the recorded age continues to
+                    # suppress stale data in control-related detour summaries.
+                    ordered = (type(stamp) is int and stamp >= 0
+                            and stamp > self.last_planner_status_stamp_ns
+                            and self.get_clock().now().nanoseconds-stamp >= -250_000_000)
+                    if type(stamp) is int and not ordered:
+                        return
+                    app.navigation['planner_status'] = payload.get('status', '')
+                    if ordered:
                         self.last_planner_status_stamp_ns = stamp
+                        if (app.use_sim_time and app.domain_id != 16
+                                and app.mission.state not in ACTIVE_STATES | {'PAUSED'}
+                                and payload.get('status') in {'PLANNING', 'READY', 'WAIT_REPLAN', 'RECOVERING'}
+                                and isinstance(payload.get('goal'), dict)):
+                            app.sim_external_goal_seen = True
                         app.planner_details = {name: payload[name] for name in (
-                            'goal_stamp', 'plan_kind', 'local_detour_state', 'local_attempt_id',
+                            'goal', 'goal_stamp', 'plan_kind', 'local_detour_state', 'local_attempt_id',
+                            'path_stamp',
                             'global_plan_count', 'rejoin_point', 'rejoin_progress', 'search_duration_ms',
                             'adapter_duration_ms', 'expansions', 'detour_reason', 'global_duration_ms')
                             if name in payload}
@@ -1964,7 +2238,15 @@ def create_ros_bridge(app, options, context):
                     self.last_motion_status_stamp_ns = stamp
                     app.manual_mux_at = time.monotonic()-max(0.0, age)
                     app.manual_mux_status = payload
-                    if payload.get('estop_latched') is True and not app.mission.estop_latched:
+                    # A web viewer may observe a goal sent by another ROS
+                    # client. Reflect the mux latch in safety status, but do
+                    # not turn that external goal into a web-owned mission:
+                    # emergency_stop() queues a cancel RPC for the planner.
+                    web_operation_active = (self.owns_navigation or app.navigation_active
+                                            or app.mission.state in ACTIVE_STATES | {'PAUSED'}
+                                            or app.manual.in_progress or app.localization.active)
+                    if (payload.get('estop_latched') is True
+                            and not app.mission.estop_latched and web_operation_active):
                         # The path follower can latch a safety stop when Nav2
                         # fails to confirm BackUp cancellation. Mirror that
                         # latch in the web state so the operator sees the
@@ -2133,6 +2415,8 @@ def create_ros_bridge(app, options, context):
             message.pose.orientation.z = math.sin(marker['yaw']/2)
             message.pose.orientation.w = math.cos(marker['yaw']/2)
             app.mission.goal_dispatched({'sec': message.header.stamp.sec, 'nanosec': message.header.stamp.nanosec})
+            app.path = []
+            app.path_stamp = None
             self.owns_navigation = True
             app.navigation_active = True
             self.goal_pub.publish(message)
@@ -2320,7 +2604,18 @@ def create_ros_bridge(app, options, context):
                         mission.reason = '정지 응답을 확인하지 못해 표식 탐색을 일시정지했습니다. 센서 확인 후 재개하세요.'
                         mission.event(mission.reason, 'warning')
                     return
-                self.marker_alignment.start(expected, camera, yaw, now)
+                # The registered marker yaw is in map, while the rotation
+                # servo integrates wheel-odom yaw. Convert only the relative
+                # heading at arrival; a stale map pose gives no search hint.
+                map_pose = app.pose if isinstance(app.pose, dict) else {}
+                map_yaw = map_pose.get('yaw')
+                registered_yaw = target.get('yaw')
+                target_odom_yaw = None
+                if (0. <= now-app.pose_at < .5 and finite_number(map_yaw)
+                        and finite_number(registered_yaw)):
+                    target_odom_yaw = yaw + angle_difference(registered_yaw, map_yaw)
+                self.marker_alignment.start(expected, camera, yaw, now,
+                                            target_yaw=target_odom_yaw)
                 self.marker_alignment_key = key
             self.observe_marker_wall(now)
             pose = app.pose
@@ -2813,6 +3108,16 @@ def create_ros_bridge(app, options, context):
         def tick(self):
             now = time.monotonic()
             with app.lock:
+                if app.use_sim_time and app.domain_id != 16:
+                    clock_ns = self.get_clock().now().nanoseconds
+                    if clock_ns > 0 and clock_ns != self.last_tick_sim_clock_ns:
+                        self.last_tick_sim_clock_ns = clock_ns
+                        app.sim_clock_at = now
+                if self.sim_clock_reset_notice:
+                    self.get_logger().warning('Gazebo /clock moved backwards; discarded prior-epoch map, TF and display telemetry')
+                    self.sim_clock_reset_notice = False
+                if self.sim_epoch_rebind_pending:
+                    self.rebind_sim_epoch_topics()
                 self.tick_safety(now)
                 self.tick_home_seed(now)
                 goal_subscribers = self.get_subscriptions_info_by_topic('/smart_vision_amr/goal')
@@ -2873,8 +3178,11 @@ def create_ros_bridge(app, options, context):
                     transform = self.tf_buffer.lookup_transform('map', options.base_frame, rclpy.time.Time())
                     q = transform.transform.rotation
                     tf_ns = transform.header.stamp.sec*1000000000+transform.header.stamp.nanosec
-                    age = abs(self.get_clock().now().nanoseconds-tf_ns)/1e9 if tf_ns else 0
-                    if age < 2.0:
+                    age = abs(self.get_clock().now().nanoseconds-tf_ns)/1e9 if tf_ns > 0 else math.inf
+                    # lookup_transform can keep returning the last cached TF
+                    # after Gazebo (and its /clock) has stopped. Only a newly
+                    # stamped transform proves that the position was updated.
+                    if age < 2.0 and tf_ns != app.pose_tf_stamp_ns:
                         app.pose = {'x': transform.transform.translation.x, 'y': transform.transform.translation.y,
                                     'yaw': math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))}
                         app.pose_at = now
@@ -2889,6 +3197,17 @@ def create_ros_bridge(app, options, context):
                     app.mission.pause()
                     app.mission.reason = 'TF/LiDAR/오도메트리 수신이 끊겨 일시정지했습니다. 복구 후 명시적으로 재개하세요.'
                     app.mission.event(app.mission.reason, 'warning')
+                # A verified sector arrival deliberately has no active goal.
+                # Count only stopped time; sensor gaps, joystick ownership and
+                # localization must never silently advance the delivery queue.
+                if app.mission.state == 'DWELLING':
+                    app.mission.advance_dwell(
+                        now-app.pose_at < 2.0 and now-app.scan_at < 2.0
+                        and now-app.odom_at < 2.0
+                        and abs(app.speed['linear']) < .025
+                        and abs(app.speed['angular']) < .06
+                        and not app.manual.in_progress and not app.localization.active
+                        and app.safety_request is None)
                 if not app.manual.in_progress and not app.localization.active and now-app.pose_at < 2.0 and now-app.odom_at < 2.0:
                     app.mission.observe_home(app.pose, abs(app.speed['linear']) < .025 and abs(app.speed['angular']) < .06)
                     app.sync_delivery()
@@ -2975,9 +3294,18 @@ def create_ros_bridge(app, options, context):
                     if app.manual.resume_mission and app.mission.state == 'PAUSED':
                         health = app.readiness(allow_camera_degraded=True)
                         if health['ready']:
-                            app.manual.state = 'WAIT_REPLAN'
-                            app.manual.reason = '기존 목표를 유지하고 현재 위치에서 경로를 다시 연결합니다.'
                             app.mission.resume()
+                            if app.mission.state == 'DWELLING':
+                                # Arrival is already verified and there is no
+                                # active goal whose MOVING status could finish
+                                # a normal joystick handoff. Keep the hold and
+                                # continue only the remaining stop interval.
+                                app.manual.finish()
+                                self.motion_gate = True
+                                self.send_control('hold')
+                            else:
+                                app.manual.state = 'WAIT_REPLAN'
+                                app.manual.reason = '기존 목표를 유지하고 현재 위치에서 경로를 다시 연결합니다.'
                         else:
                             app.manual.reason = '임무를 유지하고 재개 조건을 기다립니다: '+', '.join(health['missing'])
                     else:
@@ -3020,6 +3348,8 @@ def create_ros_bridge(app, options, context):
                                           operation='marker_alignment')
                     else:
                         self.stop()
+                elif app.mission.state == 'DWELLING':
+                    self.stop()
                 elif (self.goal_waiting is not None and cancelled
                       and app.mission.state in {'NAVIGATING', 'RETURNING_HOME'}
                       and app.manual.state in {'IDLE', 'WAIT_REPLAN'}
@@ -3188,14 +3518,17 @@ class MissionHTTPRequestHandler(BaseHTTPRequestHandler):
                     self.send_json({'error': '아직 수신된 지도가 없습니다.'}, 503)
                 else:
                     self.send_json(layout)
-            elif path in {'/api/map.png', '/api/camera.jpg', '/api/camera/front.jpg'}:
+            elif path in {'/api/map.png', '/api/map/raw.png', '/api/camera.jpg',
+                          '/api/camera/raw.jpg', '/api/camera/front.jpg'}:
                 with app.lock:
-                    data = (app.map_png if path.endswith('.png') else
-                            app.front_camera_jpeg if path.endswith('/front.jpg') else app.camera_jpeg)
+                    data = ((app.raw_map_png if app.map and app.map.get('raw_available') else None)
+                            if path == '/api/map/raw.png' else app.map_png if path == '/api/map.png' else
+                            app.front_camera_jpeg if path.endswith('/front.jpg') else
+                            app.camera_raw_jpeg if path.endswith('/raw.jpg') else app.camera_jpeg)
                 if data is None:
                     self.send_json({'error': '아직 수신된 데이터가 없습니다.'}, 503)
                 else:
-                    self.send_bytes(data, 'image/png' if path.endswith('.png') else 'image/jpeg')
+                    self.send_bytes(data, 'image/png' if path in {'/api/map.png', '/api/map/raw.png'} else 'image/jpeg')
             else:
                 self.send_json({'error': '없는 API입니다.'}, 404)
             return
@@ -3295,6 +3628,7 @@ def build_parser():
     parser.add_argument('--domain-id', type=int, default=int(os.environ.get('ROS_DOMAIN_ID', '76')))
     parser.add_argument('--markers-file')
     parser.add_argument('--map-file', help='Nav2 trinary map YAML: preview only until the matching ROS /map arrives')
+    parser.add_argument('--raw-map-file', help='Display-only original SLAM map YAML in the same frame as --map-file')
     parser.add_argument('--floorplan-file', help='Display-only authored polygons in the configured --map-file coordinate frame')
     parser.add_argument('--web-dir')
     parser.add_argument('--config-file')
@@ -3311,15 +3645,25 @@ def build_parser():
                         help='sensor_msgs/BatteryState topic used for the vehicle voltage indicator')
     parser.add_argument('--base-frame', default='base_footprint')
     parser.add_argument('--confirmations', type=int, default=3)
+    parser.add_argument('--sector-dwell-seconds', type=float, default=5.0,
+                        help='Seconds to hold at each camera-confirmed sector before sending the next goal (default 5)')
     parser.add_argument('--marker-search-speed', type=float, default=.12,
                         help='Arrival marker search angular speed, rad/s (max .15)')
     parser.add_argument('--marker-center-gain', type=float, default=.35,
                         help='Yaw gain on normalized horizontal pixel error')
     parser.add_argument('--marker-center-tolerance', type=float, default=.08,
                         help='Normalized image center tolerance; .08 is +/-4%% image width')
+    parser.add_argument('--marker-soft-center-tolerance', type=float, default=.30,
+                        help='Recognized mode: broad image center band; .30 is +/-15%% image width')
+    parser.add_argument('--marker-soft-center-timeout', type=float, default=3.0,
+                        help='Recognized mode: maximum seconds of gentle center correction before pausing an off-center target')
+    parser.add_argument('--marker-soft-center-max-rotation', type=float, default=.30,
+                        help='Recognized mode: maximum body rotation in radians after first valid ID sighting')
+    parser.add_argument('--marker-soft-center-max-angular-velocity', type=float, default=.10,
+                        help='Recognized mode: maximum gentle center correction speed in rad/s')
     parser.add_argument('--marker-confirmation-mode', choices=('aligned', 'recognized'),
                         default='aligned',
-                        help='aligned centers the marker; recognized confirms repeated fresh correct-ID detections while stopped')
+                        help='aligned requires precise centering; recognized requires broad stable centering or pauses with target retained')
     parser.add_argument('--marker-search-timeout', type=float, default=45.,
                         help='Maximum seconds for one arrival marker search attempt')
     parser.add_argument('--require-marker-wall-alignment', action='store_true',
@@ -3352,17 +3696,22 @@ def main(args=None):
         raise SystemExit('domain_id=0..232, port=1..65535 required')
     if not math.isfinite(options.minimum_battery_voltage) or options.minimum_battery_voltage < 0.0:
         raise SystemExit('minimum_battery_voltage must be finite and nonnegative')
+    if not math.isfinite(options.sector_dwell_seconds) or options.sector_dwell_seconds < 0.0:
+        raise SystemExit('sector_dwell_seconds must be finite and nonnegative')
     markers = load_markers(options.markers_file)
     if options.web_dir is None:
         from ament_index_python.packages import get_package_share_directory
         options.web_dir = str(Path(get_package_share_directory('smart_vision_amr'))/'web')
     app = MissionApplication(markers, options.domain_id, options.use_sim_time, options.config_file, options.confirmations,
-                             access_mode=options.access_mode)
+                             access_mode=options.access_mode,
+                             sector_dwell_seconds=options.sector_dwell_seconds)
     app.require_localization_health = options.require_localization_health
     app.require_battery_health = options.require_battery_health
     app.minimum_battery_voltage = options.minimum_battery_voltage
     if options.map_file:
         app.load_map_preview(options.map_file)
+    if options.raw_map_file:
+        app.load_raw_map_preview(options.raw_map_file)
     if options.floorplan_file:
         app.load_floorplan(options.floorplan_file)
     server = MissionHTTPServer((options.host, options.port), app, options.web_dir)
@@ -3433,6 +3782,8 @@ def main(args=None):
                     app.pose = None
                     app.pose_tf_stamp_ns = 0
                     app.pose_at = app.odom_at = app.scan_at = app.camera_at = app.front_camera_at = 0.0
+                    app.sim_clock_at = 0.0
+                    app.sim_external_goal_seen = False
                     app.reset_power()
                     app.camera_jpeg = None
                     app.front_camera_jpeg = None

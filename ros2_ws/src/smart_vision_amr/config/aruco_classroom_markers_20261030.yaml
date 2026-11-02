@@ -1,0 +1,40 @@
+# Observation poses in the 2026-10-30 remap's native map frame. Home and
+# Sector 3 was transformed from the previous profile. Sectors 1, 2 and 3 use
+# observation poses validated by isolated Gazebo trials: the earlier Sector 1
+# (1.475, 0.575) goal could not
+# complete its 180-degree turn; the earlier Sector 2 (1.562, -2.790) goal was
+# blocked by circular inflation of wall-edge LiDAR returns during final yaw.
+# The rear camera still sees both markers. Keep the wall markers in place.
+# Keep the original profile unchanged.
+# x' = 0.9996215014*x + 0.0275109778*y - 0.05673902
+# y' = -0.0275109778*x + 0.9996215014*y + 0.56617764
+# yaw' = normalize(yaw - 0.02751445). Metres and radians.
+# Positions remain robot observation goals, not marker positions on the walls.
+markers:
+  - id: 0
+    name: 홈
+    x: -0.188431
+    y: -0.220497
+    yaw: -0.027514
+    camera: rear
+  - id: 1
+    name: Sector 1
+    # Keep the observation point near the 0.575 m corridor center; the prior
+    # y=0.550 goal stopped with only 6.6 mm measured rotation-clearance margin.
+    x: 1.200000
+    y: 0.575000
+    yaw: 3.114078
+    camera: rear
+  - id: 2
+    name: Sector 2
+    # The Gazebo stop passed with ArUco 2 near image center and more turn room.
+    x: 1.450000
+    y: -2.650000
+    yaw: 1.543282
+    camera: rear
+  - id: 3
+    name: Sector 3
+    x: -0.250000
+    y: -1.980000
+    yaw: -1.400000
+    camera: rear

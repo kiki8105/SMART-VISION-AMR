@@ -40,6 +40,9 @@ def local_detour_snapshot(payload, goal_stamp, mission_state, age):
         return empty
     result = {'available': True, 'state': state, 'plan_kind': kind,
               'reason': str(payload.get('detour_reason') or '')[:240]}
+    path_stamp = stamp(payload.get('path_stamp'))
+    if path_stamp is not None and path_stamp != (0, 0):
+        result['path_stamp'] = {'sec': path_stamp[0], 'nanosec': path_stamp[1]}
     for name in ('local_attempt_id', 'global_plan_count', 'expansions'):
         value = payload.get(name)
         if type(value) is int and 0 <= value <= 1_000_000_000:

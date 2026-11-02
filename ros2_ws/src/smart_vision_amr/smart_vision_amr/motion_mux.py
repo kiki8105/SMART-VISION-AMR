@@ -15,6 +15,7 @@ from contextlib import nullcontext
 from smart_vision_amr.runtime_timing import (
     MUX_METRICS, RuntimeTiming, guard_timing_report, timed_call,
 )
+from smart_vision_amr.scan_outlier_guard import NearScanOutlierGuard
 
 
 class MotionMuxCore:
@@ -66,6 +67,10 @@ class MotionMuxCore:
         self.auto_sequences = {}
         self.auto_last_stamp = -1
         self.auto_rejected_reason = ''
+        # A raw near-minimum LiDAR return is a physical collision uncertainty,
+        # independent of whether A* has already classified/map-projected it.
+        self.scan_guard_hold = False
+        self.scan_guard_reason = ''
         self.require_localization_health = bool(require_localization_health)
         self.localization_health_timeout = float(localization_health_timeout)
         self.localization_warning_speed_factor = float(localization_warning_speed_factor)
@@ -340,6 +345,8 @@ class MotionMuxCore:
         self._expire()
         if self.estop_latched:
             return 0.0, 0.0
+        if self.mode == 'auto' and self.scan_guard_hold:
+            return 0.0, 0.0
         velocity = (0.0, 0.0)
         if self.mode in {'manual', 'localization'}:
             velocity = self.manual_velocity
@@ -376,6 +383,8 @@ class MotionMuxCore:
         linear, angular = self.output()
         return {'mode': self.mode, 'available': True, 'reason': self.reason,
                 'source_id': self.source_id, 'estop_latched': self.estop_latched,
+                'scan_guard_hold': self.scan_guard_hold,
+                'scan_guard_reason': self.scan_guard_reason,
                 'control_seq': self.sequences.get(self.source_id, -1),
                 'allow_localization': allow_localization,
                 'auto_source_id': self.auto_source_id,
@@ -397,8 +406,9 @@ class MotionMuxCore:
 try:
     import rclpy
     from geometry_msgs.msg import Twist
+    from sensor_msgs.msg import LaserScan
     from rclpy.node import Node
-    from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
+    from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
     from std_msgs.msg import String
     from std_srvs.srv import Trigger
 except ImportError:
@@ -431,7 +441,8 @@ class MotionMuxNode(Node):
                 ('localization_rotation_limit', .25),
                 ('marker_alignment_rotation_limit', .15),
                 ('startup_estop', False), ('allow_topic_reset', True),
-                ('allow_legacy_auto_input', True), ('enable_timing_diagnostics', False)):
+                ('allow_legacy_auto_input', True), ('enable_timing_diagnostics', False),
+                ('near_scan_guard_enabled', True)):
             self.declare_parameter(name, default)
         self.core = MotionMuxCore(**{
             name: self.get_parameter(name).value for name in (
@@ -443,6 +454,8 @@ class MotionMuxNode(Node):
                 'marker_alignment_rotation_limit',
                 'startup_estop')})
         self.allow_topic_reset = self.get_parameter('allow_topic_reset').value
+        self.near_scan_guard = NearScanOutlierGuard()
+        self.near_scan_guard_last_stamp_ns = -1
         self._timing = (RuntimeTiming(MUX_METRICS, warning=self.get_logger().warning)
                         if self.get_parameter('enable_timing_diagnostics').value else None)
         self._guard_timing = None
@@ -482,6 +495,11 @@ class MotionMuxNode(Node):
         self.create_subscription(String, '/smart_vision_amr/localization_health',
                                  self.on_localization_health, 1)
         from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
+        self.scan_guard_group = MutuallyExclusiveCallbackGroup()
+        if self.get_parameter('near_scan_guard_enabled').value:
+            self.create_subscription(LaserScan, '/scan', self.on_scan_guard,
+                                     qos_profile_sensor_data,
+                                     callback_group=self.scan_guard_group)
         self.control_group = MutuallyExclusiveCallbackGroup()
         self.output_group = MutuallyExclusiveCallbackGroup()
         self.status_group = MutuallyExclusiveCallbackGroup()
@@ -557,6 +575,35 @@ class MotionMuxNode(Node):
                 self._health_sent_ns = stamp
             accepted = self.core.receive_localization_health(payload)
             if accepted:
+                self._publish_output_locked()
+
+    def on_scan_guard(self, scan):
+        """Stop auto output on the *first* near-minimum return, before TF.
+
+        The raw scan continues to Nav2 unchanged. A second scan may establish
+        a real obstacle for A*; it cannot release this hold merely because a
+        fresh path exists while the chassis is still next to that obstacle.
+        Only a fresh, valid scan without a near-range return releases motion.
+        """
+        stamp_ns = scan.header.stamp.sec * 1_000_000_000 + scan.header.stamp.nanosec
+        now_ns = self.get_clock().now().nanoseconds
+        if (stamp_ns <= 0 or stamp_ns <= self.near_scan_guard_last_stamp_ns
+                or not -.25e9 <= now_ns-stamp_ns < 1e9):
+            return
+        decision = self.near_scan_guard.classify(scan, stamp_ns)
+        if not decision.accepted:
+            return
+        with self._state_guard():
+            if getattr(self, '_closing', False):
+                return
+            self.near_scan_guard_last_stamp_ns = stamp_ns
+            hold = bool(decision.unconfirmed or decision.confirmed)
+            changed = hold != self.core.scan_guard_hold
+            self.core.scan_guard_hold = hold
+            self.core.scan_guard_reason = (
+                'Unconfirmed isolated near-range LiDAR return' if decision.unconfirmed else
+                'Confirmed near-range LiDAR obstacle; waiting for measured clearance' if hold else '')
+            if changed:
                 self._publish_output_locked()
 
     def _service_packet(self, mode):

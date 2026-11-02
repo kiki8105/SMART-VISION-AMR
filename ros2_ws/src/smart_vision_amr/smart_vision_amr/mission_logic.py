@@ -3,7 +3,8 @@ from copy import deepcopy
 from math import atan2, cos, hypot, isfinite, sin
 import time
 
-ACTIVE_STATES = frozenset({'NAVIGATING', 'RETURNING_HOME', 'WAIT_REPLAN', 'CONFIRMING'})
+ACTIVE_STATES = frozenset({'NAVIGATING', 'RETURNING_HOME', 'WAIT_REPLAN', 'CONFIRMING', 'DWELLING'})
+MAX_OBSERVED_DWELL_GAP_SECONDS = .35  # The ROS bridge checks stopped sensors at 10 Hz.
 START_STATES = frozenset({'IDLE', 'COMPLETED', 'HOME_REACHED', 'CANCELED', 'ERROR'})
 
 
@@ -22,7 +23,13 @@ class MissionError(ValueError):
 
 class MarkerMission:
     def __init__(self, markers, route=None, confirmations=3, pose_tolerance=.30,
-                 yaw_tolerance=.35, clock=time.monotonic):
+                 yaw_tolerance=.35, clock=time.monotonic, sector_dwell_seconds=0.):
+        try:
+            sector_dwell_seconds = float(sector_dwell_seconds)
+        except (TypeError, ValueError, OverflowError):
+            raise MissionError('섹터 대기 시간은 0 이상의 유한한 초 단위 숫자여야 합니다.')
+        if not isfinite(sector_dwell_seconds) or sector_dwell_seconds < 0.:
+            raise MissionError('섹터 대기 시간은 0 이상의 유한한 초 단위 숫자여야 합니다.')
         self.markers = {int(item['id']): dict(item) for item in markers}
         self.route = self.validate_route(route or [2, 3])
         self.pending_route = None
@@ -42,6 +49,10 @@ class MarkerMission:
         self.pose_tolerance = float(pose_tolerance)
         self.yaw_tolerance = float(yaw_tolerance)
         self.clock = clock
+        self.sector_dwell_seconds = sector_dwell_seconds
+        self.dwell_elapsed = None
+        self.dwell_last_tick = None
+        self.dwell_marker_id = None
         self.observation_since = None
         self.last_frame = None
         self.commands = []
@@ -66,6 +77,35 @@ class MarkerMission:
         self.events = self.events[-60:]
         self.revision += 1
 
+    def _clear_dwell(self):
+        self.dwell_elapsed = None
+        self.dwell_last_tick = None
+        self.dwell_marker_id = None
+
+    def advance_dwell(self, stationary):
+        """Count only consecutive, recently verified stopped bridge ticks."""
+        if self.state != 'DWELLING' or self.dwell_elapsed is None:
+            return False
+        now = self.clock()
+        if not stationary:
+            self.dwell_last_tick = None
+        else:
+            if self.dwell_last_tick is not None:
+                gap = now-self.dwell_last_tick
+                if 0. <= gap <= MAX_OBSERVED_DWELL_GAP_SECONDS:
+                    self.dwell_elapsed += gap
+            # A delayed scheduler tick cannot prove the robot stayed stopped
+            # throughout the missing interval; resume timing from this tick.
+            self.dwell_last_tick = now
+        if self.dwell_elapsed < self.sector_dwell_seconds:
+            self.revision += 1
+            return False
+        marker_id = self.dwell_marker_id
+        self._clear_dwell()
+        self.event(f'섹터 {marker_id} 대기가 끝나 다음 목표로 이동합니다.')
+        self._send_current_goal()
+        return True
+
     def update_route(self, route):
         route = self.validate_route(route)
         if self.state in ACTIVE_STATES or self.state == 'PAUSED' or self.returning_home:
@@ -78,6 +118,7 @@ class MarkerMission:
             self.confirmations = 0
             self.last_frame = None
             self.observation_since = None
+            self._clear_dwell()
             if not self.estop_latched:
                 self.state = 'IDLE'
                 self.reason = '새 경유 순서를 저장했습니다. 시작 버튼을 누르면 출발합니다.'
@@ -102,6 +143,7 @@ class MarkerMission:
         self.auto_return_home = bool(auto_return_home)
         self.auto_returning_home = False
         self.home_navigation_succeeded = False
+        self._clear_dwell()
         if self.pending_route is not None:
             self.route, self.pending_route = self.pending_route, None
         self.current_index, self.completed_ids = 0, []
@@ -176,6 +218,7 @@ class MarkerMission:
         self.returning_home = False
         self.auto_returning_home = False
         self.home_navigation_succeeded = False
+        self._clear_dwell()
         if self.pending_route is not None:
             self.route, self.pending_route = self.pending_route, None
         self.current_index, self.completed_ids = 0, []
@@ -201,6 +244,7 @@ class MarkerMission:
             if self.state in ACTIVE_STATES or self.state == 'PAUSED':
                 self.state, self.reason = 'CANCELED', '기록된 홈이 없어 현재 임무를 정지했습니다.'
                 self.goal_stamp = None
+                self._clear_dwell()
                 self.commands = [('cancel', None), ('stop', None)]
                 self.event(self.reason, 'warning')
             raise MissionError('기록된 홈이 없습니다. 임무를 시작하면 현재 map 위치를 홈으로 기록합니다.')
@@ -208,6 +252,7 @@ class MarkerMission:
         # wait for a new explicit departure rather than diverting the robot.
         self.auto_return_home = False
         self.auto_returning_home = False
+        self._clear_dwell()
         if self.returning_home and self.state in ACTIVE_STATES:
             return
         self.commands = [('cancel', None), ('stop', None)]
@@ -222,6 +267,8 @@ class MarkerMission:
     def pause(self):
         if self.state not in ACTIVE_STATES:
             raise MissionError('진행 중인 임무만 일시정지할 수 있습니다.')
+        if self.state == 'DWELLING':
+            self.dwell_last_tick = None
         self.state, self.reason = 'PAUSED', '사용자가 일시정지했습니다. 재개 버튼으로만 다시 출발합니다.'
         self.goal_stamp = None
         self.commands = [('cancel', None), ('stop', None)]
@@ -231,6 +278,12 @@ class MarkerMission:
         if self.estop_latched or self.state != 'PAUSED':
             raise MissionError('비상정지가 해제된 일시정지 상태에서만 재개할 수 있습니다.')
         self.event('사용자가 홈 복귀를 재개했습니다.' if self.returning_home else '사용자가 기존 경유 순서로 재개했습니다.')
+        if self.dwell_elapsed is not None:
+            self.state = 'DWELLING'
+            self.dwell_last_tick = self.clock()
+            self.reason = f'섹터 {self.dwell_marker_id}에서 물품 인수를 기다립니다.'
+            self.commands.append(('stop', None))
+            return
         if self.returning_home:
             self._send_home_goal()
         else:
@@ -243,6 +296,7 @@ class MarkerMission:
         self.estop_latched = True
         self.auto_return_home = False
         self.auto_returning_home = False
+        self._clear_dwell()
         self.state, self.reason = 'ESTOP', '비상정지 중입니다. 원인을 확인한 뒤 명시적으로 해제하세요.'
         self.goal_stamp = None
         self.commands = [('cancel', None), ('stop', None)]
@@ -255,6 +309,7 @@ class MarkerMission:
         self.returning_home = False
         self.auto_returning_home = False
         self.home_navigation_succeeded = False
+        self._clear_dwell()
         self.state, self.reason = 'CANCELED', '비상정지를 해제했습니다. 새 시작 명령을 기다립니다.'
         # Reset acknowledges the latch; it must not erase an undelivered cancel.
         self.commands = [('cancel', None), ('stop', None)]
@@ -350,6 +405,7 @@ class MarkerMission:
         self.confirmations = 0
         self.last_frame = None
         self.observation_since = None
+        self._clear_dwell()
         self.event(self.reason)
 
     def observe(self, frame_id, ids, pose, stationary, frame_time, camera_fresh=True,
@@ -379,7 +435,17 @@ class MarkerMission:
             self.completed_ids.append(confirmed)
             self.current_index += 1
             self.event(f'마커 {confirmed}을 실제 카메라 영상에서 확인했습니다.')
-            self._send_current_goal()
+            if self.sector_dwell_seconds:
+                self.state = 'DWELLING'
+                self.reason = f'섹터 {confirmed}에서 물품 인수를 기다립니다.'
+                self.goal_stamp = None
+                self.dwell_elapsed = 0.
+                self.dwell_last_tick = None
+                self.dwell_marker_id = confirmed
+                self.commands.append(('stop', None))
+                self.event(f'섹터 {confirmed}에서 {self.sector_dwell_seconds:g}초 대기합니다.')
+            else:
+                self._send_current_goal()
             return True
         self.revision += 1
         return False
@@ -388,6 +454,10 @@ class MarkerMission:
         return deepcopy({'state': self.state, 'route': self.route, 'pending_route': self.pending_route,
                          'current_index': self.current_index, 'current_marker_id': self.expected_id,
                          'completed_ids': self.completed_ids, 'reason': self.reason,
+                         'sector_dwell_seconds': self.sector_dwell_seconds,
+                         'dwell_marker_id': self.dwell_marker_id,
+                         'dwell_remaining_seconds': (max(0., self.sector_dwell_seconds-self.dwell_elapsed)
+                                                     if self.dwell_elapsed is not None else None),
                          'can_resume': self.state == 'PAUSED' and not self.estop_latched,
                          'estop_latched': self.estop_latched,
                          'home': self.home, 'returning_home': self.returning_home,

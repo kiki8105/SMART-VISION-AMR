@@ -13,15 +13,18 @@ mkdir -p ~/Team2_workspace/src
 cd ~/Team2_workspace/src
 git clone https://github.com/kiki8105/SMART-VISION-AMR.git
 cd SMART-VISION-AMR
-./scripts/setup_sim.sh
+./scripts/setup_pc_runtime.sh
 ```
 
-부족한 시스템 패키지는 스크립트가 설치 명령으로 안내합니다. 공식 TurtleBot3 Humble 소스와 저장소 패키지를 빌드합니다. 이미 클론한 PC는 저장소에서 `git pull --ff-only` 후 다음처럼 다시 빌드합니다.
+이 명령은 실차 PC의 Nav2·웹 의존성을 설치하고 프로젝트 패키지를 빌드합니다.
+Gazebo 시험도 할 PC는 이어서 `./scripts/setup_sim.sh`를 실행하고, 출력된 누락
+패키지를 설치한 뒤 다시 실행합니다. 기존 클론은 주행·웹을 종료하고 다음처럼
+업데이트합니다.
 
 ```bash
-cd ~/Team2_workspace
-source /opt/ros/humble/setup.bash
-colcon build --packages-select smart_vision_amr --symlink-install
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+git pull --ff-only
+./scripts/setup_pc_runtime.sh --no-install
 ```
 
 ## 2. Gazebo에서 확인
@@ -87,13 +90,16 @@ cd ~/SMART-VISION-AMR
 
 ## 4. 실차 터미널별 실행
 
-현장 가벽 배치가 `ros2_ws/src/smart_vision_amr/maps/classroom_20261027_cleaned.yaml`과 같은지 확인합니다. 저장 지도 주행에서는 SLAM/Cartographer를 종료합니다.
+현장 가벽 배치가 현재 운용 지도
+`ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.yaml`과 같은지
+확인합니다. 이전 2026-10-27 지도의 Home·Sector 좌표는 재사용하지 않습니다.
+저장 지도 주행에서는 SLAM/Cartographer를 종료합니다.
 
 **터미널 1 — 로봇 SSH: Bringup·카메라·독립 EKF·안전 제어**
 
 ```bash
 cd ~/SMART-VISION-AMR
-ENABLE_FRONT_CAMERA=true ./scripts/robot_bringup_camera_16.sh
+./scripts/robot_bringup_camera_16_ekf.sh
 ```
 
 **터미널 2 — PC: 지도·AMCL·A*·Nav2**
@@ -110,18 +116,29 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/run_classroom_web_16.sh
 ```
 
-상시 웹 서비스가 이미 포트 8790을 사용하면 중복 실행하지 않습니다. PC는 `http://127.0.0.1:8790/`, 같은 Wi-Fi의 다른 PC·휴대폰은 `http://PC의_IP:8790/`에 접속합니다. 웹은 브링업·Nav2를 대신 시작하지 않습니다.
+상시 웹 서비스가 이미 포트 8790을 사용하면 중복 실행하지 않습니다. PC는
+`http://127.0.0.1:8790/`, 같은 Wi-Fi의 다른 PC·휴대폰은 **웹을 실행하는 PC**의
+`hostname -I`에서 확인한 주소로 `http://PC의_IP:8790/`에 접속합니다. 재고 화면은
+`http://PC의_IP:8790/inventory`입니다. 로봇 SSH IP와 웹 IP는 별개입니다.
+웹은 브링업·Nav2를 대신 시작하지 않습니다.
 
 새 기본 배치는 **로봇**에서 EKF·센서 감시·위치 신뢰도·최종 `motion_mux`를 실행합니다. **PC**에서는 지도·AMCL·주행 계획과 웹을 실행하며 mux를 중복 생성하지 않습니다. PC의 자동 명령에는 PC 전달 경계 시각·순서가 붙고, 로봇에서 지연·중복 명령을 거부합니다. 원본 `Twist`에는 시각 필드가 없으므로 제어기 내부의 최초 생성 시각까지 증명하는 것은 아닙니다.
 
-기본 카메라는 후방 단독 320×240 JPEG 최대 5 FPS로 압축 전송합니다. 고정 USB `by-id` 장치가 다르면 `CAMERA_DEVICE`로 지정합니다. 기본 LiDAR가 `LDS-03`과 다른 로봇은 실제 모델을 `LDS_MODEL`로 지정합니다. 전·후방 영상 동시 운용은 Wi-Fi 지연이 늘었던 이력이 있어 현장 대역폭을 측정한 뒤 활성화합니다.
+기본 카메라는 후방 단독 320×240 JPEG 최대 5 FPS로 압축 전송합니다. 고정 USB
+`by-id` 장치가 다르면 `CAMERA_DEVICE`로 지정합니다. 기본 LiDAR가 `LDS-03`과
+다른 로봇은 실제 모델을 `LDS_MODEL`로 지정합니다. 전방 보조 영상은 필요할 때
+`ENABLE_FRONT_CAMERA=true ./scripts/robot_bringup_camera_16_ekf.sh`로 켭니다.
+전·후방 동시 운용은 Wi-Fi 대역폭을 확인합니다.
 
 ## 5. 출발·위치 초기화
 
 1. 부팅 후 정지 상태를 유지하여 IMU 바이어스 측정을 마칩니다.
-2. `/scan`, `/wheel/odom`, `/imu/ekf`, `/odom`과 로봇 TF가 안정적이면 웹에서 비상정지를 명시적으로 해제합니다.
-3. 실제 등록 홈에 있고 후방 카메라가 0번 마커를 보면 자세 초기화를 실행합니다. 다른 위치라면 실제 위치를 지도에 지정합니다.
-4. 위치 준비 상태와 적재를 확인하고 임무를 시작합니다.
+2. `/scan`, `/wheel/odom`, `/imu/ekf`, `/odom`과 로봇 TF를 확인합니다.
+3. 웹 **초기 위치 지정**에서 실제 지도 좌표·차체 방향을 넣고 **AMCL 초기 위치 적용**을
+   누릅니다. 실제 등록 Home에서 후방 카메라가 0번을 볼 때만 등록 Home 값을
+   사용합니다. 별도 저속 회전 확인이 필요할 때만 **자세 초기화**를 실행합니다.
+4. `AMCL · TF 확인됨`과 위치 신뢰도를 확인하고 비상정지를 명시적으로 해제한 뒤,
+   적재를 확인해 임무를 시작합니다.
 
 초기화 중에는 자동주행이 차단되지만, 로컬 센서가 신선하면 명시적인 저속 위치 확인 회전은 가능합니다. 운용 중 위치 신뢰도가 크게 떨어지면 비상정지를 잠급니다. 초기 위치 지정이나 센서 회복만으로 자동 출발하지 않습니다.
 

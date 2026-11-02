@@ -143,19 +143,28 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(self.node.marker_alignment.snapshot()['wall_required'], True)
         self.assertEqual(self.node.goal_pub.messages, [])
 
-    def test_recognized_rear_marker_advances_mission_without_wall_or_center_servo(self):
+    def test_recognized_rear_marker_soft_centers_then_advances_mission_without_wall_servo(self):
         self.app.mission.markers[3]['camera'] = 'rear'
+        self.app.mission.markers[3]['yaw'] = .6  # Equal to the map arrival yaw: fallback search.
         self.node.marker_alignment = MarkerAlignment(confirmation_mode='recognized')
         self.node.marker_alignment_key = None
         self.tick()
-        # The marker is fully visible but 60% of the half-image width right
-        # of center. Repeated fresh, stopped correct-ID observations suffice.
+        # A fully visible marker at +0.6 normalized image error first receives
+        # a gentle yaw nudge. Once inside the broad +0.3 band, stopped fresh
+        # frames can confirm without exact central pixel/wall fitting.
         self.assertFalse(self.frame_at(80., camera='rear', ids=np.array([[2]])))
         self.tick(.1)
         self.assertEqual(self.node.marker_alignment_angular, .12)
+        self.assertFalse(self.frame_at(80., camera='rear'))
+        self.tick(.15)
+        self.assertLess(self.node.marker_alignment_angular, 0.)
+        self.assertGreaterEqual(self.node.marker_alignment_angular, -.10)
+        self.assertFalse(self.frame_at(60., camera='rear'))
+        self.tick(.15)
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
         verified = False
         for _ in range(12):
-            verified = self.frame_at(80., camera='rear')
+            verified = self.frame_at(60., camera='rear')
             self.app.mission.observe(self.frame, [3], self.app.pose, True, self.now,
                                      alignment_verified=verified)
             if self.app.mission.state == 'COMPLETED':
@@ -166,6 +175,66 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(self.app.mission.completed_ids, [3])
         self.assertFalse(self.node.marker_alignment.snapshot()['wall_required'])
         self.assertEqual(self.node.marker_alignment.snapshot()['confirmation_mode'], 'recognized')
+        self.assertEqual(self.node.marker_alignment.snapshot()['soft_center_result'], 'centered')
+
+    def test_registered_map_heading_guides_search_in_odom_frame(self):
+        self.app.mission.markers[3].update(camera='rear', yaw=-3.1)
+        self.node.marker_alignment = MarkerAlignment(confirmation_mode='recognized')
+        self.node.marker_alignment_key = None
+        self.refresh()
+        # Directly comparing -3.1 map yaw to -.1 odom yaw gives the wrong
+        # direction. Relative map error crosses +pi and must become +0.18.
+        self.app.pose['yaw'] = 3.0
+        self.app.odom_pose['yaw'] = -.1
+        self.node.tick_marker_alignment(self.now, True, True)
+        self.assertEqual(self.node.marker_alignment.direction, 1.)
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.assertFalse(self.frame_at(camera='rear', ids=[]))
+        self.node.tick_marker_alignment(self.now, True, True)
+        self.assertEqual(self.node.marker_alignment_angular, .12)
+        self.assertEqual(self.app.mission.completed_ids, [])
+
+    def test_registered_sector_heading_turns_toward_marker_without_unsafe_motion(self):
+        self.app.mission.markers[3].update(camera='rear', yaw=-1.4)
+        self.node.marker_alignment = MarkerAlignment(confirmation_mode='recognized')
+        self.node.marker_alignment_key = None
+        self.refresh()
+        self.app.pose['yaw'] = -1.09
+        self.app.odom_pose['yaw'] = .5
+        self.node.tick_marker_alignment(self.now, True, True)
+        self.assertEqual(self.node.marker_alignment.direction, -1.)
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.app.localization_clear = False
+        self.assertFalse(self.frame_at(camera='rear', ids=[]))
+        self.node.tick_marker_alignment(self.now, True, True)
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.assertEqual(self.node.marker_alignment.state, 'HOLD')
+        self.assertEqual(self.app.mission.completed_ids, [])
+        self.tick(.1)
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.assertFalse(self.frame_at(camera='rear', ids=[]))
+        self.tick(.1)
+        self.assertEqual(self.node.marker_alignment_angular, -.12)
+
+    def test_recognized_rear_marker_off_center_pauses_with_target_retained(self):
+        self.app.mission.markers[3]['camera'] = 'rear'
+        self.node.marker_alignment = MarkerAlignment(
+            confirmation_mode='recognized', soft_center_timeout=1.0)
+        self.node.marker_alignment_key = None
+        self.tick()
+        for _ in range(12):
+            verified = self.frame_at(85., camera='rear')
+            self.assertFalse(verified)
+            self.app.mission.observe(self.frame, [3], self.app.pose, True, self.now,
+                                     alignment_verified=verified)
+            self.tick(.15)
+            if self.app.mission.state == 'PAUSED':
+                break
+        self.assertEqual(self.node.marker_alignment.state, 'FAILED')
+        self.assertEqual(self.app.mission.state, 'PAUSED')
+        self.assertEqual(self.app.mission.expected_id, 3)
+        self.assertEqual(self.app.mission.completed_ids, [])
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
 
     def test_rear_arrival_never_uses_front_wall_or_pixel_center_alone(self):
         self.enable_rear_wall_alignment()
@@ -194,6 +263,7 @@ class BridgeTests(unittest.TestCase):
         self.assertFalse(self.node.marker_alignment.snapshot()['wall_reliable'])
 
     def test_fresh_blank_frame_enables_rotation_only_after_the_hold_ack(self):
+        self.app.mission.markers[3]['yaw'] = .6  # No directional heading hint.
         self.node.tick_marker_alignment(self.now, False, True)
         self.assertEqual(self.node.marker_alignment_angular, 0.)
         self.assertIsNone(self.node.marker_alignment_key)
@@ -273,6 +343,32 @@ class BridgeTests(unittest.TestCase):
         self.assertFalse(self.frame_at(75.))
         self.tick(.1)
         self.assertLess(self.node.marker_alignment_angular, 0.)
+
+    def test_recognized_marker_waits_for_post_clearance_camera_before_any_search_turn(self):
+        self.app.mission.markers[3]['camera'] = 'rear'
+        self.node.marker_alignment = MarkerAlignment(confirmation_mode='recognized')
+        self.node.marker_alignment_key = None
+        self.tick()
+        self.assertFalse(self.frame_at(60., camera='rear'))
+        self.tick(.1)
+        self.assertEqual(self.node.marker_alignment.soft_center_result, 'centered')
+
+        self.app.localization_clear = False
+        self.node.tick_marker_alignment(self.now, True, True)
+        self.assertEqual(self.node.marker_alignment.state, 'HOLD')
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.tick(.1)
+        self.assertEqual(self.node.marker_alignment.state, 'HOLD')
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.assertFalse(self.frame_at(camera='rear', ids=[]))
+        self.tick(.1)
+        self.assertEqual(self.node.marker_alignment.state, 'HOLD')
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.assertFalse(self.frame_at(60., camera='rear'))
+        self.tick(.1)
+        self.assertEqual(self.node.marker_alignment_angular, 0.)
+        self.assertNotEqual(self.node.marker_alignment.state, 'CONFIRMED')
+        self.assertEqual(self.app.mission.completed_ids, [])
 
     def test_confirmation_is_revoked_when_a_new_frame_moves_off_center(self):
         self.tick()

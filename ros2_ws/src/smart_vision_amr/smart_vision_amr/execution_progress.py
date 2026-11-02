@@ -6,7 +6,7 @@ refresh can keep its history by passing an equivalent route identity.
 """
 from collections import deque
 from dataclasses import dataclass
-from math import hypot, isfinite
+from math import atan2, cos, hypot, isfinite, sin
 
 
 @dataclass(frozen=True)
@@ -19,6 +19,8 @@ class ProgressSample:
     path_progress: float
     command_linear: float
     command_angular: float
+    yaw: float = 0.0
+    odom_yaw: float = 0.0
 
 
 class ExecutionProgress:
@@ -46,7 +48,8 @@ class ExecutionProgress:
             self.reset(route_id)
         if not all(isfinite(v) for v in (sample.at, sample.x, sample.y, sample.yaw_error,
                                          sample.path_progress, sample.command_linear,
-                                         sample.command_angular)) or sample.ros_ns <= 0:
+                                         sample.command_angular, sample.yaw,
+                                         sample.odom_yaw)) or sample.ros_ns <= 0:
             self.reset(route_id)
             return None
         previous = self.samples[-1] if self.samples else None
@@ -73,15 +76,40 @@ class ExecutionProgress:
         displacement = hypot(sample.x-first.x, sample.y-first.y)
         progress = sample.path_progress-first.path_progress
         heading_gain = abs(first.yaw_error)-abs(sample.yaw_error)
+        # The nearest path segment can change while the chassis turns through a
+        # corner. Compare the measured net yaw with the heading target at the
+        # beginning of this window as well, so a real alignment is not called
+        # a failed execution merely because the moving tangent keeps the
+        # instantaneous yaw error nearly constant.
+        yaw_delta = atan2(sin(sample.yaw-first.yaw), cos(sample.yaw-first.yaw))
+        odom_yaw_delta = atan2(sin(sample.odom_yaw-first.odom_yaw),
+                               cos(sample.odom_yaw-first.odom_yaw))
+        yaw_consistent = abs(atan2(sin(yaw_delta-odom_yaw_delta),
+                                   cos(yaw_delta-odom_yaw_delta))) <= .15
+        yaw_travel = sum(abs(atan2(sin(b.yaw-a.yaw), cos(b.yaw-a.yaw)))
+                         for a, b in zip(self.samples, list(self.samples)[1:]))
+        yaw_directness = abs(yaw_delta) / yaw_travel if yaw_travel > 1e-9 else 0.
+        anchored_error = atan2(sin(first.yaw_error-yaw_delta),
+                               cos(first.yaw_error-yaw_delta))
+        anchored_heading_gain = abs(first.yaw_error)-abs(anchored_error)
         turns = [1 if s.command_angular > self.min_angular else -1
                  for s in self.samples if abs(s.command_angular) >= self.min_angular]
         changes = sum(a != b for a, b in zip(turns, turns[1:]))
         evidence = {'window_seconds': duration, 'displacement': displacement,
                     'path_progress_delta': progress, 'heading_progress': heading_gain,
+                    'anchored_heading_progress': anchored_heading_gain,
+                    'net_yaw_change': yaw_delta, 'odom_yaw_change': odom_yaw_delta,
+                    'yaw_consistent': yaw_consistent, 'yaw_directness': yaw_directness,
                     'sign_changes': changes, 'sample_count': len(self.samples)}
         # Heading improvement is useful motion for a differential-drive robot.
-        # A clean in-place alignment must not be mistaken for a trapped turn.
-        if progress >= self.min_progress or displacement >= self.min_progress or heading_gain >= self.heading_progress:
+        # Repeated reversals without spatial progress are an oscillation even
+        # if one sample happens to face the initial target more closely.
+        if progress >= self.min_progress or displacement >= self.min_progress:
             return None
-        return ('execution_oscillation' if changes >= self.oscillation_changes
-                else 'execution_no_progress'), evidence
+        if changes >= self.oscillation_changes:
+            return 'execution_oscillation', evidence
+        if (yaw_consistent and yaw_directness >= .5
+                and abs(yaw_delta) >= min(.1, self.heading_progress / 2.)
+                and max(heading_gain, anchored_heading_gain) >= self.heading_progress):
+            return None
+        return 'execution_no_progress', evidence

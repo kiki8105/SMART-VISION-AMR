@@ -22,7 +22,7 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/run_classroom_navigation_16.sh
 ```
 
-이 명령은 Gazebo를 켜지 않습니다. 저장 지도는 `ros2_ws/src/smart_vision_amr/maps/classroom_20261027_cleaned.yaml`이며 현장 가벽 배치가 이 지도와 같아야 합니다. Nav2를 별도 프로세스 방식(`use_composition:=false`)으로 실행하고 로봇 runtime의 mux에 명령을 보냅니다. PC에서 EKF·mux를 중복 생성하지 않습니다.
+이 명령은 Gazebo를 켜지 않습니다. 저장 지도는 `ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.yaml`이며 현장 가벽 배치가 이 지도와 같아야 합니다. 이번 SLAM 원본 `classroom_20261030_raw.yaml`과 이전 지도 `classroom_20261027_cleaned.yaml`도 보존되어 있습니다. Nav2를 별도 프로세스 방식(`use_composition:=false`)으로 실행하고 로봇 runtime의 mux에 명령을 보냅니다. PC에서 EKF·mux를 중복 생성하지 않습니다.
 
 ## 터미널 3 — PC 웹
 
@@ -73,6 +73,13 @@ ps -eo pid,args | grep -E '[c]artographer_occupancy_grid_node|[c]artographer_nod
 ```
 
 필요 없는 SLAM을 실행한 터미널에서 `Ctrl+C`로 종료하고 PC 주행을 다시 시작합니다. 실제 지도 충돌을 경고만 숨겨서 해결하지 않습니다.
+
+새 지도는 이전 지도보다 좌표계가 약 0.5m 이동하고 조금 회전했습니다.
+새 지도 기준 등록 Home은 `(-0.188431, -0.220497)m`, 차체 전방 yaw는
+`-0.027514rad`입니다. Sector 1~3의 관측 위치도 함께 변환되어 웹 설정에
+등록되어 있습니다. 이전 지도에서 저장한 Homepoint·초기 위치를 재사용하지
+마세요. SLAM 저장 후에는 주행과 웹을 모두 새 지도 설정으로 다시 실행하고,
+로봇의 **실제 위치와 방향**을 확인해 AMCL 초기 위치를 다시 지정합니다.
 
 홈이 물리적으로 확인된 경우 PC의 `./scripts/set_classroom_home_pose_16.sh`도 초기화에 사용할 수 있습니다. 저장 지도 일치, 단일 지도 발행자, 최신 센서, 정지 상태와 홈 주변 스캔 일치도를 검사합니다. 로봇을 손으로 옮겼거나 재부팅했다면 이전 TF만 믿지 말고 다시 초기화합니다.
 

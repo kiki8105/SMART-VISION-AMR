@@ -139,6 +139,9 @@ def test_range_tolerance_stays_five_centimeters_across_map_resolutions(resolutio
         # old one/two-cell proximity tolerance into range would hide this hit.
         distance = 5.5 * resolution - 0.075
         node.scan(distance)
+        # The 5 cm map's return is also in the near-min range. It needs a
+        # second independent scan before it can modify live obstacle cells.
+        node.scan(distance)
         cell = map_utils.world_to_cell(
             node.map['message'].info,
             node.transform.transform.translation.x + distance,
@@ -199,6 +202,7 @@ def test_unknown_frontier_does_not_hide_a_nearby_live_return():
         msg.data[10 * 50 + 47] = -1
         node.on_map(msg)
         node.scan(0.15)
+        node.scan(0.15)
 
         assert node.observed() == {10 * 50 + 46}
         visibility = node.visibility_pub.publish.call_args.args[0]
@@ -208,6 +212,7 @@ def test_unknown_frontier_does_not_hide_a_nearby_live_return():
 
 def test_all_invalid_rays_do_not_publish_fresh_visibility_or_clear_old_hits():
     with wall_scan_harness() as node:
+        node.scan(0.15)
         node.scan(0.15)
         counts = (node.visibility_pub.publish.call_count, node.observation_pub.publish.call_count)
         stamp = node.last_scan_stamp_ns

@@ -78,6 +78,33 @@ def packets(node):
     return [json.loads(call.args[0].data) for call in node.status_pub.publish.call_args_list]
 
 
+def test_path_stamp_correlates_global_local_and_empty_invalidation(planner_factory):
+    node = planner_factory()
+    global_stamp_ns = node.current_path_stamp_ns
+    patch(node)
+    detour_path = paths(node)[-1]
+    detour_packet = packets(node)[-1]
+    detour_stamp_ns = (detour_path.header.stamp.sec * 1_000_000_000
+                       + detour_path.header.stamp.nanosec)
+    assert detour_stamp_ns > global_stamp_ns
+    assert detour_packet['path_stamp'] == {
+        'sec': detour_path.header.stamp.sec, 'nanosec': detour_path.header.stamp.nanosec}
+    assert all(pose.header.stamp == detour_path.header.stamp for pose in detour_path.poses)
+    assert detour_packet['plan_kind'] == 'LOCAL_DETOUR'
+
+    # Simulated /clock has not advanced. Even an empty cancellation Path gets
+    # a distinct stamp so a delayed ACTIVE status cannot label it as a detour.
+    node._invalidate_path('Route blocked')
+    cancelled_path = paths(node)[-1]
+    cancelled_stamp_ns = (cancelled_path.header.stamp.sec * 1_000_000_000
+                          + cancelled_path.header.stamp.nanosec)
+    assert not cancelled_path.poses
+    assert cancelled_stamp_ns > detour_stamp_ns
+    assert packets(node)[-1]['path_stamp'] == {
+        'sec': cancelled_path.header.stamp.sec,
+        'nanosec': cancelled_path.header.stamp.nanosec}
+
+
 def segment_box_clearance(a, b, box):
     """Independent exact line/rectangle distance for the circular footprint.
 
@@ -145,6 +172,22 @@ def test_local_patch_is_immediate_nonempty_and_keeps_goal_yaw_and_exact_suffix(p
     assert rejoin['x'] > 1.225
     assert any(value.get('plan_kind') == 'LOCAL_DETOUR' for value in packets(node))
     assert node.plan_metrics['local_detour_state'] == 'ACTIVE'
+
+
+def test_diagonal_live_hit_can_repair_route_without_blocking_clear_start(planner_factory):
+    node = planner_factory(clearance_penalty_gain=0.)
+    node.params.update(obstacle_inflation_cells=5,
+                       local_detour_observation_margin=.02)
+    original_goal = deepcopy(node.last_goal)
+    start = (10, 25)
+    hit = (15, 30)
+    assert node._live_obstacle_blocked({hit}, observation_margin=.02).isdisjoint({start})
+    patch(node, {hit})
+    assert node.plan_metrics['local_detour_state'] == 'ACTIVE'
+    assert node.last_goal == original_goal
+    assert paths(node) and paths(node)[-1].poses
+    assert path_box_clearance(node.planned_world_points,
+                              (.75, 1.50, .80, 1.55)) >= .24-1e-8
 
 
 @pytest.mark.parametrize('kind', ['static', 'unknown'])

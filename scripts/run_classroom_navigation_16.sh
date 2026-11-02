@@ -4,7 +4,7 @@ set -eo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 REPO_DIR=$(cd -- "$SCRIPT_DIR/.." && pwd)
 CONFIG_DIR=$REPO_DIR/ros2_ws/src/smart_vision_amr/config
-MAP_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/maps/classroom_20261027_cleaned.yaml
+MAP_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.yaml
 export TURTLEBOT3_TUNING_DOMAIN_ID=16
 LOCALIZATION_MODE=ekf_independent
 ESTIMATION_LOCATION=${SMART_VISION_ESTIMATION_LOCATION:-robot}
