@@ -18,6 +18,17 @@ from capture_classroom_stress_crate import (CRATE_CENTER, CRATE_HALF_SIZE,
 BODY_RADIUS_M = .24
 REQUIRED_BODY_MARGIN_M = .02
 MIN_ROUTE_TO_BOX_M = BODY_RADIUS_M+REQUIRED_BODY_MARGIN_M
+# A mission that stays well away from the fixed crate must not be reported as
+# a crate bypass merely because its LiDAR saw the crate from afar.
+MAX_CROSSING_LEG_BODY_CLEARANCE_M = .40
+MAX_LINK_AGE_S = .30
+MAX_LINK_BRACKET_S = .75
+MIN_DIRECT_LINK_FRACTION = .995
+MAX_TRUTH_GAP_S = .75
+CRATE_POSE_TOLERANCE_M = .005
+# motion_mux clamps both forward and reverse speed to 0.25 m/s. Between two
+# truth samples the robot can move away from, then return to, the same point.
+MAX_ENVELOPE_LINEAR_MPS = .25
 
 
 def point_rectangle_distance(point, center=CRATE_CENTER, half_size=CRATE_HALF_SIZE):
@@ -81,6 +92,101 @@ def path_rectangle_clearance(points, center=CRATE_CENTER):
                for start, end in zip(points, points[1:]))
 
 
+def _fixed_link_pose(record):
+    """Return a *fresh* link pose only when it agrees with the known fixture."""
+    age, pose = record.get('crate_link_age_s'), record.get('crate')
+    if (not isinstance(age, (int, float)) or not 0. <= age <= MAX_LINK_AGE_S or
+            not isinstance(pose, list) or len(pose) < 3 or
+            not all(isinstance(value, (int, float)) and math.isfinite(value)
+                    for value in pose[:3]) or
+            math.hypot(pose[0]-CRATE_CENTER[0], pose[1]-CRATE_CENTER[1]) >
+            CRATE_POSE_TOLERANCE_M or abs(pose[2]) > .02):
+        return None
+    return tuple(pose[:3])
+
+
+def resolve_fixed_crate_truth(truth):
+    """Bridge rare link-callback gaps only between matching, fresh poses.
+
+    Gazebo ModelStates must still show the crate in *every* robot sample.
+    A fresh link at an unexpected pose, missing model, unbracketed gap, or
+    insufficient directly observed fraction fails closed.
+    """
+    n = len(truth)
+    direct = [_fixed_link_pose(record) for record in truth]
+    valid_count = sum(pose is not None for pose in direct)
+    metrics = {'mission_truth_samples': n,
+               'fixed_crate_truth_samples': valid_count,
+               'direct_link_fraction': round(valid_count/n, 6) if n else 0.,
+               'interpolated_link_samples': 0,
+               'max_link_bracket_s': None,
+               'crate_model_present_every_sample': bool(n and all(
+                   record.get('crate_model_present') is True for record in truth))}
+    enough = (n >= 20 and valid_count >= 20 and
+              valid_count/n >= MIN_DIRECT_LINK_FRACTION)
+    if not metrics['crate_model_present_every_sample'] or not enough:
+        return None, metrics
+    # A recent but displaced/invalid link is a different physical object,
+    # never a callback gap that can be safely interpolated.
+    for record, pose in zip(truth, direct):
+        age = record.get('crate_link_age_s')
+        if pose is None and (record.get('crate') is not None or
+                             not isinstance(age, (int, float)) or
+                             not math.isfinite(age) or age <= MAX_LINK_AGE_S):
+            return None, metrics
+    resolved = direct[:]
+    brackets = []
+    for i, pose in enumerate(direct):
+        if pose is not None:
+            continue
+        left = next((j for j in range(i-1, -1, -1)
+                     if direct[j] is not None), None)
+        right = next((j for j in range(i+1, n)
+                      if direct[j] is not None), None)
+        if left is None or right is None:
+            return None, metrics
+        start, end = truth[left]['at'], truth[right]['at']
+        span = end-start
+        if (not 0. < span <= MAX_LINK_BRACKET_S or
+                math.hypot(direct[left][0]-direct[right][0],
+                           direct[left][1]-direct[right][1]) >
+                CRATE_POSE_TOLERANCE_M or
+                abs(direct[left][2]-direct[right][2]) > .02):
+            return None, metrics
+        fraction = (truth[i]['at']-start)/span
+        if not 0. <= fraction <= 1.:
+            return None, metrics
+        resolved[i] = tuple(a+fraction*(b-a)
+                            for a, b in zip(direct[left], direct[right]))
+        brackets.append(span)
+    metrics['interpolated_link_samples'] = len(brackets)
+    metrics['max_link_bracket_s'] = round(max(brackets), 4) if brackets else 0.
+    return resolved, metrics
+
+
+def conservative_truth_body_clearance(truth):
+    """Minimum clearance with bounded travel between robot-truth samples."""
+    if not truth:
+        return None
+    half = tuple(value+CRATE_POSE_TOLERANCE_M for value in CRATE_HALF_SIZE)
+    if len(truth) == 1:
+        return point_rectangle_distance(truth[0]['robot'], CRATE_CENTER,
+                                        half)-BODY_RADIUS_M
+    values = []
+    for before, after in zip(truth, truth[1:]):
+        gap = after['at']-before['at']
+        if not 0. < gap <= MAX_TRUTH_GAP_S:
+            return None
+        # A trajectory of length <= v*gap cannot deviate from its endpoint
+        # chord by more than v*gap/2: every point is within that distance of
+        # at least one endpoint. This also covers reverse/out-and-back motion.
+        excursion_reserve = MAX_ENVELOPE_LINEAR_MPS*gap/2.
+        values.append(segment_rectangle_distance(
+            before['robot'], after['robot'], CRATE_CENTER, half)-
+            BODY_RADIUS_M-excursion_reserve)
+    return min(values)
+
+
 def _target(evidence, marker_id):
     target = (evidence.get('marker_targets') or {}).get(str(marker_id))
     if (not isinstance(target, (list, tuple)) or len(target) < 2 or
@@ -90,7 +196,7 @@ def _target(evidence, marker_id):
     return target[:2]
 
 
-def assess(records, web_evidence):
+def assess(records, web_evidence, expected_route=(1, 2, 3)):
     """Return a conservative verdict; absence of any source fails closed."""
     reasons = []
     checks = {}
@@ -108,36 +214,58 @@ def assess(records, web_evidence):
     if not checks['isolated_observer']:
         reasons.append('isolation_or_crate_identity_unproven')
 
-    goals = [record for record in records if record.get('kind') == 'goal']
-    target = _target(web_evidence, 2)
-    matching_goals = [goal for goal in goals if target is not None and
-                      math.hypot(goal.get('x', math.inf)-target[0],
-                                 goal.get('y', math.inf)-target[1]) <= .05]
-    sector2_goal = matching_goals[0] if matching_goals else None
-    metrics['sector2_goal_at'] = sector2_goal.get('at') if sector2_goal else None
-    checks['sector2_goal_seen'] = bool(sector2_goal)
-    if not checks['sector2_goal_seen']:
-        reasons.append('sector2_ros_goal_unproven')
-
+    goals = [record for record in records if record.get('kind') == 'goal' and
+             isinstance(record.get('at'), (int, float))]
     mission_start = goals[0]['at'] if goals else math.inf
     truth = [record for record in records if record.get('kind') == 'truth' and
              isinstance(record.get('at'), (int, float)) and
              isinstance(record.get('robot'), list) and
              len(record['robot']) >= 2]
     mission_truth = [record for record in truth if record['at'] >= mission_start]
-    fixed = [record for record in mission_truth
-             if record.get('crate_model_present') is True and
-             isinstance(record.get('crate_link_age_s'), (int, float)) and
-             record['crate_link_age_s'] <= .30 and
-             isinstance(record.get('crate'), list) and
-             len(record['crate']) >= 2 and
-             math.hypot(record['crate'][0]-CRATE_CENTER[0],
-                        record['crate'][1]-CRATE_CENTER[1]) <= .005 and
-             len(record['crate']) >= 3 and abs(record['crate'][2]) <= .02]
-    checks['fixed_crate_present_in_live_gazebo'] = bool(
-        len(fixed) >= 20 and len(fixed) == len(mission_truth))
-    metrics['mission_truth_samples'] = len(mission_truth)
-    metrics['fixed_crate_truth_samples'] = len(fixed)
+    # Select the goal actually active when the robot first traverses the
+    # crate's north/south corridor.  In 1→2→3 this is Sector 2; in 1→3→2 it
+    # is Sector 3.  Never treat a later, box-clear Sector 2 path as evidence
+    # that an earlier Sector 3 passage was planned safely.
+    first_crossing = next((record for record in mission_truth
+                           if record['robot'][1] < -.90), None)
+    active_goals = [goal for goal in goals if first_crossing is not None and
+                    goal['at'] <= first_crossing['at']]
+    crossing_goal = active_goals[-1] if active_goals else None
+    crossing_marker = next((marker_id for marker_id in expected_route
+                            if crossing_goal is not None and
+                            (target := _target(web_evidence, marker_id)) is not None and
+                            math.hypot(crossing_goal.get('x', math.inf)-target[0],
+                                       crossing_goal.get('y', math.inf)-target[1]) <= .05),
+                           None)
+    goal_prefix = f'sector{crossing_marker}' if crossing_marker else 'crossing_leg'
+    target = (_target(web_evidence, crossing_marker)
+              if crossing_marker is not None else None)
+    metrics['crossing_leg_marker_id'] = crossing_marker
+    metrics['crossing_leg_goal_at'] = crossing_goal['at'] if crossing_goal else None
+    metrics[f'{goal_prefix}_goal_at'] = crossing_goal['at'] if crossing_goal else None
+    checks[f'{goal_prefix}_goal_seen'] = crossing_marker is not None
+    if crossing_marker is None:
+        reasons.append('crate_crossing_leg_ros_goal_unproven')
+    crossing_leg_truth = [record for record in mission_truth
+                          if crossing_goal is not None and first_crossing is not None
+                          and crossing_goal['at'] <= record['at'] <= first_crossing['at']]
+    closest_crossing_leg = min(
+        (point_rectangle_distance(record['robot'])-BODY_RADIUS_M
+         for record in crossing_leg_truth), default=None)
+    metrics['crossing_leg_minimum_body_clearance_m'] = (
+        round(closest_crossing_leg, 4)
+        if closest_crossing_leg is not None else None)
+    checks['crossing_leg_near_crate'] = bool(
+        closest_crossing_leg is not None and
+        closest_crossing_leg <= MAX_CROSSING_LEG_BODY_CLEARANCE_M)
+    if not checks['crossing_leg_near_crate']:
+        reasons.append('crate_crossing_leg_never_near_box')
+    crate_poses, link_metrics = resolve_fixed_crate_truth(mission_truth)
+    metrics.update(link_metrics)
+    checks['fixed_crate_present_in_live_gazebo'] = crate_poses is not None
+    crate_by_record = ({id(record): pose for record, pose in
+                        zip(mission_truth, crate_poses)}
+                       if crate_poses is not None else {})
     if not checks['fixed_crate_present_in_live_gazebo']:
         reasons.append('fixed_crate_runtime_presence_unproven')
 
@@ -149,24 +277,28 @@ def assess(records, web_evidence):
                        target is not None and
                        math.hypot(record['points'][-1][0]-target[0],
                                   record['points'][-1][1]-target[1]) <= .35 and
-                       sector2_goal is not None and
-                       record['at'] >= sector2_goal['at']]
-    metrics['sector2_matching_path_count'] = len(path_candidates)
+                       crossing_goal is not None and
+                       record['at'] >= crossing_goal['at'] and
+                       (first_crossing is None or
+                        record['at'] < first_crossing['at'])]
+    metrics[f'{goal_prefix}_matching_path_count'] = len(path_candidates)
     first_path_margin = (path_rectangle_clearance(path_candidates[0]['points'])
                          if path_candidates else None)
-    metrics['initial_sector2_path_body_clearance_m'] = (
+    metrics[f'initial_{goal_prefix}_path_body_clearance_m'] = (
         round(first_path_margin, 4) if first_path_margin is not None else None)
 
     raw_hits = [record for record in records if record.get('kind') == 'scan_crate'
                 and record.get('matching_beams', 0) >= 2 and
                 record.get('truth_age_s', math.inf) <= .30 and
                 isinstance(record.get('at'), (int, float)) and
-                record['at'] >= mission_start]
+                crossing_goal is not None and
+                record['at'] >= crossing_goal['at']]
     observed = [record for record in records if record.get('kind') == 'observed'
                 and record.get('map_ready') is True and
                 len(set(record.get('nearby_indices') or [])) >= 2 and
                 isinstance(record.get('at'), (int, float)) and
-                record['at'] >= mission_start]
+                crossing_goal is not None and
+                record['at'] >= crossing_goal['at']]
     joint_witnesses = [(obs, hit) for obs in observed for hit in raw_hits
                        if abs(obs['at']-hit['at']) <= 1.]
     latest_before_path = None
@@ -196,20 +328,21 @@ def assess(records, web_evidence):
         near_truth = min(mission_truth,
                          key=lambda sample: abs(sample['at']-path['at']),
                          default=None)
+        near_crate = crate_by_record.get(id(near_truth)) if near_truth else None
         if (near_truth is None or
                 abs(near_truth['at']-path['at']) > .30 or
                 near_truth['robot'][1] <= -.35 or
-                not isinstance(near_truth.get('crate'), list)):
+                near_crate is None):
             continue
-        margin = path_rectangle_clearance(path['points'], near_truth['crate'][:2])
+        margin = path_rectangle_clearance(path['points'], near_crate[:2])
         if margin is not None and margin >= REQUIRED_BODY_MARGIN_M:
             safe_paths.append((path, margin, witness, near_truth))
     safe_path = min(safe_paths, key=lambda item: item[0]['at']) if safe_paths else None
-    checks['sector2_path_after_lidar_is_box_clear'] = bool(safe_path)
-    metrics['safe_sector2_path_at'] = safe_path[0]['at'] if safe_path else None
-    metrics['safe_sector2_path_body_clearance_m'] = (
+    checks[f'{goal_prefix}_path_after_lidar_is_box_clear'] = bool(safe_path)
+    metrics[f'safe_{goal_prefix}_path_at'] = safe_path[0]['at'] if safe_path else None
+    metrics[f'safe_{goal_prefix}_path_body_clearance_m'] = (
         round(safe_path[1], 4) if safe_path else None)
-    metrics['safe_sector2_path_points'] = (
+    metrics[f'safe_{goal_prefix}_path_points'] = (
         safe_path[0]['count'] if safe_path else None)
     prior_unsafe_paths = ([path for path in path_candidates
                            if safe_path and path['at'] < safe_path[0]['at'] and
@@ -218,12 +351,12 @@ def assess(records, web_evidence):
                            < REQUIRED_BODY_MARGIN_M]
                           if safe_path else [])
     checks['unsafe_route_replanned_after_lidar'] = bool(prior_unsafe_paths)
-    metrics['last_unsafe_sector2_path_at'] = (
+    metrics[f'last_unsafe_{goal_prefix}_path_at'] = (
         prior_unsafe_paths[-1]['at'] if prior_unsafe_paths else None)
     metrics['route_reaction_kind'] = (
         'replanned_bypass' if prior_unsafe_paths else
         'box_clear_initial_route_after_lidar' if safe_path else 'unproven')
-    metrics['robot_y_at_safe_sector2_path_m'] = (
+    metrics[f'robot_y_at_safe_{goal_prefix}_path_m'] = (
         round(safe_path[3]['robot'][1], 4) if safe_path else None)
     if safe_path:
         latest_before_path = safe_path[2]
@@ -231,13 +364,11 @@ def assess(records, web_evidence):
             latest_before_path[0].get('nearby_indices') or []))
         metrics['observed_at'] = latest_before_path[0]['at']
         metrics['raw_lidar_hit_at'] = latest_before_path[1]['at']
-    if not checks['sector2_path_after_lidar_is_box_clear']:
-        reasons.append('sector2_box_aware_safe_path_unproven')
+    if not checks[f'{goal_prefix}_path_after_lidar_is_box_clear']:
+        reasons.append(f'{goal_prefix}_box_aware_safe_path_unproven')
 
-    clearances = [(point_rectangle_distance(
-                    record['robot'], record['crate'][:2])-BODY_RADIUS_M,
-                   record['at']) for record in fixed]
-    minimum = min((value for value, _ in clearances), default=None)
+    minimum = (conservative_truth_body_clearance(mission_truth)
+               if crate_poses is not None else None)
     metrics['minimum_truth_body_clearance_m'] = (
         round(minimum, 4) if minimum is not None else None)
     checks['body_clearance_2cm_entire_mission'] = bool(
@@ -255,7 +386,8 @@ def assess(records, web_evidence):
         round(mission_truth[-1]['at']-final_at, 4)
         if mission_truth and isinstance(final_at, (int, float)) else None)
     checks['truth_sampling_sufficient'] = bool(
-        len(mission_truth) >= 30 and truth_gaps and max(truth_gaps) <= .5 and
+        len(mission_truth) >= 30 and truth_gaps and
+        all(0. < gap <= MAX_TRUTH_GAP_S for gap in truth_gaps) and
         mission_truth[0]['at'] <= mission_start+.5 and
         isinstance(final_at, (int, float)) and
         mission_truth[-1]['at'] >= final_at-.5)
@@ -263,8 +395,10 @@ def assess(records, web_evidence):
         reasons.append('gazebo_truth_sampling_insufficient')
 
     crossed = [record for record in mission_truth if safe_path is not None and
-               record['at'] > safe_path[0]['at'] and record['robot'][1] < -.90 and
-               isinstance(record.get('crate'), list)]
+               first_crossing is not None and
+               record['at'] == first_crossing['at'] and
+               record['at'] > safe_path[0]['at'] and
+               id(record) in crate_by_record]
     checks['gazebo_truth_bypassed_crate'] = bool(crossed)
     metrics['first_y_below_minus_0p90_at'] = crossed[0]['at'] if crossed else None
     if not checks['gazebo_truth_bypassed_crate']:
@@ -274,16 +408,17 @@ def assess(records, web_evidence):
     checks['web_full_route_and_home'] = bool(
         web_evidence.get('passed') is True and
         web_evidence.get('mission_accepted_via_web') is True and
-        web_evidence.get('route') == [1, 2, 3] and
-        web_evidence.get('final_route') == [1, 2, 3] and
-        web_evidence.get('completed_ids') == [1, 2, 3] and
+        web_evidence.get('route') == list(expected_route) and
+        web_evidence.get('final_route') == list(expected_route) and
+        web_evidence.get('completed_ids') == list(expected_route) and
         web_evidence.get('final_state') == 'HOME_REACHED' and
         web_evidence.get('home_stationary_verified') is True and
         continuity.get('route_preserved') is True and
         continuity.get('start_event_count') == 1 and
         continuity.get('cancel_event_count') == 0)
     if not checks['web_full_route_and_home']:
-        reasons.append('web_sector123_home_completion_unproven')
+        route_label = ''.join(map(str, expected_route))
+        reasons.append(f'web_sector{route_label}_home_completion_unproven')
 
     return {'passed': not reasons, 'reasons': reasons,
             'checks': checks, 'metrics': metrics}
@@ -294,12 +429,17 @@ def main():
     parser.add_argument('--trace', type=Path, required=True)
     parser.add_argument('--web-evidence', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--expected-route', default='1,2,3',
+                        help='Ordered sector IDs from the staged trial, e.g. 1,3,2')
     args = parser.parse_args()
     try:
         records = [json.loads(line) for line in args.trace.read_text().splitlines()
                    if line.strip()]
         web_evidence = json.loads(args.web_evidence.read_text())
-        result = assess(records, web_evidence)
+        expected_route = tuple(int(value) for value in args.expected_route.split(','))
+        if not expected_route or len(set(expected_route)) != len(expected_route):
+            raise ValueError('expected_route must contain distinct sector IDs')
+        result = assess(records, web_evidence, expected_route)
     except (OSError, ValueError, TypeError, KeyError) as exc:
         result = {'passed': False, 'reasons': ['evidence_read_error: '+str(exc)],
                   'checks': {}, 'metrics': {}}

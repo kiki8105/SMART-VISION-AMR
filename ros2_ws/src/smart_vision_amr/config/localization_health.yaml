@@ -36,6 +36,9 @@ localization_health:
     # Accumulated moving time since the last new AMCL sample, excluding idle.
     # Stops do not reset the budget, so repeated stop/go cannot bypass it.
     amcl_moving_timeout: 4.0
+    # A cached AMCL covariance is not a current pose. The stopped robot gets
+    # bounded no-motion refresh requests before this age blocks autonomous drive.
+    amcl_pose_timeout: 8.0  # Both /amcl_pose receipt and source-header age.
     # Ask AMCL for a real laser-filter update during slow/short reversing turns.
     # Requests/responses never count as a new pose; the 4 s watchdog remains.
     nomotion_update_interval: 2.0  # s; rate is capped at one request per 2 s.

@@ -82,6 +82,42 @@ def test_classroom_wrapper_defaults_to_ekf_and_preserves_overrides(tmp_path):
     assert 'use_rviz:=true' in rollback_arguments
 
 
+def test_classroom_navigation_rejects_map_override_before_launch(tmp_path):
+    scripts = tmp_path/'scripts'
+    scripts.mkdir()
+    shutil.copyfile(REPO/'scripts/run_classroom_navigation_16.sh',
+                    scripts/'run_classroom_navigation_16.sh')
+    downstream = scripts/'run_hardware_tuning.sh'
+    downstream.write_text('#!/usr/bin/env bash\nprintf "launched\\n"\n')
+    downstream.chmod(0o755)
+    result = subprocess.run(['bash', str(scripts/'run_classroom_navigation_16.sh'),
+                             'map:=/tmp/classroom_20261027_cleaned.yaml'],
+                            text=True, capture_output=True, timeout=5)
+    assert result.returncode == 2
+    assert 'map:= 덮어쓰기를 거부했습니다' in result.stderr
+    assert '20261030' in result.stderr
+    assert 'launched' not in result.stdout
+
+
+@pytest.mark.parametrize('option', [
+    '--map-file=/tmp/classroom_20261027_cleaned.yaml',
+    '--raw-map-file', '--floorplan-file', '--markers-file',
+])
+def test_classroom_web_rejects_map_marker_override_before_launch(tmp_path, option):
+    scripts = tmp_path/'scripts'
+    scripts.mkdir()
+    shutil.copyfile(REPO/'scripts/run_classroom_web_16.sh',
+                    scripts/'run_classroom_web_16.sh')
+    downstream = scripts/'run_web_mission.sh'
+    downstream.write_text('#!/usr/bin/env bash\nprintf "launched\\n"\n')
+    downstream.chmod(0o755)
+    result = subprocess.run(['bash', str(scripts/'run_classroom_web_16.sh'), option],
+                            text=True, capture_output=True, timeout=5)
+    assert result.returncode == 2
+    assert '옵션 덮어쓰기를 거부했습니다' in result.stderr
+    assert 'launched' not in result.stdout
+
+
 def test_hardware_launch_exposes_composition_in_show_args():
     result = subprocess.run([sys.executable, '/opt/ros/humble/bin/ros2',
                              'launch', str(LAUNCH), '--show-args'],

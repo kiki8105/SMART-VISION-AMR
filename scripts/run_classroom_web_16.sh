@@ -13,6 +13,15 @@ SETTINGS_FILE=${SMART_VISION_CLASSROOM_CONFIG:-$HOME/.config/smart-vision-amr/cl
 CAMERA_TRANSPORT=${SMART_VISION_CLASSROOM_CAMERA_TRANSPORT:-compressed}
 MINIMUM_BATTERY_VOLTAGE=${SMART_VISION_MIN_BATTERY_VOLTAGE:-10.8}
 MUX_OPTIONS=()
+for argument in "$@"; do
+  case "$argument" in
+    --map-file|--map-file=*|--raw-map-file|--raw-map-file=*|--floorplan-file|--floorplan-file=*|--markers-file|--markers-file=*)
+      printf '교실 웹 지도·마커는 2026-10-30 프로필에 고정되어 있습니다. 옵션 덮어쓰기를 거부했습니다: %s\n' "$argument" >&2
+      printf '다른 지도는 run_web_mission.sh에 맞는 지도와 마커를 명시해 실행하세요.\n' >&2
+      exit 2
+      ;;
+  esac
+done
 case "${SMART_VISION_ESTIMATION_LOCATION:-robot}" in
   pc) MUX_OPTIONS+=(--with-motion-mux) ;;
   robot) ;;
@@ -23,6 +32,7 @@ case "$CAMERA_TRANSPORT" in
   compressed) CAMERA_SUFFIX=/compressed ;;
   *) printf 'SMART_VISION_CLASSROOM_CAMERA_TRANSPORT must be raw or compressed.\n' >&2; exit 2 ;;
 esac
+printf '[교실 웹] 사용 지도: %s\n[교실 웹] 사용 마커: %s\n' "$MAP_FILE" "$MARKERS" >&2
 
 # Seed this map's own home/route once. Subsequent launches preserve user changes.
 /usr/bin/python3 - "$SETTINGS_FILE" "$MARKERS" <<'PY'

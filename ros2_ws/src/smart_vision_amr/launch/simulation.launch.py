@@ -8,7 +8,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
     AppendEnvironmentVariable, DeclareLaunchArgument, GroupAction, IncludeLaunchDescription,
-    OpaqueFunction, RegisterEventHandler,
+    OpaqueFunction, RegisterEventHandler, Shutdown,
 )
 from launch.conditions import IfCondition, LaunchConfigurationEquals, UnlessCondition
 from launch.event_handlers import OnShutdown
@@ -107,6 +107,16 @@ def generate_launch_description():
     sim = {'use_sim_time': True}
     nodes = LaunchConfiguration('nodes_params_file')
     floating = lambda name: ParameterValue(LaunchConfiguration(name), value_type=float)
+    filtered_change_scan = ParameterValue(PythonExpression([
+        "'/scan_filtered_for_change' if '",
+        LaunchConfiguration('laser_filter_for_change_memory'),
+        "'.lower() in ('true', '1') else '/scan'",
+    ]), value_type=str)
+    filtered_navigation = IfCondition(PythonExpression([
+        "'", LaunchConfiguration('laser_filter_for_change_memory'),
+        "'.lower() in ('true', '1') and '", LaunchConfiguration('slam'),
+        "'.lower() != 'true'",
+    ]))
 
     return LaunchDescription([
         DeclareLaunchArgument('world', default_value=str(own / 'worlds/simulation_room.world')),
@@ -117,6 +127,8 @@ def generate_launch_description():
                               description='Build a fresh map using manual driving; disables navigation'),
         DeclareLaunchArgument('slam_params_file', default_value=str(own / 'config/slam_simulation.yaml')),
         DeclareLaunchArgument('gazebo_params_file', default_value=str(own / 'config/gazebo_clock.yaml')),
+        DeclareLaunchArgument('gazebo_seed', default_value='',
+                              description='Optional fixed Gazebo random seed for paired A/B trials'),
         DeclareLaunchArgument('x_pose', default_value='-3.0'),
         DeclareLaunchArgument('y_pose', default_value='-2.0'),
         DeclareLaunchArgument('yaw', default_value='0.0'),
@@ -149,14 +161,20 @@ def generate_launch_description():
                               description='Use the same wheel integrator limits and covariance as hardware'),
         DeclareLaunchArgument('use_ekf_sensor_guard', default_value='false',
                               description='Full-system independent EKF test: latch until explicit operator reset'),
+        DeclareLaunchArgument('minimum_battery_voltage', default_value='0.0',
+                              description='Battery gate for guarded Gazebo tests; 0 disables it'),
         DeclareLaunchArgument('memory_enabled', default_value='false'),
         DeclareLaunchArgument('memory_path', default_value='~/.ros/smart_vision_amr/simulation_memory.json'),
+        DeclareLaunchArgument('laser_filter_for_change_memory', default_value='false',
+                              description='Experimental speckle filter for change_memory only; '
+                                          'Nav2, AMCL and motion_mux retain raw /scan'),
         OpaqueFunction(function=_validate_localization_mode),
         AppendEnvironmentVariable('GAZEBO_MODEL_PATH', str(tb3 / 'models')),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(str(gazebo / 'launch/gzserver.launch.py')),
             launch_arguments={'world': LaunchConfiguration('world'),
-                              'params_file': LaunchConfiguration('gazebo_params_file')}.items()),
+                              'params_file': LaunchConfiguration('gazebo_params_file'),
+                              'seed': LaunchConfiguration('gazebo_seed')}.items()),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(str(gazebo / 'launch/gzclient.launch.py')),
             condition=IfCondition(LaunchConfiguration('gui'))),
@@ -185,7 +203,7 @@ def generate_launch_description():
              parameters=[str(own / 'config/ekf_hardware.yaml'), sim,
                          {'expected_ekf_odom_publisher': 'ekf_independent',
                           'expected_raw_wheel_odom_topic': '/gazebo/odom_raw',
-                          'minimum_battery_voltage': 0.0}], output='screen',
+                          'minimum_battery_voltage': floating('minimum_battery_voltage')}], output='screen',
              condition=IfCondition(LaunchConfiguration('use_ekf_sensor_guard'))),
         Node(package='slam_toolbox', executable='async_slam_toolbox_node', name='slam_toolbox',
              parameters=[LaunchConfiguration('slam_params_file'), sim], output='screen',
@@ -235,10 +253,17 @@ def generate_launch_description():
              parameters=[nodes, sim], output='screen', condition=navigation),
         Node(package='smart_vision_amr', executable='path_follower', name='path_follower',
              parameters=[nodes, sim], output='screen', condition=navigation),
+        Node(package='laser_filters', executable='scan_to_scan_filter_chain',
+             name='scan_to_scan_filter_chain',
+             parameters=[str(own / 'config/change_memory_speckle.yaml'), sim],
+             remappings=[('/scan_filtered', '/scan_filtered_for_change')], output='screen',
+             on_exit=Shutdown(reason='Optional change_memory scan filter exited'),
+             condition=filtered_navigation),
         Node(package='smart_vision_amr', executable='change_memory', name='change_memory',
              parameters=[nodes, sim, {
                  'memory_enabled': ParameterValue(LaunchConfiguration('memory_enabled'), value_type=bool),
-                 'memory_path': LaunchConfiguration('memory_path')}], output='screen',
+                 'memory_path': LaunchConfiguration('memory_path'),
+                 'scan_topic': filtered_change_scan}], output='screen',
              condition=navigation),
         Node(package='rviz2', executable='rviz2', name='rviz2',
              arguments=['-d', str(own / 'rviz/simulation.rviz')], parameters=[sim],

@@ -27,8 +27,8 @@ markers:
     camera: rear
   - id: 2
     name: Sector 2
-    # The Gazebo stop passed with ArUco 2 near image center and more turn room.
-    x: 1.450000
+    # Trial candidate: closer to the marker's x axis while retaining mapped turn clearance.
+    x: 1.525000
     y: -2.650000
     yaw: 1.543282
     camera: rear

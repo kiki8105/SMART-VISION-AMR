@@ -584,9 +584,14 @@ class MissionLifecycleTests(unittest.TestCase):
         home_stamp = home_goal.header.stamp
         self.node.on_navigation(String(data=json.dumps({'status': 'SUCCEEDED', 'goal_stamp': {
             'sec': home_stamp.sec, 'nanosec': home_stamp.nanosec}})))
-        self.assertEqual(self.app.mission.state, 'HOME_REACHED')
+        # FollowPath success starts a fresh, guarded Home yaw/stop check.  It
+        # cannot claim physical arrival before that hold is acknowledged.
+        self.assertEqual(self.app.mission.state, 'RETURNING_HOME')
+        self.assertTrue(self.app.mission.home_navigation_succeeded)
+        self.assertTrue(self.node.home_yaw_trim.active)
         self.assertFalse(self.app.navigation_active)
-        self.assertFalse(self.app.mission.returning_home)
+        self.assertTrue(self.app.mission.returning_home)
+        self.assertEqual(json.loads(self.stops.messages[-1].data)['mode'], 'hold')
 
     def test_return_ignores_stale_camera_but_pauses_on_stale_scan(self):
         self.publish_first()

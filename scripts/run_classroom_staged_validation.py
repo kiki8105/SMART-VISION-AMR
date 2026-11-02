@@ -38,9 +38,42 @@ WEB_FULL_STACK_STAGES = {
     '12_web_integrated_clean',
     '12_web_integrated_home_obstacle',
     '12_web_integrated_stress_clean',
+    '12_web_integrated_stress_permuted',
     '12_web_integrated_stress_home_obstacle',
     '17_web_hardware_value_parity',
+    '18_web_sector2_same_session_reentry',
+    '19_web_inventory_sector2_same_session_reentry',
 }
+WEB_RUNTIME_KINDS = {'web_dwell', 'web_transient', 'web_moving_obstacle',
+                     'web_reentry'}
+
+
+def web_runtime_source_hashes(stage: 'Stage') -> dict[str, str]:
+    """Fingerprint the checked-in software and assets a full web trial can load.
+
+    Enumerate both before and after the trial, so a newly added or deleted
+    source file also invalidates its evidence. Exclude tests, docs and generated
+    ROS logs; changes there do not alter a running mission.
+    """
+    if stage.kind not in WEB_RUNTIME_KINDS:
+        return {}
+    package = REPO/'ros2_ws/src/smart_vision_amr'
+    roots = (
+        (REPO/'scripts', {'.py', '.sh'}),
+        (package/'smart_vision_amr', {'.py'}),
+        (package/'launch', {'.py'}),
+        (package/'web', {'.html', '.js', '.css', '.svg'}),
+        (package/'config', {'.yaml', '.xml'}),
+        (package/'maps', {'.yaml', '.pgm'}),
+        (package/'worlds', {'.world', '.sdf'}),
+        (REPO/'gazebo_models', {'.config', '.sdf', '.material', '.png', '.jpg',
+                              '.obj', '.json'}),
+    )
+    paths = sorted({path for directory, suffixes in roots
+                    for path in directory.rglob('*')
+                    if path.is_file() and path.suffix in suffixes})
+    return {str(path.relative_to(REPO)): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in paths}
 
 
 @dataclass(frozen=True)
@@ -57,7 +90,7 @@ STAGES = (
           ('--single-goal', 'Sector1Candidate', '1.20', '.55', '3.114078'),
           ('Sector1Candidate',)),
     Stage('02_sector_2', 'Home → Sector 2 단독',
-          ('--single-goal', 'Sector2Candidate', '1.45', '-2.65', '1.543282'),
+          ('--single-goal', 'Sector2Candidate', '1.525', '-2.65', '1.543282'),
           ('Sector2Candidate',)),
     Stage('03_sector_3', 'Home → Sector 3 단독',
           ('--single-goal', 'Sector3', *SECTOR3), ('Sector3',)),
@@ -113,12 +146,21 @@ STAGES = (
     Stage('12_web_integrated_stress_clean',
           '전체 시스템: 악조건 교실 월드 웹 1→2→3→Home, 새 장애물 없음',
           ('--stress',), ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'web_dwell'),
+    Stage('12_web_integrated_stress_permuted',
+          '전체 시스템: 악조건 교실 월드 웹 1→3→2→Home, 순서 변경',
+          ('--stress',), ('Sector 1', 'Sector 3', 'Sector 2', 'Home'), 'web_dwell'),
     Stage('12_web_integrated_stress_home_obstacle',
           '전체 시스템: 악조건 교실 월드 Home 복귀 중 이동 장애물',
           ('--stress',), ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'web_moving_obstacle'),
     Stage('17_web_hardware_value_parity',
           '실차 설정값 비교: 악조건 교실 웹 1→2→3→Home 최종 재시험',
           ('--stress',), ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'web_dwell'),
+    Stage('18_web_sector2_same_session_reentry',
+          '같은 웹·ROS 프로세스에서 Sector 2→Home 두 번: AMCL 수동 초기화·비상정지 해제',
+          (), ('Sector 2', 'Home'), 'web_reentry'),
+    Stage('19_web_inventory_sector2_same_session_reentry',
+          '관리자 재고 요청→운용자 적재·출발→Sector 2→Home 두 번, 같은 웹·ROS 프로세스',
+          ('--inventory',), ('Sector 2', 'Home'), 'web_reentry'),
     Stage('13_web_sector_dwell_1_2',
           '웹 임무 Sector 1 → 2: 각 5초 정지 후 다음 목표, 마지막 Home',
           (), ('Sector 1', 'Sector 2', 'Home'), 'web_dwell'),
@@ -156,7 +198,7 @@ def assess(stage: Stage, evidence: dict) -> dict:
     if evidence.get('passed') is not True:
         reasons.append('verifier_failed')
     if (stage.kind not in {'web_disconnect', 'web_dwell', 'web_transient',
-                           'web_moving_obstacle'} and
+                           'web_moving_obstacle', 'web_reentry'} and
             evidence.get('fault_delivery', {}).get('passed') is not True):
         reasons.append('sensor_delivery_or_fault_not_proven')
     if stage.key == '12_integrated_clean' and (
@@ -187,6 +229,42 @@ def assess(stage: Stage, evidence: dict) -> dict:
                 'runner_passed': evidence.get('passed') is True,
                 'route': evidence.get('route'), 'legs': []}
 
+    if stage.kind == 'web_reentry':
+        cycles = evidence.get('cycles') or []
+        if len(cycles) != 2 or evidence.get('same_runtime') is not True:
+            reasons.append('two_deliveries_same_runtime_unverified')
+        reentry = evidence.get('reentry') or {}
+        if (reentry.get('manual_pose_state') != 'VERIFIED' or
+                not isinstance(reentry.get('pose_verified_at'), (int, float))):
+            reasons.append('amcl_and_health_reentry_unverified')
+        if len(cycles) == 2 and not (
+                cycles[0].get('final_observed_at', math.inf) <
+                reentry.get('pose_requested_at', -math.inf) <
+                reentry.get('pose_verified_at', -math.inf) <
+                cycles[1].get('mission_started_at', -math.inf)):
+            reasons.append('reentry_sequence_unverified')
+        for index, cycle in enumerate(cycles):
+            if '--inventory' in stage.options and (
+                    cycle.get('dispatch_mode') != 'inventory' or
+                    (cycle.get('inventory_completion') or {}).get('status') != 'DELIVERED'):
+                reasons.append(f'cycle_{index+1}:inventory_delivery_unverified')
+            cycle_stage = Stage('12_web_integrated_clean',
+                                'Sector 2 strict cycle', (),
+                                ('Sector 2', 'Home'), 'web_dwell')
+            derived = (evidence.get('cycle_independent') or [])
+            if index < len(derived):
+                cycle = {**cycle, **derived[index],
+                         'web_runtime_manifest': evidence.get('web_runtime_manifest')}
+            outcome = assess(cycle_stage, cycle)
+            if outcome['passed'] is not True:
+                reasons.extend(f'cycle_{index+1}:{reason}'
+                               for reason in outcome['reasons'])
+        return {'stage': stage.key,
+                'outcome': 'PASS' if not reasons else 'FAIL',
+                'passed': not reasons, 'reasons': reasons,
+                'runner_passed': evidence.get('passed') is True,
+                'route': [2, 2], 'legs': []}
+
     if stage.kind in {'web_dwell', 'web_transient', 'web_moving_obstacle'}:
         if evidence.get('mission_accepted_via_web') is not True:
             reasons.append('web_mission_not_accepted')
@@ -198,6 +276,10 @@ def assess(stage: Stage, evidence: dict) -> dict:
                 'completed_ids') != expected:
             reasons.append('sector_route_and_home_not_completed')
         if stage.key in WEB_FULL_STACK_STAGES:
+            prearm = evidence.get('prearm') or {}
+            if prearm.get('passed') is not True:
+                reasons.extend('prearm:'+gate for gate in
+                               (prearm.get('failed_gates') or ['evidence_missing']))
             if evidence.get('startup_reset_requested_via_web') is not True or evidence.get(
                     'startup_reset_completed') is not True:
                 reasons.append('physical_style_web_startup_reset_unverified')
@@ -535,7 +617,9 @@ def terminate_group(child: subprocess.Popen, timeout: float = 20.) -> None:
         child.wait(timeout=10)
 
 
-def execute_web_stage(stage: Stage, root: Path) -> int:
+def execute_web_stage(stage: Stage, root: Path,
+                      laser_filter_for_change_memory: bool = False,
+                      measure_scan_filter: bool = False) -> int:
     assert_master_free(8792)
     # A second web_mission_server is also a potential control publisher.
     # The operator observes the mission on this stage's 8792 owner instead.
@@ -551,8 +635,10 @@ def execute_web_stage(stage: Stage, root: Path) -> int:
     injector = None
     web_log = root/(stage.key+'.web.log')
     try:
-        dwell = stage.kind in {'web_dwell', 'web_transient', 'web_moving_obstacle'}
+        dwell = stage.kind in {'web_dwell', 'web_transient', 'web_moving_obstacle',
+                               'web_reentry'}
         command = [str(RUNNER), '--no-verifier', '--lifetime',
+                   '2000' if stage.kind == 'web_reentry' else
                    '1400' if dwell else '180', '--mode',
                    'ekf_independent' if dwell else 'baseline',
                    '--output', str(directory)]
@@ -560,6 +646,10 @@ def execute_web_stage(stage: Stage, root: Path) -> int:
             command.append('--record-incidents')
         if '--stress' in stage.options:
             command.append('--stress')
+        if laser_filter_for_change_memory:
+            command.append('--laser-filter-for-change-memory')
+        if measure_scan_filter:
+            command.append('--measure-scan-filter')
         runner = subprocess.Popen(command, cwd=REPO, start_new_session=True)
         deadline = time.monotonic()+15.
         while not directory.is_dir() and time.monotonic() < deadline:
@@ -577,26 +667,41 @@ def execute_web_stage(stage: Stage, root: Path) -> int:
                                 str(root/(stage.key+'.web-config.json'))})
         web_command = [str(REPO/'scripts/run_classroom_replay_web.sh'),
                        '--host', '127.0.0.1']
+        if dwell:
+            web_command += ['--require-battery-health',
+                            '--minimum-battery-voltage', '10.8']
         with web_log.open('w') as stream:
             web = subprocess.Popen(web_command, cwd=REPO, env=environment,
                                    stdout=stream, stderr=subprocess.STDOUT,
                                    start_new_session=True)
-        verifier = [sys.executable, str(REPO/'scripts'/(
-                    'verify_classroom_web_dwell.py' if dwell else
-                    'verify_classroom_web_disconnect.py')),
+        verifier_name = ('verify_classroom_web_reentry.py'
+                         if stage.kind == 'web_reentry' else
+                         'verify_classroom_web_dwell.py' if dwell else
+                         'verify_classroom_web_disconnect.py')
+        verifier = [sys.executable, str(REPO/'scripts'/verifier_name),
                     '--url', 'http://127.0.0.1:8792',
                     '--output', str(directory/'acceptance.json')]
-        if dwell:
+        if stage.kind == 'web_reentry':
+            verifier += ['--web-pid', str(web.pid), '--runner-pid', str(runner.pid),
+                         '--mission-timeout', '900']
+            if '--inventory' in stage.options:
+                verifier += ['--dispatch-mode', 'inventory']
+        elif dwell:
             verifier += ['--route', web_stage_route(stage),
                          '--mission-timeout', '1200']
+            if '--stress' in stage.options:
+                verifier += ['--obstacle-hold-timeout', '120']
             if stage.kind == 'web_transient':
                 verifier += ['--inject-transient']
         verdict = subprocess.run(verifier, cwd=REPO, env={**os.environ,
                                  'ROS_DOMAIN_ID': '176', 'ROS_LOCALHOST_ONLY': '1'},
-                                 check=False, timeout=1300 if dwell else 145).returncode
+                                 check=False, timeout=(1950 if stage.kind == 'web_reentry'
+                                                       else 1300 if dwell else 145)).returncode
         if injector is not None:
             try:
-                actor_verdict = injector.wait(timeout=20.)
+                # The actor may need up to 40 s of LiDAR observations after
+                # removal to prove that the red obstacle cells cleared.
+                actor_verdict = injector.wait(timeout=50.)
             except subprocess.TimeoutExpired:
                 actor_verdict = 124
             if actor_verdict != 0:
@@ -629,26 +734,36 @@ def execute_web_stage(stage: Stage, root: Path) -> int:
 
 def stage_runner_command(stage: Stage, directory: Path, leg_timeout: int,
                          obstacle_hold_timeout: int,
-                         tf_source_best_effort: bool = False) -> list[str]:
+                         tf_source_best_effort: bool = False,
+                         laser_filter_for_change_memory: bool = False,
+                         measure_scan_filter: bool = False) -> list[str]:
     command = [str(RUNNER), '--mode', 'baseline', '--profile', 'clean',
                '--timeout', str(leg_timeout),
                '--obstacle-hold-timeout', str(obstacle_hold_timeout),
                '--output', str(directory), *stage.options]
     if tf_source_best_effort:
         command.append('--tf-source-best-effort')
+    if laser_filter_for_change_memory:
+        command.append('--laser-filter-for-change-memory')
+    if measure_scan_filter:
+        command.append('--measure-scan-filter')
     return command
 
 
 def execute_stage(stage: Stage, root: Path, leg_timeout: int,
                   obstacle_hold_timeout: int,
-                  tf_source_best_effort: bool = False) -> int:
+                  tf_source_best_effort: bool = False,
+                  laser_filter_for_change_memory: bool = False,
+                  measure_scan_filter: bool = False) -> int:
     assert_master_free(MASTER_PORT)
     if stage.kind in {'web_disconnect', 'web_dwell', 'web_transient',
-                      'web_moving_obstacle'}:
-        return execute_web_stage(stage, root)
+                      'web_moving_obstacle', 'web_reentry'}:
+        return execute_web_stage(stage, root, laser_filter_for_change_memory,
+                                 measure_scan_filter)
     directory = root/stage.key
     command = stage_runner_command(stage, directory, leg_timeout,
-                                   obstacle_hold_timeout, tf_source_best_effort)
+                                   obstacle_hold_timeout, tf_source_best_effort,
+                                   laser_filter_for_change_memory, measure_scan_filter)
     print('\n'+stage.key+': '+' '.join(command), flush=True)
     timeline_file = root/(stage.key+'.safety_timeline.jsonl')
     observer, observer_log = start_timeline(timeline_file)
@@ -686,7 +801,9 @@ def execute_stage(stage: Stage, root: Path, leg_timeout: int,
 
 
 def run_in_network_namespace(stage: Stage, root: Path, leg_timeout: int,
-                             obstacle_hold_timeout: int) -> int:
+                             obstacle_hold_timeout: int,
+                             laser_filter_for_change_memory: bool = False,
+                             measure_scan_filter: bool = False) -> int:
     # Isolate the entire Gazebo/DDS/observer process tree in *one* new user
     # and network namespace. Host Wi-Fi, domain 16, and host routing stay intact.
     env = dict(os.environ)
@@ -698,6 +815,10 @@ def run_in_network_namespace(stage: Stage, root: Path, leg_timeout: int,
                sys.executable, str(Path(__file__).resolve()), '--run-inner', stage.key,
                '--output', str(root), '--leg-timeout', str(leg_timeout),
                '--obstacle-hold-timeout', str(obstacle_hold_timeout)]
+    if laser_filter_for_change_memory:
+        command.append('--laser-filter-for-change-memory')
+    if measure_scan_filter:
+        command.append('--measure-scan-filter')
     return subprocess.run(command, cwd=REPO, env=env, check=False).returncode
 
 
@@ -1234,7 +1355,8 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
             safety = safety_timeline.assess(records, static_world_boxes=boxes)
             safety['static_geometry_witness'] = (
                 str(static_fixture) if boxes is not None else None)
-            if stage.kind in {'web_dwell', 'web_transient', 'web_moving_obstacle'}:
+            if stage.kind in {'web_dwell', 'web_transient', 'web_moving_obstacle',
+                              'web_reentry'}:
                 manifest = directory/'runtime_manifest.json'
                 if manifest.is_file():
                     evidence['web_runtime_manifest'] = json.loads(manifest.read_text())
@@ -1251,11 +1373,20 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
                         'replay' if any(str(path).endswith(
                             '/classroom_20261030_replay.world') for path in sources) else
                         'unknown')
-                evidence['web_ground_truth_checks'] = check_web_ground_truth(records, evidence)
-                evidence['web_independent_dwell_checks'] = check_web_dwell_independent(
-                    records, evidence)
-                evidence['home_independent_settle_check'] = check_home_settle_independent(
-                    records, evidence)
+                if stage.kind == 'web_reentry':
+                    evidence['cycle_independent'] = [
+                        {'web_ground_truth_checks': check_web_ground_truth(records, cycle),
+                         'web_independent_dwell_checks': check_web_dwell_independent(
+                             records, cycle),
+                         'home_independent_settle_check': check_home_settle_independent(
+                             records, cycle)}
+                        for cycle in evidence.get('cycles', [])]
+                else:
+                    evidence['web_ground_truth_checks'] = check_web_ground_truth(records, evidence)
+                    evidence['web_independent_dwell_checks'] = check_web_dwell_independent(
+                        records, evidence)
+                    evidence['home_independent_settle_check'] = check_home_settle_independent(
+                        records, evidence)
                 if stage.kind == 'web_transient':
                     evidence['web_transient_checks'] = check_web_transient(
                         records, directory/'sensor_faults.jsonl', evidence)
@@ -1295,7 +1426,9 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
             verdict = subprocess.run(
                 [sys.executable, str(assessor), '--trace', str(trace),
                  '--web-evidence', str(directory/'acceptance.json'),
-                 '--output', str(assessment)], cwd=REPO,
+                 '--output', str(assessment), '--expected-route',
+                 ','.join(stop.removeprefix('Sector ') for stop in stage.route
+                          if stop.startswith('Sector '))], cwd=REPO,
                 check=False, capture_output=True, text=True, timeout=30)
             if assessment.is_file():
                 evidence['stress_crate_assessment'] = json.loads(assessment.read_text())
@@ -1339,6 +1472,10 @@ def main() -> int:
     parser.add_argument('--continue-on-fail', action='store_true')
     parser.add_argument('--tf-source-best-effort', action='store_true',
                         help='Sim-only TF QoS A/B: use best-effort relay raw TF subscriber')
+    parser.add_argument('--laser-filter-for-change-memory', action='store_true',
+                        help='A/B: weak laser speckle filter for change_memory only')
+    parser.add_argument('--measure-scan-filter', action='store_true',
+                        help='Record paired raw/filtered scan arrival and singleton statistics')
     args = parser.parse_args()
     if args.leg_timeout < 30 or args.leg_timeout > 600:
         parser.error('--leg-timeout must be 30..600 seconds')
@@ -1370,26 +1507,35 @@ def main() -> int:
             parser.error('--run-inner requires one stage')
         return execute_stage(stages[0], root, args.leg_timeout,
                              args.obstacle_hold_timeout,
-                             args.tf_source_best_effort)
+                             args.tf_source_best_effort,
+                             args.laser_filter_for_change_memory,
+                             args.measure_scan_filter)
     report = {'created_utc': datetime.now(timezone.utc).isoformat(),
               'domain': 176, 'localhost_only': True,
               'physical_robot_touched': False,
               'web_client_outage': 'NOT_RUN_SEPARATE_MANUAL_GATE',
               'physical_dds_outage': 'NOT_RUN_REQUIRES_SUPERVISED_ROBOT',
               'physical_drive': 'NOT_RUN_USER_OPERATED',
+              'laser_filter_for_change_memory': args.laser_filter_for_change_memory,
+              'scan_pair_observer': args.measure_scan_filter,
               'stages': []}
     for stage in stages:
         directory = root/stage.key
+        source_before = web_runtime_source_hashes(stage)
         returncode = None
         if args.run:
             assert_master_free(MASTER_PORT)
             try:
                 returncode = (run_in_network_namespace(stage, root, args.leg_timeout,
-                                                       args.obstacle_hold_timeout)
+                                                       args.obstacle_hold_timeout,
+                                                       args.laser_filter_for_change_memory,
+                                                       args.measure_scan_filter)
                               if stage.kind == 'wan_absent' else
                               execute_stage(stage, root, args.leg_timeout,
                                             args.obstacle_hold_timeout,
-                                            args.tf_source_best_effort))
+                                            args.tf_source_best_effort,
+                                            args.laser_filter_for_change_memory,
+                                            args.measure_scan_filter))
             except KeyboardInterrupt:
                 print('Interrupted; the child runner owns Gazebo cleanup.', file=sys.stderr)
                 raise
@@ -1419,6 +1565,14 @@ def main() -> int:
                        'passed': False, 'reasons': ['acceptance_json_missing']}
         outcome['runner_exit_code'] = returncode
         outcome['evidence'] = str(path)
+        if source_before:
+            source_after = web_runtime_source_hashes(stage)
+            outcome['source_sha256_before'] = source_before
+            outcome['source_sha256_after'] = source_after
+            if source_before != source_after:
+                outcome['passed'] = False
+                outcome['outcome'] = 'FAIL'
+                outcome['reasons'].append('runtime_source_changed_during_stage')
         report['stages'].append(outcome)
         report['passed'] = all(item['passed'] for item in report['stages'])
         (root/'staged_report.json').write_text(json.dumps(

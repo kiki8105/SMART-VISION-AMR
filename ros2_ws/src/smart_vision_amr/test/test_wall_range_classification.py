@@ -5,14 +5,17 @@ transform lookup and persistence operation. These tests never start ROS nodes.
 """
 
 from contextlib import contextmanager
+from copy import deepcopy
 from math import atan2, cos, hypot, pi, sin, sqrt
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import pytest
 from nav_msgs.msg import OccupancyGrid
+from sensor_msgs.msg import LaserScan
 
 from smart_vision_amr import map_utils
+from smart_vision_amr.change_memory import wall_aligned_echo_indices
 from smart_vision_amr.grid import Grid
 
 from test_live_obstacles import harness
@@ -113,6 +116,53 @@ def wall_scan_harness(resolution=0.05):
         node.transform.transform.translation.x = 43.5 * resolution
         node.transform.transform.translation.y = 10.5 * resolution
         yield node
+
+
+def wall_band_scan(node, protrusion_m):
+    """A 41-beam wall/object face with an unchanged raw LiDAR measurement."""
+    info = node.map['message'].info
+    node.transform.transform.translation.x = 41.5 * info.resolution
+    node.ros_ns += 200_000_000
+    scan = LaserScan()
+    scan.header.frame_id = 'base_scan'
+    scan.header.stamp.sec, scan.header.stamp.nanosec = divmod(node.ros_ns, 1_000_000_000)
+    node.transform.header.stamp = deepcopy(scan.header.stamp)
+    scan.angle_min, scan.angle_increment = -0.30, 0.015
+    scan.range_min, scan.range_max = 0.12, 4.0
+    origin = node.transform.transform.translation
+    scan.ranges = [map_utils.first_static_obstacle_distance(
+        info, node.raw_static_grid, origin.x, origin.y,
+        scan.angle_min + index*scan.angle_increment, scan.range_max) - protrusion_m
+        for index in range(41)]
+    raw_ranges = list(scan.ranges)
+    node.on_scan(scan)
+    assert list(scan.ranges) == raw_ranges  # Nav2's /scan is never modified.
+    return scan
+
+
+def test_wall_band_requires_multiple_beams_and_spatial_extent():
+    assert wall_aligned_echo_indices({0: (0, 0), 1: (0, .02), 2: (0, .04)}) == set()
+    assert wall_aligned_echo_indices({i: (0, i*.005) for i in range(20)}) == set()
+    assert wall_aligned_echo_indices({i: (0, i*.01) for i in range(20)}) == set(range(20))
+
+
+@pytest.mark.parametrize('wall_offset_m', (0.055, 0.08))
+def test_extended_wall_echo_near_map_is_not_a_new_obstacle(wall_offset_m):
+    with wall_scan_harness() as node:
+        original_map = list(node.map['message'].data)
+        wall_band_scan(node, wall_offset_m)
+        assert node.observed() == set()
+        assert 100 not in node.visibility_pub.publish.call_args.args[0].data
+        assert list(node.map['message'].data) == original_map
+
+
+def test_extended_object_fifteen_centimeters_before_wall_stays_detected():
+    with wall_scan_harness() as node:
+        wall_band_scan(node, 0.15)
+        observed = node.observed()
+        assert observed
+        assert all(index % 50 <= 46 for index in observed)
+        assert 100 in node.visibility_pub.publish.call_args.args[0].data
 
 
 @pytest.mark.parametrize('resolution', (0.05, 0.1))

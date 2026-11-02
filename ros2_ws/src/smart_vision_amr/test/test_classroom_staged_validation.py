@@ -48,6 +48,47 @@ def test_final_physical_value_stage_is_web_owned_and_stress_world():
     assert stage.route == ('Sector 1', 'Sector 2', 'Sector 3', 'Home')
 
 
+def test_full_web_trial_fingerprints_loaded_runtime_sources():
+    hashes = staged.web_runtime_source_hashes(
+        staged.BY_KEY['12_web_integrated_stress_clean'])
+    required = {
+        'scripts/run_classroom_staged_validation.py',
+        'scripts/verify_classroom_web_dwell.py',
+        'ros2_ws/src/smart_vision_amr/smart_vision_amr/continuous_start_egress.py',
+        'ros2_ws/src/smart_vision_amr/smart_vision_amr/home_alignment.py',
+        'ros2_ws/src/smart_vision_amr/smart_vision_amr/mission_logic.py',
+        'ros2_ws/src/smart_vision_amr/web/app.js',
+        'ros2_ws/src/smart_vision_amr/web/index.html',
+        'ros2_ws/src/smart_vision_amr/config/aruco_classroom_markers_20261030.yaml',
+        'ros2_ws/src/smart_vision_amr/config/localization_health.yaml',
+        'ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm',
+        'ros2_ws/src/smart_vision_amr/worlds/classroom_20261030_stress.world',
+        'gazebo_models/smart_vision_aruco_4x4_50_id_3/meshes/marker.obj',
+    }
+    assert required <= hashes.keys()
+    assert not any('/test/' in path or path.startswith('docs/') for path in hashes)
+    assert staged.web_runtime_source_hashes(staged.BY_KEY['01_sector_1']) == {}
+
+
+def test_runtime_fingerprint_detects_content_addition_and_deletion(tmp_path, monkeypatch):
+    monkeypatch.setattr(staged, 'REPO', tmp_path)
+    package = tmp_path/'ros2_ws/src/smart_vision_amr/smart_vision_amr'
+    package.mkdir(parents=True)
+    first = package/'astar_planner.py'
+    first.write_text('old')
+    stage = staged.BY_KEY['12_web_integrated_stress_clean']
+    baseline = staged.web_runtime_source_hashes(stage)
+    first.write_text('changed')
+    assert staged.web_runtime_source_hashes(stage) != baseline
+    first.write_text('old')
+    added = package/'continuous_start_egress.py'
+    added.write_text('new')
+    assert staged.web_runtime_source_hashes(stage) != baseline
+    added.unlink()
+    first.unlink()
+    assert staged.web_runtime_source_hashes(stage) != baseline
+
+
 def route_evidence(stage):
     legs = []
     for stop in stage.route:

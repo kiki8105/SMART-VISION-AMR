@@ -30,12 +30,14 @@ class LocalizationHealthCore:
                  position_warning=0.35, position_critical=0.8,
                  yaw_warning=0.5, yaw_critical=1.0,
                  agreement_warning=0.55, agreement_critical=0.20,
-                 amcl_moving_timeout=4.0, motion_dt_limit=1.0,
+                 amcl_moving_timeout=4.0, amcl_pose_timeout=8.0,
+                 motion_dt_limit=1.0,
                  mapping_mode=False):
         values = (stable_seconds, fault_seconds, spatial_fault_seconds,
                   agreement_fault_seconds,
                   sensor_timeout, tf_timeout, position_warning,
                   position_critical, yaw_warning, yaw_critical, amcl_moving_timeout,
+                  amcl_pose_timeout,
                   motion_dt_limit)
         if (not all(math.isfinite(value) and value > 0.0 for value in values)
                 or not 0.0 <= future_tolerance < 10.0
@@ -59,6 +61,7 @@ class LocalizationHealthCore:
         self.agreement_warning = agreement_warning
         self.agreement_critical = agreement_critical
         self.amcl_moving_timeout = amcl_moving_timeout
+        self.amcl_pose_timeout = amcl_pose_timeout
         self.motion_dt_limit = motion_dt_limit
         self.mapping_mode = bool(mapping_mode)
         self.amcl_motion_without_update_seconds = 0.0
@@ -174,6 +177,16 @@ class LocalizationHealthCore:
                 critical.append(f'{name}_high')
             elif value >= warn:
                 warning.append(f'{name}_elevated')
+        # A cached low covariance is not proof of a current pose. Require both
+        # a recent ROS receipt and a recent source stamp before departure and
+        # throughout autonomous motion. Only on_amcl can refresh these ages.
+        amcl_age = metrics.get('amcl_age_seconds')
+        amcl_header_age = metrics.get('amcl_header_age_seconds')
+        if (amcl_age is None or amcl_header_age is None
+                or not math.isfinite(amcl_age) or not math.isfinite(amcl_header_age)
+                or not 0. <= amcl_age <= self.amcl_pose_timeout
+                or not -.25 <= amcl_header_age <= self.amcl_pose_timeout):
+            critical.append('amcl_pose_stale')
         if self.amcl_motion_without_update_seconds >= self.amcl_moving_timeout:
             critical.append('amcl_not_updating_while_moving')
         if metrics.get('pose_jump'):

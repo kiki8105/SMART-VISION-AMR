@@ -33,6 +33,10 @@ LIFETIME=240
 RECORD_INCIDENTS=false
 EXPECT_SUSTAINED_OUTAGE_HOLD=false
 TF_SOURCE_BEST_EFFORT=false
+LASER_FILTER_FOR_CHANGE_MEMORY=false
+LASER_FILTER_PREFIX=${SMART_VISION_LASER_FILTER_PREFIX:-}
+GAZEBO_SEED=4242
+MEASURE_SCAN_FILTER=false
 
 usage() {
   cat <<'EOF'
@@ -51,6 +55,10 @@ Usage: run_classroom_fault_sim.sh [--mode baseline|ekf_independent]
        [--no-verifier --lifetime SECONDS]  # keep isolated Gazebo running for external web test
        [--record-incidents]  # enable high-CPU flight recorder diagnostics
        [--tf-source-best-effort]  # sim-only raw TF QoS A/B; forwarded /tf stays reliable
+       [--laser-filter-for-change-memory]  # weak speckle filter on A* change_memory input only
+       [--measure-scan-filter]  # equal raw/filtered scan observer in both A/B trials
+       [--laser-filter-prefix PATH]  # optional extracted ROS Humble laser_filters prefix
+       [--gazebo-seed INTEGER]  # fixed 4242 by default for comparable A/B scans
        [--expect-sustained-outage-hold]  # profile outages: safety latch, no auto-resume
        [--nav-params-source YAML]  # Nav2 source profile, default classroom YAML
        [--master-port PORT]  # dedicated localhost Gazebo master, default 11576
@@ -82,6 +90,8 @@ while (($#)); do
     --no-verifier) NO_VERIFIER=true; shift;;
     --record-incidents) RECORD_INCIDENTS=true; shift;;
     --tf-source-best-effort) TF_SOURCE_BEST_EFFORT=true; shift;;
+    --laser-filter-for-change-memory) LASER_FILTER_FOR_CHANGE_MEMORY=true; shift;;
+    --measure-scan-filter) MEASURE_SCAN_FILTER=true; shift;;
     --expect-sustained-outage-hold) EXPECT_SUSTAINED_OUTAGE_HOLD=true; shift;;
     --sector1-candidate) MISSION_ROUTE=true; SECTOR1_CANDIDATE=true; shift;;
     --sector1-original) MISSION_ROUTE=true; SECTOR1_ORIGINAL=true; shift;;
@@ -90,7 +100,7 @@ while (($#)); do
       MISSION_ROUTE=true
       SINGLE_GOAL=("$2" "$3" "$4" "$5")
       shift 5;;
-    --mode|--profile|--obstacle|--world|--map|--goal-x|--goal-y|--goal-yaw|--timeout|--obstacle-hold-timeout|--output|--nav-params-source|--master-port|--lifetime)
+    --mode|--profile|--obstacle|--world|--map|--goal-x|--goal-y|--goal-yaw|--timeout|--obstacle-hold-timeout|--output|--nav-params-source|--master-port|--lifetime|--laser-filter-prefix|--gazebo-seed)
       if (($# < 2)); then usage >&2; exit 2; fi
       case "$1" in
         --mode) MODE=$2;; --profile) PROFILE=$2;; --obstacle) OBSTACLE=$2;;
@@ -101,6 +111,8 @@ while (($#)); do
         --nav-params-source) NAV_PARAMS_SOURCE=$2;;
         --master-port) MASTER_PORT=$2;;
         --lifetime) LIFETIME=$2;;
+        --laser-filter-prefix) LASER_FILTER_PREFIX=$2;;
+        --gazebo-seed) GAZEBO_SEED=$2;;
       esac
       shift 2;;
     -h|--help) usage; exit 0;;
@@ -121,6 +133,10 @@ if [[ ! "$OBSTACLE_HOLD_TIMEOUT" =~ ^[0-9]+$ ]] ||
 fi
 if [[ ! "$MASTER_PORT" =~ ^[0-9]+$ ]] || ((MASTER_PORT < 1024 || MASTER_PORT > 65535)); then
   printf 'Gazebo master port must be an integer from 1024 to 65535.\n' >&2
+  exit 2
+fi
+if [[ ! "$GAZEBO_SEED" =~ ^[0-9]+$ ]] || ((GAZEBO_SEED > 2147483647)); then
+  printf 'Gazebo seed must be an integer from 0 to 2147483647.\n' >&2
   exit 2
 fi
 MASTER=http://127.0.0.1:$MASTER_PORT
@@ -197,16 +213,29 @@ NAV_PARAMS=$OUTPUT/classroom_nav_sim_time.yaml
 /usr/bin/python3 "$REPO/scripts/build_classroom_replay_nav_profile.py" \
   --source "$NAV_PARAMS_SOURCE" "$NAV_PARAMS"
 /usr/bin/python3 - "$OUTPUT/runtime_manifest.json" "$MODE" "$NAV_PARAMS" "$NODES_PARAMS" \
-  "$REPO/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml" "$NAV_PARAMS_SOURCE" "$MASTER" "$RECORD_INCIDENTS" <<'PY'
+  "$REPO/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml" "$NAV_PARAMS_SOURCE" \
+  "$REPO/ros2_ws/src/smart_vision_amr/config/change_memory_speckle.yaml" \
+  "$MASTER" "$RECORD_INCIDENTS" "$LASER_FILTER_FOR_CHANGE_MEMORY" "$GAZEBO_SEED" \
+  "$MEASURE_SCAN_FILTER" <<'PY'
 import hashlib, json, sys
 from pathlib import Path
-files = [Path(path) for path in sys.argv[3:-2]]
+files = [Path(path) for path in sys.argv[3:8]]
 payload = {'domain': 176, 'localhost_only': True, 'mode': sys.argv[2],
-           'gazebo_master_uri': sys.argv[-2],
+           'gazebo_master_uri': sys.argv[8],
            'config_sha256': {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
                              for path in files},
-           'nav_profile_source': str(Path(sys.argv[-3]).resolve()),
-           'record_incidents': sys.argv[-1] == 'true',
+           'nav_profile_source': str(Path(sys.argv[6]).resolve()),
+           'record_incidents': sys.argv[9] == 'true',
+           'laser_filter_for_change_memory': sys.argv[10] == 'true',
+           'laser_filter_input_topic': '/scan',
+           'laser_filter_output_topic': '/scan_filtered_for_change',
+           'laser_filter_consumer': 'change_memory only; raw /scan retained by Nav2, AMCL and motion_mux',
+           'scan_pair_observer': sys.argv[12] == 'true',
+           'gazebo_seed': int(sys.argv[11]),
+           'simulated_battery': ({'topic': '/battery_state', 'voltage_v': 12.0,
+                                  'percentage': 0.75, 'rate_hz': 2.0,
+                                  'guard_minimum_voltage_v': 10.8}
+                                 if sys.argv[2] == 'ekf_independent' else None),
            'nav_profile_note': 'Hardware classroom Nav2 YAML with use_sim_time changed only.',
            'nodes_profile_note': 'Classroom hardware A* and live-obstacle YAML; simulation launch overrides use_sim_time.',
            'sensor_fault_scope': ('scan, Gazebo odom, Gazebo odom->base TF' if sys.argv[2] == 'baseline'
@@ -224,8 +253,30 @@ if [[ -f /usr/share/gazebo/setup.sh ]]; then source /usr/share/gazebo/setup.sh; 
 # shellcheck disable=SC1091
 source "$WORKSPACE/install/local_setup.bash"
 export ROS_DOMAIN_ID=$DOMAIN ROS_LOCALHOST_ONLY=1 GAZEBO_MASTER_URI=$MASTER
+if [[ "$LASER_FILTER_FOR_CHANGE_MEMORY" == true ]]; then
+  if [[ -n "$LASER_FILTER_PREFIX" ]]; then
+    if [[ ! -f "$LASER_FILTER_PREFIX/share/laser_filters/package.xml" ]]; then
+      printf 'Invalid laser_filters prefix: %s\n' "$LASER_FILTER_PREFIX" >&2
+      exit 2
+    fi
+    export AMENT_PREFIX_PATH="$LASER_FILTER_PREFIX${AMENT_PREFIX_PATH:+:$AMENT_PREFIX_PATH}"
+    export LD_LIBRARY_PATH="$LASER_FILTER_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  fi
+  if ! FILTER_PACKAGE_PREFIX=$(ros2 pkg prefix laser_filters); then
+    printf 'laser_filters is required for --laser-filter-for-change-memory.\n' >&2
+    exit 2
+  fi
+  /usr/bin/python3 - "$OUTPUT/runtime_manifest.json" "$FILTER_PACKAGE_PREFIX" <<'PY'
+import json, sys
+from pathlib import Path
+path = Path(sys.argv[1])
+data = json.loads(path.read_text())
+data['laser_filter_package_prefix'] = sys.argv[2]
+path.write_text(json.dumps(data, indent=2) + '\n')
+PY
+fi
 installed_args=$(ros2 launch smart_vision_amr simulation.launch.py --show-args)
-if [[ "$installed_args" != *robot_model_file* ]]; then
+if [[ "$installed_args" != *robot_model_file* || "$installed_args" != *laser_filter_for_change_memory* ]]; then
   printf 'Installed simulation launch is stale; rebuild smart_vision_amr with colcon.\n' >&2
   exit 2
 fi
@@ -254,14 +305,16 @@ PY
 LAUNCH_PID=
 RELAY_PID=
 CONDITIONER_PID=
+BATTERY_PID=
+PAIR_PID=
 VERIFY_PID=
 cleanup() {
   trap - EXIT INT TERM
-  for pid in "$VERIFY_PID" "$LAUNCH_PID" "$RELAY_PID" "$CONDITIONER_PID"; do
+  for pid in "$VERIFY_PID" "$LAUNCH_PID" "$RELAY_PID" "$CONDITIONER_PID" "$BATTERY_PID" "$PAIR_PID"; do
     if [[ -n "$pid" ]]; then kill -INT -- "-$pid" 2>/dev/null || true; fi
   done
   sleep 2
-  for pid in "$VERIFY_PID" "$LAUNCH_PID" "$RELAY_PID" "$CONDITIONER_PID"; do
+  for pid in "$VERIFY_PID" "$LAUNCH_PID" "$RELAY_PID" "$CONDITIONER_PID" "$BATTERY_PID" "$PAIR_PID"; do
     if [[ -n "$pid" ]]; then kill -TERM -- "-$pid" 2>/dev/null || true; fi
   done
 }
@@ -283,7 +336,12 @@ Path(sys.argv[2]).write_text(yaml.safe_dump(config, sort_keys=False))
 PY
   EKF_ARGS+=("ekf_params_file:=$OUTPUT/ekf_hardware_like_sim.yaml"
              "ekf_wheel_params_file:=$REPO/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml"
-             "use_ekf_sensor_guard:=true")
+             "use_ekf_sensor_guard:=true"
+             "minimum_battery_voltage:=10.8")
+  setsid /usr/bin/python3 "$REPO/scripts/classroom_sim_battery.py" \
+    --voltage 12.0 --rate 2.0 --ros-args -p use_sim_time:=true \
+    >"$OUTPUT/sim_battery.log" 2>&1 &
+  BATTERY_PID=$!
   setsid ros2 run smart_vision_amr imu_ekf_conditioner --ros-args \
     --params-file "$REPO/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml" \
     -p use_sim_time:=true >"$OUTPUT/conditioner.log" 2>&1 &
@@ -303,6 +361,12 @@ setsid /usr/bin/python3 "$REPO/scripts/classroom_fault_relay.py" \
   >"$OUTPUT/fault_relay.log" 2>&1 &
 RELAY_PID=$!
 
+if [[ "$MEASURE_SCAN_FILTER" == true ]]; then
+  setsid /usr/bin/python3 "$REPO/scripts/measure_scan_filter.py" \
+    --output "$OUTPUT/scan_filter_pair.json" >"$OUTPUT/scan_filter_pair.log" 2>&1 &
+  PAIR_PID=$!
+fi
+
 setsid ros2 launch smart_vision_amr simulation.launch.py \
   "world:=$FIXTURE/classroom_fault.world" "map:=$FIXTURE/classroom_fault.yaml" \
   "robot_model_file:=$FIXTURE/waffle_pi_fault.sdf" \
@@ -310,6 +374,8 @@ setsid ros2 launch smart_vision_amr simulation.launch.py \
   "x_pose:=-0.188431" "y_pose:=-0.220497" "yaw:=-0.027514" \
   "initial_x:=-0.188431" "initial_y:=-0.220497" "initial_yaw:=-0.027514" \
   "localization_mode:=$MODE" "camera_layout:=classroom_dual" \
+  "gazebo_seed:=$GAZEBO_SEED" \
+  "laser_filter_for_change_memory:=$LASER_FILTER_FOR_CHANGE_MEMORY" \
   "gui:=false" "use_rviz:=false" "record_incidents:=$RECORD_INCIDENTS" \
   "${EKF_ARGS[@]}" >"$OUTPUT/gazebo_launch.log" 2>&1 &
 LAUNCH_PID=$!

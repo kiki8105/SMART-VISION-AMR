@@ -274,6 +274,21 @@ class MarkerMission:
         self.commands = [('cancel', None), ('stop', None)]
         self.event(self.reason)
 
+    def pause_home_alignment(self, reason):
+        """Fail closed after a terminal Home goal without claiming arrival.
+
+        Preserve the delivery queue and Home target for an explicit operator
+        resume, but never leave a terminally completed goal in RETURNING_HOME.
+        """
+        if self.state != 'RETURNING_HOME' or not self.returning_home:
+            return False
+        self.state, self.reason = 'PAUSED', '홈 방향 확인 중단: '+str(reason)
+        self.home_navigation_succeeded = False
+        self.goal_stamp = None
+        self.commands = [('cancel', None), ('stop', None)]
+        self.event(self.reason, 'warning')
+        return True
+
     def resume(self):
         if self.estop_latched or self.state != 'PAUSED':
             raise MissionError('비상정지가 해제된 일시정지 상태에서만 재개할 수 있습니다.')

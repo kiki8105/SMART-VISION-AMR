@@ -14,6 +14,8 @@ import numpy as np
 import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import OccupancyGrid, Odometry
+from rcl_interfaces.msg import ParameterType
+from rcl_interfaces.srv import SetParametersAtomically
 from rclpy.clock import Clock, ClockType
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
@@ -138,7 +140,8 @@ class LocalizationHealth(Node):
             'position_warning': 0.35, 'position_critical': 0.8,
             'yaw_warning': 0.5, 'yaw_critical': 1.0,
             'agreement_warning': 0.55, 'agreement_critical': 0.20,
-            'amcl_moving_timeout': 4.0, 'motion_dt_limit': 1.0,
+            'amcl_moving_timeout': 4.0, 'amcl_pose_timeout': 8.0,
+            'motion_dt_limit': 1.0,
             'mapping_mode': False,
         }
         for name, value in defaults.items():
@@ -189,10 +192,18 @@ class LocalizationHealth(Node):
         self.agreement_tf_wait_ms = None
         self.agreement_tf_drop_count = 0
         self.last_reset_seq = {}
+        self.last_manual_confirmed_stamp_ns = 0
+        self.last_manual_confirmed_amcl_stamp_ns = 0
         self.safety_seq = 0
         self.last_estop_at = None
         self.last_level = None
         self.no_motion_client = self.create_client(Empty, '/request_nomotion_update')
+        # AMCL's SetInitialPose service does not publish /initialpose. The web
+        # bridge confirms the resulting posterior here, after its own pose/TF
+        # checks, so a stopped manual pose can start a fresh acquisition too.
+        self.create_service(SetParametersAtomically,
+            '/smart_vision_amr/localization_health/confirm_manual_pose',
+            self.confirm_manual_pose)
         self.no_motion_future = None
         self.no_motion_started_at = None
         self.last_no_motion_at = None
@@ -376,6 +387,99 @@ class LocalizationHealth(Node):
         self.last_refresh_scan_stamp = None
         self.refresh_mode, self.refresh_state = 'idle', 'WAITING_FOR_INPUTS'
         self.core.reinitialize()
+
+    def confirm_manual_pose(self, request, response):
+        """Acknowledge one *observed* AMCL posterior, never the pose request.
+
+        The dedicated service carries two ROS timestamps as integer fields.
+        A delayed/duplicated request cannot restart acquisition, and a service
+        receipt never releases the existing stop latch or authorizes driving.
+        """
+        result = response.result
+        result.successful = False
+        result.reason = 'invalid_request'
+        parameters = request.parameters
+        names = {'initial_pose_stamp_ns', 'verified_amcl_stamp_ns'}
+        if (len(parameters) != 2 or {item.name for item in parameters} != names
+                or any(item.value.type != ParameterType.PARAMETER_INTEGER for item in parameters)):
+            return response
+        values = {item.name: item.value.integer_value for item in parameters}
+        initial = values['initial_pose_stamp_ns']
+        verified = values['verified_amcl_stamp_ns']
+        now_ros = self.get_clock().now().nanoseconds
+        now = time.monotonic()
+        if initial <= 0 or verified <= initial:
+            result.reason = 'invalid_or_stale_stamp'
+            return response
+        if (initial == self.last_manual_confirmed_stamp_ns
+                and verified == self.last_manual_confirmed_amcl_stamp_ns):
+            # The first response may be lost after this node has already
+            # reinitialized. Re-acknowledge only the exact accepted request.
+            result.successful = True
+            result.reason = 'already_confirmed_stop_latch_retained'
+            return response
+        if (initial <= self.last_manual_confirmed_stamp_ns or now_ros <= 0
+                or initial > now_ros+int(self.core.future_tolerance*1e9)
+                or now_ros-verified > 2_000_000_000):
+            result.reason = 'invalid_or_stale_stamp'
+            return response
+        if self.last_amcl_stamp_ns is None or self.last_amcl_stamp_ns < verified:
+            result.reason = 'amcl_not_seen_yet'
+            return response
+        if (self.amcl_at is None or not 0. <= now-self.amcl_at <= 2.
+                or self.position_std is None or self.yaw_std is None
+                or not math.isfinite(self.position_std) or not math.isfinite(self.yaw_std)):
+            result.reason = 'amcl_not_fresh'
+            return response
+        if (self.map_distance is None or self.scan is None or self.odom is None
+                or not self.scan_valid or not self.odom_valid
+                or self.scan_at is None or self.odom_at is None
+                or not 0. <= now-self.scan_at <= self.core.sensor_timeout
+                or not 0. <= now-self.odom_at <= self.core.sensor_timeout):
+            result.reason = 'sensor_not_fresh'
+            return response
+        for sample in (self.scan, self.odom):
+            age = (now_ros-stamp_ns(sample.header))/1e9
+            if not -.25 <= age <= self.core.sensor_timeout:
+                result.reason = 'sensor_stamp_not_fresh'
+                return response
+        twist = self.odom.twist.twist
+        if (not math.isfinite(twist.linear.x) or not math.isfinite(twist.angular.z)
+                or abs(twist.linear.x) >= .01 or abs(twist.angular.z) >= .03):
+            result.reason = 'robot_not_stopped'
+            return response
+        try:
+            for frame in (self.map_frame, self.odom_frame):
+                transform = self._tf(frame, self.base_frame)
+                quaternion_yaw(transform.transform.rotation)
+                if (transform.header.frame_id.lstrip('/') != frame.lstrip('/')
+                        or transform.child_frame_id.lstrip('/') != self.base_frame.lstrip('/')
+                        or not all(math.isfinite(value) for value in (
+                            transform.transform.translation.x,
+                            transform.transform.translation.y))):
+                    raise ValueError('invalid TF frame or pose')
+                stamp = stamp_ns(transform.header)
+                age = (now_ros-stamp)/1e9
+                if not -self.core.future_tolerance <= age <= self.core.tf_timeout:
+                    raise ValueError('stale TF')
+                if frame == self.map_frame and stamp <= initial:
+                    raise ValueError('map TF predates initial pose')
+        except (TransformException, ValueError, AttributeError):
+            result.reason = 'tf_not_fresh'
+            return response
+        self.core.reinitialize()
+        # Keep the newly verified posterior: clearing covariance/amcl_at here
+        # can deadlock a stationary robot waiting for another laser update.
+        self.previous_amcl = None
+        self.jump_until = 0.
+        self.agreement = self.agreement_at = self.agreement_stamp = None
+        self.agreement_scan = self.agreement_scan_at = None
+        self.agreement_pending.clear()
+        self.last_manual_confirmed_stamp_ns = initial
+        self.last_manual_confirmed_amcl_stamp_ns = verified
+        result.successful = True
+        result.reason = 'confirmed_for_acquisition_stop_latch_retained'
+        return response
 
     def _tf(self, target, source, stamp=None):
         return self.tf_buffer.lookup_transform(
@@ -634,10 +738,12 @@ class LocalizationHealth(Node):
         elevated = (self.position_std >= self.core.position_warning
                     or (self.yaw_std is not None and self.yaw_std >= self.core.yaw_warning))
         last = getattr(self.core, 'last_result', None)
+        stale_posterior = (isinstance(last, dict)
+                           and 'amcl_pose_stale' in last.get('reasons', ()))
         healthy_tracking = (not acquiring and not getattr(self.core, 'stop_latched', False)
                             and isinstance(last, dict) and last.get('level') == 'ok'
                             and last.get('autonomous_allowed') is True)
-        if not (acquiring or elevated or healthy_tracking):
+        if not (acquiring or elevated or healthy_tracking or stale_posterior):
             return False
         if not LocalizationHealth._refresh_evidence_ready(self, now, trigger_age):
             return False

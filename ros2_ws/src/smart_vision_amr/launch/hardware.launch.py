@@ -45,6 +45,12 @@ def generate_launch_description():
     rviz_config = PathJoinSubstitution([own, 'rviz', 'minimal.rviz'])
     memory_default = '~/.ros/smart_vision_amr/classroom_memory.json'
     ekf = PathJoinSubstitution([own, 'config', 'ekf_hardware.yaml'])
+    scan_filter = PathJoinSubstitution([own, 'config', 'change_memory_speckle.yaml'])
+    filtered_change_scan = ParameterValue(PythonExpression([
+        "'/scan_filtered_for_change' if '",
+        LaunchConfiguration('laser_filter_for_change_memory'),
+        "'.lower() in ('true', '1') else '/scan'",
+    ]), value_type=str)
     pc_ekf = IfCondition(PythonExpression(["'", LaunchConfiguration('localization_mode'),
         "' == 'ekf_independent' and '", LaunchConfiguration('estimation_location'), "' == 'pc'"]))
     return LaunchDescription([
@@ -53,6 +59,9 @@ def generate_launch_description():
         DeclareLaunchArgument('nodes_file', default_value=nodes_default),
         DeclareLaunchArgument('memory_enabled', default_value='false'),
         DeclareLaunchArgument('memory_path', default_value=memory_default),
+        DeclareLaunchArgument('laser_filter_for_change_memory', default_value='false',
+                              description='Experimental speckle filter for change_memory only; '
+                                          'Nav2, AMCL and motion_mux retain raw /scan'),
         DeclareLaunchArgument('use_rviz', default_value='true'),
         DeclareLaunchArgument('localization_mode', default_value='baseline',
                               description='baseline (stock TurtleBot3 odom) or ekf_independent'),
@@ -147,11 +156,17 @@ def generate_launch_description():
              parameters=[nodes, {'use_sim_time': False}], output='screen'),
         Node(package='smart_vision_amr', executable='path_follower', name='path_follower',
              parameters=[nodes, {'use_sim_time': False}], output='screen'),
+        Node(package='laser_filters', executable='scan_to_scan_filter_chain',
+             name='scan_to_scan_filter_chain', parameters=[scan_filter, {'use_sim_time': False}],
+             remappings=[('/scan_filtered', '/scan_filtered_for_change')], output='screen',
+             on_exit=Shutdown(reason='Optional change_memory scan filter exited'),
+             condition=IfCondition(LaunchConfiguration('laser_filter_for_change_memory'))),
         Node(package='smart_vision_amr', executable='change_memory', name='change_memory',
              parameters=[nodes, {'use_sim_time': False,
                                  'memory_enabled': ParameterValue(
                                      LaunchConfiguration('memory_enabled'), value_type=bool),
-                                 'memory_path': LaunchConfiguration('memory_path')}], output='screen'),
+                                 'memory_path': LaunchConfiguration('memory_path'),
+                                 'scan_topic': filtered_change_scan}], output='screen'),
         Node(package='rviz2', executable='rviz2', name='rviz2',
              arguments=['-d', rviz_config], parameters=[{'use_sim_time': False}],
              condition=IfCondition(LaunchConfiguration('use_rviz')), output='screen'),

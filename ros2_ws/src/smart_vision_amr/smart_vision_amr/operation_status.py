@@ -131,6 +131,7 @@ _LOCALIZATION_REASONS = {
     'yaw_std_rad_high': '방향 추정 오차 범위가 큼',
     'position_high': '위치 추정 오차 범위가 큼', 'yaw_high': '방향 추정 오차 범위가 큼',
     'amcl_not_updating_while_moving': '이동 중 AMCL 위치 갱신 지연',
+    'amcl_pose_stale': 'AMCL 위치 추정 갱신 대기',
     'localization_jump': '오도메트리와 다른 큰 위치 보정 감지',
     'scan_map_check_unavailable': '측정 시각 TF와 라이다·지도 대조 대기',
     'scan_map_disagreement': '라이다와 저장 지도 불일치',

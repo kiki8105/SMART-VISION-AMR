@@ -35,6 +35,8 @@ try:
     from geometry_msgs.msg import PoseWithCovarianceStamped
     from lifecycle_msgs.srv import GetState
     from nav2_msgs.srv import SetInitialPose
+    from rcl_interfaces.srv import SetParametersAtomically
+    from rcl_interfaces.msg import SetParametersResult
     from nav_msgs.msg import Odometry
     from sensor_msgs.msg import LaserScan
     from sensor_msgs.msg import Image
@@ -471,6 +473,7 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.app.manual_mux_at = self.now
         self.app.manual_pose_service_ready = True
         self.node.initial_pose_client = _Client(SetInitialPose.Response)
+        self.node.manual_pose_health_client = _Client(SetParametersAtomically.Response)
         self.app.command('/api/localization/initial-pose',
                          {'x': .5, 'y': .5, 'yaw_deg': 0., 'confirm': True})
         self.node.tick_manual_pose(self.now)
@@ -484,6 +487,7 @@ class LocalizationBridgeTests(unittest.TestCase):
             setattr(self.app, name, self.now)
 
     def test_manual_pose_waits_through_one_false_stop_ack_then_verifies_only_after_ack(self):
+        self.app.require_localization_health = True
         self.start_stopped_manual_pose_validation()
         self.node.initial_pose_client.acknowledge()
         self.now += .2
@@ -492,6 +496,7 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.app.manual_pose_amcl_at = self.app.pose_at = self.now
         self.app.pose = {'x': .5, 'y': .5, 'yaw': 0.}
         self.app.pose_tf_stamp_ns = self.node.manual_pose_ros_stamp_ns+1
+        self.node.manual_pose_verified_amcl_stamp_ns = self.node.manual_pose_ros_stamp_ns+1
         self.node.tick_manual_pose(self.now)
         self.assertEqual(self.app.manual_pose_state, 'WAITING')
         self.assertTrue(self.app.localization_invalidated)
@@ -499,6 +504,12 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.now += .2
         self.refresh_stopped_manual_pose_inputs()
         self.app.manual_mux_status['stop_acknowledged'] = True
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'WAITING')
+        self.assertEqual(len(self.node.manual_pose_health_client.requests), 1)
+        self.node.manual_pose_health_client.acknowledge(
+            result=SetParametersResult(successful=True,
+                reason='confirmed_for_acquisition_stop_latch_retained'))
         self.node.tick_manual_pose(self.now)
         self.assertEqual(self.app.manual_pose_state, 'VERIFIED')
         self.assertTrue(self.app.mission.estop_latched)

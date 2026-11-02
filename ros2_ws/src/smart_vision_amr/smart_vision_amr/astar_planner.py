@@ -16,6 +16,7 @@ from tf2_ros import Buffer, TransformException, TransformListener
 from collections import deque
 
 from smart_vision_amr.astar import AStarPlanner
+from smart_vision_amr.continuous_start_egress import certified_start_only_edges
 from smart_vision_amr.local_detour import plan_local_detour
 from smart_vision_amr.clearance_cost import clearance_penalties
 from smart_vision_amr.grid import Grid
@@ -701,7 +702,8 @@ class AStarPlannerNode(Node):
 
     def _safe_failure_edge_fallback(self, map_msg, grid, start, end, blocked,
                                     escape_cells, allow_dynamic_escape,
-                                    cell_penalty, failure_edges, failure_costs):
+                                    cell_penalty, failure_edges, failure_costs,
+                                    safety_egress_edges=None):
         """Retry a nonphysical failed edge as a costly edge, never an occupied cell.
 
         A progress abort can happen during a valid in-place turn. In a narrow
@@ -772,7 +774,8 @@ class AStarPlannerNode(Node):
                 grid, start, end, blocked,
                 allow_blocked_start=allow_dynamic_escape,
                 escape_cells=escape_cells,
-                cell_penalty=cell_penalty, edge_penalty=costs)
+                cell_penalty=cell_penalty, edge_penalty=costs,
+                blocked_edges=safety_egress_edges)
         except ValueError:
             return []
 
@@ -1644,7 +1647,43 @@ class AStarPlannerNode(Node):
             self.get_parameter("robot_radius").value / map_msg.info.resolution,
             (self.get_parameter("start_egress_clearance_margin").value
              / map_msg.info.resolution + sqrt(2.0) / 2.0))
+        safety_egress_edges = set()
+        if (not escape_cells and start in observed_blocked
+                and start not in observed_effective and start not in remembered_blocked
+                and not grid.is_static_obstacle(start)
+                and self.last_observation_time is not None
+                and 0 <= time.monotonic() - self.last_observation_time < .75):
+            # A cell-center worst-case reserve can reject a physically clear
+            # start by a fraction of a millimetre. A fresh continuous TF and
+            # current scan can certify only the first edge, never a raw hit or
+            # another inflated cell. Failed certification retains the stop.
+            current = self._fresh_motion_pose()
+            if (current is not None
+                    and world_to_cell(map_msg.info, current[0], current[1]) == start
+                    and hypot(current[0] - tf.transform.translation.x,
+                              current[1] - tf.transform.translation.y) <= .05):
+                origin = map_msg.info.origin.position
+                angle = yaw_from_quaternion(map_msg.info.origin.orientation)
+                dx, dy = current[0] - origin.x, current[1] - origin.y
+                pose_cells = ((cos(angle) * dx + sin(angle) * dy) / map_msg.info.resolution,
+                              (-sin(angle) * dx + cos(angle) * dy) / map_msg.info.resolution)
+                safe_edges = certified_start_only_edges(
+                    raw_grid, grid, observed_effective | remembered_effective,
+                    blocked, start, pose_cells,
+                    float(self.get_parameter("robot_radius").value) / map_msg.info.resolution,
+                    float(self.get_parameter("start_egress_clearance_margin").value)
+                    / map_msg.info.resolution)
+                if safe_edges:
+                    escape_cells = {start}
+                    safety_egress_edges = {
+                        (start, (start[0] + dx, start[1] + dy))
+                        for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+                        if (dx or dy) and (start, (start[0] + dx, start[1] + dy)) not in safe_edges
+                    }
+                    self.get_logger().info(
+                        f"Fresh continuous pose certified {len(safe_edges)} start-only egress edges")
         allow_dynamic_escape = bool(escape_cells)
+        plan_blocked_edges = failure_edges | safety_egress_edges
         egress_steps = 0
         self.global_plan_count += 1
         self.plan_metrics.update(global_plan_count=self.global_plan_count)
@@ -1661,7 +1700,8 @@ class AStarPlannerNode(Node):
                     margin_cells=margin/resolution,
                     max_egress_cells=min(int(inflation)+1, int(self.get_parameter("start_egress_max_cells").value)),
                     allow_blocked_start=allow_dynamic_escape, escape_cells=escape_cells,
-                    cell_penalty=cell_penalty, blocked_edges=failure_edges, edge_penalty=failure_costs)
+                    cell_penalty=cell_penalty, blocked_edges=plan_blocked_edges,
+                    edge_penalty=failure_costs)
                 if cells:
                     egress_steps = next((index for index, cell in enumerate(cells)
                                          if not grid.is_static_obstacle(cell)), 0)
@@ -1670,7 +1710,8 @@ class AStarPlannerNode(Node):
                                           allow_blocked_start=allow_dynamic_escape,
                                           escape_cells=escape_cells,
                                           cell_penalty=cell_penalty,
-                                          blocked_edges=failure_edges, edge_penalty=failure_costs)
+                                          blocked_edges=plan_blocked_edges,
+                                          edge_penalty=failure_costs)
         except ValueError:
             self.plan_metrics.update(global_duration_ms=(time.perf_counter()-global_started)*1000.)
             self._invalidate_path(f"Robot or goal lies outside the map: {start} -> {end}")
@@ -1680,7 +1721,8 @@ class AStarPlannerNode(Node):
         if not cells and failure_edges:
             cells = self._safe_failure_edge_fallback(
                 map_msg, grid, start, end, blocked, escape_cells,
-                allow_dynamic_escape, cell_penalty, failure_edges, failure_costs)
+                allow_dynamic_escape, cell_penalty, failure_edges, failure_costs,
+                safety_egress_edges)
             failure_edge_fallback = bool(cells)
             if failure_edge_fallback:
                 self.plan_metrics.update(failure_edge_fallback=True)
@@ -1779,7 +1821,6 @@ class AStarPlannerNode(Node):
         cutoff = self.last_failure_event_stamp_ns
         path.header.stamp = (rclpy.time.Time(nanoseconds=max(now.nanoseconds, cutoff+1)).to_msg()
                              if cutoff else now.to_msg())
-        from math import atan2, sin, cos, isfinite
         points = [(x + .5, y + .5) for x, y in cells]
         smoothed = False
         if self.get_parameter("path_smoothing_enabled").value:

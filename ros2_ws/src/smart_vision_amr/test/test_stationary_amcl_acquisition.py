@@ -10,6 +10,7 @@ from nav_msgs.msg import OccupancyGrid
 from tf2_ros import TransformException
 
 from smart_vision_amr.localization_health import LocalizationHealth
+from test_localization_health import healthy, armed
 from test_localization_nomotion_refresh import setup_node, request
 
 
@@ -89,6 +90,40 @@ def test_healthy_idle_stale_pose_requests_real_bounded_refresh_without_faking_tf
     request(node, 10.1)
     assert node.no_motion_responses == 1
     assert (node.amcl_at, node.last_amcl_stamp_ns, node.position_std, node.yaw_std) == epoch
+
+
+def test_stale_amcl_interlock_keeps_trying_bounded_stationary_refresh_without_faking_pose():
+    node, _ = uncertain()
+    node.core.acquired, node.position_std, node.yaw_std = True, .1, .1
+    node.core.last_result = {'level': 'warning', 'autonomous_allowed': False,
+                             'reasons': ['amcl_pose_stale']}
+    epoch = node.amcl_at, node.last_amcl_stamp_ns, node.position_std, node.yaw_std
+    request(node)
+    assert node.refresh_mode == 'stationary'
+    assert node.no_motion_requests == 1
+    assert not node.core.last_result['autonomous_allowed']
+    assert (node.amcl_at, node.last_amcl_stamp_ns, node.position_std, node.yaw_std) == epoch
+    node.no_motion_future.set_result(object())
+    request(node, 10.1)
+    assert node.no_motion_responses == 1
+    assert (node.amcl_at, node.last_amcl_stamp_ns, node.position_std, node.yaw_std) == epoch
+
+
+def test_failed_stationary_refresh_cannot_authorize_drive_with_frozen_amcl_pose():
+    node, _ = uncertain()
+    node.core = armed()
+    node.position_std = node.yaw_std = .1
+    node.amcl_at, node.last_amcl_stamp_ns = 1., 1_000_000_000
+    stale = healthy(amcl_age_seconds=9., amcl_header_age_seconds=9.)
+    assert not node.core.evaluate(10., stale)['autonomous_allowed']
+    request(node)
+    assert node.no_motion_requests == 1
+    node.no_motion_future.set_exception(RuntimeError('AMCL did not refresh'))
+    request(node, 10.1)
+    assert node.no_motion_errors == 1
+    assert (node.amcl_at, node.last_amcl_stamp_ns) == (1., 1_000_000_000)
+    blocked = node.core.evaluate(10.6, stale)
+    assert not blocked['autonomous_allowed'] and blocked['stop_latched']
 
 
 @pytest.mark.parametrize('level,allowed,latched', [

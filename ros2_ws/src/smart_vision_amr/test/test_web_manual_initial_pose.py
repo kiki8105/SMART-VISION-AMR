@@ -177,7 +177,11 @@ def test_http_initial_pose_contract_and_explicit_confirmation(tmp_path):
         thread.join(2.)
 
 
-def test_ros_dispatch_waits_for_amcl_and_new_tf(tmp_path):
+@pytest.mark.parametrize('health_rejection', [
+    'amcl_not_seen_yet', 'amcl_not_fresh', 'tf_not_fresh',
+    'sensor_not_fresh', 'sensor_stamp_not_fresh', 'robot_not_stopped',
+])
+def test_ros_dispatch_waits_for_amcl_and_new_tf(tmp_path, health_rejection):
     rclpy = pytest.importorskip('rclpy')
     from rclpy.context import Context
     from rclpy.signals import SignalHandlerOptions
@@ -191,7 +195,7 @@ def test_ros_dispatch_waits_for_amcl_and_new_tf(tmp_path):
             return self.ready
 
         def result(self):
-            return SimpleNamespace()
+            return getattr(self, 'value', SimpleNamespace())
 
     class FakeService:
         def __init__(self):
@@ -200,18 +204,24 @@ def test_ros_dispatch_waits_for_amcl_and_new_tf(tmp_path):
 
         def call_async(self, request):
             self.requests.append(request)
+            self.future = FakeFuture()
             return self.future
+
+        def service_is_ready(self):
+            return True
 
         def remove_pending_request(self, future):
             pass
 
     app = stopped_application(tmp_path)
+    app.require_localization_health = True
     context = Context()
     rclpy.init(args=[], context=context, domain_id=219,
                signal_handler_options=SignalHandlerOptions.NO)
     node = create_ros_bridge(app, SimpleNamespace(camera_topic='/isolated_manual_pose_camera',
                              base_frame='isolated_manual_pose_base'), context)
     service = node.initial_pose_client = FakeService()
+    health_service = node.manual_pose_health_client = FakeService()
     try:
         submit(app)
         node.tick_manual_pose(time.monotonic())
@@ -232,15 +242,86 @@ def test_ros_dispatch_waits_for_amcl_and_new_tf(tmp_path):
         app.manual_pose_amcl_at = time.monotonic()
         app.pose_at = time.monotonic()
         app.pose = {'x': .525, 'y': 2.025, 'yaw': math.pi/2}
+        node.manual_pose_verified_amcl_stamp_ns = node.manual_pose_ros_stamp_ns+1
         app.pose_tf_stamp_ns = node.manual_pose_ros_stamp_ns - 1
         node.tick_manual_pose(time.monotonic())
         assert app.manual_pose_state == 'WAITING'  # Old TF cannot certify the new prior.
         app.pose_tf_stamp_ns = node.manual_pose_ros_stamp_ns + 1
         node.tick_manual_pose(time.monotonic())
+        assert app.manual_pose_state == 'WAITING'  # Health must confirm its new AMCL sample.
+        assert len(health_service.requests) == 1
+        assert {item.name: item.value.integer_value for item in health_service.requests[0].parameters} == {
+            'initial_pose_stamp_ns': node.manual_pose_ros_stamp_ns,
+            'verified_amcl_stamp_ns': node.manual_pose_verified_amcl_stamp_ns}
+        health_service.future.value = SimpleNamespace(result=SimpleNamespace(
+            successful=False, reason=health_rejection))
+        health_service.future.ready = True
+        node.tick_manual_pose(time.monotonic())
+        assert app.manual_pose_state == 'WAITING'  # A definite pre-acquisition rejection is retryable.
+        assert app.mission.estop_latched and app.localization_invalidated
+        node.manual_pose_verified_amcl_stamp_ns += 1
+        app.manual_pose_amcl_at = time.monotonic()
+        node.manual_pose_health_last_at -= .6
+        node.tick_manual_pose(time.monotonic())
+        assert len(health_service.requests) == 2
+        assert health_service.requests[1].parameters[1].value.integer_value == (
+            node.manual_pose_verified_amcl_stamp_ns)
+        # The second request is accepted by health, but its response is lost.
+        # A later AMCL posterior must not change the retried request pair.
+        accepted_pair = {item.name: item.value.integer_value
+                         for item in health_service.requests[1].parameters}
+        node.manual_pose_verified_amcl_stamp_ns += 1
+        app.manual_pose_amcl_at = time.monotonic()
+        node.manual_pose_health_started_at -= 2.1
+        node.manual_pose_health_last_at -= .6
+        node.tick_manual_pose(time.monotonic())
+        assert len(health_service.requests) == 3
+        assert {item.name: item.value.integer_value
+                for item in health_service.requests[2].parameters} == accepted_pair
+        assert len(service.requests) == 1  # Do not seed AMCL twice.
+        health_service.future.value = SimpleNamespace(result=SimpleNamespace(
+            successful=True, reason='already_confirmed_stop_latch_retained'))
+        health_service.future.ready = True
+        node.tick_manual_pose(time.monotonic())
         assert app.manual_pose_state == 'VERIFIED'
         assert not app.localization_invalidated
         assert app.mission.estop_latched
         assert not app.mission.commands
+    finally:
+        node.destroy_node()
+        context.shutdown()
+
+
+def test_generic_web_manual_pose_does_not_require_classroom_health_service(tmp_path):
+    rclpy = pytest.importorskip('rclpy')
+    from rclpy.context import Context
+    from rclpy.signals import SignalHandlerOptions
+    from smart_vision_amr.web_mission_server import create_ros_bridge
+
+    app = stopped_application(tmp_path)
+    assert not app.require_localization_health
+    context = Context()
+    rclpy.init(args=[], context=context, domain_id=219,
+               signal_handler_options=SignalHandlerOptions.NO)
+    node = create_ros_bridge(app, SimpleNamespace(camera_topic='/isolated_generic_pose_camera',
+                             base_frame='isolated_generic_pose_base'), context)
+    sent = []
+    node.initial_pose_client = SimpleNamespace(call_async=lambda request: (
+        sent.append(request) or SimpleNamespace(done=lambda: True,
+                                                result=lambda: SimpleNamespace())))
+    node.manual_pose_health_client = SimpleNamespace(service_is_ready=lambda: False)
+    try:
+        submit(app)
+        node.tick_manual_pose(time.monotonic())
+        app.manual_pose_amcl_at = app.pose_at = time.monotonic()
+        app.pose = {'x': .525, 'y': 2.025, 'yaw': math.pi/2}
+        app.pose_tf_stamp_ns = node.manual_pose_ros_stamp_ns+1
+        node.manual_pose_verified_amcl_stamp_ns = node.manual_pose_ros_stamp_ns+1
+        node.tick_manual_pose(time.monotonic())
+        assert len(sent) == 1
+        assert app.manual_pose_state == 'VERIFIED'
+        assert not app.localization_invalidated
+        assert app.mission.estop_latched
     finally:
         node.destroy_node()
         context.shutdown()

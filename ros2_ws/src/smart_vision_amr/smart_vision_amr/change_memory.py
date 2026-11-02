@@ -26,6 +26,34 @@ from smart_vision_amr.map_utils import (bresenham, cell_to_world, world_to_cell,
                                        distance_to_known_wall_area, wall_echo_reference_grid)
 
 
+def wall_aligned_echo_indices(samples, minimum_beams=6, minimum_span_m=0.10):
+    """Return indices in contiguous, spatially extended mapped-wall echoes.
+
+    ``samples`` contains only returns whose range is within the bounded wall
+    band. A single close return remains an obstacle; a run must span a real
+    stretch of wall, not merely several rays hitting one small object.
+    """
+    runs = []
+    current = []
+    for index in sorted(samples):
+        if current and index != current[-1] + 1:
+            runs.append(current)
+            current = []
+        current.append(index)
+    if current:
+        runs.append(current)
+    matched = set()
+    for run in runs:
+        if len(run) < minimum_beams:
+            continue
+        points = [samples[index] for index in run]
+        span = math.hypot(max(x for x, _ in points) - min(x for x, _ in points),
+                          max(y for _, y in points) - min(y for _, y in points))
+        if span >= minimum_span_m:
+            matched.update(run)
+    return matched
+
+
 class ChangeMemoryNode(Node):
     def __init__(self):
         super().__init__("change_memory")
@@ -309,6 +337,8 @@ class ChangeMemoryNode(Node):
         yaw = self._yaw(tf.transform.rotation)
         occupied_cells, free_cells, uncertain_cells = set(), set(), set()
         unmatched_hits = []
+        wall_band_candidates = {}
+        wall_band_samples = {}
         invalid_angles = []
         valid_beams = 0
         # Hold even a multi-beam near-minimum cluster as unknown until a
@@ -357,10 +387,26 @@ class ChangeMemoryNode(Node):
                 # Unknown cells are not evidence of a mapped wall.
                 wall_echo = (wall_distance is not None
                              and abs(wall_distance-distance) <= wall_tolerance)
-                if not wall_echo:
+                if wall_echo:
+                    wall_band_samples[index] = endpoint
+                elif (wall_distance is not None
+                        and wall_tolerance < wall_distance-distance <= 0.10
+                        and distance_to_known_wall_area(
+                            info, self.wall_echo_grid, *endpoint, 0.10) is not None):
+                    # A map/laser edge can differ by one or two 5 cm cells.
+                    # Suppress that extra overlay inflation only when many
+                    # adjacent beams trace an extended mapped wall. A short
+                    # near-wall return remains a live obstacle. Nav2 receives
+                    # the original LaserScan regardless of this classification.
+                    wall_band_samples[index] = endpoint
+                    wall_band_candidates[index] = (endpoint, end_cell)
+                else:
                     unmatched_hits.append((endpoint, end_cell))
         if not valid_beams:
             return True
+        wall_band = wall_aligned_echo_indices(wall_band_samples)
+        unmatched_hits.extend(hit for index, hit in wall_band_candidates.items()
+                              if index not in wall_band)
         for endpoint, end_cell in unmatched_hits:
             # The SLAM map has a narrow unknown fringe on mapped walls. Do not
             # inflate a return on that fringe a second time into a corridor.

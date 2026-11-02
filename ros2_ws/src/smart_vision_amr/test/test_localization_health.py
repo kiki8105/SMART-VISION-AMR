@@ -4,6 +4,7 @@ import json
 import math
 import os
 import time
+from collections import deque
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -14,6 +15,8 @@ import yaml
 from rclpy.context import Context
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovarianceStamped
+from rcl_interfaces.msg import Parameter, ParameterType, ParameterValue
+from rcl_interfaces.srv import SetParametersAtomically
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
@@ -74,7 +77,8 @@ def healthy(**changes):
                  'odom_age_seconds': 0.1, 'scan_header_age_seconds': 0.1,
                  'odom_header_age_seconds': 0.1, 'scan_valid': True, 'odom_valid': True,
                  'position_std_m': 0.1, 'yaw_std_rad': 0.1,
-                 'moving': False, 'amcl_age_seconds': 100.0, 'amcl_update_epoch': 0.0,
+                 'moving': False, 'amcl_age_seconds': 0.1,
+                 'amcl_header_age_seconds': 0.1, 'amcl_update_epoch': 0.0,
                  'scan_map_agreement': 0.85, 'agreement_age_seconds': 0.1,
                  'pose_jump': False}, **changes)
 
@@ -278,10 +282,10 @@ def test_short_dynamic_obstruction_does_not_latch_but_sustained_disagreement_doe
     assert core.evaluate(7.1, blocked)['level'] == 'critical'
 
 
-def test_old_stationary_amcl_pose_allows_first_motion_then_expires_after_moving_time():
+def test_unchanged_amcl_epoch_expires_after_moving_time_even_with_fresh_age_metrics():
     core = armed()
-    assert core.evaluate(2.0, healthy(amcl_age_seconds=1000))['level'] == 'ok'
-    moving = healthy(moving=True, amcl_age_seconds=1000.)
+    assert core.evaluate(2.0, healthy())['level'] == 'ok'
+    moving = healthy(moving=True)
     assert core.evaluate(2.25, moving)['level'] == 'ok'
     assert core.last_result['autonomous_allowed']
     for now in (2.5, 3., 3.5, 4., 4.5, 5., 5.5, 6., 6.5):
@@ -293,15 +297,40 @@ def test_old_stationary_amcl_pose_allows_first_motion_then_expires_after_moving_
 def test_stop_go_pulses_accumulate_and_only_new_amcl_sample_resets_motion_budget():
     core = armed()
     for index in range(20):
-        core.evaluate(2.+index*.5, healthy(moving=index%2 == 0, amcl_age_seconds=1000.))
+        core.evaluate(2.+index*.5, healthy(moving=index%2 == 0))
     assert core.amcl_motion_without_update_seconds >= 4.
     assert core.stop_latched
     prior = core.amcl_motion_without_update_seconds
-    core.evaluate(12., healthy(moving=False, amcl_age_seconds=1010.))
+    core.evaluate(12., healthy(moving=False))
     assert core.amcl_motion_without_update_seconds >= prior
     core.evaluate(12.1, healthy(moving=False, amcl_age_seconds=.0, amcl_update_epoch=12.1))
     assert core.amcl_motion_without_update_seconds == 0.
     assert core.stop_latched  # New pose does not automatically release safety stop.
+
+
+@pytest.mark.parametrize('age_field', ['amcl_age_seconds', 'amcl_header_age_seconds'])
+def test_stale_amcl_posterior_blocks_autonomous_even_when_covariance_is_low(age_field):
+    core = armed()
+    stale = healthy(**{age_field: core.amcl_pose_timeout+.1})
+    first = core.evaluate(2., stale)
+    assert not first['autonomous_allowed'] and not first['stop_latched']
+    assert 'amcl_pose_stale' in first['reasons']
+    latched = core.evaluate(2.6, stale)
+    assert latched['stop_latched']
+    assert 'amcl_pose_stale' in latched['reasons']
+
+
+def test_manual_reacquisition_cannot_arm_from_old_amcl_covariance():
+    core = armed()
+    core.reinitialize()
+    stale = healthy(amcl_age_seconds=9., amcl_header_age_seconds=9.)
+    for now in (2., 4.5, 10.):
+        result = core.evaluate(now, stale)
+        assert not result['autonomous_allowed'] and not core.acquired
+    fresh = healthy(amcl_age_seconds=.1, amcl_header_age_seconds=.1,
+                    amcl_update_epoch=10.1)
+    assert not core.evaluate(10.1, fresh)['autonomous_allowed']
+    assert core.evaluate(12.2, fresh)['autonomous_allowed']
 
 
 def test_motion_clock_step_is_bounded_and_reinitialization_starts_new_acquisition():
@@ -473,6 +502,88 @@ def test_duplicate_amcl_header_does_not_refresh_update_epoch():
     LocalizationHealth.on_amcl(node, message)
     assert node.amcl_at == 5.
     assert node.last_amcl_stamp_ns == 1_000_000_000
+
+
+def manual_pose_confirmation_fixture(monkeypatch):
+    monkeypatch.setattr('smart_vision_amr.localization_health.time.monotonic', lambda: 100.)
+    ros_ns = 10_000_000_000
+    scan = LaserScan()
+    scan.header.stamp.sec, scan.header.stamp.nanosec = 9, 800_000_000
+    robot_odom = Odometry()
+    robot_odom.header.stamp.sec, robot_odom.header.stamp.nanosec = 9, 800_000_000
+    core = LocalizationHealthCore()
+    core.acquired = core.stop_latched = True
+
+    def lookup(target, source):
+        return SimpleNamespace(
+            header=SimpleNamespace(frame_id=target, stamp=SimpleNamespace(
+                sec=9, nanosec=900_000_000)), child_frame_id=source,
+            transform=SimpleNamespace(translation=SimpleNamespace(x=0., y=0.),
+                                      rotation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
+
+    node = SimpleNamespace(
+        get_clock=lambda: SimpleNamespace(now=lambda: SimpleNamespace(nanoseconds=ros_ns)),
+        core=core, map_frame='map', odom_frame='odom', base_frame='base_footprint',
+        _tf=lookup, map_distance=object(), scan=scan, odom=robot_odom,
+        scan_valid=True, odom_valid=True, scan_at=99.8, odom_at=99.8,
+        last_amcl_stamp_ns=9_500_000_000, amcl_at=99.8,
+        position_std=.4, yaw_std=.6, previous_amcl=object(), jump_until=101.,
+        agreement=.8, agreement_at=99.8, agreement_stamp=9_800_000_000,
+        agreement_scan=scan, agreement_scan_at=99.8, agreement_pending=deque([scan]),
+        last_manual_confirmed_stamp_ns=0, last_manual_confirmed_amcl_stamp_ns=0)
+    request = SetParametersAtomically.Request()
+    request.parameters = [Parameter(name=name, value=ParameterValue(
+        type=ParameterType.PARAMETER_INTEGER, integer_value=value))
+        for name, value in (('initial_pose_stamp_ns', 9_000_000_000),
+                            ('verified_amcl_stamp_ns', 9_500_000_000))]
+    return node, request
+
+
+def test_manual_service_confirmation_requires_post_seed_amcl_and_keeps_estop(monkeypatch):
+    node, request = manual_pose_confirmation_fixture(monkeypatch)
+    node.last_amcl_stamp_ns = 8_900_000_000
+    rejected = LocalizationHealth.confirm_manual_pose(
+        node, request, SetParametersAtomically.Response())
+    assert not rejected.result.successful
+    assert rejected.result.reason == 'amcl_not_seen_yet'
+    assert node.core.acquired and node.core.stop_latched
+    node.last_amcl_stamp_ns = 9_500_000_000
+    accepted = LocalizationHealth.confirm_manual_pose(
+        node, request, SetParametersAtomically.Response())
+    assert accepted.result.successful
+    assert not node.core.acquired and node.core.reinitialization_requested
+    assert node.core.stop_latched  # Confirmation is never an ESTOP reset.
+    assert node.position_std == .4 and node.yaw_std == .6 and node.amcl_at == 99.8
+    assert node.agreement is None and not node.agreement_pending
+    # Simulate a lost successful service response. Retrying the same pair
+    # must acknowledge it without reinitializing the health state again.
+    node.core.acquired = True
+    previous_amcl = node.previous_amcl = object()
+    duplicate = LocalizationHealth.confirm_manual_pose(
+        node, request, SetParametersAtomically.Response())
+    assert duplicate.result.successful
+    assert duplicate.result.reason == 'already_confirmed_stop_latch_retained'
+    assert node.core.acquired and node.core.stop_latched
+    assert node.previous_amcl is previous_amcl
+    request.parameters[1].value.integer_value += 1
+    conflict = LocalizationHealth.confirm_manual_pose(
+        node, request, SetParametersAtomically.Response())
+    assert not conflict.result.successful
+    assert conflict.result.reason == 'invalid_or_stale_stamp'
+
+
+@pytest.mark.parametrize('change,reason', [
+    (lambda node: setattr(node, 'scan_at', 98.), 'sensor_not_fresh'),
+    (lambda node: setattr(node, 'map_distance', None), 'sensor_not_fresh'),
+    (lambda node: setattr(node.odom.twist.twist.angular, 'z', .1), 'robot_not_stopped'),
+])
+def test_manual_confirmation_rejects_missing_stopped_sensor_proof(monkeypatch, change, reason):
+    node, request = manual_pose_confirmation_fixture(monkeypatch)
+    change(node)
+    rejected = LocalizationHealth.confirm_manual_pose(
+        node, request, SetParametersAtomically.Response())
+    assert not rejected.result.successful and rejected.result.reason == reason
+    assert node.core.acquired and node.core.stop_latched
 
 
 def test_missing_amcl_covariance_requests_bounded_filter_updates_without_motion():

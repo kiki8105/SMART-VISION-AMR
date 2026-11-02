@@ -76,6 +76,17 @@
 @media(max-width:650px){.startup-recovery{margin:0 16px 16px;padding:14px}.startup-recovery-steps{grid-template-columns:minmax(0,1fr)}.startup-recovery-heading{gap:10px}.startup-recovery-heading>div{min-width:0}.startup-step-actions button{flex:1;min-width:min(100%,190px)}.startup-recovery-steps button{min-height:44px}.operation-actions button{min-height:44px}}
 
 /* Initial AMCL pose is a visible operator action, separate from Homepoint editing. */
+.prearm-overview{margin:0 24px 14px;padding:14px 20px}
+.prearm-overview[data-state=ready]{border-left:4px solid var(--accent)}
+.prearm-overview[data-state=waiting]{border-left:4px solid var(--amber)}
+.prearm-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.prearm-heading h2{font-size:16px}.prearm-heading p{margin:4px 0 0;font-size:12px;line-height:1.5;color:var(--muted)}
+.prearm-heading button{font-size:12px;white-space:nowrap}
+.prearm-breakdown{margin-top:9px}.prearm-breakdown summary{font-size:11px;font-weight:600;color:var(--accent);cursor:pointer}
+.prearm-checks{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;list-style:none;padding:0;margin:12px 0 0}
+.prearm-checks li{min-width:0;padding:8px 9px;border:1px solid var(--line);border-radius:7px;font-size:11px;line-height:1.45}
+.prearm-checks li[data-state=ready]{background:var(--tint)}.prearm-checks li[data-state=waiting]{background:var(--amberbg)}
+.prearm-checks strong,.prearm-checks span{display:block;overflow-wrap:anywhere}.prearm-checks span{margin-top:3px;color:var(--muted)}
 .initial-pose-panel{margin:0 24px 18px;padding:16px 20px;border-left:4px solid var(--amber)}
 .initial-pose-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .initial-pose-heading h2{font-size:16px}.initial-pose-heading p,.initial-pose-help{font-size:12px;line-height:1.6;color:var(--muted);margin:4px 0 0}
@@ -87,7 +98,12 @@
 .initial-pose-fields small{font-size:10px;color:var(--muted);font-weight:400}
 .initial-pose-fields input{width:100%;min-height:44px;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font-size:16px;font-weight:400}
 .initial-pose-panel .checkbox{font-size:12px;line-height:1.5;align-items:flex-start}.initial-pose-panel .checkbox input{flex-shrink:0;margin-top:2px}
+.initial-pose-home-shortcut{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--soft)}
+.initial-pose-home-shortcut>strong{font-size:13px}.initial-pose-home-shortcut>p{font-size:12px;line-height:1.55;margin:7px 0;color:var(--muted)}
+.initial-pose-home-shortcut .checkbox{margin:10px 0}.initial-pose-home-shortcut button{min-height:44px}
+.initial-pose-panel details{margin-top:12px}.initial-pose-panel details summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--accent)}
 .initial-pose-actions{display:flex;gap:8px;flex-wrap:wrap}.initial-pose-actions button{min-height:40px}
 .initial-pose-result{margin:12px 0 0;padding:9px 11px;border-radius:7px;background:var(--soft);font-size:12px;line-height:1.55}
 .initial-pose-observed{margin:5px 0 0;color:var(--muted);font-size:11px}
-@media(max-width:650px){.initial-pose-panel{margin:0 12px 13px;padding:14px}.initial-pose-heading{flex-wrap:wrap}.initial-pose-fields{grid-template-columns:1fr;gap:9px}.initial-pose-actions{display:grid;grid-template-columns:1fr}.initial-pose-actions button{min-height:44px}}
+@media(max-width:950px){.prearm-checks{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.prearm-overview{margin:0 12px 13px;padding:14px}.prearm-heading{align-items:flex-start;flex-wrap:wrap}.prearm-heading button{min-height:44px}.prearm-checks{grid-template-columns:1fr 1fr}.initial-pose-panel{margin:0 12px 13px;padding:14px}.initial-pose-heading{flex-wrap:wrap}.initial-pose-home-shortcut button{width:100%}.initial-pose-fields{grid-template-columns:1fr;gap:9px}.initial-pose-actions{display:grid;grid-template-columns:1fr}.initial-pose-actions button{min-height:44px}}

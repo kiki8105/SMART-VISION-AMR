@@ -30,7 +30,7 @@ import numpy as np
 from PIL import Image as PILImage
 import yaml
 
-from smart_vision_amr.mission_logic import ACTIVE_STATES, START_STATES, MarkerMission, MissionError
+from smart_vision_amr.mission_logic import ACTIVE_STATES, START_STATES, MarkerMission, MissionError, stamp_key
 from smart_vision_amr.delivery_service import DeliveryService
 from smart_vision_amr.manual_control import ManualOverride
 from smart_vision_amr.assisted_localization import AssistedLocalization
@@ -41,6 +41,7 @@ from smart_vision_amr.operation_status import (operation_summary, route_preview,
                                              failure_memory_snapshot, local_detour_snapshot)
 from smart_vision_amr.navigation_graph import goal_consumers_ready
 from smart_vision_amr.marker_alignment import MarkerAlignment, angle_difference, finite_number
+from smart_vision_amr.home_alignment import HomeYawTrim
 from smart_vision_amr.wall_alignment import estimate_camera_axis_wall
 
 DEFAULT_MARKERS = [
@@ -1602,6 +1603,8 @@ def create_ros_bridge(app, options, context):
     from lifecycle_msgs.srv import GetState
     from nav_msgs.msg import OccupancyGrid, Odometry, Path as ROSPath
     from nav2_msgs.srv import SetInitialPose
+    from rcl_interfaces.msg import Parameter as ROSParameter, ParameterType, ParameterValue
+    from rcl_interfaces.srv import SetParametersAtomically
     from rclpy.clock import JumpThreshold
     from rclpy.duration import Duration
     from rclpy.node import Node
@@ -1661,8 +1664,17 @@ def create_ros_bridge(app, options, context):
             self.nomotion_client = self.create_client(Empty, '/request_nomotion_update')
             self.amcl_state_client = self.create_client(GetState, '/amcl/get_state')
             self.initial_pose_client = self.create_client(SetInitialPose, '/set_initial_pose')
+            self.manual_pose_health_client = self.create_client(
+                SetParametersAtomically,
+                '/smart_vision_amr/localization_health/confirm_manual_pose')
             self.amcl_state_future = self.localization_future = self.nomotion_future = None
             self.manual_pose_future = None
+            self.manual_pose_health_future = None
+            self.manual_pose_health_started_at = 0.
+            self.manual_pose_health_last_at = 0.
+            self.manual_pose_health_error = ''
+            self.manual_pose_verified_amcl_stamp_ns = 0
+            self.manual_pose_health_verified_stamp_ns = 0
             self.manual_pose_nomotion_future = None
             self.manual_pose_nomotion_at = 0.
             self.manual_pose_ros_stamp_ns = 0
@@ -1746,6 +1758,12 @@ def create_ros_bridge(app, options, context):
                 rear_yaw_sign=getattr(options, 'marker_rear_yaw_sign', -1.))
             self.marker_alignment_key = None
             self.marker_alignment_angular = 0.
+            # The mission's broader arrival band admits normal Nav2 completion,
+            # but final parking needs room for map/odom heading error.
+            self.home_yaw_trim = HomeYawTrim()
+            self.home_yaw_angular = 0.
+            self.home_yaw_phase = 'IDLE'
+            self.home_yaw_hold_seq = None
             if app.aruco_available:
                 self.dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
                 self.detector_parameters = cv2.aruco.DetectorParameters_create() if hasattr(cv2.aruco, 'DetectorParameters_create') else cv2.aruco.DetectorParameters()
@@ -1996,6 +2014,7 @@ def create_ros_bridge(app, options, context):
                             if (math.hypot(position['x']-requested['x'], position['y']-requested['y']) < .5
                                     and abs(yaw_delta) < math.radians(30.)):
                                 app.manual_pose_amcl_at = time.monotonic()
+                                self.manual_pose_verified_amcl_stamp_ns = stamp
                     elif match >= .60:
                         app.localization_invalidated = False
                         self.manual_initial_pose_ns = None
@@ -2165,8 +2184,23 @@ def create_ros_bridge(app, options, context):
                     pose = app.pose if time.monotonic()-app.pose_at < 2.0 else None
                     stationary = (time.monotonic()-app.odom_at < 2.0
                                   and abs(app.speed['linear']) < .025 and abs(app.speed['angular']) < .06)
-                    matched = (app.mission.on_navigation(payload, pose=pose, stationary=stationary)
-                               if not app.localization.active else False)
+                    duplicate_home_success = (
+                        self.home_yaw_trim.active and app.mission.state == 'RETURNING_HOME'
+                        and app.mission.home_navigation_succeeded
+                        and str(payload.get('status', '')).upper() == 'SUCCEEDED'
+                        and stamp_key(payload.get('goal_stamp')) == app.mission.goal_stamp)
+                    home_success = (
+                        app.mission.returning_home
+                        and str(payload.get('status', '')).upper() == 'SUCCEEDED'
+                        and stamp_key(payload.get('goal_stamp')) == app.mission.goal_stamp)
+                    # The mission's ordinary SUCCEEDED handler calls
+                    # observe_home() immediately. Route a new Home success
+                    # through the stricter guarded trim, and never let a
+                    # repeated status skip its fresh hold/settling proof.
+                    matched = (app.mission.on_navigation(
+                                   payload, pose=None if home_success else pose,
+                                   stationary=stationary)
+                               if not app.localization.active and not duplicate_home_success else False)
                     if (matched and app.manual.state == 'WAIT_REPLAN'
                             and payload.get('status') in {'MOVING', 'FOLLOWING', 'SUCCEEDED'}):
                         app.manual_auto_ready = True
@@ -2176,6 +2210,18 @@ def create_ros_bridge(app, options, context):
                     if matched and payload.get('status') == 'SUCCEEDED':
                         self.owns_navigation = False
                         app.navigation_active = False
+                        if (app.mission.state == 'RETURNING_HOME'
+                                and app.mission.home_navigation_succeeded
+                                and not self.home_yaw_trim.active):
+                            # A FollowPath success may leave a small physical
+                            # heading error. Hold the completed action before
+                            # any separately leased in-place correction.
+                            self.home_yaw_trim.start(app.mission.goal_stamp, time.monotonic())
+                            self.stop()
+                            # Require an ACK for this new stop request. A
+                            # durable ACK from an earlier goal is insufficient.
+                            self.home_yaw_hold_seq = self.send_control(
+                                'hold', operation='home_yaw_trim')
                     if previous_state != 'CONFIRMING' and app.mission.state == 'CONFIRMING':
                         self.observation_started_ros_ns = self.get_clock().now().nanoseconds
                         self.stop()
@@ -2643,6 +2689,87 @@ def create_ros_bridge(app, options, context):
                 mission.reason = '표식 정렬을 일시정지했습니다: '+app.marker_alignment['reason']
                 mission.event(mission.reason, 'warning')
 
+        def tick_home_yaw_trim(self, now, cancelled, stopped_by_mux):
+            """Trim only a terminal Home yaw using the guarded manual lease."""
+            self.home_yaw_angular = 0.
+            mission = app.mission
+            if (mission.state != 'RETURNING_HOME' or not mission.returning_home
+                    or not mission.home_navigation_succeeded or not self.home_yaw_trim.active):
+                self.home_yaw_trim.reset()
+                self.home_yaw_phase = 'IDLE'
+                self.home_yaw_hold_seq = None
+                return
+            home = mission.home
+            pose = app.pose
+            if not isinstance(home, dict):
+                mission.pause_home_alignment('등록된 홈 좌표가 없습니다.')
+                self.stop()
+                self.home_yaw_trim.reset()
+                self.home_yaw_hold_seq = None
+                return
+            yaw_error = (angle_difference(home['yaw'], pose['yaw'])
+                         if isinstance(pose, dict) and finite_number(pose.get('yaw'))
+                         else math.nan)
+            xy_error = (math.hypot(pose['x']-home['x'], pose['y']-home['y'])
+                        if isinstance(pose, dict) and finite_number(pose.get('x'))
+                        and finite_number(pose.get('y')) else math.nan)
+            odom_yaw = (app.odom_pose or {}).get('yaw')
+            sensors_fresh = (0. <= now-app.pose_at < .5 and
+                             0. <= now-app.scan_at < .5 and
+                             0. <= now-app.localization_scan_at < .5 and
+                             0. <= now-app.odom_at < .5 and
+                             0. <= now-app.localization_odom_at < .5)
+            mux = app.manual_mux_status
+            own_manual_lease = (0. <= now-app.manual_mux_at < .5
+                                and mux.get('available') is True
+                                and mux.get('mode') == 'manual'
+                                and mux.get('source_id') == self.motion_source
+                                and mux.get('autonomous_allowed') is True
+                                and mux.get('estop_latched') is False)
+            health_ready = (app.readiness(for_home=True)['ready']
+                            and app.map_matches_configured is True
+                            and 0. <= now-app.localization_health_at < 1.
+                            and app.localization_health.get('autonomous_allowed') is True)
+            operator_clear = (not mission.estop_latched and not app.manual.in_progress
+                              and not app.localization.active and app.safety_request is None
+                              and self.safety_future is None and self.goal_waiting is None
+                              and mux.get('estop_latched') is False
+                              and not self.owns_navigation and not app.navigation_active)
+            stopped = (abs(app.speed['linear']) < .025 and
+                       abs(app.speed['angular']) < .06)
+            own_hold_ack = (stopped_by_mux and self.localization_acknowledged(
+                now, 'hold', self.home_yaw_hold_seq, stopped=True))
+            result = self.home_yaw_trim.step(
+                now=now, goal_stamp=mission.goal_stamp, yaw_error=yaw_error,
+                xy_error=xy_error, xy_tolerance=mission.pose_tolerance,
+                odom_yaw=odom_yaw, sensors_fresh=sensors_fresh,
+                scan_clear=bool(app.localization_clear),
+                health_ready=health_ready,
+                control_ready=cancelled and (own_hold_ack or own_manual_lease)
+                              and self.motion_pub.get_subscription_count() > 0,
+                stop_ack=own_hold_ack, stopped=stopped,
+                operator_clear=operator_clear)
+            if result.phase != self.home_yaw_phase:
+                self.home_yaw_phase = result.phase
+                if result.reason:
+                    mission.reason = result.reason
+                    mission.revision += 1
+            if result.phase == 'TURNING':
+                self.home_yaw_angular = result.angular
+            elif result.phase == 'DONE':
+                self.stop()
+                if not mission.observe_home(pose, stopped):
+                    mission.pause_home_alignment('정지 후 홈 위치·방향 최종 확인이 실패했습니다.')
+                app.sync_delivery()
+                self.home_yaw_trim.reset()
+                self.home_yaw_hold_seq = None
+            elif result.phase == 'FAILED':
+                self.stop()
+                mission.pause_home_alignment(result.reason)
+                app.sync_delivery()
+                self.home_yaw_trim.reset()
+                self.home_yaw_hold_seq = None
+
         def update_localization_services(self, now):
             amcl_ready = self.amcl_state_client.service_is_ready()
             app.localization_services_ready = (self.global_localization_client.service_is_ready()
@@ -2687,6 +2814,16 @@ def create_ros_bridge(app, options, context):
                 self.initial_pose_client.remove_pending_request(self.manual_pose_future)
                 self.manual_pose_future.cancel()
             self.manual_pose_future = None
+            if self.manual_pose_health_future is not None and not self.manual_pose_health_future.done():
+                try:
+                    self.manual_pose_health_client.remove_pending_request(self.manual_pose_health_future)
+                    self.manual_pose_health_future.cancel()
+                except Exception:
+                    pass
+            self.manual_pose_health_future = None
+            self.manual_pose_health_error = ''
+            self.manual_pose_verified_amcl_stamp_ns = 0
+            self.manual_pose_health_verified_stamp_ns = 0
             self.clear_manual_pose_nomotion()
             self.manual_pose_last_stop_ack_at = None
             app.manual_pose_request = None
@@ -2763,6 +2900,11 @@ def create_ros_bridge(app, options, context):
                     self.fail_manual_pose('AMCL 초기 위치 서비스 요청 오류: '+str(exc))
                     return
                 self.manual_pose_ros_stamp_ns = self.manual_initial_pose_ns = self.localization_epoch_ns = stamp
+                self.manual_pose_verified_amcl_stamp_ns = 0
+                self.manual_pose_health_verified_stamp_ns = 0
+                self.manual_pose_health_future = None
+                self.manual_pose_health_last_at = 0.
+                self.manual_pose_health_error = ''
                 self.manual_pose_last_stop_ack_at = now
                 self.clear_manual_pose_nomotion()
                 self.manual_pose_nomotion_at = 0.
@@ -2809,8 +2951,11 @@ def create_ros_bridge(app, options, context):
                     self.manual_pose_nomotion_future = None
                 elif now-self.manual_pose_nomotion_at >= 2.:
                     self.clear_manual_pose_nomotion()
+            needs_new_amcl = (app.manual_pose_amcl_received_at <= app.manual_pose_sent_at
+                              or (self.manual_pose_verified_amcl_stamp_ns > self.manual_pose_ros_stamp_ns
+                                  and now-app.manual_pose_amcl_at >= 1.))
             if (available and self.manual_pose_future is None
-                    and app.manual_pose_amcl_received_at <= app.manual_pose_sent_at
+                    and needs_new_amcl
                     and now-app.manual_pose_sent_at >= 1.
                     and now-app.manual_pose_sent_at < 12.
                     and now-self.manual_pose_nomotion_at >= 2.
@@ -2828,6 +2973,9 @@ def create_ros_bridge(app, options, context):
                 elif app.manual_pose_match is not None and app.manual_pose_match < .60:
                     reason = (f'라이다·지도 일치율 {app.manual_pose_match:.0%}가 60%보다 낮습니다. '
                               '실제 좌표·방향 또는 지도를 확인하세요.')
+                elif self.manual_pose_verified_amcl_stamp_ns > self.manual_pose_ros_stamp_ns:
+                    reason = ('위치 감시 노드의 초기 위치 재획득 확인이 끝나지 않았습니다: '
+                              + (self.manual_pose_health_error or '서비스·TF·센서 상태를 확인하세요.'))
                 else:
                     reason = '새 AMCL 추정값과 map→base TF가 입력 위치에서 확인되지 않았습니다.'
                 self.fail_manual_pose(reason)
@@ -2841,14 +2989,80 @@ def create_ros_bridge(app, options, context):
                 yaw_delta = math.atan2(math.sin(app.pose['yaw']-math.radians(requested['yaw_deg'])),
                                        math.cos(app.pose['yaw']-math.radians(requested['yaw_deg'])))
                 if (math.hypot(app.pose['x']-requested['x'], app.pose['y']-requested['y']) < .5
-                        and abs(yaw_delta) < math.radians(30.)):
-                    app.manual_pose_state = 'VERIFIED'
-                    app.manual_pose_result = 'AMCL 위치와 새 map→base TF 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.'
-                    app.localization_invalidated = False
-                    self.manual_initial_pose_ns = None
-                    self.manual_pose_last_stop_ack_at = None
-                    self.clear_manual_pose_nomotion()
-                    app.mission.event(app.manual_pose_result)
+                        and abs(yaw_delta) < math.radians(30.)
+                        and self.manual_pose_verified_amcl_stamp_ns > self.manual_pose_ros_stamp_ns):
+                    if not app.require_localization_health:
+                        # Generic web sessions may have AMCL but no dedicated
+                        # classroom localization-health node to acknowledge.
+                        app.manual_pose_state = 'VERIFIED'
+                        app.manual_pose_result = ('AMCL 위치·새 map→base TF 확인 완료 '
+                                                  '· 비상정지 유지. 출발 조건을 확인하세요.')
+                        app.localization_invalidated = False
+                        self.manual_initial_pose_ns = None
+                        self.manual_pose_last_stop_ack_at = None
+                        self.clear_manual_pose_nomotion()
+                        app.mission.event(app.manual_pose_result)
+                        return
+                    future = self.manual_pose_health_future
+                    if future is not None and future.done():
+                        definite_rejection = False
+                        try:
+                            result = future.result().result
+                            accepted = result.successful is True
+                            definite_rejection = result.successful is False
+                            self.manual_pose_health_error = str(result.reason)[:200]
+                        except Exception as exc:
+                            accepted = False
+                            self.manual_pose_health_error = str(exc)[:200]
+                        self.manual_pose_health_future = None
+                        if accepted:
+                            app.manual_pose_state = 'VERIFIED'
+                            app.manual_pose_result = ('AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 '
+                                                      '· 비상정지 유지. 출발 조건을 확인하세요.')
+                            app.localization_invalidated = False
+                            self.manual_initial_pose_ns = None
+                            self.manual_pose_last_stop_ack_at = None
+                            self.clear_manual_pose_nomotion()
+                            app.mission.event(app.manual_pose_result)
+                            return
+                        if (definite_rejection and self.manual_pose_health_error
+                                not in {'invalid_request', 'invalid_or_stale_stamp'}):
+                            # A definite rejection did not reinitialize health.
+                            # Retry with a newer posterior after TF/sensors or
+                            # AMCL recover. A timeout/exception is ambiguous:
+                            # keep the exact pair for idempotent acknowledgment.
+                            self.manual_pose_health_verified_stamp_ns = 0
+                        if self.manual_pose_health_error in {'invalid_request', 'invalid_or_stale_stamp'}:
+                            self.fail_manual_pose('위치 감시 재획득 요청이 거부되었습니다: '
+                                                  + self.manual_pose_health_error)
+                            return
+                    elif (future is not None and now-self.manual_pose_health_started_at >= 2.):
+                        try:
+                            self.manual_pose_health_client.remove_pending_request(future)
+                            future.cancel()
+                        except Exception:
+                            pass
+                        self.manual_pose_health_future = None
+                        self.manual_pose_health_error = '응답 시간 초과'
+                    if (self.manual_pose_health_future is None
+                            and now-self.manual_pose_health_last_at >= .5
+                            and self.manual_pose_health_client.service_is_ready()):
+                        if self.manual_pose_health_verified_stamp_ns == 0:
+                            self.manual_pose_health_verified_stamp_ns = (
+                                self.manual_pose_verified_amcl_stamp_ns)
+                        request = SetParametersAtomically.Request()
+                        request.parameters = [ROSParameter(name=name, value=ParameterValue(
+                            type=ParameterType.PARAMETER_INTEGER, integer_value=stamp))
+                            for name, stamp in (
+                                ('initial_pose_stamp_ns', self.manual_pose_ros_stamp_ns),
+                                ('verified_amcl_stamp_ns', self.manual_pose_health_verified_stamp_ns))]
+                        self.manual_pose_health_last_at = self.manual_pose_health_started_at = now
+                        try:
+                            self.manual_pose_health_future = self.manual_pose_health_client.call_async(request)
+                        except Exception as exc:
+                            self.manual_pose_health_error = str(exc)[:200]
+                    app.manual_pose_result = ('새 AMCL 위치·TF 확인 완료. 위치 감시 노드의 재획득 응답을 '
+                                              '기다리는 중 · 비상정지 유지.')
 
         def tick_localization(self, now, cancelled, mux_held):
             loc = app.localization
@@ -3208,7 +3422,9 @@ def create_ros_bridge(app, options, context):
                         and abs(app.speed['angular']) < .06
                         and not app.manual.in_progress and not app.localization.active
                         and app.safety_request is None)
-                if not app.manual.in_progress and not app.localization.active and now-app.pose_at < 2.0 and now-app.odom_at < 2.0:
+                if (not self.home_yaw_trim.active and not app.manual.in_progress
+                        and not app.localization.active and now-app.pose_at < 2.0
+                        and now-app.odom_at < 2.0):
                     app.mission.observe_home(app.pose, abs(app.speed['linear']) < .025 and abs(app.speed['angular']) < .06)
                     app.sync_delivery()
                 if self.cancel_future is not None:
@@ -3288,6 +3504,7 @@ def create_ros_bridge(app, options, context):
                             and app.manual_mux_status.get('mode') in {'hold', 'manual'})
                 self.tick_localization(now, cancelled, mux_held)
                 self.tick_marker_alignment(now, cancelled, mux_held)
+                self.tick_home_yaw_trim(now, cancelled, stopped_by_mux)
                 if app.manual.state == 'ACQUIRING' and cancelled and mux_held:
                     app.manual.mark_acquired()
                 if app.manual.state == 'RELEASING' and cancelled:
@@ -3345,6 +3562,12 @@ def create_ros_bridge(app, options, context):
                 elif app.mission.state == 'CONFIRMING':
                     if cancelled and mux_held and self.marker_alignment_angular:
                         self.send_control('manual', 0., self.marker_alignment_angular,
+                                          operation='marker_alignment')
+                    else:
+                        self.stop()
+                elif self.home_yaw_trim.active:
+                    if self.home_yaw_angular:
+                        self.send_control('manual', 0., self.home_yaw_angular,
                                           operation='marker_alignment')
                     else:
                         self.stop()

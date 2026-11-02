@@ -107,8 +107,9 @@ for(const rawMode of [false,true]){
     'Sector 3 arrow points straight down on screen in both map modes');
   const sector3Tooltip=descendants(canvas,'title').find(el=>el.textContent.includes('ArUco ID 3'));
   assert.match(sector3Tooltip.textContent,/화면 화살표 ↓는 표시용 · 실제 차체 전방 yaw -80°/);
-  assert.match($('#map-view-state').textContent,/Sector 3 ↓ 표시용 \/ 실제 yaw -80°/);
-  assert.match($('#map-heading-legend').textContent,/Sector 3 ↓ 표시용\(실제 yaw -80°\)/);
+  assert.doesNotMatch($('#map-view-state').textContent,/Sector 3 ↓ 표시용/);
+  assert.equal($('#map-heading-legend').textContent,'화살표 = 차체 전방');
+  assert.match($('#map-heading-legend').title,/실제 주행 목표 yaw는 -80°/);
 }
 assert.equal(snapshot.markers[1].yaw,-1.4,'drawing does not change the real ROS goal heading');
 assert.equal(snapshot.observed_route.goal.x,2.5,'drawing does not change the goal coordinates');

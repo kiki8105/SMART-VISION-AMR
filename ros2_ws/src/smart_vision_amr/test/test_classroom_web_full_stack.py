@@ -15,8 +15,10 @@ from inject_classroom_web_obstacle import (
     candidate_still_ahead, near_obstacle_indices, path_clearance_from_box,
     preflight_box_route,
     select_feasible_web_obstacle)
-from verify_classroom_web_dwell import assess_dwell
+from verify_classroom_web_dwell import (
+    assess_dwell, evaluate_prearm, obstacle_hold_started_at)
 from smart_vision_amr.astar import AStarPlanner
+import smart_vision_amr.map_utils as map_utils
 from smart_vision_amr.map_utils import cell_to_world, occupancy_to_grid, world_to_cell
 
 
@@ -29,6 +31,8 @@ def web_evidence(stage):
         'mission_accepted_via_web': True, 'final_state': 'HOME_REACHED',
         'completed_ids': route, 'startup_reset_requested_via_web': True,
         'startup_reset_completed': True,
+        'prearm': {'passed': True, 'checks': {'battery_sensor': {'passed': True}},
+                   'failed_gates': []},
         'home_stationary_verified': True, 'home_stationary_duration_s': 1.3,
         'home_pose_drift_m': .002,
         'home_independent_settle_check': {'passed': True},
@@ -61,6 +65,7 @@ def test_new_web_stages_are_real_web_owned_route_targets():
     clean = staged.BY_KEY['12_web_integrated_clean']
     obstacle = staged.BY_KEY['12_web_integrated_home_obstacle']
     stress_clean = staged.BY_KEY['12_web_integrated_stress_clean']
+    stress_permuted = staged.BY_KEY['12_web_integrated_stress_permuted']
     stress_obstacle = staged.BY_KEY['12_web_integrated_stress_home_obstacle']
     assert sector.kind == obstacle.kind == 'web_moving_obstacle'
     assert solo.kind == clean.kind == 'web_dwell'
@@ -70,6 +75,10 @@ def test_new_web_stages_are_real_web_owned_route_targets():
     assert staged.web_stage_route(obstacle) == '1,2,3'
     assert stress_clean.options == stress_obstacle.options == ('--stress',)
     assert staged.web_stage_route(stress_clean) == '1,2,3'
+    assert stress_permuted.kind == 'web_dwell'
+    assert stress_permuted.options == ('--stress',)
+    assert stress_permuted.key in staged.WEB_FULL_STACK_STAGES
+    assert staged.web_stage_route(stress_permuted) == '1,3,2'
     assert staged.web_stage_route(stress_obstacle) == '1,2,3'
 
 
@@ -82,6 +91,16 @@ def test_stress_web_stage_requires_actual_stress_fixture_manifest():
     evidence['web_world_variant'] = 'stress'
     evidence['stress_crate_assessment']['passed'] = False
     assert 'unmapped_stress_crate_bypass_unverified' in staged.assess(stage, evidence)['reasons']
+
+
+def test_permuted_stress_route_keeps_requested_order_in_web_and_assessor():
+    stage = staged.BY_KEY['12_web_integrated_stress_permuted']
+    evidence = web_evidence(stage)
+    assert staged.assess(stage, evidence)['passed']
+    assert 'route_mismatch' not in assess_dwell(evidence)
+    evidence['final_route'] = [1, 2, 3]
+    assert 'route_mismatch' in assess_dwell(evidence)
+    assert 'web_route_order_mismatch' in staged.assess(stage, evidence)['reasons']
 
 
 def test_web_clean_requires_ekf_reset_marker_center_and_camera_frame():
@@ -101,6 +120,74 @@ def test_web_clean_requires_ekf_reset_marker_center_and_camera_frame():
     assert 'sector_2_rear_camera_frame_missing' in reasons
     assert 'sector_1_fresh_front_camera_unverified' in reasons
     assert 'sector_2_excessive_marker_search_rotation' in reasons
+
+
+def test_web_clean_rejects_missing_individual_prearm_gate():
+    stage = staged.BY_KEY['12_web_integrated_clean']
+    evidence = web_evidence(stage)
+    del evidence['prearm']
+    assert 'prearm:evidence_missing' in staged.assess(stage, evidence)['reasons']
+    evidence['prearm'] = {'passed': False,
+                          'failed_gates': ['robot_guard_battery_limit']}
+    assert 'prearm:robot_guard_battery_limit' in staged.assess(stage, evidence)['reasons']
+
+
+def test_bounded_obstacle_hold_timer_resets_when_route_recovers():
+    state = {'mission': {'state': 'WAIT_REPLAN'},
+             'navigation': {'status': 'WAIT_REPLAN'},
+             'failure_memory': {'state': 'OBSTACLE_HOLD'},
+             'path': []}
+    assert obstacle_hold_started_at(state, None, 10.) == 10.
+    assert obstacle_hold_started_at(state, 10., 90.) == 10.
+    state['path'] = [{'x': 1.}]
+    assert obstacle_hold_started_at(state, 10., 91.) is None
+    state['path'] = []
+    state['failure_memory']['state'] = 'CLEAR'
+    assert obstacle_hold_started_at(state, None, 92.) is None
+    state['failure_memory']['state'] = 'OBSTACLE_HOLD'
+    assert obstacle_hold_started_at(state, None, 93.) == 93.
+
+
+def test_physical_style_prearm_records_battery_scan_and_amcl_failures(monkeypatch):
+    monkeypatch.setenv('ROS_LOCALHOST_ONLY', '1')
+    state = {
+        'connection': {'domain_id': 176},
+        'map': {'preview': False, 'version': 1},
+        'health': {'ready': True, 'missing': [], 'map': {'configured_match': True}},
+        'robot': {'pose': {'x': 0., 'y': 0., 'yaw': 0.}, 'pose_age': .1,
+                  'scan_age': .1, 'odom_age': .1, 'camera_age': .1,
+                  'raw_camera_age': .1, 'front_camera_age': .1,
+                  'power': {'status': 'online', 'voltage': 12., 'age': .1}},
+        'localization_health': {
+            'level': 'ok', 'stop_latched': False, 'autonomous_allowed': True,
+            'metrics': {'map_tf_age_seconds': .1, 'scan_age_seconds': .1,
+                        'scan_header_age_seconds': .1, 'scan_valid': True,
+                        'odom_age_seconds': .1, 'odom_header_age_seconds': .1,
+                        'odom_valid': True, 'amcl_age_seconds': .2,
+                        'amcl_header_age_seconds': .2, 'position_std_m': .1,
+                        'yaw_std_rad': .1, 'scan_map_agreement': .7}},
+        'safety': {'latched': False, 'stop_acknowledged': True,
+                   'pending': None, 'autonomous_allowed': True},
+    }
+    graph = {
+        'map_publishers': ['/map_server'], 'scan_publishers': ['/lidar'],
+        'odom_publishers': ['/ekf'], 'battery_publishers': ['/sim_battery'],
+        'raw_wheel_publishers': ['/wheel_joint_odometry'],
+        'raw_imu_publishers': ['/gazebo'],
+        'raw_input_samples': {'/wheel/odom': {'count': 3, 'last_receipt_age_s': .1},
+                              '/imu': {'count': 3, 'last_receipt_age_s': .1}},
+        'guard_battery_minimum_v': 10.8,
+        'goal_subscribers': ['/astar_planner', '/path_follower'],
+        'planner_status_publishers': ['/astar_planner'],
+        'cancel_service_types': ['std_srvs/srv/Trigger'],
+    }
+    assert evaluate_prearm(state, graph, True)['passed']
+    state['robot']['power']['voltage'] = 10.7
+    state['localization_health']['metrics']['amcl_header_age_seconds'] = 9.
+    graph['scan_publishers'] = []
+    failed = evaluate_prearm(state, graph, True)
+    assert not failed['passed']
+    assert {'battery_sensor', 'amcl_pose_freshness', 'fresh_scan'} <= set(failed['failed_gates'])
 
 
 def test_home_obstacle_must_follow_sector3_dwell_and_home_ros_goal():
@@ -192,7 +279,7 @@ def test_moving_box_spawn_rejects_robot_that_reached_selected_candidate():
     assert not candidate_still_ahead(candidate, (-.75, 0.), [(-1., 1.), (1., 1.)])
 
 
-def test_classroom_moving_box_preserves_inflated_route_at_all_five_poses():
+def test_classroom_moving_box_preserves_inflated_route_at_all_five_poses(monkeypatch):
     image = cv2.imread(str(ROOT/'ros2_ws/src/smart_vision_amr/maps/'
                             'classroom_20261030_cleaned.pgm'), 0)
     height, width = image.shape
@@ -210,9 +297,19 @@ def test_classroom_moving_box_preserves_inflated_route_at_all_five_poses():
     path = [cell_to_world(info, cell) for cell in cells]
     assert preflight_box_route(grid, robot, goal, (.375, -.875), path,
                                world_to_cell, cell_to_world) is None
-    candidate = select_feasible_web_obstacle(path, robot, goal, grid,
-                                              world_to_cell, cell_to_world)
+    conversions = []
+    original_convert = map_utils.occupancy_to_grid
+
+    def tracked_convert(*args, **kwargs):
+        conversions.append((args[1], args[2]))
+        return original_convert(*args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(map_utils, 'occupancy_to_grid', tracked_convert)
+        candidate = select_feasible_web_obstacle(path, robot, goal, grid,
+                                                  world_to_cell, cell_to_world)
     assert candidate is not None
+    assert conversions == [(65, 5), (65, 0)]
     assert candidate['preflight']['route_cells_by_step'] == [
         length for length in candidate['preflight']['route_cells_by_step'] if length > 0]
     assert len(candidate['preflight']['route_cells_by_step']) == 5

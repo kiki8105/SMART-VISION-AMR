@@ -114,10 +114,13 @@ controller_server:
     goal_checker_plugins: ["general_goal_checker"]
     controller_plugins: ["FollowPath"]
 
-    # Progress checker parameters
+    # A turn in a narrow aisle is real progress even before the chassis moves
+    # 12 cm. The XY-only checker falsely aborted a measured ~0.9 rad turn.
+    # PathFollower independently detects oscillation and failed execution.
     progress_checker:
-      plugin: "nav2_controller::SimpleProgressChecker"
+      plugin: "nav2_controller::PoseProgressChecker"
       required_movement_radius: 0.12
+      required_movement_angle: 0.35
       movement_time_allowance: 20.0
 
     general_goal_checker:

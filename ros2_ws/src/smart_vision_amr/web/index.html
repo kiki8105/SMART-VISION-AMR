@@ -44,8 +44,20 @@
       <details><summary>센서·정지 제어 상태</summary><ul id="operation-diagnostics"></ul><p id="safety-ack" role="status"></p></details>
       <ol id="active-route" class="active-route" aria-label="실제 방문 순서와 최종 홈 복귀"></ol>
     </section>
+    <section id="prearm-overview" class="panel prearm-overview" aria-labelledby="prearm-title">
+      <div class="prearm-heading"><div><h2 id="prearm-title">출발 준비</h2><p id="prearm-summary" role="status" aria-live="polite">차량·지도·위치 상태를 확인하고 있습니다.</p></div><button id="prearm-details" type="button">막힌 항목·해결 방법</button></div>
+      <details class="prearm-breakdown"><summary>전체 5개 점검 항목 보기</summary><ol id="prearm-checks" class="prearm-checks" aria-label="출발 전 확인 항목"></ol></details>
+    </section>
     <section id="initial-pose-panel" class="panel initial-pose-panel" aria-labelledby="initial-pose-title">
-      <div class="initial-pose-heading"><div><h2 id="initial-pose-title">초기 위치 지정</h2><p>비상정지 상태에서 AMCL에 실제 로봇의 지도 좌표를 입력합니다. 홈에 있다면 등록 홈 좌표를 불러오세요.</p></div><span id="initial-pose-state" class="initial-pose-state" data-state="waiting" role="status">입력 대기</span></div>
+      <div class="initial-pose-heading"><div><h2 id="initial-pose-title">초기 위치 지정</h2><p>로봇이 등록 홈에 있다면 좌표를 직접 입력하지 않아도 됩니다.</p></div><span id="initial-pose-state" class="initial-pose-state" data-state="waiting" role="status">입력 대기</span></div>
+      <div class="initial-pose-home-shortcut">
+        <strong>등록 홈에서 시작</strong>
+        <p id="initial-pose-home-position" class="tabular">홈 좌표를 확인하고 있습니다.</p>
+        <label class="checkbox"><input id="initial-pose-home-confirm" type="checkbox">로봇이 실제 등록 홈 표시 위치에 정지해 있고, 후방 카메라가 0번 ArUco 마커를 바라봅니다.</label>
+        <button id="initial-pose-home-apply" class="primary" type="button" disabled>등록 홈으로 초기 위치 지정</button>
+        <p id="initial-pose-home-help">웹의 ‘홈 도착’ 표시는 허용 오차 내 도착일 뿐 등록 홈 좌표와 정확히 같다는 뜻이 아닙니다. 실제 위치가 다르면 아래에서 직접 입력하세요.</p>
+      </div>
+      <details id="initial-pose-manual"><summary>홈이 아니면 X·Y·방향 직접 입력</summary>
       <form id="initial-pose-form">
         <div class="initial-pose-fields">
           <label for="initial-pose-x">X <small>지도 기준 · m</small><input id="initial-pose-x" name="x" type="number" inputmode="decimal" step="any" required placeholder="예: -0.11"></label>
@@ -56,6 +68,7 @@
         <label class="checkbox"><input id="initial-pose-confirm" type="checkbox">로봇이 정지해 있고, 입력한 위치와 방향이 실제 로봇과 일치함을 확인했습니다.</label>
         <div class="initial-pose-actions"><button id="initial-pose-home" type="button">등록 홈 좌표 넣기</button><button id="initial-pose-submit" class="primary" type="submit" disabled>AMCL 초기 위치 적용</button></div>
       </form>
+      </details>
       <p id="initial-pose-result" class="initial-pose-result" role="status" aria-live="polite">차량과 저장 지도의 연결 상태를 확인하고 있습니다.</p>
       <p id="initial-pose-observed" class="initial-pose-observed tabular">현재 추정 위치 · 대기</p>
     </section>

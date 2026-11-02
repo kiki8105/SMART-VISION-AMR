@@ -54,11 +54,13 @@ def test_guarded_independent_sim_uses_physical_wheel_limits_and_latched_mux(tmp_
                for value in parameters(context, wheel))
     guard = nodes['ekf_sensor_guard']
     assert guard.condition.evaluate(context)
-    overrides = next(value for value in parameters(context, guard)
-                     if isinstance(value, dict) and 'expected_ekf_odom_publisher' in value)
-    assert overrides == {'expected_ekf_odom_publisher': 'ekf_independent',
-                         'expected_raw_wheel_odom_topic': '/gazebo/odom_raw',
-                         'minimum_battery_voltage': 0.0}
+    context.launch_configurations['minimum_battery_voltage'] = '10.8'
+    physical_overrides = next(value for value in parameters(context, guard)
+                              if isinstance(value, dict)
+                              and 'expected_ekf_odom_publisher' in value)
+    assert physical_overrides == {'expected_ekf_odom_publisher': 'ekf_independent',
+                                  'expected_raw_wheel_odom_topic': '/gazebo/odom_raw',
+                                  'minimum_battery_voltage': 10.8}
     mux = next(node for node in description.entities
                if isinstance(node, Node) and node.node_executable == 'motion_mux')
     guarded_mux = next(value for value in parameters(context, mux)

@@ -16,7 +16,7 @@ STOPS = (
     # Registered Sector 1 (1.475000, .575000, 3.114078) failed the isolated
     # approach; the 1.20/.55 observation pose passed the same trial.
     ('Sector 1', 1.20, .55, 3.114078),
-    ('Sector 2', 1.45, -2.65, 1.543282),
+    ('Sector 2', 1.525, -2.65, 1.543282),
     ('Sector 3', -.25, -1.98, -1.40),
     ('Home', -.188431, -.220497, -.027514),
 )
