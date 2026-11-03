@@ -1,0 +1,242 @@
+{
+  "map": "/home/kiki/Team2_workspace/maps/maze_aruco_20261026/map.yaml",
+  "start": [
+    -3,
+    -2,
+    0
+  ],
+  "goal": [
+    3.9,
+    -2.5,
+    0
+  ],
+  "domain": 78,
+  "physical_robot_touched": false,
+  "trials": [
+    {
+      "label": "A",
+      "variant": "baseline_022",
+      "result": {
+        "terminal": {
+          "status": "FAILED",
+          "message": "Nav2 status 6"
+        },
+        "wall_elapsed": 66.98477032499977,
+        "goal_wall_elapsed": 57.556047983998724,
+        "final_sim": 62.9,
+        "goal_sim_elapsed": 59.8,
+        "final_map_pose": [
+          -2.4033559673057994,
+          1.8706221560479324,
+          -0.011806320086626408
+        ],
+        "final_amcl_pose": [
+          -2.4001232355429782,
+          1.867978689684528
+        ],
+        "final_odom": [
+          -2.4706390393010245,
+          1.9286382516836735
+        ],
+        "odometry_distance_after_goal": 4.1962345061658395,
+        "odom_displacement_after_goal": 3.9641526569836527,
+        "goal_distance": 7.670373816282145,
+        "last_path_pose_count": 428,
+        "last_navigation_status": {
+          "status": "FAILED",
+          "message": "Nav2 status 6"
+        },
+        "snapshot_count": 62
+      },
+      "controller_caps": {
+        "max_vel_x": 0.22,
+        "max_speed_xy": 0.22
+      },
+      "plan_window": {
+        "prune_distance": 20.0,
+        "forward_prune_distance": 2.0
+      },
+      "astar_inflation_cells": 6
+    },
+    {
+      "label": "B",
+      "variant": "slowdown_012",
+      "result": {
+        "terminal": {
+          "status": "FAILED",
+          "message": "Nav2 status 6"
+        },
+        "wall_elapsed": 77.71583407199978,
+        "goal_wall_elapsed": 68.38893202399959,
+        "final_sim": 73.7,
+        "goal_sim_elapsed": 70.60000000000001,
+        "final_map_pose": [
+          -2.4482121381613875,
+          1.7876033917505534,
+          0.12654124285299403
+        ],
+        "final_amcl_pose": [
+          -2.453765417570839,
+          1.8000365924847714
+        ],
+        "final_odom": [
+          -2.50837845151271,
+          1.868835479634085
+        ],
+        "odometry_distance_after_goal": 4.458643780387871,
+        "odom_displacement_after_goal": 3.8999565330819936,
+        "goal_distance": 7.66050521806822,
+        "last_path_pose_count": 417,
+        "last_navigation_status": {
+          "status": "FAILED",
+          "message": "Nav2 status 6"
+        },
+        "snapshot_count": 73
+      },
+      "controller_caps": {
+        "max_vel_x": 0.12,
+        "max_speed_xy": 0.12
+      },
+      "plan_window": {
+        "prune_distance": 20.0,
+        "forward_prune_distance": 2.0
+      },
+      "astar_inflation_cells": 6
+    },
+    {
+      "label": "C",
+      "variant": "inflation_009",
+      "result": {
+        "terminal": {
+          "status": "FAILED",
+          "message": "Planner returned no path"
+        },
+        "wall_elapsed": 8.328060931000437,
+        "goal_wall_elapsed": 0.10021913499986113,
+        "final_sim": 4.4,
+        "goal_sim_elapsed": 1.3000000000000003,
+        "final_map_pose": [
+          -3.0001058794617874,
+          -1.999999829522268,
+          5.2570121075871435e-06
+        ],
+        "final_amcl_pose": [
+          -3.0000000000002225,
+          -2.0
+        ],
+        "final_odom": [
+          -3.0000721622574575,
+          -1.999999380939229
+        ],
+        "odometry_distance_after_goal": 2.4295713012547476e-05,
+        "odom_displacement_after_goal": 2.4290837678484486e-05,
+        "goal_distance": 6.918197837461782,
+        "last_path_pose_count": 0,
+        "last_navigation_status": {
+          "status": "FAILED",
+          "message": "Planner returned no path"
+        },
+        "snapshot_count": 5
+      },
+      "controller_caps": {
+        "max_vel_x": 0.12,
+        "max_speed_xy": 0.12
+      },
+      "plan_window": {
+        "prune_distance": 20.0,
+        "forward_prune_distance": 2.0
+      },
+      "astar_inflation_cells": 9
+    },
+    {
+      "label": "D",
+      "variant": "inflation_008",
+      "result": {
+        "terminal": {
+          "status": "FAILED",
+          "message": "Nav2 status 6"
+        },
+        "wall_elapsed": 106.06695504600066,
+        "goal_wall_elapsed": 96.49514128100054,
+        "final_sim": 101.6,
+        "goal_sim_elapsed": 98.5,
+        "final_map_pose": [
+          -2.5151071410241896,
+          2.0772248895412324,
+          0.9593790708717675
+        ],
+        "final_amcl_pose": [
+          -2.514526061604741,
+          2.0780622291038537
+        ],
+        "final_odom": [
+          -2.5798055113386416,
+          2.153878685985274
+        ],
+        "odometry_distance_after_goal": 5.432433425460493,
+        "odom_displacement_after_goal": 4.175086254066778,
+        "goal_distance": 7.880646377059137,
+        "last_path_pose_count": 452,
+        "last_navigation_status": {
+          "status": "FAILED",
+          "message": "Nav2 status 6"
+        },
+        "snapshot_count": 101
+      },
+      "controller_caps": {
+        "max_vel_x": 0.12,
+        "max_speed_xy": 0.12
+      },
+      "plan_window": {
+        "prune_distance": 20.0,
+        "forward_prune_distance": 2.0
+      },
+      "astar_inflation_cells": 8
+    },
+    {
+      "label": "E",
+      "variant": "prune_075",
+      "result": {
+        "terminal": {
+          "status": "SUCCEEDED",
+          "message": "Nav2 status 4"
+        },
+        "wall_elapsed": 219.48924547500064,
+        "goal_wall_elapsed": 209.13651034100076,
+        "final_sim": 213.6,
+        "goal_sim_elapsed": 210.5,
+        "final_map_pose": [
+          3.762151168440807,
+          -2.417287396356768,
+          -0.23831721632733885
+        ],
+        "final_amcl_pose": [
+          3.768275965725819,
+          -2.422151296549248
+        ],
+        "final_odom": [
+          3.861618869407762,
+          -2.4293026349391638
+        ],
+        "odometry_distance_after_goal": 22.71672132777042,
+        "odom_displacement_after_goal": 6.875147550143629,
+        "goal_distance": 0.1607596813995263,
+        "last_path_pose_count": 229,
+        "last_navigation_status": {
+          "status": "SUCCEEDED",
+          "message": "Nav2 status 4"
+        },
+        "snapshot_count": 212
+      },
+      "controller_caps": {
+        "max_vel_x": 0.12,
+        "max_speed_xy": 0.12
+      },
+      "plan_window": {
+        "prune_distance": 0.25,
+        "forward_prune_distance": 0.75
+      },
+      "astar_inflation_cells": 6
+    }
+  ]
+}

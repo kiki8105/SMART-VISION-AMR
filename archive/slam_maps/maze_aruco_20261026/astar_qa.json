@@ -1,0 +1,116 @@
+{
+  "map_yaml": "/home/kiki/Team2_workspace/maps/maze_aruco_20261026/map.yaml",
+  "implementation": "smart_vision_amr.astar.AStarPlanner (same class imported by astar_planner.py)",
+  "occupancy_conversion": "smart_vision_amr.map_utils.occupancy_to_grid",
+  "configuration": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/nodes.yaml",
+  "inflation_cells": 6,
+  "occupied_threshold": 65,
+  "world_to_map_x_y_yaw": [
+    -0.0025456629447297503,
+    0.001522158511360453,
+    0.0008724678696151052
+  ],
+  "marker_observation_world_xy": [
+    [
+      -3.0,
+      -2.0
+    ],
+    [
+      -1.0,
+      3.0
+    ],
+    [
+      1.4,
+      -2.8
+    ],
+    [
+      3.9,
+      -2.5
+    ]
+  ],
+  "marker_observation_map_xy": [
+    [
+      -3.000799585626671,
+      -2.0010944835652884
+    ],
+    [
+      -1.0051626856214462,
+      3.00064854895223
+    ],
+    [
+      1.399896713940174,
+      -2.797255320945951
+    ],
+    [
+      3.8996340221123265,
+      -2.4950742657286513
+    ]
+  ],
+  "all_legs_pass": true,
+  "legs": [
+    {
+      "leg": "marker_0_to_1",
+      "start_cell": [
+        40,
+        42
+      ],
+      "goal_cell": [
+        80,
+        142
+      ],
+      "start_blocked": false,
+      "goal_blocked": false,
+      "success": true,
+      "path_cells": 117,
+      "length_m": 6.297056274847715
+    },
+    {
+      "leg": "marker_1_to_2",
+      "start_cell": [
+        80,
+        142
+      ],
+      "goal_cell": [
+        128,
+        26
+      ],
+      "start_blocked": false,
+      "goal_blocked": false,
+      "success": true,
+      "path_cells": 139,
+      "length_m": 7.438477631085023
+    },
+    {
+      "leg": "marker_2_to_3",
+      "start_cell": [
+        128,
+        26
+      ],
+      "goal_cell": [
+        178,
+        32
+      ],
+      "start_blocked": false,
+      "goal_blocked": false,
+      "success": true,
+      "path_cells": 219,
+      "length_m": 11.604163056034292
+    },
+    {
+      "leg": "marker_3_to_0",
+      "start_cell": [
+        178,
+        32
+      ],
+      "goal_cell": [
+        40,
+        42
+      ],
+      "start_blocked": false,
+      "goal_blocked": false,
+      "success": true,
+      "path_cells": 428,
+      "length_m": 23.193250352560423
+    }
+  ]
+}

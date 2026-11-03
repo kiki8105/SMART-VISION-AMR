@@ -49,8 +49,9 @@ A* 팽창 6 cells를 유지하면서 두 pruning 거리만 0.25/0.75 m로 바꾼
 시뮬레이션 튜닝 파일은 이 시험 E와 YAML 값이 일치합니다. 실차 파일은 기존
 전체 Nav2 설정에 속도 상한 두 항목과 pruning 거리 두 항목만 옮긴 시작용 템플릿입니다.
 한 차례의 전체 경로 성공이며, 다른 시작점·지도·실차에서의 검증은 별도입니다.
-증거는 `/home/kiki/Team2_workspace/log/curve_tuning_20261026/all_trials.json`,
-`E_supplement.json`, `E_comparison.png`에 있습니다.
+증거는 저장소의 [전체 시험 결과](../benchmarks/archive_20261026/curve_tuning/all_trials.json),
+[E 보충 결과](../benchmarks/archive_20261026/curve_tuning/E_supplement.json),
+[E 비교 그림](../benchmarks/archive_20261026/curve_tuning/E_comparison.png)에 있습니다.
 
 ## 작업 위치와 빌드
 
@@ -318,7 +319,7 @@ run/check 환경은 `ROS_DOMAIN_ID=76`, `ROS_LOCALHOST_ONLY=1`, `GAZEBO_MASTER_U
 | 주행 취소 | CANCELED, 속도 명령 0, 이후 3초 odom 변위 약 0.0002 m |
 | 화면 | Gazebo 월드와 RViz 지도·로봇·LiDAR·경로 표시 확인 |
 
-실행 로그는 `/home/kiki/Team2_workspace/log/verification_straight.log`, `verification_detour.log`, `verification_cancel.log`에 있습니다. 주행 검증용 설정은 실제 장비의 동작 성능을 보증하지 않으며 팀원 코드 변경 후에는 위 자동 검증을 다시 실행합니다.
+실행 로그는 저장소의 [직선](../benchmarks/archive_20261026/verification/verification_straight.log), [우회](../benchmarks/archive_20261026/verification/verification_detour.log), [취소](../benchmarks/archive_20261026/verification/verification_cancel.log)에 있습니다. 주행 검증용 설정은 실제 장비의 동작 성능을 보증하지 않으며 팀원 코드 변경 후에는 위 자동 검증을 다시 실행합니다.
 
 ### 기존 tools 조종기 + 새 SLAM 지도 검증 (2026-10-26)
 
@@ -338,12 +339,14 @@ run/check 환경은 `ROS_DOMAIN_ID=76`, `ROS_LOCALHOST_ONLY=1`, `GAZEBO_MASTER_U
 | 조종기 회귀 테스트 | 86개 통과 |
 | 경로 취소·목표 수신 순서 회귀 테스트 | 11개 통과 |
 
-최종 지도는 `/home/kiki/Team2_workspace/log/slam_validation/2026-10-26/complete/map.yaml`입니다. 같은 폴더의 `map.json`에 시작점 추가 스캔을 포함한 결과, 이전 실행 증거의 경로·SHA, 전체 셀 일치, 미확인 영역 보존, 저장 지도 A* 경로 생성 결과를 기록했습니다. 현재 기본 자동 검증 경로에는 추가 스캔 구간이 모두 포함돼 있습니다.
+최종 지도는 저장소의 [Gazebo SLAM 지도](../benchmarks/archive_20261026/slam_validation/complete/map.yaml)입니다. 같은 폴더의 [map.json](../benchmarks/archive_20261026/slam_validation/complete/map.json)에 시작점 추가 스캔을 포함한 결과, 이전 실행 증거의 경로·SHA, 전체 셀 일치, 미확인 영역 보존, 저장 지도 A* 경로 생성 결과를 기록했습니다. 현재 기본 자동 검증 경로에는 추가 스캔 구간이 모두 포함돼 있습니다.
 
 ```bash
-./scripts/run_sim.sh map:=/home/kiki/Team2_workspace/log/slam_validation/2026-10-26/complete/map.yaml
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+./scripts/run_sim.sh map:="$PWD/benchmarks/archive_20261026/slam_validation/complete/map.yaml"
 # 다른 터미널
+cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/check_sim.sh --via-controller --goal-x 3 --goal-y 2 --timeout 240
 ```
 
-조종기 취소·재출발·카메라 검증은 상위 폴더의 `controller_runtime.json`, `controller_runtime.png`에 있습니다. 초기 시도에서 목표 주변과 시작점의 미확인 영역 때문에 실패한 기록도 보존했습니다. 최종 SLAM 로그는 `log/verification_slam_complete.log`, 최종 우회 주행 로그는 `log/verification_slam_complete_detour.log`, 초기 직선 주행 로그는 `log/verification_slam_straight.log`입니다. 최종 우회 결과의 JSON과 조종기 화면은 `complete/navigation.json`, `complete/controller_detour.png`에 있습니다.
+조종기 취소·재출발·카메라 검증은 [controller_runtime.json](../benchmarks/archive_20261026/slam_validation/controller_runtime.json), [controller_runtime.png](../benchmarks/archive_20261026/slam_validation/controller_runtime.png)에 있습니다. 초기 시도에서 목표 주변과 시작점의 미확인 영역 때문에 실패한 기록도 보존했습니다. 최종 [SLAM](../benchmarks/archive_20261026/verification/verification_slam_complete.log)·[우회 주행](../benchmarks/archive_20261026/verification/verification_slam_complete_detour.log)·[초기 직선 주행](../benchmarks/archive_20261026/verification/verification_slam_straight.log) 로그와 [우회 결과](../benchmarks/archive_20261026/slam_validation/complete/navigation.json), [조종기 화면](../benchmarks/archive_20261026/slam_validation/complete/controller_detour.png)을 확인하세요.

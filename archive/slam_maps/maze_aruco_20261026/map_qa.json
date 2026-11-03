@@ -1,0 +1,259 @@
+{
+  "method": "Measured saved SLAM grid evaluated against independent world geometry; world geometry did not produce or modify map occupancy.",
+  "map_yaml": "/home/kiki/Team2_workspace/maps/maze_aruco_20261026/map.yaml",
+  "image": "/home/kiki/Team2_workspace/maps/maze_aruco_20261026/map.pgm",
+  "resolution_m": 0.05,
+  "dimensions_pixels": [
+    202,
+    164
+  ],
+  "origin": [
+    -5.03,
+    -4.14,
+    0
+  ],
+  "known_cells": 32435,
+  "free_cells": 29868,
+  "occupied_cells": 2567,
+  "trajectory_points": 928,
+  "trajectory_pairs_for_alignment": 80,
+  "trajectory_world_to_map_x_y_yaw": [
+    0.00017988964816817443,
+    -0.010483744610496282,
+    -0.0009256813200369837
+  ],
+  "geometry_refined_world_to_map_x_y_yaw": [
+    0.019297553255263663,
+    0.004591610122908004,
+    -0.006096582065406189
+  ],
+  "geometry_alignment_success": true,
+  "geometry_alignment_status": "Optimization terminated successfully.",
+  "coverage": {
+    "wall_margin_0.00m": {
+      "evaluated_cells": 31140,
+      "evaluated_area_m2": 77.85000000000001,
+      "known_fraction": 0.999421965317919,
+      "free_fraction": 0.9573538856775851,
+      "occupied_fraction": 0.042068079640333975,
+      "unknown_fraction": 0.0005780346820809249
+    },
+    "wall_margin_0.10m": {
+      "evaluated_cells": 27996,
+      "evaluated_area_m2": 69.99000000000001,
+      "known_fraction": 0.9998928418345477,
+      "free_fraction": 0.9998928418345477,
+      "occupied_fraction": 0.0,
+      "unknown_fraction": 0.00010715816545220746
+    },
+    "wall_margin_0.15m": {
+      "evaluated_cells": 26450,
+      "evaluated_area_m2": 66.12500000000001,
+      "known_fraction": 0.9998865784499055,
+      "free_fraction": 0.9998865784499055,
+      "occupied_fraction": 0.0,
+      "unknown_fraction": 0.00011342155009451796
+    },
+    "wall_margin_0.25m": {
+      "evaluated_cells": 23396,
+      "evaluated_area_m2": 58.49000000000001,
+      "known_fraction": 0.9998717729526415,
+      "free_fraction": 0.9998717729526415,
+      "occupied_fraction": 0.0,
+      "unknown_fraction": 0.00012822704735852283
+    }
+  },
+  "wall_agreement": {
+    "outer_west": {
+      "samples": 202,
+      "median_error_m": 0.0,
+      "p95_error_m": 0.0031487229453139045,
+      "fraction_within_0.15m": 1.0
+    },
+    "outer_east": {
+      "samples": 202,
+      "median_error_m": 0.008499900007052474,
+      "p95_error_m": 0.0198383458446159,
+      "fraction_within_0.15m": 1.0
+    },
+    "outer_south": {
+      "samples": 252,
+      "median_error_m": 0.020880397573971976,
+      "p95_error_m": 0.06528177820788279,
+      "fraction_within_0.15m": 1.0
+    },
+    "outer_north": {
+      "samples": 252,
+      "median_error_m": 0.00624885726850004,
+      "p95_error_m": 0.04285798252866762,
+      "fraction_within_0.15m": 1.0
+    },
+    "west_partition": {
+      "samples": 307,
+      "median_error_m": 0.0,
+      "p95_error_m": 0.017027376298271314,
+      "fraction_within_0.15m": 1.0
+    },
+    "middle_partition": {
+      "samples": 301,
+      "median_error_m": 0.0,
+      "p95_error_m": 0.013125171224787381,
+      "fraction_within_0.15m": 1.0
+    },
+    "east_partition": {
+      "samples": 307,
+      "median_error_m": 0.003914486461930267,
+      "p95_error_m": 0.026424883585718817,
+      "fraction_within_0.15m": 1.0
+    },
+    "west_branch": {
+      "samples": 61,
+      "median_error_m": 0.00695219066482693,
+      "p95_error_m": 0.016159171510228276,
+      "fraction_within_0.15m": 1.0
+    },
+    "middle_branch": {
+      "samples": 45,
+      "median_error_m": 0.011247501478532484,
+      "p95_error_m": 0.053154045984383884,
+      "fraction_within_0.15m": 1.0
+    },
+    "east_branch": {
+      "samples": 45,
+      "median_error_m": 0.022334693466968772,
+      "p95_error_m": 0.02684815494315515,
+      "fraction_within_0.15m": 1.0
+    },
+    "final_branch": {
+      "samples": 51,
+      "median_error_m": 0.011151401033002861,
+      "p95_error_m": 0.022212163135301922,
+      "fraction_within_0.15m": 1.0
+    }
+  },
+  "coverage_by_corridor_0.15m_wall_margin": {
+    "west": {
+      "evaluated_cells": 8125,
+      "known_fraction": 0.9996307692307692,
+      "free_fraction": 0.9996307692307692
+    },
+    "middle": {
+      "evaluated_cells": 6008,
+      "known_fraction": 1.0,
+      "free_fraction": 1.0
+    },
+    "east": {
+      "evaluated_cells": 6008,
+      "known_fraction": 1.0,
+      "free_fraction": 1.0
+    },
+    "final": {
+      "evaluated_cells": 6309,
+      "known_fraction": 1.0,
+      "free_fraction": 1.0
+    }
+  },
+  "trajectory_transform_quality": {
+    "pairs": 928,
+    "world_to_map_translation_min_xy_m": [
+      -0.05955908104642482,
+      -0.11411691877550112
+    ],
+    "world_to_map_translation_max_xy_m": [
+      0.011908084117409512,
+      0.06965079403701002
+    ],
+    "world_to_map_yaw_min_max_rad": [
+      -0.020940000028490058,
+      0.007018512753603101
+    ],
+    "max_successive_transform_translation_jump_m": 0.06287161118799728,
+    "max_successive_transform_yaw_jump_rad": 0.01863186950432283
+  },
+  "observation_connectivity": {
+    "radius_0.22m": {
+      "all_observations_connected": true,
+      "component_count": 1,
+      "observations": {
+        "start_marker_0": {
+          "world_xy": [
+            -3.0,
+            -2.0
+          ],
+          "component": 1,
+          "clearance_m": 0.9500000000000001,
+          "safe": true
+        },
+        "marker_1": {
+          "world_xy": [
+            -1.0,
+            3.0
+          ],
+          "component": 1,
+          "clearance_m": 0.9500000000000001,
+          "safe": true
+        },
+        "marker_2": {
+          "world_xy": [
+            1.4,
+            -2.8
+          ],
+          "component": 1,
+          "clearance_m": 1.1,
+          "safe": true
+        },
+        "goal_marker_3": {
+          "world_xy": [
+            3.9,
+            -2.5
+          ],
+          "component": 1,
+          "clearance_m": 1.05,
+          "safe": true
+        }
+      }
+    },
+    "radius_0.30m": {
+      "all_observations_connected": true,
+      "component_count": 1,
+      "observations": {
+        "start_marker_0": {
+          "world_xy": [
+            -3.0,
+            -2.0
+          ],
+          "component": 1,
+          "clearance_m": 0.9500000000000001,
+          "safe": true
+        },
+        "marker_1": {
+          "world_xy": [
+            -1.0,
+            3.0
+          ],
+          "component": 1,
+          "clearance_m": 0.9500000000000001,
+          "safe": true
+        },
+        "marker_2": {
+          "world_xy": [
+            1.4,
+            -2.8
+          ],
+          "component": 1,
+          "clearance_m": 1.1,
+          "safe": true
+        },
+        "goal_marker_3": {
+          "world_xy": [
+            3.9,
+            -2.5
+          ],
+          "component": 1,
+          "clearance_m": 1.05,
+          "safe": true
+        }
+      }
+    }
+  }
+}

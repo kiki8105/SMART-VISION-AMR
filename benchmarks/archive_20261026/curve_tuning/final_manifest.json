@@ -1,0 +1,27 @@
+{
+  "final_trial": "E prune_075 SUCCEEDED",
+  "original_AB_metadata_note": "experiment_metadata.json preserves hashes captured at A/B completion; its original runner is archived as run_ab_AB_version.py with matching hash. Final hardware source later gained the two pruning fields under root ownership.",
+  "permanent_simulation_matches_E": true,
+  "final_hardware_tuning_fields": {
+    "max_vel_x": 0.12,
+    "max_speed_xy": 0.12,
+    "prune_distance": 0.25,
+    "forward_prune_distance": 0.75
+  },
+  "physical_robot_touched": false,
+  "physical_validation": false,
+  "experiment_files_sha256": {
+    "/home/kiki/Team2_workspace/log/curve_tuning_20261026/run_ab.py": "2483968d0180054043e8d948b07ac985075c8f010a12a21ef1b9773637c37bf4",
+    "/home/kiki/Team2_workspace/log/curve_tuning_20261026/run_ab_AB_version.py": "1c7e3ef03fe2b65261cffaa5307edae2f05cdf540259131cd9814ebf6d12f836",
+    "/home/kiki/Team2_workspace/log/curve_tuning_20261026/E_supplement.json": "6a15524cf7860f55bba33fde5157aefd480edb3728540bf7507f531acb7a56bd",
+    "/home/kiki/Team2_workspace/log/curve_tuning_20261026/E_comparison.png": "dbe365e87acf883c68af9a0f3d4dacc3a89ed06d2cd222f83f03bf24d83cee4e",
+    "/home/kiki/Team2_workspace/log/curve_tuning_20261026/all_trials.json": "9c2d13e7e021a19d418a6db4112776423def35b7973db406c152c096c31adb3a",
+    "/home/kiki/Team2_workspace/log/curve_tuning_20261026/C_supplement.json": "47599d9a19b61ea0bc29f03879982122e9974d87817049b7b105692b8986b1ee",
+    "/home/kiki/Team2_workspace/log/curve_tuning_20261026/D_supplement.json": "606b1eaf6bbf465d9cf54b1756f980300b08417b449ac992a022e8c19fd8156b",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/curve_tuning_simulation.yaml": "163b366b33bc4e44e27115b944d3a4fd50a15bae3b96cbb6f7bf04c98d22e270",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/curve_tuning_simulation_nodes.yaml": "8e1756c1b087fa2c5f52ccbfb5f0f54bdbd4fe3b74bb9cfad5cfe4cc9264dee8",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/curve_tuning_waffle_pi.yaml": "c18a504f1b21a478c96a204dab14c8266686658c5c7d13dc50a97d3e93f7acc7"
+  },
+  "simulation_process_cleanup_verified": true,
+  "additional_trials_after_E": false
+}

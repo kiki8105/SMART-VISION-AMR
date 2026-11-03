@@ -1,0 +1,11 @@
++ source /opt/ros/humble/setup.bash
++ source /usr/share/gazebo/setup.sh
++ source /home/kiki/Team2_workspace/install/local_setup.bash
+Workspace: /home/kiki/Team2_workspace
+ROS_DOMAIN_ID=76 ROS_LOCALHOST_ONLY=1
+GAZEBO_MASTER_URI=http://127.0.0.1:11376
++ python3 /home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/verify_sim.py ''
+Waiting for simulation: clock_advances, map, scan, odom, map_to_base_footprint_tf, controller_active, follow_path_action, goal_subscriber, status_publisher
+Waiting for simulation: map_to_base_footprint_tf
+Simulation ready; sent map goal (-1.0, -2.0, yaw=0.0). Waiting up to 150 wall seconds.
+PASS {"checks": {"nonempty_path": true, "nonzero_cmd_vel": true, "odom_displacement_over_0_3m": true, "navigation_succeeded": true, "goal_distance_within_0_35m": true}, "goal": [-1.0, -2.0, 0.0], "robot_map_xy": [-1.2042670070571384, -2.0482851047259416], "final_distance_m": 0.20989631133127656, "max_odom_displacement_m": 1.780326209581921, "last_path_poses": 41, "nonempty_paths_received": 1, "last_navigation_status": {"status": "SUCCEEDED", "message": "Nav2 status 4"}, "status_parse_errors": 0, "tf_error": null, "wall_elapsed_seconds": 8.932}

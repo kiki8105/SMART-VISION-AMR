@@ -1,0 +1,52 @@
+{
+  "status": "passed",
+  "reason": null,
+  "observed_sec": 300.2,
+  "required_sec": 300.0,
+  "minimum_battery_voltage": 11.2,
+  "last_battery_voltage": 11.269999504089355,
+  "streams": {
+    "/joint_states": {
+      "messages": 6098,
+      "advancing_samples": 6098,
+      "last_stamp_offset_sec": 0.013660236,
+      "min_stamp_offset_sec": 0.009885362,
+      "max_stamp_offset_sec": 0.324545227
+    },
+    "/imu": {
+      "messages": 6099,
+      "advancing_samples": 6099,
+      "last_stamp_offset_sec": 0.019350892,
+      "min_stamp_offset_sec": 0.008997316,
+      "max_stamp_offset_sec": 0.324826708
+    },
+    "/wheel/odom_raw": {
+      "messages": 6095,
+      "advancing_samples": 6095,
+      "last_stamp_offset_sec": 0.014015022,
+      "min_stamp_offset_sec": 0.011366884,
+      "max_stamp_offset_sec": 0.475070021
+    },
+    "/scan": {
+      "messages": 3075,
+      "advancing_samples": 3075,
+      "last_stamp_offset_sec": 0.011916348,
+      "min_stamp_offset_sec": 0.009796874,
+      "max_stamp_offset_sec": 0.515420153
+    },
+    "/odom": {
+      "messages": 6044,
+      "advancing_samples": 6044,
+      "last_stamp_offset_sec": 0.06021305,
+      "min_stamp_offset_sec": 0.035231739,
+      "max_stamp_offset_sec": 0.399491413
+    },
+    "/battery_state": {
+      "messages": 6097,
+      "advancing_samples": 6097,
+      "last_stamp_offset_sec": 0.019703961,
+      "min_stamp_offset_sec": 0.009078278,
+      "max_stamp_offset_sec": 0.32336223
+    }
+  }
+}

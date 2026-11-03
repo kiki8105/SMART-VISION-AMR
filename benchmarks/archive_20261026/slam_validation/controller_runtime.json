@@ -1,0 +1,105 @@
+{
+  "ok": true,
+  "source": "/home/kiki/turtlebot3/tools/cmd_vel_controller.py",
+  "sha256": "4fe1f8cf310a79e05fbb4d29986fff34946ab468adfda52b4a3a601fe0e792dd",
+  "goal": [
+    3.8,
+    2.8,
+    0.0
+  ],
+  "phases": [
+    {
+      "name": "ready",
+      "map_size": [
+        201,
+        163
+      ],
+      "pose": [
+        -1.204562661686108,
+        -2.039231326845636,
+        0.014564582063047416
+      ],
+      "camera_size": [
+        640,
+        480
+      ],
+      "camera_status": "640 × 480",
+      "use_sim_time": true
+    },
+    {
+      "name": "unknown_goal_blocked",
+      "goal": [
+        3.0,
+        2.0
+      ],
+      "status": "장애물/미확인/지도 밖입니다. 빈 공간을 선택하세요."
+    },
+    {
+      "name": "inflation_aware_preflight",
+      "path_cells": 202,
+      "goal": [
+        3.8,
+        2.8
+      ]
+    },
+    {
+      "name": "gui_goal_started",
+      "pose": [
+        -1.1322314793397377,
+        -2.0382152385698227,
+        0.013872662846705526
+      ],
+      "displayed_path_points": 202,
+      "odom_displacement_m": 0.09266000342592577
+    },
+    {
+      "name": "manual_lock",
+      "rejected": true,
+      "status": "정지"
+    },
+    {
+      "name": "canceled_stationary",
+      "max_odom_drift_3s_m": 9.940906243218431e-05,
+      "pose": [
+        -1.0583169397131587,
+        -2.0412621538289493,
+        0.0060619279790241065
+      ],
+      "bridge_busy": false
+    },
+    {
+      "name": "gui_resume_started",
+      "pose": [
+        -1.0583246226271563,
+        -2.041264313111821,
+        0.006063499182062697
+      ]
+    },
+    {
+      "name": "arrival",
+      "pose": [
+        3.7773165736236543,
+        2.6325909818325166,
+        0.24053646827237168
+      ],
+      "goal_error_m": 0.1689387971899049,
+      "resume_wall_seconds": 51.62974927999994,
+      "displayed_path_points": 64,
+      "camera_status": "640 × 480"
+    }
+  ],
+  "screenshot": "/home/kiki/Team2_workspace/log/slam_validation/2026-10-26/controller_runtime.png",
+  "statuses": [
+    {
+      "wall_time": 2727.390197858,
+      "status": "CANCELED",
+      "message": "Nav2 status 5"
+    },
+    {
+      "wall_time": 2782.268683278,
+      "status": "SUCCEEDED",
+      "message": "Nav2 status 4"
+    }
+  ],
+  "controller_messages": 21
+}

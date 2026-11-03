@@ -1,0 +1,9 @@
+{
+  "duration_sec": 300.037,
+  "messages": 2987,
+  "gap_gt_2s_count": 0,
+  "max_gap_sec": 0.223,
+  "median_gap_sec": 0.1,
+  "max_stamp_age_sec": 0.16,
+  "events": []
+}

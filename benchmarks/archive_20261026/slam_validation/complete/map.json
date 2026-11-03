@@ -1,0 +1,632 @@
+{
+  "passed": true,
+  "started_at": "2026-10-26T12:13:28.345643+09:00",
+  "isolation": {
+    "ROS_DOMAIN_ID": "76",
+    "ROS_LOCALHOST_ONLY": "1",
+    "GAZEBO_MASTER_URI": "http://127.0.0.1:11376"
+  },
+  "controller": {
+    "source": "/home/kiki/turtlebot3/tools/cmd_vel_controller.py",
+    "sha256": "4fe1f8cf310a79e05fbb4d29986fff34946ab468adfda52b4a3a601fe0e792dd",
+    "input": "real QPushButton pressed/released signals and 20 Hz Controller.tick"
+  },
+  "continuation": {
+    "report": "/home/kiki/Team2_workspace/log/slam_validation/2026-10-26/validated/map.json",
+    "sha256": "f9fc45748d32d7c7b043a6f63fb599494ec3a3a24f59aaefe3efa82cbcc9605c",
+    "previous_failure": "SLAM verification checks failed: {\"real_controller_drives_robot\": true, \"all_waypoints_reached\": true, \"release_stops_robot\": true, \"fresh_map_grows\": true, \"map_has_free_and_occupied_cells\": true, \"map_to_base_tf\": true, \"controller_live_map\": true, \"controller_live_robot_pose\": true, \"standard_detour_astar_path\": false, \"standard_goal_known_free_neighborhood\": true}",
+    "previous_started_at": "2026-10-26T12:06:34.886877+09:00"
+  },
+  "initial_map": {
+    "width": 105,
+    "height": 107,
+    "resolution_m": 0.05000000074505806,
+    "frame": "map",
+    "known_cells": 1173,
+    "occupied_cells": 39,
+    "known_area_m2": 2.933
+  },
+  "initial_odom": [
+    -3.001399325661861,
+    -1.999998533982824,
+    6.088657286128809e-05
+  ],
+  "initial_robot_map_pose": [
+    -3.001398939730447,
+    -1.9999985342600437,
+    6.0878992076684524e-05
+  ],
+  "route_world_xy": [
+    [
+      -3.0,
+      -3.0
+    ],
+    [
+      4.0,
+      -3.0
+    ],
+    [
+      4.0,
+      3.0
+    ],
+    [
+      2.2,
+      2.8
+    ],
+    [
+      2.2,
+      1.2
+    ],
+    [
+      3.8,
+      1.2
+    ],
+    [
+      3.8,
+      2.8
+    ],
+    [
+      4.0,
+      3.0
+    ],
+    [
+      -4.0,
+      3.0
+    ],
+    [
+      -4.0,
+      -3.0
+    ],
+    [
+      -3.0,
+      -2.0
+    ],
+    [
+      -2.0,
+      -2.0
+    ],
+    [
+      -3.0,
+      -2.0
+    ]
+  ],
+  "waypoints": [
+    {
+      "index": 1,
+      "world_xy": [
+        -3.0,
+        -3.0
+      ],
+      "odom_xy": [
+        -3.0013384390890376,
+        -2.9999985321292364
+      ],
+      "actual_odom": [
+        -2.9956953208339914,
+        -2.9319960239469873,
+        -1.6143140843642998
+      ],
+      "error_m": 0.07188202748556013
+    },
+    {
+      "index": 2,
+      "world_xy": [
+        4.0,
+        -3.0
+      ],
+      "odom_xy": [
+        3.9986615479358507,
+        -2.9995723261194707
+      ],
+      "actual_odom": [
+        3.9322936017151027,
+        -3.0080652631917535,
+        0.09317915060311006
+      ],
+      "error_m": 0.07053439298609354
+    },
+    {
+      "index": 3,
+      "world_xy": [
+        4.0,
+        3.0
+      ],
+      "odom_xy": [
+        3.998296228498909,
+        3.000427662759005
+      ],
+      "actual_odom": [
+        3.9999167709474,
+        2.9326376020279383,
+        1.5597736533600997
+      ],
+      "error_m": 0.07143527966768437
+    },
+    {
+      "index": 4,
+      "world_xy": [
+        2.2,
+        2.8
+      ],
+      "odom_xy": [
+        2.198308409149931,
+        2.8003180672986394
+      ],
+      "actual_odom": [
+        2.265769440145098,
+        2.797385979864539,
+        3.1253644275246883
+      ],
+      "error_m": 0.07072926481094713
+    },
+    {
+      "index": 5,
+      "world_xy": [
+        2.2,
+        1.2
+      ],
+      "odom_xy": [
+        2.198405827666449,
+        1.2003180702643796
+      ],
+      "actual_odom": [
+        2.209343799839428,
+        1.2683253051860648,
+        -1.7061642609662362
+      ],
+      "error_m": 0.07240067835340672
+    },
+    {
+      "index": 6,
+      "world_xy": [
+        3.8,
+        1.2
+      ],
+      "odom_xy": [
+        3.798405824700709,
+        1.2004154887808975
+      ],
+      "actual_odom": [
+        3.7280514072211393,
+        1.2085409288674953,
+        -0.09151149490278335
+      ],
+      "error_m": 0.07435248724123866
+    },
+    {
+      "index": 7,
+      "world_xy": [
+        3.8,
+        2.8
+      ],
+      "odom_xy": [
+        3.798308406184191,
+        2.800415485815157
+      ],
+      "actual_odom": [
+        3.79521262653836,
+        2.730268748771553,
+        1.5251611426935643
+      ],
+      "error_m": 0.0738372705607326
+    },
+    {
+      "index": 8,
+      "world_xy": [
+        4.0,
+        3.0
+      ],
+      "odom_xy": [
+        3.998296228498909,
+        3.000427662759005
+      ],
+      "actual_odom": [
+        3.9581962289536214,
+        2.942700301181067,
+        0.9135729398391432
+      ],
+      "error_m": 0.07391279305036337
+    },
+    {
+      "index": 9,
+      "world_xy": [
+        -4.0,
+        3.0
+      ],
+      "odom_xy": [
+        -4.001703756672392,
+        2.999940570176416
+      ],
+      "actual_odom": [
+        -3.935727135981045,
+        2.9879982452492126,
+        3.0012931829143548
+      ],
+      "error_m": 0.07067379084212343
+    },
+    {
+      "index": 10,
+      "world_xy": [
+        -4.0,
+        -3.0
+      ],
+      "odom_xy": [
+        -4.00133843723545,
+        -3.00005941870206
+      ],
+      "actual_odom": [
+        -3.991059454287067,
+        -2.9314212200903804,
+        -1.6825644251684293
+      ],
+      "error_m": 0.07303295448546158
+    },
+    {
+      "index": 11,
+      "world_xy": [
+        -3.0,
+        -2.0
+      ],
+      "odom_xy": [
+        -3.001399325661861,
+        -1.999998533982824
+      ],
+      "actual_odom": [
+        -3.056970788253637,
+        -2.0425558787538254,
+        0.6755103225310026
+      ],
+      "error_m": 0.07362797849985102
+    },
+    {
+      "index": 12,
+      "world_xy": [
+        -2.0,
+        -2.0
+      ],
+      "odom_xy": [
+        -2.0013993275154487,
+        -1.9999376474100001
+      ],
+      "actual_odom": [
+        -2.064656823336218,
+        -2.009843431928238,
+        0.12816201511073477
+      ],
+      "error_m": 0.06745673394413021
+    },
+    {
+      "index": 13,
+      "world_xy": [
+        -3.0,
+        -2.0
+      ],
+      "odom_xy": [
+        -3.001399325661861,
+        -1.999998533982824
+      ],
+      "actual_odom": [
+        -2.9362908662110216,
+        -2.0036021951517684,
+        3.1317213910624706
+      ],
+      "error_m": 0.07182725041032861
+    }
+  ],
+  "continuation_start_map": {
+    "width": 201,
+    "height": 161,
+    "resolution_m": 0.05000000074505806,
+    "frame": "map",
+    "known_cells": 30289,
+    "occupied_cells": 1349,
+    "known_area_m2": 75.723
+  },
+  "continuation_start_odom": [
+    -3.059302222223043,
+    -2.045133093096763,
+    -0.0020355595815921834
+  ],
+  "continuation_start_robot_map_pose": [
+    -3.0586838959117992,
+    -2.0432937054067324,
+    -0.0029606091920323855
+  ],
+  "stop_checks": [
+    {
+      "stage": "before_route",
+      "passed": true,
+      "stationary_displacement_m": 2.220596393094646e-05,
+      "linear_m_s": -2.8018145298888035e-05,
+      "angular_rad_s": -1.0187010284029156e-05,
+      "zero_commands_received": 6
+    },
+    {
+      "stage": "waypoint_1",
+      "passed": true,
+      "stationary_displacement_m": 2.7398095122699794e-05,
+      "linear_m_s": 0.00037067255650716035,
+      "angular_rad_s": -0.00020079916313565363,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "waypoint_2",
+      "passed": true,
+      "stationary_displacement_m": 2.301816709808055e-05,
+      "linear_m_s": -4.581843292382058e-05,
+      "angular_rad_s": -8.618590936161164e-06,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "waypoint_3",
+      "passed": true,
+      "stationary_displacement_m": 7.920012911054632e-05,
+      "linear_m_s": 2.0381620586130553e-05,
+      "angular_rad_s": -0.0002588112542456061,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "waypoint_4",
+      "passed": true,
+      "stationary_displacement_m": 2.1882588170513672e-05,
+      "linear_m_s": -4.061532748952144e-05,
+      "angular_rad_s": 5.641299841027971e-06,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "waypoint_5",
+      "passed": true,
+      "stationary_displacement_m": 2.728662995903882e-05,
+      "linear_m_s": 0.0002549406079854139,
+      "angular_rad_s": 0.00020577089710920547,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "waypoint_6",
+      "passed": true,
+      "stationary_displacement_m": 9.65014478215722e-06,
+      "linear_m_s": 0.0005249272017558784,
+      "angular_rad_s": -0.0008054873116511965,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "waypoint_7",
+      "passed": true,
+      "stationary_displacement_m": 2.2889071623253515e-05,
+      "linear_m_s": 0.00026866175278275075,
+      "angular_rad_s": -0.0005537220315938243,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "waypoint_8",
+      "passed": true,
+      "stationary_displacement_m": 2.315980977826446e-05,
+      "linear_m_s": 1.3290649431237577e-05,
+      "angular_rad_s": -2.4169011834961374e-05,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "waypoint_9",
+      "passed": true,
+      "stationary_displacement_m": 2.2306733036485278e-05,
+      "linear_m_s": -4.434556822327335e-05,
+      "angular_rad_s": -9.476984906600689e-06,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "waypoint_10",
+      "passed": true,
+      "stationary_displacement_m": 2.1134301046347296e-05,
+      "linear_m_s": 7.767987776794474e-05,
+      "angular_rad_s": -0.00030728229904451027,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "waypoint_11",
+      "passed": true,
+      "stationary_displacement_m": 7.654736750157497e-05,
+      "linear_m_s": -0.002036131720869855,
+      "angular_rad_s": 0.004190905802113863,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "final",
+      "passed": true,
+      "stationary_displacement_m": 2.3259881970784914e-05,
+      "linear_m_s": -4.3569420069067186e-05,
+      "angular_rad_s": -2.1924667955727776e-05,
+      "zero_commands_received": 6
+    },
+    {
+      "stage": "before_continuation",
+      "passed": true,
+      "stationary_displacement_m": 2.2243229014461597e-05,
+      "linear_m_s": -2.9921633892153747e-05,
+      "angular_rad_s": -1.4496658288508752e-05,
+      "zero_commands_received": 6
+    },
+    {
+      "stage": "waypoint_12",
+      "passed": true,
+      "stationary_displacement_m": 2.3235955712347783e-05,
+      "linear_m_s": -4.2041831615013126e-05,
+      "angular_rad_s": -1.2728573064235147e-05,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "waypoint_13",
+      "passed": true,
+      "stationary_displacement_m": 1.919162026428453e-05,
+      "linear_m_s": 8.731394569126292e-05,
+      "angular_rad_s": -0.0006814277876281177,
+      "zero_commands_received": 7
+    },
+    {
+      "stage": "final",
+      "passed": true,
+      "stationary_displacement_m": 6.311959664343845e-05,
+      "linear_m_s": -1.5621486127357402e-05,
+      "angular_rad_s": 6.920717476034644e-06,
+      "zero_commands_received": 6
+    }
+  ],
+  "fresh_slam_started_at": "2026-10-26T12:06:34.886877+09:00",
+  "readiness": {
+    "slam_toolbox_only_map_source": true,
+    "clock_advances": true,
+    "odom": true,
+    "scan": true,
+    "map": true,
+    "map_to_base_tf": true
+  },
+  "speeds": {
+    "linear_m_s": 0.22,
+    "angular_rad_s": 0.8
+  },
+  "default_spawn_check": {
+    "passed": true,
+    "position_error_m": 0.07452348390321158,
+    "yaw_error_rad": 0.0020355595815921834
+  },
+  "final_map": {
+    "width": 201,
+    "height": 161,
+    "resolution_m": 0.05000000074505806,
+    "frame": "map",
+    "known_cells": 30387,
+    "occupied_cells": 1373,
+    "known_area_m2": 75.968
+  },
+  "final_robot_map_pose": [
+    -2.9384153357122393,
+    -1.9979132111147426,
+    -0.00139495738977586
+  ],
+  "path_length_m": 37.4608099396111,
+  "map_messages": 278,
+  "nonzero_commands_received": 4714,
+  "minimum_forward_scan_m": 1.1205300092697144,
+  "known_cell_growth": 29214,
+  "checks": {
+    "real_controller_drives_robot": true,
+    "all_waypoints_reached": true,
+    "release_stops_robot": true,
+    "fresh_map_grows": true,
+    "map_has_free_and_occupied_cells": true,
+    "map_to_base_tf": true,
+    "controller_live_map": true,
+    "controller_live_robot_pose": true,
+    "standard_detour_astar_path": true,
+    "standard_goal_known_free_neighborhood": true,
+    "controller_reloads_saved_map": true,
+    "saved_map_preserves_all_live_cells": true,
+    "saved_map_standard_detour_astar_path": true,
+    "map_saved": true
+  },
+  "navigation_usability": {
+    "start_map_xy": [
+      -3.001398939730447,
+      -1.9999985342600437
+    ],
+    "goal_world_xy": [
+      3.0,
+      2.0
+    ],
+    "goal_map_xy": [
+      2.998357533182641,
+      2.000366732279687
+    ],
+    "start_cell": [
+      40,
+      41
+    ],
+    "goal_cell": [
+      160,
+      121
+    ],
+    "occupied_threshold": 65,
+    "inflation_cells": 6,
+    "static_start_blocked": false,
+    "static_goal_blocked": false,
+    "astar_path_cells": 222,
+    "astar_path_length_m": 11.484924411630454,
+    "goal_neighborhood_half_width_m": 0.4,
+    "goal_neighborhood_free_cells": 289,
+    "goal_neighborhood_unknown_cells": 0,
+    "goal_neighborhood_occupied_cells": 0,
+    "goal_neighborhood_outside_cells": 0
+  },
+  "controller_screenshot": "/home/kiki/Team2_workspace/log/slam_validation/2026-10-26/complete/map_controller.png",
+  "saved_map_fidelity": {
+    "unknown_cells": 1974,
+    "free_cells": 29014,
+    "occupied_cells": 1373,
+    "all_cell_values_equal_live_map": true,
+    "live_map_candidates": 1,
+    "free_threshold": 0.196,
+    "origin_rounding_error_xy_m": [
+      0.004548453499587879,
+      0.0009462096005430354
+    ],
+    "origin_rounding_error_distance_m": 0.004645830587319455,
+    "origin_rounding_tolerance_per_axis_m": 0.005000000000000001
+  },
+  "saved_map_navigation_usability": {
+    "start_map_xy": [
+      -3.001398939730447,
+      -1.9999985342600437
+    ],
+    "goal_world_xy": [
+      3.0,
+      2.0
+    ],
+    "goal_map_xy": [
+      2.998357533182641,
+      2.000366732279687
+    ],
+    "start_cell": [
+      40,
+      41
+    ],
+    "goal_cell": [
+      160,
+      121
+    ],
+    "occupied_threshold": 65,
+    "inflation_cells": 6,
+    "static_start_blocked": false,
+    "static_goal_blocked": false,
+    "astar_path_cells": 222,
+    "astar_path_length_m": 11.48492424049177,
+    "goal_neighborhood_half_width_m": 0.4,
+    "goal_neighborhood_free_cells": 289,
+    "goal_neighborhood_unknown_cells": 0,
+    "goal_neighborhood_occupied_cells": 0,
+    "goal_neighborhood_outside_cells": 0
+  },
+  "saved_map": {
+    "yaml": "/home/kiki/Team2_workspace/log/slam_validation/2026-10-26/complete/map.yaml",
+    "image": "/home/kiki/Team2_workspace/log/slam_validation/2026-10-26/complete/map.pgm",
+    "yaml_sha256": "8cc32cb7b785202370ba0ada47d758989332faca328aced4675cbb34657c3d42",
+    "image_sha256": "be5992b764fc9f5339e7e871bc42d1d486e94845622b4c4b3a7a1191c8d78aa6",
+    "controller_reload_size": [
+      201,
+      161
+    ],
+    "metadata": {
+      "image": "map.pgm",
+      "mode": "trinary",
+      "resolution": 0.05,
+      "origin": [
+        -5.05,
+        -4.06,
+        0
+      ],
+      "negate": 0,
+      "occupied_thresh": 0.65,
+      "free_thresh": 0.196
+    }
+  },
+  "route_wall_seconds": 33.121,
+  "wall_seconds": 34.98
+}

@@ -21,6 +21,8 @@ TurtleBot3 Waffle Pi가 저장 지도에서 A* 경로를 만들고 Nav2로 이�
 아래 명령은 **Ubuntu 22.04와 ROS 2 Humble이 설치된 PC**에서 실행합니다.
 예시 작업공간은 `~/Team2_workspace`입니다. 저장소를 `src` 안에 두어야
 제공된 스크립트가 작업공간을 올바르게 찾습니다.
+기존 `~/Team2_workspace`를 **통째로 지우고 재설치**한다면 먼저
+[팀원용 매뉴얼의 PC 정리 절차](docs/TEAM_QUICKSTART.md#1-pc-준비--처음-한-번)를 따르세요.
 
 ```bash
 sudo apt update

@@ -81,27 +81,31 @@ flowchart LR
 ## 1. PC 준비 — 처음 한 번
 
 ROS Humble은 먼저 설치되어 있어야 합니다. 기본 개발 도구와 저장소를 준비합니다.
-**이미 이 프로젝트를 클론한 PC에서 새로 설치할 때는** 주행·웹 터미널을
-Ctrl+C로 종료하고, 기존 프로젝트 폴더와 해당 패키지의 빌드 결과를 먼저
-정리합니다. 아래 명령은 **기존 프로젝트 파일을 삭제**합니다. 개인 수정이나
-저장소 안에 별도로 넣은 지도 파일이 있다면 먼저 다른 곳에 복사하세요.
-`~/Team2_workspace` 전체, `~/Team2_workspace/maps`, `~/turtlebot3`,
-`~/.ros`는 삭제하지 않습니다. 처음 설치하는 PC는 이 정리 단계를 건너뜁니다.
+**기존 `~/Team2_workspace`가 있는 PC에서 처음부터 다시 설치할 때는**
+주행·웹·Gazebo 터미널을 Ctrl+C로 종료합니다. 다음 삭제 절차는 **로컬 PC에서만**
+진행하며 SSH로 접속한 로봇에서는 실행하지 않습니다. `~/Team2_workspace` 전체를
+지우므로 `src`의 기존 소스, `build`·`install`·`log`, 원본 SLAM 지도인 `maps`,
+`diagnostics`와 `distribution` 파일도 함께 삭제됩니다. **현재 운용 지도와 과거
+SLAM 지도, 선별한 시험 증거는 GitHub 저장소에 포함**되어 새 클론에서 다시 받습니다
+([지도 아카이브](../archive/README.md), [시험 아카이브](../benchmarks/archive_20261026/README.md)).
+개인 소스·커밋하지 않은 수정·미추적 파일, 선별 아카이브에 없는 로컬 로그나
+배포 산출물을 보존하려면 삭제 전에 작업공간 밖에 복사하세요. 처음 설치하는 PC는
+삭제 단계를 건너뛰고 바로 설치 명령으로 갑니다.
 
 ```bash
-# 로컬 수정·미추적 파일을 확인한 뒤 필요한 것은 별도로 백업합니다.
+# 로컬 PC: 출력이 있다면 필요한 개인 변경을 먼저 별도로 저장합니다.
 if [ -d "$HOME/Team2_workspace/src/SMART-VISION-AMR/.git" ]; then
   git -C "$HOME/Team2_workspace/src/SMART-VISION-AMR" status --short
 fi
-rm -rf -- "$HOME/Team2_workspace/src/SMART-VISION-AMR" \
-  "$HOME/Team2_workspace/build/smart_vision_amr" \
-  "$HOME/Team2_workspace/install/smart_vision_amr"
+cd "$HOME"
+rm -rf -- "$HOME/Team2_workspace"
 ```
 
-위 경로의 이름이 다른 기존 클론은 자동으로 삭제되지 않습니다. 어느 폴더를
-사용했는지 모르면 `find "$HOME" -maxdepth 4 -type d -name SMART-VISION-AMR -print`로
-확인하고, 다른 팀 작업 폴더는 삭제하지 마세요. 정리 후 **같은 PC 터미널에서**
-아래 명령을 실행합니다.
+`cd "$HOME"`은 삭제 대상 폴더에서 빠져나오기 위해 필요합니다. 이 명령은
+`~/turtlebot3`, `~/.ros`, 로봇의 `~/turtlebot3_ws`와 홈 폴더의 웹 설정
+(`~/.config/smart-vision-amr`)은 지우지 않습니다.
+
+같은 PC 터미널에서 새 작업공간을 만들고 클론·설치합니다.
 
 ```bash
 sudo apt update
@@ -118,6 +122,8 @@ cd SMART-VISION-AMR
 `smart_vision_amr`만 빌드합니다. Gazebo 설치나 시뮬레이션 소스 다운로드는 필요 없습니다.
 의존성이 모두 설치되어 있다면 `./scripts/setup_pc_runtime.sh --no-install`로 빌드합니다.
 설치·점검 스크립트는 로봇이나 주행 노드를 시작하지 않습니다.
+전체 작업공간을 지운 뒤 Gazebo도 다시 쓰려면 [Gazebo 설치 안내](GAZEBO.md)에
+따라 `./scripts/setup_sim.sh`를 별도로 실행합니다. 실차만 사용할 때는 필요 없습니다.
 
 ## 2. 로봇 준비 — 처음 한 번
 
