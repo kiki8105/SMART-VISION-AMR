@@ -81,6 +81,27 @@ flowchart LR
 ## 1. PC 준비 — 처음 한 번
 
 ROS Humble은 먼저 설치되어 있어야 합니다. 기본 개발 도구와 저장소를 준비합니다.
+**이미 이 프로젝트를 클론한 PC에서 새로 설치할 때는** 주행·웹 터미널을
+Ctrl+C로 종료하고, 기존 프로젝트 폴더와 해당 패키지의 빌드 결과를 먼저
+정리합니다. 아래 명령은 **기존 프로젝트 파일을 삭제**합니다. 개인 수정이나
+저장소 안에 별도로 넣은 지도 파일이 있다면 먼저 다른 곳에 복사하세요.
+`~/Team2_workspace` 전체, `~/Team2_workspace/maps`, `~/turtlebot3`,
+`~/.ros`는 삭제하지 않습니다. 처음 설치하는 PC는 이 정리 단계를 건너뜁니다.
+
+```bash
+# 로컬 수정·미추적 파일을 확인한 뒤 필요한 것은 별도로 백업합니다.
+if [ -d "$HOME/Team2_workspace/src/SMART-VISION-AMR/.git" ]; then
+  git -C "$HOME/Team2_workspace/src/SMART-VISION-AMR" status --short
+fi
+rm -rf -- "$HOME/Team2_workspace/src/SMART-VISION-AMR" \
+  "$HOME/Team2_workspace/build/smart_vision_amr" \
+  "$HOME/Team2_workspace/install/smart_vision_amr"
+```
+
+위 경로의 이름이 다른 기존 클론은 자동으로 삭제되지 않습니다. 어느 폴더를
+사용했는지 모르면 `find "$HOME" -maxdepth 4 -type d -name SMART-VISION-AMR -print`로
+확인하고, 다른 팀 작업 폴더는 삭제하지 마세요. 정리 후 **같은 PC 터미널에서**
+아래 명령을 실행합니다.
 
 ```bash
 sudo apt update
@@ -111,7 +132,24 @@ read -rp '로봇 IP: ' ROBOT_IP
 ssh robot@"$ROBOT_IP"
 ```
 
-**SSH 접속한 로봇 터미널에서**:
+**SSH 접속한 로봇 터미널에서** 기존 `~/SMART-VISION-AMR`을 새로 클론할
+경우, 기존 브링업·카메라를 Ctrl+C로 종료하고 다음 프로젝트 경로만 정리합니다.
+로봇의 `~/turtlebot3_ws`는 하드웨어 브링업에 필요하므로 **삭제하지 않습니다.**
+`~/smart_vision_runtime_ws` 전체도 유지합니다. 로봇을 처음 준비한다면
+이 정리 단계는 건너뜁니다.
+
+```bash
+if [ -d "$HOME/SMART-VISION-AMR/.git" ]; then
+  git -C "$HOME/SMART-VISION-AMR" status --short
+fi
+rm -rf -- "$HOME/SMART-VISION-AMR" \
+  "$HOME/smart_vision_runtime_ws/src/smart_vision_amr" \
+  "$HOME/smart_vision_runtime_ws/build/smart_vision_amr" \
+  "$HOME/smart_vision_runtime_ws/install/smart_vision_amr"
+```
+
+로봇에 따로 수정한 설정 파일이 있다면 삭제 전에 백업합니다. 정리 후
+**같은 로봇 터미널에서** 새 클론과 런타임 설치를 진행합니다.
 
 ```bash
 sudo apt update
