@@ -15,6 +15,12 @@ RViz 목표 지정·AMCL·Nav2를 쓰는 예시입니다. 기본 Nav2도 설정�
 간추린 것입니다. 현재 경로 추종은 **Nav2 FollowPath**이며 Pure Pursuit라고
 표시하지 않았습니다. 후방 ArUco는 섹터 도착 확인에 사용합니다.
 
+그림의 **장애물 셀 기억** 블록은 실차 기본 설정
+`memory_enabled:=true memory_persist_to_disk:=false`를 나타냅니다. 확정된
+장애물 셀은 현재 주행 프로세스 안에서 섹터 간 유지되고, 유효한 빈 공간을
+재관측하면 해제됩니다. 프로세스를 재시작하면 비워지며 원본 SLAM 지도는
+바뀌지 않습니다. 확정 전 실시간 LiDAR 관측도 경로 판단에 즉시 반영됩니다.
+
 재생성하려면 Ubuntu에서 Matplotlib와 Noto Sans CJK 글꼴을 설치한 뒤 저장소
 루트에서 실행합니다.
 

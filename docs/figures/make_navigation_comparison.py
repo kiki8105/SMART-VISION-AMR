@@ -5,7 +5,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
-from matplotlib.patches import FancyArrowPatch
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 
 HERE = Path(__file__).resolve().parent
@@ -64,7 +64,7 @@ def main():
     # The two comparisons share the same column grid and use no filled cards.
     label(ax, 96, 1004, "01   경로 계획 방식", size=22, bold=True)
     ax.plot([96, 1824], [960, 960], color=RULE, linewidth=1.4)
-    ax.plot([960, 960], [643, 918], color=RULE, linewidth=1.0)
+    ax.plot([960, 960], [609, 918], color=RULE, linewidth=1.0)
 
     label(ax, 96, 905, "A* 단독 계획", size=26, bold=True)
     label(ax, 1020, 905, "우리 팀의 주행", size=26, bold=True)
@@ -81,7 +81,28 @@ def main():
         791,
     )
     label(ax, 100, 688, "경로 생성 단계. 회피·속도 제어는 별도 구성", size=18, color=MUTED)
-    label(ax, 1024, 688, "LiDAR 관측 → 국소 우회·장애물 기억 → 필요 시 재계획", size=18, color=MUTED)
+    label(ax, 1024, 688, "LiDAR 관측", size=20)
+    arrow(ax, 1190, 1240, 688)
+    ax.add_patch(
+        FancyBboxPatch(
+            (1252, 657), 258, 62,
+            boxstyle="round,pad=0.0,rounding_size=8",
+            linewidth=1.5,
+            edgecolor=INK,
+            facecolor="none",
+        )
+    )
+    label(ax, 1273, 688, "장애물 셀 기억", size=20, bold=True)
+    arrow(ax, 1517, 1562, 688)
+    label(ax, 1580, 688, "국소 우회·재계획", size=20)
+    ax.add_patch(
+        FancyArrowPatch(
+            (1380, 722), (1380, 757),
+            arrowstyle="-|>", mutation_scale=11, linewidth=1.3,
+            color=RULE, shrinkA=0, shrinkB=0,
+        )
+    )
+    label(ax, 1024, 615, "실시간 관측은 즉시 반영 · 확정 셀은 주행 중 기억·재관측 시 해제", size=16, color=MUTED)
 
     label(ax, 96, 562, "02   로봇 운용 시스템", size=22, bold=True)
     ax.plot([96, 1824], [518, 518], color=RULE, linewidth=1.4)
