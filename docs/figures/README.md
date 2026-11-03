@@ -1,7 +1,7 @@
 # PPT용 한 장 비교 다이어그램
 
-- [PNG 1920×1080](navigation_system_comparison.png): PowerPoint에 바로 삽입.
-- [SVG](navigation_system_comparison.svg): 확대해도 선명한 벡터 파일.
+- [PNG 1920×1080](navigation_system_comparison.png): 투명 배경. PowerPoint에 바로 삽입.
+- [SVG](navigation_system_comparison.svg): 투명 배경 벡터 파일. 확대해도 선명함.
 - [생성 스크립트](make_navigation_comparison.py): 문구와 배치 수정 후 재생성.
 
 위 그림의 **A* 단독 계획**은 격자 경로 계산 단계만 뜻합니다. A* 자체가
