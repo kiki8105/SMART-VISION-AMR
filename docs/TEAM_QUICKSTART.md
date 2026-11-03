@@ -25,6 +25,8 @@ Ubuntu 22.04 / ROS 2 Humble이 설치된 PC 기준입니다. PC 계정 이름이
 
 ## 주행 흐름
 
+PPT용 요약은 [A*·TurtleBot3 시스템 비교 한 장 그림](figures/navigation_system_comparison.png)에 있습니다.
+
 ```mermaid
 flowchart LR
     A[웹에서 섹터 임무 접수] --> B[저장 지도와 라이다로 A* 경로 생성]
