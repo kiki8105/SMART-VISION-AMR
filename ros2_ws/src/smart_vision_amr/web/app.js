@@ -164,11 +164,22 @@
     const stationary=age('odom_age')&&age('scan_age')&&Number.isFinite(speed.linear)&&Number.isFinite(speed.angular)
       &&Math.abs(speed.linear)<.025&&Math.abs(speed.angular)<.06;
     const stopLatched=!!snapshot?.mission?.estop_latched||!!snapshot?.safety?.latched;
-    const homeReady=!!homePose&&available&&stationary&&stopLatched&&snapshot?.safety?.stop_acknowledged===true
+    const missionState=snapshot?.mission?.state||'IDLE';
+    const motionIdle=['IDLE','PAUSED','ESTOP','COMPLETED','CANCELED','ERROR','HOME_REACHED'].includes(missionState)
       &&!snapshot?.localization?.active&&(!snapshot?.manual||snapshot.manual.state==='IDLE');
-    if(!homeReady)$('#initial-pose-home-confirm').checked=false;
-    $('#initial-pose-home-confirm').disabled=!homeReady;
-    $('#initial-pose-home-apply').disabled=!homeReady||!$('#initial-pose-home-confirm').checked;
+    const observedMoving=age('odom_age')&&Number.isFinite(speed.linear)&&Number.isFinite(speed.angular)
+      &&(Math.abs(speed.linear)>=.025||Math.abs(speed.angular)>=.06);
+    const homeConfirm=$('#initial-pose-home-confirm');
+    // A person can confirm the physical Home while ROS inputs are catching up.
+    // A fresh confirmation and all server-side checks are still required to apply it.
+    const homeSelectable=connected&&!!homePose&&motionIdle&&!busy&&!loc.pending;
+    const confirmationAge=Date.now()-Number(homeConfirm.dataset.checkedAt);
+    if(!homeSelectable||observedMoving||homeConfirm.checked&&!(confirmationAge>=0&&confirmationAge<60000)){
+      homeConfirm.checked=false;homeConfirm.dataset.checkedAt='';
+    }
+    homeConfirm.disabled=!homeSelectable;
+    const homeReady=homeSelectable&&available&&stationary&&stopLatched&&snapshot?.safety?.stop_acknowledged===true;
+    $('#initial-pose-home-apply').disabled=!homeReady||!homeConfirm.checked;
     $('#initial-pose-home-position').textContent=homePose?
       `등록 홈 x ${homePose.x.toFixed(2)} · y ${homePose.y.toFixed(2)} m · 차체 전방 ${homePose.yaw_deg.toFixed(1)}°`:'등록 홈 좌표가 없습니다. 지도를 확인하거나 아래에서 실제 위치를 직접 입력하세요.';
     const homeHelp=!connected?'차량 연결을 확인하세요.':!homePose?'등록 홈 좌표를 확인하세요.':
@@ -177,7 +188,9 @@
       snapshot?.safety?.stop_acknowledged!==true?'속도 0 명령 응답을 기다리는 중입니다.':
       !available?loc.reason||'지도·AMCL 초기 위치 서비스가 준비되기를 기다립니다.':
       '실제 홈과 후방 0번 마커 방향이 맞을 때만 체크하세요. 입력 후 비상정지는 유지됩니다.';
-    $('#initial-pose-home-help').textContent=homeHelp+' 웹의 ‘홈 도착’만으로 등록 좌표에 있다고 판단하지 마세요. 실제 위치가 다르면 아래에서 X·Y·방향을 직접 입력하세요.';
+    $('#initial-pose-home-help').textContent=homeHelp+
+      (!homeReady&&loc.reason&&loc.reason!==homeHelp?' 적용 대기: '+loc.reason:'')+
+      ' 확인란은 실제 위치 확인용입니다. 적용 버튼은 센서·정지·AMCL 조건이 준비되면 활성화됩니다. 웹의 ‘홈 도착’만으로 등록 좌표에 있다고 판단하지 마세요. 실제 위치가 다르면 아래에서 X·Y·방향을 직접 입력하세요.';
     const state=String(loc.state||'IDLE').toUpperCase(),verified=state==='VERIFIED'&&loc.verified===true&&freshPose;
     const badge=$('#initial-pose-state');
     badge.dataset.state=verified?'verified':state==='FAILED'?'failed':'waiting';
@@ -811,7 +824,10 @@
     notify('등록 홈 좌표를 입력란에 채웠습니다. 실제 위치·방향을 확인한 뒤 적용하세요.');
     $('#initial-pose-confirm').focus();
   });
-  $('#initial-pose-home-confirm').addEventListener('change',renderControls);
+  $('#initial-pose-home-confirm').addEventListener('change',()=>{
+    const input=$('#initial-pose-home-confirm');input.dataset.checkedAt=input.checked?String(Date.now()):'';
+    renderControls();
+  });
   $('#initial-pose-home-apply').addEventListener('click',async()=>{
     const pose=registeredHomePose();
     if(!pose||!$('#initial-pose-home-confirm').checked||$('#initial-pose-home-apply').disabled){notify('실제 등록 홈 정지와 후방 0번 마커 방향을 확인하세요.',true);return;}

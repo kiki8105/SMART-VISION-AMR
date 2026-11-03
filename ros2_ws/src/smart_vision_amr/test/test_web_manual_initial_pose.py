@@ -86,6 +86,19 @@ def test_manual_pose_rejects_missing_safety_map_sensor_or_amcl(tmp_path, change)
     assert app.mission.estop_latched
 
 
+def test_manual_pose_names_the_missing_stop_step(tmp_path):
+    app = stopped_application(tmp_path)
+    app.manual_mux_status['stop_acknowledged'] = False
+    available, reason = app.manual_pose_readiness()
+    assert not available
+    assert 'motion_mux' in reason
+    assert '~/turtlebot16' in reason
+    app.mission.estop_latched = False
+    available, reason = app.manual_pose_readiness()
+    assert not available
+    assert '비상정지를 누르고' in reason
+
+
 @pytest.mark.parametrize('payload', [
     {'confirm': False}, {'confirm': 'true'},
     {'x': float('nan')}, {'y': float('inf')}, {'yaw_deg': True},

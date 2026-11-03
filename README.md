@@ -22,7 +22,7 @@ TurtleBot3 Waffle Pi가 저장 지도에서 A* 경로를 만들고 Nav2로 이�
 예시 작업공간은 `~/Team2_workspace`입니다. 저장소를 `src` 안에 두어야
 제공된 스크립트가 작업공간을 올바르게 찾습니다.
 기존 `~/Team2_workspace`를 **통째로 지우고 재설치**한다면 먼저
-[팀원용 매뉴얼의 PC 정리 절차](docs/TEAM_QUICKSTART.md#1-pc-준비--처음-한-번)를 따르세요.
+[팀원용 매뉴얼의 PC 정리 절차](docs/TEAM_OPERATIONS_REFERENCE.md#기존-pc-작업공간-교체)를 따르세요.
 
 ```bash
 sudo apt update
@@ -38,7 +38,7 @@ cd SMART-VISION-AMR
 실차 PC의 주행·웹 의존성을 설치하고 이 저장소의 ROS 패키지만 빌드합니다.
 의존성이 이미 설치되어 있으면 `setup_pc_runtime.sh --no-install`을 사용합니다.
 실차 설치에는 Gazebo나 시뮬레이션 소스가 필요 없습니다.
-이후 [실차 세 터미널 실행 순서](docs/TEAM_QUICKSTART.md#3-매일-실행--이-세-터미널을-켜-둡니다)를 따르세요.
+이후 [실차 세 터미널 실행 순서](docs/TEAM_QUICKSTART.md#매일-터미널-123)를 따르세요.
 [읽기 전용 배포 점검](docs/DEPLOYMENT_CHECK.md)으로 작업공간·도메인·시계·센서를 확인할 수 있습니다.
 
 ## Gazebo에서 주행 시험하기

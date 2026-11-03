@@ -1225,11 +1225,11 @@ class MissionApplication:
         """Manual map pose is only a prior while the robot is stopped in ESTOP."""
         now = time.monotonic()
         if not self.mission.estop_latched:
-            return False, '차량 비상정지와 정지 확인 응답이 필요합니다.'
+            return False, '초기 위치 입력 전에 웹에서 비상정지를 누르고 차량의 실제 정지를 확인하세요.'
         if (require_stop_ack and (now-self.manual_mux_at >= 1.
                 or self.manual_mux_status.get('estop_latched') is not True
                 or self.manual_mux_status.get('stop_acknowledged') is not True)):
-            return False, '차량 비상정지와 정지 확인 응답이 필요합니다.'
+            return False, '로봇 측 motion_mux의 비상정지·속도 0 확인 응답이 없습니다. ~/turtlebot16 브링업, ROS 도메인과 PC·로봇 시각을 확인하세요.'
         if not self.connected or self.pending_connection is not None:
             return False, 'ROS 연결을 확인하세요.'
         if (self.map is None or self.map_is_preview or self.map_matches_configured is not True

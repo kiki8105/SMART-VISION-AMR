@@ -10,7 +10,7 @@
 RViz 목표 지정·AMCL·Nav2를 쓰는 예시입니다. 기본 Nav2도 설정에 따라 장애물을
 회피할 수 있습니다.
 
-팀 구성은 [실차 실행 흐름](../TEAM_QUICKSTART.md#주행-흐름)과
+팀 구성은 [실차 실행 흐름](../TEAM_OPERATIONS_REFERENCE.md#참고-주행-흐름)과
 [국소 우회](../LOCAL_DETOUR.md), [장애물 기억](../live_obstacle_avoidance.md)을
 간추린 것입니다. 현재 경로 추종은 **Nav2 FollowPath**이며 Pure Pursuit라고
 표시하지 않았습니다. 후방 ArUco는 섹터 도착 확인에 사용합니다.
