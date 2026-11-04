@@ -31,7 +31,9 @@ SECTOR2 = (1.525, -2.65)
 # This point is visible early on the Home→Sector 1 leg but stays well clear of
 # that leg. The mapped partition occludes it at Sector 1; the unmodified
 # Sector 1→2 route crosses it, so the next plan must use remembered cells.
-BOX = (.575, -.625)
+# This center leaves a bypass when a LiDAR return projects one map cell beyond
+# the box raster and keeps the memory-aware Sector 2 path clear of the box.
+BOX = (.650, -.575)
 
 
 def matching_goal(point, xy, tolerance=.05):

@@ -165,8 +165,8 @@ def main():
         def now(self):
             return round(time.monotonic()-start, 3)
 
-        def emit(self, name, **values):
-            event = {'t': self.now(), 'event': name, **values}
+        def emit(self, event_name, **values):
+            event = {'t': self.now(), 'event': event_name, **values}
             evidence['events'].append(event)
             print(json.dumps(event), flush=True)
 

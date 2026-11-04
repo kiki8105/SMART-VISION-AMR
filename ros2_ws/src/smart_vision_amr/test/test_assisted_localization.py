@@ -222,6 +222,17 @@ class AssistedLocalizationTest(unittest.TestCase):
         self.step(position_std=1.)
         self.assertEqual(self.logic.snapshot()['good_estimates'], 0)
 
+    def test_testbed_covariance_accepts_measured_0446m_and_0356rad_only(self):
+        self.initialize()
+        self.step(position_std=.446, yaw_std=.356)
+        self.assertEqual(self.logic.snapshot()['good_estimates'], 1)
+        self.step(position_std=.501, yaw_std=.356)
+        self.assertEqual(self.logic.snapshot()['good_estimates'], 0)
+        self.step(position_std=.446, yaw_std=.356)
+        self.assertEqual(self.logic.snapshot()['good_estimates'], 1)
+        self.step(position_std=.446, yaw_std=.401)
+        self.assertEqual(self.logic.snapshot()['good_estimates'], 0)
+
     def test_pose_teleport_resets_stability_without_fabricating_a_pose(self):
         self.initialize()
         for _ in range(60):

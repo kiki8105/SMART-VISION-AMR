@@ -41,6 +41,14 @@ class DeliveryHomeSafetyTests(unittest.TestCase):
     def tearDown(self):
         self.temporary.cleanup()
 
+    def test_camera_gap_warns_but_does_not_block_loaded_delivery_departure(self):
+        self.app.camera_at = 0.
+        self.assertTrue(self.app.delivery.snapshot()['dispatch_ready'])
+        self.assertTrue(any('카메라' in warning for warning in self.app.readiness()['warnings']))
+        self.app.command('/api/dispatch/start', {'loaded': True})
+        self.assertEqual(self.app.mission.state, 'NAVIGATING')
+        self.assertTrue(self.app.delivery.active)
+
     def test_outside_pose_cannot_replace_home_and_preserves_requests(self):
         self.app.pose.update(x=2.7515, y=.8143, yaw=2.55)
         before = self.app.delivery.queue.snapshot()

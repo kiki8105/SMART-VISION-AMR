@@ -32,6 +32,20 @@ from smart_vision_amr.path_geometry import (route_cells, smooth_grid_path, path_
                                            point_at_progress, path_length)
 
 
+def _normalized_pose_yaw(quaternion):
+    """Match the follower's normalized yaw for motion/retreat evidence.
+
+    Keep this local to measured chassis poses: map-origin conversion retains
+    its existing semantics. Invalid quaternion norms fail existing finite
+    checks instead of creating a fabricated zero-heading breadcrumb.
+    """
+    x, y, z, w = quaternion.x, quaternion.y, quaternion.z, quaternion.w
+    norm = x*x+y*y+z*z+w*w
+    if not all(isfinite(value) for value in (x, y, z, w, norm)) or not .8 <= norm <= 1.2:
+        return float("nan")
+    return atan2(2*(w*z+x*y), norm-2*(y*y+z*z))
+
+
 LOCAL_DETOUR_DEFAULTS = {
     "local_detour_enabled": True, "local_detour_trigger_distance": 1.5,
     "local_detour_max_rejoin_distance": 2.5, "local_detour_max_length": 4.0,
@@ -238,6 +252,9 @@ class AStarPlannerNode(Node):
         self.rejoin_verified = False
         self.navigation_progress_at = None
         self.obstacle_hold = ObstacleHold()
+        self.hold_reference_cells = []
+        self.last_invalidated_route_cells = []
+        self.last_hold_probe_time = float("-inf")
         # A blocked published path is canceled immediately, but only an
         # actual no-route A* result may spend this physical-obstacle budget.
         self.last_no_route_obstacle_charge_at = float("-inf")
@@ -636,6 +653,11 @@ class AStarPlannerNode(Node):
             f"holding={holding}")
         if not holding:
             return False
+        # Preserve the actually failed route before the empty Path clears it.
+        # A later plan must make a meaningful departure from this approach,
+        # not merely rediscover the same route after a transient hit expires.
+        self.hold_reference_cells = list(self.last_invalidated_route_cells)
+        self.last_hold_probe_time = time.monotonic()
         self.failure_state, self.failure_reason = "OBSTACLE_HOLD", (
             "장애물이 있어 경로 주행을 잠시 멈춥니다. 장애물을 치우면 경로를 재개합니다.")
         self._invalidate_path(self.failure_reason)
@@ -847,7 +869,8 @@ class AStarPlannerNode(Node):
                     or not all(isfinite(v) for v in (p.x, p.y, q.x, q.y, q.z, q.w))
                     or not .8 <= q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w <= 1.2):
                 return None
-            return float(p.x), float(p.y), yaw_from_quaternion(q)
+            self.last_fresh_motion_pose_stamp_ns = stamp
+            return float(p.x), float(p.y), _normalized_pose_yaw(q)
         except (TransformException, ValueError, AttributeError):
             return None
 
@@ -1056,12 +1079,64 @@ class AStarPlannerNode(Node):
         # Keep retry rate bounded even if a mistaken runtime parameter is zero.
         return max(0.25, float(self.get_parameter("replan_retry_period").value))
 
+    def _hold_probe_ready(self):
+        """An occupied-route probe needs the same independent motion evidence.
+
+        A disappearing transient overlay is not free-space proof. The tracked
+        physical object must still be represented in the current obstacle
+        layers; otherwise only on_visibility() may release this hold.
+        """
+        now = time.monotonic()
+        return (self.obstacle_hold.holding and self._goal_is_active()
+                and self.map is not None and not self.recovery_active
+                and self.pending_failure_id is None
+                and self.obstacle_hold.goal_scope == repr(self._memory_scopes())
+                and self.last_observation_time is not None
+                and 0 <= now-self.last_observation_time < .75
+                and self._observations_ready()
+                and bool(self.obstacle_hold.blocked_cells & (self.observed | self.remembered))
+                and self._fresh_motion_pose() is not None
+                and self._automatic_resume_allowed())
+
+    def _hold_route_is_distinct(self, cells, reference, blocked, grid, escape_cells,
+                                *, allowed_initial_escape=None):
+        """Reject a rediscovered approach and any path through occupied cells."""
+        cells = tuple(cells)
+        if len(cells) < 2 or not reference:
+            return False
+        # The blocked start may be a certified *dynamic inflation halo* cell.
+        # It is allowed only as an initial prefix of the existing safe egress;
+        # no static, raw, or remembered occupied cell is ever excepted.
+        if allowed_initial_escape is None:
+            allowed_initial_escape = set()
+            for cell in cells:
+                if cell not in blocked:
+                    break
+                if cell not in escape_cells:
+                    return False
+                allowed_initial_escape.add(cell)
+        for cell in cells:
+            if not grid.contains(cell) or grid.is_static_obstacle(cell):
+                return False
+            if cell in blocked and cell not in allowed_initial_escape:
+                return False
+        # A one-cell raster shift or a new initial pose is not a new approach.
+        # Require at least one interior cell outside the old route's 8-neighbor
+        # band. The planner's occupied mask still decides actual clearance.
+        near_old = inflate_cells(set(reference), grid.width, grid.height, 1)
+        return any(cell not in near_old for cell in cells)
+
     def retry_transform(self):
         """Retry no-path, missing-map and missing-TF conditions without losing the goal."""
         if self.obstacle_hold.holding:
-            if (self.last_visibility_at is None or time.monotonic()-self.last_visibility_at > .5
+            now = time.monotonic()
+            if (self.last_visibility_at is None or now-self.last_visibility_at > .5
                     or self._fresh_motion_pose() is None or not self._automatic_resume_allowed()):
-                self.obstacle_hold.observe_free(set(), set(), fresh=False, now=time.monotonic())
+                self.obstacle_hold.observe_free(set(), set(), fresh=False, now=now)
+            if (now-self.last_hold_probe_time >= self._retry_period()
+                    and self._hold_probe_ready()):
+                self.last_hold_probe_time = now
+                self.plan_to(self.last_goal, hold_probe=True)
             return
         if self.pending_failure_id is not None:
             # FAILED and the reliable event use different topics. Never retry
@@ -1127,6 +1202,8 @@ class AStarPlannerNode(Node):
     def _invalidate_path(self, reason):
         # One empty Path cancels the unsafe action. Repeated retries must not
         # continuously cancel a replacement action or flood navigation_status.
+        if self.planned_cells:
+            self.last_invalidated_route_cells = list(self.planned_cells)
         self.planned_cells = []
         self.planned_world_points = []
         if self.plan_metrics.get("local_detour_state") == "ACTIVE":
@@ -1385,7 +1462,12 @@ class AStarPlannerNode(Node):
         self._reset_local_reference()
         self.navigation_suspended = False
         self.goal_completed = False
+        old_hold_scope = self.obstacle_hold.goal_scope
         self.obstacle_hold.ensure_goal_scope(repr(self._memory_scopes()))
+        if self.obstacle_hold.goal_scope != old_hold_scope:
+            self.hold_reference_cells = []
+            self.last_invalidated_route_cells = []
+            self.last_hold_probe_time = float("-inf")
         if self.obstacle_hold.attempts == 0:
             self.last_no_route_obstacle_charge_at = float("-inf")
             self.last_no_route_observed_revision = self.observed_revision
@@ -1424,11 +1506,17 @@ class AStarPlannerNode(Node):
 
     def on_odom(self, msg):
         """Keep the latest wheel/IMU odometry as an independent motion witness."""
+        child_frame = getattr(msg, "child_frame_id", "")
+        previous_child = getattr(self, "latest_odom_child_frame", None)
+        if previous_child is not None and child_frame != previous_child:
+            self._clear_breadcrumbs()
+            self.odom_samples.clear()
+        self.latest_odom_child_frame = child_frame
         stamp = msg.header.stamp
         stamp_ns = stamp.sec * 1_000_000_000 + stamp.nanosec
         pose = msg.pose.pose
         sample = (time.monotonic(), stamp_ns, float(pose.position.x),
-                  float(pose.position.y), yaw_from_quaternion(pose.orientation),
+                  float(pose.position.y), _normalized_pose_yaw(pose.orientation),
                   msg.header.frame_id)
         if (stamp_ns <= 0 or not all(isfinite(value) for value in sample[:5])
                 or not sample[5]):
@@ -1481,7 +1569,7 @@ class AStarPlannerNode(Node):
         if rotation is None:
             self._clear_breadcrumbs()
             return False
-        yaw = yaw_from_quaternion(rotation)
+        yaw = _normalized_pose_yaw(rotation)
         sample = Breadcrumb(now, float(translation.x),
                             float(translation.y), yaw)
         if not all(isfinite(value) for value in (sample.x, sample.y, sample.yaw)):
@@ -1532,17 +1620,113 @@ class AStarPlannerNode(Node):
         self.breadcrumb_odom_anchor = odom
         return True
 
+    def _reverse_start_stopped(self):
+        """Require independently measured stillness before certifying a retreat.
+
+        The invalid/empty Path is already published before this check. Wait
+        for at least .20 s of dense odometry; a command of zero or a single
+        pose is insufficient evidence that the old FollowPath has stopped.
+        Allow bounded 10 Hz timing jitter without weakening the pose bound.
+        """
+        samples = tuple(self.odom_samples)
+        if len(samples) < 4:
+            return False
+        latest = samples[-1]
+        now = time.monotonic()
+        window = [sample for sample in samples if 0 <= latest[0]-sample[0] <= .50]
+        if (len(window) < 4 or not 0 <= now-latest[0] < .20
+                or any(sample[5] != latest[5] for sample in window)
+                or latest[0]-window[0][0] < .20-1e-9):
+            return False
+        for previous, sample in zip(window, window[1:]):
+            if (not 0 < sample[0]-previous[0] <= .18+1e-9
+                    or not 0 < sample[1]-previous[1] <= 180_000_000
+                    or sample[5] != latest[5]):
+                return False
+        return all(hypot(sample[2]-latest[2], sample[3]-latest[3]) <= .002
+                   and abs(self._angle_delta(sample[4], latest[4])) <= .005
+                   for sample in window)
+
+    def _reverse_unavailable(self, code, start):
+        """Expose the first failed reverse gate without flooding retry logs."""
+        previous_code = getattr(self, "last_reverse_rejection_code", None)
+        self.last_reverse_rejection_code = code
+        now = time.monotonic()
+        previous = getattr(self, "last_reverse_rejection_log_at", float("-inf"))
+        if code != previous_code or now < previous or now - previous >= 5.0:
+            self.get_logger().warning(f"REVERSE_REJECT[{code}] start={start}")
+            self.last_reverse_rejection_log_at = now
+        return False
+
     def _maybe_request_reverse(self, start, end, map_msg, grid, raw_grid,
                                raw_dynamic, inflated_dynamic, cell_penalty,
-                               trail_verified):
+                               trail_verified, blocking_evidence=None):
         """Request a bounded Nav2 backup only when a verified A* exit exists."""
-        if (not trail_verified or not self.get_parameter("reverse_recovery_enabled").value
-                or getattr(self, "recovery_active", False)
-                or start in self.recovery_attempted_cells
-                or self.recovery_attempts >= int(self.get_parameter("reverse_recovery_max_attempts").value)
-                or not self._observations_ready()
-                or grid.is_static_obstacle(end) or end in inflated_dynamic):
-            return False
+        if not trail_verified:
+            return self._reverse_unavailable("TRAIL_UNVERIFIED", start)
+        if not self.get_parameter("reverse_recovery_enabled").value:
+            return self._reverse_unavailable("DISABLED", start)
+        if getattr(self, "recovery_active", False):
+            return self._reverse_unavailable("ALREADY_ACTIVE", start)
+        if start in self.recovery_attempted_cells:
+            return self._reverse_unavailable("START_ALREADY_ATTEMPTED", start)
+        if self.recovery_attempts >= int(self.get_parameter("reverse_recovery_max_attempts").value):
+            return self._reverse_unavailable("ATTEMPT_LIMIT", start)
+        if not self._goal_is_active():
+            return self._reverse_unavailable("NO_ACTIVE_GOAL", start)
+        if not self._observations_ready():
+            return self._reverse_unavailable("SENSORS_UNREADY", start)
+        if not self._automatic_resume_allowed():
+            return self._reverse_unavailable("AUTONOMY_UNAVAILABLE", start)
+        if not self._reverse_start_stopped():
+            return self._reverse_unavailable("NOT_STOPPED", start)
+        if not getattr(self, "latest_odom_child_frame", ""):
+            return self._reverse_unavailable("ODOM_CHILD_FRAME_MISSING", start)
+        if grid.is_static_obstacle(end):
+            return self._reverse_unavailable("GOAL_STATIC_BLOCKED", start)
+        if end in inflated_dynamic:
+            return self._reverse_unavailable("GOAL_DYNAMIC_BLOCKED", start)
+        current = self._fresh_motion_pose()
+        physical_radius = float(self.get_parameter("robot_radius").value)
+        if current is None:
+            return self._reverse_unavailable("POSE_UNREADY", start)
+        if not self.breadcrumbs:
+            return self._reverse_unavailable("TRAIL_MISSING", start)
+        if not isfinite(physical_radius) or physical_radius <= 0:
+            return self._reverse_unavailable("RADIUS_INVALID", start)
+        physical_radius = max(.24, physical_radius)
+        # Keep measurement time and odom baseline before any map/A* work. Do
+        # not refresh certificate age after a costly candidate search.
+        certified_odom = tuple(self.latest_odom)
+        certified_child = self.latest_odom_child_frame
+        certified_map_stamp_ns = getattr(self, "last_fresh_motion_pose_stamp_ns", None)
+        if type(certified_map_stamp_ns) is not int or certified_map_stamp_ns <= 0:
+            return self._reverse_unavailable("MAP_POSE_STAMP_MISSING", start)
+        certificate_at_ns = min(self.get_clock().now().nanoseconds,
+                                certified_odom[1], certified_map_stamp_ns)
+        latest = self.breadcrumbs[-1]
+        if (hypot(current[0]-latest.x, current[1]-latest.y) > .05
+                or abs(self._angle_delta(current[2], latest.yaw)) > .15):
+            return self._reverse_unavailable("TRAIL_POSE_MISMATCH", start)
+
+        # A newly seen object can leave a physically clear corridor parallel
+        # to a wall. Requiring clearance to that *wall* to improve as well as
+        # clearance to the blocker unnecessarily rejects a useful retreat.
+        # Nominate only fresh, unmapped physical hits ahead of this chassis;
+        # the selector still checks every raw wall/hit over the entire sweep.
+        blocking_cells = set()
+        if (self.last_observation_time is not None
+                and 0 <= time.monotonic()-self.last_observation_time < .75):
+            body = physical_radius
+            for cell in raw_dynamic & self.observed & set(blocking_evidence or ()):
+                if raw_grid.is_static_obstacle(cell):
+                    continue
+                x, y = cell_to_world(map_msg.info, cell)
+                dx, dy = x-current[0], y-current[1]
+                forward = dx*cos(current[2])+dy*sin(current[2])
+                lateral = abs(-dx*sin(current[2])+dy*cos(current[2]))
+                if 0 < forward <= .80 and lateral <= body+.10:
+                    blocking_cells.add(cell)
 
         # Dynamic raw scan hits and confirmed memory have the same hard-stop
         # status as raw map occupancy while checking the reverse swept volume.
@@ -1566,13 +1750,27 @@ class AStarPlannerNode(Node):
         candidate = select_reverse_egress(
             tuple(self.breadcrumbs), raw_with_live, inflated_with_live, geometry,
             can_reach_retained_goal, now=time.monotonic(),
-            robot_radius=float(self.get_parameter("robot_radius").value),
-            clearance_margin=float(self.get_parameter("reverse_recovery_clearance_margin").value),
+            robot_radius=physical_radius,
+            # Dispatch may differ by <=3 mm / .01 rad from this stationary
+            # certificate. The separate .01 m envelope covers that handover
+            # (3 mm + .30 m*sin(.01) < 7 mm), beyond the physical margin.
+            clearance_margin=float(self.get_parameter("reverse_recovery_clearance_margin").value)+.01,
             min_distance=float(self.get_parameter("reverse_recovery_min_distance").value),
             max_distance=float(self.get_parameter("reverse_recovery_max_distance").value),
-            max_history_age=90.0, max_sample_gap=30.0)
+            max_history_age=90.0, max_sample_gap=30.0,
+            blocking_cells=blocking_cells, current_pose=current,
+            # A physically clear start can still be trapped by the static
+            # inflation band. Parallel retreat need not increase distance to
+            # an unrelated side wall, but must exit inflation and preserve
+            # the selector's complete physical sweep and A* goal checks.
+            allow_parallel_static_egress=(
+                grid.is_static_obstacle(start)
+                and not raw_with_live.is_static_obstacle(start)
+                and not blocking_cells))
         if candidate is None:
-            return False
+            return self._reverse_unavailable("NO_SAFE_EGRESS", start)
+        if not 0 <= self.get_clock().now().nanoseconds-certificate_at_ns < 750_000_000:
+            return self._reverse_unavailable("CERTIFICATE_EXPIRED", start)
 
         self.recovery_attempts += 1
         self.recovery_attempted_cells.add(start)
@@ -1586,7 +1784,21 @@ class AStarPlannerNode(Node):
             "distance": candidate.distance_m,
             "speed": float(self.get_parameter("reverse_recovery_speed").value),
             "reason": "No forward A* route; verified recent straight track leads to a safe A* start",
-            "start_cell": list(start), "exit_cell": list(candidate.target_cell)})
+            "start_cell": list(start), "exit_cell": list(candidate.target_cell),
+            "blocking_cells": [list(cell) for cell in sorted(blocking_cells)],
+            "certified_start": {
+                "frame_id": certified_odom[5],
+                "child_frame_id": certified_child,
+                "stamp_ns": certified_odom[1],
+                "x": certified_odom[2], "y": certified_odom[3],
+                "yaw": certified_odom[4],
+                "certified_at_ns": certificate_at_ns,
+                "max_position_drift_m": .003, "max_yaw_drift_rad": .01,
+                "sweep_reserve_m": .01,
+                "map_frame": self.get_parameter("map_frame").value,
+                "map_base_frame": self.get_parameter("base_frame").value,
+                "map_x": current[0], "map_y": current[1], "map_yaw": current[2],
+                "map_stamp_ns": certified_map_stamp_ns}})
         self.recovery_pub.publish(request)
         self.publish_status("RECOVERING", f"Backing up {candidate.distance_m:.2f} m to replan retained goal")
         self.get_logger().warning(
@@ -1594,9 +1806,10 @@ class AStarPlannerNode(Node):
             f"to {candidate.target_cell} (attempt {self.recovery_attempts})")
         return True
 
-    def plan_to(self, goal):
+    def plan_to(self, goal, *, hold_probe=False):
         if (getattr(self, "recovery_active", False) or self.pending_failure_id is not None
-                or self.obstacle_hold.holding):
+                or (self.obstacle_hold.holding and not hold_probe)
+                or (hold_probe and not self._hold_probe_ready())):
             return
         if self.failure_state == "SENSOR_HOLD" and self._fresh_motion_pose() is None:
             self._invalidate_path("Waiting for fresh independent sensor evidence before retry")
@@ -1609,7 +1822,8 @@ class AStarPlannerNode(Node):
             "path_smoothing_enabled", "path_smoothing_iterations",
             "path_smoothing_shortcut_distance", "path_resample_spacing"))
         self.waiting_for_replan = True
-        self.publish_status("PLANNING", "Planning to retained goal")
+        if not hold_probe:
+            self.publish_status("PLANNING", "Planning to retained goal")
         if self.map is None:
             self.waiting_for_transform = True
             self._invalidate_path("Waiting for /map")
@@ -1679,15 +1893,19 @@ class AStarPlannerNode(Node):
             (self.get_parameter("start_egress_clearance_margin").value
              / map_msg.info.resolution + sqrt(2.0) / 2.0))
         safety_egress_edges = set()
-        if (not escape_cells and start in observed_blocked
+        certified_start_edges = set()
+        if (self.get_parameter("start_egress_enabled").value
+                and not escape_cells
+                and (grid.is_static_obstacle(start) or start in observed_blocked)
+                and not raw_grid.is_static_obstacle(start)
                 and start not in observed_effective and start not in remembered_blocked
-                and not grid.is_static_obstacle(start)
                 and self.last_observation_time is not None
                 and 0 <= time.monotonic() - self.last_observation_time < .75):
-            # A cell-center worst-case reserve can reject a physically clear
-            # start by a fraction of a millimetre. A fresh continuous TF and
-            # current scan can certify only the first edge, never a raw hit or
-            # another inflated cell. Failed certification retains the stop.
+            # Correct a static/live inflation start-cell quantization artifact.
+            # The complete stock collision model reaches .237693 m from base;
+            # round up to .24 m here, then retain the existing clearance margin.
+            # Global inflation, raw occupied/unknown cells and later edges stay
+            # unchanged. This does not certify unmodeled hardware extensions.
             current = self._fresh_motion_pose()
             if (current is not None
                     and world_to_cell(map_msg.info, current[0], current[1]) == start
@@ -1698,28 +1916,54 @@ class AStarPlannerNode(Node):
                 dx, dy = current[0] - origin.x, current[1] - origin.y
                 pose_cells = ((cos(angle) * dx + sin(angle) * dy) / map_msg.info.resolution,
                               (-sin(angle) * dx + cos(angle) * dy) / map_msg.info.resolution)
+                physical_radius = float(self.get_parameter("robot_radius").value)
+                physical_radius = (max(.24, physical_radius)
+                                   if isfinite(physical_radius) and physical_radius > 0 else physical_radius)
                 safe_edges = certified_start_only_edges(
                     raw_grid, grid, observed_effective | remembered_effective,
-                    blocked, start, pose_cells,
-                    float(self.get_parameter("robot_radius").value) / map_msg.info.resolution,
+                    blocked, start, pose_cells, physical_radius / map_msg.info.resolution,
                     float(self.get_parameter("start_egress_clearance_margin").value)
                     / map_msg.info.resolution)
                 if safe_edges:
+                    certified_start_edges = safe_edges
                     escape_cells = {start}
                     safety_egress_edges = {
                         (start, (start[0] + dx, start[1] + dy))
                         for dx in (-1, 0, 1) for dy in (-1, 0, 1)
                         if (dx or dy) and (start, (start[0] + dx, start[1] + dy)) not in safe_edges
                     }
+                    # Clearing the start must not change later diagonal
+                    # corner checks. Block all reentry and both directions of
+                    # every neighbor-to-neighbor diagonal that would use this
+                    # cleared cell as an orthogonal side cell.
+                    safety_egress_edges.update(
+                        ((start[0]+dx, start[1]+dy), start)
+                        for dx in (-1, 0, 1) for dy in (-1, 0, 1) if dx or dy)
+                    for dx in (-1, 1):
+                        for dy in (-1, 1):
+                            horizontal = (start[0]+dx, start[1])
+                            vertical = (start[0], start[1]+dy)
+                            safety_egress_edges.update(((horizontal, vertical), (vertical, horizontal)))
                     self.get_logger().info(
-                        f"Fresh continuous pose certified {len(safe_edges)} start-only egress edges")
+                        f"Fresh continuous pose certified {len(safe_edges)} start-only egress edges "
+                        f"with physical radius {physical_radius:.3f} m and unchanged clearance margin")
+        # A statically inflated start cannot be passed to ordinary A*. Build
+        # a private planning view clearing that one *certified* cell only. The
+        # stored map, goal, neighboring inflation and every later edge remain
+        # unchanged; the directed first-edge constraints are never softened.
+        planning_grid = grid
+        if certified_start_edges and grid.is_static_obstacle(start):
+            planning_grid = Grid(tuple(tuple(
+                False if (x, y) == start else grid.rows[y][x]
+                for x in range(grid.width)) for y in range(grid.height)))
         allow_dynamic_escape = bool(escape_cells)
         plan_blocked_edges = failure_edges | safety_egress_edges
         egress_steps = 0
         self.global_plan_count += 1
         self.plan_metrics.update(global_plan_count=self.global_plan_count)
         try:
-            if grid.is_static_obstacle(start) and self.get_parameter("start_egress_enabled").value:
+            if (grid.is_static_obstacle(start) and not certified_start_edges
+                    and self.get_parameter("start_egress_enabled").value):
                 resolution = map_msg.info.resolution
                 # The measured pose may lie anywhere inside its cell: preserve
                 # an extra half-cell diagonal in addition to footprint margin.
@@ -1737,7 +1981,7 @@ class AStarPlannerNode(Node):
                     egress_steps = next((index for index, cell in enumerate(cells)
                                          if not grid.is_static_obstacle(cell)), 0)
             else:
-                cells = self.planner.plan(grid, start, end, blocked,
+                cells = self.planner.plan(planning_grid, start, end, blocked,
                                           allow_blocked_start=allow_dynamic_escape,
                                           escape_cells=escape_cells,
                                           cell_penalty=cell_penalty,
@@ -1749,9 +1993,9 @@ class AStarPlannerNode(Node):
             return
         self.plan_metrics.update(global_duration_ms=(time.perf_counter()-global_started)*1000.)
         failure_edge_fallback = False
-        if not cells and failure_edges:
+        if not cells and failure_edges and not hold_probe:
             cells = self._safe_failure_edge_fallback(
-                map_msg, grid, start, end, blocked, escape_cells,
+                map_msg, planning_grid, start, end, blocked, escape_cells,
                 allow_dynamic_escape, cell_penalty, failure_edges, failure_costs,
                 safety_egress_edges)
             failure_edge_fallback = bool(cells)
@@ -1760,7 +2004,14 @@ class AStarPlannerNode(Node):
                 self.get_logger().warning(
                     "Hard failed-edge route unavailable; trying bounded, scan-clear "
                     "penalty-only route with all obstacle cells still blocked")
-        self.planned_cells = cells
+        if hold_probe and (not cells or certified_start_edges):
+            self.get_logger().info("Obstacle hold: no certified alternative around current blocker",
+                                   throttle_duration_sec=5.0)
+            return
+        if certified_start_edges and cells and (len(cells) < 2
+                or (cells[0], cells[1]) not in certified_start_edges):
+            self._invalidate_path("Continuous start egress lost its certified first edge")
+            return
         if not cells:
             reference_path = self._static_reference_path(
                 grid, raw_grid, start, end, map_msg.info.resolution, inflation)
@@ -1792,12 +2043,33 @@ class AStarPlannerNode(Node):
                 throttle_duration_sec=10.0)
             self._invalidate_path(f"No safe A* route from {start} to {end}; retrying")
             self.failure_state, self.failure_reason = "WAIT_ALTERNATIVE", "No safe alternative; goal retained"
+            # A focused obstacle retreat needs causal evidence: a physical
+            # fresh hit intersects the static route's body corridor and the
+            # same retained goal is reachable with only live hits removed.
+            # A static/failure-memory dead end alone cannot authorize it.
+            body_corridor_m = float(self.get_parameter("robot_radius").value)+.05
+            reverse_blockers = {cell for cell in observed_effective
+                if any(hypot(cell[0]-waypoint[0], cell[1]-waypoint[1])
+                       * map_msg.info.resolution <= body_corridor_m
+                       for waypoint in reference_path)}
+            if reverse_blockers:
+                try:
+                    without_live = self.planner.plan(
+                        planning_grid, start, end, remembered_blocked,
+                        allow_blocked_start=allow_dynamic_escape,
+                        escape_cells=escape_cells, cell_penalty=cell_penalty,
+                        blocked_edges=plan_blocked_edges, edge_penalty=failure_costs)
+                except ValueError:
+                    without_live = []
+                if not without_live:
+                    reverse_blockers.clear()
             # A verified reverse remains available before latching a persistent
             # obstacle hold; a robot can clear the blocked start without waiting
             # for a stationary object to disappear.
             if self._maybe_request_reverse(start, end, map_msg, grid, raw_grid,
                                         observed_effective | remembered_effective,
-                                        blocked, cell_penalty, trail_verified):
+                                        blocked, cell_penalty, trail_verified,
+                                        blocking_evidence=reverse_blockers):
                 return
             # A changed scan invalidating a path is not a failed *alternative*.
             # Charge only a completed no-route search with a newly observed,
@@ -1842,8 +2114,13 @@ class AStarPlannerNode(Node):
                         self.last_no_route_obstacle_charge_at = now
                         self.last_no_route_observed_revision = self.observed_revision
             return
-        self.waiting_for_replan = False
-        self.invalid_path_published = False
+        if hold_probe:
+            reference = self.hold_reference_cells or self._static_reference_path(
+                grid, raw_grid, start, end, map_msg.info.resolution, inflation)
+            if not self._hold_route_is_distinct(cells, reference, blocked, grid, escape_cells):
+                self.get_logger().info("Obstacle hold: route is unchanged or not collision-free",
+                                       throttle_duration_sec=5.0)
+                return
         path = Path()
         path.header.frame_id = frame
         now = self.get_clock().now()
@@ -1854,7 +2131,7 @@ class AStarPlannerNode(Node):
                              if cutoff else now.to_msg())
         points = [(x + .5, y + .5) for x, y in cells]
         smoothed = False
-        if self.get_parameter("path_smoothing_enabled").value:
+        if self.get_parameter("path_smoothing_enabled").value and not certified_start_edges:
             resolution = map_msg.info.resolution
             points, smoothed = smooth_grid_path(
                 cells, lambda cell: grid.is_static_obstacle(cell) or cell in blocked,
@@ -1864,7 +2141,7 @@ class AStarPlannerNode(Node):
                 iterations=int(self.get_parameter("path_smoothing_iterations").value))
         # Dynamic obstacle invalidation must cover the route actually sent to
         # Nav2, including all crossed cells, rather than only the old A* cells.
-        self.planned_cells = list(cells) + sorted(route_cells(points) - set(cells))
+        planned_cells = list(cells) + sorted(route_cells(points) - set(cells))
         world_points = [cell_to_world(map_msg.info, (x-.5, y-.5)) for x, y in points]
         if failure_edges:
             map_scope, goal_scope = self._memory_scopes()
@@ -1876,10 +2153,14 @@ class AStarPlannerNode(Node):
                 points = [(x+.5, y+.5) for x, y in cells]
                 world_points = [cell_to_world(map_msg.info, cell) for cell in cells]
                 smoothed = False
-                self.planned_cells = list(cells)
+                planned_cells = list(cells)
             current = self._fresh_motion_pose()
             turn_ready = self._turn_ready(world_points, current) if current is not None else None
             if turn_ready is not True:
+                if hold_probe:
+                    self.get_logger().info("Obstacle hold: alternate approach turn is not verified",
+                                           throttle_duration_sec=5.0)
+                    return
                 self._invalidate_path("Alternative requires more turn clearance" if turn_ready is False
                                       else "Waiting for fresh 360-degree turn clearance")
                 self.failure_state = "WAIT_ALTERNATIVE" if turn_ready is False else "SENSOR_HOLD"
@@ -1897,6 +2178,30 @@ class AStarPlannerNode(Node):
                                       "odom": self.latest_odom, "points": world_points,
                                       "pose": current}
                 self.rejoin_verified = False
+        if hold_probe:
+            # Check the path actually sent after smoothing as well as the raw
+            # A* route, and recheck the source before releasing the latch.
+            actual_cells = route_cells(points)
+            allowed_initial_escape = set()
+            for cell in cells:
+                if cell not in blocked:
+                    break
+                allowed_initial_escape.add(cell)
+            refreshed_pose = self._fresh_motion_pose()
+            if (not self._hold_route_is_distinct(actual_cells, reference, blocked,
+                                                 grid, escape_cells,
+                                                 allowed_initial_escape=allowed_initial_escape)
+                    or not self._hold_probe_ready() or refreshed_pose is None
+                    or self._turn_ready(world_points, refreshed_pose) is not True):
+                self.failure_state = "OBSTACLE_HOLD"
+                self.rejoin_anchor = None
+                return
+            self.obstacle_hold.release_for_alternative(now=time.monotonic())
+            self.hold_reference_cells = []
+            self.get_logger().info("Obstacle hold: distinct scan-clear route found; resuming retained goal")
+        self.planned_cells = planned_cells
+        self.waiting_for_replan = False
+        self.invalid_path_published = False
         self.planned_world_points = world_points
         self.local_reference_points = list(world_points)
         self.local_reference_key = self._local_route_key()

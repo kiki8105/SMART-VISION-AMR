@@ -368,6 +368,7 @@ class MissionApplication:
         self.camera_raw_at = 0.0
         self.front_camera_jpeg = None
         self.front_camera_at = 0.0
+        self.front_camera_enabled = True
         self.frame_number = 0
         self.detected_ids = []
         self.front_detected_ids = []
@@ -662,7 +663,7 @@ class MissionApplication:
             if os.path.exists(temporary):
                 os.unlink(temporary)
 
-    def readiness(self, for_home=None, allow_camera_degraded=False, marker_ids=None):
+    def readiness(self, for_home=None, allow_camera_degraded=True, marker_ids=None):
         if for_home is None:
             for_home = self.mission.returning_home
         now = time.monotonic()
@@ -710,8 +711,15 @@ class MissionApplication:
                 else:
                     conditions.append((camera_fresh, f'최신 {label} 영상'))
             conditions.append((self.aruco_available, 'OpenCV ArUco'))
-        if self.localization.active or self.localization_invalidated:
-            conditions.append((False, '라이다 위치 확인 완료 또는 수동 초기 위치 지정'))
+        if self.localization.active:
+            conditions.append((False, '진행 중인 위치 확인 동작 종료'))
+        if self.manual_pose_state in {'WAITING', 'FAILED'}:
+            conditions.append((False, '초기 위치 입력 검증 완료'))
+        elif self.localization_invalidated and not (
+                self.require_localization_health
+                and now-self.localization_health_at < 1.5
+                and self.localization_health.get('autonomous_allowed') is True):
+            conditions.append((False, '최신 AMCL 위치·지도 정합 확인'))
         for valid, text in conditions:
             if not valid:
                 missing.append(text)
@@ -745,6 +753,7 @@ class MissionApplication:
                               'camera_age': age(self.camera_at),
                               'raw_camera_age': age(self.camera_raw_at),
                               'front_camera_age': age(self.front_camera_at),
+                              'front_camera_enabled': self.front_camera_enabled,
                               'odom_age': age(self.odom_at),
                               'power': self.power_state(now)},
                     'map': deepcopy(self.map), 'map_version': self.map_version,
@@ -774,7 +783,7 @@ class MissionApplication:
                                   'confirmed': self.mission.state == 'COMPLETED'},
                     'marker_alignment': deepcopy(self.marker_alignment),
                     'navigation': dict(self.navigation),
-                    'health': self.readiness(allow_camera_degraded=self.mission.state in ACTIVE_STATES | {'PAUSED'}),
+                    'health': self.readiness(),
                     'events': deepcopy(self.mission.events[-30:]), 'revision': self.mission.revision}
             mux_fresh = now-self.manual_mux_at < 1.0
             snapshot['safety'] = dict(self.manual_mux_status if mux_fresh else {},
@@ -896,7 +905,7 @@ class MissionApplication:
                 route = (self.mission.route[self.mission.current_index:]
                          if endpoint.endswith('/resume') else self.mission.pending_route or self.mission.route)
                 health = self.readiness(for_home=endpoint.endswith('/resume') and self.mission.returning_home,
-                                        allow_camera_degraded=endpoint.endswith('/resume'), marker_ids=route)
+                                        marker_ids=route)
                 if not health['ready']:
                     raise MissionError('시작 조건을 확인하세요: '+', '.join(health['missing']))
                 # Persistence must succeed before any command is queued.
@@ -1051,9 +1060,16 @@ class MissionApplication:
             return False, '선택한 저장 지도의 /map 수신이 필요합니다.'
         if not self.localization_services_ready or time.monotonic()-self.localization_amcl_active_at > 3.:
             return False, 'AMCL 활성 상태와 위치 재추정 서비스를 기다립니다.'
-        if (time.monotonic()-self.localization_scan_at > .8
-                or time.monotonic()-self.localization_odom_at > .8 or not self.localization_clear):
-            return False, '360도 라이다와 차체 중심 반경 30cm 이상의 회전 공간을 확인하세요.'
+        if time.monotonic()-self.localization_scan_at > .8:
+            return False, '회전 도구를 시작하려면 최신 라이다 관측이 필요합니다.'
+        if time.monotonic()-self.localization_odom_at > .8:
+            return False, '회전 도구를 시작하려면 최신 차체 움직임 정보가 필요합니다.'
+        if not self.localization_clear:
+            clearance = self.localization_clearance
+            if finite_number(clearance) and clearance < .30:
+                return False, (f'차체 중심에서 가까운 물체까지 약 {clearance*100:.0f}cm입니다. '
+                               '회전 도구에는 중심 반경 30cm 이상의 공간이 필요합니다.')
+            return False, '라이다 관측이 완전하지 않거나 센서 위치를 확인할 수 없어 회전 도구가 대기합니다.'
         return True, '주변 회전 공간을 확보하세요. 라이다와 저장 지도를 대조해 위치를 추정합니다.'
 
     def startup_home_readiness(self):
@@ -1164,6 +1180,9 @@ class MissionApplication:
         exact_match = (self.home_seed_match is not None and math.isfinite(self.home_seed_match)
                        and self.home_seed_match >= .65 and 0 <= now-self.home_seed_match_at < .8
                        and self.home_seed_match_key == self.home_seed_key())
+        if not exact_match and self.manual_pose_state == 'VERIFIED':
+            return False, ('수동 초기 위치 검증 후 등록 홈 주변 자동 탐색을 중지했습니다. '
+                           '현재 위치를 사용하거나 수동 초기 위치를 다시 입력하세요.')
         evidence = self.home_prior_evidence or {}
         nearby_match = (evidence.get('supported') is True
                         and evidence.get('distinct_scans', 0) >= 3
@@ -1224,11 +1243,16 @@ class MissionApplication:
     def manual_pose_readiness(self, *, require_stop_ack=True):
         """Manual map pose is only a prior while the robot is stopped in ESTOP."""
         now = time.monotonic()
-        if not self.mission.estop_latched:
-            return False, '초기 위치 입력 전에 웹에서 비상정지를 누르고 차량의 실제 정지를 확인하세요.'
-        if (require_stop_ack and (now-self.manual_mux_at >= 1.
-                or self.manual_mux_status.get('estop_latched') is not True
-                or self.manual_mux_status.get('stop_acknowledged') is not True)):
+        # The robot-local mux starts ESTOP-latched before this web process owns
+        # a mission. Its fresh zero-output acknowledgment is as safe as a web
+        # initiated stop; do not demand a redundant second ESTOP click.
+        mux_estopped = (now-self.manual_mux_at < (1.5 if not require_stop_ack else 1.)
+                        and self.manual_mux_status.get('available') is True
+                        and self.manual_mux_status.get('estop_latched') is True)
+        if not self.mission.estop_latched and not mux_estopped:
+            return False, '초기 위치 입력 전에 웹 또는 로봇에서 비상정지를 확인하고 차량의 실제 정지를 확인하세요.'
+        if require_stop_ack and (not mux_estopped
+                or self.manual_mux_status.get('stop_acknowledged') is not True):
             return False, '로봇 측 motion_mux의 비상정지·속도 0 확인 응답이 없습니다. ~/turtlebot16 브링업, ROS 도메인과 PC·로봇 시각을 확인하세요.'
         if not self.connected or self.pending_connection is not None:
             return False, 'ROS 연결을 확인하세요.'
@@ -1676,7 +1700,14 @@ def create_ros_bridge(app, options, context):
             super().__init__('web_mission_server', context=context,
                              parameter_overrides=[Parameter('use_sim_time', value=app.use_sim_time)])
             self.tf_buffer = Buffer()
-            self.tf_listener = TransformListener(self.tf_buffer, self)
+            # Prefer the current dynamic stream over a reliable TF backlog,
+            # consistently with the robot-local health monitor and sensor guard.
+            # Leave static TF's reliable/transient-local subscription unchanged.
+            self.dynamic_tf_qos = QoSProfile(depth=20,
+                reliability=ReliabilityPolicy.BEST_EFFORT,
+                durability=DurabilityPolicy.VOLATILE)
+            self.tf_listener = TransformListener(self.tf_buffer, self, qos=self.dynamic_tf_qos)
+            self.last_pose_tf_warning_at = -math.inf
             durable = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL,
                                  reliability=ReliabilityPolicy.RELIABLE)
             self.map_qos = durable
@@ -1687,6 +1718,12 @@ def create_ros_bridge(app, options, context):
             # only the newest packet and rely on the exact ACK/retry handshake.
             control_qos = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
             self.motion_pub = self.create_publisher(String, '/smart_vision_amr/manual_control', control_qos)
+            # Reset and emergency-stop intents are events, not velocity leases.
+            # Independent guards must receive them even behind a newer hold.
+            intent_qos = QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE,
+                                    durability=DurabilityPolicy.VOLATILE)
+            self.motion_intent_pub = self.create_publisher(
+                String, '/smart_vision_amr/manual_control', intent_qos)
             self.motion_source = secrets.token_urlsafe(18)
             self.motion_seq = 0
             self.localization_hold_seq = self.localization_lease_seq = None
@@ -1763,7 +1800,7 @@ def create_ros_bridge(app, options, context):
             self.create_subscription(LaserScan, '/scan', self.on_scan, qos_profile_sensor_data)
             rear_type = CompressedImage if options.camera_topic.endswith('/compressed') else Image
             self.create_subscription(rear_type, options.camera_topic, self.on_image, qos_profile_sensor_data)
-            front_topic = getattr(options, 'front_camera_topic', '/camera/front/image_raw')
+            front_topic = getattr(options, 'front_camera_topic', '')
             if front_topic and front_topic != options.camera_topic:
                 front_type = CompressedImage if front_topic.endswith('/compressed') else Image
                 self.create_subscription(front_type, front_topic, self.on_front_image, qos_profile_sensor_data)
@@ -1896,7 +1933,7 @@ def create_ros_bridge(app, options, context):
             if not self.sim_epoch_rebind_pending:
                 return
             new_buffer = Buffer()
-            new_listener = TransformListener(new_buffer, self)
+            new_listener = TransformListener(new_buffer, self, qos=self.dynamic_tf_qos)
             new_map_sub = self.create_subscription(OccupancyGrid, '/map', self.on_map, self.map_qos)
             new_memory_sub = self.create_subscription(
                 Int32MultiArray, '/smart_vision_amr/remembered_cells',
@@ -2009,7 +2046,11 @@ def create_ros_bridge(app, options, context):
                             app.map, app.localization_distance)
                         app.home_seed_match_at = scan_now
                         app.home_seed_match_key = app.home_seed_key()
-                    eligible = ((app.mission.estop_latched or app.mission.state in START_STATES)
+                    # The optional startup-neighborhood search is no longer
+                    # needed after an operator's manual pose has been verified.
+                    # Exact Home matching and live sensor/health checks continue.
+                    eligible = (app.manual_pose_state != 'VERIFIED'
+                                and (app.mission.estop_latched or app.mission.state in START_STATES)
                                 and (not app.localization.active or app.localization.state == 'ACQUIRING')
                                 and home is not None and app.map is not None and not app.map_is_preview
                                 and app.map_matches_configured is True and app.localization_distance is not None)
@@ -2076,14 +2117,17 @@ def create_ros_bridge(app, options, context):
                         app.manual_pose_amcl_received_at = time.monotonic()
                         app.manual_pose_match = match
                         requested = app.manual_pose_requested
-                        if requested is not None and match >= .60:
+                        # Match the localization monitor's normal-confidence
+                        # boundary; a stricter web-only threshold can strand
+                        # a pose that the robot's own monitor already accepts.
+                        if requested is not None and match >= .55:
                             yaw_delta = math.atan2(math.sin(yaw-math.radians(requested['yaw_deg'])),
                                                    math.cos(yaw-math.radians(requested['yaw_deg'])))
                             if (math.hypot(position['x']-requested['x'], position['y']-requested['y']) < .5
                                     and abs(yaw_delta) < math.radians(30.)):
                                 app.manual_pose_amcl_at = time.monotonic()
                                 self.manual_pose_verified_amcl_stamp_ns = stamp
-                    elif match >= .60:
+                    elif match >= .55:
                         app.localization_invalidated = False
                         self.manual_initial_pose_ns = None
 
@@ -2477,7 +2521,8 @@ def create_ros_bridge(app, options, context):
                                        'sent_at_ns': self.get_clock().now().nanoseconds,
                                        'mode': mode, 'linear': linear, 'angular': angular,
                                        'operation': operation})
-            self.motion_pub.publish(message)
+            publisher = self.motion_intent_pub if mode in {'reset', 'estop'} else self.motion_pub
+            publisher.publish(message)
             self.last_control_mode, self.last_control_operation = mode, operation
             if mode == 'hold':
                 self.last_hold_control_at = now
@@ -2923,7 +2968,6 @@ def create_ros_bridge(app, options, context):
             last_ack = self.manual_pose_last_stop_ack_at
             return bool(
                 last_ack is not None and 0. <= now-last_ack < 1.5
-                and app.mission.estop_latched
                 and status.get('available') is True
                 and status.get('estop_latched') is True
                 and type(status.get('output_linear')) in (int, float)
@@ -2996,13 +3040,14 @@ def create_ros_bridge(app, options, context):
             if available:
                 self.manual_pose_last_stop_ack_at = now
             else:
-                if (reason == '차량 비상정지와 정지 확인 응답이 필요합니다.'
-                        and self.manual_pose_stop_ack_grace(now)):
+                # Decide from the actual mux/ESTOP state, not the wording of a
+                # user-facing error. A missed ACK is brief and cannot waive
+                # map, sensor, service, physical stop, or ESTOP requirements.
+                context_ready = False
+                if self.manual_pose_stop_ack_grace(now):
                     context_ready, context_reason = app.manual_pose_readiness(require_stop_ack=False)
                     if not context_ready:
                         reason = context_reason
-                else:
-                    context_ready = False
                 if not context_ready:
                     self.fail_manual_pose('검증 중 출발 조건이 사라졌습니다: '+reason)
                     return
@@ -3038,8 +3083,8 @@ def create_ros_bridge(app, options, context):
             if now-app.manual_pose_sent_at >= 12.:
                 if app.manual_pose_amcl_received_at <= app.manual_pose_sent_at:
                     reason = '새 /amcl_pose가 수신되지 않았습니다. /scan과 AMCL 상태를 확인하세요.'
-                elif app.manual_pose_match is not None and app.manual_pose_match < .60:
-                    reason = (f'라이다·지도 일치율 {app.manual_pose_match:.0%}가 60%보다 낮습니다. '
+                elif app.manual_pose_match is not None and app.manual_pose_match < .55:
+                    reason = (f'라이다·지도 일치율 {app.manual_pose_match:.0%}가 55%보다 낮습니다. '
                               '실제 좌표·방향 또는 지도를 확인하세요.')
                 elif self.manual_pose_verified_amcl_stamp_ns > self.manual_pose_ros_stamp_ns:
                     reason = ('위치 감시 노드의 초기 위치 재획득 확인이 끝나지 않았습니다: '
@@ -3307,7 +3352,7 @@ def create_ros_bridge(app, options, context):
                     self.localization_policy_gap_since = self.localization_policy_gap_reason = None
             settled_health_ok = (health_fresh
                 and app.localization_health.get('autonomous_allowed') is True
-                and app.localization_health.get('level') in {'ok', 'healthy'})
+                and app.localization_health.get('level') in {'ok', 'healthy', 'warning'})
             if loc.state == 'SETTLING':
                 stationary = stationary and hold_ack
                 if stationary and loc.mark_settled_stop(now):
@@ -3456,11 +3501,13 @@ def create_ros_bridge(app, options, context):
                         self.stop_until = now+.2
                         self.stop()
                     app.manual_cancel_requested = False
+                pose_tf_problem = None
                 try:
                     transform = self.tf_buffer.lookup_transform('map', options.base_frame, rclpy.time.Time())
                     q = transform.transform.rotation
                     tf_ns = transform.header.stamp.sec*1000000000+transform.header.stamp.nanosec
-                    age = abs(self.get_clock().now().nanoseconds-tf_ns)/1e9 if tf_ns > 0 else math.inf
+                    header_age = (self.get_clock().now().nanoseconds-tf_ns)/1e9 if tf_ns > 0 else math.inf
+                    age = abs(header_age)
                     # lookup_transform can keep returning the last cached TF
                     # after Gazebo (and its /clock) has stopped. Only a newly
                     # stamped transform proves that the position was updated.
@@ -3469,8 +3516,18 @@ def create_ros_bridge(app, options, context):
                                     'yaw': math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))}
                         app.pose_at = now
                         app.pose_tf_stamp_ns = tf_ns
-                except TransformException:
-                    pass
+                    elif age >= 2.0:
+                        pose_tf_problem = f'stale transform: stamp_ns={tf_ns}, header_age={header_age:.3f}s'
+                    elif app.pose_at and now-app.pose_at >= 2.0:
+                        pose_tf_problem = (f'unchanged transform stamp_ns={tf_ns}, '
+                                           f'pose_age={now-app.pose_at:.3f}s')
+                except TransformException as exc:
+                    pose_tf_problem = 'lookup failed: '+str(exc)[:240]
+                if pose_tf_problem and now-self.last_pose_tf_warning_at >= 5.0:
+                    self.last_pose_tf_warning_at = now
+                    self.get_logger().warning(
+                        f'Web map->{options.base_frame} TF unavailable: {pose_tf_problem}; '
+                        'cached pose freshness is not extended')
                 app.sync_delivery()
                 # A camera outage cannot invalidate an A* route. Arrival remains
                 # in CONFIRMING until fresh, post-arrival ArUco frames are seen.
@@ -3926,8 +3983,8 @@ def build_parser():
     parser.add_argument('--access-mode', choices=('code', 'domain'), default='code',
                         help='code: separate pairing PINs; domain: join using the current ROS domain')
     parser.add_argument('--camera-topic', default='/camera/image_raw')
-    parser.add_argument('--front-camera-topic', default='/camera/front/image_raw',
-                        help='Optional front Image preview; arrival camera is selected in marker configuration')
+    parser.add_argument('--front-camera-topic', default='',
+                        help='Optional front Image preview; disabled by default for the rear-camera classroom robot')
     parser.add_argument('--camera-rotation', type=int, choices=(0, 180), default=0,
                         help='Rotate incoming camera frames for ArUco detection and web preview (degrees)')
     parser.add_argument('--front-camera-rotation', type=int, choices=(0, 180), default=0,
@@ -3997,6 +4054,7 @@ def main(args=None):
                              access_mode=options.access_mode,
                              sector_dwell_seconds=options.sector_dwell_seconds)
     app.require_localization_health = options.require_localization_health
+    app.front_camera_enabled = bool(options.front_camera_topic)
     app.require_battery_health = options.require_battery_health
     app.minimum_battery_voltage = options.minimum_battery_voltage
     if options.map_file:

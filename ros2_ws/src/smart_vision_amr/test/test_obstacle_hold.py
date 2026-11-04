@@ -44,6 +44,15 @@ def test_missing_hits_and_ttl_passage_are_never_free_space_evidence():
     assert hold.clear_since is None
 
 
+def test_certified_alternative_releases_retry_latch_without_claiming_removal():
+    hold = held()
+    scope = hold.goal_scope
+    assert hold.release_for_alternative(now=4.)
+    assert not hold.holding and hold.attempts == 0
+    assert hold.goal_scope == scope and hold.resume_count == 1
+    assert not hold.release_for_alternative(now=5.)
+
+
 def test_occupied_return_wins_and_restarts_clear_confirmation():
     hold = held()
     hold.observe_free({(5, 6)}, set(), fresh=True, now=3.)

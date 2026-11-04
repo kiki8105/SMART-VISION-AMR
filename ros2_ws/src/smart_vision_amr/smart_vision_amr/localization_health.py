@@ -137,7 +137,8 @@ class LocalizationHealth(Node):
             'spatial_fault_seconds': 1.25,
             'agreement_fault_seconds': 3.0, 'sensor_timeout': 0.5,
             'tf_timeout': 1.0, 'future_tolerance': 1.5,
-            'position_warning': 0.35, 'position_critical': 0.8,
+            'position_warning': 0.35, 'position_acquisition_limit': 0.50,
+            'position_critical': 0.8,
             'yaw_warning': 0.5, 'yaw_critical': 1.0,
             'agreement_warning': 0.55, 'agreement_critical': 0.20,
             'amcl_moving_timeout': 4.0, 'amcl_pose_timeout': 8.0,
@@ -229,11 +230,13 @@ class LocalizationHealth(Node):
         if not self.core.mapping_mode:
             self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.on_amcl, durable)
             self.create_subscription(PoseWithCovarianceStamped, '/initialpose', self.on_initialpose, 10)
-        # Only the latest stamped control intent is relevant to reset tracking.
-        latest_control = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT,
-                                    durability=DurabilityPolicy.VOLATILE)
+        # Reset is a one-shot intent, not a velocity lease. Keep it through a
+        # short callback backlog; source/sequence/stamp guards still reject old
+        # packets. Velocity consumers retain their latest-sample QoS.
+        safety_intents = QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE,
+                                   durability=DurabilityPolicy.VOLATILE)
         self.create_subscription(String, '/smart_vision_amr/manual_control',
-                                 self.on_control, latest_control)
+                                 self.on_control, safety_intents)
         self.create_timer(0.25, self.on_tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
         if not self.core.mapping_mode:
             self.create_timer(0.05, lambda: self.update_agreement(time.monotonic()),

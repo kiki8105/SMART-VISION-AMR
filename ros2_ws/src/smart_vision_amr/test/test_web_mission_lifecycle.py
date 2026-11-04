@@ -15,7 +15,7 @@ from unittest.mock import patch
 try:
     import rclpy
     from rclpy.context import Context
-    from rclpy.qos import ReliabilityPolicy
+    from rclpy.qos import DurabilityPolicy, ReliabilityPolicy
     from rclpy.signals import SignalHandlerOptions
     from std_srvs.srv import Trigger
     HAS_ROS = True
@@ -64,6 +64,7 @@ class MissionLifecycleTests(unittest.TestCase):
         self.goals, self.stops = Publisher(), Publisher()
         self.cancel = ControlledCancelClient()
         self.node.goal_pub, self.node.motion_pub, self.node.cancel_client = self.goals, self.stops, self.cancel
+        self.node.motion_intent_pub = self.stops  # Combined receipts for lifecycle assertions.
         self.estop_service, self.reset_service = ControlledCancelClient(), ControlledCancelClient()
         self.node.estop_client, self.node.reset_client = self.estop_service, self.reset_service
         self.last_auto_ack_seq = 0
@@ -173,12 +174,28 @@ class MissionLifecycleTests(unittest.TestCase):
         self.assertEqual(mission.state, 'DWELLING')
         self.assertEqual(json.loads(self.stops.messages[-1].data)['mode'], 'hold')
 
-    def test_manual_control_publisher_keeps_only_newest_best_effort_packet(self):
+    def test_velocity_stays_best_effort_and_safety_intents_are_reliable(self):
         publishers = [publisher for publisher in self.node.publishers
                       if publisher.topic_name == '/smart_vision_amr/manual_control']
-        self.assertEqual(len(publishers), 1)
-        self.assertEqual(publishers[0].qos_profile.depth, 1)
-        self.assertEqual(publishers[0].qos_profile.reliability, ReliabilityPolicy.BEST_EFFORT)
+        self.assertEqual(len(publishers), 2)
+        profiles = {publisher.qos_profile.reliability: publisher.qos_profile for publisher in publishers}
+        self.assertEqual(profiles[ReliabilityPolicy.BEST_EFFORT].depth, 1)
+        self.assertEqual(profiles[ReliabilityPolicy.RELIABLE].depth, 10)
+        self.assertEqual(profiles[ReliabilityPolicy.RELIABLE].durability, DurabilityPolicy.VOLATILE)
+
+    def test_only_reset_and_estop_use_reliable_intent_publisher(self):
+        controls, intents = Publisher(), Publisher()
+        self.node.motion_pub, self.node.motion_intent_pub = controls, intents
+        for mode in ('manual', 'hold', 'auto', 'localization'):
+            self.node.send_control(mode)
+        for mode in ('estop', 'reset'):
+            self.node.send_control(mode)
+        self.assertEqual([json.loads(item.data)['mode'] for item in controls.messages],
+                         ['manual', 'hold', 'auto', 'localization'])
+        self.assertEqual([json.loads(item.data)['mode'] for item in intents.messages], ['estop', 'reset'])
+        packets = [json.loads(item.data) for item in controls.messages+intents.messages]
+        self.assertEqual([item['seq'] for item in packets], list(range(1, 7)))
+        self.assertTrue(all(item['source_id'] == self.node.motion_source for item in packets))
 
     def test_goal_waits_for_fresh_own_auto_ack_and_retries_lost_packet(self):
         self.app.mission.start(home={'x': -1., 'y': -2., 'yaw': .2})

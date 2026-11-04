@@ -21,6 +21,25 @@ from inject_classroom_web_obstacle import (
 from smart_vision_amr.map_utils import cell_to_world, world_to_cell
 
 
+def classroom_grid():
+    pgm = ROOT/'ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm'
+    with pgm.open('rb') as stream:
+        assert stream.readline() == b'P5\n'
+        width, height = map(int, stream.readline().split())
+        assert stream.readline() == b'255\n'
+        pixels = stream.read()
+    assert len(pixels) == width*height
+    occupancy = []
+    for y in range(height):
+        for x in range(width):
+            gray = pixels[(height-1-y)*width+x]
+            occupancy.append(100 if gray == 0 else 0 if gray == 254 else -1)
+    info = SimpleNamespace(width=width, height=height, resolution=.05,
+        origin=SimpleNamespace(position=SimpleNamespace(x=-1.65, y=-5.25),
+                               orientation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
+    return SimpleNamespace(info=info, data=occupancy)
+
+
 def test_home_departure_is_required_after_precomputed_search():
     assert not departed_home(None, (0., 0.))
     assert not departed_home((0., 0.), None)
@@ -88,32 +107,68 @@ def test_final_bypass_proof_includes_current_observed_cells():
 
 
 def test_box_candidate_rejected_when_prior_sector_memory_seals_bypass():
-    # Regress the classroom Home-leg geometry that passed a box-only preflight
-    # but had no route once five already-confirmed cells were considered.
-    pgm = ROOT/'ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm'
-    with pgm.open('rb') as stream:
-        assert stream.readline() == b'P5\n'
-        width, height = map(int, stream.readline().split())
-        assert stream.readline() == b'255\n'
-        pixels = stream.read()
-    assert len(pixels) == width*height
-    occupancy = []
-    for y in range(height):
-        for x in range(width):
-            gray = pixels[(height-1-y)*width+x]
-            occupancy.append(100 if gray == 0 else 0 if gray == 254 else -1)
+    # Two gaps cross a wall. The test box seals the upper gap, while one
+    # remembered cell seals the lower gap only after its five-cell inflation.
+    width = height = 80
     info = SimpleNamespace(width=width, height=height, resolution=.05,
-        origin=SimpleNamespace(position=SimpleNamespace(x=-1.65, y=-5.25),
+        origin=SimpleNamespace(position=SimpleNamespace(x=0., y=0.),
                                orientation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
-    grid = SimpleNamespace(info=info, data=occupancy)
-    start, goal = cell_to_world(info, (28, 62)), cell_to_world(info, (29, 100))
-    box = (-.43228848911467943, -2.8310737200051856)
-    previous_memory = (5110, 5196, 5986, 6072, 6158)
+    data = [0] * (width*height)
+    for y in (*range(0, 15), *range(36, 45), *range(66, 80)):
+        data[y*width+40] = 100
+    grid = SimpleNamespace(info=info, data=data)
+    start, goal = cell_to_world(info, (20, 40)), cell_to_world(info, (60, 40))
+    box = cell_to_world(info, (40, 25))
+    previous_memory = (55*width+40,)
     assert current_observed_bypass_route(
         grid, start, goal, box, (), world_to_cell, cell_to_world)
     assert current_observed_bypass_route(
         grid, start, goal, box, (), world_to_cell, cell_to_world,
         remembered_indices=previous_memory) is None
+
+
+def test_candidate_reserves_one_cell_lidar_overshoot_seen_in_sector_three_trial():
+    """A box-only route vanished after its first real Gazebo LiDAR scan."""
+    from smart_vision_amr.astar import AStarPlanner
+    from smart_vision_amr.map_utils import occupancy_to_grid
+    from smart_vision_amr.path_geometry import smooth_grid_path
+
+    grid = classroom_grid()
+    info = grid.info
+    robot = (-.18826165215479984, -.22050049362091373)
+    goal = (-.25, -1.98)
+    static = occupancy_to_grid(grid, 65, 5)
+    cells = AStarPlanner().plan(static, world_to_cell(info, *robot),
+                                world_to_cell(info, *goal))
+    points, _ = smooth_grid_path(cells, static.is_static_obstacle,
+                                 spacing=1, shortcut_distance=16, iterations=2)
+    path = [cell_to_world(info, (x-.5, y-.5)) for x, y in points]
+
+    # Both Gazebo trials first selected this center. The detected lower face
+    # occupied y=90, one cell beyond the box-only raster's y=89 boundary.
+    optimistic = (-.08713200790640302, -.8871319661831518)
+    start = cell_to_world(info, (32, 99))
+    assert current_observed_bypass_route(
+        grid, start, goal, optimistic, (), world_to_cell, cell_to_world) is None
+
+    diagnostics = {}
+    candidate = select_feasible_web_obstacle(
+        path, robot, goal, grid, world_to_cell, cell_to_world,
+        diagnostics=diagnostics)
+    assert candidate is not None
+    assert diagnostics['reason'] == 'FEASIBLE_BYPASS'
+    assert abs(candidate['x'] - (-.157842686)) < .002
+    assert abs(candidate['y'] - (-.957842645)) < .002
+    old_cell = world_to_cell(info, *optimistic)
+    new_cell = world_to_cell(info, candidate['x'], candidate['y'])
+    shifted_hits = [
+        (y+new_cell[1]-old_cell[1])*info.width+x+new_cell[0]-old_cell[0]
+        for y in (89, 90) for x in range(27, 34)]
+    for start_cell in ((32, 99), (32, 98)):
+        assert current_observed_bypass_route(
+            grid, cell_to_world(info, start_cell), goal,
+            (candidate['x'], candidate['y']), shifted_hits,
+            world_to_cell, cell_to_world) is not None
 
 
 def test_candidate_search_skips_snapshot_observed_closed_box(monkeypatch):

@@ -11,6 +11,7 @@ FLOORPLAN_FILE=$REPO_DIR/ros2_ws/src/smart_vision_amr/config/classroom_floorplan
 # Inventory can be migrated separately; the original files remain untouched.
 SETTINGS_FILE=${SMART_VISION_CLASSROOM_CONFIG:-$HOME/.config/smart-vision-amr/classroom-16-20261030.json}
 CAMERA_TRANSPORT=${SMART_VISION_CLASSROOM_CAMERA_TRANSPORT:-compressed}
+FRONT_CAMERA_TOPIC=${SMART_VISION_CLASSROOM_FRONT_CAMERA_TOPIC:-}
 MINIMUM_BATTERY_VOLTAGE=${SMART_VISION_MIN_BATTERY_VOLTAGE:-10.8}
 MUX_OPTIONS=()
 for argument in "$@"; do
@@ -70,5 +71,5 @@ exec "$SCRIPT_DIR/run_web_mission.sh" \
   -- --map-file "$MAP_FILE" --raw-map-file "$RAW_MAP_FILE" --floorplan-file "$FLOORPLAN_FILE" \
   --config-file "$SETTINGS_FILE" --access-mode domain --require-localization-health --require-battery-health --minimum-battery-voltage "$MINIMUM_BATTERY_VOLTAGE" --marker-confirmation-mode recognized "${MUX_OPTIONS[@]}" \
   --camera-topic "/camera/image_raw$CAMERA_SUFFIX" --camera-rotation 180 \
-  --front-camera-topic "/camera/front/image_raw$CAMERA_SUFFIX" \
+  --front-camera-topic "$FRONT_CAMERA_TOPIC" \
   --front-camera-rotation 0 "$@"

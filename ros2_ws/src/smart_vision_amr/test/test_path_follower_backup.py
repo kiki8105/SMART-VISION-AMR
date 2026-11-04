@@ -7,6 +7,7 @@ import unittest
 from unittest.mock import Mock
 
 from action_msgs.msg import GoalStatus
+from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
@@ -50,18 +51,38 @@ class FollowerBackupTest(unittest.TestCase):
         self.node.on_scan(scan)
         odom = Odometry()
         odom.header.stamp.sec = self.node.clock_seconds - odom_age
+        odom.header.frame_id, odom.child_frame_id = 'odom', 'base_footprint'
+        odom.pose.pose.orientation.w = 1.
         self.node.on_odom(odom)
+        transform = TransformStamped()
+        transform.header.frame_id, transform.child_frame_id = 'map', 'base_footprint'
+        transform.header.stamp.sec = self.node.clock_seconds
+        transform.transform.rotation.w = 1.
+        self.node.tf_buffer = Mock()
+        self.node.tf_buffer.lookup_transform.return_value = transform
         self.node.on_motion_status(
             String(data=json.dumps({
                 "mode": mode, "available": True, "estop_latched": False,
             }))
         )
 
+    def certificate(self):
+        sample = self.node._navigation_odom_sample(self.node.latest_odom)
+        return {'frame_id': sample[1], 'child_frame_id': sample[2], 'stamp_ns': sample[0],
+                'x': sample[3], 'y': sample[4], 'yaw': sample[5],
+                'map_frame': 'map', 'map_base_frame': 'base_footprint',
+                'map_stamp_ns': self.node.get_clock().now().nanoseconds,
+                'map_x': sample[3], 'map_y': sample[4], 'map_yaw': sample[5],
+                'certified_at_ns': self.node.get_clock().now().nanoseconds,
+                'max_position_drift_m': .003, 'max_yaw_drift_rad': .01,
+                'sweep_reserve_m': .01}
+
     def request(self, goal_id="10:0", distance=0.2, speed=0.04):
         self.node.on_recovery_request(
             String(data=json.dumps({
                 "goal_id": goal_id, "distance": distance,
                 "speed": speed, "reason": "inflated start",
+                "certified_start": self.certificate(),
             }))
         )
 
@@ -141,8 +162,10 @@ class FollowerBackupTest(unittest.TestCase):
 
     def test_request_arriving_before_matching_goal_is_buffered_without_motion(self):
         self.node.clock_seconds = 14
+        self.feed_sensors()
         self.node.on_recovery_request(String(data=json.dumps({
             "goal_id": "13:0", "distance": 0.2, "speed": 0.04,
+            "certified_start": self.certificate(),
         })))
         self.assertIsNone(self.node.recovery_request)
         self.assertIsNotNone(self.node.pending_recovery_request)

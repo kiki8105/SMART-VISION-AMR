@@ -17,6 +17,7 @@ from inject_classroom_web_obstacle import (
     select_feasible_web_obstacle)
 from verify_classroom_web_dwell import (
     assess_dwell, evaluate_prearm, obstacle_hold_started_at)
+import verify_classroom_web_dwell as dwell_verifier
 from smart_vision_amr.astar import AStarPlanner
 import smart_vision_amr.map_utils as map_utils
 from smart_vision_amr.map_utils import cell_to_world, occupancy_to_grid, world_to_cell
@@ -80,6 +81,91 @@ def test_new_web_stages_are_real_web_owned_route_targets():
     assert stress_permuted.key in staged.WEB_FULL_STACK_STAGES
     assert staged.web_stage_route(stress_permuted) == '1,3,2'
     assert staged.web_stage_route(stress_obstacle) == '1,2,3'
+
+
+def test_inventory_obstacle_stage_requires_full_operator_sequence_and_bypass():
+    stage = staged.BY_KEY['25_web_inventory_sector3_moving_obstacle']
+    assert stage.kind == 'web_moving_obstacle'
+    assert stage.route == ('Sector 3', 'Home')
+    assert stage.options == ('--inventory-before-prearm',)
+    assert stage.key in staged.WEB_FULL_STACK_STAGES
+    assert staged.web_stage_route(stage) == '3'
+    evidence = web_evidence(stage)
+    evidence.update(
+        dispatch_mode='inventory',
+        web_pages={'inventory': True, 'operator': True},
+        inventory_request={'id': 7, 'marker_id': 3, 'quantity': 1},
+        inventory_request_created_at=10.,
+        manual_initial_pose={
+            'state': 'VERIFIED', 'requested_at': 11., 'verified_at': 12.,
+            'estop_latched_after_verification': True,
+            'stop_acknowledged_after_verification': True},
+        startup_reset_accepted_at=13., mission_started_at=15.,
+        dispatch_load_confirmed=True,
+        inventory_completion={'request_id': 7, 'status': 'DELIVERED',
+                              'service_active': False},
+        web_obstacle={
+            'passed': True, 'spawned': True, 'truth_seen': True,
+            'removed': True, 'observed_while_live': True,
+            'observed_cleared': True, 'path_reacted_before_removal': True,
+            'bypassed_while_live': True, 'moving_steps': 4,
+            'minimum_clearance_m': .04},
+        web_obstacle_overlay_checks={
+            'red_cells_while_live': True,
+            'red_cells_cleared_after_removal': True})
+    evidence['prearm']['sampled_at'] = 14.
+    assert staged.assess(stage, evidence)['passed']
+    evidence['manual_initial_pose']['verified_at'] = 13.5
+    assert 'inventory_pose_reset_prearm_dispatch_order_unverified' in staged.assess(
+        stage, evidence)['reasons']
+    evidence['manual_initial_pose']['verified_at'] = 12.
+    evidence['web_obstacle']['bypassed_while_live'] = False
+    assert 'web_obstacle_bypassed_while_live_unverified' in staged.assess(
+        stage, evidence)['reasons']
+
+
+def test_inventory_request_uses_manager_api_and_matching_sector(monkeypatch):
+    calls = []
+
+    def fake_request(_manager, _base, endpoint, payload=None):
+        calls.append((endpoint, payload))
+        if endpoint == '/api/inventory/pair':
+            return {'authenticated': True}
+        return {'requests': [{'id': 4, 'marker_id': 3, 'quantity': 1,
+                              'status': 'PENDING', 'created_at': 10.}]}
+
+    monkeypatch.setattr(dwell_verifier, 'request', fake_request)
+    item = dwell_verifier.submit_inventory_request(object(), 'http://127.0.0.1:8792', 3)
+    assert item['id'] == 4
+    assert [endpoint for endpoint, _ in calls] == [
+        '/api/inventory/pair', '/api/inventory/requests']
+    assert calls[1][1]['marker_id'] == 3
+    assert calls[1][1]['quantity'] == 1
+
+
+def test_initial_pose_is_verified_before_estop_release(monkeypatch):
+    calls = []
+    state = {
+        'localization': {'manual_pose': {'available': True, 'state': 'IDLE'}},
+        'safety': {'latched': True, 'stop_acknowledged': True},
+        'delivery': {'registered_homepoint': {'x': -.18, 'y': -.22, 'yaw': 0.}}}
+
+    def fake_request(_browser, _base, endpoint, payload=None):
+        calls.append((endpoint, payload))
+        if endpoint == '/api/localization/initial-pose':
+            assert payload == {'x': -.18, 'y': -.22, 'yaw_deg': 0., 'confirm': True}
+            state['localization']['manual_pose'] = {
+                'available': False, 'state': 'VERIFIED', 'verified': True,
+                'result': 'verified'}
+        return state
+
+    monkeypatch.setattr(dwell_verifier, 'request', fake_request)
+    result = {}
+    dwell_verifier.verify_initial_home_pose(object(), 'http://127.0.0.1:8792', result)
+    assert result['manual_initial_pose']['state'] == 'VERIFIED'
+    assert result['manual_initial_pose']['estop_latched_after_verification'] is True
+    assert [endpoint for endpoint, _ in calls] == [
+        '/api/state', '/api/localization/initial-pose', '/api/state']
 
 
 def test_stress_web_stage_requires_actual_stress_fixture_manifest():
@@ -182,6 +268,13 @@ def test_physical_style_prearm_records_battery_scan_and_amcl_failures(monkeypatc
         'cancel_service_types': ['std_srvs/srv/Trigger'],
     }
     assert evaluate_prearm(state, graph, True)['passed']
+    state['localization_health'].update(level='warning', reasons=['position_std_m_elevated'])
+    state['localization_health']['metrics']['position_std_m'] = .446
+    assert evaluate_prearm(state, graph, True)['passed']
+    state['localization_health']['reasons'] = ['yaw_std_rad_elevated']
+    assert 'localization_health' in evaluate_prearm(state, graph, True)['failed_gates']
+    state['localization_health'].update(level='ok', reasons=[])
+    state['localization_health']['metrics']['position_std_m'] = .1
     state['robot']['power']['voltage'] = 10.7
     state['localization_health']['metrics']['amcl_header_age_seconds'] = 9.
     graph['scan_publishers'] = []

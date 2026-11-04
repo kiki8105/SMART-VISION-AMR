@@ -30,8 +30,8 @@ def stopped_application(tmp_path):
     app.mission.emergency_stop()
     app.mission.drain_commands()
     app.manual_mux_at = now
-    app.manual_mux_status = {'mode': 'estop', 'estop_latched': True,
-                             'stop_acknowledged': True}
+    app.manual_mux_status = {'mode': 'estop', 'available': True,
+                             'estop_latched': True, 'stop_acknowledged': True}
     app.scan_at = app.odom_at = app.localization_scan_at = app.localization_odom_at = now
     app.localization_amcl_active_at = now
     app.manual_pose_service_ready = True
@@ -96,7 +96,36 @@ def test_manual_pose_names_the_missing_stop_step(tmp_path):
     app.mission.estop_latched = False
     available, reason = app.manual_pose_readiness()
     assert not available
-    assert '비상정지를 누르고' in reason
+    assert 'motion_mux' in reason
+    app.manual_mux_status['estop_latched'] = False
+    available, reason = app.manual_pose_readiness()
+    assert not available
+    assert '비상정지를 확인' in reason
+
+
+def test_robot_local_estop_allows_pose_prior_without_redundant_web_estop(tmp_path):
+    app = stopped_application(tmp_path)
+    app.mission.estop_latched = False
+    available, _ = app.manual_pose_readiness()
+    assert available
+    state = submit(app)
+    assert state['localization']['manual_pose']['state'] == 'WAITING'
+    assert app.mission.commands == []
+
+
+@pytest.mark.parametrize('change', [
+    lambda app: app.manual_mux_status.update(available=False),
+    lambda app: app.manual_mux_status.update(estop_latched=False),
+    lambda app: app.manual_mux_status.update(stop_acknowledged=False),
+    lambda app: setattr(app, 'manual_mux_at', 0.),
+])
+def test_robot_local_pose_requires_fresh_available_stopped_mux(tmp_path, change):
+    app = stopped_application(tmp_path)
+    app.mission.estop_latched = False
+    change(app)
+    with pytest.raises(MissionError):
+        submit(app)
+    assert app.manual_pose_request is None
 
 
 @pytest.mark.parametrize('payload', [

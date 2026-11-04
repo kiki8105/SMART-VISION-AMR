@@ -282,7 +282,7 @@
   function setHomeConfirmation(checked){
     $('#startup-confirm-home').checked=checked===true;
     $('#confirm-home-location').checked=checked===true;
-    if(checked!==true){$('#seed-home-pose').disabled=true;$('#startup-seed-home').disabled=true;$('#startup-localize-home').disabled=true;}
+    if(checked!==true){$('#seed-home-pose').disabled=true;$('#startup-seed-home').disabled=true;}
   }
   function openStartupRecovery(){
     setHomeConfirmation(false);
@@ -322,33 +322,50 @@
     step('inputs',!!inputs,inputs?'입력 확인':'입력 확인 대기',!paired?'통신 수신 중단 · 연결 설정과 PC·로봇의 실행 상태를 확인하세요.':
       inputFaults.length?'위치 감시 입력 대기: '+(quality.explanations||inputFaults).join(' · ')+'. 센서·좌표 변환·두 장치의 시계를 확인하세요.':
       !fresh('scan_age',.5)||!fresh('odom_age',.5)?'최신 라이다·오도메트리 수신 대기 · 통신과 센서 시각을 확인하세요.':
-      sensorReasons.length?sensorReasons.join(' · '):inputs?'라이다·오도메트리·운용 지도 응답을 확인했습니다. 위치 신뢰도와 회전 허용은 다음 단계에서 별도로 확인합니다.':'운용 지도와 좌표 변환을 기다립니다. 등록 홈이 맞다면 아래의 초기 위치 입력 조건을 확인하세요.');
+      sensorReasons.length?sensorReasons.join(' · '):inputs?'라이다·오도메트리·운용 지도 응답을 확인했습니다. 최신 위치 신뢰도와 출발 조건도 확인합니다.':'운용 지도와 좌표 변환을 기다립니다. 등록 홈이 맞다면 아래의 초기 위치 입력 조건을 확인하세요.');
     $('#startup-home-position').textContent=home&&['x','y','yaw'].every(key=>Number.isFinite(home[key]))?`등록 홈 x ${home.x.toFixed(2)} · y ${home.y.toFixed(2)} m · 차체 방향 ${(home.yaw*180/Math.PI).toFixed(1)}°`:'등록 홈 좌표를 확인하고 있습니다.';
     $('#startup-confirm-home').disabled=!waiting||!paired||!stopped||!fresh('scan_age',.5)||manual||!!loc.active||busy;
     step('home',confirmed,confirmed?'실제 홈 확인됨':'직접 확인 필요',!confirmed?'홈이 아니거나 위치·방향이 확실하지 않으면 체크하지 마세요. 위의 초기 위치 지정에 실제 지도 좌표를 직접 입력할 수 있습니다.':
       loc.home_seed_pending?'등록 홈 초기 위치 입력 검증 중 · 비상정지는 유지됩니다.':loc.home_seed_result||
-      (latched?loc.home_seed_reason||'홈 초기 위치만 입력할 조건을 확인합니다.':'홈 위치 입력은 비상정지 중 복구용입니다. 해제 상태에서는 5단계 자세 초기화를 사용하세요.'));
+      (latched?loc.home_seed_reason||'홈 초기 위치만 입력할 조건을 확인합니다.':'홈 위치 입력은 비상정지 중 복구용입니다. 현재 위치 신뢰도와 출발 조건을 확인하세요.'));
     $('#startup-seed-home').disabled=!waiting||!paired||!stopped||!confirmed||$('#seed-home-pose').disabled;
     step('reset',paired&&!latched,!paired?'정지 제어 응답 대기':latched?safety.pending==='reset'?'해제 검증 중':'비상정지 유지':'해제 상태 · 자동 출발 없음',
-      !paired?'통신 복구 후 차량의 정지 응답을 확인하세요.':latched?(safety.result||'주변 안전과 입력 준비 상태를 확인한 뒤 해제 창에서 직접 확인·해제를 누르세요.')+' 홈 초기 위치 입력만으로 해제되지 않습니다.':'비상정지가 해제되어 있습니다. 위치 확인과 임무 출발은 별도 요청이 필요합니다.');
+      !paired?'통신 복구 후 차량의 정지 응답을 확인하세요.':latched?(safety.result||'주변 안전과 입력 준비 상태를 확인한 뒤 해제 창에서 직접 확인·해제를 누르세요.')+' 홈 초기 위치 입력만으로 해제되지 않습니다.':'비상정지가 해제되어 있습니다. 지도상의 위치와 출발 조건을 확인한 뒤 임무 출발을 직접 요청하세요.');
     $('#startup-open-reset').disabled=!paired||busy||!latched||!zeroAck||!!loc.home_seed_pending||!!safety.pending;
-    const complete=paired&&loc.state==='SUCCEEDED'&&snapshot?.health?.ready===true&&!latched;
-    step('localize',complete,loc.active?'진행 중':complete?'위치 확인 완료':loc.state==='FAILED'||loc.state==='CANCELED'?'중단 · 원인 확인':'명시적 시작 필요',
-      loc.active?loc.reason||'정지 응답과 전용 회전 제어권을 확인하고 있습니다.':complete?'지도상의 위치·방향을 실제 차량과 비교하세요. 적재 확인 후 출발 또는 재개를 직접 누르세요.':
-      latched?'비상정지 해제를 먼저 확인하세요. 자동으로 해제하거나 회전하지 않습니다.':
-      !paired?'차량 통신 복구가 먼저 필요합니다.':manual?'조이스틱을 놓고 제어권 반환을 기다리세요.':
-      ['FAILED','CANCELED'].includes(loc.state)?(loc.reason||'위치 확인이 완료되지 않았습니다.')+' 원인을 해결한 뒤 다시 시작하세요.':
-      !loc.startup_home_available?loc.startup_home_reason||loc.reason||'위치 확인 서비스와 회전 공간을 확인하세요.':'실제 등록 홈을 확인하고 자세 초기화를 시작하세요. 홈이 아니라면 일반 위치 확인을 선택하세요.');
-    $('#startup-localize-home').disabled=!waiting||!paired||!stopped||!confirmed||$('#localization-start-home').disabled;
-    $('#startup-localize-general').disabled=!waiting||!paired||!stopped||$('#localization-start').disabled;
+    const complete=paired&&stopped&&!manual&&!loc.active&&snapshot?.health?.ready===true&&!latched&&!safety.pending;
     $('#startup-stop-localization').hidden=!loc.active;
     $('#startup-stop-localization').disabled=$('#localization-stop').disabled;
-    $('#startup-localize-progress').hidden=!loc.active;
-    $('#startup-localize-progress').value=Number.isFinite(loc.progress)?Math.max(0,Math.min(1,loc.progress)):0;
     $('#startup-recheck').disabled=busy;
     $('#startup-recovery-summary').textContent=!paired?'차량 통신 확인이 먼저 필요합니다. 초기화 동작을 보내지 않았습니다.':!waiting?'현재 임무가 진행 중입니다. 이 안내에서 초기화하지 말고 먼저 임무 상태를 확인하세요.':
-      loc.active?'위치 확인 중 · 현재 단계와 중단 사유를 아래에서 확인하세요.':complete?'위치 확인 완료 · 자동 출발하지 않습니다. 출발 조건과 적재를 확인하세요.':
-      !stopped?'1단계 · 실제 차량 정지와 최신 odom을 확인하세요.':!inputs?'2단계 · 센서·지도·좌표 변환 대기 이유를 확인하세요.':latched?'4단계 · 필요하면 홈 초기 위치를 지정한 뒤 비상정지를 명시적으로 해제하세요.':'3·5단계 · 실제 홈 여부를 확인한 뒤 위치 확인을 시작하세요.';
+      loc.active?'위치 확인 중 · 정지가 필요하면 회전 중지를 누르세요.':complete?'출발 준비 확인 완료 · 자동 출발하지 않습니다. 지도상의 위치·방향과 적재를 확인하세요.':
+      !stopped?'1단계 · 실제 차량 정지와 최신 odom을 확인하세요.':!inputs?'2단계 · 센서·지도·좌표 변환 대기 이유를 확인하세요.':latched?'4단계 · 필요하면 홈 초기 위치를 지정한 뒤 비상정지를 명시적으로 해제하세요.':'최신 위치 신뢰도와 출발 조건을 기다립니다. 필요한 경우 위의 초기 위치 지정에서 실제 좌표를 입력하세요.';
+  }
+  function renderCameraLayout(){
+    const frontEnabled=snapshot?.robot?.front_camera_enabled===true,panel=$('#camera-panel');
+    $('#front-camera-feed').hidden=!frontEnabled;
+    panel.classList.toggle('single-camera',!frontEnabled);
+    panel.setAttribute('aria-label',frontEnabled?'전방 및 후방 카메라와 ArUco 검출':'후방 카메라와 ArUco 검출');
+    $('#camera-panel-title').textContent=frontEnabled?'전방 · 후방 카메라':'후방 카메라';
+    if(!frontEnabled){
+      frontCameraLoading=false;
+      $('#front-camera-image').removeAttribute('src');
+      $('#front-camera-image').hidden=true;$('#front-camera-empty').hidden=true;
+    }
+    return frontEnabled;
+  }
+  function missionHoldReason(data=snapshot){
+    const mission=data?.mission||{},navigation=data?.navigation||{},safety=data?.safety||{},observed=data?.observed_route||{},alignment=data?.marker_alignment||{};
+    if(mission.estop_latched||safety.latched)return data?.operation?.detail||mission.reason||'비상정지를 유지합니다. 현재 위치와 주변을 확인하세요.';
+    if(safety.scan_guard_hold)return '가까운 장애물 관측을 다시 확인하는 동안 정지합니다.';
+    if(['CONFIRMING','PAUSED'].includes(mission.state)&&['HOLD','FAILED'].includes(alignment.state))return alignment.reason||mission.reason||'도착 표식을 확인하며 정지합니다.';
+    const waiting=mission.state==='WAIT_REPLAN'||['WAIT_REPLAN','PLANNING'].includes(navigation.planner_status);
+    if(waiting){
+      if(terminal.has(mission.state)&&observed.monitoring&&observed.reason)return observed.reason;
+      if(/Planner has no safe (?:route|path)|No path from/i.test(navigation.message||''))return '현재 위치에서 통과할 경로를 찾지 못해 정지한 채 다시 경로를 찾고 있습니다.';
+      return mission.reason||observed.reason||'통과할 경로를 다시 확인하는 동안 정지합니다.';
+    }
+    if(mission.state==='PAUSED'||(safety.mode==='hold'&&!terminal.has(mission.state)))return mission.reason||data?.operation?.detail||'현재 임무를 정지하고 다음 조작을 기다립니다.';
+    return '';
   }
   function renderLocalization(){
     const localization=snapshot?.localization||{},active=!!localization.active,state=localization.state||'IDLE';
@@ -357,7 +374,12 @@
     const label=$('#localization-state');label.textContent=waitingHealth?'위치 감시 복구 대기 · 정지':labels[state]||'위치 확인 상태 점검';label.classList.toggle('active',active);label.classList.toggle('success',state==='SUCCEEDED');label.classList.toggle('error',state==='FAILED');
     $('#localization-progress').hidden=!active;$('#localization-progress').value=Number.isFinite(localization.progress)?Math.max(0,Math.min(1,localization.progress)):0;
     const fallback=state==='SUCCEEDED'?'지도에 표시된 위치와 실제 위치가 맞는지 확인하세요. 임무 출발은 별도로 눌러주세요.':active?'주변 라이다와 저장 지도를 대조하고 있습니다.':'차량·저장 지도·위치 추정 노드를 실행한 뒤 사용할 수 있습니다.';
-    $('#localization-reason').textContent=localization.reason||fallback;
+    const holdReason=missionHoldReason();
+    $('#localization-mission-state').hidden=!holdReason;
+    $('#localization-mission-state').textContent=holdReason?'현재 임무 · '+holdReason:'';
+    $('#localization-reason').textContent=active?localization.reason||fallback:
+      state==='IDLE'?'선택 도구 시작 조건 · '+(localization.reason||'필요한 경우에만 회전으로 위치를 다시 확인하세요.'):
+      '선택 도구 최근 결과 · '+(localization.reason||fallback);
     const accuracy=[];
     if(active&&Number.isFinite(localization.rotated_degrees))accuracy.push(`누적 회전 ${Math.abs(localization.rotated_degrees).toFixed(0)}°`);
     if(Number.isFinite(localization.position_std))accuracy.push(`위치 표준편차 ${localization.position_std.toFixed(2)} m`);
@@ -460,6 +482,7 @@
     $('#mission-progress').textContent=external?.stale?'시험 종료/연결 대기':externalGoal&&pose?`목표까지 ${Math.hypot(externalGoal.x-pose.x,externalGoal.y-pose.y).toFixed(2)} m`:external?'ROS 목표 관제':mission.returning_home&&home&&pose?`홈까지 ${Math.hypot(home.x-pose.x,home.y-pose.y).toFixed(2)} m`:mission.state==='HOME_REACHED'?'HOME':`${(mission.completed_ids||[]).length} / ${(mission.route||[]).length}`;
     $('#home-position').textContent=home?`Homepoint · x ${Number(home.x).toFixed(2)} · y ${Number(home.y).toFixed(2)} m`:'Homepoint: 미설정';
     $('#home-position').title=home?`고정 대기 위치 · 방향 ${(Number(home.yaw||0)*180/Math.PI).toFixed(1)}°`:'';
+    renderCameraLayout();
     const age=robot.camera_age;$('#camera-age').textContent=typeof age==='number'&&Number.isFinite(age)?`${age.toFixed(1)}초 전`:'수신 대기';
     const frontAge=robot.front_camera_age;$('#front-camera-age').textContent=typeof frontAge==='number'&&Number.isFinite(frontAge)?`${frontAge.toFixed(1)}초 전`:'수신 대기';
     $('#expected-id').textContent=external?external.stale?'ROS 목표 수신 대기':`현재 ROS 목표 · ${externalGoalName}`:homeMode?'출발 홈으로 복귀':mission.state==='DWELLING'?`섹터 ${mission.dwell_marker_id} 인수 대기`:detection.expected_id==null?'확인 대상 —':`확인 대상 ID ${detection.expected_id} · ${detection.expected_camera==='front'?'전방':'후방'}`;
@@ -483,7 +506,7 @@
       if((snapshot.observed_route.active||monitoredPendingPath(snapshot))&&monitoredPathMatchesGoal(snapshot))cacheMonitoredPath(snapshot);
     }else if(Array.isArray(snapshot.path)&&snapshot.path.length)lastPath=snapshot.path;
     const waiting=mission.state==='WAIT_REPLAN'||['WAIT_REPLAN','PLANNING'].includes(navigation.planner_status);
-    $('#path-label').hidden=!waiting;$('#path-label').textContent=externalRoute&&monitoredPendingPath(snapshot)?'새 경로 확인 중 · 주행 전 후보':lastPath.length?'이전 경로 · 현재 주행 아님':'경로 계산 중 · 안전 정지';
+    $('#path-label').hidden=!waiting;$('#path-label').textContent=externalRoute&&monitoredPendingPath(snapshot)?'회색 점선 · 새 경로 확인 중':lastPath.length?'회색 점선 · 재계획 중인 이전 경로':'경로 계산 중 · 정지 유지';
     const eventList=$('#event-list');eventList.replaceChildren();const events=(snapshot.events||[]).slice(-20).reverse();$('#event-count').textContent=String(events.length);
     events.forEach(event=>{const li=document.createElement('li');li.className=String(event.level||'').toLowerCase();const time=document.createElement('time');const stamp=typeof event.at==='number'?new Date(event.at*1000):new Date(event.at);time.textContent=Number.isNaN(stamp.getTime())?'—':stamp.toLocaleTimeString('ko-KR',{hour12:false});const text=document.createElement('span');text.textContent=event.message;li.append(time,text);eventList.append(li);});
   }
@@ -715,7 +738,8 @@
     const detour=monitoring?snapshot.observed_route||{}:snapshot.local_detour||{};
     const activeDetour=!!(activePath.length&&path.length&&!waiting&&samePathStamp(snapshot.path_stamp,detour.path_stamp)
       &&(monitoring?detour.plan_kind==='LOCAL_DETOUR':detour.available&&detour.state==='ACTIVE'&&detour.plan_kind==='LOCAL_DETOUR'));
-    $('#map-detour-legend').hidden=!activeDetour;$('#map-route-legend').hidden=activeDetour;
+    $('#map-detour-legend').hidden=!activeDetour;$('#map-route-legend').hidden=activeDetour||waiting||!activePath.length;
+    $('#map-replan-legend').hidden=!(path.length&&(waiting||!activePath.length));
     if(path.length){const coordinates=path.map(xy).filter(point=>point.every(Number.isFinite));canvas.append(svg('polyline',{points:coordinates.map(p=>p.join(',')).join(' '),fill:'none',stroke:'var(--panel)','stroke-width':7,opacity:0.8,'stroke-linejoin':'round','stroke-linecap':'round'}));canvas.append(svg('polyline',{points:coordinates.map(p=>p.join(',')).join(' '),fill:'none',stroke:waiting||!activePath.length?'#87919b':activeDetour?'#d27b29':'var(--accent)','stroke-width':activeDetour?4:3,'stroke-linejoin':'round','stroke-linecap':'round','stroke-dasharray':waiting||!activePath.length?'5 5':activeDetour?'9 4':'none','aria-label':previousMonitoredPath?'이전 경로 · 현재 주행 아님':activeDetour?'국소 우회경로':monitoring?'모의 주행 경로':'계획 경로'}));}
     const home=homepoint(),markers=snapshot.markers||[],cards=[];
     const observedGoal=monitoring?snapshot.observed_route.goal:null;
@@ -767,17 +791,19 @@
   }
   function updateCamera(){
     if(document.hidden||disconnected||!initialized)return;
+    const frontEnabled=renderCameraLayout();
     const age=snapshot.robot?.camera_age;
     if(typeof age!=='number'||!Number.isFinite(age)||age>5){$('#camera-empty').hidden=false;$('#camera-image').hidden=true;}
     else if(!cameraLoading){cameraLoading=true;$('#camera-image').src=`/api/camera.jpg?t=${Date.now()}`;}
+    if(!frontEnabled)return;
     const frontAge=snapshot.robot?.front_camera_age;
     if(typeof frontAge!=='number'||!Number.isFinite(frontAge)||frontAge>5){$('#front-camera-empty').hidden=false;$('#front-camera-image').hidden=true;}
     else if(!frontCameraLoading){frontCameraLoading=true;$('#front-camera-image').src=`/api/camera/front.jpg?t=${Date.now()}`;}
   }
   $('#camera-image').addEventListener('load',()=>{cameraLoading=false;$('#camera-image').hidden=false;$('#camera-empty').hidden=true;});
   $('#camera-image').addEventListener('error',()=>{cameraLoading=false;$('#camera-image').hidden=true;$('#camera-empty').hidden=false;});
-  $('#front-camera-image').addEventListener('load',()=>{frontCameraLoading=false;$('#front-camera-image').hidden=false;$('#front-camera-empty').hidden=true;});
-  $('#front-camera-image').addEventListener('error',()=>{frontCameraLoading=false;$('#front-camera-image').hidden=true;$('#front-camera-empty').hidden=false;});
+  $('#front-camera-image').addEventListener('load',()=>{frontCameraLoading=false;$('#front-camera-image').hidden=snapshot?.robot?.front_camera_enabled!==true;$('#front-camera-empty').hidden=true;});
+  $('#front-camera-image').addEventListener('error',()=>{frontCameraLoading=false;$('#front-camera-image').hidden=true;$('#front-camera-empty').hidden=snapshot?.robot?.front_camera_enabled!==true;});
   $('#map-view-plan').addEventListener('click',()=>{showRawMap=false;drawMap();});
   $('#map-view-raw').addEventListener('click',()=>{showRawMap=true;drawMap();});
   $('#load-confirmed').addEventListener('change',renderControls);
@@ -810,8 +836,6 @@
   $('#startup-connection').addEventListener('click',()=>$('#connection-open').click());
   $('#startup-seed-home').addEventListener('click',()=>{if(!$('#startup-seed-home').disabled&&$('#startup-confirm-home').checked)$('#seed-home-pose').click();});
   $('#startup-open-reset').addEventListener('click',()=>{if(!$('#startup-open-reset').disabled)$('#emergency-stop').click();});
-  $('#startup-localize-home').addEventListener('click',()=>{if(!$('#startup-localize-home').disabled&&$('#startup-confirm-home').checked)$('#localization-start-home').click();});
-  $('#startup-localize-general').addEventListener('click',()=>{if(!$('#startup-localize-general').disabled)$('#localization-start').click();});
   $('#startup-stop-localization').addEventListener('click',()=>{if(!$('#startup-stop-localization').disabled)$('#localization-stop').click();});
   $('#initial-pose-home').addEventListener('click',()=>{
     const home=delivery().registered_homepoint;

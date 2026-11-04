@@ -476,7 +476,7 @@ class InventoryWebTests(unittest.TestCase):
 
     def test_dispatch_requires_sensors_and_idle_adapter_even_at_home(self):
         self.shortage()
-        for field, value in (('camera_at', 0), ('scan_at', 0), ('connected', False),
+        for field, value in (('scan_at', 0), ('connected', False),
                              ('aruco_available', False), ('cancel_available', False),
                              ('navigation_active', True), ('cancel_pending', True),
                              ('pending_connection', (219, False))):
@@ -489,25 +489,47 @@ class InventoryWebTests(unittest.TestCase):
                 self.assertEqual(self.records()[0]['status'], 'PENDING')
                 self.assertEqual(self.app.mission.commands, [])
 
-    def test_front_sector_dispatch_requires_front_camera_not_unrelated_rear(self):
+    def test_rear_camera_outage_warns_but_does_not_block_dispatch(self):
+        self.shortage()
+        self.ready()
+        self.app.camera_at = 0.
+        health = self.app.readiness(for_home=False, marker_ids=[2])
+        self.assertTrue(health['ready'])
+        self.assertTrue(any('카메라 영상 수신 지연' in warning for warning in health['warnings']))
+        self.assertTrue(self.app.delivery.snapshot()['dispatch_ready'])
+        self.dispatch()
+        self.assertEqual(self.records()[0]['status'], 'IN_PROGRESS')
+
+    def test_front_sector_dispatch_warns_without_front_video_but_confirmation_waits(self):
         self.app.markers[2]['camera'] = 'front'
         self.app.mission.markers[2]['camera'] = 'front'
         self.shortage(marker=2)
         self.ready()
-        missing = self.app.delivery.snapshot()['dispatch_missing']
-        self.assertIn('최신 전방 카메라 영상', missing)
-        status, body, _ = self.request('POST', '/api/dispatch/start', {'loaded': True}, self.operator)
-        self.assertEqual(status, 400)
-        self.assertIn('최신 전방 카메라 영상', body['error'])
-        self.assertEqual(self.records()[0]['status'], 'PENDING')
-        self.assertEqual(self.app.mission.commands, [])
-
-        self.app.front_camera_at = time.monotonic()
-        self.app.camera_at = 0.
-        self.assertTrue(self.app.delivery.snapshot()['dispatch_ready'])
+        health = self.app.readiness(for_home=False, marker_ids=[2])
+        self.assertTrue(health['ready'])
+        self.assertEqual(health['missing'], [])
+        self.assertTrue(any('전방 카메라 영상 수신 지연' in warning for warning in health['warnings']))
         body = self.dispatch()
         self.assertEqual(body['mission']['route'], [2])
         self.assertEqual(self.records()[0]['status'], 'IN_PROGRESS')
+        mission = self.app.mission
+        mission.goal_dispatched((40, 2))
+        mission.on_navigation({'status': 'SUCCEEDED', 'goal_stamp': {'sec': 40, 'nanosec': 2}})
+        self.assertEqual(mission.state, 'CONFIRMING')
+        pose = {key: mission.markers[2][key] for key in ('x', 'y', 'yaw')}
+        # Rear video remains fresh, but the selected front camera is absent.
+        for frame in range(mission.required_confirmations):
+            mission.observe(frame, [2], pose, True, time.monotonic()+1.,
+                            camera_fresh=False, alignment_verified=True)
+        self.app.sync_delivery()
+        self.assertEqual(self.records()[0]['status'], 'IN_PROGRESS')
+        self.assertEqual(mission.state, 'CONFIRMING')
+        self.app.front_camera_at = time.monotonic()
+        for frame in range(mission.required_confirmations, mission.required_confirmations*2):
+            mission.observe(frame, [2], pose, True, time.monotonic()+1.,
+                            camera_fresh=True, alignment_verified=True)
+        self.app.sync_delivery()
+        self.assertEqual(self.records()[0]['status'], 'DELIVERED')
 
     def test_fixed_homepoint_persists_and_interrupted_queue_recovers_pending(self):
         self.ready({'x': 1.2, 'y': -.3, 'yaw': .4})

@@ -32,6 +32,15 @@ class PathFollower(Node):
     BACKUP_CANCEL_RETRY_SECONDS = 0.5
     BACKUP_CANCEL_SAFETY_ESTOP_SECONDS = 1.0
     BACKUP_CANCEL_GENERAL_ESTOP_SECONDS = 5.0
+    FOOTPRINT_ODOM_WAIT_SECONDS = .25
+    RECOVERY_CERTIFICATE_RECEIPT_MAX_AGE = 1.0
+    # FollowPath cancellation may take longer than one second. Dispatch still
+    # requires the original odometry sample, a fresh map TF and sensor inputs,
+    # and a chassis pose inside the certified 3 mm / .01 rad start envelope.
+    RECOVERY_CERTIFICATE_MAX_AGE = 2.5
+    RECOVERY_START_POSITION_TOLERANCE = .003
+    RECOVERY_START_YAW_TOLERANCE = .01
+    RECOVERY_SWEEP_RESERVE = .01
     SAFETY_CONTROL_SOURCE = "path_follower_recovery_safety"
 
     def __init__(self):
@@ -51,6 +60,8 @@ class PathFollower(Node):
         self.navigation_odom_epoch = 0
         self.navigation_footprint_receipt_pose = None
         self.navigation_footprint_receipt_ros_ns = None
+        self.navigation_pending_footprint = None
+        self.navigation_footprint_alignment_fault = None
         for name, default in (("follow_request_timeout", 5.0),
                               ("follow_feedback_timeout", 5.0),
                               ("follow_cancel_timeout", 3.0),
@@ -1191,21 +1202,94 @@ class PathFollower(Node):
         except (ValueError, AttributeError, TypeError):
             history.clear()
             self.navigation_odom_epoch += 1
+        self._promote_navigation_footprint()
 
     def on_footprint(self, message):
-        self.latest_footprint = message
-        self.latest_footprint_at = time.monotonic()
-        self.navigation_footprint_receipt_ros_ns = self.get_clock().now().nanoseconds
-        self.navigation_footprint_receipt_pose = None
+        received_at = time.monotonic()
+        received_ros_ns = self.get_clock().now().nanoseconds
+        receipt_pose = None
+        pending_odom_fresh = False
         try:
             sample = self._navigation_odom_sample(self.latest_odom)
-            source_age = (self.navigation_footprint_receipt_ros_ns-sample[0])*1e-9
-            received_age = self.latest_footprint_at-self.latest_odom_at
+            source_age = (received_ros_ns-sample[0])*1e-9
+            received_age = received_at-self.latest_odom_at
             if -.25 <= source_age < .25 and 0 <= received_age < .25:
-                self.navigation_footprint_receipt_pose = (
-                    getattr(self, 'navigation_odom_epoch', 0), sample)
+                receipt_pose = (getattr(self, 'navigation_odom_epoch', 0), sample)
+            # A fresh stamped polygon needs exact source-time alignment, not
+            # the stricter receipt-time proof used only for legacy old headers.
+            # Keep the ordinary navigation odometry deadlines while waiting.
+            pending_odom_fresh = (isfinite(source_age) and isfinite(received_age)
+                                  and -.25 <= source_age < .75
+                                  and 0 <= received_age < .75)
         except (ValueError, AttributeError, TypeError):
             pass
+        self._navigation_pending_footprint_error(received_at)
+        record = {'message': message, 'received_at': received_at,
+                  'received_ros_ns': received_ros_ns, 'receipt_pose': receipt_pose}
+        try:
+            stamp = message.header.stamp
+            stamp_ns = stamp.sec*1_000_000_000+stamp.nanosec
+            history = getattr(self, 'navigation_odom_history', ())
+            newest = history[-1] if history else None
+            previous = getattr(self, 'latest_footprint', None)
+            # Only ordinary cross-topic arrival order may wait. Malformed
+            # geometry and headers still replace the old input and fail closed.
+            self._navigation_footprint_geometry(message.polygon.points, (0., 0., 0.))
+            wait = (bool(message.header.frame_id) and pending_odom_fresh
+                    and newest is not None and newest == sample
+                    and (previous is None or message.header.frame_id == previous.header.frame_id)
+                    and -.25e9 <= received_ros_ns-stamp_ns < 1.5e9
+                    and 0 < stamp_ns-newest[0] <= self.FOOTPRINT_ODOM_WAIT_SECONDS*1e9)
+        except (ValueError, AttributeError, TypeError):
+            wait = False
+        if wait:
+            pending = getattr(self, 'navigation_pending_footprint', None)
+            if pending is not None:
+                # Keep the earliest acquisition: replacing it at sensor rate
+                # could keep chasing newer stamps ahead of delayed odometry.
+                return
+            record.update(stamp_ns=stamp_ns, epoch=self.navigation_odom_epoch,
+                          frames=newest[1:3],
+                          wait_started_at=received_at)
+            self.navigation_pending_footprint = record
+            return
+        self.navigation_pending_footprint = None
+        self.navigation_footprint_alignment_fault = None
+        self._install_navigation_footprint(record)
+
+    def _install_navigation_footprint(self, record):
+        self.latest_footprint = record['message']
+        self.latest_footprint_at = record['received_at']
+        self.navigation_footprint_receipt_ros_ns = record['received_ros_ns']
+        self.navigation_footprint_receipt_pose = record['receipt_pose']
+
+    def _navigation_pending_footprint_error(self, now):
+        pending = getattr(self, 'navigation_pending_footprint', None)
+        if pending is not None:
+            elapsed = now-pending['wait_started_at']
+            if pending['epoch'] != getattr(self, 'navigation_odom_epoch', 0):
+                issue = 'Odometry changed while aligning footprint'
+            elif not isfinite(elapsed) or not 0 <= elapsed < self.FOOTPRINT_ODOM_WAIT_SECONDS:
+                issue = 'Timed out waiting for footprint acquisition odometry'
+            else:
+                issue = None
+            if issue is not None:
+                self.navigation_pending_footprint = None
+                self.navigation_footprint_alignment_fault = issue
+        return getattr(self, 'navigation_footprint_alignment_fault', None)
+
+    def _promote_navigation_footprint(self):
+        self._navigation_pending_footprint_error(time.monotonic())
+        pending = getattr(self, 'navigation_pending_footprint', None)
+        if pending is None:
+            return
+        try:
+            self._navigation_odom_at(pending['stamp_ns'], *pending['frames'])
+        except ValueError:
+            return  # No extrapolation: the next continuous odometry must bracket it.
+        self.navigation_pending_footprint = None
+        self.navigation_footprint_alignment_fault = None
+        self._install_navigation_footprint(pending)
 
     def on_costmap(self, message):
         self.latest_costmap = message
@@ -1246,7 +1330,17 @@ class PathFollower(Node):
                 yaw = first[5]+fraction*atan2(sin(last[5]-first[5]), cos(last[5]-first[5]))
                 return (first[3]+fraction*(last[3]-first[3]),
                         first[4]+fraction*(last[4]-first[4]), yaw)
-        raise ValueError('No continuous odometry at footprint acquisition time')
+        first = history[0] if history else None
+        last = history[-1] if history else None
+        def frames(sample):
+            return None if sample is None else tuple(str(value)[:80] for value in sample[1:3])
+        raise ValueError(
+            'No continuous odometry at footprint acquisition time: '
+            f'requested_ns={stamp_ns} first_ns={None if first is None else first[0]} '
+            f'last_ns={None if last is None else last[0]} count={len(history)} '
+            f'epoch={getattr(self, "navigation_odom_epoch", 0)} '
+            f'requested_frames={frames((None, frame, base))} '
+            f'first_frames={frames(first)} last_frames={frames(last)}')
 
     def _navigation_transform(self, target, source, now, stamp_ns=None):
         if not target or not source:
@@ -1269,10 +1363,45 @@ class PathFollower(Node):
         x, y, yaw = transform
         return x+cos(yaw)*point[0]-sin(yaw)*point[1], y+sin(yaw)*point[0]+cos(yaw)*point[1]
 
+    def _navigation_footprint_geometry(self, points, transform):
+        if any(not all(isfinite(value) for value in (point.x, point.y, point.z)) for point in points):
+            raise ValueError('Invalid footprint coordinates')
+        polygon = [self._navigation_point((point.x, point.y), transform) for point in points]
+        if len(polygon) > 1 and polygon[0] == polygon[-1]:
+            polygon.pop()
+        if len(polygon) < 3 or len(set(polygon)) != len(polygon):
+            raise ValueError('Invalid footprint polygon')
+        edges = list(zip(polygon, polygon[1:]+polygon[:1]))
+        def cross(a, b, c):
+            return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+        for first, (a, b) in enumerate(edges):
+            for second in range(first+2, len(edges)):
+                if first == 0 and second == len(edges)-1:
+                    continue
+                c, d = edges[second]
+                if (cross(a, b, c)*cross(a, b, d) <= 0 and cross(c, d, a)*cross(c, d, b) <= 0
+                        and max(min(a[0], b[0]), min(c[0], d[0])) <= min(max(a[0], b[0]), max(c[0], d[0]))
+                        and max(min(a[1], b[1]), min(c[1], d[1])) <= min(max(a[1], b[1]), max(c[1], d[1]))):
+                    raise ValueError('Self-intersecting footprint polygon')
+        twice_area = sum(a[0]*b[1]-b[0]*a[1] for a, b in edges)
+        radius = float(self.get_parameter('recovery_robot_radius').value)
+        if not isfinite(radius) or radius <= 0 or abs(twice_area)/2 < .1*radius**2:
+            raise ValueError('Footprint area is too small')
+        center_x = sum((a[0]+b[0])*(a[0]*b[1]-b[0]*a[1]) for a, b in edges)/(3*twice_area)
+        center_y = sum((a[1]+b[1])*(a[0]*b[1]-b[0]*a[1]) for a, b in edges)/(3*twice_area)
+        centered = [(px-center_x, py-center_y) for px, py in polygon]
+        radii = [hypot(px, py) for px, py in centered]
+        if not .5*radius <= max(radii) <= 2*radius+.05:
+            raise ValueError('Footprint size differs from the robot')
+        return polygon, center_x, center_y, centered, radii
+
     def _navigation_input_error(self):
         """Compare geometry with odometry from the same proven source/receipt time."""
         now = self.get_clock().now().nanoseconds*1e-9
         received_now = time.monotonic()
+        alignment_issue = self._navigation_pending_footprint_error(received_now)
+        if alignment_issue is not None:
+            return alignment_issue
         footprint_fresh_header = False
         for label, message, received_at, timeout in (
                 ('scan', self.latest_scan, self.latest_scan_at, .75),
@@ -1349,36 +1478,12 @@ class PathFollower(Node):
                 f'Navigation geometry validation failed at {geometry_stage}: '
                 f'{type(exc).__name__}: {exc}', throttle_duration_sec=2.0)
             return 'Invalid navigation pose or unavailable frame transform'
-        points = self.latest_footprint.polygon.points
-        if any(not all(isfinite(value) for value in (point.x, point.y, point.z)) for point in points):
-            return 'Invalid footprint coordinates'
-        polygon = [self._navigation_point((point.x, point.y), footprint_transform) for point in points]
-        if len(polygon) > 1 and polygon[0] == polygon[-1]:
-            polygon.pop()
-        if len(polygon) < 3 or len(set(polygon)) != len(polygon):
-            return 'Invalid footprint polygon'
-        edges = list(zip(polygon, polygon[1:]+polygon[:1]))
-        def cross(a, b, c):
-            return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
-        for first, (a, b) in enumerate(edges):
-            for second in range(first+2, len(edges)):
-                if first == 0 and second == len(edges)-1:
-                    continue
-                c, d = edges[second]
-                if (cross(a, b, c)*cross(a, b, d) <= 0 and cross(c, d, a)*cross(c, d, b) <= 0
-                        and max(min(a[0], b[0]), min(c[0], d[0])) <= min(max(a[0], b[0]), max(c[0], d[0]))
-                        and max(min(a[1], b[1]), min(c[1], d[1])) <= min(max(a[1], b[1]), max(c[1], d[1]))):
-                    return 'Self-intersecting footprint polygon'
-        twice_area = sum(a[0]*b[1]-b[0]*a[1] for a, b in edges)
+        try:
+            polygon, center_x, center_y, centered, radii = self._navigation_footprint_geometry(
+                self.latest_footprint.polygon.points, footprint_transform)
+        except ValueError as exc:
+            return str(exc)
         radius = float(self.get_parameter('recovery_robot_radius').value)
-        if not isfinite(radius) or radius <= 0 or abs(twice_area)/2 < .1*radius**2:
-            return 'Footprint area is too small'
-        center_x = sum((a[0]+b[0])*(a[0]*b[1]-b[0]*a[1]) for a, b in edges)/(3*twice_area)
-        center_y = sum((a[1]+b[1])*(a[0]*b[1]-b[0]*a[1]) for a, b in edges)/(3*twice_area)
-        centered = [(px-center_x, py-center_y) for px, py in polygon]
-        radii = [hypot(px, py) for px, py in centered]
-        if not .5*radius <= max(radii) <= 2*radius+.05:
-            return 'Footprint size differs from the robot'
         footprint_x, footprint_y, footprint_yaw = footprint_pose
         if hypot(footprint_x-center_x, footprint_y-center_y) > .10:
             return 'Footprint disagrees with current odometry'
@@ -1569,6 +1674,11 @@ class PathFollower(Node):
             self.publish_status("RECOVERY_FAILED", "Reverse request exceeds the action time limit",
                                 context=context)
             return
+        try:
+            certificate = self._parse_recovery_start(payload.get('certified_start'))
+        except ValueError as exc:
+            self.publish_status('RECOVERY_FAILED', str(exc), context=context)
+            return
         self.recovery_seq += 1
         now = self.get_clock().now().to_msg()
         self.recovery_request = {
@@ -1578,6 +1688,8 @@ class PathFollower(Node):
             "settle_deadline": None, "started_at": None, "traveled": 0.0,
             "requested_at": time.monotonic(),
             "requested_ros_ns": now.sec * 1_000_000_000 + now.nanosec,
+            "certified_start": certificate,
+            "certified_odom_epoch": getattr(self, 'navigation_odom_epoch', 0),
         }
         self.pending_path = None
         self.latest_path_key = None
@@ -1588,6 +1700,107 @@ class PathFollower(Node):
         self.publish_status("RECOVERING", "Waiting for FollowPath to stop before checked reverse",
                             context=context)
         self._try_start_recovery()
+
+    def _parse_recovery_start(self, payload):
+        """A planner sweep certificate is mandatory, including after goal buffering."""
+        if not isinstance(payload, dict):
+            raise ValueError('Reverse requires a certified stationary start')
+        frames = tuple(payload.get(name) for name in
+                       ('frame_id', 'child_frame_id', 'map_frame', 'map_base_frame'))
+        stamps = tuple(payload.get(name) for name in
+                       ('stamp_ns', 'map_stamp_ns', 'certified_at_ns'))
+        fields = ('x', 'y', 'yaw', 'map_x', 'map_y', 'map_yaw', 'max_position_drift_m',
+                  'max_yaw_drift_rad', 'sweep_reserve_m')
+        if (any(not isinstance(frame, str) or not frame.strip() for frame in frames)
+                or any(type(stamp) is not int or not 0 < stamp < 2**63 for stamp in stamps)
+                or any(isinstance(payload.get(name), bool)
+                       or not isinstance(payload.get(name), (int, float))
+                       or not isfinite(payload[name]) for name in fields)
+                or not 0 < payload['max_position_drift_m'] <= self.RECOVERY_START_POSITION_TOLERANCE
+                or not 0 < payload['max_yaw_drift_rad'] <= self.RECOVERY_START_YAW_TOLERANCE
+                or payload['sweep_reserve_m'] < self.RECOVERY_SWEEP_RESERVE):
+            raise ValueError('Invalid reverse start certificate geometry or bounds')
+        result = {name: payload[name] for name in (*fields, 'frame_id', 'child_frame_id',
+                                                 'map_frame', 'map_base_frame', 'map_stamp_ns',
+                                                 'stamp_ns', 'certified_at_ns')}
+        if self._recovery_certificate_age_error(
+                result, max_age=self.RECOVERY_CERTIFICATE_RECEIPT_MAX_AGE) is not None:
+            raise ValueError('Reverse start certificate is stale or has invalid source time')
+        return result
+
+    def _recovery_certificate_age_error(self, certificate, *, max_age=None):
+        if max_age is None:
+            max_age = self.RECOVERY_CERTIFICATE_MAX_AGE
+        now_ns = self.get_clock().now().nanoseconds
+        issued_age = (now_ns-certificate['certified_at_ns'])*1e-9
+        source_age_at_issue = (certificate['certified_at_ns']-certificate['stamp_ns'])*1e-9
+        map_age_at_issue = (certificate['certified_at_ns']-certificate['map_stamp_ns'])*1e-9
+        if (not -.25 <= issued_age < max_age
+                or not -.25 <= source_age_at_issue < .75
+                or not -.25 <= map_age_at_issue < .75):
+            return 'Reverse start certificate is stale or has invalid source time'
+        return None
+
+    def _recovery_start_error(self, request):
+        """Recheck the certified odometry epoch and actual axis after cancellation."""
+        certificate = request['certified_start']
+        issue = self._recovery_certificate_age_error(certificate)
+        if issue is not None:
+            return issue
+        if request['certified_odom_epoch'] != getattr(self, 'navigation_odom_epoch', 0):
+            return 'Odometry epoch changed after reverse start certification'
+        try:
+            current = self._navigation_odom_sample(self.latest_odom)
+        except (ValueError, TypeError, AttributeError):
+            return 'Reverse start requires valid current odometry'
+        frames = certificate['frame_id'], certificate['child_frame_id']
+        if current[1:3] != frames:
+            return 'Odometry frame changed after reverse start certification'
+        source_age = (self.get_clock().now().nanoseconds-current[0])*1e-9
+        receipt_age = time.monotonic()-self.latest_odom_at
+        if (not isfinite(receipt_age) or not 0 <= receipt_age < .75
+                or not -.25 <= source_age < .75):
+            return 'Reverse start requires fresh source and receipt odometry'
+        stamp = certificate['stamp_ns']
+        history = getattr(self, 'navigation_odom_history', ())
+        baseline = next((sample for sample in history
+                         if sample[0] == stamp and sample[1:3] == frames), None)
+        if baseline is None:
+            if history and history[-1][1:3] == frames and 0 < stamp-history[-1][0] <= 250_000_000:
+                return 'WAIT_CERTIFIED_ODOM'
+            return 'Certified reverse odometry sample is unavailable'
+        yaw_error = lambda first, last: abs(atan2(sin(first-last), cos(first-last)))
+        if (hypot(baseline[3]-certificate['x'], baseline[4]-certificate['y']) > 1e-6
+                or yaw_error(baseline[5], certificate['yaw']) > 1e-6):
+            return 'Reverse certificate disagrees with measured source odometry'
+        if (current[0] < stamp
+                or hypot(current[3]-baseline[3], current[4]-baseline[4]) > certificate['max_position_drift_m']
+                or yaw_error(current[5], baseline[5]) > certificate['max_yaw_drift_rad']):
+            return 'Robot moved outside the certified reverse start during handover'
+        # The swept raw grid uses map coordinates. Stable odometry alone
+        # cannot detect an AMCL/map->odom correction during the handover.
+        try:
+            transform = self.tf_buffer.lookup_transform(certificate['map_frame'],
+                certificate['map_base_frame'], rclpy.time.Time())
+            if (transform.header.frame_id != certificate['map_frame']
+                    or transform.child_frame_id != certificate['map_base_frame']):
+                return 'Reverse certificate map transform frames differ'
+            map_stamp = transform.header.stamp.sec*1_000_000_000+transform.header.stamp.nanosec
+            map_age = (self.get_clock().now().nanoseconds-map_stamp)*1e-9
+            if map_stamp <= 0 or not -.25 <= map_age < .75:
+                return 'Reverse start requires a fresh map transform'
+            if map_stamp < certificate['map_stamp_ns']:
+                return 'WAIT_CERTIFIED_TF'
+            x, y, yaw = self._navigation_pose(transform.transform.translation,
+                                               transform.transform.rotation)
+        except TransformException:
+            return 'WAIT_CERTIFIED_TF'
+        except (ValueError, TypeError, AttributeError):
+            return 'Invalid map transform after reverse start certification'
+        if (hypot(x-certificate['map_x'], y-certificate['map_y']) > certificate['max_position_drift_m']
+                or yaw_error(yaw, certificate['map_yaw']) > certificate['max_yaw_drift_rad']):
+            return 'Map pose changed outside the certified reverse start during handover'
+        return None
 
     def _abort_recovery(self, *, safety_fault=False):
         """Invalidate callbacks from an old maneuver and cancel its Nav2 action."""
@@ -1816,6 +2029,10 @@ class PathFollower(Node):
             request["settle_deadline"] = (time.monotonic()
                                           + float(self.get_parameter("recovery_settle_timeout").value))
         reason = self._recovery_preflight(request, require_stationary=True)
+        if reason is None:
+            reason = self._recovery_start_error(request)
+        if reason in {'WAIT_CERTIFIED_ODOM', 'WAIT_CERTIFIED_TF'} and time.monotonic() < request['settle_deadline']:
+            return
         if reason == "WAIT_STATIONARY" and time.monotonic() < request["settle_deadline"]:
             return
         if reason is not None:
@@ -1823,6 +2040,12 @@ class PathFollower(Node):
             return
         if not self.backup_client.wait_for_server(timeout_sec=0.2):
             self._fail_recovery("Nav2 BackUp action is unavailable")
+            return
+        # Server discovery may have waited. Its success cannot refresh the
+        # source times or the certified chassis pose before the action send.
+        reason = self._recovery_start_error(request)
+        if reason is not None:
+            self._fail_recovery(reason)
             return
         goal = BackUp.Goal()
         goal.target.x = -request["distance"]

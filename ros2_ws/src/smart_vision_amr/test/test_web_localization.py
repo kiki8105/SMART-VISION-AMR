@@ -89,6 +89,57 @@ def start_mid_mission(app):
     mission.drain_commands()
 
 
+class LocalizationReadinessReasonTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.app = MissionApplication(DEFAULT_MARKERS, 218, False,
+            Path(self.temp.name)/'settings.json', access_mode='domain')
+        self.now = time.monotonic()
+        ready_application(self.app, self.now)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_rotation_tool_distinguishes_stale_inputs_unknown_scan_and_measured_obstacle(self):
+        available, _ = self.app.localization_readiness()
+        self.assertTrue(available)
+        self.app.localization_scan_at = self.now-2.
+        available, reason = self.app.localization_readiness()
+        self.assertFalse(available)
+        self.assertIn('최신 라이다 관측', reason)
+        self.assertNotIn('30cm', reason)
+        self.app.localization_scan_at = self.now
+        self.app.localization_odom_at = self.now-2.
+        available, reason = self.app.localization_readiness()
+        self.assertFalse(available)
+        self.assertIn('최신 차체 움직임', reason)
+        self.app.localization_odom_at = self.now
+        self.app.localization_clear = False
+        for clearance in (None, float('nan'), .35):
+            self.app.localization_clearance = clearance
+            available, reason = self.app.localization_readiness()
+            self.assertFalse(available)
+            self.assertIn('라이다 관측이 완전하지 않거나 센서 위치', reason)
+            self.assertNotIn('30cm', reason)
+        self.app.localization_clearance = .20
+        available, reason = self.app.localization_readiness()
+        self.assertFalse(available)
+        self.assertIn('약 20cm', reason)
+        self.assertIn('중심 반경 30cm', reason)
+        self.assertFalse(self.app.localization.active)
+
+    def test_rotation_input_age_and_clearance_gates_remain_closed(self):
+        for scan_fresh in (True, False):
+            for odom_fresh in (True, False):
+                for clear in (True, False):
+                    self.app.localization_scan_at = self.now if scan_fresh else self.now-2.
+                    self.app.localization_odom_at = self.now if odom_fresh else self.now-2.
+                    self.app.localization_clear = clear
+                    self.app.localization_clearance = .5 if clear else .2
+                    available, _ = self.app.localization_readiness()
+                    self.assertEqual(available, scan_fresh and odom_fresh and clear)
+
+
 class LocalizationHTTPTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -303,6 +354,29 @@ class LocalizationHTTPTests(unittest.TestCase):
         self.assertNotIn('라이다 위치 확인 완료 또는 수동 초기 위치 지정',
                          self.app.readiness()['missing'])
 
+    def test_live_health_can_establish_readiness_without_a_rotation_procedure(self):
+        self.app.require_localization_health = True
+        self.app.localization_invalidated = True
+        self.assertTrue(self.app.readiness()['ready'])
+        self.app.localization_health['autonomous_allowed'] = False
+        self.assertFalse(self.app.readiness()['ready'])
+        self.app.localization_health['autonomous_allowed'] = True
+        self.app.localization_health_at = 0.
+        self.assertFalse(self.app.readiness()['ready'])
+
+    def test_pending_or_failed_pose_input_and_active_rotation_still_block_start(self):
+        self.app.require_localization_health = True
+        for state in ('WAITING', 'FAILED'):
+            self.app.manual_pose_state = state
+            self.assertIn('초기 위치 입력 검증 완료', self.app.readiness()['missing'])
+        self.app.manual_pose_state = 'IDLE'
+        self.app.localization.state = 'ROTATING'
+        self.assertIn('진행 중인 위치 확인 동작 종료', self.app.readiness()['missing'])
+
+    def test_disabled_front_camera_is_explicit_in_state(self):
+        self.app.front_camera_enabled = False
+        self.assertIs(self.app.state()['robot']['front_camera_enabled'], False)
+
     def test_readiness_rejects_stale_sensors_inactive_amcl_and_wrong_map(self):
         for field, value in (('scan_at', 0.), ('odom_at', 0.),
                              ('localization_scan_at', 0.), ('localization_clear', False),
@@ -430,6 +504,9 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.goals = self.node.goal_pub = _Publisher()
         self.seed_poses = self.node.initial_pose_pub = _Publisher()
         self.controls = self.node.motion_pub = _Publisher()
+        # Existing lifecycle assertions observe the combined command stream;
+        # dedicated routing tests separately check the two publisher channels.
+        self.node.motion_intent_pub = self.controls
         self.cancel = self.node.cancel_client = _Client(Trigger.Response)
         self.global_reset = self.node.global_localization_client = _Client(Empty.Response)
         self.nomotion = self.node.nomotion_client = _Client(Empty.Response)
@@ -460,13 +537,14 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.context.shutdown()
         self.temp.cleanup()
 
-    def start_stopped_manual_pose_validation(self):
+    def start_stopped_manual_pose_validation(self, *, web_estop=True):
         raster = np.zeros((10, 10), dtype=np.int16)
         self.app._show_map(self.app.map, raster,
                            preview=False, source='ros', match=True)
         self.app.localization_distance = occupied_distance(raster, .1)
-        self.app.mission.emergency_stop()
-        self.app.mission.drain_commands()
+        if web_estop:
+            self.app.mission.emergency_stop()
+            self.app.mission.drain_commands()
         self.app.manual_mux_status.update(
             mode='estop', available=True, estop_latched=True,
             stop_acknowledged=True, output_linear=0., output_angular=0.)
@@ -479,6 +557,36 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.node.tick_manual_pose(self.now)
         self.assertEqual(self.app.manual_pose_state, 'WAITING')
         self.assertEqual(len(self.node.initial_pose_client.requests), 1)
+
+    def test_robot_local_estop_accepts_manual_pose_without_second_web_stop(self):
+        self.start_stopped_manual_pose_validation(web_estop=False)
+        self.assertFalse(self.app.mission.estop_latched)
+        self.assertEqual(self.app.manual_pose_state, 'WAITING')
+        self.assertEqual(len(self.node.initial_pose_client.requests), 1)
+
+    def test_robot_local_estop_manual_pose_rejects_stale_unacknowledged_or_motion(self):
+        self.start_stopped_manual_pose_validation(web_estop=False)
+        self.app.manual_mux_status['stop_acknowledged'] = False
+        self.assertFalse(self.app.manual_pose_readiness()[0])
+        self.app.manual_mux_status['stop_acknowledged'] = True
+        self.app.manual_mux_at = self.now-1.1
+        self.assertFalse(self.app.manual_pose_readiness()[0])
+        self.app.manual_mux_at = self.now
+        self.app.speed['linear'] = .04
+        self.assertFalse(self.app.manual_pose_readiness()[0])
+
+    def test_robot_local_estop_manual_pose_tolerates_one_lost_ack_only(self):
+        self.start_stopped_manual_pose_validation(web_estop=False)
+        self.node.initial_pose_client.acknowledge()
+        self.now += .2
+        self.refresh_stopped_manual_pose_inputs()
+        self.app.manual_mux_status['stop_acknowledged'] = False
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'WAITING')
+        self.now += 1.6
+        self.refresh_stopped_manual_pose_inputs()
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'FAILED')
 
     def refresh_stopped_manual_pose_inputs(self):
         for name in ('scan_at', 'odom_at', 'localization_scan_at',
@@ -954,6 +1062,68 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(self.app.home_seed_match_key, self.app.home_seed_key())
         self.assertTrue(self.app.startup_home_readiness()[0])
         self.assertFalse(any(target == 'map' for target, _ in calls))
+
+    def test_verified_manual_pose_stops_neighborhood_work_but_keeps_scan_checks(self):
+        from smart_vision_amr.home_prior_observer import HomePriorObserver
+        self.prepare_home()
+        self.app.localization_distance = np.ones((10, 10))
+        self.app.odom_pose = {'x': .4, 'y': .4, 'yaw': 0.}
+        self.node.source_fresh = lambda *_args, **_kwargs: True
+        self.node.tf_buffer.lookup_transform = lambda *_args: SimpleNamespace(
+            transform=SimpleNamespace(translation=SimpleNamespace(x=0., y=0.),
+                rotation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
+        jobs = []
+
+        def submit(*_args):
+            future = Future()
+            jobs.append(future)
+            return future
+
+        self.node.home_prior_observer.close()
+        observer = self.node.home_prior_observer = HomePriorObserver(
+            lambda *_args: {}, executor=SimpleNamespace(submit=submit))
+        message = LaserScan()
+        message.header.frame_id = 'isolated_laser'
+        message.range_min, message.range_max = .1, 8.
+        message.angle_increment = 2*math.pi/360
+        message.ranges = [1.]*360
+
+        def scan(now):
+            self.now = now
+            match, matched_at = self.app.home_seed_match, self.app.home_seed_match_at
+            self.refresh()
+            self.app.home_seed_match, self.app.home_seed_match_at = match, matched_at
+            message.header.stamp.sec, message.header.stamp.nanosec = divmod(
+                int(now*1e9), 1_000_000_000)
+            self.node.on_scan(message)
+
+        with patch('smart_vision_amr.web_mission_server.scan_map_agreement', return_value=.9) as exact:
+            self.app.home_seed_match_at = 0.
+            for now in (100., 100.25, 100.5):
+                scan(now)
+            self.assertEqual(len(jobs), 1)
+            jobs[0].set_result({'supported': True})
+            generation = observer.generation
+            self.app.manual_pose_state = 'VERIFIED'
+            for now in (100.75, 101., 101.25):
+                scan(now)
+            self.assertEqual(len(jobs), 1, 'verified pose must not start another neighborhood job')
+            self.assertGreater(observer.generation, generation)
+            self.assertIsNone(observer.evidence)
+            self.assertIsNone(self.app.home_prior_evidence)
+            self.assertEqual(observer.observations, [])
+            self.assertEqual(self.app.home_seed_match, .9)
+            self.assertGreaterEqual(exact.call_count, 3, 'exact registered-Home matching stays active')
+            self.assertEqual(self.app.scan_at, 101.25)
+            self.assertEqual(self.app.localization_scan_at, 101.25)
+            self.assertTrue(self.app.localization_clear)
+            self.assertIsNotNone(self.app.localization_clearance)
+            # An explicit new manual initialization changes the state to WAITING.
+            self.app.manual_pose_state = 'WAITING'
+            for now in (101.5, 101.75, 102.):
+                scan(now)
+            self.assertEqual(len(jobs), 2, 'new initialization can acquire new prior observations')
+        self.assertFalse(self.goals.messages or self.controls.messages or self.seed_poses.messages)
 
     def test_local_refinement_never_resets_amcl_and_requests_new_estimates(self):
         self.acquire_local()
@@ -1664,12 +1834,14 @@ class LocalizationBridgeTests(unittest.TestCase):
             self.now += .1
             self.refresh()
             self.app.localization_health = {'level': 'warning', 'autonomous_allowed': True,
-                                           'allow_localization': True, 'reasons': ['position_std_high']}
+                                           'allow_localization': True, 'reasons': ['position_std_m_elevated']}
             if self.app.localization.state == 'ROTATING':
                 yaw += .02
             self.app.localization.on_odom(yaw, self.now)
             self.app.localization.on_estimate(.4, .4, yaw, .1, .1, now=self.now, quality_ok=True)
             self.node.tick()
+            if self.app.localization.state == 'SETTLING':
+                break
         self.assertEqual(self.app.localization.state, 'SETTLING')
         self.now += .1
         self.refresh()
@@ -1679,8 +1851,12 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.node.tick()
         self.assertEqual(self.app.localization.state, 'SETTLING')
         self.app.speed['linear'] = 0.
-        self.tick(.1)
+        for _ in range(5):
+            self.tick(.1)
+            if self.app.localization.succeeded:
+                break
         self.assertEqual(self.app.localization.state, 'SUCCEEDED')
+        self.assertTrue(self.app.localization_control.get('health_ready'))
         self.assertFalse(any(packet['mode'] == 'auto' for packet in self.packets()))
 
     def test_only_after_reset_ack_and_new_odom_may_rotation_begin(self):
@@ -1963,15 +2139,16 @@ class LocalizationBridgeTests(unittest.TestCase):
     def test_correlated_xy_covariance_uses_largest_principal_uncertainty(self):
         self.initialize()
         message = self.prepare_amcl_estimate()
-        message.pose.covariance[1] = message.pose.covariance[6] = .035
+        message.pose.covariance[0] = message.pose.covariance[7] = .16
+        message.pose.covariance[1] = message.pose.covariance[6] = .10
         self.now += .1
         with patch('smart_vision_amr.web_mission_server.scan_points', return_value=np.ones((20, 2))), \
                 patch('smart_vision_amr.web_mission_server.scan_map_agreement', return_value=1.):
             self.node.on_amcl(message)
-        # Each individual axis has std .20m, but correlated uncertainty along
-        # the principal direction is sqrt(.075) > the .25m success threshold.
-        self.assertAlmostEqual(self.app.localization.estimate['position_std'], math.sqrt(.075))
-        self.assertGreater(self.app.localization.estimate['position_std'], .25)
+        # Each individual axis has std .40m, but correlated uncertainty along
+        # the principal direction is sqrt(.26) > the .50m success threshold.
+        self.assertAlmostEqual(self.app.localization.estimate['position_std'], math.sqrt(.26))
+        self.assertGreater(self.app.localization.estimate['position_std'], .50)
         self.assertEqual(self.app.localization.snapshot()['good_estimates'], 0)
 
     def test_non_positive_semidefinite_xy_covariance_is_rejected(self):
@@ -1994,11 +2171,11 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(self.app.localization.snapshot()['good_estimates'], 0)
         match.assert_not_called()
 
-    def test_operator_initial_pose_fallback_uses_sixty_percent_not_global_threshold(self):
+    def test_operator_initial_pose_uses_health_normal_confidence_boundary(self):
         self.app.localization_invalidated = True
         self.node.manual_initial_pose_ns = 1000
         with patch('smart_vision_amr.web_mission_server.scan_points', return_value=np.ones((20, 2))), \
-                patch('smart_vision_amr.web_mission_server.scan_map_agreement', side_effect=[.5999, .60]):
+                patch('smart_vision_amr.web_mission_server.scan_map_agreement', side_effect=[.5499, .55]):
             self.node.on_amcl(self.prepare_amcl_estimate(1001))
             self.assertTrue(self.app.localization_invalidated)
             self.assertEqual(self.node.manual_initial_pose_ns, 1000)

@@ -34,10 +34,11 @@ async function run(){
  assert.equal($('#startup-recovery').hidden,false);assert.equal($('#startup-recovery').focused,true);
  assert.equal($('#startup-recovery-open').attributes['aria-expanded'],'true');
  assert.equal(calls.length,0,'opening the guide must not send a command');assert.equal(releases,0,'opening does not alter joystick ownership');
- assert.equal($('#startup-localize-home').disabled,true);assert.equal($('#startup-seed-home').disabled,true);
+ assert.equal($('#startup-seed-home').disabled,true);
  await click('#localization-start-home');assert.equal(calls.length,0,'the existing Home button also requires actual-home confirmation');
- confirmHome();assert.equal($('#confirm-home-location').checked,true);assert.equal($('#startup-localize-home').disabled,false);
- await click('#startup-localize-home');assert.deepEqual(calls.map(item=>item.path),['/api/localization/start-home']);assert.equal(calls[0].body.confirm_actual_home,true);assert.equal(calls[0].starting,true);
+ confirmHome();assert.equal($('#confirm-home-location').checked,true);assert.equal($('#localization-start-home').disabled,false);
+ await click('#localization-start-home');assert.deepEqual(calls.map(item=>item.path),['/api/localization/start-home']);assert.equal(calls[0].body.confirm_actual_home,true);assert.equal(calls[0].starting,true);
+ calls.length=0;await click('#localization-start');assert.deepEqual(calls.map(item=>item.path),['/api/localization/start']);assert.equal(calls[0].starting,true,'the optional general tool remains an explicit action outside the guide');
 
  calls.length=0;sandbox.snapshot=fixture();sandbox.snapshot.mission.state='ESTOP';sandbox.snapshot.mission.estop_latched=true;
  sandbox.snapshot.safety.latched=true;sandbox.snapshot.localization.home_seed_available=true;
@@ -52,42 +53,58 @@ async function run(){
 
  calls.length=0;sandbox.snapshot=fixture();sandbox.disconnected=true;sandbox.render();
  assert.match($('#startup-recovery-summary').textContent,/통신 확인/);assert.match($('#startup-inputs-detail').textContent,/통신 수신 중단/);
- assert.equal($('#startup-localize-home').disabled,true);assert.equal($('#startup-localize-general').disabled,true);assert.equal($('#startup-open-reset').disabled,true);
- assert.equal($('#startup-confirm-home').checked,false);await click('#startup-localize-general');assert.equal(calls.length,0);
+ assert.equal($('#localization-start-home').disabled,true);assert.equal($('#localization-start').disabled,true);assert.equal($('#startup-open-reset').disabled,true);
+ assert.equal($('#startup-confirm-home').checked,false);await click('#localization-start');assert.equal(calls.length,0);
  sandbox.disconnected=false;sandbox.snapshot=fixture();sandbox.snapshot.robot.odom_age=1.2;sandbox.render();
- assert.match($('#startup-stop-detail').textContent,/최신 odom/);assert.equal($('#startup-localize-general').disabled,true);
+ assert.match($('#startup-stop-detail').textContent,/최신 odom/);assert.equal($('#startup-confirm-home').disabled,true);assert.equal($('#startup-seed-home').disabled,true);
  sandbox.snapshot=fixture();sandbox.snapshot.localization_health.reasons=['odom_tf_unavailable','initializing'];sandbox.snapshot.localization_health.explanations=['차체 오도메트리 TF 대기'];sandbox.render();
  assert.match($('#startup-inputs-detail').textContent,/차체 오도메트리 TF 대기/);assert.equal($('#startup-step-inputs').dataset.state,'waiting');
  sandbox.snapshot=fixture();sandbox.snapshot.localization.startup_home_available=false;sandbox.snapshot.localization.startup_home_reason='360도 라이다와 30cm 회전 공간을 확인하세요.';sandbox.render();confirmHome();
- assert.equal($('#startup-localize-home').disabled,true);assert.match($('#startup-localize-detail').textContent,/30cm 회전 공간/);
- sandbox.snapshot=fixture();sandbox.snapshot.manual.state='ACTIVE';sandbox.render();assert.equal($('#startup-localize-home').disabled,true);assert.equal($('#startup-localize-general').disabled,true);assert.match($('#startup-stop-detail').textContent,/조이스틱/);
- sandbox.snapshot=fixture();sandbox.render();confirmHome();assert.equal($('#startup-localize-home').disabled,false);
+ assert.equal($('#localization-start-home').disabled,true);assert.match($('#localization-start-home').title,/30cm 회전 공간/);
+ sandbox.snapshot=fixture();sandbox.snapshot.manual.state='ACTIVE';sandbox.render();assert.equal($('#localization-start-home').disabled,true);assert.equal($('#localization-start').disabled,true);assert.match($('#startup-stop-detail').textContent,/조이스틱/);
+ sandbox.snapshot=fixture();sandbox.render();confirmHome();assert.equal($('#startup-confirm-home').checked,true);
  sandbox.snapshot.manual.state='ACTIVE';sandbox.render();assert.equal($('#startup-confirm-home').checked,false);assert.equal($('#confirm-home-location').checked,false);
- sandbox.snapshot.manual.state='IDLE';sandbox.render();assert.equal($('#startup-localize-home').disabled,true,'manual release cannot restore old Home consent');
+ sandbox.snapshot.manual.state='IDLE';sandbox.render();await click('#localization-start-home');assert.equal(calls.length,0,'manual release cannot restore old Home consent');
  for(const change of [data=>data.robot.speed.linear=.12,data=>data.robot.speed.angular=.2,data=>data.robot.odom_age=.7,data=>data.robot.scan_age=.7]){
   sandbox.snapshot=fixture();sandbox.render();confirmHome();change(sandbox.snapshot);sandbox.render();
   assert.equal($('#startup-confirm-home').checked,false,'movement or lost fresh evidence invalidates Home consent');
   sandbox.snapshot.robot.speed={linear:0,angular:0};sandbox.snapshot.robot.odom_age=sandbox.snapshot.robot.scan_age=.1;sandbox.render();
-  assert.equal($('#startup-localize-home').disabled,true,'stopping again does not restore earlier physical-location confirmation');
+  assert.equal($('#startup-confirm-home').checked,false,'stopping again does not restore earlier physical-location confirmation');
   assert.equal($('#seed-home-pose').disabled,true);
  }
  sandbox.snapshot=fixture();sandbox.render();confirmHome();sandbox.snapshot.mission.state='NAVIGATING';sandbox.render();assert.equal($('#startup-confirm-home').checked,false);
- sandbox.snapshot=fixture();sandbox.snapshot.mission.state='NAVIGATING';sandbox.render();assert.equal($('#startup-recovery-open').hidden,true);assert.equal($('#startup-localize-general').disabled,true);
+ sandbox.snapshot=fixture();sandbox.snapshot.mission.state='NAVIGATING';sandbox.render();assert.equal($('#startup-recovery-open').hidden,true);
 
  sandbox.snapshot=fixture();sandbox.snapshot.localization={state:'ROTATING',active:true,available:true,progress:.4,control:{state:'WAIT_HEALTH'},reason:'위치 감시 응답을 기다리며 정지합니다.'};sandbox.render();
  assert.equal($('#startup-stop-localization').hidden,false);assert.equal($('#startup-stop-localization').disabled,false);
- assert.equal($('#startup-localize-progress').value,.4);assert.match($('#startup-localize-detail').textContent,/위치 감시 응답/);
+ assert.match($('#startup-stop-detail').textContent,/위치 확인 중/);assert.match($('#startup-recovery-summary').textContent,/위치 확인 중/);
  sandbox.snapshot.robot.speed.angular=.2;sandbox.render();assert.equal($('#startup-confirm-home').checked,false);assert.equal(sandbox.snapshot.localization.state,'ROTATING','clearing Home consent never cancels an accepted sweep');
  sandbox.busy=true;sandbox.render();assert.equal($('#startup-stop-localization').disabled,false);await click('#startup-stop-localization');assert.equal(calls.at(-1).path,'/api/localization/stop');sandbox.busy=false;
- calls.length=0;sandbox.snapshot=fixture();sandbox.snapshot.localization.state='SUCCEEDED';sandbox.snapshot.health.ready=true;sandbox.render();
- assert.match($('#startup-recovery-summary').textContent,/완료.*자동 출발하지 않습니다/);assert.equal(calls.length,0,'success must not start or resume any mission');
+ calls.length=0;
+ for(const phase of ['IDLE','FAILED','SUCCEEDED']){
+  sandbox.snapshot=fixture();sandbox.snapshot.localization.state=phase;sandbox.snapshot.health.ready=true;sandbox.render();
+  assert.match($('#startup-recovery-summary').textContent,/출발 준비 확인 완료.*자동 출발하지 않습니다/,'current readiness completes the guide independently of localization procedure history: '+phase);
+  assert.equal(calls.length,0,'readiness never starts or resumes a mission');
+ }
+ sandbox.snapshot=fixture();sandbox.snapshot.localization.state='SUCCEEDED';sandbox.render();
+ assert.doesNotMatch($('#startup-recovery-summary').textContent,/출발 준비 확인 완료/,'a historical localization success cannot replace current health readiness');
+ for(const change of [data=>data.mission.estop_latched=true,data=>data.safety.latched=true,data=>data.safety.pending='reset',data=>data.manual.state='ACTIVE',data=>data.localization.active=true,data=>data.robot.odom_age=1.2]){
+  sandbox.snapshot=fixture();sandbox.snapshot.health.ready=true;change(sandbox.snapshot);sandbox.render();
+  assert.doesNotMatch($('#startup-recovery-summary').textContent,/출발 준비 확인 완료/,'readiness must still respect current stop, ownership and safety state');
+ }
+ sandbox.snapshot=fixture();sandbox.snapshot.health.ready=true;sandbox.disconnected=true;sandbox.render();
+ assert.doesNotMatch($('#startup-recovery-summary').textContent,/출발 준비 확인 완료/,'disconnection invalidates cached readiness');sandbox.disconnected=false;
+ sandbox.snapshot=fixture();sandbox.snapshot.health.ready=true;sandbox.render();
  await click('#startup-recheck');assert.equal(reads,2,'state recheck and earlier stop refresh are reads');assert.equal(calls.length,0);
  confirmHome();sandbox.snapshot.delivery.registered_homepoint.x=.2;sandbox.render();assert.equal($('#startup-confirm-home').checked,false,'changed Home invalidates physical-location consent');
  await click('#startup-recovery-close');assert.equal($('#startup-recovery').hidden,true);assert.equal($('#startup-recovery-open').attributes['aria-expanded'],'false');
  const html=fs.readFileSync('ros2_ws/src/smart_vision_amr/web/index.html','utf8'),css=fs.readFileSync('ros2_ws/src/smart_vision_amr/web/styles.css','utf8');
  assert.match(html,/id="startup-recovery"[^>]*tabindex="-1"[^>]*hidden/);assert.match(html,/id="startup-confirm-home"[^>]*type="checkbox"/);
+ assert.equal((html.match(/id="startup-step-/g)||[]).length,4,'the startup guide contains four steps');
+ assert.doesNotMatch(source+html,/startup-step-localize|startup-localize-(?:home|general|state|detail|progress)|5단계|3·5단계|5\. 저속 회전·라이다 위치 확인/,'the removed fifth step has no markup, rendering references, listeners or instructions');
+ assert.match(html,/id="localization-start-home"/);assert.match(html,/id="localization-start"/);assert.match(html,/id="localization-stop"/);
  assert.match(css,/@media\(max-width:650px\).*startup-recovery-steps\{grid-template-columns:minmax\(0,1fr\)/);
  assert.doesNotMatch(actions+safety,/\.innerHTML/);
- console.log('PASS: guide opens without actuation, live blocked-step reasons, Home consent, separate seed/reset/localize actions, fresh-stop/manual/disconnect interlocks and no automatic departure.');
+ console.log('PASS: four-step guide without rotation launch, explicit optional localization tools, Home consent, separate seed/reset actions, active-operation stop, current readiness and no automatic departure.');
 }
 run().catch(error=>{console.error(error);process.exitCode=1;});

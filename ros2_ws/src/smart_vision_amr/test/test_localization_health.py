@@ -32,9 +32,9 @@ from smart_vision_amr.wheel_joint_odometry import WheelIntegrator, load_stock_wh
 from smart_vision_amr.sensor_stamp_guard import SensorStampGuard
 
 
-def test_localization_receives_best_effort_reset_intent():
-    # The same subscription must match low-latency web packets and reliable
-    # service reset intents while retaining the reset sequence guard.
+def test_localization_reliable_observer_retains_reset_before_queued_holds():
+    # Reset is published once by the reliable mux service. A later hold must
+    # not replace it while the health executor is busy processing a scan.
     context = Context()
     with patch.dict(os.environ, {'ROS_LOCALHOST_ONLY': '1'}):
         rclpy.init(args=[], context=context, domain_id=232,
@@ -44,31 +44,74 @@ def test_localization_receives_best_effort_reset_intent():
     executor = SingleThreadedExecutor(context=context)
     executor.add_node(health)
     executor.add_node(probe)
-    control = probe.create_publisher(
-        String, '/smart_vision_amr/manual_control',
-        QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT,
-                   durability=DurabilityPolicy.VOLATILE))
     service_control = probe.create_publisher(String, '/smart_vision_amr/manual_control', 10)
-    sources = (('web-qos-test', control), ('mux-service:qos-test', service_control))
+    for timer in health.timers:
+        timer.cancel()
     try:
+        subscriptions = [item for item in health.subscriptions
+                         if item.topic_name == '/smart_vision_amr/manual_control']
+        assert len(subscriptions) == 1
+        qos = subscriptions[0].qos_profile
+        assert qos.reliability == ReliabilityPolicy.RELIABLE
+        assert qos.durability == DurabilityPolicy.VOLATILE
+        assert qos.depth == 10
         deadline = time.monotonic()+3.
-        while (control.get_subscription_count() == 0
-               or service_control.get_subscription_count() == 0) and time.monotonic() < deadline:
+        while service_control.get_subscription_count() == 0 and time.monotonic() < deadline:
             executor.spin_once(timeout_sec=.05)
-        assert control.get_subscription_count() > 0
         assert service_control.get_subscription_count() > 0
-        for source, publisher in sources:
-            while health.last_reset_seq.get(source) != 1 and time.monotonic() < deadline:
-                publisher.publish(String(data=json.dumps({
-                    'source_id': source, 'seq': 1, 'mode': 'reset',
-                    'sent_at_ns': probe.get_clock().now().nanoseconds})))
-                executor.spin_once(timeout_sec=.05)
-            assert health.last_reset_seq[source] == 1
+        now = time.monotonic()
+        health.core.evaluate(now-3., healthy())
+        health.core.evaluate(now-.1, healthy())
+        health.core.stop_latched = True
+        assert health.core.evaluate(now, healthy())['reasons'] == ['operator_reset_required']
+        source = 'mux-service:qos-test'
+        for seq in range(1, 10):
+            service_control.publish(String(data=json.dumps({
+                'source_id': source, 'seq': seq, 'mode': 'reset' if seq == 1 else 'hold',
+                'sent_at_ns': probe.get_clock().now().nanoseconds})))
+        time.sleep(.05)  # DDS receives the burst before the observer takes it.
+        deadline = time.monotonic()+.7
+        while health.last_reset_seq.get(source) != 1 and time.monotonic() < deadline:
+            executor.spin_once(timeout_sec=.02)
+        assert health.last_reset_seq.get(source) == 1
+        assert not health.core.stop_latched
+        assert health.core.evaluate(time.monotonic(), healthy())['level'] == 'ok'
     finally:
         executor.shutdown()
         probe.destroy_node()
         health.destroy_node()
         rclpy.shutdown(context=context)
+
+
+def test_localization_reset_observer_keeps_source_stamp_and_sequence_guards():
+    class FakeCore:
+        stop_latched = True
+        reset_calls = 0
+
+        def operator_reset(self, _now):
+            self.reset_calls += 1
+            self.stop_latched = False
+            return True
+
+    node = SimpleNamespace(core=FakeCore(), last_reset_seq={},
+        get_clock=lambda: SimpleNamespace(now=lambda: SimpleNamespace(nanoseconds=20_000_000_000)),
+        publish_estop=lambda _now: pytest.fail('Valid reset unexpectedly rejected'))
+
+    def packet(source, seq, stamp):
+        return String(data=json.dumps({'source_id': source, 'seq': seq, 'mode': 'reset',
+                                       'sent_at_ns': stamp}))
+
+    queue = [packet('localization_safety', 1, 20_000_000_000),
+             packet('mux-service:queued', 1, 18_900_000_000),
+             packet('mux-service:queued', 1, 20_000_000_000)]
+    for message in queue:
+        LocalizationHealth.on_control(node, message)
+    assert node.core.reset_calls == 1
+    node.core.stop_latched = True
+    LocalizationHealth.on_control(node, queue[-1])
+    assert node.core.stop_latched and node.core.reset_calls == 1  # Replay cannot clear a later latch.
+    LocalizationHealth.on_control(node, packet('mux-service:queued', 2, 21_100_000_000))
+    assert node.core.stop_latched and node.core.reset_calls == 1  # Future packet is also rejected.
 
 
 def healthy(**changes):
@@ -414,6 +457,34 @@ def test_warning_covariance_reduces_confidence_without_latching_stop():
     status = core.evaluate(2.0, healthy(position_std_m=0.4))
     assert status['level'] == 'warning' and status['autonomous_allowed']
     assert not status['stop_latched']
+
+
+def test_testbed_0446m_amcl_uncertainty_acquires_without_bypassing_critical_limit():
+    core = LocalizationHealthCore()
+    first = core.evaluate(0.0, healthy(position_std_m=.446))
+    assert not first['autonomous_allowed']
+    ready = core.evaluate(2.01, healthy(position_std_m=.446))
+    assert ready['level'] == 'warning' and ready['autonomous_allowed']
+    assert 'position_std_m_elevated' in ready['reasons']
+    assert core.position_warning == .35 and core.position_acquisition_limit == .50
+    assert core.position_critical == .8
+    mux = MotionMuxCore(clock=lambda: 2.01, require_localization_health=True)
+    assert mux.receive_localization_health(ready)
+    assert mux.receive_auto(.2, 0.)
+    assert mux.output() == pytest.approx((.1, 0.))
+    fault = core.evaluate(2.02, healthy(position_std_m=.8))
+    assert 'position_std_m_high' in fault['reasons']
+    assert not fault['autonomous_allowed']
+
+
+def test_position_over_testbed_acquisition_limit_and_other_warnings_still_wait():
+    for sample in (healthy(position_std_m=.501),
+                   healthy(position_std_m=.446, yaw_std_rad=.6),
+                   healthy(position_std_m=.446, scan_map_agreement=.4)):
+        core = LocalizationHealthCore()
+        core.evaluate(0., sample)
+        status = core.evaluate(2.01, sample)
+        assert not status['autonomous_allowed'] and not core.acquired
 
 
 def odom():

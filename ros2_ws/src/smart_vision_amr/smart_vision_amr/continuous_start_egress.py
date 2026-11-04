@@ -23,7 +23,7 @@ def certified_start_only_edges(
     radius_cells: float,
     margin_cells: float,
 ) -> set[Edge]:
-    """Return only swept-clear outgoing edges from a dynamically inflated start.
+    """Return swept-clear outgoing edges from one inflated, raw-free start.
 
     The half-cell-diagonal reserve in ordinary grid inflation protects an
     unknown pose anywhere inside a cell. Here the fresh continuous pose is
@@ -35,8 +35,8 @@ def certified_start_only_edges(
     """
     if (raw_grid.width != inflated_grid.width or raw_grid.height != inflated_grid.height
             or not raw_grid.contains(start) or raw_grid.is_static_obstacle(start)
-            or inflated_grid.is_static_obstacle(start) or start in raw_dynamic
-            or start not in dynamic_inflated
+            or start in raw_dynamic
+            or not (inflated_grid.is_static_obstacle(start) or start in dynamic_inflated)
             or not all(isfinite(value) for value in (*pose_cells, radius_cells, margin_cells))
             or radius_cells <= 0.0 or margin_cells < 0.0):
         return set()

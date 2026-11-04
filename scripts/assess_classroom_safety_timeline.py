@@ -14,6 +14,13 @@ MIN_BODY_CLEARANCE_M = .02
 COMMAND_STOP_BOUND_S = .25
 STOP_DISTANCE_BOUND_M = .05
 STOP_HEADING_BOUND_RAD = .12
+# The observer samples Gazebo truth at about 10 Hz.  A WAIT entry must be
+# bracketed by fresh samples; an old pose must never inflate or hide travel.
+TRUTH_ENTRY_BRACKET_MAX_S = .15
+# Defaults match the repository's curve_tuning_waffle_pi.yaml.  A staged run
+# with another Nav2 profile must pass that profile's velocity and deceleration.
+DEFAULT_MAX_LINEAR_SPEED_MPS = .12
+DEFAULT_DECEL_LIMIT_MPS2 = 2.5
 # The outermost collision on the fixture's Waffle Pi is the chassis rear
 # corner: hypot(.064+.265/2, .265/2)=.237 m.  A .24 m circle also encloses
 # its wheels/casters.  This is only a Gazebo witness for a known static world.
@@ -168,7 +175,42 @@ def wrapped(angle):
     return math.atan2(math.sin(angle), math.cos(angle))
 
 
-def assess(records, *, static_world_boxes=None):
+def truth_at_entry(truth_records, entry_time):
+    """Interpolate a WAIT onset only when both adjacent truth samples are fresh."""
+    before = next((pose for pose in reversed(truth_records)
+                   if pose['t'] <= entry_time), None)
+    after = next((pose for pose in truth_records
+                  if pose['t'] >= entry_time), None)
+    if (before is None or after is None or
+            entry_time-before['t'] > TRUTH_ENTRY_BRACKET_MAX_S or
+            after['t']-entry_time > TRUTH_ENTRY_BRACKET_MAX_S):
+        return None, None
+    dt = after['t']-before['t']
+    if dt <= 0.:
+        return before, 0.
+    fraction = (entry_time-before['t'])/dt
+    anchor = {'t': entry_time,
+              'x': before['x']+(after['x']-before['x'])*fraction,
+              'y': before['y']+(after['y']-before['y'])*fraction,
+              'yaw': before['yaw']+wrapped(after['yaw']-before['yaw'])*fraction}
+    observed_speed = math.hypot(after['x']-before['x'],
+                                after['y']-before['y'])/dt
+    return anchor, observed_speed
+
+
+def stopping_distance_bound(entry_speed_mps, *, max_linear_speed_mps,
+                            decel_limit_mps2):
+    """Reaction travel plus configured braking distance, with a 5 cm floor."""
+    speed = min(max_linear_speed_mps, max(0., entry_speed_mps))
+    return max(STOP_DISTANCE_BOUND_M,
+               speed*COMMAND_STOP_BOUND_S+speed*speed/(2.*decel_limit_mps2))
+
+
+def assess(records, *, static_world_boxes=None,
+           max_linear_speed_mps=DEFAULT_MAX_LINEAR_SPEED_MPS,
+           decel_limit_mps2=DEFAULT_DECEL_LIMIT_MPS2):
+    if max_linear_speed_mps <= 0. or decel_limit_mps2 <= 0.:
+        raise ValueError('Nav2 max speed and deceleration must be positive')
     # Only a caller that has proved the trial contains no spawned/dynamic
     # obstacle may pass static_world_boxes.  Otherwise raw LiDAR limits apply.
     static_world_boxes = static_world_boxes or []
@@ -191,17 +233,27 @@ def assess(records, *, static_world_boxes=None):
               'wait_replan_samples': 0, 'recovery_exempt_samples': 0}
     violations = []
     last_planner_change = None
+    last_linear_command = 0.
+    last_command_t = None
 
     def violation(name, record, **detail):
         if len(violations) < 100:
             violations.append({'kind': name, 't': record['t'], **detail})
 
     def begin_wait(t):
+        entry_truth, observed_speed = truth_at_entry(all_truth, t)
+        commanded_speed = (abs(last_linear_command)
+                           if last_command_t is not None and
+                           t-last_command_t <= COMMAND_STOP_BOUND_S else 0.)
+        entry_speed = max(commanded_speed, observed_speed or 0.)
         entry_core = (scan.get('front_core_min_m') if scan is not None
                       and t-scan['t'] <= .35 else None)
         entry_angle = (scan.get('front_core_angle_deg') if scan is not None
                        and t-scan['t'] <= .35 else None)
-        return {'start_t': t, 'start_truth': truth,
+        return {'start_t': t, 'start_truth': entry_truth,
+                'entry_speed_mps': entry_speed,
+                'entry_command_speed_mps': commanded_speed,
+                'entry_truth_speed_mps': observed_speed,
                 'entry_core_m': entry_core,
                 'entry_core_angle_deg': entry_angle,
                 'max_displacement_m': 0., 'max_forward_m': 0.,
@@ -227,8 +279,17 @@ def assess(records, *, static_world_boxes=None):
                     'max_forward_displacement_m': round(waiting['max_forward_m'], 4),
                     'max_heading_change_rad': round(waiting['max_heading_rad'], 4),
                     'truth_samples': waiting['truth_samples'],
+                    'entry_speed_mps': round(waiting['entry_speed_mps'], 4),
+                    'entry_command_speed_mps': round(waiting['entry_command_speed_mps'], 4),
+                    'entry_truth_speed_mps': (None if waiting['entry_truth_speed_mps'] is None
+                                              else round(waiting['entry_truth_speed_mps'], 4)),
                     'entry_front_core_min_m': waiting['entry_core_m'],
                     'entry_front_core_angle_deg': waiting['entry_core_angle_deg']}
+        distance_bound = stopping_distance_bound(
+            waiting['entry_speed_mps'],
+            max_linear_speed_mps=max_linear_speed_mps,
+            decel_limit_mps2=decel_limit_mps2)
+        interval['ground_truth_stopping_distance_bound_m'] = round(distance_bound, 4)
         sweep_truth = [pose for pose in all_truth if
                        waiting['start_t']-.15 <= pose['t'] <= end_t]
         static_margin = static_sweep_clearance(sweep_truth, static_world_boxes)
@@ -265,7 +326,11 @@ def assess(records, *, static_world_boxes=None):
         if duration >= COMMAND_STOP_BOUND_S and waiting['truth_samples'] < 1:
             violation('ground_truth_missing_during_wait_replan',
                       {'t': end_t}, **interval)
-        if waiting['max_displacement_m'] > STOP_DISTANCE_BOUND_M:
+        if ((duration >= COMMAND_STOP_BOUND_S or waiting['truth_samples'] > 0)
+                and waiting['start_truth'] is None):
+            violation('ground_truth_missing_at_wait_replan_entry',
+                      {'t': end_t}, **interval)
+        if waiting['max_displacement_m'] > distance_bound:
             violation('excessive_ground_truth_stopping_distance',
                       {'t': end_t}, **interval)
         if waiting['max_heading_rad'] > STOP_HEADING_BOUND_RAD:
@@ -325,7 +390,6 @@ def assess(records, *, static_world_boxes=None):
                 waiting['truth_samples'] += 1
                 anchor = waiting['start_truth']
                 if anchor is None:
-                    waiting['start_truth'] = record
                     continue
                 dx = record['x']-anchor['x']
                 dy = record['y']-anchor['y']
@@ -340,6 +404,8 @@ def assess(records, *, static_world_boxes=None):
         elif kind == 'cmd_vel':
             linear = float(record.get('linear') or 0.)
             angular = float(record.get('angular') or 0.)
+            last_linear_command = linear
+            last_command_t = t
             nonzero = abs(linear) > .015 or abs(angular) > .04
             recovering = (navigation == 'RECOVERING' and navigation_at is not None
                           and t-navigation_at <= 1.)
@@ -378,6 +444,11 @@ def assess(records, *, static_world_boxes=None):
             'last_planner_change': last_planner_change,
             'bounds': {'command_stop_s': COMMAND_STOP_BOUND_S,
                        'ground_truth_stopping_distance_m': STOP_DISTANCE_BOUND_M,
+                       'ground_truth_stopping_distance_rule':
+                           'max(0.05, v*command_stop_s+v^2/(2*decel_limit_mps2))',
+                       'max_linear_speed_mps': max_linear_speed_mps,
+                       'decel_limit_mps2': decel_limit_mps2,
+                       'truth_entry_bracket_max_s': TRUTH_ENTRY_BRACKET_MAX_S,
                        'ground_truth_heading_change_rad': STOP_HEADING_BOUND_RAD,
                        'front_laser_to_body_m': FRONT_LASER_TO_BODY_M,
                        'front_body_clearance_m': MIN_BODY_CLEARANCE_M,
@@ -386,7 +457,8 @@ def assess(records, *, static_world_boxes=None):
             'interpretation': ('PLANNING with a nonempty prior path and a fresh, clear '
                                'front scan may move while replanning; this is not a full '
                                'swept-path proof. WAIT_REPLAN permits bounded deceleration '
-                               'for 0.25 s and at most 5 cm ground-truth travel. '
+                               'for 0.25 s and speed-dependent ground-truth travel '
+                               'based on the active Nav2 speed/deceleration profile. '
                                'Navigation RECOVERING is logged separately. No instant '
                                'command or inertial motion is automatically a failure. '
                                'Only a known static Gazebo fixture can use the independent '
@@ -400,11 +472,17 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--static-world', type=Path,
                         help='Known-static Gazebo collision world; never use for physical or moving-obstacle trials')
+    parser.add_argument('--max-linear-speed-mps', type=float,
+                        default=DEFAULT_MAX_LINEAR_SPEED_MPS)
+    parser.add_argument('--decel-limit-mps2', type=float,
+                        default=DEFAULT_DECEL_LIMIT_MPS2)
     args = parser.parse_args()
     records = [json.loads(line) for line in args.timeline.read_text().splitlines()
                if line.strip()]
     boxes = load_static_world_boxes(args.static_world) if args.static_world else None
-    result = assess(records, static_world_boxes=boxes)
+    result = assess(records, static_world_boxes=boxes,
+                    max_linear_speed_mps=args.max_linear_speed_mps,
+                    decel_limit_mps2=args.decel_limit_mps2)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n')
     print(json.dumps({'passed': result['passed'],
                       'missing_evidence': result['missing_evidence'],

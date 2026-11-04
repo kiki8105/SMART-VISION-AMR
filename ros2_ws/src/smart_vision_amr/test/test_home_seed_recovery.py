@@ -26,7 +26,8 @@ def application(tmp_path):
     app.delivery.registered_homepoint = {'x': .525, 'y': 2.025, 'yaw': 0.}
     app.mission.emergency_stop()
     app.manual_mux_at = now
-    app.manual_mux_status = {'mode': 'estop', 'estop_latched': True, 'stop_acknowledged': True}
+    app.manual_mux_status = {'mode': 'estop', 'available': True,
+                             'estop_latched': True, 'stop_acknowledged': True}
     app.scan_at = app.odom_at = app.localization_scan_at = app.localization_odom_at = now
     app.localization_services_ready = True
     app.localization_amcl_active_at = now
@@ -58,6 +59,34 @@ def test_home_confirmation_is_explicit_and_boolean(tmp_path):
         with pytest.raises(MissionError, match='확인란'):
             app.command('/api/localization/seed-home', payload)
     assert app.home_seed_request is None and app.mission.estop_latched
+
+
+def test_verified_manual_pose_rejects_old_neighborhood_proof_but_keeps_manual_entry(tmp_path):
+    app = application(tmp_path)
+    app.manual_pose_state = 'VERIFIED'
+    app.home_seed_match = .2
+    app.home_prior_evidence = {'supported': True, 'distinct_scans': 3,
+        'consistent_candidates': 3, 'best_min_agreement': .9,
+        'at': time.monotonic(), 'key': app.home_seed_key()}
+    available, reason = app.seed_home_readiness()
+    assert not available and '자동 탐색을 중지' in reason
+    with pytest.raises(MissionError, match='자동 탐색을 중지'):
+        app.command('/api/localization/seed-home', {'confirm_actual_home': True})
+    app.manual_pose_service_ready = True
+    state = app.command('/api/localization/initial-pose',
+                        {'x': .525, 'y': 2.025, 'yaw_deg': 0., 'confirm': True})
+    assert state['localization']['manual_pose']['state'] == 'WAITING'
+    assert app.mission.estop_latched and not app.mission.commands
+
+
+def test_verified_manual_pose_keeps_fresh_exact_home_proof_and_sensor_guards(tmp_path):
+    app = application(tmp_path)
+    app.manual_pose_state = 'VERIFIED'
+    assert app.seed_home_readiness()[0]
+    app.scan_at = 0.
+    available, reason = app.seed_home_readiness()
+    assert not available and '최신 LiDAR' in reason
+    assert app.mission.estop_latched and app.home_seed_request is None
 
 
 @pytest.mark.parametrize('change', [

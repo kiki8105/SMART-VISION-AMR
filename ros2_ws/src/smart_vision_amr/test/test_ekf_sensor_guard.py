@@ -2,14 +2,18 @@
 
 import json
 import time
+from collections import deque
 from types import SimpleNamespace
 
 import pytest
 from rcl_interfaces.msg import Log
+from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, HistoryPolicy, ReliabilityPolicy
 from sensor_msgs.msg import BatteryState
 from std_msgs.msg import String
 from tf2_ros import TransformException
 
+import smart_vision_amr.ekf_sensor_guard as guard_module
 from smart_vision_amr.ekf_sensor_guard import (
     EkfSensorGuard, EkfSensorGuardCore, ROS_ERROR_LEVEL, battery_voltage_issues,
     configured_publishers, dynamixel_log_failure, publisher_issues,
@@ -26,6 +30,100 @@ def feed_all(core, now):
     for name in core.REQUIRED:
         feed(core, name, now)
     core.update_graph([], now)
+
+
+@pytest.fixture
+def intent_observer(monkeypatch):
+    """Capture the real constructor's observer without creating ROS endpoints."""
+    monkeypatch.setattr(Node, '__init__', lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(guard_module, 'Buffer', lambda **_kwargs: object())
+    monkeypatch.setattr(guard_module, 'TransformListener',
+                        lambda *_args, **_kwargs: object())
+
+    class GuardHarness(EkfSensorGuard):
+        def __init__(self):
+            self.parameters = {}
+            self.observers = []
+            super().__init__()
+
+        def declare_parameter(self, name, value):
+            self.parameters[name] = value
+
+        def get_parameter(self, name):
+            return SimpleNamespace(value=self.parameters[name])
+
+        def add_on_set_parameters_callback(self, _callback):
+            pass
+
+        def create_publisher(self, *_args, **_kwargs):
+            return SimpleNamespace(publish=lambda _message: None)
+
+        def create_subscription(self, _kind, topic, callback, qos, **_kwargs):
+            self.observers.append((topic, callback, qos))
+
+        def create_timer(self, *_args, **_kwargs):
+            pass
+
+        def get_clock(self):
+            return SimpleNamespace(now=lambda: SimpleNamespace(nanoseconds=20_000_000_000))
+
+        def get_logger(self):
+            return SimpleNamespace(warning=lambda *_args: None)
+
+    guard = GuardHarness()
+    observers = [(callback, qos) for topic, callback, qos in guard.observers
+                 if topic == '/smart_vision_amr/manual_control']
+    assert len(observers) == 1
+    return guard, *observers[0]
+
+
+def test_reset_intent_observer_requests_reliable_volatile_history(intent_observer):
+    _guard, _callback, qos = intent_observer
+    assert qos.reliability == ReliabilityPolicy.RELIABLE
+    assert qos.durability == DurabilityPolicy.VOLATILE
+    assert qos.history == HistoryPolicy.KEEP_LAST
+    assert qos.depth == 10
+
+
+def test_queued_reset_survives_control_burst_until_external_estop(intent_observer):
+    guard, callback, qos = intent_observer
+
+    def packet(source, seq, mode, stamp=20_000_000_000):
+        return String(data=json.dumps({
+            'source_id': source, 'seq': seq, 'mode': mode, 'sent_at_ns': stamp}))
+
+    # Model a callback delayed while this bounded KEEP_LAST history fills.
+    # The former depth-one observer lost the one-shot reset to later packets.
+    queued = deque(maxlen=qos.depth)
+    queued.append(packet('mux-service:burst', 1, 'reset'))
+    queued.append(packet(EkfSensorGuard.SAFETY_SOURCE, 100, 'estop'))
+    for seq in range(1, 8):
+        queued.append(packet('web-burst', seq, 'manual' if seq % 2 else 'hold'))
+    queued.append(packet('web-burst', 8, 'estop'))
+
+    for message in list(queued)[:-1]:
+        callback(message)
+        assert guard.pending_reset[0] == 'mux-service:burst'
+    assert guard.last_reset_seq == {'mux-service:burst': 1}
+    callback(queued[-1])
+    assert guard.pending_reset is None
+    assert guard.last_reset_seq == {'mux-service:burst': 1, 'web-burst': 8}
+    assert guard.core.latched and not guard.core.armed
+
+    # Neither an already consumed intent nor a fresh-sequence old timestamp
+    # may recreate the canceled reset. A new, fresh operator intent may.
+    callback(packet('mux-service:burst', 1, 'reset'))
+    callback(packet('mux-service:burst', 2, 'reset', stamp=0))
+    assert guard.pending_reset is None
+    assert guard.last_reset_seq['mux-service:burst'] == 1
+    callback(packet('mux-service:burst', 2, 'reset'))
+    assert guard.pending_reset[0] == 'mux-service:burst'
+    callback(packet('web-burst', 8, 'estop'))
+    callback(packet('web-burst', 9, 'estop', stamp=0))
+    assert guard.pending_reset is not None
+    callback(packet('web-burst', 9, 'estop'))
+    assert guard.pending_reset is None
+    assert guard.last_reset_seq['web-burst'] == 9
 
 
 def test_gazebo_graph_names_keep_all_physical_ekf_guard_checks():

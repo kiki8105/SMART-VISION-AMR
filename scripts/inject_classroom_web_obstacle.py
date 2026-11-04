@@ -138,6 +138,23 @@ def box_cells_on_raw_map(raw, info, position, world_to_cell, cell_to_world):
     return box or None
 
 
+def projected_lidar_box_cells(raw, info, position, world_to_cell, cell_to_world):
+    """Reserve one extra scan cell around a physically placeable box.
+
+    The real 25 cm box must fit in raw free space. Its LiDAR returns can land
+    one cell outside the geometric raster as the beam angle and robot pose
+    change. The fixture must prove a route for that larger observation too;
+    otherwise an optimistic box-only route can disappear just after spawn.
+    This changes only test obstacle selection, never the navigation footprint.
+    """
+    from smart_vision_amr.map_utils import inflate_cells
+
+    box = box_cells_on_raw_map(raw, info, position, world_to_cell, cell_to_world)
+    if box is None:
+        return None
+    return inflate_cells(box, info.width, info.height, 1)
+
+
 def prepare_preflight_context(grid_message, robot_xy, goal_xy, world_to_cell):
     """Build the immutable map/start snapshot once per topology search."""
     from smart_vision_amr.astar import AStarPlanner
@@ -196,8 +213,8 @@ def preflight_box_route(grid_message, robot_xy, goal_xy, center, path,
     for step in range(5):
         position = (center[0]+.025*step*side*perpendicular[0],
                     center[1]+.025*step*side*perpendicular[1])
-        box = box_cells_on_raw_map(raw, info, position,
-                                   world_to_cell, cell_to_world)
+        box = projected_lidar_box_cells(raw, info, position,
+                                        world_to_cell, cell_to_world)
         if box is None:
             return None
         radius_cells = (.22+.02)/info.resolution+sqrt(2)/2
@@ -237,8 +254,8 @@ def current_observed_bypass_route(grid_message, robot_xy, goal_xy, center,
         static, raw = prepared['static'], prepared['raw']
         start, goal, planner = (prepared['start'], prepared['goal'],
                                 prepared['planner'])
-    box = box_cells_on_raw_map(raw, info, center,
-                               world_to_cell, cell_to_world)
+    box = projected_lidar_box_cells(raw, info, center,
+                                    world_to_cell, cell_to_world)
     if (box is None or not static.contains(start) or
             not static.contains(goal)):
         return None

@@ -200,6 +200,37 @@ def test_obstacle_hold_timeout_reaches_route_runner_and_rejects_bad_input(tmp_pa
     assert '--obstacle-hold-timeout must be an integer' in invalid.stderr
 
 
+def test_optional_nav_profile_reaches_web_and_route_trials_without_changing_defaults(tmp_path):
+    profile = tmp_path/'nav2_demo_operator.yaml'
+    profile.write_text('controller_server:\n  ros__parameters:\n    max_vel_x: 0.24\n')
+    web_stage = staged.BY_KEY['06_web_sector3_moving_obstacle']
+    route_stage = staged.BY_KEY['03_sector_3']
+
+    default_web = staged.web_stage_runner_command(web_stage, tmp_path/'web')
+    custom_web = staged.web_stage_runner_command(
+        web_stage, tmp_path/'web', nav_params_source=profile)
+    default_route = staged.stage_runner_command(route_stage, tmp_path/'route', 180, 15)
+    custom_route = staged.stage_runner_command(
+        route_stage, tmp_path/'route', 180, 15, nav_params_source=profile)
+
+    assert '--nav-params-source' not in default_web
+    assert '--nav-params-source' not in default_route
+    assert custom_web == default_web + ['--nav-params-source', str(profile)]
+    assert custom_route == default_route + ['--nav-params-source', str(profile)]
+
+
+def test_nav_profile_missing_file_fails_before_stage_start(tmp_path):
+    result = subprocess.run(
+        [sys.executable, str(ROOT/'scripts/run_classroom_staged_validation.py'),
+         '--run', '06_web_sector3_moving_obstacle',
+         '--output', str(tmp_path/'trial'),
+         '--nav-params-source', str(tmp_path/'missing.yaml')],
+        capture_output=True, text=True)
+    assert result.returncode == 2
+    assert '--nav-params-source must name a nonempty YAML file' in result.stderr
+    assert not (tmp_path/'trial').exists()
+
+
 def test_sensor_input_hold_is_not_reported_as_obstacle_hold():
     stage = staged.BY_KEY['03_sector_3']
     evidence = route_evidence(stage)
@@ -284,6 +315,55 @@ def test_wait_replan_allows_bounded_inertia_and_logs_stopping_margin():
     assert interval['estimated_front_body_clearance_m'] > .02
 
 
+def test_wait_replan_uses_interpolated_entry_truth_and_real_speed_profile():
+    records = base_timeline()
+    records[-1]['linear'] = .24
+    records += [
+        {'t': .10, 'kind': 'planner', 'status': 'WAIT_REPLAN'},
+        {'t': .15, 'kind': 'cmd_vel', 'linear': .24, 'angular': 0.},
+        {'t': .20, 'kind': 'truth', 'x': .04, 'y': 0., 'yaw': 0.},
+        {'t': .24, 'kind': 'cmd_vel', 'linear': 0., 'angular': 0.},
+        {'t': .40, 'kind': 'truth', 'x': .077, 'y': 0., 'yaw': 0.},
+        {'t': .50, 'kind': 'planner', 'status': 'READY'},
+    ]
+    result = timeline.assess(records, max_linear_speed_mps=.24,
+                             decel_limit_mps2=2.5)
+    assert result['passed'], result['violations']
+    interval = result['wait_replan_intervals'][0]
+    assert .06 < interval['max_displacement_m'] < .07
+    assert .071 < interval['ground_truth_stopping_distance_bound_m'] < .072
+    assert interval['entry_truth_speed_mps'] is not None
+
+
+def test_wait_replan_still_rejects_travel_beyond_speed_dependent_bound():
+    records = base_timeline()
+    records[-1]['linear'] = .24
+    records += [
+        {'t': .10, 'kind': 'planner', 'status': 'WAIT_REPLAN'},
+        {'t': .15, 'kind': 'cmd_vel', 'linear': .24, 'angular': 0.},
+        {'t': .20, 'kind': 'truth', 'x': .04, 'y': 0., 'yaw': 0.},
+        {'t': .24, 'kind': 'cmd_vel', 'linear': 0., 'angular': 0.},
+        {'t': .40, 'kind': 'truth', 'x': .095, 'y': 0., 'yaw': 0.},
+        {'t': .50, 'kind': 'planner', 'status': 'READY'},
+    ]
+    result = timeline.assess(records, max_linear_speed_mps=.24,
+                             decel_limit_mps2=2.5)
+    assert any(v['kind'] == 'excessive_ground_truth_stopping_distance'
+               for v in result['violations'])
+
+
+def test_wait_replan_rejects_stale_truth_instead_of_inventing_entry_pose():
+    records = base_timeline()+[
+        {'t': .50, 'kind': 'planner', 'status': 'WAIT_REPLAN'},
+        {'t': .55, 'kind': 'truth', 'x': .06, 'y': 0., 'yaw': 0.},
+        {'t': .60, 'kind': 'cmd_vel', 'linear': 0., 'angular': 0.},
+        {'t': .80, 'kind': 'planner', 'status': 'READY'},
+    ]
+    result = timeline.assess(records)
+    assert any(v['kind'] == 'ground_truth_missing_at_wait_replan_entry'
+               for v in result['violations'])
+
+
 def test_wait_replan_near_wall_fails_even_when_command_stops_quickly():
     records = base_timeline()
     records[2]['front_core_min_m'] = .134
@@ -338,6 +418,7 @@ def test_recovery_does_not_erase_unsafe_preceding_hold():
     records = base_timeline()+[
         {'t': .10, 'kind': 'planner', 'status': 'WAIT_REPLAN'},
         {'t': .20, 'kind': 'cmd_vel', 'linear': .1, 'angular': 0.},
+        {'t': .20, 'kind': 'truth', 'x': 0., 'y': 0., 'yaw': 0.},
         {'t': .30, 'kind': 'truth', 'x': .06, 'y': 0., 'yaw': 0.},
         {'t': .32, 'kind': 'navigation', 'status': 'RECOVERING'},
         {'t': .35, 'kind': 'cmd_vel', 'linear': -.04, 'angular': 0.},

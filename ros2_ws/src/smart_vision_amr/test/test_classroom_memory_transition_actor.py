@@ -34,6 +34,7 @@ def test_removal_outcome_preserves_valid_path_but_reports_new_route():
 def test_box_fixture_stays_clear_of_first_route_but_changes_second_plan():
     """Catch a map/box mismatch before an expensive Gazebo mission starts."""
     from smart_vision_amr.astar import AStarPlanner
+    from smart_vision_amr.clearance_cost import clearance_penalties
     from smart_vision_amr.map_utils import (
         bresenham, cell_to_world, inflate_cells, inflate_cells_circular,
         occupancy_to_grid, world_to_cell,
@@ -94,11 +95,27 @@ def test_box_fixture_stays_clear_of_first_route_but_changes_second_plan():
     bypass = [cell_to_world(info, cell) for cell in planner.plan(
         inflated, world_to_cell(info, *home),
         world_to_cell(info, *sector1), live_blocked)]
+    # Use the same clearance cost as the running A* node. An unweighted A*
+    # tie can choose a wall-side corridor that the real planner does not use.
     later_route = [cell_to_world(info, cell) for cell in planner.plan(
         inflated, world_to_cell(info, *sector1),
-        world_to_cell(info, *sector2), remembered_blocked)]
+        world_to_cell(info, *sector2), remembered_blocked,
+        cell_penalty=clearance_penalties(raw, box_cells, info.resolution,
+                                         .35, 1.5))]
     assert path_clearance_from_box(bypass, actor.BOX) >= .15
     assert path_clearance_from_box(later_route, actor.BOX) >= .02
+    # Stage 24 confirmed four cells along the visible north-west face before
+    # Sector 2 planning. Guard the partial-memory path as well as the full-box
+    # extreme; both must clear the physical box by at least 2 cm.
+    bx, by = world_to_cell(info, *actor.BOX)
+    visible_face = {(bx + dx, by + 2) for dx in (-3, -2, -1, 0)}
+    partial_route = [cell_to_world(info, cell) for cell in planner.plan(
+        inflated, world_to_cell(info, *sector1),
+        world_to_cell(info, *sector2),
+        inflate_cells(visible_face, width, height, 5),
+        cell_penalty=clearance_penalties(raw, visible_face,
+                                         info.resolution, .35, 1.5))]
+    assert path_clearance_from_box(partial_route, actor.BOX) >= .02
     # The mapped partition routinely produces these live returns before the
     # box exists; they must not be mistaken for the injected obstacle.
     existing_returns = (8647, 8733, 8819, 8905, 8991)

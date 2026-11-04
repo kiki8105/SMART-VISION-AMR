@@ -186,8 +186,10 @@ ros2_ws/src/smart_vision_amr/config/aruco_mission_markers.yaml
 전방 카메라를 활성화하면 `/camera/front/image_raw/compressed`로 별도 표시한다.
 원본 `v4l2` 백엔드를 선택한 경우에는 각 토픽의 `/compressed` 접미사를 뺀
 원본 영상도 발행한다. 웹 서버의 `--camera-topic`은 후방,
-`--front-camera-topic`은 전방 영상 토픽을 지정한다. 전방 영상이 없으면 전방
-칸에 수신 대기가 표시되며, 후방 영상과 LiDAR 기반 위치 확인은 계속 사용할 수 있다.
+`--front-camera-topic`은 전방 영상 토픽을 지정한다. 실차 교실 웹 실행 스크립트는
+전방 토픽을 비워 후방 영상만 표시한다. 전방 영상을 사용할 때만
+`SMART_VISION_CLASSROOM_FRONT_CAMERA_TOPIC=/camera/front/image_raw/compressed`를
+설정한다.
 실차용 `scripts/robot_bringup_camera_16.sh`는 매 실행마다 이름이 `camera0`인
 전방 V4L2 장치를 찾고, `v4l2-ctl`에서 YUYV 640×480 또는 320×240 형식이
 확인되면 전방 드라이버를 추가한다. 장치나 지원 형식이 없으면 전방을 건너뛰고

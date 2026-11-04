@@ -26,7 +26,10 @@ localization_health:
     sensor_timeout: 0.7
     tf_timeout: 1.0
     future_tolerance: 1.5  # AMCL map->odom may be intentionally future-dated.
-    position_warning: 0.35  # Largest x/y position standard deviation.
+    position_warning: 0.35  # Caution and half-speed threshold.
+    # Initial acquisition may complete with position warning alone up to 0.50 m.
+    # /amcl_pose, scan, odom, map TF and scan-map consistency must still pass.
+    position_acquisition_limit: 0.50
     position_critical: 0.8
     yaw_warning: 0.5
     yaw_critical: 1.0

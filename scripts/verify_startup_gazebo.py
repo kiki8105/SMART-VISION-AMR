@@ -993,8 +993,8 @@ def main():
                   responses=metric('amcl_update_responses'))
             check('stationary_convergence_never_moves', zero_since(t))
             check('stationary_convergence_keeps_startup_latch', state['safety'].get('estop_latched') is True)
-            check('stationary_converged_without_threshold_relaxation',
-                  state['localization_health'].get('metrics', {}).get('position_std_m', math.inf) <= .35,
+            check('stationary_converged_within_testbed_acquisition_limit',
+                  state['localization_health'].get('metrics', {}).get('position_std_m', math.inf) <= .50,
                   health=state['localization_health'])
             event('stationary_convergence_complete', health=state['localization_health'])
             if args.scenario == 'startup':

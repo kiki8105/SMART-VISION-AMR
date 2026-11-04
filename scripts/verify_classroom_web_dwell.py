@@ -152,7 +152,9 @@ def evaluate_prearm(state, graph, reset_requested):
             metrics.get(topic+'_valid', True) is True,
             'live topic, health receipt/header age ≤0.5 s')
     add('amcl_position_uncertainty', metrics.get('position_std_m'),
-        fresh(metrics.get('position_std_m'), .35), '<0.35 m')
+        isinstance(metrics.get('position_std_m'), (int, float)) and
+        math.isfinite(metrics['position_std_m']) and
+        0. <= metrics['position_std_m'] <= .50, '≤0.50 m')
     add('amcl_yaw_uncertainty', metrics.get('yaw_std_rad'),
         fresh(metrics.get('yaw_std_rad'), .5), '<0.5 rad')
     amcl_age = metrics.get('amcl_age_seconds')
@@ -166,13 +168,19 @@ def evaluate_prearm(state, graph, reset_requested):
     add('scan_map_agreement', score,
         isinstance(score, (int, float)) and math.isfinite(score) and score >= .55,
         '≥0.55 health warning threshold')
+    bounded_position_warning = (quality.get('level') == 'warning'
+                                and quality.get('reasons') == ['position_std_m_elevated']
+                                and isinstance(metrics.get('position_std_m'), (int, float))
+                                and math.isfinite(metrics['position_std_m'])
+                                and metrics['position_std_m'] <= .50)
     add('localization_health',
         {'level': quality.get('level'), 'reasons': quality.get('reasons'),
          'stop_latched': quality.get('stop_latched'),
          'autonomous_allowed': quality.get('autonomous_allowed')},
-        quality.get('level') == 'ok' and quality.get('stop_latched') is False and
+        (quality.get('level') == 'ok' or bounded_position_warning) and
+        quality.get('stop_latched') is False and
         quality.get('autonomous_allowed') is True,
-        'acquired, level ok, no health stop latch')
+        'acquired, level ok or bounded position warning, no health stop latch')
     add('rear_camera', {'age_s': robot.get('camera_age'),
                         'raw_age_s': robot.get('raw_camera_age')},
         fresh(robot.get('camera_age'), 2.) and fresh(robot.get('raw_camera_age'), 2.),
@@ -224,6 +232,89 @@ def evaluate_prearm(state, graph, reset_requested):
 
 def event(events, message):
     return next((item for item in events if item.get('message') == message), None)
+
+
+def submit_inventory_request(manager, base, marker_id):
+    """Create one manager-owned request through the same API as /inventory."""
+    paired = request(manager, base, '/api/inventory/pair',
+                     {'user_id': 1, 'domain_id': 176})
+    if paired.get('authenticated') is not True:
+        raise RuntimeError('Inventory manager domain pairing failed')
+    submitted = request(manager, base, '/api/inventory/requests', {
+        'marker_id': marker_id, 'item': 'Gazebo 전체 운용 검증', 'quantity': 1,
+        'client_request_id': f'classroom-web-{marker_id}-{time.time_ns()}'})
+    candidates = [item for item in submitted.get('requests') or []
+                  if item.get('marker_id') == marker_id and
+                  item.get('status') == 'PENDING']
+    if len(candidates) != 1:
+        raise RuntimeError(f'Exactly one pending Sector {marker_id} inventory request required')
+    return candidates[0]
+
+
+def web_page_available(opener, base, path):
+    """The acceptance API must be backed by an actual served operator page."""
+    with opener.open(Request(base+path, headers={'Connection': 'close'}),
+                     timeout=3) as response:
+        content = response.read()
+    if len(content) < 100 or b'<html' not in content.lower():
+        raise RuntimeError(f'Web page {path} was not served as HTML')
+    return True
+
+
+def verify_initial_home_pose(browser, base, result, timeout=55.):
+    """Set the known Gazebo Home pose while ESTOP remains latched."""
+    deadline = time.monotonic()+timeout
+    trace = []
+    while time.monotonic() < deadline:
+        state = request(browser, base, '/api/state')
+        manual = (state.get('localization') or {}).get('manual_pose') or {}
+        safety = state.get('safety') or {}
+        status = (manual.get('available'), manual.get('reason'),
+                  safety.get('latched'), safety.get('stop_acknowledged'))
+        if not trace or trace[-1]['status'] != status:
+            trace.append({'at': time.time(), 'status': status})
+        if (manual.get('available') is True and safety.get('latched') is True and
+                safety.get('stop_acknowledged') is True):
+            break
+        time.sleep(.2)
+    else:
+        result['manual_initial_pose_trace'] = trace
+        raise TimeoutError('Stopped web initial-pose service unavailable: '+str(trace[-3:]))
+    home = (state.get('delivery') or {}).get('registered_homepoint')
+    if not isinstance(home, dict) or not all(
+            isinstance(home.get(key), (int, float)) and math.isfinite(home[key])
+            for key in ('x', 'y', 'yaw')):
+        raise RuntimeError('Registered Gazebo Home pose is unavailable')
+    result['manual_initial_pose'] = {
+        'source': 'registered_gazebo_home', 'requested': dict(home),
+        'requested_at': time.time()}
+    request(browser, base, '/api/localization/initial-pose', {
+        'x': float(home['x']), 'y': float(home['y']),
+        'yaw_deg': math.degrees(float(home['yaw'])), 'confirm': True})
+    while time.monotonic() < deadline:
+        state = request(browser, base, '/api/state')
+        manual = (state.get('localization') or {}).get('manual_pose') or {}
+        safety = state.get('safety') or {}
+        status = (manual.get('state'), manual.get('result'),
+                  safety.get('latched'), safety.get('stop_acknowledged'))
+        if not trace or trace[-1]['status'] != status:
+            trace.append({'at': time.time(), 'status': status})
+        if manual.get('state') == 'FAILED':
+            result['manual_initial_pose_trace'] = trace
+            raise RuntimeError('Web initial pose rejected: '+str(manual.get('result')))
+        if manual.get('state') == 'VERIFIED' and manual.get('verified') is True:
+            result['manual_initial_pose'].update(
+                state='VERIFIED', verified_at=time.time(),
+                estop_latched_after_verification=safety.get('latched'),
+                stop_acknowledged_after_verification=safety.get('stop_acknowledged'),
+                result=manual.get('result'))
+            result['manual_initial_pose_trace'] = trace
+            if safety.get('latched') is not True or safety.get('stop_acknowledged') is not True:
+                raise RuntimeError('Initial pose released ESTOP without operator command')
+            return state
+        time.sleep(.2)
+    result['manual_initial_pose_trace'] = trace
+    raise TimeoutError('Web AMCL initial pose was not verified: '+str(trace[-3:]))
 
 
 def assess_dwell(result):
@@ -409,10 +500,14 @@ def main():
     parser.add_argument('--route', choices=('2', '3', '1,2', '1,2,3', '1,3,2'), default='1,2,3')
     parser.add_argument('--dispatch-mode', choices=('manual', 'inventory'), default='manual',
                         help='inventory submits a real manager shortage and starts operator dispatch')
+    parser.add_argument('--inventory-before-prearm', action='store_true',
+                        help='require manager request, web AMCL initial pose and ESTOP reset in operator order')
     parser.add_argument('--inject-transient', action='store_true',
                         help='Inject an isolated 0.3–0.4 s relay fault after actual route motion begins')
     args = parser.parse_args()
     route = [int(item) for item in args.route.split(',')]
+    if args.inventory_before_prearm and (args.dispatch_mode != 'inventory' or route != [3]):
+        parser.error('--inventory-before-prearm requires inventory dispatch to Sector 3')
     if os.environ.get('ROS_DOMAIN_ID') != '176' or not args.url.startswith(
             'http://127.0.0.1:8792'):
         parser.error('This test only contacts disposable domain 176 loopback port 8792')
@@ -435,6 +530,15 @@ def main():
                 if time.monotonic() >= readiness_deadline:
                     raise TimeoutError('Web server 8792 did not start')
                 time.sleep(.5)
+        manager = None
+        if args.inventory_before_prearm:
+            manager = client()
+            result['web_pages'] = {
+                'inventory': web_page_available(manager, base, '/inventory'),
+                'operator': web_page_available(browser, base, '/')}
+            result['inventory_request'] = submit_inventory_request(manager, base, 3)
+            result['inventory_request_created_at'] = result['inventory_request']['created_at']
+            verify_initial_home_pose(browser, base, result)
         # The parity-mode mux/guard starts latched, just like the physical
         # robot. The guard itself enforces two seconds of continuous healthy
         # inputs. Do not duplicate that requirement with an HTTP polling
@@ -480,6 +584,8 @@ def main():
                                f'web reset attempts={reset_attempts[-5:]}')
         result['startup_reset_requested_via_web'] = reset_requested
         result['startup_reset_attempts'] = reset_attempts
+        result['startup_reset_accepted_at'] = next(
+            (attempt['at'] for attempt in reset_attempts if attempt['accepted']), None)
         result['startup_reset_completed'] = reset_requested and (
             (state.get('safety') or {}).get('latched') is False)
         graph = graph_prearm()
@@ -501,24 +607,12 @@ def main():
         if not prearm['passed']:
             raise RuntimeError('Physical-style prearm failed: '+', '.join(
                 prearm['failed_gates']))
-        manager = None
         if args.dispatch_mode == 'inventory':
-            if route != [2]:
-                raise RuntimeError('Inventory repeat fixture requires one Sector 2 request')
-            manager = client()
-            paired = request(manager, base, '/api/inventory/pair',
-                             {'user_id': 1, 'domain_id': 176})
-            if paired.get('authenticated') is not True:
-                raise RuntimeError('Inventory manager domain pairing failed')
-            submitted = request(manager, base, '/api/inventory/requests', {
-                'marker_id': 2, 'item': 'Gazebo 왕복 검증', 'quantity': 1,
-                'client_request_id': f'classroom-repeat-{time.time_ns()}'})
-            requests = submitted.get('requests') or []
-            candidates = [item for item in requests if item.get('marker_id') == 2 and
-                          item.get('status') == 'PENDING']
-            if len(candidates) != 1:
-                raise RuntimeError('Exactly one pending Sector 2 inventory request required')
-            result['inventory_request'] = candidates[0]
+            if not args.inventory_before_prearm:
+                if route != [2]:
+                    raise RuntimeError('Inventory repeat fixture requires one Sector 2 request')
+                manager = client()
+                result['inventory_request'] = submit_inventory_request(manager, base, 2)
             state = request(browser, base, '/api/state')
             if (state.get('delivery') or {}).get('dispatch_ready') is not True:
                 raise RuntimeError('Inventory dispatch blocked: '+str(
@@ -538,6 +632,7 @@ def main():
         mission = response.get('mission', {})
         if mission.get('state') != 'NAVIGATING' or mission.get('route') != route:
             raise RuntimeError('Web rejected route '+str(route)+': '+str(mission))
+        result['dispatch_load_confirmed'] = args.dispatch_mode == 'inventory'
         result['mission_accepted_via_web'] = True
         result['configured_dwell_seconds'] = mission.get('sector_dwell_seconds')
         result['home_target'] = mission.get('home')

@@ -48,6 +48,7 @@ WEB_FULL_STACK_STAGES = {
     '24_web_memory_sector1_to_sector2_removal',
     '18_web_sector2_same_session_reentry',
     '19_web_inventory_sector2_same_session_reentry',
+    '25_web_inventory_sector3_moving_obstacle',
 }
 WEB_RUNTIME_KINDS = {'web_dwell', 'web_transient', 'web_moving_obstacle',
                      'web_reentry'}
@@ -185,6 +186,10 @@ STAGES = (
     Stage('19_web_inventory_sector2_same_session_reentry',
           '관리자 재고 요청→운용자 적재·출발→Sector 2→Home 두 번, 같은 웹·ROS 프로세스',
           ('--inventory',), ('Sector 2', 'Home'), 'web_reentry'),
+    Stage('25_web_inventory_sector3_moving_obstacle',
+          '전체 운용 절차: 재고 요청→웹 초기 위치·비상정지 해제·pre-arm→적재 출발→Sector 3 장애물→Home',
+          ('--inventory-before-prearm',),
+          ('Sector 3', 'Home'), 'web_moving_obstacle'),
     Stage('13_web_sector_dwell_1_2',
           '웹 임무 Sector 1 → 2: 각 5초 정지 후 다음 목표, 마지막 Home',
           (), ('Sector 1', 'Sector 2', 'Home'), 'web_dwell'),
@@ -395,6 +400,36 @@ def assess(stage: Stage, evidence: dict) -> dict:
                              '12_web_integrated_stress_home_obstacle'} and evidence.get(
                     'home_obstacle_temporal_check', {}).get('passed') is not True:
                 reasons.append('home_return_obstacle_timing_unverified')
+        if '--inventory-before-prearm' in stage.options:
+            request = evidence.get('inventory_request') or {}
+            initial = evidence.get('manual_initial_pose') or {}
+            completion = evidence.get('inventory_completion') or {}
+            pages = evidence.get('web_pages') or {}
+            if pages.get('inventory') is not True or pages.get('operator') is not True:
+                reasons.append('inventory_and_operator_web_pages_unverified')
+            if (evidence.get('dispatch_mode') != 'inventory' or
+                    request.get('marker_id') != 3 or request.get('quantity') != 1 or
+                    not isinstance(request.get('id'), int)):
+                reasons.append('sector3_inventory_request_unverified')
+            if (initial.get('state') != 'VERIFIED' or
+                    initial.get('estop_latched_after_verification') is not True or
+                    initial.get('stop_acknowledged_after_verification') is not True):
+                reasons.append('web_initial_pose_verification_unverified')
+            timestamps = [evidence.get('inventory_request_created_at'),
+                          initial.get('requested_at'), initial.get('verified_at'),
+                          evidence.get('startup_reset_accepted_at'),
+                          (evidence.get('prearm') or {}).get('sampled_at'),
+                          evidence.get('mission_started_at')]
+            if (not all(isinstance(value, (int, float)) and math.isfinite(value)
+                        for value in timestamps) or
+                    any(left >= right for left, right in zip(timestamps, timestamps[1:]))):
+                reasons.append('inventory_pose_reset_prearm_dispatch_order_unverified')
+            if evidence.get('dispatch_load_confirmed') is not True:
+                reasons.append('operator_load_confirmation_unverified')
+            if (completion.get('request_id') != request.get('id') or
+                    completion.get('status') != 'DELIVERED' or
+                    completion.get('service_active') is not False):
+                reasons.append('inventory_delivery_completion_unverified')
         if stage.key == '24_web_memory_sector1_to_sector2_removal':
             transition = evidence.get('memory_transition') or {}
             if transition.get('passed') is not True:
@@ -645,7 +680,9 @@ def start_memory_observer(output: Path):
 
 def start_web_obstacle_injector(stage: Stage, directory: Path):
     """Launch a Gazebo-only obstacle actor; the web server alone owns goals."""
-    target = (-.25, -1.98) if stage.key == '06_web_sector3_moving_obstacle' else HOME[:2]
+    target = (-.25, -1.98) if stage.key in {
+        '06_web_sector3_moving_obstacle',
+        '25_web_inventory_sector3_moving_obstacle'} else HOME[:2]
     workspace = REPO.parents[1]
     profile = REPO/'ros2_ws/src/smart_vision_amr/config/dds_udp_localhost.xml'
     script = REPO/'scripts/inject_classroom_web_obstacle.py'
@@ -722,9 +759,36 @@ def terminate_group(child: subprocess.Popen, timeout: float = 20.) -> None:
     child.wait(timeout=2.)
 
 
+def web_stage_runner_command(stage: Stage, directory: Path,
+                             laser_filter_for_change_memory: bool = False,
+                             measure_scan_filter: bool = False,
+                             nav_params_source: Path | None = None) -> list[str]:
+    dwell = stage.kind in {'web_dwell', 'web_transient', 'web_moving_obstacle',
+                           'web_reentry'}
+    command = [str(RUNNER), '--no-verifier', '--lifetime',
+               '2000' if stage.kind == 'web_reentry' else
+               '1400' if dwell else '180', '--mode',
+               'ekf_independent' if dwell else 'baseline',
+               '--output', str(directory)]
+    if dwell:
+        command.append('--record-incidents')
+    if '--stress' in stage.options:
+        command.append('--stress')
+    if '--memory-session' in stage.options:
+        command.append('--memory-session')
+    if laser_filter_for_change_memory:
+        command.append('--laser-filter-for-change-memory')
+    if measure_scan_filter:
+        command.append('--measure-scan-filter')
+    if nav_params_source is not None:
+        command += ['--nav-params-source', str(nav_params_source)]
+    return command
+
+
 def execute_web_stage(stage: Stage, root: Path,
                       laser_filter_for_change_memory: bool = False,
-                      measure_scan_filter: bool = False) -> int:
+                      measure_scan_filter: bool = False,
+                      nav_params_source: Path | None = None) -> int:
     assert_master_free(8792)
     # A second web_mission_server is also a potential control publisher.
     # The operator observes the mission on this stage's 8792 owner instead.
@@ -745,21 +809,9 @@ def execute_web_stage(stage: Stage, root: Path,
     try:
         dwell = stage.kind in {'web_dwell', 'web_transient', 'web_moving_obstacle',
                                'web_reentry'}
-        command = [str(RUNNER), '--no-verifier', '--lifetime',
-                   '2000' if stage.kind == 'web_reentry' else
-                   '1400' if dwell else '180', '--mode',
-                   'ekf_independent' if dwell else 'baseline',
-                   '--output', str(directory)]
-        if dwell:
-            command.append('--record-incidents')
-        if '--stress' in stage.options:
-            command.append('--stress')
-        if '--memory-session' in stage.options:
-            command.append('--memory-session')
-        if laser_filter_for_change_memory:
-            command.append('--laser-filter-for-change-memory')
-        if measure_scan_filter:
-            command.append('--measure-scan-filter')
+        command = web_stage_runner_command(
+            stage, directory, laser_filter_for_change_memory,
+            measure_scan_filter, nav_params_source)
         runner = subprocess.Popen(command, cwd=REPO, start_new_session=True)
         deadline = time.monotonic()+15.
         while not directory.is_dir() and time.monotonic() < deadline:
@@ -801,6 +853,9 @@ def execute_web_stage(stage: Stage, root: Path,
         elif dwell:
             verifier += ['--route', web_stage_route(stage),
                          '--mission-timeout', '1200']
+            if '--inventory-before-prearm' in stage.options:
+                verifier += ['--dispatch-mode', 'inventory', '--inventory-before-prearm',
+                             '--readiness-timeout', '180']
             if '--stress' in stage.options:
                 verifier += ['--obstacle-hold-timeout', '120']
             if stage.kind == 'web_transient':
@@ -858,7 +913,8 @@ def stage_runner_command(stage: Stage, directory: Path, leg_timeout: int,
                          obstacle_hold_timeout: int,
                          tf_source_best_effort: bool = False,
                          laser_filter_for_change_memory: bool = False,
-                         measure_scan_filter: bool = False) -> list[str]:
+                         measure_scan_filter: bool = False,
+                         nav_params_source: Path | None = None) -> list[str]:
     command = [str(RUNNER), '--mode', 'baseline', '--profile', 'clean',
                '--timeout', str(leg_timeout),
                '--obstacle-hold-timeout', str(obstacle_hold_timeout),
@@ -869,6 +925,8 @@ def stage_runner_command(stage: Stage, directory: Path, leg_timeout: int,
         command.append('--laser-filter-for-change-memory')
     if measure_scan_filter:
         command.append('--measure-scan-filter')
+    if nav_params_source is not None:
+        command += ['--nav-params-source', str(nav_params_source)]
     return command
 
 
@@ -876,16 +934,18 @@ def execute_stage(stage: Stage, root: Path, leg_timeout: int,
                   obstacle_hold_timeout: int,
                   tf_source_best_effort: bool = False,
                   laser_filter_for_change_memory: bool = False,
-                  measure_scan_filter: bool = False) -> int:
+                  measure_scan_filter: bool = False,
+                  nav_params_source: Path | None = None) -> int:
     assert_master_free(MASTER_PORT)
     if stage.kind in {'web_disconnect', 'web_dwell', 'web_transient',
                       'web_moving_obstacle', 'web_reentry'}:
         return execute_web_stage(stage, root, laser_filter_for_change_memory,
-                                 measure_scan_filter)
+                                 measure_scan_filter, nav_params_source)
     directory = root/stage.key
     command = stage_runner_command(stage, directory, leg_timeout,
                                    obstacle_hold_timeout, tf_source_best_effort,
-                                   laser_filter_for_change_memory, measure_scan_filter)
+                                   laser_filter_for_change_memory, measure_scan_filter,
+                                   nav_params_source)
     print('\n'+stage.key+': '+' '.join(command), flush=True)
     timeline_file = root/(stage.key+'.safety_timeline.jsonl')
     observer, observer_log = start_timeline(timeline_file)
@@ -925,7 +985,8 @@ def execute_stage(stage: Stage, root: Path, leg_timeout: int,
 def run_in_network_namespace(stage: Stage, root: Path, leg_timeout: int,
                              obstacle_hold_timeout: int,
                              laser_filter_for_change_memory: bool = False,
-                             measure_scan_filter: bool = False) -> int:
+                             measure_scan_filter: bool = False,
+                             nav_params_source: Path | None = None) -> int:
     # Isolate the entire Gazebo/DDS/observer process tree in *one* new user
     # and network namespace. Host Wi-Fi, domain 16, and host routing stay intact.
     env = dict(os.environ)
@@ -941,6 +1002,8 @@ def run_in_network_namespace(stage: Stage, root: Path, leg_timeout: int,
         command.append('--laser-filter-for-change-memory')
     if measure_scan_filter:
         command.append('--measure-scan-filter')
+    if nav_params_source is not None:
+        command += ['--nav-params-source', str(nav_params_source)]
     return subprocess.run(command, cwd=REPO, env=env, check=False).returncode
 
 
@@ -1484,7 +1547,22 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
                 stage.key != '24_web_memory_sector1_to_sector2_removal')
             boxes = (safety_timeline.load_static_world_boxes(static_fixture)
                      if geometry_allowed and static_fixture.is_file() else None)
-            safety = safety_timeline.assess(records, static_world_boxes=boxes)
+            nav_parameters = directory/'classroom_nav_sim_time.yaml'
+            stop_model = {}
+            if nav_parameters.is_file():
+                # A fast physical-profile trial must use the same commanded
+                # speed and deceleration in its independent stopping witness.
+                nav_config = yaml.safe_load(nav_parameters.read_text())
+                try:
+                    follower = nav_config['controller_server']['ros__parameters']['FollowPath']
+                    stop_model = {
+                        'max_linear_speed_mps': float(follower['max_vel_x']),
+                        'decel_limit_mps2': abs(float(follower['decel_lim_x'])),
+                    }
+                except (KeyError, TypeError, AttributeError) as exc:
+                    raise ValueError('Nav2 FollowPath stopping model missing') from exc
+            safety = safety_timeline.assess(records, static_world_boxes=boxes,
+                                            **stop_model)
             safety['static_geometry_witness'] = (
                 str(static_fixture) if boxes is not None else None)
             if stage.kind in {'web_dwell', 'web_transient', 'web_moving_obstacle',
@@ -1612,6 +1690,8 @@ def main() -> int:
                         help='A/B: weak laser speckle filter for change_memory only')
     parser.add_argument('--measure-scan-filter', action='store_true',
                         help='Record paired raw/filtered scan arrival and singleton statistics')
+    parser.add_argument('--nav-params-source', type=Path,
+                        help='Nav2 YAML for the trial (default: classroom Gazebo profile)')
     args = parser.parse_args()
     if args.leg_timeout < 30 or args.leg_timeout > 600:
         parser.error('--leg-timeout must be 30..600 seconds')
@@ -1626,6 +1706,12 @@ def main() -> int:
         parser.error('--output is required')
     if args.tf_source_best_effort and args.run not in ('03_sector_3',):
         parser.error('--tf-source-best-effort is only for the isolated Stage03 A/B run')
+    if args.nav_params_source is not None and (args.run or args.run_inner):
+        args.nav_params_source = args.nav_params_source.expanduser().resolve()
+        if (args.nav_params_source.suffix.lower() not in {'.yaml', '.yml'} or
+                not args.nav_params_source.is_file() or
+                not args.nav_params_source.stat().st_size):
+            parser.error('--nav-params-source must name a nonempty YAML file')
     try:
         stages = selected_stages(args.run or args.assess_existing or args.run_inner)
     except ValueError as exc:
@@ -1645,7 +1731,8 @@ def main() -> int:
                              args.obstacle_hold_timeout,
                              args.tf_source_best_effort,
                              args.laser_filter_for_change_memory,
-                             args.measure_scan_filter)
+                             args.measure_scan_filter,
+                             args.nav_params_source)
     report = {'created_utc': datetime.now(timezone.utc).isoformat(),
               'domain': 176, 'localhost_only': True,
               'physical_robot_touched': False,
@@ -1654,6 +1741,8 @@ def main() -> int:
               'physical_drive': 'NOT_RUN_USER_OPERATED',
               'laser_filter_for_change_memory': args.laser_filter_for_change_memory,
               'scan_pair_observer': args.measure_scan_filter,
+              'nav_params_source': (str(args.nav_params_source)
+                                    if args.nav_params_source is not None else None),
               'stages': []}
     for stage in stages:
         directory = root/stage.key
@@ -1665,13 +1754,15 @@ def main() -> int:
                 returncode = (run_in_network_namespace(stage, root, args.leg_timeout,
                                                        args.obstacle_hold_timeout,
                                                        args.laser_filter_for_change_memory,
-                                                       args.measure_scan_filter)
+                                                       args.measure_scan_filter,
+                                                       args.nav_params_source)
                               if stage.kind == 'wan_absent' else
                               execute_stage(stage, root, args.leg_timeout,
                                             args.obstacle_hold_timeout,
                                             args.tf_source_best_effort,
                                             args.laser_filter_for_change_memory,
-                                            args.measure_scan_filter))
+                                            args.measure_scan_filter,
+                                            args.nav_params_source))
             except KeyboardInterrupt:
                 print('Interrupted; the child runner owns Gazebo cleanup.', file=sys.stderr)
                 raise

@@ -140,6 +140,34 @@ def test_fresh_map_pose_advances_curve_preview_and_stale_pose_restores_conservat
     assert node.follow_speed_limit < .25
 
 
+def test_heading_error_releases_curve_limit_before_tight_turn_drift():
+    from math import cos, sin
+    from geometry_msgs.msg import TransformStamped
+    node = FollowerHarness()
+    node.parameters.update({'curve_base_frame': 'base_footprint',
+                            'curve_pose_timeout': 1.})
+    node.controller_base_speed = .24
+    path = make_path()
+    path.poses[1].pose.position.x = .6
+    path.poses[2].pose.position.x = .6
+    path.poses[2].pose.position.y = .4
+    node.active_path = path
+    transform = TransformStamped()
+    transform.header.stamp.sec = node.clock_seconds
+    transform.transform.translation.x = .3
+    transform.transform.rotation.z = sin(.25)
+    transform.transform.rotation.w = cos(.25)
+    node.tf_buffer = Mock()
+    node.tf_buffer.lookup_transform.return_value = transform
+
+    node._publish_curve_limit()
+    assert node.follow_speed_limit == 0.  # |alpha|=.5 > configured .45 rad.
+
+    node.parameters['curve_alignment_angle'] = .65
+    node._publish_curve_limit()
+    assert 0. < node.follow_speed_limit < .24
+
+
 def test_dwb_absolute_limit_above_base_is_explicitly_reset_not_ignored():
     node = FollowerHarness()
     node.controller_base_speed = .12

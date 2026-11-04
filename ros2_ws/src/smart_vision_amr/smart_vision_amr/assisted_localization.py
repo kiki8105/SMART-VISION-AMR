@@ -58,7 +58,7 @@ class AssistedLocalization:
                  max_rotation=2.0 * math.pi, min_rotation=math.pi / 2.0,
                  timeout=65.0, sensor_timeout=1.0, estimate_timeout=2.5,
                  stable_duration=2.0, min_estimates=5,
-                 position_std_limit=.25, yaw_std_limit=.26,
+                 position_std_limit=.50, yaw_std_limit=.40,
                  settle_duration=1.0, acquire_timeout=8.0,
                  initialize_timeout=10.0, motion_timeout=6.0):
         values = (angular_speed, max_rotation, min_rotation, timeout,

@@ -80,6 +80,36 @@ def test_unsafe_raw_hit_blocks_start_only_exception():
                                       start, pose, .22 / .05, .02 / .05) == set()
 
 
+def test_static_inflation_start_clears_only_certified_cell_and_never_reenters():
+    size, start, occupied = 40, (18, 18), (24, 18)
+    raw = Grid(tuple(tuple((x, y) == occupied for x in range(size))
+                     for y in range(size)))
+    inflated = Grid(tuple(tuple(abs(x-24) <= 6 and abs(y-18) <= 6
+                                for x in range(size)) for y in range(size)))
+    assert inflated.is_static_obstacle(start) and not raw.is_static_obstacle(start)
+    safe = certified_start_only_edges(raw, inflated, set(), set(), start,
+                                      (18.5, 18.5), .24/.05, .02/.05)
+    assert (start, (17, 18)) in safe
+    assert (start, (19, 18)) not in safe
+    view = Grid(tuple(tuple(False if (x, y) == start else inflated.rows[y][x]
+                            for x in range(size)) for y in range(size)))
+    denied = {(start, (18+dx, 18+dy)) for dx in (-1, 0, 1)
+              for dy in (-1, 0, 1) if (dx or dy) and (start, (18+dx, 18+dy)) not in safe}
+    path = AStarPlanner().plan(view, start, (10, 18), blocked_edges=denied)
+    assert path and path[:2] == [start, (17, 18)]
+    assert all(not inflated.is_static_obstacle(cell) for cell in path[1:])
+    assert inflated.is_static_obstacle(start)
+
+
+def test_static_start_diagonal_does_not_cut_adjacent_inflation_corner():
+    raw = Grid(tuple(tuple(False for _ in range(40)) for _ in range(40)))
+    inflated = Grid(tuple(tuple((x, y) in {(18, 18), (17, 18), (18, 17)}
+                                for x in range(40)) for y in range(40)))
+    safe = certified_start_only_edges(raw, inflated, set(), set(), (18, 18),
+                                      (18.5, 18.5), 4.8, .4)
+    assert ((18, 18), (17, 17)) not in safe
+
+
 def test_clear_start_can_have_one_unsafe_first_edge_but_keep_safe_alternative():
     size = 40
     raw = Grid(tuple(tuple(False for _ in range(size)) for _ in range(size)))

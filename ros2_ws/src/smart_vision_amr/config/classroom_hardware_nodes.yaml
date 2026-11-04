@@ -15,7 +15,7 @@
     local_detour_max_length: 4.0  # m; longer detours use global A*.
     local_detour_max_lateral_distance: 0.9  # m from the original local route.
     local_detour_clearance_margin: 0.02  # m beyond robot_radius; never reduces inflation.
-    local_detour_observation_margin: 0.02  # m; extra scan reserve after circular cell/pose quantization.
+    local_detour_observation_margin: 0.0  # m; use the 0.22 m chassis radius + 0.02 m clearance, with cell/pose quantization still applied.
     # A first scan may show only the front face of an unmapped object.
     # Reserve its unseen depth locally; never write these cells to the map/memory.
     local_detour_occlusion_extension: 0.5  # m along the original forward route.
@@ -37,7 +37,7 @@
     # Choose the wider route when multiple collision-free A* routes exist.
     # These add only travel cost; unknown/occupied cells and 5-cell inflation
     # remain impassable. They cannot create a route through a sealed corridor.
-    preferred_clearance: 0.45
+    preferred_clearance: 0.35  # m; softer route preference, not the collision radius.
     clearance_penalty_gain: 1.5
     # A bounded escape is allowed only after a continuous straight forward
     # history, physical footprint margin, fresh LiDAR and a reachable A* exit.
@@ -91,7 +91,7 @@
     curve_base_frame: base_footprint
     curve_pose_timeout: 1.0  # s; stale pose keeps the conservative whole-route cap.
     curve_minimum_chord: 0.15  # m; avoids curvature spikes from dense tracking poses.
-    curve_alignment_angle: 0.65  # rad; restore Nav2 angular range for in-place alignment.
+    curve_alignment_angle: 0.45  # rad; release angular cap before tight-turn heading error grows.
     curve_goal_heading_distance: 0.30  # m; do not restrict final yaw alignment.
     curve_max_linear_velocity: 0.25  # m/s
     curve_max_angular_velocity: 0.35  # rad/s

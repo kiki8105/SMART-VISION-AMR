@@ -89,7 +89,7 @@ class FollowerHarness(PathFollower):
             "curve_speed_limit_enabled": True, "curve_preview_distance": .75,
             "curve_max_linear_velocity": .25, "curve_max_angular_velocity": .35,
             "curve_max_lateral_acceleration": .10, "curve_minimum_chord": .15,
-            "curve_alignment_angle": .65, "curve_goal_heading_distance": .30,
+            "curve_alignment_angle": .45, "curve_goal_heading_distance": .30,
             "recovery_min_distance": 0.10, "recovery_max_distance": 0.35,
             "recovery_min_speed": 0.03, "recovery_max_speed": 0.07,
             "recovery_robot_radius": 0.22, "recovery_rear_margin": 0.05,

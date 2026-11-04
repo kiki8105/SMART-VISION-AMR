@@ -10,14 +10,19 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
+from builtin_interfaces.msg import Time
 from geometry_msgs.msg import Point32, PolygonStamped, TransformStamped
 
-from test_navigation_input_preflight import healthy_follower, polygon
+from test_navigation_input_preflight import healthy_follower, polygon, start
+from test_path_follower_cancel import goal_for, make_path
 
 
 def ros_now(node, seconds):
+    nanoseconds = round(seconds*1_000_000_000)
+    sec, nanosec = divmod(nanoseconds, 1_000_000_000)
     node.get_clock = lambda: SimpleNamespace(
-        now=lambda: SimpleNamespace(nanoseconds=round(seconds*1_000_000_000)))
+        now=lambda: SimpleNamespace(nanoseconds=nanoseconds,
+                                    to_msg=lambda: Time(sec=sec, nanosec=nanosec)))
 
 
 def odom(node, seconds, x, *, yaw=0., frame='odom'):
@@ -152,3 +157,299 @@ def test_old_asymmetric_polygon_still_requires_current_body_orientation_agreemen
     ros_now(node, 5.2)
     odom(node, 5.2, 0., yaw=.2)
     assert 'orientation' in node._navigation_input_error()
+
+
+def test_future_footprint_waits_for_bracketing_odom_without_canceling_valid_action():
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        _, handle = start(node)
+        previous = node.latest_footprint
+        circle(node, .0075, stamp=5.05)
+        candidate = node.navigation_pending_footprint['message']
+        assert node.latest_footprint is previous
+        assert node._navigation_input_error() is None
+        node._watch_navigation_inputs()
+        handle.cancel_goal_async.assert_not_called()
+
+        clock.return_value = 100.05
+        ros_now(node, 5.1)
+        odom(node, 5.1, .015)
+        assert node.navigation_pending_footprint is None
+        assert node.latest_footprint is candidate
+        assert node.latest_footprint_at == 100.
+        assert node.navigation_footprint_receipt_ros_ns == 5_000_000_000
+        assert node._navigation_odom_at(5_050_000_000, 'odom', 'base_footprint')[0] == pytest.approx(.0075)
+        assert node._navigation_input_error() is None
+
+
+@pytest.mark.parametrize('odom_age, future_offset', [
+    (.267210175, .099940742),
+    (.293100768, .050851997),
+    (.334336756, .097553969),
+    (.266740099, .049410057),
+    (.313634870, .052500631),
+])
+@pytest.mark.parametrize('receipt_delayed', [False, True])
+def test_actual_delayed_odom_cases_defer_future_polygon_without_legacy_receipt_proof(
+        odom_age, future_offset, receipt_delayed):
+    """Five live failures were inside .75s odom freshness, outside .25s proof.
+
+    Reproduce their source-time skew without ROS/DDS. Neither callback receipt
+    order nor a current pose may substitute for bracketing source odometry.
+    """
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        _, handle = start(node)
+        previous = node.latest_footprint
+        clock.return_value = 100.+odom_age
+        ros_now(node, 5.+odom_age)
+        if not receipt_delayed:
+            node.latest_odom_at = clock.return_value-.02
+        circle(node, .15*future_offset, stamp=5.+future_offset)
+        pending = node.navigation_pending_footprint
+        assert pending is not None
+        assert pending['receipt_pose'] is None  # The legacy .25s proof stays strict.
+        candidate = pending['message']
+        assert node.latest_footprint is previous
+        assert node._navigation_input_error() is None
+        node._watch_navigation_inputs()
+        handle.cancel_goal_async.assert_not_called()
+        with pytest.raises(ValueError, match='No continuous odometry'):
+            node._navigation_odom_at(pending['stamp_ns'], 'odom', 'base_footprint')
+
+        clock.return_value += .05
+        ros_now(node, 5.+odom_age+.05)
+        odom(node, 5.+future_offset+.05, .15*(future_offset+.05))
+        assert node.navigation_pending_footprint is None
+        assert node.latest_footprint is candidate
+        assert node.latest_footprint_at == pending['received_at']
+        assert node.navigation_footprint_receipt_ros_ns == pending['received_ros_ns']
+        assert node.navigation_footprint_receipt_pose is None
+        assert node._navigation_odom_at(pending['stamp_ns'], 'odom', 'base_footprint')[0] == pytest.approx(.15*future_offset)
+        assert node._navigation_input_error() is None
+        node._watch_navigation_inputs()
+        handle.cancel_goal_async.assert_not_called()
+
+
+@pytest.mark.parametrize('fault', ['source_deadline', 'receipt_deadline', 'nonfinite_receipt'])
+def test_future_deferral_cannot_hide_navigation_odom_deadline_or_nonfinite_receipt(fault):
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.):
+        node = healthy_follower()
+        _, handle = start(node)
+        ros_now(node, 5.75 if fault == 'source_deadline' else 5.3)
+        if fault == 'source_deadline':
+            node.latest_scan.header.stamp.nanosec = 750_000_000
+        node.latest_odom_at = (float('nan') if fault == 'nonfinite_receipt' else
+                               99.25 if fault == 'receipt_deadline' else 100.)
+        circle(node, .0075, stamp=5.05)
+        assert node.navigation_pending_footprint is None
+        assert 'odom' in node._navigation_input_error()
+        node._watch_navigation_inputs()
+        handle.cancel_goal_async.assert_called_once()
+
+
+@pytest.mark.parametrize('fault', ['epoch', 'expiry'])
+def test_delayed_odom_pending_candidate_still_fails_closed_on_epoch_or_expiry(fault):
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        _, handle = start(node)
+        previous = node.latest_footprint
+        ros_now(node, 5.3)
+        circle(node, .0075, stamp=5.05)
+        assert node.navigation_pending_footprint is not None
+        clock.return_value = 100.25 if fault == 'expiry' else 100.05
+        odom(node, 5.1, 1. if fault == 'epoch' else .015)
+        assert node.navigation_pending_footprint is None
+        assert node.latest_footprint is previous
+        assert ('Odometry changed' if fault == 'epoch' else 'Timed out') in node._navigation_input_error()
+        node._watch_navigation_inputs()
+        handle.cancel_goal_async.assert_called_once()
+
+
+def test_delayed_odom_does_not_relax_old_header_receipt_time_proof():
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.):
+        node = healthy_follower()
+        ros_now(node, 5.3)
+        circle(node, 0., stamp=1.)
+        assert node.navigation_pending_footprint is None
+        assert node.navigation_footprint_receipt_pose is None
+        assert 'Old footprint has no fresh receipt-time odometry proof' in node._navigation_input_error()
+
+
+def test_first_future_footprint_cannot_dispatch_before_exact_odom_alignment():
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        node.latest_footprint = node.latest_footprint_at = None
+        circle(node, 0., stamp=5.05)
+        path = make_path(stamp=5)
+        node.on_goal(goal_for(path, stamp=4))
+        node.on_path(path)
+        node.client.send_goal_async.assert_not_called()
+        assert node._navigation_input_error() == 'Missing footprint'
+        clock.return_value = 100.05
+        ros_now(node, 5.05)
+        odom(node, 5.05, 0.)
+        assert node._navigation_input_error() is None
+        node.on_path(make_path(stamp=6))
+        node.client.send_goal_async.assert_called_once()
+
+
+@pytest.mark.parametrize('elapsed, allowed', [(-.001, False), (.249, True), (.250, False)])
+def test_pending_deadline_is_steady_and_late_odom_cannot_resurrect_expired_footprint(elapsed, allowed):
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        _, handle = start(node)
+        previous = node.latest_footprint
+        circle(node, 0., stamp=5.05)
+        candidate = node.navigation_pending_footprint['message']
+        clock.return_value = 100.+elapsed  # ROS clock intentionally stays at 5.
+        odom(node, 5.1, 0.)
+        assert node.navigation_pending_footprint is None
+        assert (node.latest_footprint is candidate) is allowed
+        if allowed:
+            assert node._navigation_input_error() is None
+            node._watch_navigation_inputs()
+            handle.cancel_goal_async.assert_not_called()
+        else:
+            assert node.latest_footprint is previous
+            assert 'Timed out' in node._navigation_input_error()
+            node._watch_navigation_inputs()
+            handle.cancel_goal_async.assert_called_once()
+            clock.return_value = 100.3
+            odom(node, 5.15, 0.)
+            assert node.latest_footprint is previous
+            assert 'Timed out' in node._navigation_input_error()
+
+
+def test_newer_pending_footprints_cannot_slide_original_deadline():
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        circle(node, 0., stamp=5.05)
+        clock.return_value = 100.2
+        circle(node, 0., stamp=5.1)
+        assert node.navigation_pending_footprint['wait_started_at'] == 100.
+        assert node.navigation_pending_footprint['stamp_ns'] == 5_050_000_000
+        clock.return_value = 100.25
+        assert 'Timed out' in node._navigation_input_error()
+
+
+@pytest.mark.parametrize('fault', ['gap', 'jump', 'frame', 'base', 'backward', 'malformed'])
+def test_pending_candidate_is_disqualified_by_odometry_epoch_change(fault):
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        previous = node.latest_footprint
+        circle(node, 0., stamp=5.05)
+        message = deepcopy(node.latest_odom)
+        message.header.stamp.sec = 5
+        message.header.stamp.nanosec = 300_000_000 if fault == 'gap' else 100_000_000
+        if fault == 'jump': message.pose.pose.position.x = 1.
+        if fault == 'frame': message.header.frame_id = 'other_odom'
+        if fault == 'base': message.child_frame_id = 'other_base'
+        if fault == 'backward': message.header.stamp.sec = 4
+        if fault == 'malformed': message.pose.pose.orientation.w = 0.
+        clock.return_value = 100.05
+        node.on_odom(message)
+        assert node.navigation_pending_footprint is None
+        assert node.latest_footprint is previous
+        assert 'Odometry changed' in node._navigation_input_error()
+
+
+@pytest.mark.parametrize('fault', ['scan', 'odom', 'costmap', 'footprint', 'costmap_geometry'])
+def test_pending_alignment_does_not_hide_other_input_faults_or_extend_previous_deadlines(fault):
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.):
+        node = healthy_follower()
+        _, handle = start(node)
+        circle(node, 0., stamp=5.05)
+        if fault == 'costmap_geometry':
+            node.latest_costmap.data = []
+        else:
+            setattr(node, 'latest_'+fault+'_at', 98.)
+        assert node._navigation_input_error() is not None
+        node._watch_navigation_inputs()
+        handle.cancel_goal_async.assert_called_once()
+
+
+@pytest.mark.parametrize('fault', ['empty_frame', 'changed_frame', 'nan', 'crossed', 'size'])
+def test_malformed_future_footprint_is_not_hidden_behind_previous_good_geometry(fault):
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.):
+        node = healthy_follower()
+        circle(node, 0., stamp=5.02)
+        assert node.navigation_pending_footprint is not None
+        message = deepcopy(node.latest_footprint)
+        message.header.stamp.nanosec = 50_000_000
+        if fault == 'empty_frame': message.header.frame_id = ''
+        if fault == 'changed_frame': message.header.frame_id = 'unconnected_grid'
+        if fault == 'nan': message.polygon.points[0].x = float('nan')
+        if fault == 'crossed':
+            a, b = message.polygon.points[0], message.polygon.points[8]
+            message.polygon.points[0], message.polygon.points[8] = b, a
+        if fault == 'size':
+            for point in message.polygon.points:
+                point.x *= 10.
+                point.y *= 10.
+        node.on_footprint(message)
+        assert node.navigation_pending_footprint is None
+        assert node.latest_footprint is message
+        assert node._navigation_input_error() is not None
+
+
+def test_aligned_pending_polygon_still_must_match_actual_acquisition_position():
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        circle(node, .2, stamp=5.05)
+        clock.return_value = 100.05
+        odom(node, 5.1, 0.)
+        assert 'Footprint disagrees' in node._navigation_input_error()
+
+
+def test_missing_acquisition_history_warning_reports_bounded_source_context():
+    node = healthy_follower()
+    circle(node, 0., stamp=4.9)  # Fresh header predates the only retained odom sample.
+    assert node._navigation_input_error() is not None
+    message = node.logger.warning.call_args.args[0]
+    assert 'No continuous odometry at footprint acquisition time' in message
+    for value in ('requested_ns=4900000000', 'first_ns=5000000000',
+                  'last_ns=5000000000', 'count=1', 'epoch=0',
+                  "requested_frames=('odom', 'base_footprint')",
+                  "first_frames=('odom', 'base_footprint')",
+                  "last_frames=('odom', 'base_footprint')"):
+        assert value in message
+
+
+def test_high_rate_future_footprints_do_not_starve_earliest_acquisition_alignment():
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        _, handle = start(node)
+        ros_now(node, 5.1)
+        circle(node, 0., stamp=5.02)
+        first = node.navigation_pending_footprint['message']
+        for index, stamp in enumerate((5.04, 5.06, 5.08), 1):
+            clock.return_value = 100.+index*.01
+            circle(node, 0., stamp=stamp)
+            assert node.navigation_pending_footprint['message'] is first
+        clock.return_value = 100.05
+        odom(node, 5.05, 0.)  # Brackets the first, not the most recent polygon.
+        assert node.latest_footprint is first
+        assert node.navigation_pending_footprint is None
+        assert node.latest_footprint_at == 100.
+        assert node._navigation_input_error() is None
+        node._watch_navigation_inputs()
+        handle.cancel_goal_async.assert_not_called()
+        with pytest.raises(ValueError, match='No continuous odometry'):
+            node._navigation_odom_at(5_080_000_000, 'odom', 'base_footprint')
+
+
+def test_new_genuinely_aligned_footprint_replaces_pending_candidate_normally():
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.):
+        node = healthy_follower()
+        circle(node, 0., stamp=5.05)
+        assert node.navigation_pending_footprint is not None
+        transform = TransformStamped()
+        transform.transform.rotation.w = 1.
+        node.tf_buffer.lookup_transform.side_effect = None
+        node.tf_buffer.lookup_transform.return_value = transform
+        circle(node, 0., stamp=5., frame='connected_grid')
+        assert node.navigation_pending_footprint is None
+        assert node.latest_footprint.header.frame_id == 'connected_grid'
+        assert node.latest_footprint.header.stamp.nanosec == 0
+        assert node._navigation_input_error() is None

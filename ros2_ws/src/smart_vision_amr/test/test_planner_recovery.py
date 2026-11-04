@@ -76,7 +76,11 @@ class PlannerHarness(AStarPlannerNode):
         return SimpleNamespace(value=self.params[name])
 
     def get_clock(self):
-        return SimpleNamespace(now=lambda: SimpleNamespace(to_msg=lambda: self.last_goal.header.stamp))
+        return SimpleNamespace(now=lambda: SimpleNamespace(
+            nanoseconds=(self.latest_odom[1] if self.latest_odom else
+                         (self.last_goal.header.stamp.sec*1_000_000_000+self.last_goal.header.stamp.nanosec
+                          if self.last_goal is not None else 0)),
+            to_msg=lambda: self.last_goal.header.stamp))
 
 
 def make_map(blocked=()):
@@ -151,6 +155,7 @@ class PlannerRecoveryTests(unittest.TestCase):
         """Supply synchronized map TF and independent odometry to the planner."""
         odom = Odometry()
         odom.header.frame_id = 'odom'
+        odom.child_frame_id = 'base_link'
         odom.header.stamp.sec = 10
         odom.header.stamp.nanosec = stamp_ns
         odom.pose.pose.position.x = x if odom_x is None else odom_x
@@ -174,9 +179,20 @@ class PlannerRecoveryTests(unittest.TestCase):
         self.node.map_signature = (65, 5, 0)
         self.node.params['obstacle_inflation_cells'] = 5
 
-    def forward_trail_to_inflated_start(self, final_x=.35):
+    def forward_trail_to_inflated_start(self, final_x=.38):
         """Travel 0.30 m in one straight odom-verified segment under goal 10."""
         self.reverse_map()
+        # These legacy sequencing tests isolate recovery state. Independent
+        # health/mux freshness and the physical-radius floor are exercised by
+        # the dedicated planner reverse-evidence tests.
+        def fresh_pose():
+            transform = self.node.tf_buffer.lookup_transform.return_value
+            stamp = transform.header.stamp
+            self.node.last_fresh_motion_pose_stamp_ns = stamp.sec*1_000_000_000+stamp.nanosec
+            return (transform.transform.translation.x, transform.transform.translation.y,
+                    3.141592653589793)
+        self.node._fresh_motion_pose = fresh_pose
+        self.node._automatic_resume_allowed = lambda: True
         self.set_verified_pose(final_x + .30, record=False)
         old_goal = make_goal(stamp=10)
         old_goal.pose.position.x, old_goal.pose.position.y = 1.55, 1.05
@@ -184,6 +200,14 @@ class PlannerRecoveryTests(unittest.TestCase):
         for step, x in enumerate((final_x + .20, final_x + .10, final_x), 1):
             self.now.return_value = 100.0 + step * .1
             self.set_verified_pose(x, stamp_ns=step * 100_000_000)
+        # Supply a distinct stationary hold after the verified forward trail.
+        self.now.return_value = 100.55
+        self.set_verified_pose(final_x, stamp_ns=550_000_000, record=False)
+        latest = self.node.latest_odom
+        self.node.odom_samples = deque((
+            (100.30+i*.05, 10_300_000_000+i*50_000_000,
+             latest[2], latest[3], latest[4], latest[5]) for i in range(6)), maxlen=100)
+        self.node.breadcrumb_odom_anchor = latest
         self.assertGreaterEqual(len(self.node.breadcrumbs), 4)
 
     def test_no_path_then_obstacle_clear_retries_same_goal_at_bounded_rate(self):
@@ -385,7 +409,7 @@ class PlannerRecoveryTests(unittest.TestCase):
 
     def test_stale_odom_clears_cross_goal_reverse_history(self):
         self.forward_trail_to_inflated_start()
-        self.now.return_value = 101.2
+        self.now.return_value = 101.5
         new_goal = make_goal(stamp=11)
         new_goal.pose.position.x, new_goal.pose.position.y = 1.55, 1.05
         self.node.on_goal(new_goal)

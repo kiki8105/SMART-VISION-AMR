@@ -80,7 +80,7 @@ class WebMissionTests(unittest.TestCase):
         self.assertIn('최신 map→base TF', missing)
         self.assertTrue(any('AMCL 초기 위치·수렴 대기' in reason for reason in missing))
 
-    def test_camera_outage_allows_existing_route_resume_but_not_new_departure(self):
+    def test_camera_outage_allows_route_start_and_resume_with_warning(self):
         self.ready()
         self.assertEqual(self.request('POST', '/api/mission/start', {})[0], 200)
         self.assertEqual(self.request('POST', '/api/mission/pause', {})[0], 200)
@@ -91,22 +91,23 @@ class WebMissionTests(unittest.TestCase):
         self.assertEqual(self.request('POST', '/api/mission/resume', {})[0], 200)
         self.assertEqual(self.app.mission.state, 'NAVIGATING')
         self.assertEqual(self.request('POST', '/api/mission/pause', {})[0], 200)
-        self.assertEqual(self.request('POST', '/api/mission/restart', {})[0], 400)
+        self.assertEqual(self.request('POST', '/api/mission/restart', {})[0], 200)
         self.app.mission.state = 'HOME_REACHED'
-        self.assertEqual(self.request('POST', '/api/mission/start', {})[0], 400)
+        self.assertEqual(self.request('POST', '/api/mission/start', {})[0], 200)
+        self.assertTrue(any('카메라' in warning for warning in
+                            self.request('GET', '/api/health')[1]['warnings']))
 
-    def test_front_marker_requires_front_video_to_start_but_can_resume_degraded(self):
+    def test_front_marker_video_outage_warns_without_blocking_start_or_resume(self):
         self.app.markers[2]['camera'] = 'front'
         self.app.mission.markers[2]['camera'] = 'front'
         self.assertEqual(self.request('POST', '/api/mission', {'route': [2]})[0], 200)
         self.ready(camera=False)
         status, body, _ = self.request('POST', '/api/mission/start', {})
-        self.assertEqual(status, 400)
-        self.assertIn('최신 전방 카메라 영상', body['error'])
-        self.assertEqual(self.app.mission.commands, [])
+        self.assertEqual(status, 200)
+        self.assertTrue(any('전방 카메라' in warning for warning in body['health']['warnings']))
         self.app.front_camera_at = time.monotonic()
-        self.assertEqual(self.request('POST', '/api/mission/start', {})[0], 200,
-                         'a front-only route must not require the rear camera')
+        self.assertFalse(any('전방 카메라' in warning for warning in
+                             self.request('GET', '/api/health')[1]['warnings']))
         self.assertEqual(self.request('POST', '/api/mission/pause', {})[0], 200)
         self.app.front_camera_at = 0.
         health = self.request('GET', '/api/health')[1]

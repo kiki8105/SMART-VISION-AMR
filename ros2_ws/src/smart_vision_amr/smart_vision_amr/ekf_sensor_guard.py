@@ -368,10 +368,13 @@ class EkfSensorGuard(Node):
                              durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.create_subscription(String, '/smart_vision_amr/motion_status',
                                  self.on_motion_status, durable)
+        # Retain one-shot reset and subsequent stop intents through a short
+        # callback backlog. on_control keeps the source/sequence/1s-age guards
+        # and an external stop still invalidates a pending reset.
         self.create_subscription(String, '/smart_vision_amr/manual_control',
                                  self.on_control,
-                                 QoSProfile(depth=1,
-                                            reliability=ReliabilityPolicy.BEST_EFFORT,
+                                 QoSProfile(depth=10,
+                                            reliability=ReliabilityPolicy.RELIABLE,
                                             durability=DurabilityPolicy.VOLATILE))
         self.create_timer(0.1, self.on_tick,
                           clock=Clock(clock_type=ClockType.STEADY_TIME))

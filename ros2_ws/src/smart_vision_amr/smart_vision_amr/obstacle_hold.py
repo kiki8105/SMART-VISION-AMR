@@ -1,9 +1,10 @@
-"""Bound spatial retries, then wait for positive obstacle-removal evidence.
+"""Bound spatial retries until obstacle removal or a certified alternate route.
 
 Missing hits, expired transient observations, and unknown/stale sensor rays are
 not proof of free space. This pure state machine never commands motion or edits
-occupancy. A caller resumes the retained goal only after ``observe_free`` returns
-true and must still run its normal localization, planning and safety checks.
+occupancy. A caller may resume the retained goal after ``observe_free`` proves
+removal or after independently certifying a genuinely different safe route;
+normal localization, planning and safety checks still apply.
 """
 from __future__ import annotations
 
@@ -105,6 +106,23 @@ class ObstacleHold:
             self.clear_since = float(now)
             return False
         if now-self.clear_since < self.clear_duration:
+            return False
+        self.holding = False
+        self.attempts = 0
+        self.blocked_cells.clear()
+        self.clear_since = None
+        self.last_resume_at = float(now)
+        self.resume_count += 1
+        return True
+
+    def release_for_alternative(self, *, now: float) -> bool:
+        """Release a held goal after its caller certifies a different safe route.
+
+        This changes only the retry latch. It neither asserts that the object
+        disappeared nor edits the observed, remembered, or saved map layers.
+        """
+        self._time(now)
+        if not self.holding:
             return False
         self.holding = False
         self.attempts = 0

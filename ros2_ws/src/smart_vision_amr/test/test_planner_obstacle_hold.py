@@ -134,6 +134,67 @@ def test_three_confirmed_failures_hold_instead_of_replanning_forever(prepared):
     assert packet['retry_count'] == packet['retry_limit'] == 3
 
 
+def test_held_goal_reprobes_fresh_obstacle_and_takes_distinct_safe_route(prepared):
+    node = prepared
+    goal = node.last_goal
+    original = arm(node)
+    assert node.hold_reference_cells
+    # A separate fresh hit invalidates the previously failed north bypass;
+    # the original tracked obstacle is still physically present.
+    node.observed.add((12, 10))
+    ready(node, 103.)
+    node.last_observation_time = node.clock['steady']
+    node.observed_revision += 1
+    node.retry_transform()
+    alternative = path_points(node)
+    assert alternative and alternative != original
+    assert node.last_goal is goal
+    assert not node.obstacle_hold.holding
+    assert PHYSICAL_HITS <= node.observed  # A bypass is not removal evidence.
+    assert count(node) > 0  # Keep failed approaches for the same obstacle.
+
+
+def test_held_goal_stays_stopped_when_obstacle_still_blocks_every_route(prepared):
+    node = prepared
+    arm(node)
+    real_plan = node.planner.plan
+    attempts = []
+
+    def no_route_with_live_obstacle(grid, start, end, blocked=None, **options):
+        attempts.append(bool(blocked))
+        return [] if blocked else real_plan(grid, start, end, blocked, **options)
+
+    node.planner.plan = no_route_with_live_obstacle
+    publications = node.path_pub.publish.call_count
+    ready(node, 103.)
+    node.last_observation_time = node.clock['steady']
+    node.retry_transform()
+    assert attempts and all(attempts)
+    assert node.obstacle_hold.holding
+    assert node.failure_state == 'OBSTACLE_HOLD'
+    assert not path_points(node)
+    assert node.path_pub.publish.call_count == publications
+
+
+@pytest.mark.parametrize('fault', ['stale_scan', 'stale_odom', 'manual', 'missing_hit'])
+def test_held_goal_never_reprobes_without_fresh_motion_and_obstacle_evidence(prepared, fault):
+    node = prepared
+    arm(node)
+    ready(node, 103., **({'mode': 'manual'} if fault == 'manual' else {}))
+    node.last_observation_time = node.clock['steady']
+    if fault == 'stale_scan':
+        node.latest_scan_at -= 2.
+    elif fault == 'stale_odom':
+        node.latest_odom = (node.latest_odom[0]-2., *node.latest_odom[1:])
+    elif fault == 'missing_hit':
+        node.observed.clear()  # Expiry is not a positive free-space ray.
+    publications = node.path_pub.publish.call_count
+    node.retry_transform()
+    assert node.obstacle_hold.holding
+    assert not path_points(node)
+    assert node.path_pub.publish.call_count == publications
+
+
 def test_actual_removal_confirmation_releases_associated_memory_and_same_goal(prepared):
     node = prepared
     goal = node.last_goal
