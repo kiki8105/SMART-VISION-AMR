@@ -6,6 +6,7 @@
 #include "gtest/gtest.h"
 #include "smart_vision_amr_dwb/route_horizon.hpp"
 #include "smart_vision_amr_dwb/command_envelope.hpp"
+#include "smart_vision_amr_dwb/route_adherence.hpp"
 
 namespace
 {
@@ -156,6 +157,17 @@ TEST(CommandEnvelope, TranslationAndYawBoundariesAndCustomCap)
   EXPECT_FALSE(movingTurnAllowed(.10, 0., .400001, .4));
 }
 
+TEST(CommandEnvelope, PurePivotCandidateCannotIgnoreMeasuredLinearCoast)
+{
+  using smart_vision_amr_dwb::movingTurnAllowed;
+  EXPECT_FALSE(movingTurnAllowed(0., 0., .5, .35, .22));
+  EXPECT_FALSE(movingTurnAllowed(0., 0., -.5, .35, -.10));
+  EXPECT_TRUE(movingTurnAllowed(0., 0., .35, .35, .22));
+  EXPECT_TRUE(movingTurnAllowed(0., 0., .5, .35, .01));
+  EXPECT_FALSE(movingTurnAllowed(0., 0., .5, .35,
+    std::numeric_limits<double>::quiet_NaN()));
+}
+
 TEST(CommandEnvelope, InvalidCommandsOrLimitNeverReachCritics)
 {
   using smart_vision_amr_dwb::movingTurnAllowed;
@@ -169,5 +181,74 @@ TEST(CommandEnvelope, InvalidCommandsOrLimitNeverReachCritics)
   EXPECT_FALSE(movingTurnAllowed(.1, 0., .1, -1.));
   EXPECT_FALSE(movingTurnAllowed(.1, 0., .1, nan));
   EXPECT_FALSE(movingTurnAllowed(.1, 0., .1, inf));
+}
+
+std::vector<geometry_msgs::msg::Pose2D> curve(
+  double x, double y, double yaw, double v, double w)
+{
+  std::vector<geometry_msgs::msg::Pose2D> points;
+  for (int i = 0; i <= 40; ++i) {
+    const double t = .05 * i;
+    auto p = robot(x, y);
+    p.theta = yaw + w * t;
+    if (std::abs(w) > 1.e-9) {
+      p.x += v / w * (std::sin(yaw + w * t) - std::sin(yaw));
+      p.y -= v / w * (std::cos(yaw + w * t) - std::cos(yaw));
+    } else {
+      p.x += v * t * std::cos(yaw);
+      p.y += v * t * std::sin(yaw);
+    }
+    points.push_back(p);
+  }
+  return points;
+}
+
+TEST(RouteAdherence, RecordedPermutedApproachPrefersCorrectionBeforeTheDistantBend)
+{
+  // Actual published path t82.5917, stamp62.12s; map pose reconstructed from
+  // sampled odom + map->odom at t82.98 (not an original tf2-buffer snapshot).
+  const auto route = path({{.075, -1.025}, {.575, -1.125}, {.59, -1.1625},
+      {.65, -1.3125}, {.675, -1.6562}});
+  const auto inward = curve(.072, -1.010, -.557, .16, -.15);
+  const auto correction = curve(.072, -1.010, -.557, .16, .20);
+  const auto no_correction = curve(.072, -1.010, -.557, .16, 0.);
+  const auto score = [&](const auto & candidate) {
+      return smart_vision_amr_dwb::routeAdherenceCost(route, candidate, 0.);
+    };
+  EXPECT_GT(score(inward), score(no_correction));
+  EXPECT_GT(score(no_correction), score(correction));
+  EXPECT_GT(32. * (score(inward) - score(correction)), .5);
+  EXPECT_EQ(route.poses.back().x, .675);  // No path or goal replacement.
+}
+
+TEST(RouteAdherence, OrderedFoldedRouteCannotSkipToNearbyReturnBranch)
+{
+  const auto route = path({{0., 0.}, {.8, 0.}, {.8, .1}, {0., .1}});
+  const auto correct = curve(0., 0., 0., .15, 0.);
+  const auto shortcut = curve(0., .1, std::acos(-1.), .15, 0.);
+  EXPECT_LT(smart_vision_amr_dwb::routeAdherenceCost(route, correct, 0.),
+    smart_vision_amr_dwb::routeAdherenceCost(route, shortcut, 0.));
+}
+
+TEST(RouteAdherence, ResamplingAndPrunedPrefixHaveTheSameMetricScore)
+{
+  const auto sparse = path({{0., 0.}, {1., 0.}});
+  const auto dense = path({{0., 0.}, {.1, 0.}, {.2, 0.}, {.3, 0.}, {1., 0.}});
+  const auto pruned = path({{.2, 0.}, {1., 0.}});
+  const auto candidate = curve(.2, .02, .1, .15, -.1);
+  const auto score = smart_vision_amr_dwb::routeAdherenceCost(sparse, candidate, .2);
+  EXPECT_NEAR(score, smart_vision_amr_dwb::routeAdherenceCost(dense, candidate, .2), 1.e-12);
+  EXPECT_NEAR(score, smart_vision_amr_dwb::routeAdherenceCost(pruned, candidate, 0.), 1.e-12);
+}
+
+TEST(RouteAdherence, EmptyAndDegeneratePathsDoNotInventDirectionAndInvalidPoseIsRejected)
+{
+  const auto candidate = curve(0., 0., 0., .15, 0.);
+  EXPECT_EQ(0., smart_vision_amr_dwb::routeAdherenceCost(path({}), candidate, 0.));
+  EXPECT_EQ(0., smart_vision_amr_dwb::routeAdherenceCost(path({{0., 0.}, {0., 0.}}), candidate, 0.));
+  auto invalid = candidate;
+  invalid.front().theta = std::numeric_limits<double>::quiet_NaN();
+  EXPECT_FALSE(std::isfinite(smart_vision_amr_dwb::routeAdherenceCost(
+    path({{0., 0.}, {1., 0.}}), invalid, 0.)));
 }
 }  // namespace

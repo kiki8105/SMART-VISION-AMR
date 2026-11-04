@@ -73,7 +73,10 @@ def test_logged_virtual_memory_gate_does_not_become_actual_memory_policy(fixed_s
 def test_actual_hard_start_occupancy_cannot_borrow_virtual_fallback(fixed_sample, blocker):
     node, _ = fixed_sample
     if blocker == 'memory':
-        node.remembered.add((39, 93))  # Its actual full-cell body mask covers start.
+        # (39,93) only covered the whole *candidate* square; the measured
+        # continuous body was still 9mm clear and may now depart by connector.
+        # This negative represents actual circle/square overlap instead.
+        node.remembered.add((38, 93))
     elif blocker == 'raw':
         node.observed.add((34, 93))
     else:

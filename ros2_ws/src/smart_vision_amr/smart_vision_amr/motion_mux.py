@@ -10,7 +10,7 @@ import math
 import threading
 import time
 import uuid
-from contextlib import nullcontext
+from contextlib import contextmanager, nullcontext
 
 from smart_vision_amr.runtime_timing import (
     MUX_METRICS, RuntimeTiming, guard_timing_report, timed_call,
@@ -18,6 +18,7 @@ from smart_vision_amr.runtime_timing import (
 from smart_vision_amr.scan_outlier_guard import (NearScanOutlierGuard,
     rebase_scan_points, scan_points_in_base, swept_body_decision)
 from smart_vision_amr.command_ramp import CommandRamp
+from smart_vision_amr.braking_envelope import BrakingEnvelope
 
 
 class MotionMuxCore:
@@ -297,59 +298,20 @@ class MotionMuxCore:
         /clock is paused because lease receipt is timed with monotonic time.
         """
         self._expire()
-        if not isinstance(payload, dict):
-            return self._reject_control('Control packet must be a JSON object')
-        source, seq, mode = (payload.get('source_id'), payload.get('seq'),
-                             payload.get('mode'))
-        stamp = payload.get('sent_at_ns')
-        if not isinstance(source, str) or not source or len(source) > 128:
-            return self._reject_control('Control source_id must be a nonempty string (max 128 characters)')
-        if type(seq) is not int or seq < 0:
-            return self._reject_control('Control seq must be a nonnegative integer')
-        if not isinstance(mode, str) or mode not in self.MODES:
-            return self._reject_control('Unknown control mode')
-        if source in self.SAFETY_REASONS and mode != 'estop':
-            return self._reject_control('Safety watchdog sources may only request estop')
-        if type(stamp) is not int or stamp < 0 or type(ros_now_ns) is not int:
-            return self._reject_control('Control sent_at_ns must be a nonnegative integer')
-        safety_estop = source in self.SAFETY_REASONS and mode == 'estop'
-        # A delayed safety watchdog must still latch a stop. Only its estop
-        # packets bypass the old-stamp limit; future stamps and all other
-        # control packets retain the same one-second limit.
-        if (stamp-ros_now_ns > 1_000_000_000
-                or (ros_now_ns-stamp > 1_000_000_000 and not safety_estop)):
-            return self._reject_control('Control timestamp differs by over 1s; check PC/robot clock sync and packet delay')
-        if source in self.retired_sources:
-            return self._reject_control('Control source was retired; reconnect the current bridge')
-        if seq <= self.sequences.get(source, -1):
-            return self._reject_control('Replayed or out-of-order control sequence')
         try:
-            velocity = self._velocity(payload.get('linear', 0.0),
-                                      payload.get('angular', 0.0))
+            velocity = self._validated_control_velocity(payload, ros_now_ns)
         except ValueError as exc:
             return self._reject_control(str(exc))
-        if mode == 'localization' and velocity[0] != 0.0:
-            return self._reject_control('Localization control permits yaw only; linear must be zero')
-        if safety_estop:
-            # Independent safety watchdogs can stop even a live manual lease.
-            # Keep the web bridge as owner so its explicit emergency-reset
-            # button remains the only way to clear the latched stop.
+        source, seq, mode = (payload['source_id'], payload['seq'], payload['mode'])
+        if source in self.SAFETY_REASONS and mode == 'estop':
+            # Independent safety watchdogs stop without taking the UI's lease.
             self.sequences[source] = seq
             self.estop_latched = True
             self.mode, self.reason = 'estop', self.SAFETY_REASONS[source]
             self.manual_velocity, self.auto_at = (0.0, 0.0), None
             return True
-        if self.estop_latched and mode not in {'reset', 'estop'}:
-            return self._reject_control('Emergency stop is latched; explicit safety reset required')
         now = self.clock()
-        if self.mode == 'manual' and mode == 'localization':
-            return self._reject_control('Manual joystick lease has priority; acknowledge hold before localization')
-        if (self.source_id is not None and source != self.source_id
-                and (self.mode == 'manual' and mode != 'estop'
-                     or self.mode == 'localization' and mode not in {'manual', 'estop'})):
-            return self._reject_control('Another operator owns a live '+self.mode+' lease; release it or wait for expiry')
         if source != self.source_id:
-            # Service stop/reset must not permanently retire a connected UI.
             if (self.source_id is not None
                     and not source.startswith('mux-service:')
                     and not self.source_id.startswith('mux-service:')):
@@ -363,8 +325,6 @@ class MotionMuxCore:
             self.manual_velocity, self.auto_at = (0.0, 0.0), None
             return True
         if self.estop_latched:
-            if mode != 'reset':
-                return False
             self.estop_latched = False
             self.mode, self.reason = 'hold', 'Emergency reset; explicit resume required'
             self.manual_velocity, self.auto_at = (0.0, 0.0), None
@@ -379,12 +339,58 @@ class MotionMuxCore:
             self.auto_at = None
             self.manual_operation = payload.get('operation')
         else:
-            # Repeated auto heartbeats must not erase fresh navigation commands.
             if self.mode != 'auto':
                 self.auto_at = None
             self.mode, self.reason = 'auto', 'Navigation control'
             self.manual_velocity = (0.0, 0.0)
         return True
+
+    def _validated_control_velocity(self, payload, ros_now_ns):
+        """Read-only admission, also used before a busy output-lock stop.
+
+        State and sequence are checked again when the packet is committed.
+        A preliminary stop never grants control or renews any lease.
+        """
+        if not isinstance(payload, dict):
+            raise ValueError('Control packet must be a JSON object')
+        source, seq, mode = (payload.get('source_id'), payload.get('seq'),
+                             payload.get('mode'))
+        stamp = payload.get('sent_at_ns')
+        if not isinstance(source, str) or not source or len(source) > 128:
+            raise ValueError('Control source_id must be a nonempty string (max 128 characters)')
+        if type(seq) is not int or seq < 0:
+            raise ValueError('Control seq must be a nonnegative integer')
+        if not isinstance(mode, str) or mode not in self.MODES:
+            raise ValueError('Unknown control mode')
+        if source in self.SAFETY_REASONS and mode != 'estop':
+            raise ValueError('Safety watchdog sources may only request estop')
+        if type(stamp) is not int or stamp < 0 or type(ros_now_ns) is not int:
+            raise ValueError('Control sent_at_ns must be a nonnegative integer')
+        safety_estop = source in self.SAFETY_REASONS and mode == 'estop'
+        # A delayed safety watchdog must still latch a stop. Only its estop
+        # packets bypass the old-stamp limit; future stamps and all other
+        # control packets retain the same one-second limit.
+        if (stamp-ros_now_ns > 1_000_000_000
+                or (ros_now_ns-stamp > 1_000_000_000 and not safety_estop)):
+            raise ValueError('Control timestamp differs by over 1s; check PC/robot clock sync and packet delay')
+        if source in self.retired_sources:
+            raise ValueError('Control source was retired; reconnect the current bridge')
+        if seq <= self.sequences.get(source, -1):
+            raise ValueError('Replayed or out-of-order control sequence')
+        velocity = self._velocity(payload.get('linear', 0.0), payload.get('angular', 0.0))
+        if mode == 'localization' and velocity[0] != 0.0:
+            raise ValueError('Localization control permits yaw only; linear must be zero')
+        if safety_estop:
+            return velocity
+        if self.estop_latched and mode not in {'reset', 'estop'}:
+            raise ValueError('Emergency stop is latched; explicit safety reset required')
+        if self.mode == 'manual' and mode == 'localization':
+            raise ValueError('Manual joystick lease has priority; acknowledge hold before localization')
+        if (self.source_id is not None and source != self.source_id
+                and (self.mode == 'manual' and mode != 'estop'
+                     or self.mode == 'localization' and mode not in {'manual', 'estop'})):
+            raise ValueError('Another operator owns a live '+self.mode+' lease; release it or wait for expiry')
+        return velocity
 
     def output(self):
         self._expire()
@@ -455,6 +461,7 @@ try:
     import rclpy
     from geometry_msgs.msg import Twist
     from sensor_msgs.msg import LaserScan
+    from nav_msgs.msg import Odometry
     from rclpy.node import Node
     from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
     from std_msgs.msg import String
@@ -465,6 +472,7 @@ except ImportError:
 
 class MotionMuxNode(Node):
     OWNERSHIP_MAX_AGE = .5
+    GUARD_COMPUTE_BUDGET = .05
 
     def __init__(self, context=None, use_sim_time=None):
         overrides = []
@@ -476,6 +484,12 @@ class MotionMuxNode(Node):
         # navigation, graph queries, and status writes. Serialize the small
         # arbitration/publish critical section across those groups.
         self._state_lock = threading.RLock()
+        self._braking_feedback_lock = threading.Lock()
+        self._output_publish_lock = threading.Lock()
+        self._control_ingress_lock = threading.Lock()
+        self._deferred_auto_control = None
+        self._urgent_stop_event = threading.Event()
+        self._urgent_stop_generation = 0
         self._status_write_lock = threading.Lock()
         self._closing = False
         for name, default in (
@@ -494,7 +508,7 @@ class MotionMuxNode(Node):
                 ('auto_turn_entry_linear_velocity', .15),
                 ('auto_turn_min_linear_velocity', .10),
                 ('gentle_start_enabled', False),
-                ('gentle_start_linear_acceleration', .20),
+                ('gentle_start_linear_acceleration', .15),
                 ('gentle_start_angular_acceleration', .80),
                 ('gentle_start_max_publish_gap', .50),
                 ('startup_estop', False), ('allow_topic_reset', True),
@@ -504,6 +518,11 @@ class MotionMuxNode(Node):
                 ('scan_guard_base_frame', 'base_footprint'),
                 ('scan_guard_horizon', .5), ('scan_guard_sensor_timeout', 1.0),
                 ('scan_guard_fixed_frame', 'odom'), ('scan_guard_pose_timeout', .25)):
+            self.declare_parameter(name, default)
+        for name, default in (('braking_wheel_separation', .287),
+                              ('braking_wheel_deceleration', .15),
+                              ('braking_reaction_seconds', .25),
+                              ('braking_stop_reserve', .02)):
             self.declare_parameter(name, default)
         self.core = MotionMuxCore(**{
             name: self.get_parameter(name).value for name in (
@@ -524,6 +543,25 @@ class MotionMuxNode(Node):
             angular_acceleration=self.get_parameter('gentle_start_angular_acceleration').value,
             max_publish_gap=self.get_parameter('gentle_start_max_publish_gap').value)
         self.last_published_output = (0., 0.)
+        brake_parameters = dict(
+            wheel_separation=self.get_parameter('braking_wheel_separation').value,
+            wheel_deceleration=self.get_parameter('braking_wheel_deceleration').value,
+            reaction_seconds=self.get_parameter('braking_reaction_seconds').value,
+            stop_reserve=self.get_parameter('braking_stop_reserve').value)
+        self.braking_envelope = BrakingEnvelope(**brake_parameters)
+        # Two 20 Hz output periods after a fresh measured feedback sample.
+        # The earlier command cap uses the full configured reaction allowance.
+        self.measured_braking_envelope = BrakingEnvelope(
+            **{**brake_parameters, 'reaction_seconds': min(.10, brake_parameters['reaction_seconds']),
+               # The command cap owns the 2cm stopping allowance. Residual
+               # motion checks physical body contact, avoiding a fictitious
+               # 2cm movement when stationary feedback has tiny age bounds.
+               'stop_reserve': 0.})
+        self._braking_feedback = None
+        self._braking_feedback_revision = 0
+        self._braking_last_stamp_ns = -1
+        self._braking_scale = 1.
+        self._braking_cloud = None
         self.near_scan_guard = NearScanOutlierGuard()
         self.near_scan_guard_last_stamp_ns = -1
         self._scan_guard_enabled = bool(self.get_parameter('near_scan_guard_enabled').value)
@@ -581,21 +619,33 @@ class MotionMuxNode(Node):
         # stop/reset services and the independent safety publishers stay reliable.
         latest_control = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT,
                                     durability=DurabilityPolicy.VOLATILE)
+        from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
+        # /clock uses the default group. Never put a callback which waits for
+        # the geometric output lock in front of that clock subscription.
+        # All ordinary callbacks sharing _state_lock also share a group:
+        # they cannot fill four executor workers waiting for one slow guard.
+        self.output_group = MutuallyExclusiveCallbackGroup()
+        self.navigation_input_group = self.output_group
+        self.health_input_group = self.output_group
+        self.braking_input_group = MutuallyExclusiveCallbackGroup()
         if self.get_parameter('allow_legacy_auto_input').value:
             self.create_subscription(Twist, '/smart_vision_amr/navigation_cmd_vel',
-                                     self.on_auto, 1)
+                                     self.on_auto, 1, callback_group=self.navigation_input_group)
         self.create_subscription(String, '/smart_vision_amr/navigation_control',
-                                 self.on_navigation_control, latest_control)
+                                 self.on_navigation_control, latest_control,
+                                 callback_group=self.navigation_input_group)
         self.create_subscription(String, '/smart_vision_amr/localization_health',
-                                 self.on_localization_health, 1)
-        from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
-        self.scan_guard_group = MutuallyExclusiveCallbackGroup()
+                                 self.on_localization_health, latest_control,
+                                 callback_group=self.health_input_group)
+        self.scan_guard_group = self.output_group
         if self.get_parameter('near_scan_guard_enabled').value:
             self.create_subscription(LaserScan, '/scan', self.on_scan_guard,
-                                     qos_profile_sensor_data,
+                                     latest_control,
                                      callback_group=self.scan_guard_group)
+            self.create_subscription(Odometry, '/odom', self.on_braking_odom,
+                                     latest_control,
+                                     callback_group=self.braking_input_group)
         self.control_group = MutuallyExclusiveCallbackGroup()
-        self.output_group = MutuallyExclusiveCallbackGroup()
         self.status_group = MutuallyExclusiveCallbackGroup()
         self.create_subscription(String, '/smart_vision_amr/manual_control',
                                  self.on_control, latest_control,
@@ -626,6 +676,62 @@ class MotionMuxNode(Node):
     def _state_guard(self):
         # Small test harnesses construct only the fields they exercise.
         return getattr(self, '_state_lock', nullcontext())
+
+    @contextmanager
+    def _try_state_guard(self, blocking=False):
+        lock = getattr(self, '_state_lock', None)
+        acquired = lock is None or lock.acquire(blocking=blocking)
+        try:
+            yield acquired
+        finally:
+            if acquired and lock is not None:
+                lock.release()
+
+    def _latch_urgent_zero(self):
+        """Stop before waiting for geometry; grant no new control authority.
+
+        Final normal publication uses this same short lock, so an old computed
+        command cannot follow this zero while the stop awaits core admission.
+        """
+        lock = getattr(self, '_output_publish_lock', None)
+        if lock is None:  # Minimal non-ROS arbitration fixtures.
+            return None
+        with lock:
+            self._urgent_stop_generation += 1
+            token = self._urgent_stop_generation
+            self._urgent_stop_event.set()
+            completed = getattr(self, '_ownership_completed_at', -math.inf)
+            if self.output_available and 0. <= time.monotonic()-completed <= self.OWNERSHIP_MAX_AGE:
+                self.output_pub.publish(Twist())
+                self.last_published_output = (0., 0.)
+                self.last_output_was_zero = True
+                self.last_zero_published_at = time.monotonic()
+            return token
+
+    def _finish_urgent_zero(self, token):
+        if token is not None:
+            with self._output_publish_lock:
+                if token == self._urgent_stop_generation:
+                    self._urgent_stop_event.clear()
+
+    def _consume_deferred_auto_locked(self):
+        """Admit a real resume after contention, preserving its original age.
+
+        This mailbox never grants motion. A newer accepted stop/manual packet
+        clears it, and normal core timestamp/sequence/authority checks apply.
+        """
+        with getattr(self, '_control_ingress_lock', nullcontext()):
+            item = getattr(self, '_deferred_auto_control', None)
+            self._deferred_auto_control = None
+        if item is None:
+            return
+        payload, received_at = item
+        if getattr(self, '_closing', False) or (getattr(self, 'pending_reset', None) or {}).get('finishing'):
+            self.core.reject_control(payload, 'Safety transition pending; explicit resume required')
+        elif not 0. <= time.monotonic()-received_at <= 1.:
+            self.core.reject_control(payload, 'Control admission delayed by over 1s; explicit resume required')
+        else:
+            self.core.receive_control(payload, self.get_clock().now().nanoseconds, origin='topic')
 
     def on_auto(self, message):
         with self._state_guard():
@@ -668,8 +774,10 @@ class MotionMuxNode(Node):
                     return
                 self._health_sent_ns = stamp
             accepted = self.core.receive_localization_health(payload)
-            if accepted:
-                self._publish_output_locked()
+            # Healthy heartbeats need no new geometric computation. The 20Hz
+            # output timer will consume them; a veto still publishes zero now.
+            if accepted and self.core.output() == (0., 0.):
+                self._publish_output_locked(urgent_zero=True)
 
     def _scan_guard_extrinsic(self, frame):
         """Resolve fixed mounting once; never infer a missing laser frame."""
@@ -813,6 +921,7 @@ class MotionMuxNode(Node):
 
     def on_scan_guard(self, scan):
         """Keep temporal evidence intact, then guard the actual chassis sweep."""
+        received_at = time.monotonic()
         stamp_ns = scan.header.stamp.sec*1_000_000_000+scan.header.stamp.nanosec
         now_ns = self.get_clock().now().nanoseconds
         if (stamp_ns <= 0 or stamp_ns <= self.near_scan_guard_last_stamp_ns
@@ -823,13 +932,16 @@ class MotionMuxNode(Node):
         fault = ('INVALID_SCAN' if not decision.accepted else
                  'TF_UNAVAILABLE' if extrinsic is None else '')
         points = scan_points_in_base(scan, extrinsic) if not fault else ()
+        token = (self._latch_urgent_zero() if self.core.mode == 'auto' and
+                 any(math.hypot(x, y) <= self._scan_guard_radius for _, x, y in points) else None)
         with self._state_guard():
             if getattr(self, '_closing', False):
+                self._finish_urgent_zero(token)
                 return
             if decision.accepted:
                 self.near_scan_guard_last_stamp_ns = stamp_ns
             sample = {'points': points, 'decision': decision, 'stamp_ns': stamp_ns,
-                      'received_at': time.monotonic(), 'fault': fault}
+                      'received_at': received_at, 'fault': fault}
             if fault:
                 self._scan_guard_sample, self._scan_guard_pending = sample, None
             else:
@@ -838,13 +950,63 @@ class MotionMuxNode(Node):
                 # interpolation, rather than injecting a zero at every scan.
                 self._scan_guard_pending = sample
                 self._validate_pending_scan_locked()
-            self._refresh_scan_guard_locked()
+            self._finish_urgent_zero(token)
             self._publish_output_locked()
+
+    def on_braking_odom(self, message):
+        """Keep original source/receipt times; duplicates cannot renew speed evidence."""
+        received_at = time.monotonic()
+        # This callback never waits behind scan/trajectory computation. A
+        # dedicated latest-only DDS queue plus this tiny lock coalesces bursts.
+        with getattr(self, '_braking_feedback_lock', nullcontext()):
+            stamp = message.header.stamp
+            stamp_ns = stamp.sec*1000000000+stamp.nanosec
+            now_ns = self.get_clock().now().nanoseconds
+            if now_ns < getattr(self, '_braking_last_ros_ns', now_ns):
+                self._braking_feedback = None
+                self._braking_feedback_revision = getattr(self, '_braking_feedback_revision', 0)+1
+                self._braking_last_stamp_ns = -1
+            self._braking_last_ros_ns = now_ns
+            previous = getattr(self, '_braking_feedback', None)
+            watermark = getattr(self, '_braking_last_stamp_ns', -1)
+            v, w = message.twist.twist.linear.x, message.twist.twist.angular.z
+            valid = (message.header.frame_id == self._scan_guard_fixed_frame
+                     and message.child_frame_id == self._scan_guard_base_frame
+                     and stamp_ns > 0 and -.25 <= (now_ns-stamp_ns)/1.e9 < .25
+                     and math.isfinite(v) and math.isfinite(w)
+                     and abs(v) <= self.core.max_linear_velocity+.15
+                     and abs(w) <= self.core.max_angular_velocity+.5)
+            if not valid or stamp_ns < watermark:
+                self._braking_feedback = None
+                self._braking_feedback_revision = getattr(self, '_braking_feedback_revision', 0)+1
+                return
+            if stamp_ns == watermark:
+                if previous is not None and (v, w) != previous['velocity']:
+                    self._braking_feedback = None
+                    self._braking_feedback_revision = getattr(self, '_braking_feedback_revision', 0)+1
+                return
+            self._braking_last_stamp_ns = stamp_ns
+            self._braking_feedback = {'velocity': (float(v), float(w)),
+                'stamp_ns': stamp_ns, 'received_at': received_at}
+
+    def _limit_braking_output_locked(self, linear, angular):
+        cloud = getattr(self, '_braking_cloud', None)
+        if cloud is None or self.core.mode != 'auto':
+            return linear, angular
+        points, uncertainty = cloud
+        scale, _ = self.braking_envelope.limit(points, linear, angular,
+            radius=self._scan_guard_radius, **uncertainty)
+        return linear*scale, angular*scale
 
     def _refresh_scan_guard_locked(self, extra_twist=None):
         if not getattr(self, '_scan_guard_enabled', False):
             return
         self._validate_pending_scan_locked()
+        self._scan_guard_checks = None
+        self._guard_proof = None
+        guard_started_at = time.monotonic()
+        self._braking_cloud = None
+        self._braking_scale = 1.
         sample = self._scan_guard_sample
         code, support = 'WAIT_SCAN', ''
         metrics = {'scan_age_seconds': None, 'pose_age_seconds': None,
@@ -887,17 +1049,95 @@ class MotionMuxNode(Node):
                 # The full scan age is compensated exactly above. Bound only
                 # the much shorter motion since the latest available pose:
                 # longitudinal speed, lateral turning drift and heading error.
-                dt = max(abs(pose_age), metrics.get('pose_uncertainty_seconds') or 0.)
+                dt = max(abs(pose_age), metrics.get('pose_uncertainty_seconds') or 0.) + self.GUARD_COMPUTE_BUDGET
                 uncertainty = {
                     'longitudinal_uncertainty': self.core.max_linear_velocity*dt,
                     'lateral_uncertainty': .5*self.core.max_linear_velocity*self.core.max_angular_velocity*dt*dt,
                     'yaw_uncertainty': self.core.max_angular_velocity*dt}
                 checks = [(points, sample['decision'], uncertainty)]
                 pending = getattr(self, '_scan_guard_pending', None)
+                pending_tf_invalid = (pending is not None and
+                    getattr(self, '_scan_guard_acquisition_diagnostic', {}).get('failure_kind') == 'geometry')
+                brake_points, brake_uncertainty = points, uncertainty
                 if pending is not None:
                     # A newly measured imminent collision still stops on the
                     # first scan, even while its stamped TF is being awaited.
-                    checks.append((pending['points'], pending['decision'], {}))
+                    # These points remain in their verified mounting's BASE
+                    # frame at acquisition. Never shift them using the older
+                    # scan's pose or claim an unobserved acquisition transform.
+                    # Enclose possible differential-drive motion since that
+                    # source/first receipt, including heading of the stop arc.
+                    pending_dt = max(abs((now_ns-pending['stamp_ns'])/1.e9),
+                                     max(0., time.monotonic()-pending['received_at'])) + self.GUARD_COMPUTE_BUDGET
+                    pending_bounds = {
+                        'longitudinal_uncertainty': self.core.max_linear_velocity*pending_dt,
+                        'lateral_uncertainty': .5*self.core.max_linear_velocity*self.core.max_angular_velocity*pending_dt*pending_dt,
+                        'yaw_uncertainty': self.core.max_angular_velocity*pending_dt}
+                    checks.append((pending['points'], pending['decision'], pending_bounds))
+                    # One union and the containing uncertainty intervals mean
+                    # the chosen common v/w scale is checked against BOTH
+                    # clouds. Taking the minimum of two independently selected
+                    # scales would be unsafe for non-monotone curved sweeps.
+                    brake_points = points+pending['points']
+                    brake_uncertainty = {name: max(uncertainty[name], pending_bounds[name])
+                                         for name in uncertainty}
+                    metrics.update(braking_pending_scan=True,
+                        braking_pending_acquisition_tf_verified=False,
+                        braking_pending_source_stamp_ns=pending['stamp_ns'],
+                        braking_pending_motion_bound_seconds=pending_dt)
+                self._scan_guard_checks = checks
+                self._guard_proof = {'started_at': guard_started_at, 'started_ros_ns': now_ns, 'sample': sample,
+                    'pending': pending, 'pose_stamp_ns': latest_pose[1], 'feedback': None}
+                brake_hold = pending_tf_invalid
+                # Test harnesses without a brake model exercise the original
+                # raw-sweep path; production always constructs both models.
+                braking = getattr(self, 'braking_envelope', None)
+                if braking is not None and self.core.mode == 'auto':
+                    self._braking_cloud = (brake_points, brake_uncertainty)
+                    self._braking_scale, capped = braking.limit(
+                        brake_points, *requested, radius=self._scan_guard_radius, **brake_uncertainty)
+                    twists.discard(requested)
+                    twists.add(tuple(value*self._braking_scale for value in requested))
+                    with getattr(self, '_braking_feedback_lock', nullcontext()):
+                        feedback = getattr(self, '_braking_feedback', None)
+                        self._guard_proof['feedback_revision'] = getattr(self, '_braking_feedback_revision', 0)
+                    self._guard_proof['feedback'] = feedback
+                    feedback_age = ((now_ns-feedback['stamp_ns'])/1.e9
+                                    if feedback is not None else math.inf)
+                    feedback_fresh = (feedback is not None and -.25 <= feedback_age < .25
+                        and 0. <= time.monotonic()-feedback['received_at'] < .25)
+                    metrics.update(braking_speed_scale=self._braking_scale,
+                        braking_wheel_deceleration_mps2=braking.wheel_deceleration,
+                        braking_reaction_seconds=braking.reaction_seconds,
+                        braking_feedback_age_seconds=feedback_age if math.isfinite(feedback_age) else None,
+                        braking_command_distance_m=capped.distance)
+                    if not feedback_fresh:
+                        brake_hold = True
+                        metrics['braking_feedback_unavailable'] = True
+                    else:
+                        # A delayed velocity sample is not instantaneous
+                        # velocity. Bound acceleration since its source stamp
+                        # using the actual output ramp's configured limit.
+                        v, w = feedback['velocity']
+                        # The final publish must finish within one 20Hz period;
+                        # cover acceleration during that computation as well.
+                        elapsed = abs(feedback_age)+self.GUARD_COMPUTE_BUDGET
+                        ramp = getattr(self, 'command_ramp', None)
+                        av = getattr(ramp, 'linear_acceleration', .15)
+                        aw = getattr(ramp, 'angular_acceleration', .80)
+                        self._guard_proof['velocity_intervals'] = (v-av*elapsed, v+av*elapsed,
+                                                                  w-aw*elapsed, w+aw*elapsed)
+                        measured = self.measured_braking_envelope.check_feedback(brake_points,
+                            v, w, linear_delta=av*elapsed, angular_delta=aw*elapsed,
+                            radius=self._scan_guard_radius, **brake_uncertainty)
+                        brake_hold = brake_hold or bool(measured.collision)
+                        metrics.update(braking_measured_velocity=list(feedback['velocity']),
+                            braking_linear_velocity_interval=[v-av*elapsed, v+av*elapsed],
+                            braking_angular_velocity_interval=[w-aw*elapsed, w+aw*elapsed],
+                            braking_measured_distance_m=measured.distance,
+                            braking_measured_clearance_m=(measured.clearance
+                                if math.isfinite(measured.clearance) else None),
+                            braking_collision_indices=sorted(measured.collision)[:8])
                 results, unconfirmed, confirmed = [], set(), set()
                 for cloud, decision, bounds in checks:
                     for twist in twists:
@@ -926,11 +1166,86 @@ class MotionMuxNode(Node):
                            'longitudinal_uncertainty_m': uncertainty['longitudinal_uncertainty'],
                            'lateral_uncertainty_m': uncertainty['lateral_uncertainty'],
                            'pending_scan': pending is not None})
+                if code == 'CLEAR' and brake_hold:
+                    code = ('POSE_UNAVAILABLE' if pending_tf_invalid else 'BRAKING_FEEDBACK_UNAVAILABLE' if
+                            metrics.get('braking_feedback_unavailable') else 'BRAKING_INTERSECTION')
+                    reason = ('Pending scan acquisition transform has invalid geometry' if pending_tf_invalid else
+                              'Fresh measured wheel velocity unavailable for stopping envelope' if
+                              metrics.get('braking_feedback_unavailable') else
+                              'Measured residual motion intersects its raw-LiDAR stopping envelope')
         self.core.scan_guard_code = code
         self.core.scan_guard_support = support
         self.core.scan_guard_metrics = metrics
         self.core.scan_guard_hold = code != 'CLEAR'
         self.core.scan_guard_reason = reason
+
+    def _final_output_guard_locked(self, linear, angular):
+        """Check only the emitted curve using this output's prepared snapshot.
+
+        TF, the requested brake cap and measured-inertia tube were already
+        checked once. Nothing here refreshes a source lease or redoes them.
+        """
+        proof = getattr(self, '_guard_proof', None)
+        if proof is None or self.core.scan_guard_hold:
+            return
+        metrics = self.core.scan_guard_metrics
+        code = None
+        for cloud, decision, bounds in self._scan_guard_checks:
+            result = swept_body_decision(cloud, linear, angular,
+                radius=self._scan_guard_radius, horizon=self._scan_guard_horizon, **bounds)
+            if result.swept:
+                code = 'BODY_INTERSECTION' if result.inside else 'SWEPT_INTERSECTION'
+                metrics['final_output_collision_indices'] = sorted(result.swept)[:8]
+                break
+        if code is not None:
+            self.core.scan_guard_hold = True
+            self.core.scan_guard_code = code
+            self.core.scan_guard_reason = 'Final emitted curve or original evidence is no longer verified: '+code
+
+    def _guard_evidence_current_locked(self):
+        """Final cheap check, after all geometry and publication-lock waits.
+
+        Both clocks must stay inside the advance already included in every
+        pose/pending/velocity bound. No cache hit renews the original evidence.
+        """
+        proof = getattr(self, '_guard_proof', None)
+        if proof is None or self.core.scan_guard_hold:
+            return
+        now, ros_ns = time.monotonic(), self.get_clock().now().nanoseconds
+        duration = now-proof['started_at']
+        ros_advance = (ros_ns-proof['started_ros_ns'])/1.e9
+        metrics = self.core.scan_guard_metrics
+        metrics.update(guard_compute_seconds=duration, guard_ros_advance_seconds=ros_advance)
+        code = None
+        if (not 0. <= duration <= self.GUARD_COMPUTE_BUDGET
+                or not 0. <= ros_advance <= self.GUARD_COMPUTE_BUDGET):
+            code = 'CONTROL_DEADLINE'
+        for sample in (proof['sample'], proof['pending']):
+            if sample is not None and (not -.25 <= (ros_ns-sample['stamp_ns'])/1.e9 < self._scan_guard_sensor_timeout
+                    or not 0. <= now-sample['received_at'] < self._scan_guard_sensor_timeout):
+                code = 'STALE_SCAN'
+        if not -.05 <= (ros_ns-proof['pose_stamp_ns'])/1.e9 < self._scan_guard_pose_timeout:
+            code = 'POSE_UNAVAILABLE'
+        feedback = proof['feedback']
+        if feedback is not None:
+            metrics['braking_feedback_receipt_age_seconds'] = now-feedback['received_at']
+            if (not -.25 <= (ros_ns-feedback['stamp_ns'])/1.e9 < .25
+                    or not 0. <= now-feedback['received_at'] < .25):
+                code = 'BRAKING_FEEDBACK_UNAVAILABLE'
+            with getattr(self, '_braking_feedback_lock', nullcontext()):
+                latest = getattr(self, '_braking_feedback', None)
+                revision = getattr(self, '_braking_feedback_revision', 0)
+            if (latest is None or revision != proof['feedback_revision']):
+                code = 'BRAKING_FEEDBACK_UNAVAILABLE'
+            elif latest['stamp_ns'] != feedback['stamp_ns']:
+                lo_v, hi_v, lo_w, hi_w = proof['velocity_intervals']
+                v, w = latest['velocity']
+                if not lo_v-1.e-9 <= v <= hi_v+1.e-9 or not lo_w-1.e-9 <= w <= hi_w+1.e-9:
+                    code = 'BRAKING_FEEDBACK_UNAVAILABLE'
+        if code is not None:
+            self.core.scan_guard_hold = True
+            self.core.scan_guard_code = code
+            self.core.scan_guard_reason = 'Original evidence or output compute deadline expired: '+code
 
     def _service_packet(self, mode):
         self.service_seq += 1
@@ -940,6 +1255,7 @@ class MotionMuxNode(Node):
 
     def on_emergency_stop(self, request, response):
         del request
+        token = self._latch_urgent_zero()
         with self._state_guard():
             canceled = self.pending_reset['future'] if self.pending_reset is not None else None
             if canceled is not None:
@@ -947,7 +1263,10 @@ class MotionMuxNode(Node):
                 self.reset_timer.cancel()
             packet = self._service_packet('estop')
             self.core.receive_control(packet, self.get_clock().now().nanoseconds, origin='service')
-            self._publish_output_locked()
+            with getattr(self, '_control_ingress_lock', nullcontext()):
+                self._deferred_auto_control = None
+            self._finish_urgent_zero(token)
+            self._publish_output_locked(urgent_zero=True)
             success = bool(self.output_available and self.core.estop_latched
                            and self.last_zero_published_at is not None
                            and time.monotonic()-self.last_zero_published_at < .1)
@@ -1091,6 +1410,7 @@ class MotionMuxNode(Node):
                           self._on_control, message)
 
     def _on_control(self, message):
+        received_at = time.monotonic()
         timing = getattr(self, '_timing', None)
         receipt_ns = self.get_clock().now().nanoseconds if timing is not None else None
         try:
@@ -1103,13 +1423,39 @@ class MotionMuxNode(Node):
         # never applied by DDS loopback ahead of the reset-intent grace period.
         if isinstance(payload, dict) and payload.get('source_id') == self.service_source:
             return
+        token, prevalidated = None, False
+        try:
+            velocity = self.core._validated_control_velocity(payload, self.get_clock().now().nanoseconds)
+            prevalidated = True
+            if (payload['mode'] in {'estop', 'hold'} or
+                    payload['mode'] in {'manual', 'localization'} and
+                    (velocity == (0., 0.) or payload['mode'] != self.core.mode)):
+                token = self._latch_urgent_zero()
+        except ValueError:
+            pass  # Core admission records the original rejection below.
         # A slow status write would hold this mutually exclusive callback group
         # and queue later ESTOP packets. The independent status timer publishes
         # the resulting state, while command acceptance and /cmd_vel remain
         # serialized below.
         canceled = None
-        with self._state_guard():
+        # An auto heartbeat waiting here would occupy the control callback
+        # group ahead of a later ESTOP. It grants no motion lease on its own;
+        # coalesce it like the latest-only DDS queue while geometry is busy.
+        auto_heartbeat = isinstance(payload, dict) and payload.get('mode') == 'auto'
+        with self._try_state_guard(blocking=not auto_heartbeat) as acquired:
+            if not acquired:
+                # Preserve an explicit ownership/mode transition. Repeated
+                # auto heartbeats from the existing owner need no replay.
+                if prevalidated and not (self.core.mode == 'auto' and self.core.source_id == payload.get('source_id')
+                                         and not self.core.estop_latched):
+                    with getattr(self, '_control_ingress_lock', nullcontext()):
+                        old = getattr(self, '_deferred_auto_control', None)
+                        if (old is None or old[0]['source_id'] != payload['source_id']
+                                or payload['seq'] > old[0]['seq']):
+                            self._deferred_auto_control = (payload, received_at)
+                return
             if getattr(self, '_closing', False):
+                self._finish_urgent_zero(token)
                 return
             if timing is not None and isinstance(payload, dict):
                 stamp = payload.get('sent_at_ns')
@@ -1126,11 +1472,14 @@ class MotionMuxNode(Node):
                     and not self.allow_topic_reset):
                 self.core.reject_control(
                     payload, 'Topic reset is disabled; use reset_emergency_stop service')
+                self._finish_urgent_zero(token)
                 return
             if (self.pending_reset is not None and self.pending_reset.get('finishing')
                     and (not isinstance(payload, dict) or payload.get('mode') != 'estop')):
                 self.core.reject_control(payload, 'Safety reset finalizing; explicit resume required')
+                self._finish_urgent_zero(token)
                 return
+            previous = (self.core.mode, self.core.source_id, self.core.estop_latched)
             if self.core.receive_control(
                     payload, self.get_clock().now().nanoseconds, origin='topic'):
                 reset = self.pending_reset
@@ -1145,12 +1494,27 @@ class MotionMuxNode(Node):
                     canceled = reset['future']
                     self.pending_reset = None
                     self.reset_timer.cancel()
-                self._publish_output_locked()
+                # A newer admitted packet wins over any older uncommitted
+                # ownership transition, including a different AUTO source.
+                with getattr(self, '_control_ingress_lock', nullcontext()):
+                    queued = getattr(self, '_deferred_auto_control', None)
+                    if queued is not None and queued[1] <= received_at:
+                        self._deferred_auto_control = None
+                self._finish_urgent_zero(token)
+                # A repeated auto lease does not change the command or revoke
+                # permission. The timer/scan output will consume it once.
+                if (self.core.mode != 'auto' or
+                        previous != (self.core.mode, self.core.source_id, self.core.estop_latched)):
+                    self._publish_output_locked(urgent_zero=self.core.output() == (0., 0.))
+            else:
+                self._finish_urgent_zero(token)
         if canceled is not None:
             canceled.set_result(False)
 
-    def _publish_output_locked(self):
-        self._refresh_scan_guard_locked()
+    def _publish_output_locked(self, urgent_zero=False):
+        self._consume_deferred_auto_locked()
+        if not urgent_zero and self.core.mode == 'auto':
+            self._refresh_scan_guard_locked()
         timing = getattr(self, '_timing', None)
         if timing is not None:
             timing.gap('output_gap', .05)
@@ -1174,7 +1538,11 @@ class MotionMuxNode(Node):
         # even if a delayed UI/navigation packet is accepted by the core.
         message.linear.x, message.angular.z = ((0.0, 0.0) if
             getattr(self, 'pending_reset', None) is not None
-            or getattr(self, '_closing', False) else self.core.output())
+            or getattr(self, '_closing', False) or urgent_zero else self.core.output())
+        if self.core.mode == 'auto':
+            scale = getattr(self, '_braking_scale', 1.)
+            message.linear.x *= scale
+            message.angular.z *= scale
         ramp = getattr(self, 'command_ramp', None)
         if ramp is not None:
             owner = (self.core.mode, self.core.source_id,
@@ -1183,22 +1551,33 @@ class MotionMuxNode(Node):
                 message.linear.x, message.angular.z, now=time.monotonic(), owner=owner)
         # The ramp can briefly have a different curvature from the new target.
         # Certify that actual output as well, retaining the full raw-body check.
-        if self.core.mode == 'auto' and getattr(self, '_scan_guard_enabled', False):
-            self._refresh_scan_guard_locked((message.linear.x, message.angular.z))
+        if not urgent_zero and self.core.mode == 'auto' and getattr(self, '_scan_guard_enabled', False):
+            message.linear.x, message.angular.z = self._limit_braking_output_locked(
+                message.linear.x, message.angular.z)
+            self._final_output_guard_locked(message.linear.x, message.angular.z)
             if self.core.scan_guard_hold:
                 message.linear.x, message.angular.z = 0., 0.
                 if ramp is not None:
                     ramp.reset()
-        try:
-            timed_call(timing, 'cmd_vel_publish', self.output_pub.publish, message)
-        except Exception:
-            if ramp is not None:
-                ramp.reset()
-            raise
-        self.last_published_output = (message.linear.x, message.angular.z)
-        self.last_output_was_zero = message.linear.x == 0.0 and message.angular.z == 0.0
-        if self.last_output_was_zero:
-            self.last_zero_published_at = time.monotonic()
+        with getattr(self, '_output_publish_lock', nullcontext()):
+            if not urgent_zero and self.core.mode == 'auto' and getattr(self, '_scan_guard_enabled', False):
+                self._guard_evidence_current_locked()
+            pending_stop = getattr(self, '_urgent_stop_event', None)
+            if (pending_stop is not None and pending_stop.is_set()
+                    or self.core.mode == 'auto' and self.core.scan_guard_hold):
+                message.linear.x, message.angular.z = 0., 0.
+                if ramp is not None:
+                    ramp.reset()
+            try:
+                timed_call(timing, 'cmd_vel_publish', self.output_pub.publish, message)
+            except Exception:
+                if ramp is not None:
+                    ramp.reset()
+                raise
+            self.last_published_output = (message.linear.x, message.angular.z)
+            self.last_output_was_zero = message.linear.x == 0.0 and message.angular.z == 0.0
+            if self.last_output_was_zero:
+                self.last_zero_published_at = time.monotonic()
 
     def publish_output(self, refresh_ownership=True):
         if refresh_ownership:
@@ -1206,10 +1585,12 @@ class MotionMuxNode(Node):
         with self._state_guard():
             self._publish_output_locked()
 
-    def check_output_ownership(self):
+    def check_output_ownership(self, nonblocking=False):
         """Back off completely if any other publisher can command the robot."""
         now = time.monotonic()
-        with self._state_guard():
+        with self._try_state_guard(blocking=not nonblocking) as acquired:
+            if not acquired:
+                return
             if getattr(self, '_ownership_query_inflight', False):
                 return
             if now-self._ownership_checked_at < .2:
@@ -1256,8 +1637,10 @@ class MotionMuxNode(Node):
             if timing is not None:
                 timing.gap('status_gap', .1)
             if refresh_ownership:
-                self.check_output_ownership()
-            with self._state_guard():
+                self.check_output_ownership(nonblocking=not force)
+            with self._try_state_guard(blocking=force) as acquired:
+                if not acquired:
+                    return False
                 status = self.core.status()
                 # The arbitration target may be ahead of a gentle start.
                 # Report the actual emitted command; reads do not advance it.

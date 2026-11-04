@@ -1,0 +1,21 @@
+{
+  "status": "INTERRUPTED_AT_USER_REQUEST",
+  "exit_code": 2,
+  "at_utc": "2026-11-04T23:27:06.714964+00:00",
+  "completed_tests": {
+    "passed": 1478,
+    "failed": 1,
+    "elapsed_seconds": 81.54
+  },
+  "failed_test": "test_metric_connector.py::test_recorded_5cm_no_edge_has_complete_bounded_metric_route",
+  "failure": "Functional connector fixture did not complete within its test-only 100ms budget; reported search metric 88.676ms excludes later adapter work. Not re-run or relaxed after user stop.",
+  "remaining_tests": "not_run",
+  "latest_runtime_gazebo_retest": "not_started",
+  "physical_drive": "not_run",
+  "log_archive": "pytest_user_interrupted.log.gz",
+  "uncompressed_sha256": "6bdd12fb88024837ba57589d66d78731af3572dbcd46097534202e884a0763a6",
+  "source_epoch": "source_epoch_after_delivery_fix.json",
+  "source_unchanged": true,
+  "runtime_source_file_count": 218,
+  "previous_completed_checks": "checks_before_trials.json certifies an earlier source epoch only"
+}

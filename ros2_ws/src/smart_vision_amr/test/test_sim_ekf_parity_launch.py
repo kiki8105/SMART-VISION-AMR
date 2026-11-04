@@ -75,7 +75,7 @@ def test_guarded_independent_sim_uses_physical_wheel_limits_and_latched_mux(tmp_
                            'auto_turn_entry_linear_velocity': .15,
                            'auto_turn_min_linear_velocity': .10,
                            'gentle_start_enabled': True,
-                           'gentle_start_linear_acceleration': .20,
+                           'gentle_start_linear_acceleration': .15,
                            'gentle_start_angular_acceleration': .80,
                            'gentle_start_max_publish_gap': .50,
                            'startup_estop': True,

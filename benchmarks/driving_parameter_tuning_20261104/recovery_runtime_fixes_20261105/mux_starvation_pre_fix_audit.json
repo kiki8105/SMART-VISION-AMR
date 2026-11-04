@@ -1,0 +1,178 @@
+{
+  "scope": "Read-only analysis of incomplete headless Gazebo web inventory stage; not physical test; no post-fix performance claim.",
+  "trial": "classroom-transfer-runtime_common_v1-20261105",
+  "domain": 176,
+  "physical_robot_touched": false,
+  "runtime_mux_sha256": "f798d92f2df139f9f7ee23736a1e18de12d21869d84163b3f17ca3f017738acd",
+  "inputs": {
+    "25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl": {
+      "sha256": "9787d7f57d52bbd7e6a17f8c2111f5f5387b3aa72ae1fc6b7230b2daabe44e7a",
+      "bytes": 8113108
+    },
+    "25_web_inventory_sector3_moving_obstacle/runtime_manifest.json": {
+      "sha256": "561f87560ef951ce35239000289aff9175d6290c29610bd3f9afdeb5a562d9e0",
+      "bytes": 4887
+    },
+    "25_web_inventory_sector3_moving_obstacle/operator_abort_reason.json": {
+      "sha256": "033f491c735c3efd415a6d108d1ee7e12caff3bb5a82d69f3d853d01cbadaae3",
+      "bytes": 970
+    },
+    "staged_report.json": {
+      "sha256": "9379fea9e689880bd7761534121b3fea1b70da33f2a9b21820c3478f65611b7f",
+      "bytes": 60601
+    }
+  },
+  "window_t_wall_relative_s": [
+    24,
+    200
+  ],
+  "motion_auto_samples": 1064,
+  "codes": {
+    "BRAKING_FEEDBACK_UNAVAILABLE": 487,
+    "CLEAR": 577
+  },
+  "by_code": {
+    "CLEAR": {
+      "braking_feedback_age_seconds": {
+        "samples": 577,
+        "p50": 0.163,
+        "p95": 0.245,
+        "max": 0.249
+      },
+      "pose_age_seconds": {
+        "samples": 577,
+        "p50": 0.022,
+        "p95": 0.055,
+        "max": 0.135
+      },
+      "scan_age_seconds": {
+        "samples": 577,
+        "p50": 0.069,
+        "p95": 0.132,
+        "max": 0.425
+      },
+      "pose_uncertainty_seconds": {
+        "samples": 577,
+        "p50": 0.038126864005462266,
+        "p95": 0.09293973499670392,
+        "max": 0.18338487999909558
+      }
+    },
+    "BRAKING_FEEDBACK_UNAVAILABLE": {
+      "braking_feedback_age_seconds": {
+        "samples": 436,
+        "p50": 0.292,
+        "p95": 0.565,
+        "max": 1.605
+      },
+      "pose_age_seconds": {
+        "samples": 487,
+        "p50": 0.025,
+        "p95": 0.095,
+        "max": 0.245
+      },
+      "scan_age_seconds": {
+        "samples": 487,
+        "p50": 0.073,
+        "p95": 0.165,
+        "max": 0.404
+      },
+      "pose_uncertainty_seconds": {
+        "samples": 487,
+        "p50": 0.03595114000199828,
+        "p95": 0.1103391499980935,
+        "max": 0.245
+      }
+    }
+  },
+  "independent_fresh_odom_during_feedback_hold_samples": 443,
+  "closest_external_receipt_witnesses": [
+    {
+      "t": 101.0281,
+      "internal_feedback_source_age_s": 0.295,
+      "external_odom_receipt_age_s": 0.0011999999987892807,
+      "external_odom_source_age_at_mux_reported_clock_s": -0.055,
+      "external_odom_stamp_ns": 80835000000,
+      "mux_reported_ros_stamp_ns": 80780000000,
+      "internal_pose_source_age_s": 0.095
+    },
+    {
+      "t": 179.3922,
+      "internal_feedback_source_age_s": 0.285,
+      "external_odom_receipt_age_s": 0.0011999999987892807,
+      "external_odom_source_age_at_mux_reported_clock_s": -0.015,
+      "external_odom_stamp_ns": 151935000000,
+      "mux_reported_ros_stamp_ns": 151920000000,
+      "internal_pose_source_age_s": 0.035
+    },
+    {
+      "t": 79.0964,
+      "internal_feedback_source_age_s": 0.295,
+      "external_odom_receipt_age_s": 0.0014000000010128133,
+      "external_odom_source_age_at_mux_reported_clock_s": -0.005,
+      "external_odom_stamp_ns": 60785000000,
+      "mux_reported_ros_stamp_ns": 60780000000,
+      "internal_pose_source_age_s": 0.029
+    },
+    {
+      "t": 123.9463,
+      "internal_feedback_source_age_s": 0.305,
+      "external_odom_receipt_age_s": 0.0014000000010128133,
+      "external_odom_source_age_at_mux_reported_clock_s": 0.005,
+      "external_odom_stamp_ns": 101135000000,
+      "mux_reported_ros_stamp_ns": 101140000000,
+      "internal_pose_source_age_s": 0.055
+    },
+    {
+      "t": 173.4795,
+      "internal_feedback_source_age_s": 0.386,
+      "external_odom_receipt_age_s": 0.0017000000007101335,
+      "external_odom_source_age_at_mux_reported_clock_s": -0.015,
+      "external_odom_stamp_ns": 146655000000,
+      "mux_reported_ros_stamp_ns": 146640000000,
+      "internal_pose_source_age_s": 0.055
+    },
+    {
+      "t": 168.5427,
+      "internal_feedback_source_age_s": 0.773,
+      "external_odom_receipt_age_s": 0.0019000000029336661,
+      "external_odom_source_age_at_mux_reported_clock_s": -0.027,
+      "external_odom_stamp_ns": 142147000000,
+      "mux_reported_ros_stamp_ns": 142120000000,
+      "internal_pose_source_age_s": 0.073
+    },
+    {
+      "t": 162.5449,
+      "internal_feedback_source_age_s": 0.305,
+      "external_odom_receipt_age_s": 0.001999999993131496,
+      "external_odom_source_age_at_mux_reported_clock_s": 0.005,
+      "external_odom_stamp_ns": 136635000000,
+      "mux_reported_ros_stamp_ns": 136640000000,
+      "internal_pose_source_age_s": 0.055
+    },
+    {
+      "t": 48.0321,
+      "internal_feedback_source_age_s": 0.305,
+      "external_odom_receipt_age_s": 0.0025000000023283064,
+      "external_odom_source_age_at_mux_reported_clock_s": 0.005,
+      "external_odom_stamp_ns": 32835000000,
+      "mux_reported_ros_stamp_ns": 32840000000,
+      "internal_pose_source_age_s": 0.055
+    }
+  ],
+  "code_mechanism_pre_fix": {
+    "scan_group": "scan and braking odom share one MutuallyExclusiveCallbackGroup; scan preprocess/full guard prevents odom callback entry",
+    "state_lock": "scan/output/control/health all perform heavy geometry while holding shared state lock",
+    "clock": "navigation and health use default mutually-exclusive callback group shared with ROS time callback",
+    "redundant_full_guard": "scan calls full refresh then output calls full refresh and auto actual-ramp second full refresh, up to three equivalent projection/braking evaluations per scan",
+    "receipt_capture": "scan FIRST receipt and odom receipt currently recorded after waiting shared state lock; it is not original callback entry time"
+  },
+  "interpretation": "Independent observer received recent original odometry while mux feedback source aged beyond its unchanged 250ms bound. This is evidence of consumer callback/lock backlog, not a claim that the hardware source or source timestamps stopped. Current guards correctly zero commands when its own feedback is stale.",
+  "limits": [
+    "Observer odom emission is throttled to at most20Hz by capture script; observed counts are not producer source cadence.",
+    "Latest independent odom can be later than mux reported ROS clock; negative source ages expose clock skew/backlog but are not aligned snapshots of mux callback arrival.",
+    "No callback profiling trace exists; durations and exact CPU attribution cannot be recovered from these sampled statuses. Source structure identifies duplicated work, not a measured threefold speedup.",
+    "Repeated status code sample count is not time-weighted outage duration.",
+    "Mission was explicitly paused and incomplete; do not treat route/home or actor QA as passed."
+  ]
+}

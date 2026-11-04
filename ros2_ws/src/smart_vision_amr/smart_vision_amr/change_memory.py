@@ -11,6 +11,7 @@ from pathlib import Path
 import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import OccupancyGrid
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy, qos_profile_sensor_data
@@ -57,6 +58,10 @@ def wall_aligned_echo_indices(samples, minimum_beams=6, minimum_span_m=0.10):
 class ChangeMemoryNode(Node):
     def __init__(self):
         super().__init__("change_memory")
+        # Serialize application state, but do not share its group with the
+        # automatically created /clock subscription. A projection must not
+        # freeze ROS time while TF arrives on the other executor worker.
+        self.application_callbacks = MutuallyExclusiveCallbackGroup()
         self.declare_parameter("map_topic", "/map")
         self.declare_parameter("scan_topic", "/scan")
         self.declare_parameter("map_frame", "map")
@@ -102,6 +107,7 @@ class ChangeMemoryNode(Node):
         self.projection_dropped = 0
         self.projection_valid = 0
         self.last_projection_diagnostic = float("-inf")
+        self.last_valid_projection_diagnostic = float("-inf")
         self.memory_path = Path(os.path.expanduser(self.get_parameter("memory_path").value))
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -114,15 +120,26 @@ class ChangeMemoryNode(Node):
             OccupancyGrid, "/smart_vision_amr/observed_visibility", qos_profile_sensor_data)
         self.projection_status_pub = self.create_publisher(
             String, "/smart_vision_amr/scan_projection_status", latched)
-        self.create_subscription(OccupancyGrid, self.get_parameter("map_topic").value, self.on_map, latched)
+        self.create_subscription(OccupancyGrid, self.get_parameter("map_topic").value,
+                                 self.on_map, latched, callback_group=self.application_callbacks)
+        # Projection consumes the newest real measurement after a slow frame,
+        # rather than replaying the sensor-data default's five-frame backlog.
+        # This changes only this observer's queue, never raw /scan delivery to
+        # the motion guard or Nav2. Skipped scans do not count as observations.
+        latest_scan_qos = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
         self.create_subscription(LaserScan, self.get_parameter("scan_topic").value,
-                                 self.on_scan, qos_profile_sensor_data)
-        self.create_subscription(PoseWithCovarianceStamped, "/initialpose", self.on_initial_pose, 10)
-        self.create_service(Trigger, "/smart_vision_amr/save_memory", self.save_service)
-        self.create_service(Trigger, "/smart_vision_amr/clear_memory", self.clear_service)
+                                 self.on_scan, latest_scan_qos,
+                                 callback_group=self.application_callbacks)
+        self.create_subscription(PoseWithCovarianceStamped, "/initialpose", self.on_initial_pose, 10,
+                                 callback_group=self.application_callbacks)
+        self.create_service(Trigger, "/smart_vision_amr/save_memory", self.save_service,
+                            callback_group=self.application_callbacks)
+        self.create_service(Trigger, "/smart_vision_amr/clear_memory", self.clear_service,
+                            callback_group=self.application_callbacks)
         from rclpy.clock import Clock, ClockType
         self.create_timer(.02, self.retry_pending_scans,
-                          clock=Clock(clock_type=ClockType.STEADY_TIME))
+                          clock=Clock(clock_type=ClockType.STEADY_TIME),
+                          callback_group=self.application_callbacks)
 
     def map_signature(self, msg):
         info = msg.info
@@ -139,6 +156,7 @@ class ChangeMemoryNode(Node):
         if self.map is not None and signature == self.map["signature"]:
             return
         self.map = {"message": msg, "signature": signature}
+        self._known_free_base_cells()
         self.raw_static_grid = occupancy_to_grid(
             msg, self.get_parameter("occupied_threshold").value,
             unknown_is_obstacle=False)
@@ -290,30 +308,42 @@ class ChangeMemoryNode(Node):
         if stamp_ns == 0:
             self._projection_diagnostic("DROPPED", "unstamped_scan", scan)
             return
-        if self._project_scan(scan):
+        received_at = time.monotonic()
+        if self._project_scan(scan, received_at=received_at):
             return
         bound = max(1, min(50, int(self.get_parameter("scan_tf_queue_size").value)))
         while len(self.pending_scans) >= bound:
             _, _, dropped = self.pending_scans.popleft()
             self._projection_diagnostic("DROPPED", "tf_queue_full", dropped)
-        self.pending_scans.append((stamp_ns, time.monotonic(), scan))
+        self.pending_scans.append((stamp_ns, received_at, scan))
         self.pending_scans = deque(sorted(self.pending_scans, key=lambda item: item[0]))
         self._projection_diagnostic("PENDING_TF", "waiting_for_measurement_transform", scan)
 
     def retry_pending_scans(self):
-        """Short nonblocking retries allow a scan to arrive just ahead of TF."""
+        """Project the newest acquisition-ready scan, never a stale FIFO burst.
+
+        A newer frame may still be awaiting TF, in which case an older ready
+        frame is useful. Once a newer frame succeeds, the existing stamp
+        high-water mark supersedes older queued frames. Neither the original
+        measurement time nor its first receipt time is renewed by a retry.
+        """
         wait = max(.01, min(1., float(self.get_parameter("scan_tf_wait_sec").value)))
-        now = time.monotonic()
         retained = deque()
         while self.pending_scans:
-            stamp, arrived, scan = self.pending_scans.popleft()
+            stamp, arrived, scan = self.pending_scans.pop()
             if not self._scan_is_current(scan):
                 continue
-            if now - arrived >= wait:
+            if time.monotonic() - arrived >= wait:
                 self._projection_diagnostic("DROPPED", "measurement_tf_timeout", scan)
                 continue
-            if not self._project_scan(scan):
-                retained.append((stamp, arrived, scan))
+            previous_memory = self.memory
+            if not self._project_scan(scan, received_at=arrived):
+                retained.appendleft((stamp, arrived, scan))
+            if self.memory is not previous_memory:
+                # A verified localization jump clears the live queue. Do not
+                # restore a newer waiting scan from the obsolete projection
+                # context after _discard_relocated_memory cleared it.
+                retained.clear()
         self.pending_scans = retained
 
     def _scan_is_current(self, scan):
@@ -333,25 +363,35 @@ class ChangeMemoryNode(Node):
             return False
         return True
 
-    def _projection_diagnostic(self, status, reason, scan, tf_skew=None):
+    def _projection_diagnostic(self, status, reason, scan, tf_skew=None, *, timing=None):
         if status == "DROPPED":
             self.projection_dropped += 1
             self.get_logger().warning(f"LiDAR projection rejected: {reason}", throttle_duration_sec=5.)
         now = time.monotonic()
-        if status == "VALID" and now-self.last_projection_diagnostic < 1.:
-            return
+        if status == "VALID":
+            # A PENDING_TF event on every 10 Hz scan must not suppress every
+            # subsequent VALID diagnostic indefinitely.
+            if now-getattr(self, "last_valid_projection_diagnostic", float("-inf")) < 1.:
+                return
+            self.last_valid_projection_diagnostic = now
         self.last_projection_diagnostic = now
         stamp_ns = scan.header.stamp.sec*1_000_000_000 + scan.header.stamp.nanosec
         message = String()
-        message.data = json.dumps({"status": status, "reason": reason,
+        payload = {"status": status, "reason": reason,
             "scan_stamp_ns": stamp_ns,
             "scan_age_ms": (self.get_clock().now().nanoseconds-stamp_ns)/1e6,
             "tf_skew_ms": tf_skew, "queue_depth": len(self.pending_scans),
-            "valid_scans": self.projection_valid, "dropped_scans": self.projection_dropped})
+            "valid_scans": self.projection_valid, "dropped_scans": self.projection_dropped}
+        if timing is not None:
+            payload.update(timing)
+        message.data = json.dumps(payload)
         self.projection_status_pub.publish(message)
 
-    def _project_scan(self, scan):
+    def _project_scan(self, scan, *, received_at=None):
         """Return false only when TF may still arrive within the bounded wait."""
+        started_at = time.monotonic()
+        if received_at is None:
+            received_at = started_at
         stamp_ns = scan.header.stamp.sec * 1_000_000_000 + scan.header.stamp.nanosec
         target_frame = self.get_parameter("map_frame").value
         sensor_frame = scan.header.frame_id or self.get_parameter("base_frame").value
@@ -379,6 +419,10 @@ class ChangeMemoryNode(Node):
             return True
         self.reset_live_on_localization_jump(target_frame, measurement_time)
         info = self.map["message"].info
+        # One immutable lookup per projection replaces thousands of ROS
+        # parameter lookups along the rays. Map/threshold changes invalidate
+        # this cache; unknown cells still never become free evidence.
+        base_free_cells = self._known_free_base_cells()
         origin = world_to_cell(info, tf.transform.translation.x, tf.transform.translation.y)
         yaw = self._yaw(tf.transform.rotation)
         occupied_cells, free_cells, uncertain_cells = set(), set(), set()
@@ -423,7 +467,7 @@ class ChangeMemoryNode(Node):
             end_cell = world_to_cell(info, *endpoint)
             ray = list(bresenham(origin, end_cell))
             for cell in ray[:-1] if valid_hit else ray:
-                if self._is_free_in_base_map(cell):
+                if cell in base_free_cells:
                     free_cells.add(cell)
             if valid_hit and distance <= obstacle_range and self.raw_static_grid.contains(end_cell):
                 wall_distance = first_static_obstacle_distance(
@@ -484,9 +528,6 @@ class ChangeMemoryNode(Node):
                                and (now-seen < ttl or self.cell_in_unknown_sector(
                                    cell, info, sensor_xy, invalid_angles, scan.angle_increment))}
         self.live_obstacles.update((cell, now) for cell in occupied_cells)
-        observed = Int32MultiArray()
-        observed.data = sorted(y * self.memory.width + x for x, y in self.live_obstacles)
-        self.observation_pub.publish(observed)
         # A missing hit/TTL expiry is not removal evidence. Publish exactly
         # which cells this measurement's valid rays traversed, with its stamp.
         if hasattr(self, "visibility_pub"):
@@ -501,7 +542,18 @@ class ChangeMemoryNode(Node):
                 data[y*info.width+x] = 100
             visibility.data = data
             self.visibility_pub.publish(visibility)
-        self._projection_diagnostic("VALID", "measurement_transform_applied", scan, skew_ms)
+        # Publish the stamped proof before the geometry-trigger message. A
+        # consumer may immediately plan from observed_obstacles; it should not
+        # first be forced to wait for this same frame's visibility publication.
+        # DDS topic order is not assumed: consumers still match original stamps.
+        observed = Int32MultiArray()
+        observed.data = sorted(y * self.memory.width + x for x, y in self.live_obstacles)
+        self.observation_pub.publish(observed)
+        published_at = time.monotonic()
+        self._projection_diagnostic(
+            "VALID", "measurement_transform_applied", scan, skew_ms,
+            timing={"projection_duration_ms": (published_at-started_at)*1000.,
+                    "first_receipt_to_publish_ms": (published_at-received_at)*1000.})
         if not self.get_parameter("memory_enabled").value:
             return True
         changed = False
@@ -511,7 +563,7 @@ class ChangeMemoryNode(Node):
         for cell in occupied_cells:
             # Live returns may include raw occupied/unknown cells; persistent
             # changes only describe additions to known free cells of the map.
-            if self._is_free_in_base_map(cell):
+            if cell in base_free_cells:
                 changed = self.memory.observe_occupied(cell, observed_at) or changed
         self.scans_since_save += 1
         if changed:
@@ -525,12 +577,20 @@ class ChangeMemoryNode(Node):
         return True
 
     def _is_free_in_base_map(self, cell):
+        return cell in self._known_free_base_cells()
+
+    def _known_free_base_cells(self):
+        """Cache only known-free map cells, with no changed occupancy policy."""
         msg = self.map["message"]
-        x, y = cell
-        if not (0 <= x < msg.info.width and 0 <= y < msg.info.height):
-            return False
-        value = msg.data[y * msg.info.width + x]
-        return 0 <= value < self.get_parameter("occupied_threshold").value
+        threshold = self.get_parameter("occupied_threshold").value
+        if (getattr(self, "_base_free_message", None) is not msg
+                or getattr(self, "_base_free_threshold", None) != threshold):
+            self._base_free_cells = frozenset(
+                (index % msg.info.width, index // msg.info.width)
+                for index, value in enumerate(msg.data) if 0 <= value < threshold)
+            self._base_free_message = msg
+            self._base_free_threshold = threshold
+        return self._base_free_cells
 
     @staticmethod
     def _yaw(q):
@@ -580,8 +640,8 @@ def main(args=None):
     rclpy.init(args=args)
     node = ChangeMemoryNode()
     # The scan projection can be CPU-heavy. TransformListener already uses a
-    # reentrant callback group, so a second worker keeps TF arriving while the
-    # default mutually-exclusive group processes a scan or memory write.
+    # reentrant callback group. Application state has its own serialized group,
+    # so a second worker keeps both TF and /clock arriving during a projection.
     executor = MultiThreadedExecutor(num_threads=2, context=node.context)
     executor.add_node(node)
     try:

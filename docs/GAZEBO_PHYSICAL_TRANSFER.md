@@ -5,6 +5,14 @@ Gazebo 완주는 실차 완주를 보장하지 않습니다. 교실의 벽·ArUc
 운용 명령은 [팀원 퀵스타트](TEAM_QUICKSTART.md), 정책은
 [주행 정책](NAVIGATION_POLICY.md)을 따릅니다.
 
+## 추가 수정과 새 실행
+
+후진 불가 뒤의 옆쪽 연결 탐색, 1cm 중심 후보 연결, 가까운 경로 추종 비용,
+측정 속도에 따른 제동 검사와 수신 병목 수정은
+[2026-11-05 추가 런타임 검증](../benchmarks/driving_parameter_tuning_20261104/recovery_runtime_fixes_20261105/README.md)에
+기록합니다. 원래 장애물 사각형과 22cm 차체를 유지합니다. 새 실행은 이전 실행과
+소스 해시를 구분하며, 이전의 성공·실패 기록은 덮어쓰지 않습니다.
+
 ## 기존 시험에서 빠졌던 조건
 
 | 실차 기록 / 확인 사항 | 기존 Gazebo의 차이 | 보강할 시험 |
@@ -90,9 +98,9 @@ Nav2 lifecycle 중단과 단순 읽기 응답 유실을 구분합니다.
 남깁니다. 아래 이력의 이전 PASS는 최신 관측 쌍 수정본의 PASS를 뜻하지 않습니다. 시험 전후 소스 해시와 복사 모델·실제 사용 YAML을 함께 보존합니다.
 브라우저 화면의 시각적 클릭 검증과 실제 백엔드 API·ROS·물리 시뮬레이션 검증도 구분합니다.
 
-### 최종 주행 소스의 새 실행
+### 이전 기준 커밋 `1ee7fcd`의 실행
 
-아래는 경로 인계 수정 후 **같은 주행 런타임**으로 새로 실행한 결과입니다.
+아래는 경로 인계 수정 후 **같은 이전 주행 런타임**으로 실행한 결과입니다.
 단위 검사 통과와 폐루프 완주를 구분합니다. 각 실행의 소스 전후 해시는 동일합니다.
 재고 시험과 운용자 경로 시험은 별도 절차입니다.
 
@@ -156,21 +164,25 @@ Nav2 lifecycle 중단과 단순 읽기 응답 유실을 구분합니다.
 wall 전달 지연은 같은 수치가 아닙니다. 원본 로그의 EKF CPU 지연을 완전히 재현했다고
 표현하지 않습니다. **수정본 실차 재시험은 아직 하지 않았습니다.**
 
-## 아직 해결하지 않은 좁은 경로
+## 이전 실행에서 남은 좁은 경로 문제
 
 공통 상자 장면에서는 5cm 격자가 실제로 여유 있는 연속 경로를 표현하지 못한 경우도
 재현했습니다. 당시 지도상 차체 여유는 약 2.48cm였지만 주변 후보 셀이 모두 막혔습니다.
 기존 경로를 그대로 허용하면 일부 구간 여유가 0.46mm뿐이어서, 그 경로를 해제하지 않았습니다.
 원본 장애물 사각형·22cm 차체를 유지한 1cm 후보 검색은 전체 경로를 찾았으나,
 짧은 재합류 경로의 예비 구현도 전처리부터 기존 60ms 예산을 넘었습니다.
-**이 예비 구현은 실행 코드에 채택하지 않았고, 해당 정체가 해결됐다고 기록하지 않습니다.**
+**이 예비 구현 자체는 실행 코드에 채택하지 않았습니다.** 이후의 짧은 연결 탐색은
+별도로 최적화·검증했으며, [추가 수정 기록](../benchmarks/driving_parameter_tuning_20261104/recovery_runtime_fixes_20261105/README.md)에서
+기능 검사와 실제 폐루프 결과를 구분합니다.
 [기하 대안·시간 측정·재현 도구](../benchmarks/driving_parameter_tuning_20261104/fine_geometry_feasibility_20261105/README.md)를
 보존했습니다. 당시 AMCL과 Gazebo 실제 위치의 약 5.4cm 차이도 있어, 지도상 경로 발견만으로
 실차의 좁은 구간 통과를 보장할 수 없습니다.
 
 다른 정체에서는 실제 LiDAR 반환점이 차체보다 약 4cm 밖에 있었지만, 관측점을 포함하는
-5cm 셀 전체를 장애물로 표현하면 차체 모델과 약 4mm 겹쳤습니다. 이는 없는 장애물이라고
-단정할 수 없으며, 기존 장애물 셀을 그대로 둔 채 검색 격자만 세분화해도 해결되지 않습니다.
+5cm 셀 전체를 장애물로 표현하면 차체 모델과 약 4mm 겹쳤습니다. 이는 아래 공통 상자
+실행의 관측 셀 사례이며, 별도 stress 모서리 사례의 무한 직선 벽 가정은
+[원본 사각형 기하로 정정](../benchmarks/driving_parameter_tuning_20261104/recovery_runtime_fixes_20261105/stress_corner_geometry_reassessment.json)했습니다.
+없는 장애물이라고 단정할 수 없으며, 실제 셀 교차가 있다면 검색 격자만 세분화해도 해결되지 않습니다.
 [원본 scan·표본 TF·셀 기하 대조](../benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/independent_final_common_recorded_audit.json)는
 기록 간 시각 차이와 TF 표본 한계까지 포함합니다. 이 장면을 해결된 항목으로 표시하지 않습니다.
 
@@ -210,7 +222,7 @@ python3 scripts/run_classroom_staged_validation.py \
   --hardware-profile sensor_rates \
   --nav-params-source ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml \
   --nodes-params-source ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml \
-  --obstacle-scenario benchmarks/driving_parameter_tuning_20261104/scenarios/baseline_sector3_box.json \
+  --obstacle-scenario benchmarks/driving_parameter_tuning_20261104/scenarios/hardware_profiles_common_box.json \
   --leg-timeout 240 --obstacle-hold-timeout 0 \
   --output "/tmp/classroom-physical-transfer-$(date +%Y%m%d-%H%M%S)"
 ```

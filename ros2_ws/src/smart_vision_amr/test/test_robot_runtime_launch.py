@@ -63,6 +63,7 @@ def test_robot_runtime_has_one_mux_and_local_health_and_uses_pi_geometry(tmp_pat
                          'ekf_sensor_guard', 'motion_mux', 'localization_health'}
     wheel = nodes['wheel_joint_odometry']['parameters']
     assert wheel[-1] == {'wheel_radius': .041, 'wheel_separation': .321}
+    assert {'braking_wheel_separation': .321} in nodes['motion_mux']['parameters']
     assert wheel[0].endswith('/config/ekf_hardware.yaml')
     assert nodes['motion_mux']['parameters'][-1] == {
         'allow_legacy_auto_input': False, 'require_localization_health': True,
@@ -76,7 +77,7 @@ def test_robot_runtime_has_one_mux_and_local_health_and_uses_pi_geometry(tmp_pat
         'auto_turn_entry_linear_velocity': 0.15,
         'auto_turn_min_linear_velocity': 0.10,
         'gentle_start_enabled': True,
-        'gentle_start_linear_acceleration': 0.20,
+        'gentle_start_linear_acceleration': 0.15,
         'gentle_start_angular_acceleration': 0.80,
         'gentle_start_max_publish_gap': 0.50}
     assert nodes['ekf_hardware']['remappings'] == [('odometry/filtered', '/odom')]
@@ -158,6 +159,7 @@ def test_explicit_calibrated_dimensions_override_vendor_defaults(tmp_path, monke
     nodes = {node['name']: node for node in module._runtime(context)}
     assert nodes['wheel_joint_odometry']['parameters'][-1] == {
         'wheel_radius': .0327, 'wheel_separation': .289}
+    assert {'braking_wheel_separation': .289} in nodes['motion_mux']['parameters']
 
 
 @pytest.mark.parametrize('value', ['0', '-1', 'nan', 'inf', 'not-a-number'])

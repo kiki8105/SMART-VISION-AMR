@@ -110,7 +110,11 @@ def _runtime(context):
         ])
     actions.extend([
         Node(package='smart_vision_amr', executable='motion_mux', name='motion_mux',
-             parameters=[common, timing, {'allow_legacy_auto_input': False,
+             parameters=[os.path.join(own, 'config', 'motion_mux_hardware.yaml'),
+                         common, timing,
+                         ({'braking_wheel_separation': dimensions['wheel_separation']}
+                          if mode == 'ekf_independent' else {}),
+                         {'allow_legacy_auto_input': False,
                                   'require_localization_health': True,
                                   'max_linear_velocity': 0.22,
                                   'scan_guard_robot_radius': 0.22,
@@ -128,7 +132,7 @@ def _runtime(context):
                                   # Only the actual final publisher advances
                                   # this ramp; safety/zero commands bypass it.
                                   'gentle_start_enabled': True,
-                                  'gentle_start_linear_acceleration': 0.20,
+                                  'gentle_start_linear_acceleration': 0.15,
                                   'gentle_start_angular_acceleration': 0.80,
                                   'gentle_start_max_publish_gap': 0.50}],
              output='screen', on_exit=Shutdown(reason='Final velocity mux exited')),

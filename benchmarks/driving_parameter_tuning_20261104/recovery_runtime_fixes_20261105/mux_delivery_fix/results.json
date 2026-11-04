@@ -1,0 +1,106 @@
+{
+  "scope": "Isolated real ROS DDS/MultiThreadedExecutor with synthetic source-stamped odom, TF, scan, localization/control; no Gazebo or physical driving; no closed-loop success claim.",
+  "prior_failed_trial": "../runtime_common_v1",
+  "prior_mux_sha256": "f798d92f2df139f9f7ee23736a1e18de12d21869d84163b3f17ca3f017738acd",
+  "prior_failure_evidence": "../mux_starvation_pre_fix_audit.json",
+  "source_sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py": "20d3713efa0f4bbfcff6b25675984add64c8247d30a773a880e6ae90b6ef6764",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/braking_envelope.py": "67816a2ea8fe658e8ef1d958007e7a67a69c61d0f7c30919460dac9cc12b9c26",
+    "ros2_ws/src/smart_vision_amr/test/test_motion_mux_delivery.py": "0a73fe61a9040b0ccfa185031c6c5ef11ee9b14aa159da6398f5923c4afccf56",
+    "ros2_ws/src/smart_vision_amr/test/test_braking_envelope.py": "49aeedfcb4ea304e1b02cc6abb29b0f0803e5aab0defe1377dbcca464b4252fb",
+    "ros2_ws/src/smart_vision_amr/test/test_near_scan_outlier_guard.py": "0137ad8b52f53f796ee0402c6307df1ddf340ea21f91037980471727f084ca93"
+  },
+  "runtime_changed": [
+    "motion_mux.py"
+  ],
+  "braking_math_changed": false,
+  "freshness_thresholds_changed": false,
+  "control_boundary": {
+    "sensor_feedback_source_and_first_receipt_max_s": 0.25,
+    "source_stamps_rewritten": false,
+    "guard_compute_budget_s": 0.05,
+    "both_monotonic_and_ros_advance_checked": true,
+    "pose_pending_velocity_bounds_include_budget": true,
+    "new_invalid_feedback_or_out_of_certified_interval": "zero; new normal 20Hz stamp alone is not invalidation",
+    "stop_ack": "Exclusive output+core ESTOP+actual published zero; not a physical-standstill claim"
+  },
+  "delivery_changes": [
+    "latest-only odom queue and independent tiny feedback lock; FIRSTreceipt captured before lock wait",
+    "scan/output/nav/health share a mutually-exclusive application group, leaving /clock, TF and odom executor capacity",
+    "busy periodic status snapshots skip rather than occupy a worker waiting for geometry",
+    "one prepared full guard per output; original-source final freshness, exact emitted curve and elapsed compute bounds checked before publish",
+    "stop/manual-takeover/raw-body ingress can latch zero under a separate publication lock while core admission waits; old computed output cannot follow that zero",
+    "only redundant same-owner AUTO heartbeats coalesce; explicit busy resumes retain original payload/stamp/seq/FIRSTreceipt and undergo normal core admission; a newer accepted packet supersedes older deferred input"
+  ],
+  "combined_focused": {
+    "passed": 135,
+    "seconds": 10.77,
+    "files": 6,
+    "xml": "combined_135.xml",
+    "note": "Included a cancelled-timer teardown warning; no test failed. Test-only teardown subsequently leaves cancelled timer destruction until after executor shutdown."
+  },
+  "final_exact_delivery_suite": {
+    "passed": 23,
+    "seconds": 7.6,
+    "xml": "final_delivery_23.xml",
+    "teardown_warning": false,
+    "source_sha256": "20d3713efa0f4bbfcff6b25675984add64c8247d30a773a880e6ae90b6ef6764"
+  },
+  "performance_cases": [
+    {
+      "test": "test_complete_mux_curved_braking_meets_compute_budget_without_feedback_starvation[False-360]",
+      "full_guard_max_seconds": "0.02345779699680861",
+      "scenario": "stationary_feedback_near_cap",
+      "nonzero_output_fraction": "1.0",
+      "output_gap_p95_seconds": "0.054763733001891524"
+    },
+    {
+      "test": "test_complete_mux_curved_braking_meets_compute_budget_without_feedback_starvation[False-720]",
+      "full_guard_max_seconds": "0.025534254004014656",
+      "scenario": "stationary_feedback_near_cap",
+      "nonzero_output_fraction": "1.0",
+      "output_gap_p95_seconds": "0.0515048330053105"
+    },
+    {
+      "test": "test_complete_mux_curved_braking_meets_compute_budget_without_feedback_starvation[True-360]",
+      "full_guard_max_seconds": "0.013657114999659825",
+      "scenario": "moving_feedback_far_clear",
+      "nonzero_output_fraction": "1.0",
+      "output_gap_p95_seconds": "0.05250768200494349"
+    },
+    {
+      "test": "test_complete_mux_curved_braking_meets_compute_budget_without_feedback_starvation[True-720]",
+      "full_guard_max_seconds": "0.03400938500271877",
+      "scenario": "moving_feedback_far_clear",
+      "nonzero_output_fraction": "1.0",
+      "output_gap_p95_seconds": "0.056861040997318923"
+    }
+  ],
+  "performance_interpretation": "20Hz timer target with observed p95 publication gaps, not a hard-real-time 50ms deadline guarantee. Measured full guard is real callback work; final output also checks source freshness, emitted curve and a <=50ms prepared-proof budget. Near-cap cases use stationary measured feedback; far-clear cases use actual nonzero feedback (.22,.35). Synthetic producer TF is stationary, so this is computational/delivery evidence, not a coherent physical plant replay.",
+  "isolated_domain": 227,
+  "loopback_only": true,
+  "executor_threads": 4,
+  "producer_rates_target_hz": {
+    "clock": 100,
+    "odom": 20,
+    "odom_tf": 20,
+    "navigation_control": 20,
+    "scan": 10,
+    "localization_health": 10,
+    "auto_control": 10
+  },
+  "functional_cases": [
+    "busy geometry + all periodic input groups leaves clock/odom progressing",
+    "stop zero published before blocked geometry releases; no old nonzero after stop",
+    "busy HOLD->AUTO survives with original packet and later ESTOP wins",
+    "later different AUTO owner beats older queued AUTO",
+    "duplicate, replay, retired source, malformed/stale/future stop admission and safety-old-stamp exception",
+    "FIRSTreceipt before feedback lock wait; duplicate cannot renew",
+    "wall overrun, clock jump/rewind, invalid feedback and unexpected feedback jump veto final output; in-bounds new feedback accepted",
+    "paused-clock deferred control expires without original receipt renewal"
+  ],
+  "artifacts_sha256": {
+    "combined_135.xml": "1d4cee3801d6007b77c439da4253a760084d20ec347fc401cd7798a9dfb098fe",
+    "final_delivery_23.xml": "61bd105eb3580e6f1c9ae6ffaa49c7f962443f316152911118b92a11c3af718d"
+  }
+}

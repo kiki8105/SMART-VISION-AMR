@@ -65,12 +65,13 @@ def test_physical_goal_turn_and_clearance_profiles_agree():
     assert follower["min_speed_theta"] < follower["max_vel_theta"]
     assert follower["max_vel_x"] == follower["max_speed_xy"] == curve["curve_max_linear_velocity"] == 0.22
     assert follower["prune_distance"] == 0.40
-    assert follower["acc_lim_x"] == 0.20
+    assert follower["acc_lim_x"] == 0.15
     assert follower["acc_lim_theta"] == 0.80
-    assert follower["decel_lim_x"] == -0.40
+    assert follower["decel_lim_x"] == -0.15
     assert follower["limit_vel_cmd_in_traj"] is False
     smoother = nav["velocity_smoother"]["ros__parameters"]
-    assert smoother["max_accel"] == [0.20, 0.0, 0.80]
+    assert smoother["max_accel"] == [0.15, 0.0, 0.80]
+    assert smoother["max_decel"] == [-0.15, 0.0, -1.00]
     assert smoother["scale_velocities"] is True
 
     # The requested physical envelope is 22 cm in every planner and costmap.

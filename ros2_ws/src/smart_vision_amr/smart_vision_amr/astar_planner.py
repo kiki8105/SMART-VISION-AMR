@@ -19,6 +19,8 @@ from collections import deque
 from smart_vision_amr.astar import AStarPlanner
 from smart_vision_amr.continuous_start_egress import certified_start_only_edges
 from smart_vision_amr.local_detour import plan_local_detour
+from smart_vision_amr.metric_connector import (plan_connector, occupied_rectangles,
+                                               polyline_clearance, point_sweep_clearance)
 from smart_vision_amr.clearance_cost import clearance_penalties
 from smart_vision_amr.grid import Grid
 from smart_vision_amr.failure_memory import FailureMemory, EXECUTION_FAILURE_REASONS
@@ -341,6 +343,7 @@ class AStarPlannerNode(Node):
 
     def _reset_local_reference(self):
         self.pending_reverse_probe = None
+        self.metric_route_scope = self.metric_reverse_budget = self.metric_no_path_key = None
         self.recovery_coordinator.reset()
         self.wait_moving_cells = set()
         self.wait_moving_count = 0
@@ -456,6 +459,10 @@ class AStarPlannerNode(Node):
                 coordinator.local_result(True)
             coordinator.current.path_stamp_ns = self.current_path_stamp_ns
             return True
+        if getattr(self, "metric_connector_input_pending", False):
+            # Retain LOCAL ownership while the same paired input is pending.
+            # A missing acquisition TF is not a physical rear-probe verdict.
+            return True
         coordinator.local_result(False)
         return self._queue_reverse_before_global(blockers, reason,
             terminal_repair=terminal_repair or resumed, raw_hits=raw_hits)
@@ -490,7 +497,17 @@ class AStarPlannerNode(Node):
                    | self._live_obstacle_blocked(self.remembered))
         if any(grid.is_static_obstacle(cell) or cell in blocked for cell in cells):
             return False
-        if not self._prefix_sweep_clear([points[0], point_at_progress(points,.11)]):
+        # The delivered suffix may turn within its first 11 cm. Prove those
+        # actual segments; a shortcut chord is neither its body sweep nor a
+        # safe substitute for the ordered route.
+        prefix, traveled = [points[0]], 0.
+        for a, b in zip(points, points[1:]):
+            traveled += hypot(b[0]-a[0], b[1]-a[1])
+            if traveled >= .11:
+                prefix.append(point_at_progress(points, .11))
+                break
+            prefix.append(b)
+        if not self._prefix_sweep_clear(prefix):
             self.clear_suffix_inputs_pending = self.plan_metrics.get(
                 "start_prefix_validation", {}).get("input_pending") is True
             return False
@@ -708,6 +725,21 @@ class AStarPlannerNode(Node):
             return True
         self.pending_reverse_probe = None
         self.recovery_coordinator.reverse_verdict(False)
+        budget = getattr(self, "metric_reverse_budget", None)
+        self.metric_reverse_budget = None
+        episode = self.recovery_coordinator.current
+        if (budget is not None and budget["key"] == self._local_route_key()
+                and episode is not None and budget.get("episode_id") == episode.episode_id):
+            config = self._local_configuration()
+            if (config is not None and config["enabled"]
+                    and self._try_metric_connector(config, max_seconds=budget["seconds"],
+                        max_expansions=budget["expansions"], end=end, after_reverse=True,
+                        raw_hits=pending["raw_hits"])):
+                return True
+            if getattr(self, "metric_connector_input_pending", False):
+                return True
+            self.plan_metrics["metric_side_probe_result"] = {name: self.plan_metrics.get(name) for name in
+                ("metric_connector_reason", "metric_connector_duration_ms", "metric_connector_expansions")}
         self.failure_state, self.failure_reason = "WAIT_ALTERNATIVE", "No verified rear exit; replanning from the stopped pose"
         self.plan_metrics.update(failure_class="obstacle", recovery_stage="global_replan",
                                  reverse_probe_rejection=rejection)
@@ -719,6 +751,9 @@ class AStarPlannerNode(Node):
         """Find route-blocking scan cells with one TF lookup per scan frame."""
         if not observed or not self.planned_cells:
             return set()
+        metric = self._metric_route_blockers(observed)
+        if metric is not None:
+            return metric
         remaining = set(self._remaining_path_cells())
         remaining -= self._validated_start_prefix_exemption(remaining, observed=observed)
         if getattr(self, "start_prefix_input_pending", False):
@@ -742,6 +777,252 @@ class AStarPlannerNode(Node):
         candidates = observed & inflate_cells(blocked_route, info.width, info.height, reach)
         return {cell for cell in candidates
                 if self._live_obstacle_blocked({cell}) & blocked_route}
+
+    def _metric_route_blockers(self, cells):
+        """Validate a metric route's actual remaining sweep, not crossed squares.
+
+        The route contains no exempt obstacle cells. A newly measured square
+        touching any remaining circle sweep, including the current body, is
+        still a blocker. Refining robot centres must not make a whole 5cm
+        candidate square the execution geometry again.
+        """
+        scope = getattr(self, "metric_route_scope", None)
+        if scope is None:
+            return None
+        if (scope != (self._local_route_key(), self.raw_static_grid,
+                      self.current_path_stamp_ns, self._start_certificate_geometry())
+                or not self._goal_is_active() or not self._automatic_resume_allowed()):
+            self.metric_route_scope = None
+            return None
+        current = self._fresh_motion_pose()
+        if current is None or not self._observations_ready():
+            self._hold_start_prefix_inputs()
+            return set()
+        points = self.planned_world_points
+        progress = path_progress(points, current[:2])
+        remaining = [current[:2], point_at_progress(points, progress)]
+        traveled = 0.
+        for a, b in zip(points, points[1:]):
+            traveled += hypot(b[0]-a[0], b[1]-a[1])
+            if traveled > progress+1e-9:
+                remaining.append(b)
+        if len(remaining) < 2:
+            return set()
+        info = self.map[0].info
+        angle = yaw_from_quaternion(info.origin.orientation)
+        c, s = cos(angle), sin(angle)
+        local = [((c*(x-info.origin.position.x)+s*(y-info.origin.position.y))/info.resolution,
+                  (-s*(x-info.origin.position.x)+c*(y-info.origin.position.y))/info.resolution)
+                 for x, y in remaining]
+        radius = (float(self.get_parameter("robot_radius").value)
+                  + float(self.get_parameter("local_detour_clearance_margin").value))/info.resolution
+        # Every currently supplied observed/memory square stays intact.
+        blockers = {cell for cell in cells if polyline_clearance(local,
+            [(cell[0], cell[1], cell[0]+1., cell[1]+1.)],
+            self.raw_static_grid.width, self.raw_static_grid.height)+1e-9 < radius}
+        if blockers:
+            return blockers
+        # Original raw rays and acquisition-time TF remain independently hard.
+        short, traveled = [remaining[0]], 0.
+        for a,b in zip(remaining,remaining[1:]):
+            traveled += hypot(b[0]-a[0],b[1]-a[1])
+            if traveled >= .11:
+                short.append(point_at_progress(remaining,.11))
+                break
+            short.append(b)
+        if not self._prefix_sweep_clear(short, observed=cells):
+            if self.plan_metrics.get("start_prefix_validation", {}).get("input_pending"):
+                self._hold_start_prefix_inputs()
+                return set()
+            # Do not invent an observed object for a static/raw-only failure.
+            self._invalidate_path("Current raw body or forward sweep blocks metric route")
+            return set()
+        return set()
+
+    def _try_metric_connector(self, config, *, max_seconds, max_expansions,
+                              end=None, after_reverse=False, raw_hits=()):
+        """Bounded body-safe departure/rejoin after coarse quantization fails."""
+        began = time.perf_counter()
+        self.metric_connector_input_pending = False
+        self.plan_metrics.update(metric_connector_reason="input_unavailable",
+                                 metric_connector_expansions=0, metric_connector_duration_ms=0.)
+        if max_seconds <= 0 or max_expansions < 1:
+            self.plan_metrics["metric_connector_reason"] = "time_budget" if max_seconds <= 0 else "expansion_budget"
+            return False
+        if (not self._goal_is_active() or self.failure_state == "CONTROLLER_HOLD"
+                or self.obstacle_hold.holding or self.pending_failure_id is not None or self.recovery_active
+                or not self._automatic_resume_allowed() or not self._observations_ready()
+                or self.raw_static_grid is None):
+            return False
+        current = self._fresh_motion_pose()
+        if current is None:
+            return False
+        info, grid = self.map[0].info, self.map[1]
+        raw, overlay, remembered = self.raw_static_grid, set(self.observed), set(self.remembered)
+        observed = overlay | set(raw_hits)
+        key = self._local_route_key()
+        angle = yaw_from_quaternion(info.origin.orientation)
+        c, s = cos(angle), sin(angle)
+        def local(point):
+            dx, dy = point[0]-info.origin.position.x, point[1]-info.origin.position.y
+            return ((c*dx+s*dy)/info.resolution, (-s*dx+c*dy)/info.resolution)
+        def world(point):
+            return cell_to_world(info, (point[0]-.5, point[1]-.5))
+        body = float(self.get_parameter("robot_radius").value)
+        start_margin = float(self.get_parameter("start_egress_clearance_margin").value)
+        if not isfinite(body) or body <= 0 or not isfinite(start_margin) or start_margin < 0:
+            self.plan_metrics["metric_connector_reason"] = "invalid_configuration"
+            return False
+        actual_clearance = polyline_clearance([local(current[:2])]*2,
+            occupied_rectangles(raw, observed | remembered), raw.width, raw.height)*info.resolution
+        if actual_clearance+1e-9 < body:
+            self.plan_metrics["metric_connector_reason"] = "actual_body_intersection"
+            return False
+        reference = self.local_reference_points
+        tails = []
+        retained_indices = []
+        candidates_used = []
+        measured = self._live_obstacle_blocked(observed | remembered)
+        def side_opening(point):
+            heading = atan2(point[1]-current[1], point[0]-current[0])-current[2]
+            error = abs(atan2(sin(heading), cos(heading)))
+            return not after_reverse or pi/4 <= error <= 3*pi/4
+        if len(reference) >= 2 and self.local_reference_key == key:
+            progress, traveled = path_progress(reference, current[:2]), 0.
+            for index, (a, b) in enumerate(zip(reference, reference[1:]), 1):
+                traveled += hypot(b[0]-a[0], b[1]-a[1])
+                if not progress+.30 <= traveled <= progress+min(1.20, config["max_rejoin_distance"]):
+                    continue
+                cell = world_to_cell(info, *b)
+                if not grid.is_static_obstacle(cell) and cell not in measured and side_opening(b):
+                    tails.append([local(p) for p in reference[index:]])
+                    retained_indices.append(index)
+                    candidates_used.append(b)
+                if time.perf_counter()-began > max_seconds*.35:
+                    break
+                if len(tails) >= config["max_candidates"]:
+                    break
+        # A static-start failure may have no usable retained suffix. Join only
+        # a normal coarse-free anchor; all later nodes obey the original grid.
+        if not tails and end is not None:
+            start = world_to_cell(info, *current[:2])
+            candidates = []
+            reach = min(12, ceil(.60/info.resolution))
+            for dy in range(-reach, reach+1):
+                for dx in range(-reach, reach+1):
+                    cell = start[0]+dx, start[1]+dy
+                    if (2 <= hypot(dx, dy) <= reach and grid.contains(cell)
+                            and not grid.is_static_obstacle(cell) and cell not in measured
+                            and side_opening(cell_to_world(info, cell))):
+                        candidates.append(cell)
+            candidates.sort(key=lambda p: hypot(p[0]-end[0], p[1]-end[1])+hypot(p[0]-start[0],p[1]-start[1]))
+            edges, costs = self._failure_constraints(grid)
+            for candidate in candidates[:config["max_candidates"]]:
+                if time.perf_counter()-began > max_seconds*.35:
+                    break
+                path = self.planner.plan(grid, candidate, end, measured,
+                                         blocked_edges=edges, edge_penalty=costs)
+                if path:
+                    tail = [(x+.5, y+.5) for x, y in path]
+                    exact_goal = local((self.last_goal.pose.position.x, self.last_goal.pose.position.y))
+                    if tail[-1] != exact_goal:
+                        tail.append(exact_goal)
+                    tails.append(tail)
+                    retained_indices.append(None)
+                    candidates_used.append(cell_to_world(info, candidate))
+                    break
+        if not tails:
+            self.plan_metrics["metric_connector_reason"] = "no_coarse_free_complete_tail"
+            return False
+        budget = max_seconds-(time.perf_counter()-began)
+        radius = (body+max(config["clearance_margin"], start_margin))/info.resolution
+        start = world_to_cell(info, *current[:2])
+        reserved = (self._global_occlusion_reserve(start, observed)
+                    |self._global_occlusion_reserve(start, remembered, remembered=True))
+        virtual = self._live_obstacle_blocked(reserved)-measured
+        budget = max_seconds-(time.perf_counter()-began)
+        result = plan_connector(raw, observed | remembered, local(current[:2]), tails,
+            radius=radius, spacing=.01/info.resolution, margin=0.,
+            lateral=min(body/2., config["max_lateral_distance"])/info.resolution,
+            max_seconds=max(0., budget), max_expansions=max_expansions,
+            preferred=float(self.get_parameter("preferred_clearance").value)/info.resolution,
+            gain=float(self.get_parameter("clearance_penalty_gain").value), soft_cells=virtual)
+        self.plan_metrics.update(metric_connector_reason=result.reason,
+            metric_connector_duration_ms=(time.perf_counter()-began)*1000.,
+            metric_connector_search_ms=result.duration_s*1000.,
+            metric_connector_expansions=result.expansions,
+            metric_connector_side_only=after_reverse, metric_connector_anchors=candidates_used)
+        if not result.points:
+            return False
+        points = [world(p) for p in result.points]
+        retained = retained_indices[result.target_index]
+        if retained is not None:
+            prefix = len(points)-len(tails[result.target_index])
+            points[prefix:] = reference[retained:]
+        if after_reverse and not side_opening(point_at_progress(points, min(.15, path_length(points)))):
+            self.plan_metrics["metric_connector_reason"] = "no_side_leading_first_segment"
+            return False
+        # One fresh snapshot, same goal/map and actual authority at publication.
+        fresh = self._fresh_motion_pose()
+        if (fresh is None or key != self._local_route_key() or self.raw_static_grid is not raw
+                or self.observed != overlay or self.remembered != remembered
+                or not self._automatic_resume_allowed() or not self._observations_ready()):
+            self.plan_metrics["metric_connector_reason"] = "fresh_snapshot_or_authority_changed"
+            return False
+        points[0] = fresh[:2]
+        if polyline_clearance([local(p) for p in points], occupied_rectangles(raw, observed | remembered),
+                              raw.width, raw.height)+1e-9 < radius:
+            self.plan_metrics["metric_connector_reason"] = "fresh_start_sweep_changed"
+            return False
+        if not self._prefix_sweep_clear(points, cells_verified=True):
+            self.plan_metrics["metric_connector_reason"] = self.plan_metrics.get(
+                "start_prefix_validation", {}).get("reason", "raw_prefix_unverified")
+            if self.plan_metrics.get("start_prefix_validation", {}).get("input_pending"):
+                self.metric_connector_input_pending = True
+                self._hold_start_prefix_inputs()
+            return False
+        if time.perf_counter()-began > max_seconds:
+            self.plan_metrics["metric_connector_reason"] = "final_validation_time_budget"
+            return False
+        path = Path()
+        path.header.frame_id = self.get_parameter("map_frame").value
+        path.header.stamp = self.get_clock().now().to_msg()
+        for index, point in enumerate(points):
+            pose = PoseStamped(); pose.header = path.header
+            pose.pose.position.x, pose.pose.position.y = point
+            if index+1 < len(points):
+                yaw = atan2(points[index+1][1]-point[1], points[index+1][0]-point[0])
+                pose.pose.orientation.z, pose.pose.orientation.w = sin(yaw/2), cos(yaw/2)
+            else:
+                pose.pose.orientation = self.last_goal.pose.orientation
+            path.poses.append(pose)
+        elapsed = time.perf_counter()-began
+        self.plan_metrics["metric_connector_duration_ms"] = elapsed*1000.
+        if elapsed > max_seconds:
+            self.plan_metrics["metric_connector_reason"] = "final_validation_time_budget"
+            return False
+        self.planned_world_points = points
+        self.planned_cells = sorted(route_cells([local(p) for p in points]))
+        self.waiting_for_replan = self.invalid_path_published = False
+        self.failure_state, self.failure_reason = "CLEAR", ""
+        index = retained_indices[result.target_index]
+        if index is None:
+            self.local_reference_points = list(points)
+            self.local_reference_key = key
+            reference = self.local_reference_points
+        anchor = world(tails[result.target_index][0])
+        self.local_rejoin_anchor = {"reference": list(reference),
+            "progress": path_progress(reference, anchor), "pose": fresh,
+            "odom": self.latest_odom}
+        self._publish_path(path)
+        self.metric_route_scope = (self._local_route_key(), raw, self.current_path_stamp_ns,
+                                   self._start_certificate_geometry())
+        self.plan_metrics.update(plan_kind="LOCAL_METRIC_CONNECTOR", local_detour_state="ACTIVE",
+            recovery_stage="side_connector_after_rear_rejected" if after_reverse else "metric_local_detour",
+            failure_class="none", metric_connector_reason="certified_connector",
+            rejoin_point={"x": anchor[0], "y": anchor[1]}, metric_retained_suffix=retained is not None)
+        self.publish_status("READY", "Continuous-body local connector; original occupied squares retained")
+        return True
 
     def _local_route_key(self):
         goal = self.last_goal
@@ -1071,7 +1352,7 @@ class AStarPlannerNode(Node):
         self.plan_metrics.update(start_certificate_state="ACTIVE",
                                  start_certificate_reason="chosen_first_edge_installed")
 
-    def _prefix_sweep_clear(self, points, *, observed=()):
+    def _prefix_sweep_clear(self, points, *, observed=(), cells_verified=False):
         """Fresh complete circular body/sweep against raw cells and raw returns."""
         def verdict(clear, reason, **details):
             self.plan_metrics["start_prefix_validation"] = {
@@ -1088,7 +1369,7 @@ class AStarPlannerNode(Node):
                   + float(self.get_parameter("start_egress_clearance_margin").value))
         required = radius/resolution
         dynamic = self.observed | self.remembered | set(observed)
-        for a, b in zip(local, local[1:]):
+        for a, b in (() if cells_verified else zip(local, local[1:])):
             reach = ceil(required+1.)
             occupied = [(x, y) for x in range(max(0, int(min(a[0], b[0]))-reach),
                                                min(raw.width, ceil(max(a[0], b[0]))+reach+1))
@@ -1114,14 +1395,15 @@ class AStarPlannerNode(Node):
             heading = _normalized_pose_yaw(q)
             if not all(isfinite(v) for v in (origin.x, origin.y, heading)):
                 return verdict(False, "raw_scan_transform_geometry_invalid")
+            raw_points = []
             for index, reading in enumerate(scan.ranges):
                 if not isfinite(reading) or not scan.range_min <= reading <= scan.range_max:
                     continue
                 angle = heading+scan.angle_min+index*scan.angle_increment
                 x, y = origin.x+reading*cos(angle), origin.y+reading*sin(angle)
-                if any(_point_segment_distance(x, y, a, b) < radius
-                       for a, b in zip(points, points[1:])):
-                    return verdict(False, "raw_scan_body_or_sweep_intersection")
+                raw_points.append((x, y))
+            if point_sweep_clearance(points, raw_points) < radius:
+                return verdict(False, "raw_scan_body_or_sweep_intersection")
         except (TransformException, AttributeError, ValueError, TypeError) as exc:
             return verdict(False, "raw_scan_transform_unavailable_or_invalid",
                 lookup_error=(type(exc).__name__+": "+str(exc))[:240],
@@ -1241,6 +1523,7 @@ class AStarPlannerNode(Node):
         The existing follower owns cancel/terminal/new-goal ordering. Planning
         needs fresh independent evidence, not an extra stop or fixed delay.
         """
+        self.metric_connector_input_pending = False
         config = self._local_configuration()
         if config is None or not config["enabled"]:
             return False
@@ -1308,6 +1591,26 @@ class AStarPlannerNode(Node):
             float(self.get_parameter("clearance_penalty_gain").value))
         self.local_detour_attempts += 1
         self.local_attempt_id += 1
+        if grid.is_static_obstacle(start) or start in measured_blocked:
+            # Coarse start-blocked queries cannot take even one edge. Spend a
+            # bounded share on actual centres; reserve the rest for a second
+            # side-opening check only after the measured rear is rejected.
+            deadline = config["max_planning_time"]-(time.perf_counter()-began)
+            if self._try_metric_connector(config, max_seconds=max(0., deadline*.65),
+                    max_expansions=max(1, int(config["max_expansions"]*.65)), raw_hits=raw_hits):
+                return True
+            if self.metric_connector_input_pending:
+                return False
+            spent = time.perf_counter()-began
+            used = self.plan_metrics.get("metric_connector_expansions", 0)
+            self.metric_reverse_budget = {"key": self._local_route_key(),
+                "episode_id": (self.recovery_coordinator.current.episode_id
+                               if self.recovery_coordinator.current is not None else None),
+                "seconds": max(0., config["max_planning_time"]-spent),
+                "expansions": max(0, config["max_expansions"]-used)}
+            self.plan_metrics.update(local_detour_state="FAILED", detour_reason="metric_start_connector_unavailable",
+                                     adapter_duration_ms=spent*1000.)
+            return False
         fallback_attempted = fallback_used = False
         self.plan_metrics.update(occlusion_fallback=False, occlusion_fallback_attempted=False,
             occlusion_constraint_mode="HARD_RESERVE", occlusion_virtual_cells=len(virtual_blocked))
@@ -1374,6 +1677,18 @@ class AStarPlannerNode(Node):
             occlusion_constraint_mode="SOFT_VIRTUAL" if fallback_attempted else "HARD_RESERVE",
             occlusion_primary_reason=primary_reason)
         if not result.points:
+            remaining = config["max_planning_time"]-(time.perf_counter()-began)
+            if self._try_metric_connector(config, max_seconds=max(0., remaining*.65),
+                    max_expansions=max(0, config["max_expansions"]-total_expansions), raw_hits=raw_hits):
+                return True
+            if self.metric_connector_input_pending:
+                return False
+            self.metric_reverse_budget = {"key": self._local_route_key(),
+                "episode_id": (self.recovery_coordinator.current.episode_id
+                               if self.recovery_coordinator.current is not None else None),
+                "seconds": max(0., config["max_planning_time"]-(time.perf_counter()-began)),
+                "expansions": max(0, config["max_expansions"]-total_expansions
+                                  -self.plan_metrics.get("metric_connector_expansions", 0))}
             return False
         world = [cell_to_world(message.info, (x-.5, y-.5)) for x, y in result.points]
         # Keep the suffix bit-for-bit, without conversion roundoff or a global
@@ -2336,6 +2651,10 @@ class AStarPlannerNode(Node):
     def _publish_path(self, path):
         """Give every published path, including an empty invalidation, a unique stamp."""
         self._clear_start_certificate()
+        self.metric_route_scope = None
+        if path.poses:
+            self.metric_reverse_budget = None
+            self.metric_no_path_key = None
         if path.poses:
             self.pending_reverse_probe = None
         stamp = path.header.stamp
@@ -2578,6 +2897,9 @@ class AStarPlannerNode(Node):
             return False
         effective = (self._split_mapped_wall_returns(cells)[0]
                      if filter_near_wall else cells)
+        metric = self._metric_route_blockers(effective)
+        if metric is not None:
+            return bool(metric)
         blocked = self._live_obstacle_blocked(effective)
         remaining = set(self._remaining_path_cells())
         remaining -= self._validated_start_prefix_exemption(remaining, observed=effective if layer != "memory" else ())
@@ -3129,6 +3451,35 @@ class AStarPlannerNode(Node):
         trail_verified = self._record_breadcrumb(transform=tf)
         start = world_to_cell(map_msg.info, tf.transform.translation.x, tf.transform.translation.y)
         end = world_to_cell(map_msg.info, goal.pose.position.x, goal.pose.position.y)
+        heading = _normalized_pose_yaw(tf.transform.rotation)
+        no_path_key = (self._local_route_key(), self.raw_static_grid,
+            round(tf.transform.translation.x/.01), round(tf.transform.translation.y/.01),
+            round(heading/(pi/36)) if isfinite(heading) else None,
+            frozenset(self.observed), frozenset(self.remembered),
+            getattr(self, "last_failure_id", None), self._start_certificate_geometry())
+        trail_key = tuple((round(point.x/.025), round(point.y/.025))
+                          for point in self.breadcrumbs)
+        no_path_key += (getattr(self, "projected_odom_trail_verified", False), trail_key,
+                        getattr(self, "latest_odom_child_frame", None))
+        no_path_key += (tuple(self.get_parameter(name).value for name in LOCAL_DETOUR_DEFAULTS),
+                        self.get_parameter("preferred_clearance").value,
+                        self.get_parameter("clearance_penalty_gain").value)
+        if no_path_key == getattr(self, "metric_no_path_key", None):
+            pose = self._fresh_motion_pose()
+            info = self.map[0].info
+            if pose is not None:
+                angle = yaw_from_quaternion(info.origin.orientation)
+                dx,dy=pose[0]-info.origin.position.x,pose[1]-info.origin.position.y
+                point=((cos(angle)*dx+sin(angle)*dy)/info.resolution,
+                       (-sin(angle)*dx+cos(angle)*dy)/info.resolution)
+                distance=polyline_clearance([point,point],occupied_rectangles(
+                    self.raw_static_grid,self.observed|self.remembered),
+                    self.raw_static_grid.width,self.raw_static_grid.height)*info.resolution
+                if distance+1e-9 < float(self.get_parameter("robot_radius").value):
+                    if not self._wait_after_recovery_cycle():
+                        self.publish_status("WAIT_REPLAN", "Current measured circular body intersects an occupied square; goal retained")
+                    return
+            self.metric_no_path_key = None
         width, height = map_msg.info.width, map_msg.info.height
         inflation = self.get_parameter("obstacle_inflation_cells").value
         # Both layers contain range-classified dynamic hits. A second proximity
@@ -3383,6 +3734,15 @@ class AStarPlannerNode(Node):
         if soft_controller_edges:
             self.plan_metrics.update(failure_edge_fallback=True)
         if not cells:
+            config = self._local_configuration()
+            if (config is not None and config["enabled"]
+                    and self.get_parameter("start_egress_enabled").value
+                    and self._try_metric_connector(config,
+                        max_seconds=config["max_planning_time"],
+                        max_expansions=config["max_expansions"], end=end)):
+                return
+            if getattr(self, "metric_connector_input_pending", False):
+                return
             self.get_logger().warning("ASTAR_START_CERTIFICATE_DIAGNOSTICS "+json.dumps({
                 "motion_pose": self.plan_metrics.get("motion_pose_diagnostics"),
                 "start_certificate": self.plan_metrics.get("start_certificate_diagnostics")},
@@ -3491,6 +3851,9 @@ class AStarPlannerNode(Node):
                     if self.obstacle_hold.attempts > before:
                         self.last_no_route_obstacle_charge_at = now
                         self.last_no_route_observed_revision = self.observed_revision
+            if (self.failure_state != "SENSOR_HOLD" and self.plan_metrics.get("metric_connector_reason")
+                    == "actual_body_intersection"):
+                self.metric_no_path_key = no_path_key
             return
         if (not certified_start_edges and escape_cells and start in blocked):
             chosen = self._selected_dynamic_escape_certificate(

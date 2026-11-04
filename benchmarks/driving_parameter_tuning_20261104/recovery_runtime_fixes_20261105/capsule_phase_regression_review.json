@@ -1,0 +1,45 @@
+{
+  "scope": "Read-only failure diagnosis and test-only migration; no runtime/safety gate change",
+  "original_failure": "test_unmatched_raw_hit_inside_actual_attempted_capsule_stays_hard[pi/2]: expected STOP_PROOF, actual LOCAL",
+  "raw_hit_world": [
+    0.55,
+    1.85
+  ],
+  "attempted_segment_world": [
+    [
+      0.55,
+      1.55
+    ],
+    [
+      0.55,
+      1.77
+    ]
+  ],
+  "original_frame": "base_scan",
+  "unchanged_hit_range_m": 0.3,
+  "diagnostic_only_search_call_budget_s": 0.3,
+  "not_production_timing_pass": true,
+  "diagnostic_result": {
+    "phase": "LOCAL",
+    "state": "SENSOR_HOLD",
+    "metric_connector_input_pending": true,
+    "nonempty_path_count": 0,
+    "raw_history_count": 0,
+    "visibility_history_count": 0,
+    "expansions": 767,
+    "duration_ms": 54.883339995285496,
+    "reason": "coherent_raw_scan_input_pending"
+  },
+  "new_regression_contract": [
+    "original raw capsule remains a physical episode blocker",
+    "input-pending LOCAL emits no nonempty path",
+    "new actual raw callback plus independently stamped visibility resolves input waiting",
+    "complete published polyline circle is clear of original raw point and original occupied square",
+    "accepted controller failure budget remains uncharged"
+  ],
+  "tests": {
+    "file": "ros2_ws/src/smart_vision_amr/test/test_planner_failure_capsule.py",
+    "passed": 8,
+    "elapsed_s": 1.3
+  }
+}

@@ -25,6 +25,11 @@ public:
   dwb_msgs::msg::TrajectoryScore scoreTrajectory(
     const dwb_msgs::msg::Trajectory2D & trajectory, double best_score = -1) override;
   void setSpeedLimit(const double & speed_limit, const bool & percentage) override;
+  using dwb_core::DWBLocalPlanner::computeVelocityCommands;
+  nav_2d_msgs::msg::Twist2DStamped computeVelocityCommands(
+    const nav_2d_msgs::msg::Pose2DStamped & pose,
+    const nav_2d_msgs::msg::Twist2D & velocity,
+    std::shared_ptr<dwb_msgs::msg::LocalPlanEvaluation> & results) override;
 
 protected:
   nav_2d_msgs::msg::Path2D transformGlobalPlan(
@@ -40,6 +45,12 @@ protected:
   double turn_entry_linear_{0.15};
   double turn_min_linear_{0.10};
   double moving_turn_max_angular_{0.35};
+  double measured_linear_speed_{0.0};
+  double route_adherence_scale_{32.0};
+  double route_anchor_arc_{0.0};
+  double route_goal_tolerance_{0.15};
+  bool route_adherence_active_{false};
+  nav_2d_msgs::msg::Path2D route_adherence_reference_;
   std::atomic<double> linear_speed_limit_{std::numeric_limits<double>::infinity()};
 };
 

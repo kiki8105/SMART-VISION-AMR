@@ -1,0 +1,13 @@
+{
+  "test_run": "first full suite before final cache and pending-scan braking fixes",
+  "passed": false,
+  "python_passed": 2994,
+  "python_failed": 9,
+  "duration_seconds": 160.64,
+  "command": "ROS_DOMAIN_ID=223 ROS_LOCALHOST_ONLY=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -q -p benchmarks.startup_20261030.pytest_isolated_runtime ros2_ws/src/smart_vision_amr/test scripts",
+  "original_log_sha256": "b6b56545401cf195f2ab559e579dc112b88f90eb3a5359e0a64fe3eedb502449",
+  "limitations": [
+    "Two reverse lifecycle fixture edits landed during this run after test collection; the affected current test module passed separately. This is not a clean final-tree full-suite result.",
+    "Pending-scan braking and NoPath-cache issues were still under review. Results do not certify current later source."
+  ]
+}

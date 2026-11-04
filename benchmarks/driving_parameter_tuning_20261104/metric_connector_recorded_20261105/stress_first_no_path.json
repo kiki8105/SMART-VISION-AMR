@@ -1,0 +1,844 @@
+{
+  "scope": "Recorded failure with separately observed DDS obstacle layers; not an exact internal callback snapshot. No raw-scan reconstruction claimed.",
+  "source_timeline": "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/final_stress_permuted/12_web_integrated_stress_permuted/safety_timeline.jsonl.gz",
+  "source_sha256": "02362274ada5e83eff43e6037f836dd21e56894296ecfb3ee55d9b18b9723514",
+  "planner": {
+    "t": 153.7285,
+    "monotonic": 33943.817,
+    "wall_time": 1793819772.1589,
+    "kind": "planner",
+    "status": "WAIT_REPLAN",
+    "goal": {
+      "x": -0.25,
+      "y": -1.98,
+      "frame_id": "map"
+    },
+    "goal_stamp": {
+      "sec": 38,
+      "nanosec": 140000000
+    },
+    "input_hold": null,
+    "manual_stop": null,
+    "route_failure": null,
+    "local_detour_state": "FAILED",
+    "message": "No safe A* route from (40, 81) to (27, 65); retrying",
+    "details": {
+      "plan_kind": "GLOBAL",
+      "local_attempt_id": 3,
+      "global_plan_count": 27,
+      "failure_class": "obstacle",
+      "recovery_stage": "global_replan",
+      "controller_retry_count": 1,
+      "controller_retry_limit": 3,
+      "failure_edge_fallback": true,
+      "occlusion_fallback": false,
+      "occlusion_fallback_attempted": false,
+      "occlusion_constraint_mode": "HARD_RESERVE",
+      "occlusion_virtual_cells": 0,
+      "occlusion_primary_reason": "",
+      "occlusion_reused_start_certificate": false,
+      "occlusion_measured_start_certificate": false,
+      "selected_start_certificate_diagnostics": {
+        "reason": "not_required",
+        "edge": null
+      },
+      "start_certificate_diagnostics": {
+        "start": [
+          40,
+          81
+        ],
+        "helper_called": true,
+        "allowed_edges": [],
+        "enabled": true,
+        "escape_cells_before": [],
+        "static_start": true,
+        "raw_static_start": false,
+        "raw_observed_start": false,
+        "observed_inflated_start": false,
+        "remembered_inflated_start": false,
+        "measured_remembered_inflated_start": false,
+        "observation_receipt_age_s": 0.07456219600135228,
+        "start_tf_stamp_ns": 126137000000,
+        "start_tf_pose": [
+          0.3588387444919754,
+          -1.1837927548023606
+        ],
+        "fresh_pose": [
+          0.3588387444919754,
+          -1.1837927548023606,
+          -0.7422773331592574
+        ],
+        "fresh_pose_drift_m": 0.0,
+        "first_failed_reason": "no_certified_edge",
+        "neighbor_masks": [
+          {
+            "cell": [
+              39,
+              80
+            ],
+            "static": true,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              39,
+              81
+            ],
+            "static": true,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              39,
+              82
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              40,
+              80
+            ],
+            "static": true,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              40,
+              82
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              41,
+              80
+            ],
+            "static": true,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              41,
+              81
+            ],
+            "static": true,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              41,
+              82
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          }
+        ],
+        "motion_pose": {
+          "first_failed_reason": "OK",
+          "node_clock_ns": 126160000000,
+          "checked_monotonic": 33943.776692476,
+          "health_stamp_ns": 126120000000,
+          "health_receipt_age_s": 0.10865221200219821,
+          "health_source_age_s": 0.04,
+          "odom_stamp_ns": 126137000000,
+          "odom_receipt_age_s": 0.09250651799811749,
+          "odom_source_age_s": 0.023,
+          "scan_stamp_ns": 126157000000,
+          "scan_receipt_age_s": 0.0861320039985003,
+          "scan_source_age_s": 0.003,
+          "tf_stamp_ns": 126137000000,
+          "tf_source_age_s": 0.023,
+          "lookup_error": "",
+          "pose": [
+            0.3588387444919754,
+            -1.1837927548023606,
+            -0.7422773331592574
+          ]
+        }
+      },
+      "global_duration_ms": 89.89035499689635,
+      "motion_pose_diagnostics": {
+        "first_failed_reason": "OK",
+        "node_clock_ns": 126160000000,
+        "checked_monotonic": 33943.776692476,
+        "health_stamp_ns": 126120000000,
+        "health_receipt_age_s": 0.10865221200219821,
+        "health_source_age_s": 0.04,
+        "odom_stamp_ns": 126137000000,
+        "odom_receipt_age_s": 0.09250651799811749,
+        "odom_source_age_s": 0.023,
+        "scan_stamp_ns": 126157000000,
+        "scan_receipt_age_s": 0.0861320039985003,
+        "scan_source_age_s": 0.003,
+        "tf_stamp_ns": 126137000000,
+        "tf_source_age_s": 0.023,
+        "lookup_error": "",
+        "pose": [
+          0.3588387444919754,
+          -1.1837927548023606,
+          -0.7422773331592574
+        ]
+      },
+      "search_duration_ms": 11.73039199784398,
+      "adapter_duration_ms": 81.988582998747,
+      "expansions": 31,
+      "candidates_examined": 10,
+      "detour_reason": "attempt_budget",
+      "rejoin_progress": 1.3271373309093004,
+      "occlusion_reserved_cells": 0,
+      "occlusion_extension": 0.2,
+      "rejoin_buffer": 0.15,
+      "observation_reserved_cells": 0,
+      "observation_margin": 0.0,
+      "rejoin_point": {
+        "x": 0.14375002672895798,
+        "y": -1.0312499371357262
+      },
+      "reverse_goal_occlusion_fallback": false,
+      "reverse_goal_occlusion_fallback_attempted": false,
+      "reverse_clearance_neutral_egress": false,
+      "reverse_probe_diagnostics": {
+        "trail_count": 142,
+        "trail_frame": "odom_projected",
+        "source_odom_frame": "odom",
+        "source_odom_child_frame": "base_footprint",
+        "source_odom_reset_reason": "empty",
+        "oldest_at": 33802.677644868,
+        "newest_at": 33872.359166617,
+        "current_pose": [
+          0.06660717414547646,
+          -1.0120154502028402,
+          -0.56448325242655
+        ],
+        "recent_trail": [
+          [
+            33862.342291293,
+            -0.135607562576649,
+            -0.2439472147068323,
+            -1.8561262805196446
+          ],
+          [
+            33862.600950928,
+            -0.1435900033131025,
+            -0.2718288255687473,
+            -1.8435159427656402
+          ],
+          [
+            33862.8875005,
+            -0.15098444874152922,
+            -0.29929889734019083,
+            -1.8161563672036147
+          ],
+          [
+            33863.154627157,
+            -0.15793967015533134,
+            -0.3286032384172116,
+            -1.7874734030682715
+          ],
+          [
+            33863.438579981,
+            -0.16429751465740142,
+            -0.3588169348277223,
+            -1.7595657082789444
+          ],
+          [
+            33863.662627106,
+            -0.1689258415104181,
+            -0.38435432062827807,
+            -1.736539595232751
+          ],
+          [
+            33863.889952362,
+            -0.17296670480875173,
+            -0.410363994826482,
+            -1.7134565386985257
+          ],
+          [
+            33864.15222987,
+            -0.176649612099451,
+            -0.43926811139030686,
+            -1.6699413517154278
+          ],
+          [
+            33864.446500908,
+            -0.17889868458212518,
+            -0.46712422539387227,
+            -1.634512959273213
+          ],
+          [
+            33864.765763954,
+            -0.18053907628379,
+            -0.49572361789063785,
+            -1.6139258125967475
+          ],
+          [
+            33865.033578255,
+            -0.1813356927453658,
+            -0.5218835620390981,
+            -1.5796001956796386
+          ],
+          [
+            33865.319542033,
+            -0.1811623735176401,
+            -0.5481770039248618,
+            -1.5489880772468303
+          ],
+          [
+            33865.579804426,
+            -0.18021101682275042,
+            -0.573442819560823,
+            -1.500552454490421
+          ],
+          [
+            33865.862661021,
+            -0.177728220003578,
+            -0.6006532066677944,
+            -1.4528647533003551
+          ],
+          [
+            33866.123912315,
+            -0.1739579350731944,
+            -0.6284759458675144,
+            -1.4177486465915388
+          ],
+          [
+            33866.460592559,
+            -0.1694704830635593,
+            -0.6542644158677955,
+            -1.375469508702638
+          ],
+          [
+            33866.735861054,
+            -0.1638458589889893,
+            -0.6808356566265992,
+            -1.3339902621147492
+          ],
+          [
+            33867.000276858,
+            -0.15691913337857788,
+            -0.7072256164876242,
+            -1.2958344706815994
+          ],
+          [
+            33867.340785682,
+            -0.14941319978352738,
+            -0.7318322520072944,
+            -1.2388172164601663
+          ],
+          [
+            33867.553603323,
+            -0.14010970390511893,
+            -0.7567934719826674,
+            -1.1828163441801047
+          ],
+          [
+            33867.884022299,
+            -0.1291923705082893,
+            -0.7822386287362451,
+            -1.1427676721097801
+          ],
+          [
+            33868.284487666,
+            -0.11750053571202447,
+            -0.8056963716409271,
+            -1.0843137444764683
+          ],
+          [
+            33868.724240012,
+            -0.1047686476634661,
+            -0.8298642372212639,
+            -1.0631538929933675
+          ],
+          [
+            33869.060566951,
+            -0.0914301082958669,
+            -0.8529600856237792,
+            -1.0235119043372047
+          ],
+          [
+            33869.653311786,
+            -0.0754922528116422,
+            -0.877533414251804,
+            -0.9607808149850334
+          ],
+          [
+            33869.972926854,
+            -0.058509221273937734,
+            -0.9003551913046556,
+            -0.8982637814150275
+          ],
+          [
+            33870.247715168,
+            -0.04133905124273351,
+            -0.9209903763753803,
+            -0.8430940423519666
+          ],
+          [
+            33870.523135542,
+            -0.022760363461728193,
+            -0.9407770440258065,
+            -0.7880575132097826
+          ],
+          [
+            33870.795568242,
+            -0.003017667955628669,
+            -0.9596754010871575,
+            -0.7303986205486689
+          ],
+          [
+            33871.135683161,
+            0.0199957162887595,
+            -0.9790711877752784,
+            -0.6628942074347366
+          ],
+          [
+            33871.443853796,
+            0.04255759093526006,
+            -0.996006588787526,
+            -0.6205267178853391
+          ],
+          [
+            33872.359166617,
+            0.06660717414547644,
+            -1.0120154502028402,
+            -0.56448325242655
+          ]
+        ],
+        "neutral_enabled": false,
+        "conservative_dynamic_count": 219,
+        "measured_dynamic_count": 219,
+        "virtual_dynamic_count": 0,
+        "candidate": null
+      },
+      "reverse_probe_rejection": "NO_SAFE_EGRESS",
+      "controller_failure_evidence": "Accepted execution events are directional costs, not occupancy",
+      "start_scan_selection": {
+        "latest_visibility_stamp_ns": 125957000000,
+        "selected_stamp_ns": 125957000000,
+        "reason": "coherent_event_ready",
+        "newest_raw_scan_stamp_ns": 126157000000,
+        "source_age_s": 0.203,
+        "raw_first_receipt_age_s": 0.24093775999790523,
+        "visibility_first_receipt_age_s": 0.10191925799881574
+      },
+      "start_prefix_validation": {
+        "clear": false,
+        "reason": "coherent_raw_scan_input_pending",
+        "input_pending": true
+      },
+      "recovery_episode_id": "8a4dc896764e4654ad3bba9c62df707f",
+      "recovery_phase": "FOLLOW",
+      "recovery_wait_reason": "",
+      "sent_at_ns": 126160000000,
+      "path_stamp": {
+        "sec": 124,
+        "nanosec": 260000000
+      }
+    }
+  },
+  "last_published_nonempty_path": {
+    "t": 82.5917,
+    "monotonic": 33872.6802,
+    "wall_time": 1793819701.022,
+    "kind": "path",
+    "count": 82,
+    "stamp_ns": 62120000000,
+    "frame_id": "map",
+    "points": [
+      [
+        0.075,
+        -1.025
+      ],
+      [
+        0.1205,
+        -1.0341
+      ],
+      [
+        0.1659,
+        -1.0432
+      ],
+      [
+        0.2114,
+        -1.0523
+      ],
+      [
+        0.2568,
+        -1.0614
+      ],
+      [
+        0.3023,
+        -1.0705
+      ],
+      [
+        0.3477,
+        -1.0795
+      ],
+      [
+        0.3932,
+        -1.0886
+      ],
+      [
+        0.4386,
+        -1.0977
+      ],
+      [
+        0.4841,
+        -1.1068
+      ],
+      [
+        0.5295,
+        -1.1159
+      ],
+      [
+        0.575,
+        -1.125
+      ],
+      [
+        0.59,
+        -1.1625
+      ],
+      [
+        0.605,
+        -1.2
+      ],
+      [
+        0.62,
+        -1.2375
+      ],
+      [
+        0.635,
+        -1.275
+      ],
+      [
+        0.65,
+        -1.3125
+      ],
+      [
+        0.6547,
+        -1.3594
+      ],
+      [
+        0.6594,
+        -1.4062
+      ],
+      [
+        0.6641,
+        -1.4531
+      ],
+      [
+        0.6688,
+        -1.5
+      ],
+      [
+        0.6703,
+        -1.5391
+      ],
+      [
+        0.6719,
+        -1.5781
+      ],
+      [
+        0.6734,
+        -1.6172
+      ],
+      [
+        0.675,
+        -1.6562
+      ],
+      [
+        0.675,
+        -1.7031
+      ],
+      [
+        0.675,
+        -1.75
+      ],
+      [
+        0.675,
+        -1.7969
+      ],
+      [
+        0.675,
+        -1.8437
+      ],
+      [
+        0.6742,
+        -1.8859
+      ],
+      [
+        0.6734,
+        -1.9281
+      ],
+      [
+        0.6727,
+        -1.9703
+      ],
+      [
+        0.6719,
+        -2.0125
+      ],
+      [
+        0.6703,
+        -2.05
+      ],
+      [
+        0.6688,
+        -2.0875
+      ],
+      [
+        0.6672,
+        -2.125
+      ],
+      [
+        0.6656,
+        -2.1625
+      ],
+      [
+        0.6625,
+        -2.2062
+      ],
+      [
+        0.6594,
+        -2.25
+      ],
+      [
+        0.6563,
+        -2.2937
+      ],
+      [
+        0.6521,
+        -2.3312
+      ],
+      [
+        0.6479,
+        -2.3687
+      ],
+      [
+        0.6438,
+        -2.4062
+      ],
+      [
+        0.6354,
+        -2.4385
+      ],
+      [
+        0.6271,
+        -2.4708
+      ],
+      [
+        0.6188,
+        -2.5031
+      ],
+      [
+        0.6,
+        -2.5437
+      ],
+      [
+        0.5813,
+        -2.5844
+      ],
+      [
+        0.5563,
+        -2.6172
+      ],
+      [
+        0.5313,
+        -2.65
+      ],
+      [
+        0.5,
+        -2.675
+      ],
+      [
+        0.4688,
+        -2.7
+      ],
+      [
+        0.4359,
+        -2.7172
+      ],
+      [
+        0.4031,
+        -2.7344
+      ],
+      [
+        0.3688,
+        -2.7437
+      ],
+      [
+        0.3344,
+        -2.7531
+      ],
+      [
+        0.2984,
+        -2.7547
+      ],
+      [
+        0.2625,
+        -2.7562
+      ],
+      [
+        0.225,
+        -2.75
+      ],
+      [
+        0.1875,
+        -2.7437
+      ],
+      [
+        0.1516,
+        -2.7312
+      ],
+      [
+        0.1156,
+        -2.7187
+      ],
+      [
+        0.0813,
+        -2.7
+      ],
+      [
+        0.0469,
+        -2.6812
+      ],
+      [
+        0.0141,
+        -2.6562
+      ],
+      [
+        -0.0187,
+        -2.6312
+      ],
+      [
+        -0.05,
+        -2.6
+      ],
+      [
+        -0.0812,
+        -2.5687
+      ],
+      [
+        -0.1078,
+        -2.5297
+      ],
+      [
+        -0.1344,
+        -2.4906
+      ],
+      [
+        -0.149,
+        -2.4594
+      ],
+      [
+        -0.1635,
+        -2.4281
+      ],
+      [
+        -0.1781,
+        -2.3969
+      ],
+      [
+        -0.1917,
+        -2.35
+      ],
+      [
+        -0.2052,
+        -2.3031
+      ],
+      [
+        -0.2187,
+        -2.2562
+      ],
+      [
+        -0.2281,
+        -2.2094
+      ],
+      [
+        -0.2375,
+        -2.1625
+      ],
+      [
+        -0.2469,
+        -2.1156
+      ],
+      [
+        -0.2562,
+        -2.0687
+      ],
+      [
+        -0.2656,
+        -2.0219
+      ],
+      [
+        -0.275,
+        -1.975
+      ]
+    ]
+  },
+  "observed_observer": {
+    "kind": "observed",
+    "monotonic_sec": 33943.701980866,
+    "wall_utc": "2026-11-04T19:16:12.043825+00:00",
+    "count": 8,
+    "cells": [
+      7777,
+      7778,
+      7779,
+      7780,
+      7781,
+      7864,
+      7865,
+      7866
+    ],
+    "remembered_count": 16,
+    "sample": 1239
+  },
+  "remembered_observer": {
+    "kind": "remembered",
+    "monotonic_sec": 33931.854038864,
+    "wall_utc": "2026-11-04T19:16:00.195882+00:00",
+    "count": 16,
+    "cells": [
+      7777,
+      7778,
+      7779,
+      7780,
+      7781,
+      7864,
+      7865,
+      7866,
+      8036,
+      8121,
+      8122,
+      8123,
+      8124,
+      8125,
+      8209,
+      8210
+    ],
+    "added": [],
+    "removed": [
+      7867
+    ],
+    "observed_count": 8
+  }
+}

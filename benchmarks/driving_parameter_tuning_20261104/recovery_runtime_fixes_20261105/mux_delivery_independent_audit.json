@@ -1,0 +1,265 @@
+{
+  "scope": "Independent pure actual-callback and source review of mux delivery repair. No physical robot, ROS node, executor, Gazebo or motor commands were created by these checks.",
+  "source_mux_sha256": "7be8e32f67c3a97c569ad0a559b1393c9d6e2c1f1da31373afa60f53bf93a8e1",
+  "pre_fix_evidence": "mux_starvation_pre_fix_audit.json",
+  "runtime_contract": {
+    "all_shared_geometry_callbacks": "scan/output/navigation/health share one mutually-exclusive callback group, separate default /clock and dedicated latest-only odom tiny lock",
+    "raw_and_odom_first_receipt": "Captured before preprocessing/state/tiny-lock wait; duplicate source stamp cannot renew it",
+    "prepared_snapshot": "One full guard per output; current and pending raw clouds both included; common v/w cap and final ramp sweep reuse same data with50ms advance covered in uncertainty",
+    "final_publish": "After geometry and publish-lock wait, require both wall and ROS compute advance<=50ms and all original source/receipt freshness limits; new explicit invalid feedback revision invalidates proof",
+    "urgent_stop": "Read-only original admission before zero-only publish-lock latch; no authority renewal; core validates again under state lock. Same publish lock prevents an old computed nonzero after pending accepted stop",
+    "cache": "Braking geometry LRU only; no cached permission or freshness extension. No additional cross-output permission cache."
+  },
+  "checks": {
+    "interleavings": {
+      "sha256": "7be8e32f67c3a97c569ad0a559b1393c9d6e2c1f1da31373afa60f53bf93a8e1",
+      "results": {
+        "invalid_stop_stale": "PASS",
+        "invalid_stop_future": "PASS",
+        "invalid_stop_duplicate": "PASS",
+        "invalid_stop_invalid_velocity": "PASS",
+        "invalid_stop_retired": "PASS",
+        "authorized_safety_oldstamp": "PASS",
+        "stop_during_old_computation": {
+          "passed": true,
+          "writes": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "older_token_cannot_clear_newer_stop": "PASS",
+        "scan_first_receipt_before_busy_state": "PASS",
+        "odom_first_receipt_before_tiny_lock": "PASS",
+        "bad_feedback_during_proof": {
+          "latest_is_none": true,
+          "output": [
+            0.0,
+            0.0
+          ],
+          "code": "BRAKING_FEEDBACK_UNAVAILABLE",
+          "passed": true
+        }
+      }
+    },
+    "deadlines": {
+      "sha256": "7be8e32f67c3a97c569ad0a559b1393c9d6e2c1f1da31373afa60f53bf93a8e1",
+      "results": {
+        "wall_only": {
+          "output": [
+            0.0,
+            0.0
+          ],
+          "guard": "CONTROL_DEADLINE",
+          "geometry_calls": 3,
+          "duration": 0.05100000000000193,
+          "ros_advance": 0.0
+        },
+        "ros_only": {
+          "output": [
+            0.0,
+            0.0
+          ],
+          "guard": "CONTROL_DEADLINE",
+          "geometry_calls": 3,
+          "duration": 0.0,
+          "ros_advance": 0.051
+        },
+        "both": {
+          "output": [
+            0.0,
+            0.0
+          ],
+          "guard": "CONTROL_DEADLINE",
+          "geometry_calls": 3,
+          "duration": 0.05100000000000193,
+          "ros_advance": 0.051
+        },
+        "feedback_expiry_at_final_publish": {
+          "output": [
+            0.0,
+            0.0
+          ],
+          "guard": "BRAKING_FEEDBACK_UNAVAILABLE",
+          "duration": 0.04000000000000625
+        }
+      }
+    },
+    "nonzero_callback_performance": {
+      "source_before": "7be8e32f67c3a97c569ad0a559b1393c9d6e2c1f1da31373afa60f53bf93a8e1",
+      "source_after": "7be8e32f67c3a97c569ad0a559b1393c9d6e2c1f1da31373afa60f53bf93a8e1",
+      "unchanged": true,
+      "scope": "Pure actual MUX callbacks with synthetic360/720 beams, noROSnode/executor/plantload; perfectTF+fresh nonzero measuredspeed; notGZloadproof",
+      "cases": {
+        "360_far_clear": {
+          "beam_count": 360,
+          "measured_velocity": [
+            0.22,
+            0.35
+          ],
+          "requested_velocity": [
+            0.22,
+            0.35
+          ],
+          "point": null,
+          "count": 20,
+          "p50_ms": 6.908554001711309,
+          "p95_ms": 9.31007200415479,
+          "max_ms": 14.164565000100993,
+          "guard_codes": {
+            "CLEAR": 20
+          },
+          "outputs_minmax": [
+            [
+              0.22,
+              0.22
+            ],
+            [
+              0.35,
+              0.35
+            ]
+          ],
+          "braking_scale_minmax": [
+            1.0,
+            1.0
+          ]
+        },
+        "360_near_cap": {
+          "beam_count": 360,
+          "measured_velocity": [
+            0.1,
+            0.15
+          ],
+          "requested_velocity": [
+            0.22,
+            0.35
+          ],
+          "point": [
+            0.4,
+            0.0
+          ],
+          "count": 20,
+          "p50_ms": 8.268421996035613,
+          "p95_ms": 11.195697996299714,
+          "max_ms": 13.93537399417255,
+          "guard_codes": {
+            "CLEAR": 20
+          },
+          "outputs_minmax": [
+            [
+              0.155546875,
+              0.155546875
+            ],
+            [
+              0.24746093749999998,
+              0.24746093749999998
+            ]
+          ],
+          "braking_scale_minmax": [
+            0.70703125,
+            0.70703125
+          ]
+        },
+        "720_far_clear": {
+          "beam_count": 720,
+          "measured_velocity": [
+            0.22,
+            0.35
+          ],
+          "requested_velocity": [
+            0.22,
+            0.35
+          ],
+          "point": null,
+          "count": 20,
+          "p50_ms": 13.514542995835654,
+          "p95_ms": 19.797340995864943,
+          "max_ms": 29.764695995254442,
+          "guard_codes": {
+            "CLEAR": 20
+          },
+          "outputs_minmax": [
+            [
+              0.22,
+              0.22
+            ],
+            [
+              0.35,
+              0.35
+            ]
+          ],
+          "braking_scale_minmax": [
+            1.0,
+            1.0
+          ]
+        },
+        "720_near_cap": {
+          "beam_count": 720,
+          "measured_velocity": [
+            0.1,
+            0.15
+          ],
+          "requested_velocity": [
+            0.22,
+            0.35
+          ],
+          "point": [
+            0.4,
+            0.0
+          ],
+          "count": 20,
+          "p50_ms": 15.325159001804423,
+          "p95_ms": 30.841993997455575,
+          "max_ms": 31.00322899990715,
+          "guard_codes": {
+            "CLEAR": 20
+          },
+          "outputs_minmax": [
+            [
+              0.155546875,
+              0.155546875
+            ],
+            [
+              0.24746093749999998,
+              0.24746093749999998
+            ]
+          ],
+          "braking_scale_minmax": [
+            0.70703125,
+            0.70703125
+          ]
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "interleavings": {
+      "path_at_review": "/tmp/mux_independent_interleavings_final_20261105.json",
+      "sha256": "c164bcf2b5dde1b455ddbbd943fb9efb35ed046cb4c6264aaa3d957804210961"
+    },
+    "deadlines": {
+      "path_at_review": "/tmp/mux_independent_deadlines_final_20261105.json",
+      "sha256": "c2234e0ba4c966e260db1310b62f05f333d5e657b63f935b26ccf7e2def6cdb5"
+    },
+    "nonzero_callback_performance": {
+      "path_at_review": "/tmp/mux_nonzero_callback_performance_independent_20261105.json",
+      "sha256": "a85bdce125422a4eea31e06efecbf015740872e3eb47863bff8e6fcb8a47ab4d"
+    }
+  },
+  "review_limits": [
+    "Synthetic states, sensor geometry and callback interleavings are controlled. They prove branch/ordering and deadline behavior, not deployed host schedulability or physical braking calibration.",
+    "The callback performance sweep uses fresh nonzero measured speeds and synthetic360/720-beam clouds with perfect TF. It is a local measurement without executor, Gazebo, network, AMCL or camera load.",
+    "The observer/source timestamps of failed pre-fix run remain immutable. No post-fix full mission outcome is inferred from these pure checks.",
+    "Controller-owned actual four-worker tests are separate evidence and were not independently rerun by this audit.",
+    "Python/ROS publication is not a hard realtime guarantee; firmware watchdog and physical emergency stop remain necessary for process/power failure."
+  ]
+}

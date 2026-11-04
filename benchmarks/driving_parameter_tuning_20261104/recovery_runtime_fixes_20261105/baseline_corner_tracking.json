@@ -1,0 +1,132 @@
+{
+  "baseline_commit": "1ee7fcd931dd3cdffaf3c152138d86b901c1831c",
+  "source": "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/final_stress_permuted/12_web_integrated_stress_permuted/safety_timeline.jsonl.gz",
+  "source_sha256": "02362274ada5e83eff43e6037f836dd21e56894296ecfb3ee55d9b18b9723514",
+  "method": "Latest recorded map->odom transform composed with latest recorded odom at each sampled Gazebo truth receipt. This is a sampled reconstruction, not an exact tf2 acquisition-time replay. Nearest segment uses the currently published map path.",
+  "limitations": [
+    "No controller_diagnostics samples were captured in this historical interval; winning DWB candidate and exact local costmap provenance are not established.",
+    "Position drift and control tracking both contribute; this reconstruction alone cannot separate their causal contributions."
+  ],
+  "samples": [
+    {
+      "timeline_t_s": 82.7485,
+      "sampled_map_estimate": {
+        "x": 0.06541760067092516,
+        "y": -1.0047237792104144,
+        "yaw": -0.5584100000000001
+      },
+      "gazebo_truth": {
+        "x": 0.09505,
+        "y": -0.99797,
+        "yaw": -0.59152
+      },
+      "path_receipt_t_s": 82.5917,
+      "nearest_segment": 0,
+      "path_heading_rad": -0.19739555984988305,
+      "estimate_heading_error_rad": -0.361014440150117,
+      "estimate_cross_track_m": 0.022426491174721733,
+      "truth_cross_track_m": 0.030437224173446083,
+      "map_odom_tf_receipt_age_s": 0.11310000000000286
+    },
+    {
+      "timeline_t_s": 82.9808,
+      "sampled_map_estimate": {
+        "x": 0.0723117915963639,
+        "y": -1.0097862446394452,
+        "yaw": -0.55662
+      },
+      "gazebo_truth": {
+        "x": 0.0997,
+        "y": -1.00107,
+        "yaw": -0.58356
+      },
+      "path_receipt_t_s": 82.5917,
+      "nearest_segment": 0,
+      "path_heading_rad": -0.19739555984988305,
+      "estimate_heading_error_rad": -0.35922444015011695,
+      "estimate_cross_track_m": 0.015449427710830792,
+      "truth_cross_track_m": 0.028309364107196915,
+      "map_odom_tf_receipt_age_s": 0.0011999999999972033
+    },
+    {
+      "timeline_t_s": 83.9696,
+      "sampled_map_estimate": {
+        "x": 0.14726800160730666,
+        "y": -1.055964333602113,
+        "yaw": -0.44925
+      },
+      "gazebo_truth": {
+        "x": 0.17865,
+        "y": -1.04594,
+        "yaw": -0.47833
+      },
+      "path_receipt_t_s": 82.5917,
+      "nearest_segment": 1,
+      "path_heading_rad": -0.19781910916804948,
+      "estimate_heading_error_rad": -0.25143089083195047,
+      "estimate_cross_track_m": 0.01617717098606563,
+      "truth_cross_track_m": 0.00018631032838142654,
+      "map_odom_tf_receipt_age_s": 0.10089999999999577
+    },
+    {
+      "timeline_t_s": 84.9554,
+      "sampled_map_estimate": {
+        "x": 0.29311282027526775,
+        "y": -1.1206187785498798,
+        "yaw": -0.4507
+      },
+      "gazebo_truth": {
+        "x": 0.32315,
+        "y": -1.1205,
+        "yaw": -0.47625
+      },
+      "path_receipt_t_s": 82.5917,
+      "nearest_segment": 5,
+      "path_heading_rad": -0.19570064621865416,
+      "estimate_heading_error_rad": -0.25499935378134586,
+      "estimate_cross_track_m": 0.05094857712502759,
+      "truth_cross_track_m": 0.044991220478303964,
+      "map_odom_tf_receipt_age_s": 0.10439999999999827
+    },
+    {
+      "timeline_t_s": 86.0306,
+      "sampled_map_estimate": {
+        "x": 0.33174190824916466,
+        "y": -1.1419183426574637,
+        "yaw": -0.52337
+      },
+      "gazebo_truth": {
+        "x": 0.35237,
+        "y": -1.13655,
+        "yaw": -0.55997
+      },
+      "path_receipt_t_s": 82.5917,
+      "nearest_segment": 5,
+      "path_heading_rad": -0.19570064621865416,
+      "estimate_heading_error_rad": -0.3276693537813459,
+      "estimate_cross_track_m": 0.0643299930000157,
+      "truth_cross_track_m": 0.05502626519707168,
+      "map_odom_tf_receipt_age_s": 0.003500000000002501
+    },
+    {
+      "timeline_t_s": 87.0338,
+      "sampled_map_estimate": {
+        "x": 0.35402927674522805,
+        "y": -1.1591146021161611,
+        "yaw": -0.64603
+      },
+      "gazebo_truth": {
+        "x": 0.37239,
+        "y": -1.15086,
+        "yaw": -0.68538
+      },
+      "path_receipt_t_s": 82.5917,
+      "nearest_segment": 6,
+      "path_heading_rad": -0.1973955598498831,
+      "estimate_heading_error_rad": -0.44863444015011694,
+      "estimate_cross_track_m": 0.07682726704443497,
+      "truth_cross_track_m": 0.0651321296407423,
+      "map_odom_tf_receipt_age_s": 0.11339999999999861
+    }
+  ]
+}

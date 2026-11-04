@@ -1,0 +1,160 @@
+{
+  "scope": "Independent final read-only admission/concurrency/deadline audit after deferred AUTO mailbox fix. Not a physical or Gazebo mission PASS.",
+  "runtime_mux_sha256": "20d3713efa0f4bbfcff6b25675984add64c8247d30a773a880e6ae90b6ef6764",
+  "intermediate_audit_preserved": {
+    "path": "mux_delivery_independent_audit.json",
+    "sha256": "7f68d3e3ef73cdea6de815b45a7c38cab7d097a0579941f1d1c1dc8a8ff3e86a",
+    "mux_epoch": "7be8e32f67c3a97c569ad0a559b1393c9d6e2c1f1da31373afa60f53bf93a8e1",
+    "status": "INTERMEDIATE_BEFORE_DEFERRED_AUTO_FIX_NOT_OVERWRITTEN"
+  },
+  "fixed_counterexample": {
+    "pre_fix_mux_sha256": "28e84fb10da8c53a2a7455a09591102f65c2ca1629023300ebb053f44f390584",
+    "sequence": [
+      "HOLD ownerOld",
+      "busy state lock: enqueue AUTO sourceA",
+      "release state lock",
+      "accept later AUTO sourceB",
+      "output consumes old queue"
+    ],
+    "pre_fix_observed_owner": "sourceA",
+    "pre_fix_observed_retired": [
+      "sourceB",
+      "ownerOld"
+    ],
+    "expected_and_final_owner": "sourceB",
+    "result": "CLOSED_BY_NEWER_ACCEPTED_CONTROL_PRECEDENCE"
+  },
+  "mailbox_contract": {
+    "bounded_storage": "One parsed JSON payload and its original FIRSTreceipt under tiny ingress lock; no new motion protocol or authority state",
+    "pre_admission": "Only original read-only validated AUTO may enter; latest same-source seq can replace older, duplicates/older preserve original FIRSTreceipt and payload",
+    "core_admission": "Normal original payload sequence/stamp/retired/authority validation under state lock; original wall receipt age<=1s, no restamp or lease renewal from waiting",
+    "newer_control": "Later accepted HOLD/manual/ESTOP or different AUTO ownership discards older deferred ingress",
+    "same_source_heartbeat": "Only an already-current unlatched AUTO source may coalesce busy duplicate-mode heartbeat; first HOLD-to-AUTO and another source ownership transition are preserved",
+    "movement": "An admitted HOLD-to-AUTO clears old navigation auto_at; it still needs a post-transition navigation command"
+  },
+  "checks": {
+    "deferred_auto": {
+      "sha256": "20d3713efa0f4bbfcff6b25675984add64c8247d30a773a880e6ae90b6ef6764",
+      "scope": "Actual ingress/core/output callbacks on controlled harness; geometry disabled to isolate protocol. No ROSnode/executor, actuator or physical robot.",
+      "results": {
+        "first_hold_to_auto_preserved_until_normal_admission": "PASS; stale navigation command not revived",
+        "later_hold_prevents_old_auto_reopen": "PASS",
+        "later_manual_prevents_old_auto_reopen": "PASS",
+        "later_estop_prevents_old_auto_reopen": "PASS",
+        "newer_different_auto_owner_wins": "PASS",
+        "duplicate_keeps_payload_and_first_receipt_then_expired_ros_paused": "PASS",
+        "noise_retired_cannot_evict_valid_resume": "PASS",
+        "noise_malformed_cannot_evict_valid_resume": "PASS",
+        "noise_replayed_cannot_evict_valid_resume": "PASS",
+        "original_source_stamp_over_one_second_rejected": "PASS",
+        "caller_message_mutation_does_not_change_mailbox": "PASS",
+        "coalesce_only_same_current_auto_source": "PASS",
+        "pending_reset_finalization_does_not_admit_deferred_resume": "PASS"
+      }
+    },
+    "interleavings": {
+      "sha256": "20d3713efa0f4bbfcff6b25675984add64c8247d30a773a880e6ae90b6ef6764",
+      "results": {
+        "invalid_stop_stale": "PASS",
+        "invalid_stop_future": "PASS",
+        "invalid_stop_duplicate": "PASS",
+        "invalid_stop_invalid_velocity": "PASS",
+        "invalid_stop_retired": "PASS",
+        "authorized_safety_oldstamp": "PASS",
+        "stop_during_old_computation": {
+          "passed": true,
+          "writes": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "older_token_cannot_clear_newer_stop": "PASS",
+        "scan_first_receipt_before_busy_state": "PASS",
+        "odom_first_receipt_before_tiny_lock": "PASS",
+        "bad_feedback_during_proof": {
+          "latest_is_none": true,
+          "output": [
+            0.0,
+            0.0
+          ],
+          "code": "BRAKING_FEEDBACK_UNAVAILABLE",
+          "passed": true
+        }
+      }
+    },
+    "deadlines": {
+      "sha256": "20d3713efa0f4bbfcff6b25675984add64c8247d30a773a880e6ae90b6ef6764",
+      "results": {
+        "wall_only": {
+          "output": [
+            0.0,
+            0.0
+          ],
+          "guard": "CONTROL_DEADLINE",
+          "geometry_calls": 3,
+          "duration": 0.05100000000000193,
+          "ros_advance": 0.0
+        },
+        "ros_only": {
+          "output": [
+            0.0,
+            0.0
+          ],
+          "guard": "CONTROL_DEADLINE",
+          "geometry_calls": 3,
+          "duration": 0.0,
+          "ros_advance": 0.051
+        },
+        "both": {
+          "output": [
+            0.0,
+            0.0
+          ],
+          "guard": "CONTROL_DEADLINE",
+          "geometry_calls": 3,
+          "duration": 0.05100000000000193,
+          "ros_advance": 0.051
+        },
+        "feedback_expiry_at_final_publish": {
+          "output": [
+            0.0,
+            0.0
+          ],
+          "guard": "BRAKING_FEEDBACK_UNAVAILABLE",
+          "duration": 0.04000000000000625
+        }
+      }
+    }
+  },
+  "input_outputs": {
+    "deferred_auto": {
+      "temporary_path": "/tmp/mux_independent_deferred_final_20261105.json",
+      "sha256": "79f5eea637313c38880f9dc6169a6b2049434f2f1ca903a84694dc79dbafcf87"
+    },
+    "interleavings": {
+      "temporary_path": "/tmp/mux_independent_interleavings_post_mailbox_20261105.json",
+      "sha256": "bb3d00c2c97d2fce5775dec330d6f44ddd85e7932c0390f1366148513ea7992e"
+    },
+    "deadlines": {
+      "temporary_path": "/tmp/mux_independent_deadlines_post_mailbox_20261105.json",
+      "sha256": "d58200d1b643f01c350721e8767bc0df98d395ac190ec504295ca0f31e78769e"
+    }
+  },
+  "limitations": [
+    "The13 mailbox cases isolate ingress with raw geometry disabled in a controlled harness; they are not evidence of safe physical clearance. The independent11+4 earlier raw/deadline cases are rerun on this final source separately.",
+    "No ROSnode, executor, Gazebo, physical robot or /cmd_vel publisher was created in these independent checks. Outputs are mocked.",
+    "Prior360/720 nonzero callback timings belong to7be8 and remain correctly labelled intermediate; no timing claim is silently promoted to this final mailbox epoch.",
+    "Controller-owned real four-worker delivery/performance tests are separate evidence; this audit did not rerun them.",
+    "Actual same-scene closed-loop validation is still required after this runtime change."
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "reason": "Stopped after actor failed; new mux guard duplicate computation / odom-clock callback backlog causes intermittent BRAKING_FEEDBACK_UNAVAILABLE despite fresh independent odom. Preserve incomplete mission as failure, not completion.",
+  "wall_time": 1793833607.783252,
+  "mission_before": {
+    "state": "NAVIGATING",
+    "route": [
+      3
+    ],
+    "pending_route": null,
+    "current_index": 0,
+    "current_marker_id": 3,
+    "completed_ids": [],
+    "reason": "\ub9c8\ucee4 3 \uad00\uce21 \uc704\uce58\ub85c \uc774\ub3d9 \uc911\uc785\ub2c8\ub2e4.",
+    "sector_dwell_seconds": 5.0,
+    "dwell_marker_id": null,
+    "dwell_remaining_seconds": null,
+    "can_resume": false,
+    "estop_latched": false,
+    "home": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "yaw": -0.027514
+    },
+    "returning_home": false,
+    "auto_return_home": true,
+    "auto_returning_home": false,
+    "can_return_home": true
+  },
+  "physical_robot_touched": false
+}

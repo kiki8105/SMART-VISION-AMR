@@ -120,6 +120,7 @@ controller_server:
       # Limit critic goals by distance along this route, including folded aisles.
       route_horizon_distance: 0.55
       route_anchor_search_distance: 0.85
+      route_adherence_scale: 32.0  # Near-field ordered geometry; retain the real action goal.
       # Match the physical motion mux before evaluating collision trajectories.
       turn_start_angular: 0.08
       turn_full_angular: 0.35
@@ -135,12 +136,12 @@ controller_server:
       min_speed_xy: 0.02
       max_speed_xy: 0.22
       min_speed_theta: 0.12
-      acc_lim_x: 0.20
+      acc_lim_x: 0.15
       acc_lim_y: 0.0
       acc_lim_theta: 0.80
-      decel_lim_x: -0.40
+      decel_lim_x: -0.15
       decel_lim_y: 0.0
-      decel_lim_theta: -1.60
+      decel_lim_theta: -1.00
       # Preserve the full command in trajectory.velocity for envelope checks.
       limit_vel_cmd_in_traj: false
       vx_samples: 20
@@ -394,8 +395,8 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: true
     feedback: OPEN_LOOP
-    max_accel: [0.20, 0.0, 0.80]
-    max_decel: [-0.40, 0.0, -1.60]
+    max_accel: [0.15, 0.0, 0.80]
+    max_decel: [-0.15, 0.0, -1.00]
     velocity_timeout: 0.5
     max_velocity:
     - 0.22

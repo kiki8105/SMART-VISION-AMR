@@ -115,6 +115,10 @@ def main():
                                      lambda msg: self.status('planner', msg), latched)
             self.create_subscription(String, '/smart_vision_amr/navigation_status',
                                      lambda msg: self.status('navigation', msg), 10)
+            self.create_subscription(String, '/smart_vision_amr/controller_diagnostics',
+                                     lambda msg: self.status('controller', msg), 10)
+            self.create_subscription(String, '/smart_vision_amr/scan_projection_status',
+                                     lambda msg: self.status('projection', msg), latched)
             self.create_subscription(String, '/smart_vision_amr/recovery_request',
                                      self.recovery_request, 10)
             self.create_subscription(String, '/smart_vision_amr/localization_health',

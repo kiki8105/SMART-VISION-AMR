@@ -5,6 +5,10 @@ TurtleBot3 Waffle Pi가 저장 지도에서 A* 경로를 만들고 Nav2로 이�
 
 **처음 사용하는 팀원:** [클론·설치부터 터미널별 실행까지 최종 매뉴얼](docs/TEAM_QUICKSTART.md)을 순서대로 따라 하세요.
 
+**11월 5일 현재 변경사항·터미널별 실차 실행:** [최신 실행 안내](docs/PHYSICAL_RUN_20261105.md).
+사용자 요청으로 시험을 중단했습니다. 최종 전체 검사는 1,478개 통과·1개 실패 후
+중단됐으며, 최신 수정 후 Gazebo·실차 재시험은 미실행입니다.
+
 [실차 경로 이탈 재현·보완 결과](docs/DRIVING_REPRODUCTION_20261104.md)와
 [간단한 주행 정책](docs/NAVIGATION_POLICY.md)을 먼저 확인하세요.
 가제보와 실차의 차이는 [실차 실패를 반영한 시험](docs/GAZEBO_PHYSICAL_TRANSFER.md)에 정리합니다.

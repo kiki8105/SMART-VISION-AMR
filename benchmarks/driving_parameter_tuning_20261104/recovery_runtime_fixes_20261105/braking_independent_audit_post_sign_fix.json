@@ -1,0 +1,254 @@
+{
+  "scope": "Independent post-sign-fix offline helper/MUX-callback audit; no ROS node/context/actuator or Gazebo was started. Not physical brake calibration.",
+  "source_sha256_before": {
+    "braking_envelope.py": "67816a2ea8fe658e8ef1d958007e7a67a69c61d0f7c30919460dac9cc12b9c26",
+    "motion_mux.py": "71a6d85354d2954f4b5e3a44c06f9cb0aa1454cd5dfc5525006210586f8a6049"
+  },
+  "source_sha256_after": {
+    "braking_envelope.py": "67816a2ea8fe658e8ef1d958007e7a67a69c61d0f7c30919460dac9cc12b9c26",
+    "motion_mux.py": "71a6d85354d2954f4b5e3a44c06f9cb0aa1454cd5dfc5525006210586f8a6049"
+  },
+  "source_unchanged": true,
+  "signed_interval_body_coverage": [
+    {
+      "feedback": [
+        0.22,
+        -0.01
+      ],
+      "delta": [
+        0.04,
+        0.16
+      ],
+      "initial_twists": 18,
+      "whole_trajectory_body_boundary_witnesses": 303,
+      "missed_collision_witnesses": []
+    },
+    {
+      "feedback": [
+        -0.22,
+        0.01
+      ],
+      "delta": [
+        0.04,
+        0.16
+      ],
+      "initial_twists": 18,
+      "whole_trajectory_body_boundary_witnesses": 300,
+      "missed_collision_witnesses": []
+    },
+    {
+      "feedback": [
+        0.01,
+        -0.02
+      ],
+      "delta": [
+        0.12,
+        0.25
+      ],
+      "initial_twists": 18,
+      "whole_trajectory_body_boundary_witnesses": 125,
+      "missed_collision_witnesses": []
+    },
+    {
+      "feedback": [
+        0.0,
+        0.0
+      ],
+      "delta": [
+        0.04,
+        0.2
+      ],
+      "initial_twists": 18,
+      "whole_trajectory_body_boundary_witnesses": 75,
+      "missed_collision_witnesses": []
+    },
+    {
+      "feedback": [
+        0.15,
+        0.35
+      ],
+      "delta": [
+        0.02,
+        0.04
+      ],
+      "initial_twists": 18,
+      "whole_trajectory_body_boundary_witnesses": 266,
+      "missed_collision_witnesses": []
+    },
+    {
+      "feedback": [
+        0.15,
+        -0.35
+      ],
+      "delta": [
+        0.02,
+        0.04
+      ],
+      "initial_twists": 18,
+      "whole_trajectory_body_boundary_witnesses": 262,
+      "missed_collision_witnesses": []
+    },
+    {
+      "feedback": [
+        -0.15,
+        0.35
+      ],
+      "delta": [
+        0.02,
+        0.04
+      ],
+      "initial_twists": 18,
+      "whole_trajectory_body_boundary_witnesses": 265,
+      "missed_collision_witnesses": []
+    },
+    {
+      "feedback": [
+        -0.15,
+        -0.35
+      ],
+      "delta": [
+        0.02,
+        0.04
+      ],
+      "initial_twists": 18,
+      "whole_trajectory_body_boundary_witnesses": 264,
+      "missed_collision_witnesses": []
+    }
+  ],
+  "actual_mux_counterexample": {
+    "code": "BRAKING_INTERSECTION",
+    "published": [
+      0.0,
+      0.0
+    ],
+    "metrics": {
+      "scan_age_seconds": 0.0,
+      "pose_age_seconds": 0.0,
+      "lookup_error": "",
+      "pose_source": "latest",
+      "future_lead_seconds": 0.0,
+      "pose_uncertainty_seconds": 0.0,
+      "braking_speed_scale": 1.0,
+      "braking_wheel_deceleration_mps2": 0.15,
+      "braking_reaction_seconds": 0.25,
+      "braking_feedback_age_seconds": 0.2,
+      "braking_command_distance_m": 0.23738566666666666,
+      "braking_measured_velocity": [
+        0.22,
+        -0.01
+      ],
+      "braking_linear_velocity_interval": [
+        0.18,
+        0.26
+      ],
+      "braking_angular_velocity_interval": [
+        -0.17000000000000004,
+        0.15000000000000002
+      ],
+      "braking_measured_distance_m": 0.2573884610987541,
+      "braking_measured_clearance_m": -0.01629885571749992,
+      "braking_collision_indices": [
+        0
+      ],
+      "robot_radius_m": 0.22,
+      "horizon_seconds": 0.5,
+      "minimum_body_clearance_m": 0.07048925638198852,
+      "minimum_swept_clearance_m": 0.014596102680024203,
+      "collision_count": 0,
+      "inside_count": 0,
+      "collision_indices": [],
+      "longitudinal_uncertainty_m": 0.0,
+      "lateral_uncertainty_m": 0.0,
+      "pending_scan": false
+    }
+  },
+  "timing": [
+    {
+      "placement": "front",
+      "beam_count": 360,
+      "repetitions": 20,
+      "requested_cap_cold": {
+        "p95_ms": 6.398781549432897,
+        "max_ms": 6.729619999532588,
+        "median_ms": 5.292663001455367
+      },
+      "requested_cap_cache_repeat": {
+        "p95_ms": 0.863668543752283,
+        "max_ms": 1.05379299930064,
+        "median_ms": 0.5077159985376056
+      },
+      "signed_feedback_interval": {
+        "p95_ms": 3.4833175523090176,
+        "max_ms": 3.5068500001216307,
+        "median_ms": 2.1215775013843086
+      }
+    },
+    {
+      "placement": "turn",
+      "beam_count": 360,
+      "repetitions": 20,
+      "requested_cap_cold": {
+        "p95_ms": 6.88010294434207,
+        "max_ms": 6.942270003492013,
+        "median_ms": 4.522015500697307
+      },
+      "requested_cap_cache_repeat": {
+        "p95_ms": 0.6088803522288799,
+        "max_ms": 0.671966998197604,
+        "median_ms": 0.4309610012569465
+      },
+      "signed_feedback_interval": {
+        "p95_ms": 3.5739072969590784,
+        "max_ms": 3.8819030014565215,
+        "median_ms": 1.9769955033552833
+      }
+    },
+    {
+      "placement": "parallel",
+      "beam_count": 360,
+      "repetitions": 20,
+      "requested_cap_cold": {
+        "p95_ms": 4.71998795401305,
+        "max_ms": 5.036299000494182,
+        "median_ms": 3.856470502796583
+      },
+      "requested_cap_cache_repeat": {
+        "p95_ms": 0.6823067971708952,
+        "max_ms": 0.730981002561748,
+        "median_ms": 0.4017214996565599
+      },
+      "signed_feedback_interval": {
+        "p95_ms": 2.6992144023097353,
+        "max_ms": 2.8536919999169186,
+        "median_ms": 2.0980459994461853
+      }
+    },
+    {
+      "placement": "near_ring",
+      "beam_count": 360,
+      "repetitions": 20,
+      "requested_cap_cold": {
+        "p95_ms": 7.709003603667952,
+        "max_ms": 8.204762998502702,
+        "median_ms": 6.301669502136065
+      },
+      "requested_cap_cache_repeat": {
+        "p95_ms": 0.6262930022785441,
+        "max_ms": 0.7886479943408631,
+        "median_ms": 0.38429649794125
+      },
+      "signed_feedback_interval": {
+        "p95_ms": 3.0351092438650085,
+        "max_ms": 3.0593009942094795,
+        "median_ms": 2.0867265047854744
+      }
+    }
+  ],
+  "limits": [
+    "Finite numerical wheel integration at1ms and sampled body-boundary witnesses, not a universal formal proof.",
+    "Time measures helper calls on one current PC; repeated full MUX callbacks and Gazebo load are not represented.",
+    "Reaction .25/request cap,.10/measured, brake.15 and track.287 are configured model assumptions, not measured physical robot dynamics."
+  ],
+  "numerical_body_witness_total": 1860,
+  "conclusion": "The identified signed-feedback counterexample is closed in the actual final MUX callback; no additional critical geometry issue was found in this bounded read-only review. Full Gazebo/physical validation remains separate."
+}

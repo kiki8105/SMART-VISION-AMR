@@ -257,7 +257,8 @@ def generate_launch_description():
              parameters=[config, sim], output='screen', condition=navigation,
              remappings=[('cmd_vel', '/smart_vision_amr/navigation_cmd_vel')])),
         Node(package='smart_vision_amr', executable='motion_mux', name='motion_mux',
-             parameters=[sim, {'allow_legacy_auto_input': False,
+             parameters=[str(own/'config/motion_mux_hardware.yaml'),
+                         sim, {'allow_legacy_auto_input': False,
                                'max_linear_velocity': 0.22,
                                'scan_guard_robot_radius': floating('scan_guard_robot_radius'),
                                'scan_guard_base_frame': 'base_footprint',
@@ -267,7 +268,7 @@ def generate_launch_description():
                                'auto_turn_entry_linear_velocity': 0.15,
                                'auto_turn_min_linear_velocity': 0.10,
                                'gentle_start_enabled': True,
-                               'gentle_start_linear_acceleration': 0.20,
+                               'gentle_start_linear_acceleration': 0.15,
                                'gentle_start_angular_acceleration': 0.80,
                                'gentle_start_max_publish_gap': 0.50,
                                'startup_estop': ParameterValue(

@@ -68,7 +68,8 @@ class PlannerHarness(AStarPlannerNode):
         self.planner = AStarPlanner()
         self.tf_buffer = Mock()
         self.tf_buffer.lookup_transform.return_value = SimpleNamespace(
-            transform=SimpleNamespace(translation=SimpleNamespace(x=0.5, y=1.5)))
+            transform=SimpleNamespace(translation=SimpleNamespace(x=0.5, y=1.5),
+                                      rotation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
         self.path_pub, self.status_pub, self.recovery_pub, self.logger = Mock(), Mock(), Mock(), Mock()
 
     def get_logger(self):
@@ -368,6 +369,10 @@ class PlannerRecoveryTests(unittest.TestCase):
         self.assertFalse(self.node.goal_completed)
 
     def test_no_forward_route_requests_one_verified_reverse_then_replans_same_goal(self):
+        # This test owns reverse request/result ordering. The optional metric
+        # local repair now finds a valid forward route in this old inflated-
+        # start fixture; its full-flow priority is covered independently.
+        self.node.params['local_detour_enabled'] = False
         self.forward_trail_to_inflated_start()
         self.node.on_navigation_status(status(self.node, "SUCCEEDED"))
         self.node.recovery_attempts = 2  # previous sector's budget is not inherited
@@ -459,6 +464,7 @@ class PlannerRecoveryTests(unittest.TestCase):
         self.assertFalse(self.node.breadcrumbs)
 
     def test_map_change_cancels_active_reverse_before_replanning_retained_goal(self):
+        self.node.params['local_detour_enabled'] = False  # Exercise owned BackUp map-cancel lifecycle.
         self.forward_trail_to_inflated_start()
         self.node.on_map(self.node.map[0])
         goal = make_goal(stamp=11)

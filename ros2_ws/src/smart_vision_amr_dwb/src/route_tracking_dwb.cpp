@@ -7,6 +7,7 @@
 #include "smart_vision_amr_dwb/route_tracking_dwb.hpp"
 #include "smart_vision_amr_dwb/route_horizon.hpp"
 #include "smart_vision_amr_dwb/command_envelope.hpp"
+#include "smart_vision_amr_dwb/route_adherence.hpp"
 #include "dwb_core/exceptions.hpp"
 #include "nav2_util/node_utils.hpp"
 #include "nav_2d_utils/tf_help.hpp"
@@ -35,6 +36,7 @@ void RouteTrackingDWB::configure(
       std::make_pair("turn_full_angular", &turn_full_angular_),
       std::make_pair("turn_entry_linear", &turn_entry_linear_),
       std::make_pair("turn_min_linear", &turn_min_linear_),
+      std::make_pair("route_adherence_scale", &route_adherence_scale_),
       std::make_pair("moving_turn_max_angular", &moving_turn_max_angular_)})
   {
     nav2_util::declare_parameter_if_not_declared(
@@ -48,13 +50,15 @@ void RouteTrackingDWB::configure(
   }
   dwb_core::DWBLocalPlanner::configure(parent, name, std::move(tf), std::move(costmap_ros));
   node->get_parameter(name + ".max_speed_xy", nominal_linear_limit_);
+  node->get_parameter(name + ".xy_goal_tolerance", route_goal_tolerance_);
   if (!std::isfinite(nominal_linear_limit_) || nominal_linear_limit_ <= 0.0 ||
     !std::isfinite(turn_start_angular_) || !std::isfinite(turn_full_angular_) ||
     !std::isfinite(turn_entry_linear_) || !std::isfinite(turn_min_linear_) ||
     turn_start_angular_ <= 0.0 || turn_full_angular_ <= turn_start_angular_ ||
     turn_min_linear_ <= 0.0 || turn_entry_linear_ < turn_min_linear_ ||
     nominal_linear_limit_ < turn_entry_linear_ ||
-    !std::isfinite(moving_turn_max_angular_) || moving_turn_max_angular_ <= 0.0)
+    !std::isfinite(moving_turn_max_angular_) || moving_turn_max_angular_ <= 0.0 ||
+    !std::isfinite(route_adherence_scale_) || route_adherence_scale_ < 0.0)
   {
     throw std::invalid_argument("DWB command envelope has invalid speed bounds");
   }
@@ -65,11 +69,21 @@ void RouteTrackingDWB::configure(
     route_horizon_distance_, route_anchor_search_distance_);
 }
 
+nav_2d_msgs::msg::Twist2DStamped RouteTrackingDWB::computeVelocityCommands(
+  const nav_2d_msgs::msg::Pose2DStamped & pose,
+  const nav_2d_msgs::msg::Twist2D & velocity,
+  std::shared_ptr<dwb_msgs::msg::LocalPlanEvaluation> & results)
+{
+  measured_linear_speed_ = std::hypot(velocity.x, velocity.y);
+  return dwb_core::DWBLocalPlanner::computeVelocityCommands(pose, velocity, results);
+}
+
 dwb_msgs::msg::TrajectoryScore RouteTrackingDWB::scoreTrajectory(
   const dwb_msgs::msg::Trajectory2D & trajectory, double best_score)
 {
   const auto & command = trajectory.velocity;
-  if (!movingTurnAllowed(command.x, command.y, command.theta, moving_turn_max_angular_)) {
+  if (!movingTurnAllowed(command.x, command.y, command.theta, moving_turn_max_angular_,
+      measured_linear_speed_)) {
     throw dwb_core::IllegalTrajectoryException(
             "CommandEnvelope", "Exceeds translating turn yaw limit or has nonfinite command");
   }
@@ -82,7 +96,20 @@ dwb_msgs::msg::TrajectoryScore RouteTrackingDWB::scoreTrajectory(
   {
     throw dwb_core::IllegalTrajectoryException("CommandEnvelope", "Exceeds autonomous turn speed limit");
   }
-  return dwb_core::DWBLocalPlanner::scoreTrajectory(trajectory, best_score);
+  auto score = dwb_core::DWBLocalPlanner::scoreTrajectory(trajectory, best_score);
+  if (route_adherence_active_ && route_adherence_scale_ > 0.0) {
+    dwb_msgs::msg::CriticScore adherence;
+    adherence.name = "RouteAdherence";
+    adherence.scale = route_adherence_scale_;
+    adherence.raw_score = routeAdherenceCost(
+      route_adherence_reference_, trajectory.poses, route_anchor_arc_);
+    if (!std::isfinite(adherence.raw_score)) {
+      throw dwb_core::IllegalTrajectoryException("RouteAdherence", "Nonfinite trajectory pose");
+    }
+    score.total += adherence.raw_score * adherence.scale;
+    score.scores.push_back(adherence);
+  }
+  return score;
 }
 
 void RouteTrackingDWB::setSpeedLimit(const double & speed_limit, const bool & percentage)
@@ -133,6 +160,13 @@ nav_2d_msgs::msg::Path2D RouteTrackingDWB::transformGlobalPlan(
   RouteHorizonStats stats;
   auto horizon = limitRouteHorizon(
     transformed, local_pose.pose, route_horizon_distance_, route_anchor_search_distance_, &stats);
+  route_adherence_reference_ = horizon;
+  route_anchor_arc_ = stats.anchor_arc_m;
+  // The real goal's yaw belongs to RotateToGoal. A route-tangent cost must not
+  // prevent arrival or an in-place final heading adjustment.
+  route_adherence_active_ = horizon.poses.size() >= 2 && (stats.cropped ||
+    std::hypot(local_pose.pose.x - horizon.poses.back().x,
+    local_pose.pose.y - horizon.poses.back().y) > route_goal_tolerance_);
   const auto now_ns = clock_->now().nanoseconds();
   if (diagnostics_pub_ && diagnostics_pub_->is_activated() &&
     (last_diagnostic_ns_ == 0 || now_ns < last_diagnostic_ns_ ||
@@ -149,6 +183,9 @@ nav_2d_msgs::msg::Path2D RouteTrackingDWB::transformGlobalPlan(
          << ",\"scoring_arc_m\":" << stats.scoring_arc_m
          << ",\"horizon_m\":" << route_horizon_distance_
          << ",\"moving_turn_max_angular_radps\":" << moving_turn_max_angular_
+         << ",\"measured_linear_speed_mps\":" << measured_linear_speed_
+         << ",\"route_adherence_scale\":" << route_adherence_scale_
+         << ",\"route_adherence_active\":" << (route_adherence_active_ ? "true" : "false")
          << ",\"linear_speed_limit_mps\":"
          << std::min(nominal_linear_limit_, linear_speed_limit_.load())
          << ",\"cropped\":" << (stats.cropped ? "true" : "false");

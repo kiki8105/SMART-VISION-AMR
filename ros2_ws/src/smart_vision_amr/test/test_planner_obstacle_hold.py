@@ -14,6 +14,7 @@ from test_planner_recovery import status
 from test_recovery_episode_policy_independent import evidence
 from smart_vision_amr.recovery_episode import RecoveryPhase
 from smart_vision_amr.reverse_recovery import GridGeometry
+from body_geometry_oracle import continuous_raw_body_gap
 
 
 PHYSICAL_HITS = {(8, 15), (8, 16)}
@@ -494,6 +495,7 @@ def test_passing_robot_replans_without_spending_obstacle_hold_budget(prepared):
     for attempt in range(3):
         for i in range(6):
             ready(node,100.05+attempt*2.1+i*.05)
+        node.on_visibility(visibility(node, occupied=node.observed))
         if attempt:
             node.retry_transform()
         assert path_points(node)
@@ -503,7 +505,10 @@ def test_passing_robot_replans_without_spending_obstacle_hold_budget(prepared):
         assert node.obstacle_hold.attempts == 0
         assert node.last_goal is goal
         assert not node.obstacle_hold.holding
+        if node.planned_world_points:
+            assert continuous_raw_body_gap(node,node.planned_world_points)>=0.
     ready(node, 107.)
+    node.on_visibility(visibility(node, occupied=node.observed))
     node.on_observed(hit_message(node, set()))
     node.retry_transform()
     assert path_points(node)
@@ -657,6 +662,7 @@ def test_three_distinct_published_approaches_with_safe_detours_do_not_hold(prepa
     for index in range(3):
         for i in range(6):
             ready(node,100.05+index*2.1+i*.05)
+        node.on_visibility(visibility(node, occupied=node.observed))
         if index:
             node.retry_transform()
         assert path_points(node)
@@ -664,7 +670,9 @@ def test_three_distinct_published_approaches_with_safe_detours_do_not_hold(prepa
         on_hits(hit_message(node, observed))
         assert node.obstacle_hold.attempts == 0
         assert path_points(node)
+        assert continuous_raw_body_gap(node,node.planned_world_points)>=0.
     ready(node, 107.)
+    node.on_visibility(visibility(node, occupied=node.observed))
     node.retry_transform()
     assert path_points(node)
     assert not node.obstacle_hold.holding

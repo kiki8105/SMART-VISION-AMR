@@ -1835,6 +1835,17 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
                         'sha256': hashlib.sha256(nav_parameters.read_bytes()).hexdigest()}
                 except (KeyError, TypeError, AttributeError) as exc:
                     raise ValueError('Nav2 FollowPath stopping model missing') from exc
+            runtime_manifest_file = directory/'runtime_manifest.json'
+            if runtime_manifest_file.is_file():
+                runtime_geometry = json.loads(runtime_manifest_file.read_text())
+                if runtime_geometry.get('physical_footprint') is True:
+                    radius = (runtime_geometry.get('collision_model') or {}).get(
+                        'copied_centered_cylinder_radius_m')
+                    if (type(radius) not in (int, float) or
+                            abs(radius-stop_model.get('robot_collision_radius_m', float('inf'))) > 1e-9):
+                        raise ValueError('Circular model radius differs from the active Nav2 stopping witness')
+                    stop_model['front_laser_to_body_m'] = safety_timeline.centered_circle_front_extent(
+                        directory/'fixture/waffle_pi_fault.sdf', radius)
             safety = safety_timeline.assess(records, static_world_boxes=boxes,
                                             **stop_model)
             safety['static_geometry_witness'] = (

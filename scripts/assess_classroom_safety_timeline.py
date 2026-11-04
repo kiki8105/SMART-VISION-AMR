@@ -29,6 +29,34 @@ SIM_STATIC_SWEEP_MARGIN_M = .05
 SIM_LASER_X_M = -.064
 
 
+def centered_circle_front_extent(model_path, robot_radius):
+    """Derive the laser-to-front distance for the copied circular fixture.
+
+    The stock Waffle's short front edge is not the front of a centred 22 cm
+    cylinder. Reject unsupported rotated/offset scan fixtures instead of using
+    the stock 13.2 cm conversion for a different collision geometry.
+    """
+    root = ET.parse(model_path).getroot()
+    sensors = [(link, sensor) for link in root.findall('.//link')
+               for sensor in link.findall("sensor[@type='ray']")]
+    if len(sensors) != 1 or not math.isfinite(robot_radius) or robot_radius <= 0.:
+        raise ValueError('One known ray sensor and a positive circle radius are required')
+    link, sensor = sensors[0]
+    link_pose, sensor_pose = link.find('pose'), sensor.find('pose')
+    if any(p is not None and p.get('relative_to') for p in (link_pose, sensor_pose)):
+        raise ValueError('Relative scan poses require an explicit frame resolution')
+    parent = _pose(link_pose.text if link_pose is not None else None)
+    child = _pose(sensor_pose.text if sensor_pose is not None else None)
+    if not all(math.isfinite(v) for p in (parent, child) for v in p):
+        raise ValueError('Scan poses must be finite')
+    if any(abs(p[i]) > 1e-9 for p in (parent, child) for i in (3, 4)):
+        raise ValueError('Tilted scan fixtures require an explicit three-dimensional witness')
+    pose = _compose(parent, child)
+    if not all(math.isfinite(v) for v in pose) or any(abs(pose[i]) > 1e-9 for i in (1, 3, 4, 5)):
+        raise ValueError('Front sector witness requires a centred, forward ray sensor')
+    return robot_radius-pose[0]
+
+
 def _pose(text):
     values = [float(value) for value in text.split()] if text else []
     return (values+[0.]*6)[:6]
@@ -250,11 +278,14 @@ def _owned_motion_boundary(record, owner, current_goal, current_path, recovery,
 def assess(records, *, static_world_boxes=None,
            max_linear_speed_mps=DEFAULT_MAX_LINEAR_SPEED_MPS,
            decel_limit_mps2=DEFAULT_DECEL_LIMIT_MPS2,
-           robot_collision_radius_m=SIM_ROBOT_COLLISION_RADIUS_M):
+           robot_collision_radius_m=SIM_ROBOT_COLLISION_RADIUS_M,
+           front_laser_to_body_m=FRONT_LASER_TO_BODY_M):
     if max_linear_speed_mps <= 0. or decel_limit_mps2 <= 0.:
         raise ValueError('Nav2 max speed and deceleration must be positive')
     if not math.isfinite(robot_collision_radius_m) or robot_collision_radius_m <= 0.:
         raise ValueError('collision radius must be finite and positive')
+    if not math.isfinite(front_laser_to_body_m) or front_laser_to_body_m <= 0.:
+        raise ValueError('laser-to-front extent must be finite and positive')
     # Only a caller that has proved the trial contains no spawned/dynamic
     # obstacle may pass static_world_boxes.  Otherwise raw LiDAR limits apply.
     static_world_boxes = static_world_boxes or []
@@ -358,7 +389,7 @@ def assess(records, *, static_world_boxes=None,
         if core is not None:
             angle = waiting['entry_core_angle_deg'] or 0.
             projected = core*math.cos(math.radians(angle))
-            margin = projected-FRONT_LASER_TO_BODY_M-waiting['max_forward_m']
+            margin = projected-front_laser_to_body_m-waiting['max_forward_m']
             interval['estimated_front_body_clearance_m'] = round(margin, 4)
             if waiting['max_forward_m'] > .005 and margin < MIN_BODY_CLEARANCE_M:
                 isolated = (_isolated_static_outlier(waiting['start_t'],
@@ -571,7 +602,7 @@ def assess(records, *, static_world_boxes=None,
                        'decel_limit_mps2': decel_limit_mps2,
                        'truth_entry_bracket_max_s': TRUTH_ENTRY_BRACKET_MAX_S,
                        'ground_truth_heading_change_rad': STOP_HEADING_BOUND_RAD,
-                       'front_laser_to_body_m': FRONT_LASER_TO_BODY_M,
+                       'front_laser_to_body_m': front_laser_to_body_m,
                        'front_body_clearance_m': MIN_BODY_CLEARANCE_M,
                        'simulation_robot_collision_radius_m': robot_collision_radius_m,
                        'simulation_static_swept_clearance_m': SIM_STATIC_SWEEP_MARGIN_M},
@@ -598,13 +629,16 @@ def main():
                         default=DEFAULT_MAX_LINEAR_SPEED_MPS)
     parser.add_argument('--decel-limit-mps2', type=float,
                         default=DEFAULT_DECEL_LIMIT_MPS2)
+    parser.add_argument('--front-laser-to-body-m', type=float,
+                        default=FRONT_LASER_TO_BODY_M)
     args = parser.parse_args()
     records = [json.loads(line) for line in args.timeline.read_text().splitlines()
                if line.strip()]
     boxes = load_static_world_boxes(args.static_world) if args.static_world else None
     result = assess(records, static_world_boxes=boxes,
                     max_linear_speed_mps=args.max_linear_speed_mps,
-                    decel_limit_mps2=args.decel_limit_mps2)
+                    decel_limit_mps2=args.decel_limit_mps2,
+                    front_laser_to_body_m=args.front_laser_to_body_m)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n')
     print(json.dumps({'passed': result['passed'],
                       'missing_evidence': result['missing_evidence'],

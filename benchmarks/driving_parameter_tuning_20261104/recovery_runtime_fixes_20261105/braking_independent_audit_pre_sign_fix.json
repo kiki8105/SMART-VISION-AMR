@@ -1,0 +1,332 @@
+{
+  "scope": "Offline helper timing and independent wheel-curve sample audit; not physical brake calibration or closed-loop success.",
+  "benchmark": [
+    {
+      "case": "clear_parallel",
+      "count": 20,
+      "p95_ms": 0.7415528951241894,
+      "maximum_ms": 4.292441997677088,
+      "first_call_ms": 4.292441997677088,
+      "median_ms": 0.41043850069399923,
+      "scale": 0.86328125,
+      "returned_collision_indices": []
+    },
+    {
+      "case": "front_close",
+      "count": 20,
+      "p95_ms": 0.6618418996367867,
+      "maximum_ms": 4.885255002591293,
+      "first_call_ms": 4.885255002591293,
+      "median_ms": 0.3581214987207204,
+      "scale": 0.328125,
+      "returned_collision_indices": []
+    },
+    {
+      "case": "turn_inner_outer",
+      "count": 20,
+      "p95_ms": 0.6736027022270751,
+      "maximum_ms": 4.981067999324296,
+      "first_call_ms": 4.981067999324296,
+      "median_ms": 0.3563979989849031,
+      "scale": 0.5625,
+      "returned_collision_indices": []
+    },
+    {
+      "case": "dense_near_ring",
+      "count": 20,
+      "p95_ms": 0.8370731993636618,
+      "maximum_ms": 5.557455995585769,
+      "first_call_ms": 5.557455995585769,
+      "median_ms": 0.4011384990008082,
+      "scale": 0.0,
+      "returned_collision_indices": []
+    },
+    {
+      "case": "all_body_collision",
+      "count": 20,
+      "p95_ms": 0.746295645876673,
+      "maximum_ms": 3.108711003733333,
+      "first_call_ms": 3.108711003733333,
+      "median_ms": 0.38270000368356705,
+      "scale": 0.0,
+      "returned_collision_indices": [
+        0
+      ]
+    }
+  ],
+  "geometry": [
+    {
+      "v": 0.22,
+      "w": 0.35,
+      "dense_actual_center_deviation_m": 0.008639089465493252,
+      "reported_curve_bound_m": 0.009987713295867777,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 2.73165e-05
+    },
+    {
+      "v": 0.22,
+      "w": -0.35,
+      "dense_actual_center_deviation_m": 0.008639089465493252,
+      "reported_curve_bound_m": 0.009987713295867777,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 2.73165e-05
+    },
+    {
+      "v": -0.22,
+      "w": 0.35,
+      "dense_actual_center_deviation_m": 0.008639089465493252,
+      "reported_curve_bound_m": 0.009987713295867777,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 2.73165e-05
+    },
+    {
+      "v": -0.22,
+      "w": -0.35,
+      "dense_actual_center_deviation_m": 0.008639089465493252,
+      "reported_curve_bound_m": 0.009987713295867777,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 2.73165e-05
+    },
+    {
+      "v": 0.01,
+      "w": 0.5,
+      "dense_actual_center_deviation_m": 0.000189154115043848,
+      "reported_curve_bound_m": 0.0005979251781373343,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 2.5225e-06
+    },
+    {
+      "v": -0.01,
+      "w": 0.5,
+      "dense_actual_center_deviation_m": 0.000189154115043848,
+      "reported_curve_bound_m": 0.0005979251781373343,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 2.5225e-06
+    },
+    {
+      "v": 0.01,
+      "w": -0.5,
+      "dense_actual_center_deviation_m": 0.000189154115043848,
+      "reported_curve_bound_m": 0.0005979251781373343,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 2.5225e-06
+    },
+    {
+      "v": -0.01,
+      "w": -0.5,
+      "dense_actual_center_deviation_m": 0.000189154115043848,
+      "reported_curve_bound_m": 0.0005979251781373343,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 2.5225e-06
+    },
+    {
+      "v": 0.22,
+      "w": 0.0,
+      "dense_actual_center_deviation_m": 0.0,
+      "reported_curve_bound_m": 0.0,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 0.0
+    },
+    {
+      "v": -0.22,
+      "w": 0.0,
+      "dense_actual_center_deviation_m": 0.0,
+      "reported_curve_bound_m": 0.0,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 0.0
+    },
+    {
+      "v": 0.0,
+      "w": 0.5,
+      "dense_actual_center_deviation_m": 0.0,
+      "reported_curve_bound_m": 0.0,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 0.0
+    },
+    {
+      "v": 0.0,
+      "w": -0.5,
+      "dense_actual_center_deviation_m": 0.0,
+      "reported_curve_bound_m": 0.0,
+      "contained": true,
+      "numerical_arc_resolution_max_m": 0.0
+    }
+  ],
+  "cold_cache_benchmark": [
+    {
+      "case": "clear_parallel",
+      "count": 20,
+      "fresh_model_each_call": true,
+      "p95_ms": 6.1930012503580665,
+      "max_ms": 7.575407995318528,
+      "median_ms": 3.778205496928422,
+      "scale": 0.86328125
+    },
+    {
+      "case": "front_close",
+      "count": 20,
+      "fresh_model_each_call": true,
+      "p95_ms": 7.308737101266161,
+      "max_ms": 7.542895000369754,
+      "median_ms": 4.785965000337455,
+      "scale": 0.328125
+    },
+    {
+      "case": "turn_inner_outer",
+      "count": 20,
+      "fresh_model_each_call": true,
+      "p95_ms": 5.058228002599208,
+      "max_ms": 5.510428003617562,
+      "median_ms": 4.1211769967048895,
+      "scale": 0.5625
+    },
+    {
+      "case": "dense_near_ring",
+      "count": 20,
+      "fresh_model_each_call": true,
+      "p95_ms": 6.680856701495941,
+      "max_ms": 6.7057220003334805,
+      "median_ms": 5.470326999784447,
+      "scale": 0.0
+    },
+    {
+      "case": "all_body_collision",
+      "count": 20,
+      "fresh_model_each_call": true,
+      "p95_ms": 4.491682000298169,
+      "max_ms": 4.616188998625148,
+      "median_ms": 3.4317559984629042,
+      "scale": 0.0
+    }
+  ],
+  "schema_version": 1,
+  "motion_mux_sha256_pre_sign_fix": "5e94fc3f74738306583f5cc9932930ad19f6d83bbeff2138c28e3be81ef59c4c",
+  "braking_envelope_sha256_pre_sign_fix": "30fd448cafb8db09132d2336afbbd4c6c845a3ffe7f2a392afa02bfeadcd349f",
+  "benchmark_parameters": {
+    "body_radius_m": 0.22,
+    "wheel_separation_m": 0.287,
+    "wheel_brake_mps2": 0.15,
+    "reaction_s": 0.25,
+    "directional_stop_reserve_m": 0.02,
+    "requested_linear_mps": 0.22,
+    "requested_angular_rps": 0.35,
+    "cloud_size": 360,
+    "repetitions_per_placement": 20,
+    "unlisted_points": "360 equally spaced bearing endpoints at 2m; listed points replace the first indices",
+    "placements": {
+      "clear_parallel": [
+        [
+          0.1,
+          0.245
+        ],
+        [
+          0.15,
+          -0.245
+        ],
+        [
+          0.3,
+          0.245
+        ]
+      ],
+      "front_close": [
+        [
+          0.28,
+          0
+        ],
+        [
+          0.34,
+          0.1
+        ],
+        [
+          0.42,
+          -0.08
+        ]
+      ],
+      "turn_inner_outer": [
+        [
+          0.3,
+          0.13
+        ],
+        [
+          0.24,
+          0.23
+        ],
+        [
+          0.4,
+          -0.14
+        ]
+      ],
+      "dense_near_ring": "all 360 bearings at .225m",
+      "all_body_collision": [
+        [
+          0.12,
+          0
+        ]
+      ]
+    }
+  },
+  "curve_oracle_method": {
+    "independent_wheel_midpoint_integration_dt_s": 0.0002,
+    "constant_curvature_oracle_arc_samples": 10001,
+    "angular_and_linear_signs": "four sign combinations, low-speed turning/pivot and both straight signs",
+    "proof_limit": "Finite numerical samples at stated resolutions; this is an independent counterexample/sampled containment check, not a universal analytic proof."
+  },
+  "signed_feedback_counterexample": {
+    "classification": "P1: a one-sided magnitude extrapolation misses an allowed angular sign crossing",
+    "feedback": {
+      "linear_mps": 0.22,
+      "angular_rps": -0.01,
+      "source_age_s": 0.2,
+      "source_and_receipt_fresh": true
+    },
+    "assumed_output_acceleration_limits": {
+      "linear_mps2": 0.2,
+      "angular_rps2": 0.8
+    },
+    "actual_reachable_velocity_now": {
+      "linear_mps": 0.22,
+      "angular_rps": 0.15
+    },
+    "requested_target_now": [
+      0.22,
+      0.01
+    ],
+    "last_published_output": [
+      0.22,
+      0.15
+    ],
+    "raw_point_base_xy_m": [
+      0.18,
+      0.228
+    ],
+    "body_radius_m": 0.22,
+    "legacy_measured_bound": [
+      0.26,
+      -0.17
+    ],
+    "legacy_requested_brake_clearance_m": 0.005954341444912071,
+    "legacy_measured_bound_clearance_m": 0.009975989623917105,
+    "legacy_previous_command_half_second_raw_sweep_clearance_m": 0.014596089698456327,
+    "legacy_limit_accepts_scale": 1.0,
+    "actual_independent_wheel_stop": {
+      "wheel_brake_mps2": 0.15,
+      "reaction_s": 0.1,
+      "numerical_dt_s": 0.0001,
+      "minimum_body_gap_m": -0.006687802014761157,
+      "minimum_at_s": 1.71015,
+      "center_at_minimum": [
+        0.18399222994241252,
+        0.014725163440736311
+      ],
+      "heading_at_minimum_radians": 0.2349999999999327
+    },
+    "fix_required": "Bound the full signed delayed-velocity uncertainty, including yaw crossings; common v/w scaling alone does not establish that feedback bound.",
+    "fix_applied_in_this_artifact": false
+  },
+  "limitations": [
+    "No Gazebo, ROS publishers, real motor, physical brake calibration or physical-domain16 actions occurred.",
+    "Timing is one PC offline helper call; warm-cache results are not worst-case dynamic MUX callback costs. Cold-cache measurements recreate the model each call.",
+    "No old baseline/archive/report was overwritten.",
+    "This evidence describes the pre-sign-fix implementation only; a later corrected source needs separate verification."
+  ]
+}

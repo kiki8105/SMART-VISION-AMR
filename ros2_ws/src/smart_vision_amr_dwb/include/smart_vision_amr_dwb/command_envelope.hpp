@@ -11,15 +11,17 @@ namespace smart_vision_amr_dwb
 // pivots retain the configured DWB yaw range; Nav2 Spin is a separate action.
 // This rejects a curve instead of changing its curvature after scoring.
 inline bool movingTurnAllowed(
-  double linear_x, double linear_y, double yaw_rate, double moving_max_angular = 0.35)
+  double linear_x, double linear_y, double yaw_rate, double moving_max_angular = 0.35,
+  double measured_linear_speed = 0.0)
 {
   if (!std::isfinite(linear_x) || !std::isfinite(linear_y) ||
     !std::isfinite(yaw_rate) || !std::isfinite(moving_max_angular) ||
+    !std::isfinite(measured_linear_speed) ||
     moving_max_angular <= 0.0)
   {
     return false;
   }
-  return std::hypot(linear_x, linear_y) <= 0.01 + 1.e-9 ||
+  return std::max(std::hypot(linear_x, linear_y), std::abs(measured_linear_speed)) <= 0.01 + 1.e-9 ||
          std::abs(yaw_rate) <= moving_max_angular + 1.e-9;
 }
 

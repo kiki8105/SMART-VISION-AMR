@@ -1,0 +1,40 @@
+{
+  "provenance": "Summaries of exact targeted command outcomes visible in the agent tool transcript. Original intermediate terminal streams were not separately retained on disk; these are summaries, not fabricated raw logs. Final JUnit XML is preserved separately.",
+  "outcomes": [
+    {
+      "tests": "existing mux/guard/brake/service",
+      "passed": 110,
+      "failed": 2,
+      "reason": "Expected metrics omitted newly certified 50ms compute advance; pivot fixture used 50ms-old feedback rather than truly fresh stationary feedback. Fixtures updated explicitly; no physical threshold changed."
+    },
+    {
+      "tests": "new delivery plus existing",
+      "passed": 119,
+      "failed": 3,
+      "reason": "New test producer offered BEST_EFFORT /tf to the installed reliable TransformListener. TF absent, production correctly stayed WAIT_SCAN. Fixture now uses reliable /tf."
+    },
+    {
+      "tests": "delivery-only",
+      "passed": 9,
+      "failed": 1,
+      "reason": "Real busy geometry exposed an older AUTO heartbeat blocking the control group ahead of HOLD. Production changed to coalesce redundant AUTO and later retain actual mode transitions in the age-preserving mailbox."
+    },
+    {
+      "tests": "delivery-only",
+      "passed": 9,
+      "failed": 1,
+      "reason": "20Hz test /clock advanced by >50ms between source ticks while guard was running, correctly invalidating a 50ms proof. Producer now has 100Hz /clock, still20Hz odom/TF/nav and10Hz scan/health/control; bound was not enlarged."
+    },
+    {
+      "tests": "six-file combined",
+      "passed": 135,
+      "failed": 0,
+      "note": "Cancelled test timer was destroyed before executor drain, causing a teardown warning. Final test-only cleanup cancels it and destroys node only after executor shutdown; exact final23 delivery tests then passed without warning."
+    }
+  ],
+  "review_caught_before_freeze": [
+    "Preserve first real busy HOLD/manual->AUTO transition rather than drop it as a redundant heartbeat.",
+    "Newer admitted different AUTO source must supersede older deferred source.",
+    "Prevalidated packets only in deferred mailbox; invalid/replayed/retired noise cannot overwrite a valid pending transition."
+  ]
+}

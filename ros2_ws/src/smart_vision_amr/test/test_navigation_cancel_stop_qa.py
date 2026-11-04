@@ -76,6 +76,49 @@ def test_fast_zero_does_not_hide_inertial_travel():
     assert 'excessive_ground_truth_stopping_distance' in kinds(result)
 
 
+def test_circular_fixture_does_not_reuse_stock_short_front_clearance():
+    trace = records()
+    scan = next(item for item in trace if item['kind'] == 'scan')
+    scan['front_min_m'] = scan['front_core_min_m'] = .30
+    assert qa.assess(trace)['passed']  # Original stock front extent is 13.2 cm.
+    circle = qa.assess(trace, robot_collision_radius_m=.22,
+                       front_laser_to_body_m=.22-(-.064))
+    assert 'insufficient_front_stopping_clearance' in kinds(circle)
+    assert circle['bounds']['front_laser_to_body_m'] == pytest.approx(.284)
+    interval, = circle['wait_replan_intervals']
+    assert interval['estimated_front_body_clearance_m'] < .02
+
+
+def test_circle_front_witness_uses_fixture_sensor_pose_and_rejects_unresolved_frame(tmp_path):
+    model = tmp_path/'circle.sdf'
+    model.write_text('''<sdf><model name="test"><link name="base_scan">
+      <sensor name="laser" type="ray"><pose>-0.064 0 0.121 0 0 0</pose></sensor>
+      </link></model></sdf>''')
+    assert qa.centered_circle_front_extent(model, .22) == pytest.approx(.284)
+    model.write_text(model.read_text().replace('<pose>', '<pose relative_to="unknown">'))
+    with pytest.raises(ValueError, match='explicit frame'):
+        qa.centered_circle_front_extent(model, .22)
+
+
+@pytest.mark.parametrize('tilt', ['0.1 0 0', '0 0.1 0'])
+def test_circle_front_witness_rejects_tilt_before_planar_composition(tmp_path, tilt):
+    model = tmp_path/'tilted.sdf'
+    model.write_text(f'''<sdf><model><link name="scan"><pose>0 0 0 {tilt}</pose>
+      <sensor type="ray"><pose>-0.064 0 0.121 0 0 0</pose></sensor>
+      </link></model></sdf>''')
+    with pytest.raises(ValueError, match='three-dimensional'):
+        qa.centered_circle_front_extent(model, .22)
+
+
+def test_circle_front_witness_rejects_two_ray_sensors_in_one_link(tmp_path):
+    model = tmp_path/'ambiguous.sdf'
+    model.write_text('''<sdf><model><link name="scan">
+      <sensor name="a" type="ray"/><sensor name="b" type="ray"/>
+      </link></model></sdf>''')
+    with pytest.raises(ValueError, match='One known ray sensor'):
+        qa.centered_circle_front_extent(model, .22)
+
+
 def test_action_terminal_alone_cannot_end_physical_stop_interval():
     result = qa.assess(records(nav(1.2, 'FAILED'),
         {'t': 1.8, 'kind': 'truth', 'x': .14, 'y': 0., 'yaw': 0.}))

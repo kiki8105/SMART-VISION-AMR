@@ -573,7 +573,8 @@ def test_cached_interpolated_pose_preserves_future_lead_plus_receipt_elapsed():
         assert metrics['pose_age_seconds'] == .1
         assert metrics['future_lead_seconds'] == .095
         assert abs(metrics['pose_uncertainty_seconds']-.195) < 1.e-12
-        assert abs(metrics['longitudinal_uncertainty_m']-node.core.max_linear_velocity*.195) < 1.e-12
+        assert abs(metrics['longitudinal_uncertainty_m']-
+                   node.core.max_linear_velocity*(.195+node.GUARD_COMPUTE_BUDGET)) < 1.e-12
         assert node._scan_guard_pose_cache == initial_cache
     node._ros_now += 150_000_000
     with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=100.25):

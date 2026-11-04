@@ -1,0 +1,41 @@
+{
+  "python": {
+    "passed": 3014,
+    "failed": 0,
+    "seconds": 165.88
+  },
+  "cpp": {
+    "tests": "17",
+    "failures": "0",
+    "disabled": "0",
+    "errors": "0",
+    "time": "0.001",
+    "timestamp": "2026-11-05T07:52:14",
+    "name": "AllTests"
+  },
+  "build": {
+    "packages_passed": 2,
+    "seconds": 2.94
+  },
+  "static_deployment_passed": true,
+  "logs": {
+    "pytest": {
+      "archive": "pytest_final.log.gz",
+      "original_sha256": "e110dca74e26d952b914d3afaf474d2acebacb6a28d7abec25a85445c0c5a830"
+    },
+    "build": {
+      "archive": "build_final.log.gz",
+      "original_sha256": "822cb9de80d6e3a0de9479b32bdc91c30c176f925606970df816855525e943b0"
+    },
+    "ctest": {
+      "archive": "ctest_final.log.gz",
+      "original_sha256": "1a472240122762f85d0450723a657f33660fe11966b2376c1184404e24b9c6c4"
+    },
+    "deployment": {
+      "archive": "deployment_final.log.gz",
+      "original_sha256": "2d2536831d661298d58b4840578e628fe0c676891ac5bf249a777a8cfe6c1d9a"
+    }
+  },
+  "physical_drive": false,
+  "closed_loop_verdict": "not yet included"
+}

@@ -1,0 +1,73 @@
+{
+  "source_before": "f798d92f2df139f9f7ee23736a1e18de12d21869d84163b3f17ca3f017738acd",
+  "source_after": "f798d92f2df139f9f7ee23736a1e18de12d21869d84163b3f17ca3f017738acd",
+  "pre_fix_mux_sha256": "71a6d85354d2954f4b5e3a44c06f9cb0aa1454cd5dfc5525006210586f8a6049",
+  "pre_fix_original_counterexample": {
+    "latest_pending_point": [
+      0.4,
+      0.0
+    ],
+    "old_validated_scan": "all infinity",
+    "requested": [
+      0.22,
+      0.0
+    ],
+    "measured": [
+      0.22,
+      0.0
+    ],
+    "code": "CLEAR",
+    "published": [
+      0.22,
+      0.0
+    ],
+    "cap_scale": 1.0
+  },
+  "post_fix_actual_callbacks": [
+    {
+      "measured_linear": 0.0,
+      "published": [
+        0.184765625,
+        0.0
+      ],
+      "code": "CLEAR",
+      "cap_scale": 0.83984375,
+      "source_stamp_unchanged": true,
+      "first_receipt_unchanged": true,
+      "acquisition_tf_claimed": false
+    },
+    {
+      "measured_linear": 0.22,
+      "published": [
+        0.0,
+        0.0
+      ],
+      "code": "BRAKING_INTERSECTION",
+      "cap_scale": 0.83984375,
+      "source_stamp_unchanged": true,
+      "first_receipt_unchanged": true,
+      "acquisition_tf_claimed": false
+    }
+  ],
+  "startup_no_measured_odom": {
+    "code": "BRAKING_FEEDBACK_UNAVAILABLE",
+    "published": [
+      0.0,
+      0.0
+    ]
+  },
+  "manual_without_measured_odom": {
+    "published": [
+      0.1,
+      0.0
+    ],
+    "existing_control_lease_accepted": true
+  },
+  "invalid_acquisition_geometry_code": "POSE_UNAVAILABLE",
+  "scope": "Actual MUX callback using original source/receipt packet semantics and mocked TF/outputs; no ROS context or physical/Gazebo operation.",
+  "review": "Combined raw clouds and containing max uncertainty select one common v/w scale; actual ramp output is checked again against that same cloud. Source and first receipt are not refreshed.",
+  "limitations": [
+    "Union uncertainty conservatively applies the larger motion interval to both clouds; may reduce speed more than separate exact transforms.",
+    "No full MUX callback load/performance or Gazebo closed-loop timing was measured in this audit."
+  ]
+}

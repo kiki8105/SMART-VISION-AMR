@@ -1,0 +1,183 @@
+{
+  "scope": "Frozen open-loop actual captured input; original critic history unavailable; intermediate costmap costs re-quantized by StaticLayer; no closed-loop success claim",
+  "at_ros_seconds": 62.68,
+  "source_archive": "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/final_stress_permuted/12_web_integrated_stress_permuted/incidents/incident_20261104T191506_276979Z_c959640d/events.jsonl.gz",
+  "source_sha256": "ad4b9aa52dd6e560498ea82a97ac52d1f7337fca3ac0ef642dee6461d180b47d",
+  "fixture_sha256": "6f24acac2f48d9d427ab260d8deca4678142eebc313f2ff3f89ce400c15512b5",
+  "received_ros_seconds": {
+    "/scan": 62.58,
+    "/odom": 62.66,
+    "/speed_limit": 62.58,
+    "/local_costmap/costmap": 62.18,
+    "/smart_vision_amr/path": 62.36
+  },
+  "path_count": 82,
+  "transforms": {
+    "('base_link', 'wheel_left_link')": {
+      "received_ros_seconds": 62.68,
+      "data": {
+        "transforms": [
+          {
+            "header": {
+              "stamp": {
+                "sec": 62,
+                "nanosec": 687000000
+              },
+              "frame_id": "base_link"
+            },
+            "child_frame_id": "wheel_left_link",
+            "transform": {
+              "translation": {
+                "x": 0.0,
+                "y": 0.144,
+                "z": 0.023
+              },
+              "rotation": {
+                "x": -0.5309457877007608,
+                "y": -0.4665816189772719,
+                "z": -0.46695331843923277,
+                "w": 0.5313687624935768
+              }
+            }
+          },
+          {
+            "header": {
+              "stamp": {
+                "sec": 62,
+                "nanosec": 687000000
+              },
+              "frame_id": "base_link"
+            },
+            "child_frame_id": "wheel_right_link",
+            "transform": {
+              "translation": {
+                "x": 0.0,
+                "y": -0.144,
+                "z": 0.023
+              },
+              "rotation": {
+                "x": -0.7067913272377503,
+                "y": -0.006917831028057894,
+                "z": -0.006923342076857248,
+                "w": 0.7073543883301026
+              }
+            }
+          }
+        ]
+      }
+    },
+    "('base_link', 'wheel_right_link')": {
+      "received_ros_seconds": 62.68,
+      "data": {
+        "transforms": [
+          {
+            "header": {
+              "stamp": {
+                "sec": 62,
+                "nanosec": 687000000
+              },
+              "frame_id": "base_link"
+            },
+            "child_frame_id": "wheel_left_link",
+            "transform": {
+              "translation": {
+                "x": 0.0,
+                "y": 0.144,
+                "z": 0.023
+              },
+              "rotation": {
+                "x": -0.5309457877007608,
+                "y": -0.4665816189772719,
+                "z": -0.46695331843923277,
+                "w": 0.5313687624935768
+              }
+            }
+          },
+          {
+            "header": {
+              "stamp": {
+                "sec": 62,
+                "nanosec": 687000000
+              },
+              "frame_id": "base_link"
+            },
+            "child_frame_id": "wheel_right_link",
+            "transform": {
+              "translation": {
+                "x": 0.0,
+                "y": -0.144,
+                "z": 0.023
+              },
+              "rotation": {
+                "x": -0.7067913272377503,
+                "y": -0.006917831028057894,
+                "z": -0.006923342076857248,
+                "w": 0.7073543883301026
+              }
+            }
+          }
+        ]
+      }
+    },
+    "('map', 'odom')": {
+      "received_ros_seconds": 62.5,
+      "data": {
+        "transforms": [
+          {
+            "header": {
+              "stamp": {
+                "sec": 63,
+                "nanosec": 477000000
+              },
+              "frame_id": "map"
+            },
+            "child_frame_id": "odom",
+            "transform": {
+              "translation": {
+                "x": -0.24445641566251022,
+                "y": -0.23251267281173268,
+                "z": -0.0
+              },
+              "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -0.0019642562325651995,
+                "w": 0.9999980708468655
+              }
+            }
+          }
+        ]
+      }
+    },
+    "('odom', 'base_footprint')": {
+      "received_ros_seconds": 62.66,
+      "data": {
+        "transforms": [
+          {
+            "header": {
+              "stamp": {
+                "sec": 62,
+                "nanosec": 652000000
+              },
+              "frame_id": "odom"
+            },
+            "child_frame_id": "base_footprint",
+            "transform": {
+              "translation": {
+                "x": 0.31513769462191116,
+                "y": -0.772459739737967,
+                "z": 0.0
+              },
+              "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -0.271692675579221,
+                "w": 0.9623840657640816
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

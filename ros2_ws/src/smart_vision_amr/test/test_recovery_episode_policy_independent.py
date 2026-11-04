@@ -77,6 +77,10 @@ def probes(node, *, no_global_route=False):
     node.plan_to=Mock(side_effect=global_plan)
     if no_global_route:
         node.planner.plan=Mock(return_value=[])
+        # Both graph and the new continuous connector represent controlled
+        # planning availability here; no stop/collision/authority gate is
+        # approved by this rejection-only coordinator fixture.
+        node._try_metric_connector=Mock(return_value=False)
     return events
 
 

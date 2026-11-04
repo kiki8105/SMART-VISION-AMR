@@ -1,0 +1,158 @@
+{
+  "scope": "Actual isolated Nav2 DWB; two seconds each; same captured input/current dynamics; route_adherence_scale only 0 vs32. Not closed-loop success. Original historical winning candidate/state not reproduced.",
+  "domain": 186,
+  "loopback_only": true,
+  "output_topic": "/replay/controller_cmd_vel",
+  "input_ros_time_seconds": 62.68,
+  "static_layer": "original captured OccupancyGrid lethal and unknown preserved; intermediate costs re-quantized",
+  "critic_history": "not captured; newly initialized critic state",
+  "sources": {
+    "ros2_ws/src/smart_vision_amr_dwb/src/route_tracking_dwb.cpp": "04464264bb634def4717f74f8f815dd760fba2c210dbb8678bfa405213153add",
+    "ros2_ws/src/smart_vision_amr_dwb/include/smart_vision_amr_dwb/route_adherence.hpp": "1b98858b1a227e36dac2c8289d8e11b6700d85a2d94659c9c8e80d15e704781a",
+    "benchmarks/controller_footprint_soft_cost_ab_20261104/replay_captured_costmap.py": "e2626f989d07b8141241a2433573ee71f35d84e7bb35e0611741ab0919882432"
+  },
+  "plugin_binary_sha256": "d125eaca4e02b29610263766b2529234763b5ef8fd16fa5c9f7f5e19bcf59398",
+  "runs": [
+    {
+      "adherence_scale": 0,
+      "evaluation_count": 5,
+      "command_count": 5,
+      "winner": {
+        "velocity": {
+          "x": 0.15052631578947367,
+          "y": 0.0,
+          "theta": 0.06410256410256421
+        },
+        "total": 9.051000595092773,
+        "scores": [
+          {
+            "name": "RotateToGoal",
+            "raw_score": 0.0,
+            "scale": 32.0
+          },
+          {
+            "name": "Oscillation",
+            "raw_score": 0.0,
+            "scale": 1.0
+          },
+          {
+            "name": "BaseObstacle",
+            "raw_score": 0.0,
+            "scale": 0.019999999552965164
+          },
+          {
+            "name": "ObstacleFootprint",
+            "raw_score": 251.0,
+            "scale": 0.0010000000474974513
+          },
+          {
+            "name": "GoalAlign",
+            "raw_score": 6.0,
+            "scale": 0.6000000238418579
+          },
+          {
+            "name": "PathAlign",
+            "raw_score": 1.0,
+            "scale": 0.800000011920929
+          },
+          {
+            "name": "PathDist",
+            "raw_score": 1.0,
+            "scale": 0.800000011920929
+          },
+          {
+            "name": "GoalDist",
+            "raw_score": 6.0,
+            "scale": 0.6000000238418579
+          }
+        ],
+        "end_pose": {
+          "x": 0.55159171564999,
+          "y": -0.89836893707922,
+          "theta": -0.42209773530576866
+        }
+      },
+      "valid": 257,
+      "forward_valid": 134,
+      "rejected": {
+        "CommandEnvelope": 452,
+        "ObstacleFootprint": 89
+      },
+      "parameter_sha256": "fbb4c33e7e1537b221ba5e184baaeeba0f433d475e4e18605394ada5deaee4e1",
+      "input_sha256": "d55e558aa847fc8f4aab7898aba067108b8b09dd83e74bdc1bcaeea3266476ed"
+    },
+    {
+      "adherence_scale": 32,
+      "evaluation_count": 5,
+      "command_count": 5,
+      "winner": {
+        "velocity": {
+          "x": 0.11578947368421051,
+          "y": 0.0,
+          "theta": 0.217948717948718
+        },
+        "total": 10.331428527832031,
+        "scores": [
+          {
+            "name": "RotateToGoal",
+            "raw_score": 0.0,
+            "scale": 32.0
+          },
+          {
+            "name": "Oscillation",
+            "raw_score": 0.0,
+            "scale": 1.0
+          },
+          {
+            "name": "BaseObstacle",
+            "raw_score": 0.0,
+            "scale": 0.019999999552965164
+          },
+          {
+            "name": "ObstacleFootprint",
+            "raw_score": 251.0,
+            "scale": 0.0010000000474974513
+          },
+          {
+            "name": "GoalAlign",
+            "raw_score": 7.0,
+            "scale": 0.6000000238418579
+          },
+          {
+            "name": "PathAlign",
+            "raw_score": 0.0,
+            "scale": 0.800000011920929
+          },
+          {
+            "name": "PathDist",
+            "raw_score": 0.0,
+            "scale": 0.800000011920929
+          },
+          {
+            "name": "GoalDist",
+            "raw_score": 8.0,
+            "scale": 0.6000000238418579
+          },
+          {
+            "name": "RouteAdherence",
+            "raw_score": 0.033763378858566284,
+            "scale": 32.0
+          }
+        ],
+        "end_pose": {
+          "x": 0.5129295273037187,
+          "y": -0.8412250398539172,
+          "theta": -0.12234756817522725
+        }
+      },
+      "valid": 257,
+      "forward_valid": 134,
+      "rejected": {
+        "CommandEnvelope": 452,
+        "ObstacleFootprint": 89
+      },
+      "parameter_sha256": "32870837966dea52a97d5ced47d023fd4e4869cf556c0e5865d3243fe064c9c3",
+      "input_sha256": "d55e558aa847fc8f4aab7898aba067108b8b09dd83e74bdc1bcaeea3266476ed"
+    }
+  ]
+}

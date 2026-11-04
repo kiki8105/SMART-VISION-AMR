@@ -12,6 +12,7 @@ from smart_vision_amr.reverse_recovery import GridGeometry
 from smart_vision_amr.web_mission_server import load_saved_map
 from test_planner_failure_memory import prepared, refresh, failure_event, path_points
 from test_planner_obstacle_hold import failure_edge_corridor, ready, PHYSICAL_HITS
+from test_local_detour_planner import segment_box_clearance
 
 
 def test_recorded_side_wall_mismatch_does_not_close_only_sector2_aisle(prepared):
@@ -90,8 +91,53 @@ def test_unmatched_raw_hit_inside_actual_attempted_capsule_stays_hard(prepared, 
     node.on_execution_failure(failure_event(
         node, pose={'x': .55, 'y': 1.55, 'yaw': yaw}, segment=segment))
     assert node.plan_metrics['failure_edge_fallback'] is False
-    assert node.recovery_coordinator.current.phase is RecoveryPhase.STOP_PROOF
-    assert node.plan_metrics['failure_class'] == 'obstacle'
+    raw_hit = (.55+.30*cos(yaw), 1.55+.30*sin(yaw))
+    cell = (int(raw_hit[0]/.1), int(raw_hit[1]/.1))
+    assert cell in node.recovery_coordinator.current.blockers
+    phase = node.recovery_coordinator.current.phase
+    assert phase in (RecoveryPhase.LOCAL, RecoveryPhase.STOP_PROOF, RecoveryPhase.FOLLOW)
+    if phase is RecoveryPhase.LOCAL:
+        # A metric candidate can finish inside the bounded search on a fast
+        # host. Missing independent projection must retain LOCAL+zero path,
+        # rather than pretending that its raw-only obstacle disappeared.
+        assert node.metric_connector_input_pending
+        assert node.failure_state == 'SENSOR_HOLD'
+        assert not node.planned_world_points
+        assert node.plan_metrics['start_prefix_validation']['input_pending']
+    assert not node.controller_pending_retry_events
+    assert not node.controller_retry_events
+
+    # Supply a genuinely newer source and its separately received projection,
+    # preserving the original .30m hit and exact acquisition orientation.
+    # This must resolve input waiting, not count a permanent hold as success.
+    raw = copy.deepcopy(node.latest_scan)
+    node.clock.update(steady=100.1, ros=100.1)
+    raw.header.stamp = node.get_clock().now().to_msg()
+    node.tf_buffer.lookup_transform.return_value.header.stamp = raw.header.stamp
+    node.on_scan(raw)
+    projected = copy.deepcopy(node.map[0])
+    projected.header.stamp = raw.header.stamp
+    projected.data = [0]*(projected.info.width*projected.info.height)
+    projected.data[cell[1]*projected.info.width+cell[0]] = 100
+    node.on_visibility(projected)
+    node.retry_transform()
+    assert node.recovery_coordinator.current.phase in (
+        RecoveryPhase.STOP_PROOF, RecoveryPhase.FOLLOW)
+    assert not node.metric_connector_input_pending
+    assert cell in node.recovery_coordinator.current.blockers
+    if node.planned_world_points:
+        # Independent complete published-polyline/circle oracle: a valid
+        # local bypass is allowed; a route through the original hit is not.
+        required = node.params['robot_radius']
+        square = (cell[0]*.1, cell[1]*.1, (cell[0]+1)*.1, (cell[1]+1)*.1)
+        for a, b in zip(node.planned_world_points, node.planned_world_points[1:]):
+            dx, dy = b[0]-a[0], b[1]-a[1]
+            length_sq = dx*dx+dy*dy
+            t = max(0., min(1., ((raw_hit[0]-a[0])*dx+(raw_hit[1]-a[1])*dy)/length_sq)) if length_sq else 0.
+            assert hypot(raw_hit[0]-a[0]-t*dx, raw_hit[1]-a[1]-t*dy) >= required-1.e-9
+            assert segment_box_clearance(a, b, square) >= required-1.e-9
+    else:
+        assert node.recovery_coordinator.current.phase is RecoveryPhase.STOP_PROOF
     assert not node.controller_pending_retry_events
     assert not node.controller_retry_events
 

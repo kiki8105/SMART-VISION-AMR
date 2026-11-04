@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "scope": "Independent original full-square geometry reassessment only; no new path search, ROS/Gazebo, actuator or physical trial.",
+  "immutable_inputs": {
+    "fixture": "benchmarks/driving_parameter_tuning_20261104/metric_connector_recorded_20261105/stress_first_no_path.json",
+    "fixture_sha256_before": "8ce32109b4f04517d647e45e323c0fa152622b7228042061e282076bccb0e189",
+    "fixture_sha256_after": "8ce32109b4f04517d647e45e323c0fa152622b7228042061e282076bccb0e189",
+    "recorded_timeline_sha256": "02362274ada5e83eff43e6037f836dd21e56894296ecfb3ee55d9b18b9723514",
+    "map_yaml": "ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.yaml",
+    "map_yaml_sha256": "16a419cd5a9c499efb9e5af2f77b6b54c100d3df67c3ec6486b238ca968433b9",
+    "map_image_sha256": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+    "independent_segment_oracle": "ros2_ws/src/smart_vision_amr/test/body_geometry_oracle.py",
+    "independent_segment_oracle_sha256": "fe2f94d2c4c3125d4860f3b34f7362229a8e4009b00af211c5ab101a864bd8f9"
+  },
+  "raw_geometry": {
+    "width": 86,
+    "height": 140,
+    "resolution_m": 0.05,
+    "origin": [
+      -1.65,
+      -5.25
+    ],
+    "raw_static_or_unknown_count": 8112,
+    "observed_count": 8,
+    "remembered_count": 16,
+    "union_count": 8128,
+    "no_cells_deleted": true,
+    "body_radius_m": 0.22
+  },
+  "pose_map": [
+    0.3588387444919754,
+    -1.1837927548023606,
+    -0.7422773331592574
+  ],
+  "nearest_original_square": {
+    "cell": [
+      38,
+      76
+    ],
+    "layer": "static_or_unknown",
+    "lower_world_m": [
+      0.2500000000000002,
+      -1.4499999999999997
+    ],
+    "upper_world_m": [
+      0.3000000000000002,
+      -1.3999999999999997
+    ],
+    "center_distance_m": 0.22407045929649894,
+    "body_gap_m": 0.004070459296498935,
+    "body_overlap": false
+  },
+  "incorrect_previous_infinite_wall_top_interpretation": {
+    "assumed_infinite_y_top": -1.4,
+    "incorrect_signed_gap_m": -0.0037927548023606594,
+    "why_wrong": "The robot x lies beyond the finite wall-square right edge x=.30. The nearest feature is the corner(.30,-1.40); using only y treats the finite square as an infinite wall."
+  },
+  "independent_continuous_segments": [
+    {
+      "segment": "original_start_to_nearest_lattice",
+      "start_world_m": [
+        0.3588387444919754,
+        -1.1837927548023606
+      ],
+      "end_world_m": [
+        0.355,
+        -1.1849999999999996
+      ],
+      "minimum_center_to_any_full_occupied_square_m": 0.2219234102117215,
+      "minimum_body_gap_m": 0.001923410211721488,
+      "overlaps_body22": false
+    },
+    {
+      "segment": "one_centimeter_right_edge",
+      "start_world_m": [
+        0.355,
+        -1.1849999999999996
+      ],
+      "end_world_m": [
+        0.365,
+        -1.1849999999999996
+      ],
+      "minimum_center_to_any_full_occupied_square_m": 0.2219234102117215,
+      "minimum_body_gap_m": 0.001923410211721488,
+      "overlaps_body22": false
+    }
+  ],
+  "lipschitz_reserve_counterexample": {
+    "spacing_m": 0.01,
+    "axis_edge_quarter_reserve_m": 0.0025,
+    "nearest_lattice_center_clearance_m": 0.2219234102117215,
+    "nearest_lattice_body_gap_m": 0.001923410211721488,
+    "old_sampled_axis_edge_guard_requires_clearance_m": 0.2225,
+    "old_guard_rejects": true,
+    "full_segment_exactly_body_clear": true
+  },
+  "limits": [
+    "The DDS obstacle observers are not an exact internal planner callback snapshot; their source times and original contents are preserved in the input.",
+    "This proves the listed start/first-edge segments clear the original occupied-square union at radius22cm. It does not certify a complete mission path, current raw LaserScan, collision-free Spin or actual world truth.",
+    "The minimum listed gap is about1.9mm and does not meet a2cm physical-obstacle QA gap or5cm static wait witness. This corrects the body-overlap claim; it is not a safety-QA PASS."
+  ]
+}
