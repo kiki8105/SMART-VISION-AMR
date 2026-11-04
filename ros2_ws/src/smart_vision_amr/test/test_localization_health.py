@@ -315,14 +315,19 @@ def test_sensor_or_pose_fault_keeps_fast_latch(fault, expected):
     assert expected in latched['reasons']
 
 
-def test_short_dynamic_obstruction_does_not_latch_but_sustained_disagreement_does():
-    core = armed()
-    blocked = healthy(scan_map_agreement=0.1)
-    core.evaluate(2.0, blocked)
-    assert core.evaluate(3.0, blocked)['level'] == 'warning'
-    assert core.evaluate(3.1, healthy())['level'] == 'ok'
-    core.evaluate(4.0, blocked)
-    assert core.evaluate(7.1, blocked)['level'] == 'critical'
+def test_even_zero_finite_scan_map_match_is_advisory_without_waiving_live_inputs():
+    core = LocalizationHealthCore(stable_seconds=1.0)
+    blocked = healthy(scan_map_agreement=0.0)
+    assert not core.evaluate(0.0, blocked)['autonomous_allowed']
+    ready = core.evaluate(1.1, blocked)
+    assert ready['level'] == 'ok' and ready['autonomous_allowed']
+    assert ready['advisories'] == ['scan_map_disagreement']
+    assert not core.evaluate(7.1, blocked)['stop_latched']
+    low = core.evaluate(7.2, healthy(scan_map_agreement=0.4))
+    assert low['advisories'] == ['scan_map_agreement_low']
+    stale = core.evaluate(7.3, healthy(scan_age_seconds=2.0))
+    assert not stale['autonomous_allowed']
+    assert 'scan_unavailable' in stale['reasons']
 
 
 def test_unchanged_amcl_epoch_expires_after_moving_time_even_with_fresh_age_metrics():
@@ -479,12 +484,21 @@ def test_testbed_0446m_amcl_uncertainty_acquires_without_bypassing_critical_limi
 
 def test_position_over_testbed_acquisition_limit_and_other_warnings_still_wait():
     for sample in (healthy(position_std_m=.501),
-                   healthy(position_std_m=.446, yaw_std_rad=.6),
-                   healthy(position_std_m=.446, scan_map_agreement=.4)):
+                   healthy(position_std_m=.446, yaw_std_rad=.6)):
         core = LocalizationHealthCore()
         core.evaluate(0., sample)
         status = core.evaluate(2.01, sample)
         assert not status['autonomous_allowed'] and not core.acquired
+
+
+def test_bounded_position_warning_can_acquire_with_low_finite_scan_map_match():
+    core = LocalizationHealthCore()
+    sample = healthy(position_std_m=.446, scan_map_agreement=.4)
+    core.evaluate(0., sample)
+    status = core.evaluate(2.01, sample)
+    assert status['autonomous_allowed'] and core.acquired
+    assert status['level'] == 'warning'
+    assert status['advisories'] == ['scan_map_agreement_low']
 
 
 def odom():

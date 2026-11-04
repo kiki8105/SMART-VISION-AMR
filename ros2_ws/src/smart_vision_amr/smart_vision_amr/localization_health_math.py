@@ -24,8 +24,7 @@ class LocalizationHealthCore:
     """
 
     def __init__(self, *, stable_seconds=2.0, fault_seconds=0.5,
-                 spatial_fault_seconds=1.25,
-                 agreement_fault_seconds=3.0, sensor_timeout=0.5,
+                 spatial_fault_seconds=1.25, sensor_timeout=0.5,
                  tf_timeout=1.0, future_tolerance=1.5,
                  position_warning=0.35, position_acquisition_limit=0.50,
                  position_critical=0.8,
@@ -35,7 +34,6 @@ class LocalizationHealthCore:
                  motion_dt_limit=1.0,
                  mapping_mode=False):
         values = (stable_seconds, fault_seconds, spatial_fault_seconds,
-                  agreement_fault_seconds,
                   sensor_timeout, tf_timeout, position_warning,
                   position_acquisition_limit,
                   position_critical, yaw_warning, yaw_critical, amcl_moving_timeout,
@@ -53,7 +51,6 @@ class LocalizationHealthCore:
         # They still block motion on the first bad tick; only the irreversible
         # stop latch waits longer. Sensor loss and pose jumps keep fault_seconds.
         self.spatial_fault_seconds = spatial_fault_seconds
-        self.agreement_fault_seconds = agreement_fault_seconds
         self.sensor_timeout = sensor_timeout
         self.tf_timeout = tf_timeout
         self.future_tolerance = future_tolerance
@@ -114,7 +111,7 @@ class LocalizationHealthCore:
         # the accumulated budget; repeated short stop/go pulses still expire.
         self.amcl_motion_without_update_seconds += dt*(int(self.previous_moving)+int(moving))/2.0
         self.last_motion_evaluation, self.previous_moving = now, moving
-        warning, critical = [], []
+        warning, critical, advisories = [], [], []
         sensor_ok = True
         for name in ('scan', 'odom'):
             age = metrics.get(f'{name}_age_seconds')
@@ -205,9 +202,13 @@ class LocalizationHealthCore:
                     or not -.25 <= agreement_header_age <= 2.0*self.sensor_timeout))):
             critical.append('scan_map_check_unavailable')
         elif score < self.agreement_critical:
-            critical.append('scan_map_disagreement')
+            # Movable classroom fixtures and temporary obstacles can make the
+            # saved-wall hit ratio arbitrarily low even with a valid AMCL pose.
+            # Keep the measurement visible, but let independent map identity,
+            # sensor freshness, TF, and covariance checks decide motion.
+            advisories.append('scan_map_disagreement')
         elif score < self.agreement_warning:
-            warning.append('scan_map_agreement_low')
+            advisories.append('scan_map_agreement_low')
 
         critical = sorted(set(critical))
         for reason in list(self.fault_since):
@@ -218,7 +219,7 @@ class LocalizationHealthCore:
         # Testbed bootstrap may accept a measured, moderately uncertain pose.
         # Keep its warning active so motion_mux limits speed to half. Any
         # missing/stale sensor, TF, map check, or yaw warning still prevents
-        # initial acquisition.
+        # initial acquisition. A low finite match score is diagnostic only.
         bounded_position_warning = (
             not self.acquired and warning == ['position_std_m_elevated']
             and metrics.get('position_std_m', math.inf) <= self.position_acquisition_limit)
@@ -233,8 +234,7 @@ class LocalizationHealthCore:
                           'scan_map_check_unavailable'}
         sustained = [reason for reason in critical
                      if now-self.fault_since[reason] >= (
-                         self.agreement_fault_seconds if reason == 'scan_map_disagreement'
-                         else self.spatial_fault_seconds if reason in spatial_faults
+                         self.spatial_fault_seconds if reason in spatial_faults
                          else self.fault_seconds)]
         if self.acquired and sustained:
             self.stop_latched = True
@@ -246,7 +246,8 @@ class LocalizationHealthCore:
         if self.stop_latched and not critical:
             reasons.append('operator_reset_required')
         result = {
-            'level': level, 'reasons': reasons, 'metrics': dict(metrics),
+            'level': level, 'reasons': reasons, 'advisories': advisories,
+            'metrics': dict(metrics),
             'stop_latched': self.stop_latched,
             'autonomous_allowed': self.acquired and not critical and not self.stop_latched,
             'allow_localization': sensor_ok,

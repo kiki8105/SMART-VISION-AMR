@@ -65,8 +65,8 @@ def ready_application(app, now):
     app.localization_health_at = now
     app.localization_health = {'level': 'ok', 'autonomous_allowed': True,
                                'allow_localization': True, 'reasons': []}
-    # This harness supplies an independently verified scan/Home raster match;
-    # individual negative cases replace or expire it explicitly.
+    # This harness supplies a fresh scan/Home raster comparison; individual
+    # negative cases replace or expire it explicitly.
     app.home_seed_match = 1.
     app.home_seed_match_at = now
     app.home_seed_match_key = app.home_seed_key()
@@ -266,11 +266,11 @@ class LocalizationHTTPTests(unittest.TestCase):
             self.assertIn('확인란', body['error'])
             self.assertFalse(self.app.localization.active)
 
-    def test_home_prior_requires_current_real_scan_match_without_map_tf(self):
+    def test_home_prior_requires_current_real_scan_comparison_without_map_tf(self):
         self.install_known_free_map()
         self.install_home()
         self.app.pose = None
-        for field, value in (('home_seed_match', .64), ('home_seed_match_at', 0.),
+        for field, value in (('home_seed_match', None), ('home_seed_match_at', 0.),
                              ('home_seed_match_key', None), ('map_matches_configured', None)):
             with self.subTest(field=field):
                 previous = getattr(self.app, field)
@@ -281,10 +281,50 @@ class LocalizationHTTPTests(unittest.TestCase):
                 self.assertFalse(self.app.localization.active)
                 setattr(self.app, field, previous)
 
+    def test_confirmed_home_accepts_fresh_zero_match_but_not_a_different_map(self):
+        self.install_known_free_map()
+        self.install_home()
+        self.app.home_seed_match = 0.
+        self.app.home_prior_evidence = None
+        status, body = self.request('/api/localization/start-home', self.cookie,
+                                    payload={'confirm_actual_home': True})
+        self.assertEqual(status, 200, body)
+        self.assertEqual(body['localization']['state'], 'ACQUIRING')
+        self.assertFalse(any(kind == 'goal' for kind, _ in self.app.mission.commands))
+
+        self.app.command('/api/localization/stop', {})
+        self.app.map_matches_configured = False
+        status, body = self.request('/api/localization/start-home', self.cookie,
+                                    payload={'confirm_actual_home': True})
+        self.assertEqual(status, 400, body)
+        self.assertIn('지도', body['error'])
+
+    def test_stopped_estop_home_seed_accepts_zero_match_only_with_operator_confirmation(self):
+        self.install_known_free_map()
+        self.install_home()
+        self.app.mission.emergency_stop()
+        self.app.mission.drain_commands()
+        self.app.manual_mux_status.update(
+            available=True, estop_latched=True, stop_acknowledged=True,
+            output_linear=0., output_angular=0.)
+        self.app.manual_mux_at = time.monotonic()
+        self.app.home_seed_match = 0.
+        self.app.home_prior_evidence = None
+        status, body = self.request('/api/localization/seed-home', self.cookie,
+                                    payload={'confirm_actual_home': False})
+        self.assertEqual(status, 400, body)
+        self.assertFalse(self.app.home_seed_request)
+        status, body = self.request('/api/localization/seed-home', self.cookie,
+                                    payload={'confirm_actual_home': True})
+        self.assertEqual(status, 200, body)
+        self.assertTrue(body['localization']['home_seed_pending'])
+        self.assertTrue(self.app.mission.estop_latched)
+        self.assertFalse(any(kind == 'goal' for kind, _ in self.app.mission.commands))
+
     def test_bounded_home_proof_only_seeds_registered_prior_and_keeps_quality_unverified(self):
         self.install_known_free_map()
         self.install_home()
-        self.app.home_seed_match = .02
+        self.app.home_seed_match = None
         home = deepcopy(self.app.delivery.registered_homepoint)
         self.app.home_prior_evidence = {'supported': True, 'distinct_scans': 3,
             'consistent_candidates': 3, 'best_min_agreement': .8,
@@ -301,7 +341,7 @@ class LocalizationHTTPTests(unittest.TestCase):
     def test_bounded_home_proof_rejects_stale_changed_or_insufficient_observations(self):
         self.install_known_free_map()
         self.install_home()
-        self.app.home_seed_match = .02
+        self.app.home_seed_match = None
         proof = {'supported': True, 'distinct_scans': 3, 'consistent_candidates': 3,
                  'best_min_agreement': .8, 'at': time.monotonic(), 'key': self.app.home_seed_key()}
         for field, value in (('at', 0.), ('key', None), ('distinct_scans', 2),
@@ -647,8 +687,8 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(len(self.nomotion.requests), 2)
         self.assertEqual(self.app.manual_pose_state, 'WAITING')
 
-        # A fresh AMCL observation stops requests, even when its map agreement
-        # is insufficient to verify the operator's initial pose.
+        # A fresh AMCL observation stops refresh requests. Without a matching
+        # requested pose and new map→base TF, a low score alone cannot verify it.
         self.app.manual_pose_amcl_received_at = self.now
         self.app.manual_pose_match = .4
         self.now += 2.1
@@ -662,7 +702,41 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.refresh_stopped_manual_pose_inputs()
         self.node.tick_manual_pose(self.now)
         self.assertEqual(self.app.manual_pose_state, 'FAILED')
-        self.assertIn('40%', self.app.manual_pose_result)
+        self.assertIn('map→base TF', self.app.manual_pose_result)
+        self.assertNotIn('55%', self.app.manual_pose_result)
+        self.assertTrue(self.app.mission.estop_latched)
+
+    def test_manual_pose_zero_match_needs_correct_amcl_pose_and_new_tf(self):
+        self.start_stopped_manual_pose_validation()
+        self.node.initial_pose_client.acknowledge()
+        self.now += .2
+        self.refresh_stopped_manual_pose_inputs()
+        self.node.source_fresh = lambda *_args, **_kwargs: True
+        self.node.localization_scan = SimpleNamespace()
+        self.node.localization_laser_pose = (0., 0., 0.)
+        self.app.localization_distance = np.ones((10, 10))
+        stamp = self.node.manual_pose_ros_stamp_ns + 1
+        message = PoseWithCovarianceStamped()
+        message.header.frame_id = 'map'
+        message.header.stamp.sec, message.header.stamp.nanosec = divmod(stamp, 1_000_000_000)
+        message.pose.pose.orientation.w = 1.
+        message.pose.covariance[0] = message.pose.covariance[7] = .01
+        message.pose.covariance[35] = .01
+        with patch('smart_vision_amr.web_mission_server.scan_points', return_value=np.ones((20, 2))), \
+                patch('smart_vision_amr.web_mission_server.scan_map_agreement', return_value=0.):
+            self.node.on_amcl(message)
+            self.assertEqual(self.app.manual_pose_match, 0.)
+            self.assertEqual(self.node.manual_pose_verified_amcl_stamp_ns, 0,
+                             'a low score must not waive the requested pose geometry')
+            message.header.stamp.sec, message.header.stamp.nanosec = divmod(stamp+1, 1_000_000_000)
+            message.pose.pose.position.x = message.pose.pose.position.y = .5
+            self.node.on_amcl(message)
+        self.assertEqual(self.node.manual_pose_verified_amcl_stamp_ns, stamp+1)
+        self.app.pose = {'x': .5, 'y': .5, 'yaw': 0.}
+        self.app.pose_at = self.now
+        self.app.pose_tf_stamp_ns = stamp+1
+        self.node.tick_manual_pose(self.now)
+        self.assertEqual(self.app.manual_pose_state, 'VERIFIED')
         self.assertTrue(self.app.mission.estop_latched)
 
     def test_manual_pose_nomotion_does_not_bypass_stop_ack(self):
@@ -1025,7 +1099,7 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.tick(.1)
         self.now += .9
         self.refresh()
-        self.app.home_seed_match = .5
+        self.app.home_seed_match_at = 0.
         self.node.tick()
         self.assertEqual(self.app.localization.state, 'FAILED')
         self.assertFalse(self.seed_poses.messages)
@@ -2122,6 +2196,34 @@ class LocalizationBridgeTests(unittest.TestCase):
                 self.node.on_amcl(message)
                 self.assertEqual(self.app.localization.snapshot()['good_estimates'], index)
 
+    def test_operator_confirmed_home_sweep_accepts_zero_score_but_needs_matching_live_map(self):
+        self.acquire_home()
+        self.node.localization_epoch_ns = 1000
+        self.node.source_fresh = lambda *_args, **_kwargs: True
+        self.node.localization_scan = SimpleNamespace()
+        self.node.localization_laser_pose = (0., 0., 0.)
+        self.app.localization_distance = np.ones((10, 10))
+        message = PoseWithCovarianceStamped()
+        message.header.frame_id = 'map'
+        message.header.stamp.nanosec = 1001
+        message.pose.pose.position.x = message.pose.pose.position.y = .4
+        message.pose.pose.orientation.w = 1.
+        message.pose.covariance[0] = message.pose.covariance[7] = .01
+        message.pose.covariance[35] = .01
+        with patch('smart_vision_amr.web_mission_server.scan_points', return_value=np.ones((20, 2))), \
+                patch('smart_vision_amr.web_mission_server.scan_map_agreement', return_value=0.):
+            self.now += .1
+            self.refresh()
+            self.node.on_amcl(message)
+            self.assertEqual(self.app.localization_match, 0.)
+            self.assertEqual(self.app.localization.snapshot()['good_estimates'], 1)
+            self.app.map_matches_configured = False
+            self.now += .1
+            message.header.stamp.nanosec = 1002
+            self.node.on_amcl(message)
+        self.assertIsNone(self.app.localization_match)
+        self.assertEqual(self.app.localization.snapshot()['good_estimates'], 0)
+
     def prepare_amcl_estimate(self, stamp=1001):
         self.node.localization_epoch_ns = 1000
         self.node.source_fresh = lambda *_args, **_kwargs: True
@@ -2171,11 +2273,11 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.assertEqual(self.app.localization.snapshot()['good_estimates'], 0)
         match.assert_not_called()
 
-    def test_operator_initial_pose_uses_health_normal_confidence_boundary(self):
+    def test_operator_initial_pose_ignores_finite_score_but_needs_a_current_comparison(self):
         self.app.localization_invalidated = True
         self.node.manual_initial_pose_ns = 1000
         with patch('smart_vision_amr.web_mission_server.scan_points', return_value=np.ones((20, 2))), \
-                patch('smart_vision_amr.web_mission_server.scan_map_agreement', side_effect=[.5499, .55]):
+                patch('smart_vision_amr.web_mission_server.scan_map_agreement', side_effect=[math.nan, 0.]):
             self.node.on_amcl(self.prepare_amcl_estimate(1001))
             self.assertTrue(self.app.localization_invalidated)
             self.assertEqual(self.node.manual_initial_pose_ns, 1000)

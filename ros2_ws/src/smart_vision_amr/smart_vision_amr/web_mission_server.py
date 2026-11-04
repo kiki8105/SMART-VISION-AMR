@@ -1075,8 +1075,8 @@ class MissionApplication:
     def startup_home_readiness(self):
         """A Home prior is permitted only while the robot is still at registered Home.
 
-        The prior is not a verified pose; LiDAR/map agreement and AMCL stability
-        must still pass the ordinary assisted-localization checks after rotation.
+        The prior is not a verified pose; a fresh LiDAR/map comparison and AMCL
+        stability must still pass the assisted-localization checks after rotation.
         A fresh marker 0 corroborates Home, but its absence does not block LiDAR.
         """
         available, reason = self.localization_readiness()
@@ -1177,10 +1177,16 @@ class MissionApplication:
         error = self.delivery.home_validation_error(self.delivery.registered_homepoint)
         if error:
             return False, error
-        exact_match = (self.home_seed_match is not None and math.isfinite(self.home_seed_match)
-                       and self.home_seed_match >= .65 and 0 <= now-self.home_seed_match_at < .8
+        # A current comparison proves that the real LiDAR was projected onto
+        # the configured live map. Its numerical wall-hit fraction is useful
+        # diagnostic evidence, but movable objects and low classroom walls can
+        # make even a physically confirmed Home score zero. The operator's
+        # confirmation, not this heuristic percentage, authorizes the prior.
+        fresh_match = (self.home_seed_match is not None and math.isfinite(self.home_seed_match)
+                       and 0. <= self.home_seed_match <= 1.
+                       and 0 <= now-self.home_seed_match_at < .8
                        and self.home_seed_match_key == self.home_seed_key())
-        if not exact_match and self.manual_pose_state == 'VERIFIED':
+        if not fresh_match and self.manual_pose_state == 'VERIFIED':
             return False, ('수동 초기 위치 검증 후 등록 홈 주변 자동 탐색을 중지했습니다. '
                            '현재 위치를 사용하거나 수동 초기 위치를 다시 입력하세요.')
         evidence = self.home_prior_evidence or {}
@@ -1191,8 +1197,8 @@ class MissionApplication:
                         and evidence.get('best_min_agreement', 0.) >= .65
                         and 0 <= now-evidence.get('at', 0.) < .8
                         and evidence.get('key') == self.home_seed_key())
-        if not exact_match and not nearby_match:
-            return False, '등록 홈 주변의 LiDAR와 지도가 일치하지 않습니다. 실제 위치를 확인하세요.'
+        if not fresh_match and not nearby_match:
+            return False, '등록 홈 주변의 최신 LiDAR·지도 대조 결과가 없습니다. 센서와 실제 위치를 확인하세요.'
         # Nearby evidence validates only the existing broad Home prior. It
         # never chooses a pose, changes Home, or certifies AMCL confidence.
         return True, ''
@@ -2099,35 +2105,41 @@ def create_ros_bridge(app, options, context):
                     return
                 yaw = math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))
                 position = {'x': pose.position.x, 'y': pose.position.y, 'yaw': yaw}
-                match = 0.
+                match = None
                 if (self.localization_scan is not None and self.localization_laser_pose is not None
                         and app.map is not None and not app.map_is_preview
+                        and app.map_matches_configured is True
                         and app.localization_distance is not None
                         and time.monotonic()-app.localization_scan_at < .8):
                     points = scan_points(self.localization_scan, self.localization_laser_pose)
                     match = scan_map_agreement(points, position, app.map, app.localization_distance)
+                    if not math.isfinite(match) or not 0. <= match <= 1.:
+                        match = None
                 if app.localization.active and stamp > self.localization_epoch_ns:
                     app.localization_match = match
                     app.localization.on_estimate(position['x'], position['y'], yaw,
                         math.sqrt(largest_variance), math.sqrt(covariance[35]),
-                        quality_ok=bool(match >= .90))
+                        # A global/local sweep still needs strong geometric
+                        # corroboration. Only a Home sweep expressly confirmed
+                        # by the operator may treat this percentage as advisory.
+                        quality_ok=(match is not None and
+                                    (app.localization_startup_home or match >= .90)))
                 if (self.manual_initial_pose_ns is not None and stamp > self.manual_initial_pose_ns
                         and not app.localization.active):
                     if app.manual_pose_state == 'WAITING':
                         app.manual_pose_amcl_received_at = time.monotonic()
                         app.manual_pose_match = match
                         requested = app.manual_pose_requested
-                        # Match the localization monitor's normal-confidence
-                        # boundary; a stricter web-only threshold can strand
-                        # a pose that the robot's own monitor already accepts.
-                        if requested is not None and match >= .55:
+                        # The measured agreement is displayed for diagnosis;
+                        # it is not an additional numeric pose acceptance gate.
+                        if requested is not None and match is not None:
                             yaw_delta = math.atan2(math.sin(yaw-math.radians(requested['yaw_deg'])),
                                                    math.cos(yaw-math.radians(requested['yaw_deg'])))
                             if (math.hypot(position['x']-requested['x'], position['y']-requested['y']) < .5
                                     and abs(yaw_delta) < math.radians(30.)):
                                 app.manual_pose_amcl_at = time.monotonic()
                                 self.manual_pose_verified_amcl_stamp_ns = stamp
-                    elif match >= .55:
+                    elif match is not None:
                         app.localization_invalidated = False
                         self.manual_initial_pose_ns = None
 
@@ -3083,9 +3095,8 @@ def create_ros_bridge(app, options, context):
             if now-app.manual_pose_sent_at >= 12.:
                 if app.manual_pose_amcl_received_at <= app.manual_pose_sent_at:
                     reason = '새 /amcl_pose가 수신되지 않았습니다. /scan과 AMCL 상태를 확인하세요.'
-                elif app.manual_pose_match is not None and app.manual_pose_match < .55:
-                    reason = (f'라이다·지도 일치율 {app.manual_pose_match:.0%}가 55%보다 낮습니다. '
-                              '실제 좌표·방향 또는 지도를 확인하세요.')
+                elif app.manual_pose_match is None:
+                    reason = '최신 라이다·지도 대조 결과가 없습니다. /scan과 측정 시각 TF를 확인하세요.'
                 elif self.manual_pose_verified_amcl_stamp_ns > self.manual_pose_ros_stamp_ns:
                     reason = ('위치 감시 노드의 초기 위치 재획득 확인이 끝나지 않았습니다: '
                               + (self.manual_pose_health_error or '서비스·TF·센서 상태를 확인하세요.'))

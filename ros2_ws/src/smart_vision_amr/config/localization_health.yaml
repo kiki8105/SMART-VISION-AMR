@@ -17,7 +17,6 @@ localization_health:
     # these spatial checks. Real scan/odom loss and pose jumps still latch
     # after fault_seconds, and the independent EKF input guard is unchanged.
     spatial_fault_seconds: 1.25
-    agreement_fault_seconds: 3.0  # Ignore brief occlusions by moving objects.
     # At 5 Hz scan period is 0.2 s. Allow up to 0.5 s extra transient
     # receive/header delay at departure. The next 0.25 s health tick blocks
     # auto before a 1 s outage; the independent EKF guard still trips at 1 s.
@@ -28,13 +27,14 @@ localization_health:
     future_tolerance: 1.5  # AMCL map->odom may be intentionally future-dated.
     position_warning: 0.35  # Caution and half-speed threshold.
     # Initial acquisition may complete with position warning alone up to 0.50 m.
-    # /amcl_pose, scan, odom, map TF and scan-map consistency must still pass.
+    # /amcl_pose, scan, odom, map TF and scan-map measurement availability
+    # must still pass. A finite low wall-hit score is diagnostic only.
     position_acquisition_limit: 0.50
     position_critical: 0.8
     yaw_warning: 0.5
     yaw_critical: 1.0
-    agreement_warning: 0.55  # Fraction of laser hits consistent with known walls.
-    agreement_critical: 0.20
+    agreement_warning: 0.55  # Advisory bands for saved-wall hit ratio.
+    agreement_critical: 0.20  # Severe advisory; never a motion gate by itself.
     agreement_tolerance: 0.18
     # Accumulated moving time since the last new AMCL sample, excluding idle.
     # Stops do not reset the budget, so repeated stop/go cannot bypass it.

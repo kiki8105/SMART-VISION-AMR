@@ -398,6 +398,7 @@
     const values=[];
     if(Number.isFinite(metrics.position_std_m))values.push(`현재 위치 표준편차 ${metrics.position_std_m.toFixed(3)} m`);
     if(Number.isFinite(metrics.yaw_std_rad))values.push(`방향 ${(metrics.yaw_std_rad*180/Math.PI).toFixed(1)}°`);
+    if(Number.isFinite(metrics.scan_map_agreement))values.push(`라이다·지도 대조 ${(metrics.scan_map_agreement*100).toFixed(0)}% · 참고값`);
     const tfStates={READY:'준비됨',WAITING_FOR_SCAN:'라이다 대기',SCAN_STALE_OR_CLOCK_SKEW:'라이다 시각 확인 필요',WAITING_FOR_MEASUREMENT_TF:'측정 시각 좌표 변환 대기',MEASUREMENT_TF_TIMEOUT:'측정 시각 좌표 변환 시간 초과'};
     const refreshStates={WAITING_FOR_INPUTS:'입력 대기',WAITING_FOR_NEW_SCAN:'새 라이다 대기',WAITING_FOR_MOTION_OR_ACQUISITION:'갱신 조건 대기',REQUESTED:'새 AMCL 결과 요청 중',RESPONDED:'요청 응답 수신',TIMEOUT:'응답 시간 초과',SERVICE_UNAVAILABLE:'갱신 서비스 대기',STATIONARY_LIMIT_REACHED:'정지 갱신 한도 · 위치 확인 필요',REQUEST_FAILED:'갱신 요청 실패'};
     if(tfStates[metrics.scan_tf_state])values.push(`${tfStates[metrics.scan_tf_state]}${Number.isFinite(metrics.scan_tf_wait_ms)&&metrics.scan_tf_wait_ms>0?` · ${metrics.scan_tf_wait_ms.toFixed(0)} ms`:''}`);
@@ -551,6 +552,7 @@
     const diagnostics=$('#operation-diagnostics');diagnostics.replaceChildren();
     const items=[...(snapshot.health?.missing||[]),...(snapshot.health?.warnings||[])];
     const q=snapshot.localization_health;if(q?.level&&q.level!=='unknown')items.push(`위치 신뢰도 ${{ok:'정상',healthy:'정상',warning:'주의',critical:'정지'}[q.level]||q.level}: ${(q.explanations||q.reasons||[]).join(' · ')||'정상'}`);
+    if(Number.isFinite(q?.metrics?.scan_map_agreement)&&q.metrics.scan_map_agreement<.55)items.push(`라이다·지도 대조 ${(q.metrics.scan_map_agreement*100).toFixed(0)}% · 참고값이며 이 수치만으로 출발을 막지 않습니다.`);
     if(!items.length)items.push('필수 센서·주행 준비 조건 충족');
     items.forEach(text=>{const li=document.createElement('li');li.textContent=text;diagnostics.append(li);});
     const s=snapshot.safety||{};

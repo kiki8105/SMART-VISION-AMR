@@ -134,8 +134,7 @@ class LocalizationHealth(Node):
         super().__init__('localization_health', context=context)
         defaults = {
             'stable_seconds': 2.0, 'fault_seconds': 0.5,
-            'spatial_fault_seconds': 1.25,
-            'agreement_fault_seconds': 3.0, 'sensor_timeout': 0.5,
+            'spatial_fault_seconds': 1.25, 'sensor_timeout': 0.5,
             'tf_timeout': 1.0, 'future_tolerance': 1.5,
             'position_warning': 0.35, 'position_acquisition_limit': 0.50,
             'position_critical': 0.8,
