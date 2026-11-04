@@ -17,7 +17,8 @@ Usage: scripts/run_classroom_replay_sim.sh [--stress] [--ideal-profile] [LAUNCH_
 
 Gazebo Classic starts at the registered classroom Home with the October 30
 map, map-derived physical walls/partitions, and front/rear cameras. The
-default uses real classroom navigation/node tuning with simulated time.
+default copies real classroom tuning with simulated time and a 0.24 m Gazebo
+collision radius (the measured physical robot profile remains 0.17 m).
 --stress adds one unmapped 20 cm crate and keeps the saved map unchanged.
 --ideal-profile restores the old simulation-only navigation/node tuning.
 Launch arguments such as gui:=false pass through to run_sim.sh.
@@ -62,8 +63,11 @@ if [[ "$ideal_profile" == false ]]; then
   profile_dir=$(mktemp -d -t smart-vision-classroom-replay-XXXXXXXX)
   trap 'rm -rf -- "$profile_dir"' EXIT
   profile=$profile_dir/classroom_nav_sim_time.yaml
-  /usr/bin/python3 "$script_dir/build_classroom_replay_nav_profile.py" "$profile"
-  profile_args=("nav_params_file:=$profile" "nodes_params_file:=$hardware_nodes")
+  nodes_profile=$profile_dir/classroom_nodes_sim.yaml
+  /usr/bin/python3 "$script_dir/build_classroom_replay_nav_profile.py" \
+    --source "$hardware_nav" --nodes-source "$hardware_nodes" \
+    --nodes-destination "$nodes_profile" "$profile"
+  profile_args=("nav_params_file:=$profile" "nodes_params_file:=$nodes_profile")
 fi
 
 "$script_dir/run_sim.sh" "${profile_args[@]}" \

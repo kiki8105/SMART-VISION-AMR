@@ -145,6 +145,44 @@ class CancelNavigationTest(unittest.TestCase):
     def setUp(self):
         self.node = FollowerHarness()
 
+    def test_rear_recovery_uses_configured_body_radius_without_legacy_floor(self):
+        self.node.parameters["recovery_robot_radius"] = 0.17
+        self.node.parameters["recovery_rear_margin"] = 0.01
+        self.node.motion_status = {"mode": "auto", "available": True,
+                                   "estop_latched": False}
+        self.node.motion_status_at = time.monotonic()
+        self.node.latest_scan = LaserScan()
+        self.node.latest_scan.header.frame_id = "base_scan"
+        self.node.latest_scan.header.stamp.sec = self.node.clock_seconds
+        self.node.latest_scan_at = time.monotonic()
+        self.node.latest_odom = Odometry()
+        self.node.latest_odom.header.stamp.sec = self.node.clock_seconds
+        self.node.latest_odom_at = time.monotonic()
+        self.node._rear_clearance = Mock(return_value=(True, 1.0))
+
+        reason = self.node._recovery_preflight({"distance": 0.20,
+                                                "traveled": 0.05},
+                                               require_stationary=False)
+
+        self.assertIsNone(reason)
+        self.assertAlmostEqual(self.node._rear_clearance.call_args.args[1], 0.33)
+
+    def test_rear_recovery_rejects_invalid_configured_radius(self):
+        self.node.parameters["recovery_robot_radius"] = 0.0
+        self.node.motion_status = {"mode": "auto", "available": True,
+                                   "estop_latched": False}
+        self.node.motion_status_at = time.monotonic()
+        self.node.latest_scan = LaserScan()
+        self.node.latest_scan.header.frame_id = "base_scan"
+        self.node.latest_scan.header.stamp.sec = self.node.clock_seconds
+        self.node.latest_scan_at = time.monotonic()
+        self.node.latest_odom = Odometry()
+        self.node.latest_odom.header.stamp.sec = self.node.clock_seconds
+        self.node.latest_odom_at = time.monotonic()
+
+        self.assertIn("radius", self.node._recovery_preflight(
+            {"distance": 0.20, "traveled": 0.0}, require_stationary=False))
+
     def cancel(self):
         return self.node.cancel_navigation(Trigger.Request(), Trigger.Response())
 

@@ -7,15 +7,20 @@ from math import pi
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT/'scripts'))
 import assess_classroom_safety_timeline as timeline
 import capture_classroom_safety_timeline as capture
 import run_classroom_staged_validation as staged
+from build_classroom_replay_nav_profile import (
+    build_nav_profile_data, build_nodes_profile_data,
+)
 
 
-def test_final_physical_value_parity_allows_only_sim_clock_override(tmp_path, monkeypatch):
+def test_final_physical_value_parity_allows_only_declared_gazebo_overrides(tmp_path, monkeypatch):
     monkeypatch.setattr(staged, 'REPO', tmp_path)
     config = tmp_path/'ros2_ws/src/smart_vision_amr/config'
     config.mkdir(parents=True)
@@ -23,22 +28,44 @@ def test_final_physical_value_parity_allows_only_sim_clock_override(tmp_path, mo
     nodes = config/'classroom_hardware_nodes.yaml'
     ekf = config/'ekf_hardware.yaml'
     generated = tmp_path/'classroom_nav_sim_time.yaml'
-    nav.write_text('controller_server:\n  ros__parameters:\n'
-                   '    use_sim_time: false\n    max_vel_x: 0.12\n')
-    generated.write_text('controller_server:\n  ros__parameters:\n'
-                         '    use_sim_time: true\n    max_vel_x: 0.12\n')
-    nodes.write_text('safe_distance: 0.3\n')
+    generated_nodes = tmp_path/'classroom_nodes_sim.yaml'
+    nav_data = {
+        'controller_server': {'ros__parameters': {
+            'use_sim_time': False, 'max_vel_x': 0.12}},
+        'local_costmap': {'local_costmap': {'ros__parameters': {
+            'robot_radius': .17, 'inflation_layer': {'inflation_radius': .18}}}},
+        'global_costmap': {'global_costmap': {'ros__parameters': {
+            'robot_radius': .17, 'inflation_layer': {'inflation_radius': .18}}}},
+    }
+    nodes_data = {
+        '/astar_planner': {'ros__parameters': {
+            'robot_radius': .17, 'obstacle_inflation_cells': 4,
+            'preferred_clearance': .18, 'unrelated_tuning': .06}},
+        '/path_follower': {'ros__parameters': {
+            'recovery_robot_radius': .17, 'curve_max_linear_velocity': .24}},
+    }
+    nav.write_text(yaml.safe_dump(nav_data))
+    generated.write_text(yaml.safe_dump(build_nav_profile_data(nav_data)))
+    nodes.write_text(yaml.safe_dump(nodes_data))
+    generated_nodes.write_text(yaml.safe_dump(build_nodes_profile_data(nodes_data)))
     ekf.write_text('frequency: 30\n')
     manifest = {
         'nav_profile_source': str(nav),
+        'nodes_profile_source': str(nodes),
         'config_sha256': {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
-                          for path in (nav, nodes, ekf, generated)},
+                          for path in (nav, nodes, ekf, generated, generated_nodes)},
     }
     assert staged.check_physical_source_value_parity(tmp_path, manifest)['passed']
     generated.write_text(generated.read_text().replace('0.12', '0.13'))
     checks = staged.check_physical_source_value_parity(tmp_path, manifest)['checks']
-    assert not checks['nav_values_equal_except_sim_clock']
+    assert not checks['nav_values_equal_except_declared_sim_overrides']
     assert not checks['generated_nav_hash_matches_runtime']
+    generated.write_text(yaml.safe_dump(build_nav_profile_data(nav_data)))
+    generated_nodes.write_text(generated_nodes.read_text().replace(
+        'curve_max_linear_velocity: 0.24', 'curve_max_linear_velocity: 0.25'))
+    checks = staged.check_physical_source_value_parity(tmp_path, manifest)['checks']
+    assert not checks['nodes_values_equal_except_declared_sim_overrides']
+    assert not checks['generated_nodes_hash_matches_runtime']
 
 
 def test_final_physical_value_stage_is_web_owned_and_stress_world():
@@ -144,6 +171,42 @@ def route_evidence(stage):
             'physical_robot_touched': False,
             'fault_delivery': {'passed': True},
             'route': list(stage.route), 'legs': legs}
+
+
+def test_web_ground_truth_position_uses_effective_nav2_goal_checker_tolerance():
+    config = {'controller_server': {'ros__parameters': {
+        'goal_checker_plugins': ['general_goal_checker'],
+        'general_goal_checker': {'xy_goal_tolerance': .25},
+    }}}
+    tolerance = staged.web_truth_xy_tolerance(config)
+    evidence = {'route': [], 'final_observed_at': 5.,
+                'home_target': {'x': 0., 'y': 0., 'yaw': 0.}}
+
+    def check(x):
+        return staged.check_web_ground_truth(
+            [{'kind': 'truth', 'wall_time': 5., 'x': x, 'y': 0., 'yaw': 0.}],
+            evidence, tolerance)['home']
+
+    assert tolerance == .25
+    assert check(.24)['passed'] is True
+    assert check(.24)['position_tolerance_m'] == .25
+    assert check(.26)['passed'] is False
+
+
+def test_web_ground_truth_rejects_missing_or_invalid_nav2_goal_tolerance():
+    for value in (None, 0., -.1, float('nan'), float('inf'), .26, True, '0.25'):
+        config = {'controller_server': {'ros__parameters': {
+            'goal_checker_plugins': ['general_goal_checker'],
+            'general_goal_checker': (
+                {} if value is None else {'xy_goal_tolerance': value}),
+        }}}
+        with pytest.raises(ValueError):
+            staged.web_truth_xy_tolerance(config)
+    with pytest.raises(ValueError):
+        staged.web_truth_xy_tolerance({})
+    with pytest.raises(ValueError):
+        staged.web_truth_xy_tolerance({'controller_server': {'ros__parameters': {
+            'goal_checker_plugins': []}}})
 
 
 def base_timeline():

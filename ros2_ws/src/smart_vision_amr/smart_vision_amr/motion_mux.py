@@ -229,8 +229,15 @@ class MotionMuxCore:
                 self.require_localization_health) else (1.0, True, False, '')
         health = self.localization_health
         level = health['level']
+        # A low scan/map match alone is advisory while localization still
+        # explicitly permits autonomous motion. Halving an already small DWB
+        # command can leave the physical drive below its response threshold.
+        advisory_map_mismatch = (level == 'warning'
+                                 and health.get('autonomous_allowed') is True
+                                 and health.get('reasons') == ['scan_map_agreement_low'])
         factor = (0.0 if level == 'critical' else
-                  self.localization_warning_speed_factor if level == 'warning' else 1.0)
+                  self.localization_warning_speed_factor
+                  if level == 'warning' and not advisory_map_mismatch else 1.0)
         return (factor, health.get('autonomous_allowed', True) is True,
                 health.get('allow_localization', False) is True,
                 '; '.join(str(x) for x in health.get('reasons', [])))

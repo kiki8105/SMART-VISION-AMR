@@ -23,8 +23,8 @@ from smart_vision_amr.grid import Grid
 from smart_vision_amr.failure_memory import FailureMemory, EXECUTION_FAILURE_REASONS
 from smart_vision_amr.obstacle_hold import ObstacleHold
 from smart_vision_amr.localization_geometry import rotation_clearance
-from smart_vision_amr.map_utils import (cell_to_world, inflate_cells, inflate_cells_circular, occupancy_to_grid,
-                                        split_mapped_wall_returns, world_to_cell,
+from smart_vision_amr.map_utils import (cell_to_world, inflate_cells, inflate_cells_footprint, occupancy_to_grid,
+                                        first_static_obstacle_distance, split_mapped_wall_returns, world_to_cell,
                                         yaw_from_quaternion)
 from smart_vision_amr.reverse_recovery import (Breadcrumb, GridGeometry,
                                                select_reverse_egress)
@@ -86,6 +86,7 @@ class AStarPlannerNode(Node):
         self.declare_parameter("start_egress_max_cells", 7)
         self.declare_parameter("live_obstacle_layer_required", False)
         self.declare_parameter("live_obstacle_timeout", 2.0)
+        self.declare_parameter("live_route_confirmation_scans", 1)
         self.declare_parameter("preferred_clearance", 0.45)
         self.declare_parameter("clearance_penalty_gain", 1.5)
         self.declare_parameter("path_smoothing_enabled", True)
@@ -110,6 +111,10 @@ class AStarPlannerNode(Node):
         self.memory_map_key = None
         self.observed = set()
         self.last_observation_time = None
+        self.pending_live_route_cells = set()
+        self.pending_live_route_count = 0
+        self.pending_live_route_at = None
+        self.pending_live_route_last_at = None
         self.last_goal = None
         self.planned_cells = []
         self.waiting_for_transform = False
@@ -259,6 +264,7 @@ class AStarPlannerNode(Node):
         # actual no-route A* result may spend this physical-obstacle budget.
         self.last_no_route_obstacle_charge_at = float("-inf")
         self.observed_revision = 0
+        self._clear_pending_live_route()
         self.last_no_route_observed_revision = 0
         self.obstacle_episode_failure_ids = set()
         self.obstacle_failure_cells = {}
@@ -289,7 +295,99 @@ class AStarPlannerNode(Node):
         self.local_reference_key = None
         self.local_detour_attempts = 0
         self.local_rejoin_anchor = None
+        self._clear_pending_live_route()
         self.plan_metrics.update(local_detour_state="NONE")
+
+    def _clear_pending_live_route(self):
+        self.pending_live_route_cells = set()
+        self.pending_live_route_count = 0
+        self.pending_live_route_at = None
+        self.pending_live_route_last_at = None
+
+    def _live_route_block_confirmed(self, cells):
+        """Confirm a distant scan hit before canceling the entire FollowPath.
+
+        Raw scans still reach Nav2's local costmap and the robot-side near-scan
+        guard on every frame. Close hits and missing pose evidence cancel now.
+        """
+        if not cells:
+            self._clear_pending_live_route()
+            return False
+        required = self._live_route_required_scans()
+        if required <= 1:
+            self._clear_pending_live_route()
+            return True
+        pose = self._fresh_motion_pose()
+        if pose is None:
+            self._clear_pending_live_route()
+            return True
+        radius = float(self.get_parameter("robot_radius").value)
+        # 0.18 m covers the short reaction/braking interval at the configured
+        # 0.24 m/s speed ceiling. Within this distance there is no debounce.
+        if not isfinite(radius) or radius <= 0:
+            self._clear_pending_live_route()
+            return True
+        for cell in cells:
+            x, y = cell_to_world(self.map[0].info, cell)
+            if hypot(x-pose[0], y-pose[1]) <= radius+.18:
+                self._clear_pending_live_route()
+                return True
+        now = time.monotonic()
+        previous = self.pending_live_route_cells
+        consistent = (previous and self.pending_live_route_last_at is not None
+                      and 0 <= now-self.pending_live_route_last_at <= .5
+                      and any(abs(x-px) <= 1 and abs(y-py) <= 1
+                              for x, y in cells for px, py in previous))
+        if not consistent:
+            self.pending_live_route_at = now
+            self.pending_live_route_count = 0
+        self.pending_live_route_cells = set(cells)
+        self.pending_live_route_last_at = now
+        self.pending_live_route_count += 1
+        if (self.pending_live_route_count >= min(required, 10)
+                and now-self.pending_live_route_at >= .15):
+            self._clear_pending_live_route()
+            return True
+        return False
+
+    def _live_route_required_scans(self):
+        try:
+            return max(1, min(int(self.get_parameter("live_route_confirmation_scans").value), 10))
+        except (AttributeError, KeyError, TypeError, ValueError, OverflowError):
+            return 1
+
+    def _react_to_live_route_blockers(self, blockers):
+        self.get_logger().warning(
+            f"Fresh observed cells persist on remaining route: cells={sorted(blockers)[:16]} "
+            f"observed_count={len(self.observed)} path_cells={len(self.planned_cells)}")
+        if self._try_local_detour(blockers):
+            return
+        self._invalidate_path("Observed obstacle intersects the route")
+        self._request_replan("Observed obstacles changed")
+
+    def _live_route_blockers(self, observed):
+        """Find route-blocking scan cells with one TF lookup per scan frame."""
+        if not observed or not self.planned_cells:
+            return set()
+        remaining = set(self._remaining_path_cells())
+        blocked_route = remaining & self._live_obstacle_blocked(observed)
+        if not blocked_route:
+            return set()
+        info = self.map[0].info
+        try:
+            radius = (float(self.get_parameter("robot_radius").value)
+                      + float(self.get_parameter("local_detour_clearance_margin").value))
+            reach = max(int(self.get_parameter("obstacle_inflation_cells").value),
+                        ceil(radius / info.resolution + 1.))
+            if not isfinite(radius) or radius <= 0 or info.resolution <= 0:
+                raise ValueError("Invalid live inflation radius")
+        except (AttributeError, KeyError, TypeError, ValueError, OverflowError, ZeroDivisionError):
+            # Invalid parameters already fail closed in _live_obstacle_blocked.
+            # Do not drop a hit while identifying its source cell.
+            return set(observed)
+        candidates = observed & inflate_cells(blocked_route, info.width, info.height, reach)
+        return {cell for cell in candidates
+                if self._live_obstacle_blocked({cell}) & blocked_route}
 
     def _local_route_key(self):
         goal = self.last_goal
@@ -402,13 +500,62 @@ class AStarPlannerNode(Node):
                             if 0 <= cell[0] < width and 0 <= cell[1] < height)
         return reserved
 
-    def _live_obstacle_blocked(self, cells, *, observation_margin=0.):
-        """Inflate only live scan returns by the robot's circular footprint.
+    def _global_occlusion_reserve(self, start, raw_hits, *, remembered=False):
+        """Reserve unseen depth on a retained route without inventing LiDAR hits.
 
-        The map and confirmed memory retain their existing conservative square
-        inflation. A half-cell diagonal covers an unknown robot-center position
-        inside each A* cell; the occupied LiDAR cell itself is treated as a
-        complete square. Nav2's live local costmap still checks the raw scan.
+        A local repair can fail and hand the goal back to global A*. Both
+        planners must then protect the same bounded hidden space behind a
+        visible or remembered obstacle face. The reserve is planning-only:
+        scan observations and persistent memory retain measured cells alone.
+        """
+        if (not raw_hits or len(self.local_reference_points) < 2
+                or self.local_reference_key != self._local_route_key()):
+            return raw_hits
+        reserve_hits = raw_hits
+        if remembered:
+            # An isolated persisted pixel has no measured face extent. A
+            # different cluster elsewhere must not cause this singleton to
+            # gain an invented depth and falsely seal a narrow passage.
+            reserve_hits = {cell for cell in raw_hits
+                            if any((cell[0]+dx, cell[1]+dy) in raw_hits
+                                   for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+                                   if dx or dy)}
+            if not reserve_hits:
+                return raw_hits
+        info = self.map[0].info
+        try:
+            resolution = float(info.resolution)
+            extension = float(self.get_parameter("local_detour_occlusion_extension").value)
+            trigger = float(self.get_parameter("local_detour_trigger_distance").value)
+            radius = (float(self.get_parameter("robot_radius").value)
+                      + float(self.get_parameter("local_detour_clearance_margin").value))
+            if (not all(isfinite(value) for value in (resolution, extension, trigger, radius))
+                    or resolution <= 0 or not 0 <= extension <= 1.
+                    or trigger <= 0 or radius <= 0):
+                # Invalid optional local tuning must not disable the global
+                # planner; its measured hits still remain hard obstacles.
+                return raw_hits
+            inflation = max(int(self.get_parameter("obstacle_inflation_cells").value),
+                            ceil(radius / resolution))
+            yaw = yaw_from_quaternion(info.origin.orientation)
+            c, sn = cos(yaw), sin(yaw)
+            origin = info.origin.position
+            reference = [((c*(x-origin.x)+sn*(y-origin.y))/resolution,
+                          (-sn*(x-origin.x)+c*(y-origin.y))/resolution)
+                         for x, y in self.local_reference_points]
+            return raw_hits | self._local_occlusion_reserve(
+                reserve_hits, reference, start, inflation,
+                {"occlusion_extension": extension, "trigger_distance": trigger})
+        except (AttributeError, KeyError, TypeError, ValueError, OverflowError, ZeroDivisionError):
+            return raw_hits
+
+    def _live_obstacle_blocked(self, cells, *, observation_margin=0.):
+        """Inflate live returns by the complete circular body footprint.
+
+        Both the scan hit and robot center may lie anywhere in their raster
+        cells; the exact cell-square separation avoids an extra circular halo.
+        Static map and confirmed memory keep their square inflation. Nav2's
+        local costmap independently checks the original scan.
         """
         message = self.map[0]
         width, height, resolution = message.info.width, message.info.height, message.info.resolution
@@ -420,9 +567,8 @@ class AStarPlannerNode(Node):
             # clearance. Preserve the old square exclusion until it is fixed.
             inflation = max(0, int(self.get_parameter("obstacle_inflation_cells").value))
             return inflate_cells(cells, width, height, inflation)
-        radius_cells = ((robot_radius + margin + observation_margin) / resolution
-                        + sqrt(2.) / 2.)
-        return inflate_cells_circular(cells, width, height, radius_cells)
+        radius_cells = (robot_radius + margin + observation_margin) / resolution
+        return inflate_cells_footprint(cells, width, height, radius_cells)
 
     def _try_local_detour(self, changed_cells):
         """Queue a certified nonempty replacement before invalidating Nav2.
@@ -664,7 +810,7 @@ class AStarPlannerNode(Node):
         return True
 
     def on_visibility(self, msg):
-        if not self.obstacle_hold.holding or not self._goal_is_active() or self.map is None:
+        if not self._goal_is_active() or self.map is None:
             return
         now = time.monotonic()
         stamp = msg.header.stamp.sec*1_000_000_000+msg.header.stamp.nanosec
@@ -676,6 +822,23 @@ class AStarPlannerNode(Node):
                     and len(msg.data) == current.info.width*current.info.height)
         source_fresh = (matching and stamp > self.last_visibility_stamp_ns and stamp > 0
                         and -.25e9 <= self.get_clock().now().nanoseconds-stamp < .75e9)
+        if source_fresh:
+            self.last_visibility_stamp_ns, self.last_visibility_at = stamp, now
+            if (self._live_route_required_scans() > 1 and self.planned_cells
+                    and not self.waiting_for_replan):
+                # This grid marks only *this* scan's occupied cells. In
+                # contrast, /observed_obstacles repeats cached hits for its
+                # TTL and cannot prove multiple independent detections.
+                current_hits = {(index % msg.info.width, index // msg.info.width)
+                                for index, value in enumerate(msg.data) if value > 0}
+                blockers = self._live_route_blockers(current_hits)
+                if blockers and self._live_route_block_confirmed(blockers):
+                    self.observed.update(current_hits)
+                    self._react_to_live_route_blockers(blockers)
+                elif not blockers:
+                    self._clear_pending_live_route()
+        if not self.obstacle_hold.holding:
+            return
         pose_fresh = source_fresh and self._fresh_motion_pose() is not None
         mux_ready = pose_fresh and self._automatic_resume_allowed()
         fresh = bool(source_fresh and pose_fresh and mux_ready)
@@ -687,7 +850,6 @@ class AStarPlannerNode(Node):
                 throttle_duration_sec=1.0)
             self.obstacle_hold.observe_free(set(), set(), fresh=False, now=now)
             return
-        self.last_visibility_stamp_ns, self.last_visibility_at = stamp, now
         width = msg.info.width
         # Only inspect the bounded tracked object, not an entire map-sized set.
         tracked = set(self.obstacle_hold.blocked_cells)
@@ -760,10 +922,16 @@ class AStarPlannerNode(Node):
         fallback, and a fresh raw scan must find no hit near the failed pose.
         The same static, remembered and observed obstacle cells remain blocked.
         """
+        def reject(reason):
+            self.get_logger().info(
+                f"Failed-edge penalty fallback held: {reason}",
+                throttle_duration_sec=5.0)
+            return []
+
         if not failure_edges or grid.is_static_obstacle(start):
             return []
         if self._fresh_motion_pose() is None or not self._automatic_resume_allowed():
-            return []
+            return reject("fresh motion or automatic control unavailable")
         map_scope, goal_scope = self._memory_scopes()
         entries = self.failure_memory.snapshot(
             now=time.monotonic(), map_scope=map_scope, goal_scope=goal_scope)["entries"]
@@ -773,7 +941,7 @@ class AStarPlannerNode(Node):
                 or sum(entry["occurrences"] for entry in entries)
                    >= max(1, int(self.get_parameter("obstacle_retry_limit").value))
                 or time.monotonic()-max(entry["last_seen"] for entry in entries) < 1.0):
-            return []
+            return reject("failure type, retry limit or one-second cooldown")
         radius = float(self.get_parameter("failure_memory_radius").value)
         body = float(self.get_parameter("robot_radius").value)
         # A filtered cell layer can miss a real object. Require the raw scan
@@ -784,16 +952,16 @@ class AStarPlannerNode(Node):
             x, y = cell_to_world(map_msg.info, cell)
             if any(hypot(x-entry["x"], y-entry["y"]) <= radius+body+.05
                    for entry in entries):
-                return []
+                return reject("observed or remembered obstacle near failed approach")
         scan = self.latest_scan
         if scan is None or not scan.header.frame_id:
-            return []
+            return reject("raw LiDAR scan unavailable")
         try:
             transform = self.tf_buffer.lookup_transform(
                 self.get_parameter("map_frame").value, scan.header.frame_id,
                 rclpy.time.Time.from_msg(scan.header.stamp))
         except (TransformException, ValueError):
-            return []
+            return reject("raw LiDAR transform unavailable")
         origin = transform.transform.translation
         orientation = transform.transform.rotation
         norm = sum(value*value for value in (
@@ -801,7 +969,17 @@ class AStarPlannerNode(Node):
         heading = yaw_from_quaternion(orientation)
         if (not all(isfinite(value) for value in (origin.x, origin.y, heading, norm))
                 or not .8 <= norm <= 1.2):
-            return []
+            return reject("raw LiDAR transform invalid")
+        # The live-obstacle layer intentionally omits measured echoes that
+        # agree with a mapped wall. The independent raw-scan guard must not
+        # mistake that *same wall* for a new object and strand a narrow aisle
+        # until the failed-edge TTL expires. Only known occupied map cells can
+        # explain a return; unknown space cannot. Keep Nav2's unfiltered scan
+        # and all dynamic occupancy cells blocked during the penalty retry.
+        known_walls = occupancy_to_grid(
+            map_msg, self.get_parameter("occupied_threshold").value, 0,
+            unknown_is_obstacle=False)
+        wall_tolerance = min(.05, map_msg.info.resolution)
         for index, reading in enumerate(scan.ranges):
             if not isfinite(reading) or not scan.range_min <= reading <= scan.range_max:
                 continue
@@ -809,7 +987,12 @@ class AStarPlannerNode(Node):
             x, y = origin.x+reading*cos(angle), origin.y+reading*sin(angle)
             if any(hypot(x-entry["x"], y-entry["y"]) <= radius+body+.05
                    for entry in entries):
-                return []
+                wall_distance = first_static_obstacle_distance(
+                    map_msg.info, known_walls, origin.x, origin.y, angle,
+                    scan.range_max)
+                if (wall_distance is None
+                        or abs(wall_distance-reading) > wall_tolerance):
+                    return reject("raw LiDAR hit nearer than or unmatched by mapped wall")
         # Hard-edge A* has already failed. A soft edge cost discourages the
         # same approach, but cannot invent a path through live obstacles.
         penalty = max(10.0, 5.0*float(self.get_parameter("failure_memory_penalty").value))
@@ -824,7 +1007,7 @@ class AStarPlannerNode(Node):
                 cell_penalty=cell_penalty, edge_penalty=costs,
                 blocked_edges=safety_egress_edges)
         except ValueError:
-            return []
+            return reject("penalty-only route outside map")
 
     def on_localization_health(self, msg):
         try:
@@ -1206,6 +1389,7 @@ class AStarPlannerNode(Node):
             self.last_invalidated_route_cells = list(self.planned_cells)
         self.planned_cells = []
         self.planned_world_points = []
+        self._clear_pending_live_route()
         if self.plan_metrics.get("local_detour_state") == "ACTIVE":
             self.plan_metrics.update(local_detour_state="FAILED", detour_reason=reason)
             self.local_rejoin_anchor = None
@@ -1397,29 +1581,27 @@ class AStarPlannerNode(Node):
         if self.map is None:
             return
         self.last_observation_time = time.monotonic()
-        # A fresh repeat observation is independent evidence that a fixed
-        # blocker is still present, even when its occupied cell set is stable.
+        # Overlay publications may repeat a cached hit. Only the stamped
+        # visibility grid proves a new physical scan for route confirmation.
         self.observed_revision += 1
         width, height = self.map[0].info.width, self.map[0].info.height
         updated = {(index % width, index // width) for index in msg.data
                    if 0 <= index < width * height}
-        if updated != self.observed:
-            added = updated - self.observed
-            self.observed = updated
-            # Laser scans vary at sensor frequency. Stop on a newly blocked
-            # route, and rate-limit recovery even when no planned cells remain.
-            # The publisher already classified static wall echoes by beam range.
-            if self._goal_is_active() and (self.waiting_for_replan
-                    or self._changes_block_path(added)):
-                if self._changes_block_path(added):
-                    self.get_logger().warning(
-                        f"Live observed cells intersect remaining route: added={sorted(added)[:16]} "
-                        f"observed_count={len(updated)} path_cells={len(self.planned_cells)}")
-                    if self._try_local_detour(added):
-                        return
-                    self._invalidate_path("Observed obstacle intersects the route")
-                self._request_replan("Observed obstacles changed")
-        elif self.waiting_for_replan and self._goal_is_active():
+        changed = updated != self.observed
+        self.observed = updated
+        if not self._goal_is_active():
+            self._clear_pending_live_route()
+            return
+        if (self._live_route_required_scans() <= 1 and not self.waiting_for_replan
+                and changed):
+            # Scan endpoints can flicker between neighboring raster cells.
+            # Confirm route blockers across fresh frames before invalidating
+            # the complete Nav2 action; a nearby hit bypasses this filter.
+            blockers = self._live_route_blockers(updated)
+            if blockers:
+                self._react_to_live_route_blockers(blockers)
+                return
+        if self.waiting_for_replan:
             # Fresh empty/unchanged scans also recover a stale-sensor hold.
             self._request_replan("LiDAR obstacle observations restored")
 
@@ -1694,7 +1876,6 @@ class AStarPlannerNode(Node):
             return self._reverse_unavailable("TRAIL_MISSING", start)
         if not isfinite(physical_radius) or physical_radius <= 0:
             return self._reverse_unavailable("RADIUS_INVALID", start)
-        physical_radius = max(.24, physical_radius)
         # Keep measurement time and odom baseline before any map/A* work. Do
         # not refresh certificate age after a costly candidate search.
         certified_odom = tuple(self.latest_odom)
@@ -1865,15 +2046,18 @@ class AStarPlannerNode(Node):
         # memory also retains full inflation wherever it was observed.
         remembered_effective = self.remembered
         observed_effective = self.observed
+        planning_observed = self._global_occlusion_reserve(start, observed_effective)
+        planning_remembered = self._global_occlusion_reserve(
+            start, remembered_effective, remembered=True)
         # Diagnostic only: show how many live returns are already covered by
         # the inflated static map. Do not suppress a real near-wall object.
         observed_inside_static_inflation = sum(
             1 for cell in self.observed if grid.is_static_obstacle(cell))
-        remembered_blocked = inflate_cells(remembered_effective, width, height, inflation)
-        observed_blocked = self._live_obstacle_blocked(observed_effective)
+        remembered_blocked = inflate_cells(planning_remembered, width, height, inflation)
+        observed_blocked = self._live_obstacle_blocked(planning_observed)
         blocked = remembered_blocked | observed_blocked
         cell_penalty = clearance_penalties(
-            raw_grid, observed_effective | remembered_effective,
+            raw_grid, planning_observed | planning_remembered,
             map_msg.info.resolution,
             float(self.get_parameter("preferred_clearance").value),
             float(self.get_parameter("clearance_penalty_gain").value))
@@ -1902,8 +2086,8 @@ class AStarPlannerNode(Node):
                 and self.last_observation_time is not None
                 and 0 <= time.monotonic() - self.last_observation_time < .75):
             # Correct a static/live inflation start-cell quantization artifact.
-            # The complete stock collision model reaches .237693 m from base;
-            # round up to .24 m here, then retain the existing clearance margin.
+            # Use the calibrated robot radius from this deployment's profile,
+            # then retain the configured clearance margin.
             # Global inflation, raw occupied/unknown cells and later edges stay
             # unchanged. This does not certify unmodeled hardware extensions.
             current = self._fresh_motion_pose()
@@ -1917,8 +2101,6 @@ class AStarPlannerNode(Node):
                 pose_cells = ((cos(angle) * dx + sin(angle) * dy) / map_msg.info.resolution,
                               (-sin(angle) * dx + cos(angle) * dy) / map_msg.info.resolution)
                 physical_radius = float(self.get_parameter("robot_radius").value)
-                physical_radius = (max(.24, physical_radius)
-                                   if isfinite(physical_radius) and physical_radius > 0 else physical_radius)
                 safe_edges = certified_start_only_edges(
                     raw_grid, grid, observed_effective | remembered_effective,
                     blocked, start, pose_cells, physical_radius / map_msg.info.resolution,

@@ -79,11 +79,16 @@ class Classroom20261030MapTests(unittest.TestCase):
                 self.assertEqual(self.cleaned[row, column], 254)
                 self.assertGreaterEqual(clearance[row, column], 0.25)
 
-    def test_all_sector_routes_clear_actual_five_cell_astar_inflation(self):
+    def test_all_sector_routes_clear_physical_and_gazebo_astar_inflation(self):
         metadata, data = load_saved_map(MAPS / 'classroom_20261030_cleaned.yaml')
         settings = yaml.safe_load((PACKAGE / 'config/classroom_hardware_nodes.yaml').read_text())[
             '/astar_planner']['ros__parameters']
-        self.assertEqual(settings['obstacle_inflation_cells'], 5)
+        # The measured physical envelope needs four 5 cm cells. The stock
+        # Gazebo Waffle Pi collision box reaches 23.7 cm, so its generated
+        # simulation profile retains five cells on this same map.
+        self.assertEqual(settings['robot_radius'], 0.17)
+        self.assertEqual(settings['obstacle_inflation_cells'], 4)
+        gazebo_inflation_cells = 5
         origin = metadata['origin']
         info = SimpleNamespace(
             width=metadata['width'], height=metadata['height'],
@@ -94,20 +99,24 @@ class Classroom20261030MapTests(unittest.TestCase):
                     x=0.0, y=0.0,
                     z=sin(origin['yaw'] / 2), w=cos(origin['yaw'] / 2))))
         message = SimpleNamespace(info=info, data=data.ravel().tolist())
-        grid = occupancy_to_grid(
-            message, settings['occupied_threshold'], settings['obstacle_inflation_cells'])
         markers = yaml.safe_load(MARKERS.read_text(encoding='utf-8'))['markers']
         cells = {marker['id']: world_to_cell(info, marker['x'], marker['y'])
                  for marker in markers}
-        for marker_id, cell in cells.items():
-            with self.subTest(goal=marker_id):
-                self.assertFalse(grid.is_static_obstacle(cell))
-        for start_id, goal_id in combinations(cells, 2):
-            with self.subTest(start=start_id, goal=goal_id):
-                path = AStarPlanner().plan(grid, cells[start_id], cells[goal_id])
-                self.assertTrue(path)
-                self.assertEqual(path[0], cells[start_id])
-                self.assertEqual(path[-1], cells[goal_id])
+        for profile, inflation_cells in (
+                ('physical', settings['obstacle_inflation_cells']),
+                ('stock_gazebo', gazebo_inflation_cells)):
+            grid = occupancy_to_grid(
+                message, settings['occupied_threshold'], inflation_cells)
+            for marker_id, cell in cells.items():
+                with self.subTest(profile=profile, goal=marker_id):
+                    self.assertFalse(grid.is_static_obstacle(cell))
+            for start_id, goal_id in combinations(cells, 2):
+                with self.subTest(profile=profile, start=start_id, goal=goal_id):
+                    path = AStarPlanner().plan(grid, cells[start_id], cells[goal_id])
+                    self.assertTrue(path)
+                    self.assertEqual(path[0], cells[start_id])
+                    self.assertEqual(path[-1], cells[goal_id])
+                    self.assertTrue(all(not grid.is_static_obstacle(cell) for cell in path))
 
     def test_sector2_goal_survives_captured_wall_edge_returns_and_sees_marker(self):
         """Keep the stop inside the turning area without hiding live scan hits."""

@@ -268,6 +268,87 @@ def test_partial_box_front_face_reserves_a_complete_bypass_before_rejoining(plan
     assert not node.waiting_for_replan
 
 
+def test_global_fallback_reserves_hidden_box_depth_without_fabricating_observations(
+        planner_factory):
+    # A 25 cm box enters a diagonal route. At first only its near horizontal
+    # face is visible. Without the bounded depth reserve, global A* can route
+    # 14 cm from the full box even though the circular body needs 24 cm.
+    node = planner_factory(clearance_penalty_gain=0.)
+    node.params.update(local_detour_enabled=False, robot_radius=.24,
+                       obstacle_inflation_cells=5,
+                       local_detour_occlusion_extension=.25)
+    start = (.525, 2.775)
+    ready(node, 101., x=start[0], y=start[1])
+    goal = make_goal(stamp=101)
+    goal.pose.position.x, goal.pose.position.y = 2.275, .325
+    node.on_goal(goal)
+    actual_box = (1.075, 1.575, 1.325, 1.825)
+    assert path_box_clearance(node.planned_world_points, actual_box) < .24
+    original_map = list(node.map[0].data)
+    front_face = {(x, 36) for x in range(21, 27)}
+    node.path_pub.publish.reset_mock()
+    ready(node, 101.1, x=start[0], y=start[1])
+    node.on_observed(hits(node, front_face))
+    assert node.waiting_for_replan
+
+    ready(node, 103.2, x=start[0], y=start[1])
+    node.retry_transform()
+    assert not node.waiting_for_replan
+    assert node.plan_metrics['plan_kind'] == 'GLOBAL'
+    assert node.local_attempt_id == 0
+    assert paths(node)[-1].poses
+    assert path_box_clearance(node.planned_world_points, actual_box) >= .24
+    assert node.observed == front_face
+    assert not node.remembered
+    assert list(node.map[0].data) == original_map
+    assert node.last_goal is goal
+
+
+def test_global_replan_reserves_hidden_depth_after_front_face_moves_to_memory(
+        planner_factory):
+    # A previously confirmed front face can remain in memory after the robot
+    # moves beyond LiDAR range and the live overlay expires. Global A* must
+    # keep the same planning-only depth reserve; otherwise it can cross the
+    # unseen back of this box while claiming the remembered face was avoided.
+    node = planner_factory(clearance_penalty_gain=0.)
+    node.params.update(local_detour_enabled=False, robot_radius=.24,
+                       obstacle_inflation_cells=5,
+                       local_detour_occlusion_extension=.25)
+    start = (.525, 2.775)
+    ready(node, 101., x=start[0], y=start[1])
+    goal = make_goal(stamp=101)
+    goal.pose.position.x, goal.pose.position.y = 2.275, .325
+    node.on_goal(goal)
+    actual_box = (1.075, 1.575, 1.325, 1.825)
+    assert path_box_clearance(node.planned_world_points, actual_box) < .24
+    original_map = list(node.map[0].data)
+    front_face = {(x, 36) for x in range(21, 27)}
+    node.path_pub.publish.reset_mock()
+    ready(node, 101.1, x=start[0], y=start[1])
+    node.on_memory(hits(node, front_face))
+    assert node.waiting_for_replan
+    assert not node.observed
+
+    ready(node, 103.2, x=start[0], y=start[1])
+    node.retry_transform()
+    assert not node.waiting_for_replan
+    assert node.plan_metrics['plan_kind'] == 'GLOBAL'
+    assert paths(node)[-1].poses
+    assert path_box_clearance(node.planned_world_points, actual_box) >= .24
+    assert node.remembered == front_face
+    assert not node.observed
+    assert list(node.map[0].data) == original_map
+    assert node.last_goal is goal
+
+
+def test_distant_memory_cluster_does_not_extend_an_unrelated_single_pixel(
+        planner_factory):
+    node = planner_factory()
+    remembered = {(24, 25), (60, 45), (61, 45)}
+    assert node._global_occlusion_reserve((10, 25), remembered,
+                                          remembered=True) == remembered
+
+
 @pytest.mark.parametrize('observation_margin,retained', [(0., False), (.05, True)])
 def test_one_cell_face_refinement_uses_reserved_observation_margin_without_chaining(
         planner_factory, observation_margin, retained):

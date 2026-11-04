@@ -107,6 +107,24 @@ def inflate_cells_circular(cells, width, height, radius):
             if 0 <= x + dx < width and 0 <= y + dy < height}
 
 
+def inflate_cells_footprint(cells, width, height, radius):
+    """Exact circular body versus two complete square grid cells.
+
+    The hit can lie anywhere in its cell, and the robot center anywhere in the
+    candidate cell. Their nearest separation is ``max(|dx|-1, 0)`` cells on
+    each axis. This is the tightest full-cell mask that does not admit a
+    geometric overlap at the requested body radius.
+    """
+    if not isfinite(radius) or radius < 0:
+        raise ValueError("Footprint inflation radius must be finite and nonnegative")
+    reach = ceil(radius + 1.)
+    offsets = [(dx, dy) for dy in range(-reach, reach + 1)
+               for dx in range(-reach, reach + 1)
+               if hypot(max(abs(dx) - 1., 0.), max(abs(dy) - 1., 0.)) <= radius + 1e-9]
+    return {(x + dx, y + dy) for x, y in cells for dx, dy in offsets
+            if 0 <= x + dx < width and 0 <= y + dy < height}
+
+
 def first_static_obstacle_distance(info, grid, origin_x, origin_y, angle, max_distance):
     """Return the first raw-map obstacle entry distance along a world-frame ray.
 

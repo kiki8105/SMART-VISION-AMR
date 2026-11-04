@@ -15,11 +15,11 @@ localization_health:
     # TF lookup/scan-map projection gaps seen under load lasted about 0.5 s.
     # Stop autonomous velocity immediately; only delay the latched ESTOP for
     # these spatial checks. Real scan/odom loss and pose jumps still latch
-    # after fault_seconds, and the independent EKF input guard is unchanged.
+    # after fault_seconds; the independent EKF guard has a 1.5 s stream limit.
     spatial_fault_seconds: 1.25
     # At 5 Hz scan period is 0.2 s. Allow up to 0.5 s extra transient
     # receive/header delay at departure. The next 0.25 s health tick blocks
-    # auto before a 1 s outage; the independent EKF guard still trips at 1 s.
+    # auto before a 1 s outage; the independent EKF guard trips at 1.5 s.
     # fault_seconds debounces sensor loss; spatial_fault_seconds covers TF and
     # scan-to-map projection gaps. Both immediately close autonomous motion.
     sensor_timeout: 0.7

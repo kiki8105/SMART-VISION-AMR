@@ -4,9 +4,11 @@
     map_frame: map
     base_frame: base_footprint
     occupied_threshold: 65
-    # 5 cells * 0.05 m = 0.25 m. Keeps the supplied Sector 1 coordinate valid.
-    # Offline paths retain >=0.275 m from raw occupied/unknown cell areas.
-    obstacle_inflation_cells: 5
+    # Four 5 cm cells give at least 20 cm between an occupied square and
+    # any point in the first traversable square. The physical robot's
+    # farthest rotating arc was measured at about 17 cm; three cells would
+    # leave only a 15 cm cell-to-cell gap and physical overlap.
+    obstacle_inflation_cells: 4
     # Repair only the nearby route prefix, then rejoin the original route ahead.
     # Static/unknown/live obstacles and the full chassis margin remain blocked.
     local_detour_enabled: true
@@ -14,11 +16,11 @@
     local_detour_max_rejoin_distance: 2.5  # m ahead along the original route.
     local_detour_max_length: 4.0  # m; longer detours use global A*.
     local_detour_max_lateral_distance: 0.9  # m from the original local route.
-    local_detour_clearance_margin: 0.02  # m beyond robot_radius; never reduces inflation.
-    local_detour_observation_margin: 0.0  # m; use the 0.22 m chassis radius + 0.02 m clearance, with cell/pose quantization still applied.
+    local_detour_clearance_margin: 0.0  # m beyond robot_radius; occupied cells and 4-cell inflation remain blocked.
+    local_detour_observation_margin: 0.0  # m; retain the measured 0.17 m rotating envelope and cell quantization.
     # A first scan may show only the front face of an unmapped object.
     # Reserve its unseen depth locally; never write these cells to the map/memory.
-    local_detour_occlusion_extension: 0.5  # m along the original forward route.
+    local_detour_occlusion_extension: 0.25  # m along the original forward route.
     local_detour_rejoin_buffer: 0.15  # m beyond the last blocked reference segment.
     local_detour_max_expansions: 1500  # Total search budget per local repair.
     local_detour_max_planning_time: 0.06  # s of bounded local search.
@@ -27,17 +29,20 @@
     # Legacy API setting; live observations are range-classified by change_memory.
     # Do not discard a real obstacle merely because it is close to a mapped wall.
     mapped_wall_return_tolerance_cells: 2
-    robot_radius: 0.22
+    robot_radius: 0.17
     start_egress_enabled: true
-    start_egress_clearance_margin: 0.02
+    start_egress_clearance_margin: 0.0
     start_egress_max_cells: 7
     # The live LiDAR overlay works even while persisted memory is disabled.
     live_obstacle_layer_required: true
     live_obstacle_timeout: 2.0
+    # A single isolated LiDAR cell must persist across scans before it cancels
+    # a moving route. Nav2's local costmap still checks every scan for collision.
+    live_route_confirmation_scans: 3
     # Choose the wider route when multiple collision-free A* routes exist.
-    # These add only travel cost; unknown/occupied cells and 5-cell inflation
+    # These add only travel cost; unknown/occupied cells and 4-cell inflation
     # remain impassable. They cannot create a route through a sealed corridor.
-    preferred_clearance: 0.35  # m; softer route preference, not the collision radius.
+    preferred_clearance: 0.18  # m; soft route preference, not the collision radius.
     clearance_penalty_gain: 1.5
     # A bounded escape is allowed only after a continuous straight forward
     # history, physical footprint margin, fresh LiDAR and a reachable A* exit.
@@ -45,7 +50,7 @@
     reverse_recovery_enabled: true
     reverse_recovery_min_distance: 0.10
     reverse_recovery_max_distance: 0.30
-    reverse_recovery_clearance_margin: 0.02
+    reverse_recovery_clearance_margin: 0.0
     reverse_recovery_speed: 0.04
     reverse_recovery_max_attempts: 3
     # Round corners only if every segment remains clear of inflated/unknown cells.
@@ -67,9 +72,15 @@
     rejoin_progress_distance: 0.35  # m; map+independent odom must confirm actual progress.
     rejoin_cross_track_tolerance: 0.20  # m from the replacement route.
     recovery_turn_heading_threshold: 0.65  # rad; larger first turn needs full sweep clearance.
-    recovery_turn_clearance_margin: 0.03  # m beyond robot_radius, without relaxing occupancy.
+    recovery_turn_clearance_margin: 0.0  # m beyond robot_radius, without relaxing occupancy.
 /path_follower:
   ros__parameters:
+    recovery_robot_radius: 0.17
+    recovery_rear_margin: 0.01  # m beyond the body for rear LiDAR preflight.
+    # Keep an active FollowPath through a brief scan/odom delivery gap while
+    # robot-side localization holds velocity at 0.7 s. New goals still need
+    # fresh inputs (<0.75 s); at 1.0 s cancel and replan rather than drive blind.
+    navigation_sensor_continuity_timeout: 1.0
     # Detect attempted movement without progress; sensor/manual/cancel faults are excluded.
     execution_failure_enabled: true
     execution_progress_window: 6.0  # s of valid motion evidence, unaffected by equivalent paths.
@@ -93,7 +104,7 @@
     curve_minimum_chord: 0.15  # m; avoids curvature spikes from dense tracking poses.
     curve_alignment_angle: 0.45  # rad; release angular cap before tight-turn heading error grows.
     curve_goal_heading_distance: 0.30  # m; do not restrict final yaw alignment.
-    curve_max_linear_velocity: 0.25  # m/s
+    curve_max_linear_velocity: 0.24  # m/s; matches the physical DWB upper bound.
     curve_max_angular_velocity: 0.35  # rad/s
     curve_max_lateral_acceleration: 0.10  # m/s^2
 /change_memory:

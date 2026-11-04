@@ -3,9 +3,11 @@
 import json
 import time
 from collections import deque
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+import yaml
 from rcl_interfaces.msg import Log
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, ReliabilityPolicy
@@ -270,6 +272,26 @@ def test_scan_still_trips_after_one_second_while_tf_has_separate_tolerance():
     core.update_graph([], 11.4)
     assert 'scan' in core.tick(11.4)
     assert core.latched
+
+
+def test_physical_profile_tolerates_brief_wheel_gap_but_latches_sustained_loss():
+    config = Path(__file__).resolve().parents[1] / 'config/ekf_hardware.yaml'
+    stale = yaml.safe_load(config.read_text())['ekf_sensor_guard']['ros__parameters']['stale_seconds']
+    assert stale == 1.5
+    core = EkfSensorGuardCore(arm_seconds=.2, stale_seconds=stale)
+    for now in (10.0, 10.3):
+        feed_all(core, now)
+        core.tick(now)
+    assert core.operator_reset(10.3)
+    for now in (11.4, 11.81):
+        for name in ('imu', 'scan', 'odom', 'odom_tf'):
+            feed(core, name, now)
+        core.update_graph([], now)
+        reason = core.tick(now)
+        if now == 11.4:
+            assert reason is None and not core.latched
+        else:
+            assert 'wheel' in reason and core.latched
 
 
 def test_battery_gate_is_opt_in_and_rejects_bad_or_stale_readings_when_enabled():

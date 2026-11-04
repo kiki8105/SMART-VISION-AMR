@@ -50,9 +50,17 @@ class PathFollower(Node):
         self.declare_parameter("goal_checker_id", "")
         self.declare_parameter("resume_goal_tolerance", 0.1)
         self.declare_parameter("navigation_inputs_required", True)
+        # Initial FollowPath dispatch still requires scan/odom fresher than
+        # 0.75 s. Once active, the robot-side localization guard holds velocity
+        # at 0.7 s; allow a bounded receipt gap before cancelling the route.
+        self.declare_parameter("navigation_sensor_continuity_timeout", 1.0)
         self.declare_parameter("navigation_footprint_topic", "/local_costmap/published_footprint")
         self.declare_parameter("navigation_costmap_topic", "/local_costmap/costmap")
         self.navigation_inputs_required = bool(self.get_parameter("navigation_inputs_required").value)
+        self.navigation_sensor_continuity_timeout = float(
+            self.get_parameter("navigation_sensor_continuity_timeout").value)
+        if not .75 <= self.navigation_sensor_continuity_timeout <= 1.0:
+            raise ValueError('navigation_sensor_continuity_timeout must be in [0.75, 1.0] s')
         self.navigation_input_fault = None
         self.navigation_input_cutoff_ns = None
         self.navigation_footprint_reference = None
@@ -1395,7 +1403,7 @@ class PathFollower(Node):
             raise ValueError('Footprint size differs from the robot')
         return polygon, center_x, center_y, centered, radii
 
-    def _navigation_input_error(self):
+    def _navigation_input_error(self, *, scan_odom_timeout=.75):
         """Compare geometry with odometry from the same proven source/receipt time."""
         now = self.get_clock().now().nanoseconds*1e-9
         received_now = time.monotonic()
@@ -1404,8 +1412,8 @@ class PathFollower(Node):
             return alignment_issue
         footprint_fresh_header = False
         for label, message, received_at, timeout in (
-                ('scan', self.latest_scan, self.latest_scan_at, .75),
-                ('odom', self.latest_odom, self.latest_odom_at, .75),
+                ('scan', self.latest_scan, self.latest_scan_at, scan_odom_timeout),
+                ('odom', self.latest_odom, self.latest_odom_at, scan_odom_timeout),
                 ('local costmap', self.latest_costmap, self.latest_costmap_at, 2.),
                 ('footprint', self.latest_footprint, self.latest_footprint_at, 1.5)):
             if message is None:
@@ -1533,7 +1541,8 @@ class PathFollower(Node):
                 or self.backup_goal_request_pending
                 or (self.active_goal is None and not self.goal_request_pending)):
             return
-        issue = self._navigation_input_error()
+        issue = self._navigation_input_error(
+            scan_odom_timeout=getattr(self, 'navigation_sensor_continuity_timeout', 1.0))
         if issue is not None:
             context = self.active_context or self.request_context or self._goal_context(self.active_path)
             self._hold_navigation_inputs(issue, context)
@@ -2001,10 +2010,12 @@ class PathFollower(Node):
             return "Odometry is stale or missing"
         if self.latest_scan.header.frame_id != self.get_parameter("recovery_scan_frame").value:
             return "LiDAR frame differs from the verified base-aligned rear scan frame"
+        radius = float(self.get_parameter("recovery_robot_radius").value)
+        margin = float(self.get_parameter("recovery_rear_margin").value)
+        if not isfinite(radius) or radius <= 0 or not isfinite(margin) or margin < 0:
+            return "Recovery footprint radius or rear margin is invalid"
         remaining = max(0.0, request["distance"] - request["traveled"])
-        required = (remaining
-                    + max(0.22, float(self.get_parameter("recovery_robot_radius").value))
-                    + max(0.05, float(self.get_parameter("recovery_rear_margin").value)))
+        required = remaining + radius + margin
         half_angle = radians(float(self.get_parameter("recovery_rear_half_angle_deg").value))
         clear, nearest = self._rear_clearance(self.latest_scan, required, half_angle)
         if not clear:

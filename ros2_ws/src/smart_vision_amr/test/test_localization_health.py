@@ -224,7 +224,7 @@ def test_physical_sensor_jitter_margin_is_bounded_below_independent_guard():
     guard = yaml.safe_load((package/'config/ekf_hardware.yaml').read_text())[
         'ekf_sensor_guard']['ros__parameters']
     assert settings['sensor_timeout'] == pytest.approx(.7)
-    assert settings['sensor_timeout'] < guard['stale_seconds'] == 1.0
+    assert settings['sensor_timeout'] < guard['stale_seconds'] == 1.5
 
     core = LocalizationHealthCore(stable_seconds=1.0,
                                   sensor_timeout=settings['sensor_timeout'])

@@ -1,6 +1,7 @@
 """Bound real execution retries, retain the goal, and require positive removal proof."""
 import copy
 import json
+from math import pi, sqrt
 
 import pytest
 from nav_msgs.msg import OccupancyGrid
@@ -92,6 +93,51 @@ def test_nonphysical_failure_edge_can_use_bounded_penalty_route(prepared):
     assert node.plan_metrics['failure_edge_fallback'] is True
     assert node.failure_state == 'REJOINING'
     assert node.obstacle_hold.attempts == 0
+
+
+def test_penalty_fallback_accepts_raw_echo_matching_known_static_wall(prepared):
+    node = prepared
+    failure_edge_corridor(node)
+    # The failed eastbound approach is in a narrow corridor. A raw scan beam
+    # sees its mapped south wall, 25 cm below the sensor, well within the
+    # failure-zone's proximity gate. It is not a new obstacle.
+    node.latest_scan.angle_min = -pi/4
+    node.latest_scan.ranges[0] = .25*sqrt(2.)
+    node.plan_to(node.last_goal)
+    assert path_points(node)
+    assert node.plan_metrics['failure_edge_fallback'] is True
+
+
+@pytest.mark.parametrize('return_m', [.25, .45])
+def test_penalty_fallback_rejects_unmatched_raw_hit_near_mapped_wall(prepared, return_m):
+    node = prepared
+    failure_edge_corridor(node)
+    node.latest_scan.angle_min = -pi/4
+    # .25 m is a real protrusion before the mapped wall. .45 m is behind the
+    # mapped wall but also cannot be certified as that wall's own return.
+    node.latest_scan.ranges[0] = return_m
+    node.plan_to(node.last_goal)
+    assert not path_points(node)
+    assert node.plan_metrics['failure_edge_fallback'] is False
+
+
+def test_penalty_fallback_cannot_treat_unknown_fringe_as_a_mapped_wall(prepared):
+    node = prepared
+    failure_edge_corridor(node)
+    changed = copy.deepcopy(node.map[0])
+    width = changed.info.width
+    pixels = list(changed.data)
+    pixels[12*width:13*width] = [-1]*width
+    changed.data = pixels
+    node.on_map(changed)
+    ready(node, 104.)
+    refresh(node, x=1.15, y=1.55)
+    node.latest_scan.header.frame_id = 'base_scan'
+    node.latest_scan.angle_min = -pi/4
+    node.latest_scan.ranges[0] = .25*sqrt(2.)
+    node.plan_to(node.last_goal)
+    assert not path_points(node)
+    assert node.plan_metrics['failure_edge_fallback'] is False
 
 
 @pytest.mark.parametrize('unsafe', ['physical_hit', 'raw_scan_hit', 'bad_scan_tf',

@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 from smart_vision_amr.astar import AStarPlanner
 from smart_vision_amr.map_utils import (
-    inflate_cells, inflate_cells_circular, occupancy_to_grid,
+    inflate_cells, inflate_cells_circular, inflate_cells_footprint, occupancy_to_grid,
 )
 from smart_vision_amr.web_mission_server import load_saved_map
 
@@ -62,3 +62,21 @@ def test_circular_live_mask_still_blocks_real_footprint_overlap():
     assert nearest < .24
     # Confirmed-memory inflation deliberately stays unchanged and conservative.
     assert START in inflate_cells({(37, 58)}, 86, 140, 5)
+
+
+def test_exact_live_footprint_has_no_extra_axial_cell_but_no_geometric_overlap():
+    hit = (15, 15)
+    resolution = .05
+    radius = .24 / resolution
+    mask = inflate_cells_footprint({hit}, 31, 31, radius)
+    assert (20, 15) in mask  # Worst-case square separation: 0.20 m.
+    assert (21, 15) not in mask  # Worst-case separation: 0.25 m.
+    assert (19, 19) in mask  # Diagonal nearest corners are only 0.212 m apart.
+    assert (20, 19) not in mask  # 3-4-5 triangle has 0.25 m clearance.
+    for x in range(31):
+        for y in range(31):
+            if (x, y) in mask:
+                continue
+            nearest = hypot(max(abs(x-hit[0])-1, 0),
+                            max(abs(y-hit[1])-1, 0)) * resolution
+            assert nearest > .24

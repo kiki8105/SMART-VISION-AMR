@@ -25,6 +25,10 @@ import xml.etree.ElementTree as ET
 import yaml
 
 import assess_classroom_safety_timeline as safety_timeline
+from build_classroom_replay_nav_profile import (
+    SIM_INFLATION_RADIUS_M, SIM_PREFERRED_CLEARANCE_M, SIM_ROBOT_RADIUS_M,
+    SIM_STATIC_INFLATION_CELLS, build_nav_profile_data, build_nodes_profile_data,
+)
 
 
 REPO = Path(__file__).resolve().parents[1]
@@ -52,6 +56,7 @@ WEB_FULL_STACK_STAGES = {
 }
 WEB_RUNTIME_KINDS = {'web_dwell', 'web_transient', 'web_moving_obstacle',
                      'web_reentry'}
+MAX_WEB_TRUTH_XY_TOLERANCE_M = .25
 
 
 def web_runtime_source_hashes(stage: 'Stage') -> dict[str, str]:
@@ -1010,7 +1015,27 @@ def run_in_network_namespace(stage: Stage, root: Path, leg_timeout: int,
     return subprocess.run(command, cwd=REPO, env=env, check=False).returncode
 
 
-def check_web_ground_truth(records: list[dict], evidence: dict) -> dict:
+def web_truth_xy_tolerance(nav_config: dict) -> float:
+    """Use the active Nav2 goal checker's tolerance, capped for independent QA."""
+    try:
+        controller = nav_config['controller_server']['ros__parameters']
+        plugins = controller['goal_checker_plugins']
+        if not isinstance(plugins, list) or len(plugins) != 1 or not isinstance(
+                plugins[0], str):
+            raise ValueError('expected exactly one Nav2 goal checker plugin')
+        tolerance = controller[plugins[0]]['xy_goal_tolerance']
+    except (KeyError, TypeError, IndexError) as exc:
+        raise ValueError('effective Nav2 xy_goal_tolerance missing') from exc
+    if (isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)) or
+            not math.isfinite(tolerance) or tolerance <= 0 or
+            tolerance > MAX_WEB_TRUTH_XY_TOLERANCE_M):
+        raise ValueError('effective Nav2 xy_goal_tolerance invalid or above '
+                         f'{MAX_WEB_TRUTH_XY_TOLERANCE_M:.2f} m')
+    return float(tolerance)
+
+
+def check_web_ground_truth(records: list[dict], evidence: dict,
+                           position_tolerance_m: float) -> dict:
     """Cross-check web marker/home events against independent Gazebo truth."""
     marker_wall_front_yaws = {}
     world = REPO/'ros2_ws/src/smart_vision_amr/worlds/classroom_20261030_stress.world'
@@ -1037,7 +1062,8 @@ def check_web_ground_truth(records: list[dict], evidence: dict) -> dict:
         else:
             at = evidence.get('dwell', {}).get(key, {}).get('start_event_at')
             goal = evidence.get('marker_targets', {}).get(key)
-        item = {'passed': False, 'event_at': at, 'goal': goal}
+        item = {'passed': False, 'event_at': at, 'goal': goal,
+                'position_tolerance_m': position_tolerance_m}
         if (isinstance(at, (int, float)) and isinstance(goal, (list, tuple))
                 and len(goal) == 3 and all(isinstance(value, (int, float))
                                            for value in goal) and truth):
@@ -1057,7 +1083,8 @@ def check_web_ground_truth(records: list[dict], evidence: dict) -> dict:
                          'fixture_wall_normal_error_rad': (round(wall_error, 3)
                                                            if wall_error is not None else None),
                          'truth': [closest['x'], closest['y'], closest['yaw']],
-                         'passed': (delta <= .75 and position <= .15 and heading <= .25
+                         'passed': (delta <= .75 and
+                                    position <= position_tolerance_m and heading <= .25
                                     and (marker_id == 'home' or
                                          (wall_error is not None and wall_error <= .25)))})
         checks[key] = item
@@ -1455,7 +1482,7 @@ def check_home_obstacle_timing(evidence: dict) -> dict:
 
 
 def check_physical_source_value_parity(directory: Path, manifest: dict) -> dict:
-    """Compare simulation inputs to the checked-in physical configuration values.
+    """Verify the exact declared Gazebo geometry overrides of physical tuning.
 
     This verifies source values, not the robot's live ROS parameters or its
     different OpenCR, network, camera and process topology.
@@ -1467,9 +1494,12 @@ def check_physical_source_value_parity(directory: Path, manifest: dict) -> dict:
         'ekf': config/'ekf_hardware.yaml',
     }
     generated_nav = directory/'classroom_nav_sim_time.yaml'
+    generated_nodes = directory/'classroom_nodes_sim.yaml'
     checks = {'source_files_available': all(path.is_file() for path in sources.values()),
               'generated_nav_available': generated_nav.is_file(),
-              'nav_source_selected': manifest.get('nav_profile_source') == str(sources['nav'])}
+              'generated_nodes_available': generated_nodes.is_file(),
+              'nav_source_selected': manifest.get('nav_profile_source') == str(sources['nav']),
+              'nodes_source_selected': manifest.get('nodes_profile_source') == str(sources['nodes'])}
     hashes = manifest.get('config_sha256') or {}
     source_hashes = {}
     for name, path in sources.items():
@@ -1477,12 +1507,10 @@ def check_physical_source_value_parity(directory: Path, manifest: dict) -> dict:
         source_hashes[name] = digest
         checks[f'{name}_source_hash_matches_runtime'] = bool(
             digest and hashes.get(str(path)) == digest)
-    if generated_nav.is_file():
-        checks['generated_nav_hash_matches_runtime'] = (
-            hashes.get(str(generated_nav)) == hashlib.sha256(
-                generated_nav.read_bytes()).hexdigest())
-    else:
-        checks['generated_nav_hash_matches_runtime'] = False
+    for name, path in (('nav', generated_nav), ('nodes', generated_nodes)):
+        checks[f'generated_{name}_hash_matches_runtime'] = bool(
+            path.is_file() and hashes.get(str(path)) ==
+            hashlib.sha256(path.read_bytes()).hexdigest())
 
     def without_sim_time(value, stamps):
         if isinstance(value, dict):
@@ -1498,29 +1526,54 @@ def check_physical_source_value_parity(directory: Path, manifest: dict) -> dict:
         return value
 
     source_times, generated_times = [], []
-    if sources['nav'].is_file() and generated_nav.is_file():
+    if (sources['nav'].is_file() and generated_nav.is_file() and
+            sources['nodes'].is_file() and generated_nodes.is_file()):
         try:
             source_nav = yaml.safe_load(sources['nav'].read_text())
             sim_nav = yaml.safe_load(generated_nav.read_text())
-            checks['nav_values_equal_except_sim_clock'] = (
-                without_sim_time(source_nav, source_times) ==
-                without_sim_time(sim_nav, generated_times))
-            checks['sim_clock_is_only_intended_override'] = bool(
+            source_nodes = yaml.safe_load(sources['nodes'].read_text())
+            sim_nodes = yaml.safe_load(generated_nodes.read_text())
+            checks['nav_values_equal_except_declared_sim_overrides'] = (
+                sim_nav == build_nav_profile_data(source_nav))
+            checks['nodes_values_equal_except_declared_sim_overrides'] = (
+                sim_nodes == build_nodes_profile_data(source_nodes))
+            without_sim_time(source_nav, source_times)
+            without_sim_time(sim_nav, generated_times)
+            checks['sim_clock_is_true_after_override'] = bool(
                 source_times and len(source_times) == len(generated_times)
                 and all(value is False for value in source_times)
                 and all(value is True for value in generated_times))
-        except (OSError, yaml.YAMLError):
-            checks['nav_values_equal_except_sim_clock'] = False
-            checks['sim_clock_is_only_intended_override'] = False
+            checks['sim_footprint_matches_stock_sdf'] = bool(
+                all(sim_nav[name][name]['ros__parameters']['robot_radius'] ==
+                    SIM_ROBOT_RADIUS_M and
+                    sim_nav[name][name]['ros__parameters']['inflation_layer'][
+                        'inflation_radius'] == SIM_INFLATION_RADIUS_M
+                    for name in ('local_costmap', 'global_costmap')) and
+                sim_nodes['/astar_planner']['ros__parameters']['robot_radius'] ==
+                SIM_ROBOT_RADIUS_M and
+                sim_nodes['/astar_planner']['ros__parameters'][
+                    'obstacle_inflation_cells'] == SIM_STATIC_INFLATION_CELLS and
+                sim_nodes['/astar_planner']['ros__parameters'][
+                    'preferred_clearance'] == SIM_PREFERRED_CLEARANCE_M and
+                sim_nodes['/path_follower']['ros__parameters'][
+                    'recovery_robot_radius'] == SIM_ROBOT_RADIUS_M)
+        except (OSError, yaml.YAMLError, KeyError, TypeError):
+            checks['nav_values_equal_except_declared_sim_overrides'] = False
+            checks['nodes_values_equal_except_declared_sim_overrides'] = False
+            checks['sim_clock_is_true_after_override'] = False
+            checks['sim_footprint_matches_stock_sdf'] = False
     else:
-        checks['nav_values_equal_except_sim_clock'] = False
-        checks['sim_clock_is_only_intended_override'] = False
+        checks['nav_values_equal_except_declared_sim_overrides'] = False
+        checks['nodes_values_equal_except_declared_sim_overrides'] = False
+        checks['sim_clock_is_true_after_override'] = False
+        checks['sim_footprint_matches_stock_sdf'] = False
     return {
         'passed': all(checks.values()), 'checks': checks,
         'source_sha256': source_hashes,
         'sim_clock_entries': {'physical': len(source_times), 'simulation': len(generated_times)},
-        'scope': 'checked-in Nav2, classroom nodes and EKF source values only; '
-                 'not live robot ros2 param dump or hardware topology',
+        'scope': 'checked-in Nav2, classroom nodes and EKF source values with '
+                 'declared Gazebo collision geometry overrides only; not live '
+                 'robot ros2 param dump or hardware topology',
     }
 
 
@@ -1552,6 +1605,7 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
                      if geometry_allowed and static_fixture.is_file() else None)
             nav_parameters = directory/'classroom_nav_sim_time.yaml'
             stop_model = {}
+            nav_config = None
             if nav_parameters.is_file():
                 # A fast physical-profile trial must use the same commanded
                 # speed and deceleration in its independent stopping witness.
@@ -1570,6 +1624,8 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
                 str(static_fixture) if boxes is not None else None)
             if stage.kind in {'web_dwell', 'web_transient', 'web_moving_obstacle',
                               'web_reentry'}:
+                truth_xy_tolerance = web_truth_xy_tolerance(nav_config)
+                evidence['web_truth_xy_tolerance_m'] = truth_xy_tolerance
                 manifest = directory/'runtime_manifest.json'
                 if manifest.is_file():
                     evidence['web_runtime_manifest'] = json.loads(manifest.read_text())
@@ -1588,14 +1644,16 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
                         'unknown')
                 if stage.kind == 'web_reentry':
                     evidence['cycle_independent'] = [
-                        {'web_ground_truth_checks': check_web_ground_truth(records, cycle),
+                        {'web_ground_truth_checks': check_web_ground_truth(
+                            records, cycle, truth_xy_tolerance),
                          'web_independent_dwell_checks': check_web_dwell_independent(
                              records, cycle),
                          'home_independent_settle_check': check_home_settle_independent(
                              records, cycle)}
                         for cycle in evidence.get('cycles', [])]
                 else:
-                    evidence['web_ground_truth_checks'] = check_web_ground_truth(records, evidence)
+                    evidence['web_ground_truth_checks'] = check_web_ground_truth(
+                        records, evidence, truth_xy_tolerance)
                     evidence['web_independent_dwell_checks'] = check_web_dwell_independent(
                         records, evidence)
                     evidence['home_independent_settle_check'] = check_home_settle_independent(
@@ -1619,7 +1677,7 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
                         evidence['memory_transition'] = json.loads(transition.read_text())
             elif stage.kind == 'web_disconnect':
                 evidence['web_disconnect_truth'] = check_web_disconnect_truth(records, evidence)
-        except (ValueError, OSError, TypeError) as exc:
+        except (ValueError, OSError, TypeError, yaml.YAMLError) as exc:
             safety = {'passed': False, 'missing_evidence': ['timeline_parse_error: '+str(exc)],
                       'violations': []}
     else:

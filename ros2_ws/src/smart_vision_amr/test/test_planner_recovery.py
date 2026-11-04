@@ -25,6 +25,7 @@ class PlannerHarness(AStarPlannerNode):
                        "start_egress_enabled": True, "start_egress_clearance_margin": 0.02,
                        "start_egress_max_cells": 7, "live_obstacle_layer_required": False,
                        "live_obstacle_timeout": 2.0,
+                       "live_route_confirmation_scans": 1,
                        "mapped_wall_return_tolerance_cells": 0}
         self.params.update({"path_smoothing_enabled": True,
                             "path_smoothing_iterations": 2,

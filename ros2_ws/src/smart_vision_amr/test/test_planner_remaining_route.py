@@ -6,6 +6,7 @@ from std_msgs.msg import Int32MultiArray
 
 from smart_vision_amr.astar_planner import AStarPlannerNode
 from test_planner_failure_memory import prepared, refresh, failure_event
+from test_planner_obstacle_hold import hit_message, newly_blocking_cell, ready, visibility
 
 
 def cell_message(node, x, y):
@@ -36,6 +37,66 @@ def test_new_live_obstacle_ahead_invalidates_and_requests_replan(prepared):
     assert not node.path_pub.publish.call_args.args[0].poses
     node._request_replan.assert_called_once()
     assert node.waiting_for_replan
+
+
+def test_distant_single_scan_does_not_cancel_but_persistent_hit_does(prepared):
+    node = prepared
+    node.params['live_route_confirmation_scans'] = 3
+    node.params['local_detour_enabled'] = False
+    blocker = newly_blocking_cell(node, min_x=10)
+    before = node.path_pub.publish.call_count
+    for stamp in (100.1, 100.2):
+        ready(node, stamp)
+        node.on_observed(hit_message(node, {blocker}))
+        node.on_visibility(visibility(node, occupied={blocker}))
+        assert node.path_pub.publish.call_count == before
+        assert not node.waiting_for_replan
+    ready(node, 100.3)
+    node.on_observed(hit_message(node, {blocker}))
+    node.on_visibility(visibility(node, occupied={blocker}))
+    assert node.waiting_for_replan
+    assert not node.path_pub.publish.call_args.args[0].poses
+
+
+def test_disappearing_distant_hit_resets_live_confirmation(prepared):
+    node = prepared
+    node.params['live_route_confirmation_scans'] = 3
+    node.params['local_detour_enabled'] = False
+    blocker = newly_blocking_cell(node, min_x=10)
+    before = node.path_pub.publish.call_count
+    for stamp, cells in ((100.1, {blocker}), (100.2, set()),
+                         (100.3, {blocker}), (100.4, {blocker})):
+        ready(node, stamp)
+        node.on_observed(hit_message(node, cells))
+        node.on_visibility(visibility(node, occupied=cells))
+    assert node.path_pub.publish.call_count == before
+    assert not node.waiting_for_replan
+
+
+def test_close_live_hit_cancels_immediately_even_with_confirmation_enabled(prepared):
+    node = prepared
+    node.params['live_route_confirmation_scans'] = 3
+    node.params['local_detour_enabled'] = False
+    blocker = newly_blocking_cell(node, min_x=8)
+    ready(node, 100.1)
+    node.on_observed(hit_message(node, {blocker}))
+    node.on_visibility(visibility(node, occupied={blocker}))
+    assert node.waiting_for_replan
+    assert not node.path_pub.publish.call_args.args[0].poses
+
+
+def test_cached_overlay_repeated_without_new_scan_hits_does_not_cancel(prepared):
+    node = prepared
+    node.params['live_route_confirmation_scans'] = 3
+    node.params['local_detour_enabled'] = False
+    blocker = newly_blocking_cell(node, min_x=10)
+    before = node.path_pub.publish.call_count
+    for stamp in (100.1, 100.2, 100.3, 100.4):
+        ready(node, stamp)
+        node.on_observed(hit_message(node, {blocker}))  # TTL overlay repeats.
+        node.on_visibility(visibility(node, occupied={blocker} if stamp == 100.1 else set()))
+    assert node.path_pub.publish.call_count == before
+    assert not node.waiting_for_replan
 
 
 def test_remembered_obstacle_behind_robot_does_not_cancel_current_action(prepared):

@@ -65,9 +65,10 @@ def test_verified_manual_pose_rejects_old_neighborhood_proof_but_keeps_manual_en
     app = application(tmp_path)
     app.manual_pose_state = 'VERIFIED'
     app.home_seed_match = .2
+    app.home_seed_match_at = 0.
     app.home_prior_evidence = {'supported': True, 'distinct_scans': 3,
         'consistent_candidates': 3, 'best_min_agreement': .9,
-        'at': time.monotonic(), 'key': app.home_seed_key()}
+        'at': time.monotonic()-2., 'key': app.home_seed_key()}
     available, reason = app.seed_home_readiness()
     assert not available and '자동 탐색을 중지' in reason
     with pytest.raises(MissionError, match='자동 탐색을 중지'):
@@ -92,7 +93,7 @@ def test_verified_manual_pose_keeps_fresh_exact_home_proof_and_sensor_guards(tmp
 @pytest.mark.parametrize('change', [
     lambda app: setattr(app, 'scan_at', 0.),
     lambda app: setattr(app, 'odom_at', 0.),
-    lambda app: setattr(app, 'home_seed_match', .5),
+    lambda app: setattr(app, 'home_seed_match', math.nan),
     lambda app: setattr(app, 'home_seed_match_at', 0.),
     lambda app: setattr(app, 'map_matches_configured', False),
     lambda app: app.speed.update(linear=.02),
@@ -107,6 +108,14 @@ def test_seed_rejects_stale_wrong_map_moving_unverified_or_changed_home(tmp_path
     with pytest.raises(MissionError):
         app.command('/api/localization/seed-home', {'confirm_actual_home': True})
     assert app.home_seed_request is None and app.mission.estop_latched
+
+
+@pytest.mark.parametrize('low_score', [0., .2, .5])
+def test_fresh_low_map_agreement_is_diagnostic_not_home_seed_veto(tmp_path, low_score):
+    app = application(tmp_path)
+    app.home_seed_match = low_score
+    app.command('/api/localization/seed-home', {'confirm_actual_home': True})
+    assert app.home_seed_request is not None and app.mission.estop_latched
 
 
 def test_seed_ui_labels_nonmoving_action_and_requires_checkbox():

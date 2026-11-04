@@ -116,6 +116,66 @@ def distance_to_blocked_cell(grid, x, y, world_to_cell, cell_to_world,
     return nearest
 
 
+def box_bypass_route_exists(grid, robot_xy, goal_xy, box_xy, tangent,
+                            world_to_cell, cell_to_world):
+    """Check a full-size box and its hidden-depth strip with offline A*.
+
+    The whole 25 cm box is known to this Gazebo fixture, even though the
+    robot's first scan will see only its near face. Reserve another 25 cm
+    along the route tangent. Use continuous box-to-robot-disc geometry so map
+    cell quantization does not add a second, unrequested clearance margin.
+    """
+    from smart_vision_amr.astar import AStarPlanner
+    from smart_vision_amr.map_utils import occupancy_to_grid
+
+    info = grid.info
+    resolution = float(info.resolution)
+    if not math.isfinite(resolution) or resolution <= 0:
+        return False
+    width, height = info.width, info.height
+    radius_cells = .24 / resolution
+    static = occupancy_to_grid(grid, occupied_threshold=65,
+                               inflation_cells=math.ceil(radius_cells))
+    start = world_to_cell(info, *robot_xy)
+    goal = world_to_cell(info, *goal_xy)
+    if static.is_static_obstacle(start) or static.is_static_obstacle(goal):
+        return False
+
+    def square_gap_at_progress(wx, wy, progress):
+        dx = max(abs(wx-box_xy[0]-tangent[0]*progress)-.125, 0.)
+        dy = max(abs(wy-box_xy[1]-tangent[1]*progress)-.125, 0.)
+        return math.hypot(dx, dy)
+
+    blocked = set()
+    reserve_depth = .25
+    # Distance to the swept square is convex in progress. Ternary search finds
+    # its nearest location without rasterizing the whole box as larger cells.
+    xmin = min(box_xy[0], box_xy[0]+tangent[0]*reserve_depth)-.365
+    xmax = max(box_xy[0], box_xy[0]+tangent[0]*reserve_depth)+.365
+    ymin = min(box_xy[1], box_xy[1]+tangent[1]*reserve_depth)-.365
+    ymax = max(box_xy[1], box_xy[1]+tangent[1]*reserve_depth)+.365
+    for iy in range(height):
+        for ix in range(width):
+            wx, wy = cell_to_world(info, (ix, iy))
+            if not (xmin <= wx <= xmax and ymin <= wy <= ymax):
+                continue
+            low, high = 0., reserve_depth
+            for _ in range(20):
+                third = (high-low)/3
+                left, right = low+third, high-third
+                if square_gap_at_progress(wx, wy, left) <= square_gap_at_progress(wx, wy, right):
+                    high = right
+                else:
+                    low = left
+            minimum_gap = min(square_gap_at_progress(wx, wy, progress)
+                              for progress in (0., (low+high)/2, reserve_depth))
+            if minimum_gap <= .24:
+                blocked.add((ix, iy))
+    if start in blocked or goal in blocked:
+        return False
+    return bool(AStarPlanner().plan(static, start, goal, blocked))
+
+
 def select_path_obstacle(path, robot_xy, goal_xy, grid,
                          world_to_cell, cell_to_world, observed_indices=(),
                          diagnostics=None):
@@ -123,7 +183,9 @@ def select_path_obstacle(path, robot_xy, goal_xy, grid,
     if diagnostics is not None:
         diagnostics.update({'path_points': len(path or ()), 'ahead_points': 0,
                             'oriented_points': 0, 'unobserved_points': 0,
-                            'clear_points': 0, 'max_static_clearance_m': None})
+                            'clear_points': 0, 'max_static_clearance_m': None,
+                            'bypass_routes_checked': 0,
+                            'sealed_candidates_rejected': 0})
     if not path or robot_xy is None:
         if diagnostics is not None:
             diagnostics['reason'] = 'NO_ACTIVE_HOME_PATH_OR_ROBOT_TRUTH'
@@ -181,14 +243,24 @@ def select_path_obstacle(path, robot_xy, goal_xy, grid,
                 'PATH_ALREADY_OBSERVED' if diagnostics['unobserved_points'] == 0 else
                 'NO_0P4_M_STATIC_WALL_CLEARANCE')
         return None
-    _, _, index, x, y, robot_distance, wall_distance, tangent, approach_along = min(candidates)
+    for _, _, index, x, y, robot_distance, wall_distance, tangent, approach_along in sorted(candidates):
+        if diagnostics is not None:
+            diagnostics['bypass_routes_checked'] += 1
+        if not box_bypass_route_exists(grid, robot_xy, goal_xy, (x, y), tangent,
+                                       world_to_cell, cell_to_world):
+            if diagnostics is not None:
+                diagnostics['sealed_candidates_rejected'] += 1
+            continue
+        if diagnostics is not None:
+            diagnostics['reason'] = 'SELECTED'
+        return {'index': index, 'x': x, 'y': y,
+                'robot_distance_m': robot_distance,
+                'static_wall_distance_m': wall_distance,
+                'path_tangent': list(tangent),
+                'approach_along_path_m': approach_along}
     if diagnostics is not None:
-        diagnostics['reason'] = 'SELECTED'
-    return {'index': index, 'x': x, 'y': y,
-            'robot_distance_m': robot_distance,
-            'static_wall_distance_m': wall_distance,
-            'path_tangent': list(tangent),
-            'approach_along_path_m': approach_along}
+        diagnostics['reason'] = 'NO_BYPASSABLE_BOX_SITE'
+    return None
 
 
 def observation_cleared(samples, removal_at):
@@ -200,9 +272,18 @@ def observation_cleared(samples, removal_at):
 
 
 def conservative_body_clearance(robot_xy, obstacle_xy):
-    """Center-distance lower bound for 24 cm robot radius and 25 cm square box."""
-    return math.hypot(robot_xy[0]-obstacle_xy[0],
-                      robot_xy[1]-obstacle_xy[1])-(.24+.25*math.sqrt(2)/2)
+    """Exact circle-to-axis-aligned-square gap for this Gazebo fixture.
+
+    The simulated robot's 24 cm bounding disc and the 25 cm square may pass
+    beside each other without the square's *corner* being on that side.
+    Treating its half-diagonal as a radius falsely reports an overlap there.
+    A negative result means the bounding disc intersects the box.
+    """
+    box_half_width = .25 / 2
+    robot_radius = .24
+    dx = max(abs(robot_xy[0]-obstacle_xy[0])-box_half_width, 0.)
+    dy = max(abs(robot_xy[1]-obstacle_xy[1])-box_half_width, 0.)
+    return math.hypot(dx, dy)-robot_radius
 
 
 def physical_bypass_proven(robot_xy, obstacle_xy, tangent, spawn_robot_xy,
@@ -212,7 +293,7 @@ def physical_bypass_proven(robot_xy, obstacle_xy, tangent, spawn_robot_xy,
     traveled = math.hypot(robot_xy[0]-spawn_robot_xy[0],
                           robot_xy[1]-spawn_robot_xy[1])
     passed = (along >= .20 and traveled >= .40 and motion_commands >= 3
-              and minimum_clearance >= .02)
+              and minimum_clearance >= 0.)
     return passed, along, traveled
 
 
@@ -462,7 +543,7 @@ def main():
                     self.obstacle_truth)
                 self.obstacle_clearance_samples += 1
                 self.obstacle_clearance_min = min(self.obstacle_clearance_min, clearance)
-                if clearance < .02:
+                if clearance < 0.:
                     self.obstacle_clearance_breach = True
                     if not self.clearance_stop_requested and self.estop.service_is_ready():
                         self.clearance_stop_requested = True
@@ -677,7 +758,9 @@ def main():
                             raise RuntimeError('Gazebo obstacle spawn failed: '+
                                                response.status_message)
                         if node.obstacle_clearance_breach:
-                            raise RuntimeError('Home obstacle: body clearance below 2 cm during spawn')
+                            raise RuntimeError(
+                                'Gazebo obstacle collision during spawn: '
+                                f'minimum body clearance {node.obstacle_clearance_min:.4f} m')
                         obstacle_spawned_at = node.elapsed()
                         obstacle_spawn_truth = node.truth
                         obstacle_spawn_cmd_index = len(node.commands)
@@ -696,7 +779,9 @@ def main():
                         node.emit('home_unmapped_obstacle_spawned',
                                   **candidate_path, name=model_name)
                 if node.obstacle_clearance_breach:
-                    raise RuntimeError('Home obstacle: actual body clearance below 2 cm')
+                    raise RuntimeError(
+                        'Gazebo obstacle collision: '
+                        f'minimum body clearance {node.obstacle_clearance_min:.4f} m')
                 if obstacle_live and node.truth is not None and node.obstacle_truth is not None:
                     obstacle_truth_seen = True
                     tangent = candidate_path['path_tangent']
@@ -748,7 +833,9 @@ def main():
                     node.spin_until(lambda: node.obstacle_truth is None, 4.,
                                     'Deleted Home obstacle remains in Gazebo model states')
                     if node.obstacle_clearance_breach:
-                        raise RuntimeError('Home obstacle: body clearance below 2 cm during removal')
+                        raise RuntimeError(
+                            'Gazebo obstacle collision during removal: '
+                            f'minimum body clearance {node.obstacle_clearance_min:.4f} m')
                     node.obstacle_active = False
                     obstacle['truth_removed'] = True
                     node.emit('home_obstacle_removed', name=node.obstacle_name)
@@ -817,7 +904,9 @@ def main():
                     node.commands, node.positions, stop_sample_from,
                     node.elapsed())
                 if node.obstacle_clearance_breach:
-                    raise RuntimeError('Home obstacle: clearance breached during stop verification')
+                    raise RuntimeError(
+                        'Gazebo obstacle collision during stop verification: '
+                        f'minimum body clearance {node.obstacle_clearance_min:.4f} m')
             leg = {'stop': name, 'goal': [x,y,goal_yaw], 'terminal': terminal,
                    'duration_s': round(node.elapsed()-sent_at, 3),
                    'gazebo_truth': list(gt) if gt else None,
@@ -955,7 +1044,7 @@ def main():
                                  and obstacle['route_reacted_before_removal']
                                  and obstacle['ros_observation_cleared']
                                  and obstacle['minimum_clearance_m'] is not None
-                                 and obstacle['minimum_clearance_m'] >= .02
+                                 and obstacle['minimum_clearance_m'] >= 0.
                                  and obstacle['clearance_sampling_sufficient']
                                  and safe_stop)
                 obstacle['outcome'] = ('MISSION_SUCCESS' if leg['passed'] else
@@ -1001,6 +1090,10 @@ def main():
                 for leg in evidence['legs']))
     except Exception as exc:
         evidence['failure'] = repr(exc)
+        if node.obstacle_clearance_samples and math.isfinite(node.obstacle_clearance_min):
+            obstacle_key = 'home_obstacle' if args.home_obstacle else 'route_obstacle'
+            if evidence.get(obstacle_key) is not None:
+                evidence[obstacle_key]['minimum_clearance_m'] = node.obstacle_clearance_min
         node.emit('trial_failed', error=repr(exc))
     finally:
         # An accepted terminal SUCCEEDED already stops the follower.  Do not

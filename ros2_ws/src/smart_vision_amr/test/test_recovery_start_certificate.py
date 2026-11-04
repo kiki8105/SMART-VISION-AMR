@@ -196,16 +196,16 @@ def test_waiting_for_action_server_cannot_make_start_certificate_stale(backup, f
 @pytest.mark.parametrize('scale,yaw', [(1., 0.), (1.05, .01)])
 def test_actual_planner_request_interoperates_with_exact_follower_handover(prepared, backup, scale, yaw):
     """Also runs with the staged older adapter and staged follower module loaded."""
-    from test_planner_start_reverse_evidence import scenario
+    from test_planner_start_reverse_evidence import reverse_required_scenario
     planner = prepared
-    goal = scenario(planner)
+    goal = reverse_required_scenario(planner)
     if scale != 1.:
         from smart_vision_amr.reverse_recovery import Breadcrumb
         from nav_msgs.msg import Odometry
         measured = Odometry()
         measured.header.frame_id, measured.child_frame_id = 'odom', 'base_link'
         measured.header.stamp.sec = 100
-        measured.pose.pose.position.x, measured.pose.pose.position.y = 1.3001, .38
+        measured.pose.pose.position.x, measured.pose.pose.position.y = 1.3001, .4001
         measured.pose.pose.orientation.z, measured.pose.pose.orientation.w = scale*sin(yaw/2), scale*cos(yaw/2)
         planner.on_odom(measured)
         transform = planner.tf_buffer.lookup_transform.return_value

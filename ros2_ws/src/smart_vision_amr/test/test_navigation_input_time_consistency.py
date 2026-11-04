@@ -114,6 +114,75 @@ def test_source_time_history_cannot_hide_stale_current_odometry_receipt():
     assert 'receipt' in node._navigation_input_error()
 
 
+def test_active_follow_path_survives_short_sensor_gap_and_fresh_recovery():
+    # New goals still fail preflight at 0.75 s. During an active goal the
+    # robot-side localization guard has already held velocity, so retaining
+    # the action briefly avoids an unnecessary cancel/replan on one late scan.
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        _, handle = start(node)
+        clock.return_value = 100.85
+        ros_now(node, 5.85)
+        assert 'Stale scan' in node._navigation_input_error()
+        node._watch_navigation_inputs()
+        handle.cancel_goal_async.assert_not_called()
+        assert not node.path_invalidated
+
+        # New scan and odometry arrive before the bounded continuity deadline.
+        clock.return_value = 100.90
+        ros_now(node, 5.90)
+        scan = deepcopy(node.latest_scan)
+        scan.header.stamp.sec, scan.header.stamp.nanosec = 5, 900_000_000
+        node.on_scan(scan)
+        odometry = deepcopy(node.latest_odom)
+        odometry.header.stamp.sec, odometry.header.stamp.nanosec = 5, 900_000_000
+        node.on_odom(odometry)
+        # The delayed odometry begins a new source-time history epoch. Nav2's
+        # accompanying footprint must represent that same fresh epoch.
+        circle(node, 0., stamp=5.9)
+        node._watch_navigation_inputs()
+        handle.cancel_goal_async.assert_not_called()
+        assert node.navigation_input_fault is None
+
+
+@pytest.mark.parametrize('source', ['scan', 'odom'])
+def test_active_follow_path_cancels_after_one_second_sensor_loss(source):
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        _, handle = start(node)
+        clock.return_value = 101.05
+        ros_now(node, 6.05)
+        if source == 'scan':
+            odometry = deepcopy(node.latest_odom)
+            odometry.header.stamp.sec, odometry.header.stamp.nanosec = 6, 50_000_000
+            node.on_odom(odometry)
+        else:
+            scan = deepcopy(node.latest_scan)
+            scan.header.stamp.sec, scan.header.stamp.nanosec = 6, 50_000_000
+            node.on_scan(scan)
+        node._watch_navigation_inputs()
+        handle.cancel_goal_async.assert_called_once()
+        assert node.navigation_input_fault.startswith('Stale '+source)
+
+
+@pytest.mark.parametrize('fault', ['missing_scan', 'bad_scan', 'bad_odom'])
+def test_continuity_window_does_not_accept_missing_or_invalid_input(fault):
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=100.) as clock:
+        node = healthy_follower()
+        _, handle = start(node)
+        clock.return_value = 100.85
+        ros_now(node, 5.85)
+        if fault == 'missing_scan':
+            node.latest_scan = None
+        elif fault == 'bad_scan':
+            node.latest_scan.ranges = [float('nan')]*360
+        else:
+            node.latest_odom.twist.twist.linear.x = float('nan')
+        node._watch_navigation_inputs()
+        handle.cancel_goal_async.assert_called_once()
+        assert node.navigation_input_fault is not None
+
+
 def test_old_header_current_geometry_still_has_receipt_time_pose_proof():
     node = delayed_polygon()
     circle(node, .12, stamp=1.)

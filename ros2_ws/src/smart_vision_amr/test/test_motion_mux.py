@@ -58,6 +58,32 @@ class MotionMuxTest(unittest.TestCase):
         self.assertTrue(self.control('estop', source=self.mux.LOCALIZATION_SAFETY_SOURCE))
         self.assertTrue(self.mux.status()['estop_latched'])
 
+    def test_scan_map_agreement_only_warning_does_not_attenuate_autonomous_command(self):
+        self.mux.require_localization_health = True
+        self.mux.receive_localization_health({
+            'level': 'warning', 'reasons': ['scan_map_agreement_low'],
+            'autonomous_allowed': True})
+        self.mux.receive_auto(.2, -.4)
+        self.assertEqual(self.mux.output(), (.2, -.4))
+        self.assertEqual(self.mux.status()['localization_speed_factor'], 1.0)
+
+    def test_other_warning_and_denied_or_critical_health_keep_their_limits(self):
+        self.mux.require_localization_health = True
+        self.mux.receive_auto(.2, -.4)
+        self.mux.receive_localization_health({
+            'level': 'warning',
+            'reasons': ['scan_map_agreement_low', 'position_std_m_elevated'],
+            'autonomous_allowed': True})
+        self.assertEqual(self.mux.output(), (.1, -.2))
+        self.mux.receive_localization_health({
+            'level': 'warning', 'reasons': ['scan_map_agreement_low'],
+            'autonomous_allowed': False})
+        self.assertEqual(self.mux.output(), (0.0, 0.0))
+        self.mux.receive_localization_health({
+            'level': 'critical', 'reasons': ['scan_map_agreement_low'],
+            'autonomous_allowed': True})
+        self.assertEqual(self.mux.output(), (0.0, 0.0))
+
     def test_release_does_not_replay_an_old_navigation_command(self):
         self.mux.receive_auto(.2, 0.0)
         self.control('manual', linear=-.1)

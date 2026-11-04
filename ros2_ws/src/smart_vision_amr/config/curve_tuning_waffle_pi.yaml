@@ -1,7 +1,5 @@
-# Hardware tuning source copied from TurtleBot3 Nav2 Humble waffle_pi.yaml.
-# Starting trial: 0.12 m/s and the shorter DWB plan window tested in the maze.
-# The remaining hardware Nav2 settings retain their source defaults.
-# This preset has not been validated on the physical TurtleBot3.
+# Classroom hardware Nav2 profile. The 2026-11-04 Home-stall adjustments
+# still require a powered physical return trial after Gazebo validation.
 amcl:
   ros__parameters:
     use_sim_time: False
@@ -138,14 +136,14 @@ controller_server:
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 0.12
+      max_vel_x: 0.24
       max_vel_y: 0.0
       # Limit in-place spin before a sudden hold so braking rotation stays
       # within the measured classroom clearance envelope.
       max_vel_theta: 0.5
-      min_speed_xy: 0.0
-      max_speed_xy: 0.12
-      min_speed_theta: 0.0
+      min_speed_xy: 0.02
+      max_speed_xy: 0.24
+      min_speed_theta: 0.12
       # Add high threshold velocity for turtlebot 3 issue.
       # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
       acc_lim_x: 2.5
@@ -161,8 +159,8 @@ controller_server:
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.05
-      trans_stopped_velocity: 0.25
+      xy_goal_tolerance: 0.25
+      trans_stopped_velocity: 0.02
       short_circuit_trajectory_evaluation: True
       stateful: True
       critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
@@ -193,11 +191,11 @@ local_costmap:
       width: 3
       height: 3
       resolution: 0.05
-      robot_radius: 0.22
+      robot_radius: 0.17
       plugins: ["obstacle_layer", "voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.55
+        inflation_radius: 0.18
         cost_scaling_factor: 3.0
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -247,7 +245,7 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       use_sim_time: False
-      robot_radius: 0.22
+      robot_radius: 0.17
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "voxel_layer", "inflation_layer"]
@@ -291,7 +289,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        inflation_radius: 0.18
       always_send_full_costmap: True
   global_costmap_client:
     ros__parameters:

@@ -69,7 +69,9 @@ imu_ekf_conditioner:
 ekf_sensor_guard:
   ros__parameters:
     arm_seconds: 2.0
-    stale_seconds: 1.0
+    # A one-off missed 10 Hz wheel/scan callback must not latch ESTOP. Live
+    # navigation has its own 1.0 s scan/pose hold; sustained loss still stops.
+    stale_seconds: 1.5
     # /tf is independently checked at 5 Hz. Brief receipt/lookup jitter must
     # not latch an ESTOP while wheel, IMU, scan and EKF odom remain fresh.
     odom_tf_stale_seconds: 1.5

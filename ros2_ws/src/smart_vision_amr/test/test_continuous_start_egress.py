@@ -199,7 +199,9 @@ def test_ros_adapter_refuses_stale_pose_exception(prepared):
     node.raw_static_grid = free
     node.map_signature = (65, 5, 0)
     node.params["obstacle_inflation_cells"] = 5
-    node.observed = {(24, 18)}
+    # Five-cell offset still overlaps the complete 24 cm footprint. Six
+    # cells are now geometrically clear under the exact full-cell mask.
+    node.observed = {(23, 18)}
     node.last_observation_time = node.clock["steady"]
     refresh(node, x=.925, y=.925)
     node.latest_scan_at = node.clock["steady"] - 2.0

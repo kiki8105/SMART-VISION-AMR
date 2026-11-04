@@ -27,9 +27,9 @@ def scenario(node):
     node.observed = {(16, 3)}
     node.remembered = set()
     node.last_observation_time = node.clock['steady']
-    # Actual pose is clear (.2999 m from hit square), while the cell center
-    # has only .25 m and cannot carry the full chassis through a first-edge
-    # certificate. A real .10 m retreat exits that quantization band.
+    # The actual pose is .2999 m from the hit square. With continuous-pose
+    # start certification, this baseline may now route behind the hit without
+    # invoking the separate reverse action.
     refresh(node, x=1.3001, y=.38, yaw=0.)
     node.breadcrumbs = deque((Breadcrumb(97.+i, 1.0001+.10*i, .38, 0.)
                              for i in range(4)), maxlen=300)
@@ -53,23 +53,47 @@ def scenario(node):
     return goal
 
 
+def reverse_required_scenario(node):
+    """A clear rear trail exists, but no certified A* first edge exists.
+
+    A diagonal scan hit leaves the *measured pose* clear of the obstacle and
+    wall. The raster start and its immediate neighbors are inside the hit's
+    complete footprint inflation. A 20 cm reverse reaches a free cell from
+    which the retained goal is reachable around the hit.
+    """
+    goal = scenario(node)
+    node.params['robot_radius'] = .24
+    node.observed = {(15, 6)}
+    refresh(node, x=1.3001, y=.4001, yaw=0.)
+    node.latest_odom_child_frame = 'base_link'
+    node.breadcrumbs = deque((Breadcrumb(97.+i, 1.0001+.10*i, .4001, 0.)
+                             for i in range(4)), maxlen=300)
+    node.breadcrumb_odom_anchor = node.latest_odom
+    node.odom_samples = deque((
+        (99.75+i*.05, 99_750_000_000+i*50_000_000,
+         node.latest_odom[2], node.latest_odom[3], node.latest_odom[4], node.latest_odom[5])
+        for i in range(6)), maxlen=100)
+    goal.pose.position.y = .4001
+    return goal
+
+
 def test_live_hit_at_inflated_start_requests_checked_retreat_parallel_to_wall(prepared):
     node = prepared
-    goal = scenario(node)
+    goal = reverse_required_scenario(node)
     source = list(node.map[0].data)
     node.plan_to(goal)
     request = json.loads(node.recovery_pub.publish.call_args.args[0].data)
-    assert request['distance'] == pytest.approx(.10)
-    assert request['start_cell'] == [13, 3]
-    assert request['exit_cell'] == [12, 3]
-    assert request['blocking_cells'] == [[16, 3]]
+    assert request['distance'] == pytest.approx(.20)
+    assert request['start_cell'] == [13, 4]
+    assert request['exit_cell'] == [11, 4]
+    assert request['blocking_cells'] == [[15, 6]]
     cert = request['certified_start']
     assert cert == {
         'frame_id': 'odom', 'child_frame_id': 'base_link',
-        'stamp_ns': 100_000_000_000, 'x': 1.3001, 'y': .38, 'yaw': 0.,
+        'stamp_ns': 100_000_000_000, 'x': 1.3001, 'y': .4001, 'yaw': 0.,
         'certified_at_ns': 100_000_000_000, 'max_position_drift_m': .003,
         'max_yaw_drift_rad': .01, 'sweep_reserve_m': .01,
-        'map_frame': 'map', 'map_base_frame': 'base_link', 'map_x': 1.3001, 'map_y': .38, 'map_yaw': 0.,
+        'map_frame': 'map', 'map_base_frame': 'base_link', 'map_x': 1.3001, 'map_y': .4001, 'map_yaw': 0.,
         'map_stamp_ns': 100_000_000_000}
     assert node.last_goal is goal and node.recovery_active
     assert list(node.map[0].data) == source
@@ -120,7 +144,7 @@ def test_static_inflated_start_requests_checked_wall_parallel_retreat(prepared):
 ])
 def test_retreat_never_bypasses_independent_gates_or_collision(prepared, fault):
     node = prepared
-    goal = scenario(node)
+    goal = reverse_required_scenario(node)
     if fault == 'rear_hit': node.observed.add((10, 3))
     if fault == 'missing_history': node._clear_breadcrumbs()
     if fault == 'stale_scan': node.latest_scan_at = 98.
@@ -130,8 +154,8 @@ def test_retreat_never_bypasses_independent_gates_or_collision(prepared, fault):
     if fault == 'estop': node.latest_motion_status['estop_latched'] = True
     if fault == 'reset_pending': node.latest_motion_status['reset_pending'] = True
     if fault == 'attempt_budget': node.recovery_attempts = 3
-    if fault == 'same_cell': node.recovery_attempted_cells.add((13, 3))
-    if fault == 'raw_start': node.observed.add((13, 3))
+    if fault == 'same_cell': node.recovery_attempted_cells.add((13, 4))
+    if fault == 'raw_start': node.observed.add((13, 4))
     if fault == 'stale_observed': node.last_observation_time = 98.
     if fault == 'invalid_radius': node.params['robot_radius'] = float('nan')
     if fault == 'moving':
@@ -196,6 +220,23 @@ def test_static_quantization_uses_private_single_cell_view_with_full_inflation_t
     node.recovery_pub.publish.assert_not_called()
 
 
+def test_static_start_certificate_uses_deployment_radius_without_stock_floor(prepared, monkeypatch):
+    from smart_vision_amr import astar_planner as planner_module
+    node = prepared
+    goal = static_scenario(node)
+    node.params['robot_radius'] = .17
+    certified_radii = []
+    original = planner_module.certified_start_only_edges
+
+    def capture_radius(*args, **kwargs):
+        certified_radii.append(args[6] * node.map[0].info.resolution)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(planner_module, 'certified_start_only_edges', capture_radius)
+    node.plan_to(goal)
+    assert certified_radii == pytest.approx([.17])
+
+
 @pytest.mark.parametrize('fault', ['scan_stale', 'health_denied', 'raw_start', 'raw_hit', 'goal_inflated'])
 def test_static_certificate_preserves_freshness_raw_layers_and_goal_inflation(prepared, fault):
     node = prepared
@@ -237,7 +278,7 @@ def test_private_start_view_cannot_enable_later_diagonal_across_original_start_c
 def test_manual_stop_during_recovery_clears_trail_and_ignores_late_success(prepared):
     from test_planner_recovery import status
     node = prepared
-    goal = scenario(node)
+    goal = reverse_required_scenario(node)
     node.plan_to(goal)
     assert node.recovery_active
     publications = node.recovery_pub.publish.call_count
@@ -255,7 +296,7 @@ def test_manual_stop_during_recovery_clears_trail_and_ignores_late_success(prepa
 def test_expensive_candidate_work_cannot_refresh_measured_certificate_age(prepared, monkeypatch, delay, allowed):
     from smart_vision_amr import astar_planner as planner_module
     node = prepared
-    goal = scenario(node)
+    goal = reverse_required_scenario(node)
     original = planner_module.select_reverse_egress
     def slow_selector(*args, **kwargs):
         result = original(*args, **kwargs)
