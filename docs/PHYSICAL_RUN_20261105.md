@@ -63,6 +63,35 @@ git pull --ff-only &&
 
 `192.168.0.187`은 기존 로봇 주소입니다. 변경됐다면 로봇에서 `hostname -I`로 확인합니다.
 
+**현재 실차의 기존 배포 경로는 아래와 같습니다.** 11월 4일 인수인계와 로컬 배포
+기록에서 확인한 경로이며, `~/SMART-VISION-AMR` 신규 클론 예시와 다릅니다.
+
+| 용도 | 기존 실차 경로 |
+|---|---|
+| 로봇 소스 | `/home/robot/SMART-VISION-AMR-fresh-20261102` |
+| 로봇 런타임 | `/home/robot/smart_vision_runtime_ws_fresh_20261102` |
+
+현재 로봇 SSH에서는 다음 경로를 사용합니다.
+
+```bash
+cd ~/SMART-VISION-AMR-fresh-20261102
+export SMART_VISION_RUNTIME_WORKSPACE="$HOME/smart_vision_runtime_ws_fresh_20261102"
+```
+
+기존 폴더에는 별도로 반영한 실차 수정이 있을 수 있으므로 상태 확인 없이 `git pull`이나
+덮어쓰기를 하지 않습니다. **11월 5일 PC 커밋·푸시는 로봇에 최신 코드가 배포됐다는
+뜻이 아닙니다.** 기존 소스 변경 확인·최신 코드 반영·위 런타임 재빌드를 마쳐야 합니다.
+기존 배포본의 브링업 경로는 다음과 같으며, 최신 코드 반영 여부와 구분합니다.
+
+```bash
+SMART_VISION_RUNTIME_WORKSPACE="$HOME/smart_vision_runtime_ws_fresh_20261102" \
+ENABLE_FRONT_CAMERA=false \
+  "$HOME/SMART-VISION-AMR-fresh-20261102/scripts/robot_bringup_camera_16_ekf.sh"
+```
+
+**아래 갱신·실행 예시는 `~/SMART-VISION-AMR`로 새로 클론·설치한 로봇에만 해당합니다.**
+현재 실차에 그 폴더가 있다고 가정하지 않습니다. 새 설치는 [팀원 퀵스타트](TEAM_QUICKSTART.md)를 따릅니다.
+
 ```bash
 ssh robot@192.168.0.187
 ```
