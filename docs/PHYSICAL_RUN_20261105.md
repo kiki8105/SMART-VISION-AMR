@@ -71,53 +71,49 @@ git pull --ff-only &&
 | 로봇 소스 | `/home/robot/SMART-VISION-AMR-fresh-20261102` |
 | 로봇 런타임 | `/home/robot/smart_vision_runtime_ws_fresh_20261102` |
 
-현재 로봇 SSH에서는 다음 경로를 사용합니다.
-
-```bash
-cd ~/SMART-VISION-AMR-fresh-20261102
-export SMART_VISION_RUNTIME_WORKSPACE="$HOME/smart_vision_runtime_ws_fresh_20261102"
-```
-
-기존 폴더에는 별도로 반영한 실차 수정이 있을 수 있으므로 상태 확인 없이 `git pull`이나
-덮어쓰기를 하지 않습니다. **11월 5일 PC 커밋·푸시는 로봇에 최신 코드가 배포됐다는
-뜻이 아닙니다.** 기존 소스 변경 확인·최신 코드 반영·위 런타임 재빌드를 마쳐야 합니다.
-기존 배포본의 브링업 경로는 다음과 같으며, 최신 코드 반영 여부와 구분합니다.
-
-```bash
-SMART_VISION_RUNTIME_WORKSPACE="$HOME/smart_vision_runtime_ws_fresh_20261102" \
-ENABLE_FRONT_CAMERA=false \
-  "$HOME/SMART-VISION-AMR-fresh-20261102/scripts/robot_bringup_camera_16_ekf.sh"
-```
-
-**아래 갱신·실행 예시는 `~/SMART-VISION-AMR`로 새로 클론·설치한 로봇에만 해당합니다.**
-현재 실차에 그 폴더가 있다고 가정하지 않습니다. 새 설치는 [팀원 퀵스타트](TEAM_QUICKSTART.md)를 따릅니다.
+**매번 사용하는 실행 명령은 기존 `~/turtlebot16`입니다.** 저장소 경로와 런타임
+환경변수는 이 파일 안에서 지정하며, 매번 긴 명령을 입력하지 않습니다.
 
 ```bash
 ssh robot@192.168.0.187
 ```
 
-이후 **SSH 로봇 터미널**에서:
+접속 후 로봇 터미널에서:
 
 ```bash
-cd ~/SMART-VISION-AMR
-git pull --ff-only &&
-./scripts/setup_robot_runtime.sh --no-install
+cd ~
+./turtlebot16
 ```
 
-위 명령이 성공하면 실행 파일을 갱신하고 브링업을 시작합니다.
+### 처음 한 번: 기존 로봇 경로로 turtlebot16 지정
+
+아래는 로봇 SSH에서 한 번만 실행하는 **실행 파일 설정**입니다. 먼저 기존 브링업을
+종료합니다. 기존 파일을 백업한 뒤 기록된 소스·런타임 경로를 지정합니다.
+로봇의 현재 `turtlebot16` 내용을 이번 문서 수정 때 원격으로 조회한 것은 아닙니다.
 
 ```bash
+if [ -e "$HOME/turtlebot16" ]; then
+  cp -a "$HOME/turtlebot16" "$HOME/turtlebot16.before-$(date +%Y%m%d-%H%M%S)"
+fi
 cat > ~/turtlebot16 <<'SH'
 #!/usr/bin/env bash
-exec env ENABLE_FRONT_CAMERA="${ENABLE_FRONT_CAMERA:-false}" \
-  "$HOME/SMART-VISION-AMR/scripts/robot_bringup_camera_16_ekf.sh" "$@"
+set -e
+export SMART_VISION_RUNTIME_WORKSPACE="$HOME/smart_vision_runtime_ws_fresh_20261102"
+export ENABLE_FRONT_CAMERA=false
+exec "$HOME/SMART-VISION-AMR-fresh-20261102/scripts/robot_bringup_camera_16_ekf.sh" "$@"
 SH
 chmod +x ~/turtlebot16
-~/turtlebot16
 ```
 
-그대로 켜 둡니다. 기본 LDS-03 대신 실물이 LDS-02면 마지막 명령을
-`LDS_MODEL=LDS-02 ~/turtlebot16`으로 실행합니다.
+설정 후에도 실행은 `cd ~` → `./turtlebot16`입니다. 이 파일이 브링업·후방 카메라와
+로봇 측 독립 EKF/제어 런타임을 시작합니다. LDS-02 장치라면
+`LDS_MODEL=LDS-02 ./turtlebot16`을 사용합니다.
+
+**실행 파일 경로 수정과 최신 코드 배포는 별개입니다.** GitHub 푸시만으로 로봇의
+기존 소스가 갱신되지 않습니다. 기존 실차 수정 확인·최신 코드 반영·해당 런타임 재빌드가
+필요하며, 이번 문서 수정에서는 로봇 업데이트·실행을 하지 않았습니다. 상태 확인 없이
+기존 폴더에 `git pull`이나 덮어쓰기를 하지 않습니다.
+새 로봇에 표준 경로로 클론하는 절차는 [팀원 퀵스타트](TEAM_QUICKSTART.md)에 있습니다.
 
 ## 터미널 2: 로컬 PC 센서 검사·주행 런치
 
