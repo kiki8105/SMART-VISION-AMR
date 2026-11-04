@@ -112,7 +112,25 @@ def _runtime(context):
         Node(package='smart_vision_amr', executable='motion_mux', name='motion_mux',
              parameters=[common, timing, {'allow_legacy_auto_input': False,
                                   'require_localization_health': True,
-                                  'startup_estop': True, 'allow_topic_reset': False}],
+                                  'max_linear_velocity': 0.22,
+                                  'scan_guard_robot_radius': 0.22,
+                                  'scan_guard_base_frame': 'base_footprint',
+                                  'startup_estop': True, 'allow_topic_reset': False,
+                                  # Final physical command coupling. Straight
+                                  # travel stays at 0.22 m/s; a commanded turn
+                                  # retains yaw authority but reduces forward
+                                  # speed before the chassis cuts a wide arc.
+                                  'auto_turn_slowdown_enabled': True,
+                                  'auto_turn_start_angular': 0.08,
+                                  'auto_turn_full_angular': 0.35,
+                                  'auto_turn_entry_linear_velocity': 0.15,
+                                  'auto_turn_min_linear_velocity': 0.10,
+                                  # Only the actual final publisher advances
+                                  # this ramp; safety/zero commands bypass it.
+                                  'gentle_start_enabled': True,
+                                  'gentle_start_linear_acceleration': 0.20,
+                                  'gentle_start_angular_acceleration': 0.80,
+                                  'gentle_start_max_publish_gap': 0.50}],
              output='screen', on_exit=Shutdown(reason='Final velocity mux exited')),
         Node(package='smart_vision_amr', executable='localization_health',
              name='localization_health', parameters=[health_params, common,

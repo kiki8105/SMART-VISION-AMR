@@ -1,0 +1,529 @@
+{
+  "schema_version": 1,
+  "scope": "Independent completed-trial read-only diagnostic; no runtime, script, threshold, sensor, web or goal changes.",
+  "trial_root": "/tmp/classroom-transfer-cold_common_prefix_owned-20261105",
+  "stage": "25_web_inventory_sector3_moving_obstacle",
+  "strict_outcome": "FAIL",
+  "strict_failure_reasons": [
+    "web_obstacle_injector_failed",
+    "web_obstacle_bypassed_while_live_unverified",
+    "web_obstacle_motion_unverified",
+    "safety_timeline_failed",
+    "runner_nonzero_exit"
+  ],
+  "input_sha256": {
+    "staged_report.json": "2fdc18bd0ef792f0d436413c300fe156a87590b9659d41f6852c995aec504afd",
+    "25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl": "ab8f38ea8cfd79e3673d300c42ad408cf4f79aaaaef5cbaa8e9f33f77ab5381d",
+    "25_web_inventory_sector3_moving_obstacle/acceptance.json": "4aab066a6c6440d8bacfd681754b335f239777b1c988bd4218edf6d9a0045722",
+    "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json": "1a768c7a3601011f30ef9caf39de4471f98e6f5c147b67e7ab27c61b5cf4a3d4",
+    "25_web_inventory_sector3_moving_obstacle/safety_assessment.json": "d7bedc87622fb87dacdbde54e9a809cd2217cc1ab321e250d5c22d8cc4861a26",
+    "25_web_inventory_sector3_moving_obstacle/runtime_manifest.json": "356450ea183c403bc45a4566393560c5badb0f48cd58bc20bb81e31b9127da35",
+    "25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+    "25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+    "25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+    "25_web_inventory_sector3_moving_obstacle/gazebo_launch.log": "feed9380ad6632234d0da9f6363380838705944b328e5346f1daf4037883a634"
+  },
+  "source_unchanged": true,
+  "executed_astar_sha256": "b5f2950fa7c6be67d72a61e124bb9aa6164f1995579204b138acb06eaf638aff",
+  "mission_backend": {
+    "passed": true,
+    "final_state": "HOME_REACHED",
+    "failure": null,
+    "mission_continuity": {
+      "samples": 865,
+      "route_preserved": true,
+      "completed_prefix_valid": true,
+      "states": {
+        "NAVIGATING": 322,
+        "WAIT_REPLAN": 244,
+        "CONFIRMING": 26,
+        "DWELLING": 23,
+        "RETURNING_HOME": 243,
+        "HOME_REACHED": 7
+      },
+      "web_wait_replan_seen": true,
+      "start_event_count": 1,
+      "cancel_event_count": 0,
+      "marker_confirmations": {
+        "3": 1
+      }
+    },
+    "mission_started_at": 1793814361.2205374,
+    "startup_reset_attempts": [
+      {
+        "at": 1793814354.9306333,
+        "accepted": true
+      },
+      {
+        "at": 1793814358.000652,
+        "accepted": true
+      }
+    ]
+  },
+  "all_startup_reset_attempts_before_mission": true,
+  "actor": {
+    "passed": false,
+    "input_status": "VALID",
+    "spawned": true,
+    "moving_steps": 1,
+    "bypassed_while_live": false,
+    "minimum_clearance_m": 0.06445738940362936,
+    "observed_while_live": true,
+    "observed_cleared": true,
+    "path_reacted_before_removal": true,
+    "recovery_requests": 0
+  },
+  "safety_violations": [
+    {
+      "kind": "ground_truth_missing_at_wait_replan_entry",
+      "t": 54.3075,
+      "start_t": 53.4507,
+      "duration_s": 0.8568,
+      "last_nonzero_command_after_s": 0.10679999999999978,
+      "first_zero_command_after_s": 0.13330000000000553,
+      "max_displacement_m": 0.0,
+      "max_forward_displacement_m": 0.0,
+      "max_heading_change_rad": 0.0,
+      "truth_samples": 6,
+      "entry_speed_mps": 0.0484,
+      "entry_command_speed_mps": 0.0484,
+      "entry_truth_speed_mps": null,
+      "entry_front_core_min_m": 0.7829670310020447,
+      "entry_front_core_angle_deg": 348.79243542488246,
+      "ground_truth_stopping_distance_bound_m": 0.05,
+      "estimated_front_body_clearance_m": 0.636
+    }
+  ],
+  "certificate_revocation_summary": {
+    "active_to_revoked_transitions": 12,
+    "direct_raw_scan_transform_exception": 9,
+    "future_tf_gap_min_s": 0.033999999999991815,
+    "future_tf_gap_max_s": 0.12100000000000222,
+    "other_reasons": [
+      "selected_edge_no_longer_certified"
+    ],
+    "counting_note": "Count only first REVOKED after a published ACTIVE state. Prefix diagnostics retained from an older event are not counted as a new TF cause when certificate_reason differs."
+  },
+  "revocations": [
+    {
+      "t": 47.5975,
+      "wall_time": 1793814388.5614,
+      "status": "WAIT_REPLAN",
+      "global_plan_count": 4,
+      "reason": "raw_scan_transform_unavailable_or_invalid",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 30.948000 but the latest data is at time 30.886000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 30948000000
+      },
+      "selected_certificate": {
+        "reason": "selected_first_edge_certified",
+        "edge": [
+          [
+            32,
+            94
+          ],
+          [
+            31,
+            93
+          ]
+        ]
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.013173157901153087,
+          -0.5058166044481769
+        ],
+        "start_tf_stamp_ns": 30851000000
+      },
+      "future_tf_gap_s": 0.062000000000001165
+    },
+    {
+      "t": 53.4507,
+      "wall_time": 1793814394.4146,
+      "status": "WAIT_REPLAN",
+      "global_plan_count": 5,
+      "reason": "raw_scan_transform_unavailable_or_invalid",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 32.949000 but the latest data is at time 32.851000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 32949000000
+      },
+      "selected_certificate": {
+        "reason": "selected_first_edge_certified",
+        "edge": [
+          [
+            32,
+            94
+          ],
+          [
+            31,
+            93
+          ]
+        ]
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.01268452347084198,
+          -0.5105172459727677
+        ],
+        "start_tf_stamp_ns": 32786000000
+      },
+      "future_tf_gap_s": 0.09799999999999898
+    },
+    {
+      "t": 54.5096,
+      "wall_time": 1793814395.4735,
+      "status": "WAIT_REPLAN",
+      "global_plan_count": 6,
+      "reason": "raw_scan_transform_unavailable_or_invalid",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 37.556000 but the latest data is at time 37.455000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 37556000000
+      },
+      "selected_certificate": {
+        "reason": "not_required",
+        "edge": null
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.03166410158946381,
+          -0.5057458983748702
+        ],
+        "start_tf_stamp_ns": 37355000000
+      },
+      "future_tf_gap_s": 0.10099999999999909
+    },
+    {
+      "t": 55.3072,
+      "wall_time": 1793814396.2711,
+      "status": "WAIT_REPLAN",
+      "global_plan_count": 7,
+      "reason": "selected_edge_no_longer_certified",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 37.556000 but the latest data is at time 37.455000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 37556000000
+      },
+      "selected_certificate": {
+        "reason": "selected_first_edge_certified",
+        "edge": [
+          [
+            32,
+            94
+          ],
+          [
+            32,
+            93
+          ]
+        ]
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.0328408828503543,
+          -0.5031480527564521
+        ],
+        "start_tf_stamp_ns": 38059000000
+      }
+    },
+    {
+      "t": 56.4969,
+      "wall_time": 1793814397.4608,
+      "status": "WAIT_REPLAN",
+      "global_plan_count": 9,
+      "reason": "raw_scan_transform_unavailable_or_invalid",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 39.159000 but the latest data is at time 39.064000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 39159000000
+      },
+      "selected_certificate": {
+        "reason": "selected_first_edge_certified",
+        "edge": [
+          [
+            32,
+            94
+          ],
+          [
+            31,
+            93
+          ]
+        ]
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.03175493745270433,
+          -0.5016948924908567
+        ],
+        "start_tf_stamp_ns": 39064000000
+      },
+      "future_tf_gap_s": 0.09499999999999886
+    },
+    {
+      "t": 57.498,
+      "wall_time": 1793814398.4618,
+      "status": "WAIT_REPLAN",
+      "global_plan_count": 10,
+      "reason": "selected_edge_no_longer_certified",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 39.159000 but the latest data is at time 39.064000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 39159000000
+      },
+      "selected_certificate": {
+        "reason": "selected_first_edge_certified",
+        "edge": [
+          [
+            32,
+            94
+          ],
+          [
+            31,
+            93
+          ]
+        ]
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.033556448384020165,
+          -0.5036365243888833
+        ],
+        "start_tf_stamp_ns": 40069000000
+      }
+    },
+    {
+      "t": 58.5187,
+      "wall_time": 1793814399.4825,
+      "status": "WAIT_REPLAN",
+      "global_plan_count": 11,
+      "reason": "raw_scan_transform_unavailable_or_invalid",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 41.060000 but the latest data is at time 40.971000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 41060000000
+      },
+      "selected_certificate": {
+        "reason": "not_required",
+        "edge": null
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.03719922076367255,
+          -0.5023697073638538
+        ],
+        "start_tf_stamp_ns": 40951000000
+      },
+      "future_tf_gap_s": 0.08900000000000574
+    },
+    {
+      "t": 59.411,
+      "wall_time": 1793814400.3748,
+      "status": "WAIT_REPLAN",
+      "global_plan_count": 12,
+      "reason": "selected_edge_no_longer_certified",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 41.060000 but the latest data is at time 40.971000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 41060000000
+      },
+      "selected_certificate": {
+        "reason": "selected_first_edge_certified",
+        "edge": [
+          [
+            32,
+            94
+          ],
+          [
+            32,
+            93
+          ]
+        ]
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.03786056231186069,
+          -0.5031053005223213
+        ],
+        "start_tf_stamp_ns": 41775000000
+      }
+    },
+    {
+      "t": 60.0735,
+      "wall_time": 1793814401.0374,
+      "status": "WAIT_REPLAN",
+      "global_plan_count": 13,
+      "reason": "raw_scan_transform_unavailable_or_invalid",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 42.468000 but the latest data is at time 42.351000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 42468000000
+      },
+      "selected_certificate": {
+        "reason": "not_required",
+        "edge": null
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.037965450690595065,
+          -0.5025887697796907
+        ],
+        "start_tf_stamp_ns": 42276000000
+      },
+      "future_tf_gap_s": 0.11700000000000443
+    },
+    {
+      "t": 60.6111,
+      "wall_time": 1793814401.5749,
+      "status": "WAIT_REPLAN",
+      "global_plan_count": 14,
+      "reason": "raw_scan_transform_unavailable_or_invalid",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 42.972000 but the latest data is at time 42.851000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 42972000000
+      },
+      "selected_certificate": {
+        "reason": "not_required",
+        "edge": null
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.03925807025318967,
+          -0.5005915462770174
+        ],
+        "start_tf_stamp_ns": 42782000000
+      },
+      "future_tf_gap_s": 0.12100000000000222
+    },
+    {
+      "t": 61.2596,
+      "wall_time": 1793814402.2235,
+      "status": "WAIT_REPLAN",
+      "global_plan_count": 15,
+      "reason": "raw_scan_transform_unavailable_or_invalid",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 43.376000 but the latest data is at time 43.283000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 43376000000
+      },
+      "selected_certificate": {
+        "reason": "not_required",
+        "edge": null
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.03956512714688337,
+          -0.5009382965975943
+        ],
+        "start_tf_stamp_ns": 43183000000
+      },
+      "future_tf_gap_s": 0.09299999999999642
+    },
+    {
+      "t": 138.1583,
+      "wall_time": 1793814479.1221,
+      "status": "IDLE",
+      "global_plan_count": 17,
+      "reason": "raw_scan_transform_unavailable_or_invalid",
+      "prefix_validation": {
+        "clear": false,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "lookup_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 68.091000 but the latest data is at time 68.057000, when looking up transform from frame [base_scan] to frame [map]",
+        "scan_stamp_ns": 68091000000
+      },
+      "selected_certificate": {
+        "reason": "selected_first_edge_certified",
+        "edge": [
+          [
+            32,
+            94
+          ],
+          [
+            31,
+            94
+          ]
+        ]
+      },
+      "start_diagnostic": {
+        "start": [
+          32,
+          94
+        ],
+        "start_tf_pose": [
+          -0.04448748204915254,
+          -0.5107471001775122
+        ],
+        "start_tf_stamp_ns": 68057000000
+      },
+      "future_tf_gap_s": 0.033999999999991815
+    }
+  ],
+  "confirmed_causality": [
+    "Selected-first-edge installation executed in actual trial, with start_certificate_state ACTIVE.",
+    "Raw acquisition-time map<-base_scan TF lookup then raised future extrapolation; current source turns that exception into false, revokes the active start certificate and invalidates the path when its inflated start remains in the live mask.",
+    "Nine direct exceptions identify unavailable proof, not proof of a new physical collision. Repeated GLOBAL route publication/empty invalidation still occurs."
+  ],
+  "not_established": [
+    "Which individual TF-chain publisher or executor delay caused the missing cache coverage; the error reports only the complete map<-base_scan chain.",
+    "The3 selected_edge_no_longer_certified transitions are not classified as TF faults from stale stored prefix diagnostics.",
+    "A pending/new-scan fix has not been executed or proven by this trial.",
+    "Mission/Home PASS does not substitute for live obstacle bypass or complete safety QA PASS."
+  ],
+  "assessment": "Overall FAIL preserved: backend reachedHome, but actor1/4 and bypass not proven, with an independent ground-truth evidence gap at a WAIT_REPLAN entry. The latter is not silently waived or labeled actual collision/coast failure."
+}

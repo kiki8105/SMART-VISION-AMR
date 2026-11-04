@@ -167,6 +167,13 @@ def test_heading_error_releases_curve_limit_before_tight_turn_drift():
     node._publish_curve_limit()
     assert 0. < node.follow_speed_limit < .24
 
+    # The deployed custom plugin leaves yaw limits intact; a heading error
+    # must not release the gentle linear approach cap before the corner.
+    node.parameters['curve_alignment_angle'] = .45
+    node.parameters['curve_linear_limit_preserves_angular_speed'] = True
+    node._publish_curve_limit()
+    assert 0. < node.follow_speed_limit < .24
+
 
 def test_dwb_absolute_limit_above_base_is_explicitly_reset_not_ignored():
     node = FollowerHarness()

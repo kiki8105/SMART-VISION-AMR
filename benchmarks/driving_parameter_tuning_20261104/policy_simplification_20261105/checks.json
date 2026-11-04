@@ -1,0 +1,59 @@
+{
+  "python_suite": {
+    "passed": true,
+    "tests": 2732,
+    "seconds": 141.11
+  },
+  "build": {
+    "passed": true,
+    "packages": [
+      "smart_vision_amr",
+      "smart_vision_amr_dwb"
+    ],
+    "seconds": 3.14
+  },
+  "static_deployment": {
+    "passed": true,
+    "live_hardware_query": false
+  },
+  "cpp_ctest": {
+    "passed": true,
+    "targets": 1
+  },
+  "fixture_migration": "One initial full-run failure injected hard execution edges into a first-edge safety test. Fixture now narrows the genuine measured departure certificate; same diagonal-corner invariant preserved;39 targeted tests and full2732 pass. Production was not changed to satisfy the old assertion.",
+  "runtime_sha256": {
+    "astar_planner.py": "64c7d94e992dea7f550c3c3fbbe98999cf54aa6d589ef2660f0f03cc1245aceb",
+    "path_follower.py": "0a43f64213c5a49bd0a85bad54fe444b6a50a6885e3c5842a07849237d17c1c0",
+    "web_mission_server.py": "2d8724b452c9e8c414ba094b74d351b8f86d07386e827c4b493566db798cc38d",
+    "recovery_episode.py": "98cecd86e1438e29f5228ecd637a8456dbc901368fa7b4b51f758761bcc5ec44"
+  },
+  "physical_robot_driven": false,
+  "closed_loop": {
+    "baseline_passed": true,
+    "baseline_source_unchanged": true,
+    "baseline_completed_route_and_home": true,
+    "baseline_dispatch_mode": "operator web manual route, not inventory",
+    "additional_matrix": "STOPPED after Stage17 assessor radius mismatch; original FAIL retained; offline verified .22m re-assessment PASS; new realistic-condition trials pending",
+    "parameter_changes": [],
+    "completed_additional_stages": [
+      {
+        "stage": "12_web_integrated_clean",
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "stage": "25_web_inventory_sector3_moving_obstacle",
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "stage": "17_web_hardware_value_parity",
+        "passed": false,
+        "reasons": [
+          "unmapped_stress_crate_bypass_unverified"
+        ]
+      }
+    ]
+  },
+  "source_review": "../recovery_replacement_validation/final_policy_source_review.json"
+}

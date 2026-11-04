@@ -1,0 +1,112 @@
+{
+  "scope": "Historical actual cold-start parameter transport failure; no runtime or seed retry. Original FAIL retained.",
+  "trial": "coherent_param_query_failed",
+  "original_stage_outcome": "FAIL",
+  "original_acceptance_failure": "RuntimeError('Actual AMCL launch-prior parameter not observed')",
+  "cold_start_proof": {
+    "passed": false,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend"
+  },
+  "classification": "READ_ONLY_PARAMETER_RESPONSE_UNOBSERVED",
+  "classification_limits": [
+    "The actual AMCL server logged a failed response send; no CPU-load cause inferred.",
+    "AMCL subsequently activated; no lifecycle ABORT witness.",
+    "A failed parameter read never proves set_initial_pose=false or unseeded state.",
+    "No motion/obstacle test result is claimed from this attempt."
+  ],
+  "server_witness": [
+    "[amcl-9] [WARN] [1793815835.675898784] [amcl.rclcpp]: failed to send response to /amcl/get_parameters (timeout): client will not receive response, at ./src/rmw_response.cpp:154, at ./src/rcl/service.c:314",
+    "[amcl-9] [INFO] [1793815840.128141719] [amcl]: Activating",
+    "[lifecycle_manager-16] [INFO] [1793815840.246898518] [lifecycle_manager_simulation]: Server amcl connected with bond.",
+    "[lifecycle_manager-16] [INFO] [1793815842.684390969] [lifecycle_manager_simulation]: Managed nodes are active"
+  ],
+  "lifecycle_abort_count": 0,
+  "mission_started_at": null,
+  "nonzero_command_count": 0,
+  "goal_count": 0,
+  "timeline_counts": {
+    "motion": 352,
+    "cmd_vel": 1261,
+    "planner": 1,
+    "health": 206,
+    "scan": 453,
+    "truth": 454,
+    "odom": 514,
+    "tf_stamp": 905,
+    "footprint": 246,
+    "local_costmap_window": 21,
+    "navigation_cmd_vel": 1
+  },
+  "truth_first": {
+    "t": 12.7088,
+    "monotonic": 30013.604,
+    "wall_time": 1793815841.9459,
+    "kind": "truth",
+    "x": -0.18843,
+    "y": -0.2205,
+    "yaw": -0.02751
+  },
+  "truth_last": {
+    "t": 62.2853,
+    "monotonic": 30063.1806,
+    "wall_time": 1793815891.5225,
+    "kind": "truth",
+    "x": -0.18784,
+    "y": -0.22051,
+    "yaw": -0.02747
+  },
+  "safety_original_passed": false,
+  "safety_original_missing_evidence": [
+    "path",
+    "nonempty_path"
+  ],
+  "source_unchanged": true,
+  "failure_source_astar_sha256": "ee656f4e5eae08003e2db253bdd5e67cb1cf697fb64005bd8e9fd4ed4be300a6",
+  "new_harness_only_change": {
+    "file": "scripts/verify_classroom_web_dwell.py",
+    "sha256": "87cd470ed7e4f696068c45c73ac2bf8bf05c63a0cc2f3fce88de5177417c9a0d",
+    "max_read_attempts": 3,
+    "per_read_timeout_s": 5,
+    "same_absolute_cold_budget_s": 75,
+    "semantic_false_required": true,
+    "original_subscription_counts_retained": true,
+    "initial_pose_or_motion_retry_added": false,
+    "timed_out_pending_requests_removed": true
+  },
+  "focused_validation": {
+    "command": "pytest -q ros2_ws/src/smart_vision_amr/test/test_cold_start_parameter_query.py ros2_ws/src/smart_vision_amr/test/test_classroom_realism_modes.py",
+    "passed": 18,
+    "elapsed_s": 0.61,
+    "new_query_regressions": 6,
+    "py_compile": true,
+    "diff_check": true
+  },
+  "inputs": {
+    "coherent_param_query_failed/staged_report.json": {
+      "sha256": "00e052a73bc164f34c561cb95f1bdce6c63c1f4ae402f5340836647bba535310",
+      "bytes": 60390
+    },
+    "coherent_param_query_failed/summary.json": {
+      "sha256": "f772537aeb90cfbf51e93119dc5ee983a7c016f16e7de33719d6cc9296d3b3ee",
+      "bytes": 2351
+    },
+    "coherent_param_query_failed/25_web_inventory_sector3_moving_obstacle/acceptance.json": {
+      "sha256": "0f53a76569489e04a16ba76a85403aaa45ed5f4cbace2b8beb60dbdde7dbb422",
+      "bytes": 1137
+    },
+    "coherent_param_query_failed/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log.gz": {
+      "sha256": "04da1bda1379320ba72f542d401d8b9e5932260dfa96cda16a61dfc88d21fafc",
+      "bytes": 6231
+    },
+    "coherent_param_query_failed/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl.gz": {
+      "sha256": "aa57a3c6e1e48a98db8622bdacdf1cff5e5b8dc85da72c1a884770e332af83ff",
+      "bytes": 115616
+    },
+    "coherent_param_query_failed/25_web_inventory_sector3_moving_obstacle/safety_assessment.json": {
+      "sha256": "25f53f95db04cdd1e96d6b9f0d95bc0ddb7c8befa093b6691c0c03be1dbdeaab",
+      "bytes": 1607
+    }
+  },
+  "new_query_tests_sha256": "9834c595095fbea2c957cb592c72b3e4d2459dd14b11751ba2ed0affd8abbbec"
+}

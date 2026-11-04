@@ -1,0 +1,591 @@
+{
+  "schema": 2,
+  "single_trial_per_profile": true,
+  "counter_aggregation_version": 2,
+  "limitation": "One run per value compares these scenarios, not statistically proven reliability.",
+  "trials": [
+    {
+      "label": "first_clean",
+      "directory": "/tmp/classroom-simple-policy-baseline-20261105/12_web_integrated_clean",
+      "overall_passed": true,
+      "overall_reasons": [],
+      "overall_outcome": "PASS",
+      "overall_unavailable_reason": null,
+      "overall_report": "/tmp/classroom-simple-policy-baseline-20261105/staged_report.json",
+      "suite_passed": true,
+      "completed_route_and_home": true,
+      "prearm_passed": true,
+      "runner_passed": true,
+      "derived_passed": true,
+      "actor_passed": null,
+      "final_state": "HOME_REACHED",
+      "failure": null,
+      "mission_elapsed_seconds": 191.325,
+      "goal_dispatch_count": 4,
+      "published_nonempty_path_count": 4,
+      "published_empty_path_count": 0,
+      "local_attempt_count": 0,
+      "global_plan_count": 4,
+      "counter_aggregation": {
+        "version": 2,
+        "local_attempt_count": {
+          "count": 0,
+          "field": "local_attempt_id",
+          "scope": "node_lifetime",
+          "valid_mission_samples": 13,
+          "baseline": {
+            "wall_time": 1793808210.4584,
+            "value": 0
+          },
+          "first_mission_value": 0,
+          "last_mission_value": 0,
+          "counter_resets": [],
+          "increments": [],
+          "is_lower_bound": false,
+          "limitations": [],
+          "definition": "sum of observed positive node-lifetime counter deltas whose status receipt is within the mission; last pre-mission sample is baseline; goal changes and repeated values do not add attempts"
+        },
+        "global_plan_count": {
+          "count": 4,
+          "field": "global_plan_count",
+          "scope": "node_lifetime",
+          "valid_mission_samples": 13,
+          "baseline": {
+            "wall_time": 1793808210.4584,
+            "value": 0
+          },
+          "first_mission_value": 0,
+          "last_mission_value": 4,
+          "counter_resets": [],
+          "increments": [
+            {
+              "wall_time": 1793808222.4537,
+              "previous": 0,
+              "current": 1,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808254.0992,
+              "previous": 1,
+              "current": 2,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808308.2114,
+              "previous": 2,
+              "current": 3,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808369.8681,
+              "previous": 3,
+              "current": 4,
+              "increment": 1
+            }
+          ],
+          "is_lower_bound": false,
+          "limitations": [],
+          "definition": "sum of observed positive node-lifetime counter deltas whose status receipt is within the mission; last pre-mission sample is baseline; goal changes and repeated values do not add attempts"
+        }
+      },
+      "initial_spin_start_count": 1,
+      "large_yaw_reversals": {
+        "count": 1,
+        "qualified_turn_episodes": 19,
+        "definition": "actual /cmd_vel |yaw| >=0.15 rad/s, integrated >=0.10 rad; opposite turn starts within 2 s"
+      },
+      "reverse_motion_episodes": 0,
+      "recovery_request_count": 0,
+      "navigation_status": {
+        "available": true,
+        "samples": 161,
+        "sample_counts": {
+          "WAIT_REPLAN": 0,
+          "CONTROLLER_HOLD": 0,
+          "MOVING": 156,
+          "SUCCEEDED": 4,
+          "CANCELED": 1
+        },
+        "sampled_seconds": {
+          "WAIT_REPLAN": 0.0,
+          "CONTROLLER_HOLD": 0.0,
+          "MOVING": 75.681,
+          "SUCCEEDED": 1.5,
+          "CANCELED": 0.5
+        },
+        "sampled_covered_seconds": 77.681,
+        "unmeasured_seconds": 113.643,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time"
+      },
+      "actual_command_state": {
+        "available": true,
+        "samples": 4259,
+        "sample_counts": {
+          "STOPPED": 568,
+          "TURNING_IN_PLACE": 807,
+          "TRANSLATING": 2884
+        },
+        "sampled_seconds": {
+          "STOPPED": 26.509,
+          "TURNING_IN_PLACE": 37.821,
+          "TRANSLATING": 126.971
+        },
+        "sampled_covered_seconds": 191.301,
+        "unmeasured_seconds": 0.024,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time",
+        "thresholds": {
+          "linear_m_per_s": 0.005,
+          "angular_rad_per_s": 0.01
+        },
+        "interpretation": "zero actual output is not proof of a scan-guard hold; compare navigation_status and guard separately"
+      },
+      "guard": {
+        "available": true,
+        "samples": 1182,
+        "code_samples": {
+          "CLEAR": 1182
+        },
+        "held_code_transitions": {},
+        "hold_episode_count": 0,
+        "ramp_reason_samples": {
+          "stop": 168,
+          "acceleration_limited": 340,
+          "tracking": 663,
+          "small_heading_slew": 11
+        },
+        "robot_radius_m": [
+          0.22
+        ],
+        "horizon_seconds": [
+          0.5
+        ],
+        "minimum_body_clearance_m": 0.027647864841326253,
+        "minimum_swept_clearance_m": 0.02707555857021568,
+        "maximum_scan_age_seconds": 0.267,
+        "maximum_pose_age_seconds": 0.082,
+        "sampled_hold_seconds": 0.0,
+        "duration_note": "sampled intervals capped at 0.3 s; long missing intervals are not inferred"
+      },
+      "tracking_error": {
+        "max_m": null,
+        "rms_m": null,
+        "reason": "published replacement paths can precede FollowPath cancellation/acceptance; active action path is not uniquely correlated in this timeline"
+      },
+      "minimum_actual_box_clearance_m": null,
+      "box_clearance_radius_m": null,
+      "actor_moving_steps": null,
+      "actor_local_bypass_confirmed": null,
+      "footprint": {
+        "robot_radius_m": 0.22,
+        "nav2_inflation_radius_m": 0.22,
+        "astar_static_inflation_cells": 5,
+        "astar_preferred_clearance_m": 0.45,
+        "follower_recovery_radius_m": 0.22,
+        "physical_values_preserved": true,
+        "only_use_sim_time_changed": true
+      },
+      "timeline": "/tmp/classroom-simple-policy-baseline-20261105/12_web_integrated_clean/safety_timeline.jsonl",
+      "guard_log": null
+    },
+    {
+      "label": "repeated_clean",
+      "directory": "/tmp/classroom-simple-policy-validation-20261105/12_web_integrated_clean",
+      "overall_passed": true,
+      "overall_reasons": [],
+      "overall_outcome": "PASS",
+      "overall_unavailable_reason": null,
+      "overall_report": "/tmp/classroom-simple-policy-validation-20261105/staged_report.json",
+      "suite_passed": false,
+      "completed_route_and_home": true,
+      "prearm_passed": true,
+      "runner_passed": true,
+      "derived_passed": true,
+      "actor_passed": null,
+      "final_state": "HOME_REACHED",
+      "failure": null,
+      "mission_elapsed_seconds": 199.417,
+      "goal_dispatch_count": 4,
+      "published_nonempty_path_count": 4,
+      "published_empty_path_count": 0,
+      "local_attempt_count": 0,
+      "global_plan_count": 4,
+      "counter_aggregation": {
+        "version": 2,
+        "local_attempt_count": {
+          "count": 0,
+          "field": "local_attempt_id",
+          "scope": "node_lifetime",
+          "valid_mission_samples": 13,
+          "baseline": {
+            "wall_time": 1793808458.9474,
+            "value": 0
+          },
+          "first_mission_value": 0,
+          "last_mission_value": 0,
+          "counter_resets": [],
+          "increments": [],
+          "is_lower_bound": false,
+          "limitations": [],
+          "definition": "sum of observed positive node-lifetime counter deltas whose status receipt is within the mission; last pre-mission sample is baseline; goal changes and repeated values do not add attempts"
+        },
+        "global_plan_count": {
+          "count": 4,
+          "field": "global_plan_count",
+          "scope": "node_lifetime",
+          "valid_mission_samples": 13,
+          "baseline": {
+            "wall_time": 1793808458.9474,
+            "value": 0
+          },
+          "first_mission_value": 0,
+          "last_mission_value": 4,
+          "counter_resets": [],
+          "increments": [
+            {
+              "wall_time": 1793808469.3331,
+              "previous": 0,
+              "current": 1,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808501.5851,
+              "previous": 1,
+              "current": 2,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808562.405,
+              "previous": 2,
+              "current": 3,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808625.3477,
+              "previous": 3,
+              "current": 4,
+              "increment": 1
+            }
+          ],
+          "is_lower_bound": false,
+          "limitations": [],
+          "definition": "sum of observed positive node-lifetime counter deltas whose status receipt is within the mission; last pre-mission sample is baseline; goal changes and repeated values do not add attempts"
+        }
+      },
+      "initial_spin_start_count": 1,
+      "large_yaw_reversals": {
+        "count": 0,
+        "qualified_turn_episodes": 17,
+        "definition": "actual /cmd_vel |yaw| >=0.15 rad/s, integrated >=0.10 rad; opposite turn starts within 2 s"
+      },
+      "reverse_motion_episodes": 0,
+      "recovery_request_count": 0,
+      "navigation_status": {
+        "available": true,
+        "samples": 168,
+        "sample_counts": {
+          "WAIT_REPLAN": 0,
+          "CONTROLLER_HOLD": 0,
+          "MOVING": 163,
+          "SUCCEEDED": 4,
+          "CANCELED": 1
+        },
+        "sampled_seconds": {
+          "WAIT_REPLAN": 0.0,
+          "CONTROLLER_HOLD": 0.0,
+          "MOVING": 79.194,
+          "SUCCEEDED": 1.5,
+          "CANCELED": 0.5
+        },
+        "sampled_covered_seconds": 81.194,
+        "unmeasured_seconds": 118.223,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time"
+      },
+      "actual_command_state": {
+        "available": true,
+        "samples": 4626,
+        "sample_counts": {
+          "STOPPED": 615,
+          "TURNING_IN_PLACE": 896,
+          "TRANSLATING": 3115
+        },
+        "sampled_seconds": {
+          "STOPPED": 26.294,
+          "TURNING_IN_PLACE": 38.318,
+          "TRANSLATING": 134.76
+        },
+        "sampled_covered_seconds": 199.372,
+        "unmeasured_seconds": 0.044,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time",
+        "thresholds": {
+          "linear_m_per_s": 0.005,
+          "angular_rad_per_s": 0.01
+        },
+        "interpretation": "zero actual output is not proof of a scan-guard hold; compare navigation_status and guard separately"
+      },
+      "guard": {
+        "available": true,
+        "samples": 1238,
+        "code_samples": {
+          "CLEAR": 1238
+        },
+        "held_code_transitions": {},
+        "hold_episode_count": 0,
+        "ramp_reason_samples": {
+          "stop": 168,
+          "acceleration_limited": 388,
+          "tracking": 666,
+          "small_heading_slew": 16
+        },
+        "robot_radius_m": [
+          0.22
+        ],
+        "horizon_seconds": [
+          0.5
+        ],
+        "minimum_body_clearance_m": 0.05188880964346979,
+        "minimum_swept_clearance_m": 0.042633981097500356,
+        "maximum_scan_age_seconds": 0.317,
+        "maximum_pose_age_seconds": 0.201,
+        "sampled_hold_seconds": 0.0,
+        "duration_note": "sampled intervals capped at 0.3 s; long missing intervals are not inferred"
+      },
+      "tracking_error": {
+        "max_m": null,
+        "rms_m": null,
+        "reason": "published replacement paths can precede FollowPath cancellation/acceptance; active action path is not uniquely correlated in this timeline"
+      },
+      "minimum_actual_box_clearance_m": null,
+      "box_clearance_radius_m": null,
+      "actor_moving_steps": null,
+      "actor_local_bypass_confirmed": null,
+      "footprint": {
+        "robot_radius_m": 0.22,
+        "nav2_inflation_radius_m": 0.22,
+        "astar_static_inflation_cells": 5,
+        "astar_preferred_clearance_m": 0.45,
+        "follower_recovery_radius_m": 0.22,
+        "physical_values_preserved": true,
+        "only_use_sim_time_changed": true
+      },
+      "timeline": "/tmp/classroom-simple-policy-validation-20261105/12_web_integrated_clean/safety_timeline.jsonl",
+      "guard_log": null
+    },
+    {
+      "label": "inventory_moving_box",
+      "directory": "/tmp/classroom-simple-policy-validation-20261105/25_web_inventory_sector3_moving_obstacle",
+      "overall_passed": true,
+      "overall_reasons": [],
+      "overall_outcome": "PASS",
+      "overall_unavailable_reason": null,
+      "overall_report": "/tmp/classroom-simple-policy-validation-20261105/staged_report.json",
+      "suite_passed": false,
+      "completed_route_and_home": true,
+      "prearm_passed": true,
+      "runner_passed": true,
+      "derived_passed": true,
+      "actor_passed": true,
+      "final_state": "HOME_REACHED",
+      "failure": null,
+      "mission_elapsed_seconds": 118.736,
+      "goal_dispatch_count": 2,
+      "published_nonempty_path_count": 8,
+      "published_empty_path_count": 3,
+      "local_attempt_count": 3,
+      "global_plan_count": 5,
+      "counter_aggregation": {
+        "version": 2,
+        "local_attempt_count": {
+          "count": 3,
+          "field": "local_attempt_id",
+          "scope": "node_lifetime",
+          "valid_mission_samples": 41,
+          "baseline": {
+            "wall_time": 1793808685.0419,
+            "value": 0
+          },
+          "first_mission_value": 0,
+          "last_mission_value": 3,
+          "counter_resets": [],
+          "increments": [
+            {
+              "wall_time": 1793808700.3184,
+              "previous": 0,
+              "current": 1,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808702.2958,
+              "previous": 1,
+              "current": 2,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808702.6167,
+              "previous": 2,
+              "current": 3,
+              "increment": 1
+            }
+          ],
+          "is_lower_bound": false,
+          "limitations": [],
+          "definition": "sum of observed positive node-lifetime counter deltas whose status receipt is within the mission; last pre-mission sample is baseline; goal changes and repeated values do not add attempts"
+        },
+        "global_plan_count": {
+          "count": 5,
+          "field": "global_plan_count",
+          "scope": "node_lifetime",
+          "valid_mission_samples": 41,
+          "baseline": {
+            "wall_time": 1793808685.0419,
+            "value": 0
+          },
+          "first_mission_value": 0,
+          "last_mission_value": 5,
+          "counter_resets": [],
+          "increments": [
+            {
+              "wall_time": 1793808695.027,
+              "previous": 0,
+              "current": 1,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808704.1373,
+              "previous": 1,
+              "current": 2,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808705.1501,
+              "previous": 2,
+              "current": 3,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808707.153,
+              "previous": 3,
+              "current": 4,
+              "increment": 1
+            },
+            {
+              "wall_time": 1793808768.5667,
+              "previous": 4,
+              "current": 5,
+              "increment": 1
+            }
+          ],
+          "is_lower_bound": false,
+          "limitations": [],
+          "definition": "sum of observed positive node-lifetime counter deltas whose status receipt is within the mission; last pre-mission sample is baseline; goal changes and repeated values do not add attempts"
+        }
+      },
+      "initial_spin_start_count": 6,
+      "large_yaw_reversals": {
+        "count": 1,
+        "qualified_turn_episodes": 13,
+        "definition": "actual /cmd_vel |yaw| >=0.15 rad/s, integrated >=0.10 rad; opposite turn starts within 2 s"
+      },
+      "reverse_motion_episodes": 0,
+      "recovery_request_count": 0,
+      "navigation_status": {
+        "available": true,
+        "samples": 107,
+        "sample_counts": {
+          "WAIT_REPLAN": 3,
+          "CONTROLLER_HOLD": 0,
+          "MOVING": 96,
+          "WAIT_CANCEL": 5,
+          "SUCCEEDED": 2,
+          "CANCELED": 1
+        },
+        "sampled_seconds": {
+          "WAIT_REPLAN": 1.345,
+          "CONTROLLER_HOLD": 0.0,
+          "MOVING": 44.823,
+          "WAIT_CANCEL": 2.1,
+          "SUCCEEDED": 0.5,
+          "CANCELED": 0.5
+        },
+        "sampled_covered_seconds": 49.268,
+        "unmeasured_seconds": 69.468,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time"
+      },
+      "actual_command_state": {
+        "available": true,
+        "samples": 2854,
+        "sample_counts": {
+          "STOPPED": 407,
+          "TURNING_IN_PLACE": 628,
+          "TRANSLATING": 1819
+        },
+        "sampled_seconds": {
+          "STOPPED": 16.822,
+          "TURNING_IN_PLACE": 25.931,
+          "TRANSLATING": 75.924
+        },
+        "sampled_covered_seconds": 118.677,
+        "unmeasured_seconds": 0.059,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time",
+        "thresholds": {
+          "linear_m_per_s": 0.005,
+          "angular_rad_per_s": 0.01
+        },
+        "interpretation": "zero actual output is not proof of a scan-guard hold; compare navigation_status and guard separately"
+      },
+      "guard": {
+        "available": true,
+        "samples": 725,
+        "code_samples": {
+          "CLEAR": 725
+        },
+        "held_code_transitions": {},
+        "hold_episode_count": 0,
+        "ramp_reason_samples": {
+          "stop": 101,
+          "owner_changed": 1,
+          "acceleration_limited": 191,
+          "tracking": 429,
+          "small_heading_slew": 3
+        },
+        "robot_radius_m": [
+          0.22
+        ],
+        "horizon_seconds": [
+          0.5
+        ],
+        "minimum_body_clearance_m": 0.0220061355784308,
+        "minimum_swept_clearance_m": 0.02061669524134859,
+        "maximum_scan_age_seconds": 0.263,
+        "maximum_pose_age_seconds": 0.083,
+        "sampled_hold_seconds": 0.0,
+        "duration_note": "sampled intervals capped at 0.3 s; long missing intervals are not inferred"
+      },
+      "tracking_error": {
+        "max_m": null,
+        "rms_m": null,
+        "reason": "published replacement paths can precede FollowPath cancellation/acceptance; active action path is not uniquely correlated in this timeline"
+      },
+      "minimum_actual_box_clearance_m": 0.08135441215510067,
+      "box_clearance_radius_m": 0.22,
+      "actor_moving_steps": 4,
+      "actor_local_bypass_confirmed": true,
+      "footprint": {
+        "robot_radius_m": 0.22,
+        "nav2_inflation_radius_m": 0.22,
+        "astar_static_inflation_cells": 5,
+        "astar_preferred_clearance_m": 0.45,
+        "follower_recovery_radius_m": 0.22,
+        "physical_values_preserved": true,
+        "only_use_sim_time_changed": true
+      },
+      "timeline": "/tmp/classroom-simple-policy-validation-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+      "guard_log": null
+    }
+  ]
+}

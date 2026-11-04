@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "generated_by": "smart_vision_amr.flight_recorder",
+  "format": "sampled ROS messages as gzip JSONL; not rosbag",
+  "trigger": {
+    "reason": "/smart_vision_amr/navigation_status INPUT_HOLD:9:420000000",
+    "monotonic_sec": 34729.345279842,
+    "ros_time_ns": 18480000000,
+    "wall_time_ns": 1793820557687143639
+  },
+  "triggers": [
+    {
+      "reason": "/smart_vision_amr/navigation_status INPUT_HOLD:9:420000000",
+      "monotonic_sec": 34729.345279842,
+      "ros_time_ns": 18480000000,
+      "wall_time_ns": 1793820557687143639
+    },
+    {
+      "reason": "/smart_vision_amr/planner_status WAIT_REPLAN:9:420000000",
+      "monotonic_sec": 34729.348475189,
+      "ros_time_ns": 18480000000,
+      "wall_time_ns": 1793820557690337726
+    },
+    {
+      "reason": "/smart_vision_amr/failure_memory_status INPUT_HOLD:9:420000000",
+      "monotonic_sec": 34729.380055503,
+      "ros_time_ns": 18500000000,
+      "wall_time_ns": 1793820557721915512
+    }
+  ],
+  "configured_pre_seconds": 30.0,
+  "configured_post_seconds": 5.0,
+  "actual_pre_seconds": 22.3979523819944,
+  "actual_post_seconds": 4.974169987006462,
+  "finished_early": false,
+  "sample_count": 1263,
+  "uncompressed_bytes": 1924433,
+  "capture_overflow_samples": 0,
+  "oversize_messages_during_capture": 0,
+  "prebuffer_oversize_messages_total": 0,
+  "nonfinite_numeric_encoding": "NaN / Infinity / -Infinity strings",
+  "sensitive_fields": "redacted recursively; no HTTP credentials/config captured",
+  "sample_period_seconds": {
+    "/odom": 0.2,
+    "/imu": 0.2,
+    "/cmd_vel": 0.2,
+    "/smart_vision_amr/navigation_cmd_vel": 0.2,
+    "/speed_limit": 0.2,
+    "/local_costmap/costmap": 0.5,
+    "/scan": 0.5,
+    "/tf": 0.2,
+    "/tf_static": 0.0,
+    "/smart_vision_amr/goal": 0.0,
+    "/smart_vision_amr/path": 1.0,
+    "/smart_vision_amr/planner_status": 0.2,
+    "/smart_vision_amr/navigation_status": 0.2,
+    "/smart_vision_amr/motion_status": 0.2,
+    "/smart_vision_amr/localization_health": 0.2,
+    "/smart_vision_amr/scan_projection_status": 0.2,
+    "/smart_vision_amr/execution_failure": 0.2,
+    "/smart_vision_amr/failure_memory_status": 0.2,
+    "/smart_vision_amr/controller_diagnostics": 0.2,
+    "/smart_vision_amr/navigation_control": 0.2
+  },
+  "ros_domain_id": "176",
+  "last_observed_static_transforms": {
+    "received_monotonic_sec": 34706.948832561,
+    "received_ros_time_ns": 0,
+    "message": {
+      "transforms": [
+        {
+          "header": {
+            "stamp": {
+              "sec": 1793820531,
+              "nanosec": 884571746
+            },
+            "frame_id": "base_link"
+          },
+          "child_frame_id": "rear_camera_link",
+          "transform": {
+            "translation": {
+              "x": -0.08,
+              "y": 0.0,
+              "z": 0.14
+            },
+            "rotation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 1.0,
+              "w": 6.123233995736766e-17
+            }
+          }
+        }
+      ]
+    }
+  }
+}

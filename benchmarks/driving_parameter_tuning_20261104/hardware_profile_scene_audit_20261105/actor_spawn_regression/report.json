@@ -1,0 +1,235 @@
+{
+  "passed": true,
+  "scope": "Recorded historical actor-input regression plus controlled negative predicate cases; not a Gazebo or real-robot pass.",
+  "original_failure_preserved": "InvalidObstacleScenario('FIXED_SCENE_PASSED_OR_ROUTE_CHANGED_BEFORE_SPAWN')",
+  "search_path_sha256": "b98614957975fa4e2ceaa4767d233621ae86332408dfcdf85e17f29ce4609cb4",
+  "published_paths_in_preflight": 1,
+  "published_path_stamp_ns": 9320000000,
+  "recorded_path_clearance_m": -0.15636526272997836,
+  "path_precision_limitation": "Injector search hash is from original full-precision path. Timeline rounds coordinates, so a hash recomputed from recorded coordinates is not asserted equal. Only one path publication occurred throughout this preflight; goal/path stamp stayed9:320000000.",
+  "source_sha256": {
+    "before": "66e046248ee8931054c33dafbf2d1775681cdeeba631d41cfad9849f8c78f001",
+    "after": "2ccc7928a94469f6331d379b9a86b19c9b82d6e043b67ed686a56170f8f5b126",
+    "unapplied_patch": "f32e16b7ddbaf61f1e2f07ab483e41160fcbea62fc03d659c07941c1828ceb6a"
+  },
+  "initial_selection_range_unchanged": [
+    {
+      "distance_m": 0.5999,
+      "initial_selection_before": false,
+      "initial_selection_after": false
+    },
+    {
+      "distance_m": 0.6,
+      "initial_selection_before": true,
+      "initial_selection_after": true
+    },
+    {
+      "distance_m": 1.0,
+      "initial_selection_before": true,
+      "initial_selection_after": true
+    },
+    {
+      "distance_m": 1.0001,
+      "initial_selection_before": false,
+      "initial_selection_after": false
+    }
+  ],
+  "recorded_points": [
+    {
+      "input": "actual_before",
+      "wall_time": 1793812904.5892,
+      "robot_xy": [
+        -0.10724,
+        -0.3166
+      ],
+      "old_selection_range_predicate": true,
+      "new_spawn_decisions": [
+        {
+          "truth_age_s": 0.0,
+          "allowed": true,
+          "metrics": {
+            "reason": "ready",
+            "swept_clearance_m": 0.23097358858363312,
+            "required_clearance_m": 0.064,
+            "robot_truth_age_s": 0.0,
+            "robot_distance_m": 0.6162687543596543,
+            "approach_along_path_m": -0.5842142689705381,
+            "initial_selection_distance_window": true,
+            "current_path_clearance_m": -0.15636526272997836
+          }
+        },
+        {
+          "truth_age_s": 0.05,
+          "allowed": true,
+          "metrics": {
+            "reason": "ready",
+            "swept_clearance_m": 0.23097358858363312,
+            "required_clearance_m": 0.075,
+            "robot_truth_age_s": 0.05,
+            "robot_distance_m": 0.6162687543596543,
+            "approach_along_path_m": -0.5842142689705381,
+            "initial_selection_distance_window": true,
+            "current_path_clearance_m": -0.15636526272997836
+          }
+        },
+        {
+          "truth_age_s": 0.2,
+          "allowed": true,
+          "metrics": {
+            "reason": "ready",
+            "swept_clearance_m": 0.23097358858363312,
+            "required_clearance_m": 0.10800000000000001,
+            "robot_truth_age_s": 0.2,
+            "robot_distance_m": 0.6162687543596543,
+            "approach_along_path_m": -0.5842142689705381,
+            "initial_selection_distance_window": true,
+            "current_path_clearance_m": -0.15636526272997836
+          }
+        }
+      ]
+    },
+    {
+      "input": "actual_after",
+      "wall_time": 1793812904.8512,
+      "robot_xy": [
+        -0.08884,
+        -0.3385
+      ],
+      "old_selection_range_predicate": false,
+      "new_spawn_decisions": [
+        {
+          "truth_age_s": 0.0,
+          "allowed": true,
+          "metrics": {
+            "reason": "ready",
+            "swept_clearance_m": 0.2062851106947086,
+            "required_clearance_m": 0.064,
+            "robot_truth_age_s": 0.0,
+            "robot_distance_m": 0.5899610119321445,
+            "approach_along_path_m": -0.5556811277995543,
+            "initial_selection_distance_window": false,
+            "current_path_clearance_m": -0.15636526272997836
+          }
+        },
+        {
+          "truth_age_s": 0.05,
+          "allowed": true,
+          "metrics": {
+            "reason": "ready",
+            "swept_clearance_m": 0.2062851106947086,
+            "required_clearance_m": 0.075,
+            "robot_truth_age_s": 0.05,
+            "robot_distance_m": 0.5899610119321445,
+            "approach_along_path_m": -0.5556811277995543,
+            "initial_selection_distance_window": false,
+            "current_path_clearance_m": -0.15636526272997836
+          }
+        },
+        {
+          "truth_age_s": 0.2,
+          "allowed": true,
+          "metrics": {
+            "reason": "ready",
+            "swept_clearance_m": 0.2062851106947086,
+            "required_clearance_m": 0.10800000000000001,
+            "robot_truth_age_s": 0.2,
+            "robot_distance_m": 0.5899610119321445,
+            "approach_along_path_m": -0.5556811277995543,
+            "initial_selection_distance_window": false,
+            "current_path_clearance_m": -0.15636526272997836
+          }
+        }
+      ]
+    }
+  ],
+  "negative_cases": [
+    {
+      "case": "body_overlap",
+      "allowed": false,
+      "metrics": {
+        "reason": "robot_near_box_sweep",
+        "swept_clearance_m": -0.04500000000000001,
+        "required_clearance_m": 0.075,
+        "robot_truth_age_s": 0.05
+      }
+    },
+    {
+      "case": "clear_body_but_insufficient_reaction_room",
+      "allowed": false,
+      "metrics": {
+        "reason": "robot_near_box_sweep",
+        "swept_clearance_m": 0.05500000000000002,
+        "required_clearance_m": 0.075,
+        "robot_truth_age_s": 0.05
+      }
+    },
+    {
+      "case": "actually_behind",
+      "allowed": false,
+      "metrics": {
+        "reason": "candidate_actually_passed_or_not_ahead",
+        "swept_clearance_m": 0.255,
+        "required_clearance_m": 0.075,
+        "robot_truth_age_s": 0.05,
+        "robot_distance_m": 0.6,
+        "approach_along_path_m": 0.6,
+        "initial_selection_distance_window": true,
+        "current_path_clearance_m": -0.22
+      }
+    },
+    {
+      "case": "stale_truth",
+      "allowed": false,
+      "metrics": {
+        "reason": "truth_unavailable_or_stale"
+      }
+    },
+    {
+      "case": "path_no_longer_blocked",
+      "allowed": false,
+      "metrics": {
+        "reason": "current_route_no_longer_blocked",
+        "swept_clearance_m": 0.355,
+        "required_clearance_m": 0.075,
+        "robot_truth_age_s": 0.05,
+        "robot_distance_m": 0.7,
+        "approach_along_path_m": -0.7,
+        "initial_selection_distance_window": true,
+        "current_path_clearance_m": 0.255
+      }
+    },
+    {
+      "case": "changed_goal_generation",
+      "allowed": false,
+      "metrics": {
+        "reason": "goal_rearmed_during_preflight"
+      }
+    },
+    {
+      "case": "not_moving",
+      "allowed": false,
+      "metrics": {
+        "reason": "navigation_not_moving"
+      }
+    },
+    {
+      "case": "route_lease_expired_during_bypass",
+      "allowed": false,
+      "metrics": {
+        "reason": "navigation_status_stale"
+      }
+    }
+  ],
+  "unchanged_checks": [
+    "same goal and fresh MOVING route lease",
+    ">1cm genuine route obstruction",
+    "ahead along tangent <=-.25m",
+    "exact25cm square versus selected22cm circular body",
+    "2cm + .22m/s*(.20s reaction + truth age)",
+    "truth age <=.20s",
+    "existing static/observed/remembered bypass proof",
+    "fixed center and movement side",
+    "four later box-movement sweep checks and live2cm QA"
+  ],
+  "actual_validated_trial_result": "NOT_EVALUATED_HERE; root records the later actual trial separately."
+}

@@ -53,6 +53,7 @@ class PlannerHarness(AStarPlannerNode):
         self.goal_completed = False
         self.last_plan_time = float("-inf")
         self.invalid_path_published = False
+        self.current_path_stamp_ns = None
         self.stop_stamp_ns = None
         self.breadcrumbs = deque(maxlen=300)
         self.breadcrumb_odom_anchor = None
@@ -136,6 +137,14 @@ def status(node, name, **extra):
     payload = {"status": name,
                "goal": {"x": goal.pose.position.x, "y": goal.pose.position.y, "frame_id": "map"},
                "goal_stamp": {"sec": goal.header.stamp.sec, "nanosec": goal.header.stamp.nanosec}}
+    path_ns = (getattr(node, 'current_path_stamp_ns', None) if node.planned_world_points
+               else getattr(node, 'last_invalidated_path_stamp_ns', None))
+    if type(path_ns) is int and path_ns > 0:
+        payload['path_stamp'] = {'sec': path_ns//1_000_000_000, 'nanosec': path_ns%1_000_000_000}
+    if name.startswith('RECOVER'):
+        episode_id = getattr(node, 'active_recovery_episode_id', None)
+        if isinstance(episode_id, str):
+            payload['episode_id'] = episode_id
     payload.update(extra)
     msg = String()
     msg.data = json.dumps(payload)
@@ -248,6 +257,7 @@ class PlannerRecoveryTests(unittest.TestCase):
         self.assertTrue(self.node.waiting_for_replan)
 
     def test_unmapped_obstacle_replans_around_it_without_changing_saved_map_or_goal(self):
+        from recovery_test_evidence import stationary_evidence
         # A 1 m/cell toy grid cannot represent the 22 cm robot footprint near
         # one occupied cell. Use actual classroom resolution for this dynamic
         # obstacle test; local repair is disabled to exercise global A* retry.
@@ -266,7 +276,7 @@ class PlannerRecoveryTests(unittest.TestCase):
         self.now.return_value = 100.1
         self.node.on_observed(Int32MultiArray(data=[30 * 100 + 50]))
         self.assertFalse(self.node.path_pub.publish.call_args.args[0].poses)
-        self.now.return_value = 102.1
+        stationary_evidence(self.node, 102.1, x=.5, y=1.5, receipt_clock=self.now)
         self.node.retry_transform()
         self.assertTrue(self.node.planned_cells)
         self.assertNotIn((50, 30), self.node.planned_cells)
@@ -471,23 +481,37 @@ class PlannerRecoveryTests(unittest.TestCase):
         self.assertTrue(self.node.waiting_for_replan)
         self.assertIs(self.node.last_goal, goal)
 
-    def test_missing_backup_result_cannot_hold_retained_goal_forever(self):
+    def test_missing_backup_result_requests_cancel_and_waits_for_matching_terminal(self):
         self.node.on_goal(make_goal())
         self.node.recovery_active = True
+        self.node.active_recovery_episode_id = 'owned-reverse-timeout'
         self.node.recovery_requested_at = 100.0
         self.node.recovery_attempted_cells.add((0, 1))
         self.now.return_value = 125.1
         self.node.retry_transform()
-        self.assertFalse(self.node.recovery_active)
+        self.assertTrue(self.node.recovery_active)
         self.assertTrue(self.node.waiting_for_replan)
         self.assertIsNotNone(self.node.last_goal)
         self.assertEqual(self.node.recovery_attempted_cells, {(0, 1)})
+        cancel = json.loads(self.node.recovery_pub.publish.call_args.args[0].data)
+        self.assertTrue(cancel['cancel'])
+        self.assertEqual(cancel['episode_id'], 'owned-reverse-timeout')
+        self.node.recovery_pub.publish.reset_mock()
+        self.node.retry_transform()
+        self.node.recovery_pub.publish.assert_not_called()
+        self.node.on_navigation_status(status(self.node, 'RECOVERY_STOPPED',
+                                              episode_id='older-reverse'))
+        self.assertTrue(self.node.recovery_active)
+        self.node.on_navigation_status(status(self.node, 'RECOVERY_STOPPED'))
+        self.assertFalse(self.node.recovery_active)
+        self.assertTrue(self.node.path_pub.publish.call_args.args[0].poses)
 
     def test_confirmed_backup_stop_replans_current_goal_immediately(self):
         goal = make_goal()
         self.node.on_goal(goal)
         self.node.path_pub.publish.reset_mock()
         self.node.recovery_active = True
+        self.node.active_recovery_episode_id = 'owned-reverse-stop'
         self.node.recovery_requested_at = 100.0
         self.node.waiting_for_replan = False
         self.node.on_navigation_status(status(self.node, "RECOVERY_STOPPED"))
@@ -620,6 +644,7 @@ class PlannerRecoveryTests(unittest.TestCase):
         self.assertEqual(self.node.params['obstacle_inflation_cells'], 5)
 
     def test_legacy_wall_tolerance_cannot_hide_new_classified_obstacle(self):
+        from recovery_test_evidence import stationary_evidence
         goal = self.narrow_corridor()
         self.node.params['mapped_wall_return_tolerance_cells'] = 2
         self.node.on_goal(goal)
@@ -630,7 +655,8 @@ class PlannerRecoveryTests(unittest.TestCase):
         self.assertTrue(self.node.waiting_for_replan)
         self.node.on_observed(Int32MultiArray(data=[10 * 16 + 8]))
         self.assertFalse(self.node.planned_cells)
-        self.now.return_value = 102.1
+        position = self.node.tf_buffer.lookup_transform.return_value.transform.translation
+        stationary_evidence(self.node, 102.1, x=position.x, y=position.y, receipt_clock=self.now)
         self.node.retry_transform()
         self.assertTrue(self.node.waiting_for_replan)
         self.assertFalse(self.node.planned_cells)

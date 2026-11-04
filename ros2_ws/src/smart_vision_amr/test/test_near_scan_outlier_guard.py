@@ -208,6 +208,17 @@ class _MuxHarness(MotionMuxNode):
         self.core.receive_auto(.1, .0)
         self.near_scan_guard = NearScanOutlierGuard()
         self.near_scan_guard_last_stamp_ns = -1
+        self._scan_guard_enabled = True
+        self._scan_guard_radius = .22
+        self._scan_guard_base_frame = 'base_footprint'
+        self._scan_guard_horizon = .5
+        self._scan_guard_sensor_timeout = 1.
+        self._scan_guard_tf_cache = {'base_scan': (0., 0., 0.)}
+        self._scan_guard_sample = None
+        self._scan_guard_pending = None
+        self._scan_guard_pose_timeout = .25
+        self._scan_guard_fixed_frame = 'odom'
+        self.last_published_output = (0., 0.)
         self.output_available = True
         self.output_pub = Mock()
         self._ownership_completed_at = time.monotonic()
@@ -215,6 +226,9 @@ class _MuxHarness(MotionMuxNode):
 
     def get_clock(self):
         return SimpleNamespace(now=lambda: SimpleNamespace(nanoseconds=self._ros_now))
+
+    def _scan_guard_pose(self, stamp_ns=0):
+        return (0., 0., 0.), stamp_ns or self._ros_now
 
 
 def test_mux_stops_first_ghost_and_releases_only_on_fresh_clear_scan():
@@ -244,3 +258,339 @@ def test_mux_keeps_real_close_obstacle_stopped_even_after_second_scan():
     node._ros_now += 100_000_000
     node.on_scan_guard(scan([.85] * 101, node._ros_now))
     assert node.core.output() == (.1, .0)
+
+
+def test_mux_rechecks_direction_change_without_a_new_scan_or_stuck_zero_output():
+    node = _MuxHarness()
+    obstacle = [math.inf]*101
+    obstacle[50] = .25  # Outside the 22 cm body but in the forward sweep.
+    node.on_scan_guard(scan(obstacle))
+    assert node.core.scan_guard_code == 'SWEPT_INTERSECTION'
+    assert node.core.output() == (0., 0.)
+    node.core.receive_auto(-.1, 0.)
+    node._publish_output_locked()
+    assert not node.core.scan_guard_hold
+    assert node.core.output() == (-.1, 0.)
+
+
+def test_mux_missing_tf_cannot_release_even_a_fresh_clear_scan():
+    node = _MuxHarness()
+    node._scan_guard_tf_cache = {}
+    node.scan_guard_tf_buffer = Mock()
+    node.scan_guard_tf_buffer.lookup_transform.side_effect = RuntimeError('unknown frame')
+    node.on_scan_guard(scan([math.inf]*101))
+    assert node.core.scan_guard_hold
+    assert node.core.scan_guard_code == 'TF_UNAVAILABLE'
+    node._scan_guard_tf_cache['base_scan'] = (-.064, 0., 0.)
+    node._ros_now += 100_000_000
+    node.on_scan_guard(scan([math.inf]*101, node._ros_now))
+    assert not node.core.scan_guard_hold
+
+
+def test_mux_fresh_mounting_offset_clears_parallel_near_return_without_mutating_scan():
+    node = _MuxHarness()
+    node._scan_guard_tf_cache['base_scan'] = (-.064, 0., 0.)
+    message = scan([.22])
+    message.angle_min = math.pi/2
+    before = deepcopy(message)
+    node.on_scan_guard(message)
+    assert not node.core.scan_guard_hold
+    assert node.core.scan_guard_code == 'CLEAR'
+    assert message == before
+
+
+def test_mux_guard_is_fail_closed_on_scan_freshness_and_pending_unknown_tf():
+    node = _MuxHarness()
+    node.on_scan_guard(scan([math.inf]*101))
+    assert not node.core.scan_guard_hold
+    node._ros_now += 1_100_000_000
+    node._publish_output_locked()
+    assert node.core.scan_guard_code == 'STALE_SCAN'
+    assert node.core.output() == (0., 0.)
+
+
+def test_mux_old_actual_velocity_is_checked_until_stop_before_away_command():
+    node = _MuxHarness()
+    node.last_published_output = (.1, 0.)
+    node.core.receive_auto(-.1, 0.)
+    values = [math.inf]*101
+    values[50] = .25
+    node.on_scan_guard(scan(values))
+    assert node.core.output() == (0., 0.)
+    assert node.last_published_output == (0., 0.)
+    node._publish_output_locked()
+    assert node.core.output() == (-.1, 0.)
+
+
+def test_mux_rejects_inverted_scan_plane_and_caches_only_valid_mounting():
+    node = _MuxHarness()
+    node._scan_guard_tf_cache = {}
+    node.scan_guard_tf_buffer = Mock()
+    rotation = SimpleNamespace(x=1., y=0., z=0., w=0.)
+    node.scan_guard_tf_buffer.lookup_transform.return_value = SimpleNamespace(
+        transform=SimpleNamespace(translation=SimpleNamespace(x=-.064, y=0., z=.12),
+                                  rotation=rotation))
+    assert node._scan_guard_extrinsic('base_scan') is None
+    assert not node._scan_guard_tf_cache
+    rotation.x, rotation.w = 0., 1.
+    assert node._scan_guard_extrinsic('base_scan') == (-.064, 0., 0.)
+    node.scan_guard_tf_buffer.lookup_transform.reset_mock()
+    assert node._scan_guard_extrinsic('base_scan') == (-.064, 0., 0.)
+    node.scan_guard_tf_buffer.lookup_transform.assert_not_called()
+
+
+def test_delayed_scan_is_rebased_by_odometry_before_collision_decision():
+    from smart_vision_amr.scan_outlier_guard import scan_points_in_base, swept_body_decision
+    node = _MuxHarness()
+    node.core.receive_auto(.22, 0.)
+    stamp = node._ros_now-200_000_000
+    message = scan([.36], stamp)
+    message.angle_min = 0.
+    # Uncompensated 36 cm looks clear; ego motion of 4.4 cm consumes the gap.
+    raw = scan_points_in_base(message, (0., 0., 0.))
+    assert not swept_body_decision(raw, .22, 0.).swept
+    node._scan_guard_pose = lambda at=0: (((0., 0., 0.) if at else (.044, 0., 0.)),
+                                         at or node._ros_now)
+    node.on_scan_guard(message)
+    assert node.core.scan_guard_code == 'SWEPT_INTERSECTION'
+    assert node.core.scan_guard_metrics['scan_age_seconds'] == .2
+    assert node.core.output() == (0., 0.)
+
+
+def test_two_hundred_ms_scan_delay_does_not_inflate_parallel_side_wall():
+    node = _MuxHarness()
+    node.core.receive_auto(.22, 0.)
+    message = scan([.24], node._ros_now-200_000_000)
+    message.angle_min = math.pi/2
+    node._scan_guard_pose = lambda at=0: (((0., 0., 0.) if at else (.044, 0., 0.)),
+                                         at or node._ros_now)
+    node.on_scan_guard(message)
+    assert node.core.scan_guard_code == 'CLEAR'
+    assert node.core.output() == (.22, 0.)
+
+
+def test_scan_a_few_ms_ahead_of_tf_reuses_valid_sample_without_zero_or_ramp_reset():
+    node = _MuxHarness()
+    tf_latest = [node._ros_now]
+    def pose(at=0):
+        return None if at > tf_latest[0] else ((0., 0., 0.), at or tf_latest[0])
+    node._scan_guard_pose = pose
+    node.on_scan_guard(scan([math.inf]*101, node._ros_now-50_000_000))
+    for _ in range(5):
+        node._ros_now += 10_000_000
+        node.on_scan_guard(scan([math.inf]*101, node._ros_now))
+        assert node._scan_guard_pending is not None
+        assert not node.core.scan_guard_hold
+        assert node.last_published_output == (.1, 0.)
+        tf_latest[0] = node._ros_now+40_000_000
+        node._ros_now = tf_latest[0]
+        node._publish_output_locked()
+        assert node._scan_guard_pending is None
+        assert node.last_published_output == (.1, 0.)
+        tf_latest[0] += 50_000_000
+        node._ros_now = tf_latest[0]
+    assert all(msg.args[0].linear.x == .1 for msg in node.output_pub.publish.call_args_list)
+
+
+def test_pending_scan_with_imminent_body_hit_still_stops_on_first_return():
+    node = _MuxHarness()
+    tf_latest = node._ros_now
+    node._scan_guard_pose = lambda at=0: (None if at > tf_latest else
+                                         ((0., 0., 0.), at or tf_latest))
+    node.on_scan_guard(scan([math.inf]*101, node._ros_now-50_000_000))
+    node._ros_now += 10_000_000
+    node.on_scan_guard(scan(one_ghost(), node._ros_now))
+    assert node._scan_guard_pending is not None
+    assert node.core.scan_guard_code == 'BODY_INTERSECTION'
+    assert node.core.scan_guard_support == 'unconfirmed'
+    assert node.core.output() == (0., 0.)
+
+
+def test_missing_or_stale_current_pose_does_not_authorize_motion():
+    node = _MuxHarness()
+    node.on_scan_guard(scan([math.inf]*101))
+    node._scan_guard_pose = lambda at=0: None
+    node._publish_output_locked()
+    assert not node.core.scan_guard_hold
+    assert node.core.scan_guard_metrics['pose_source'] == 'cached'
+    # Reuse does not renew the cached pose's timestamp or its age budget.
+    node._ros_now += 250_000_000
+    node._publish_output_locked()
+    assert node.core.scan_guard_code == 'POSE_UNAVAILABLE'
+    node._scan_guard_pose = lambda at=0: ((0., 0., 0.), node._ros_now-300_000_000)
+    node._publish_output_locked()
+    assert node.core.scan_guard_code == 'POSE_UNAVAILABLE'
+    assert node.core.scan_guard_metrics['pose_source'] == 'stale'
+
+
+def test_real_tf_buffer_future_scan_waits_for_interpolation_without_zero_pulses():
+    from types import MethodType
+    from geometry_msgs.msg import TransformStamped
+    from tf2_ros import Buffer
+
+    node = _MuxHarness()
+    node.scan_guard_tf_buffer = Buffer()
+    node._scan_guard_pose = MethodType(MotionMuxNode._scan_guard_pose, node)
+
+    def publish_pose(stamp_ns):
+        transform = TransformStamped()
+        transform.header.frame_id = 'odom'
+        transform.child_frame_id = 'base_footprint'
+        transform.header.stamp.sec, transform.header.stamp.nanosec = divmod(stamp_ns, 1_000_000_000)
+        transform.transform.translation.x = .22*(stamp_ns-100_000_000_000)/1.e9
+        transform.transform.rotation.w = 1.
+        node.scan_guard_tf_buffer.set_transform(transform, 'test_odom')
+
+    publish_pose(node._ros_now-100_000_000)
+    publish_pose(node._ros_now)
+    node.on_scan_guard(scan([math.inf]*101, node._ros_now-50_000_000))
+    assert node.last_published_output == (.1, 0.)
+    for _ in range(5):
+        node._ros_now += 10_000_000
+        node.on_scan_guard(scan([math.inf]*101, node._ros_now))
+        assert node._scan_guard_pending is not None
+        assert node.last_published_output == (.1, 0.)
+        node._ros_now += 40_000_000
+        publish_pose(node._ros_now)
+        node._publish_output_locked()
+        assert node._scan_guard_pending is None
+        assert node.last_published_output == (.1, 0.)
+        node._ros_now += 50_000_000
+        publish_pose(node._ros_now)
+    assert all(call.args[0].linear.x == .1 for call in node.output_pub.publish.call_args_list)
+
+
+def test_real_tf_buffer_interpolates_95_and_58_ms_future_latest_pose():
+    from types import MethodType
+    from geometry_msgs.msg import TransformStamped
+    from tf2_ros import Buffer
+
+    for future_ms in (95, 58):
+        node = _MuxHarness()
+        node.scan_guard_tf_buffer = Buffer()
+        node._scan_guard_pose = MethodType(MotionMuxNode._scan_guard_pose, node)
+        for offset in (-100, future_ms):
+            transform = TransformStamped()
+            transform.header.frame_id, transform.child_frame_id = 'odom', 'base_footprint'
+            stamp = node._ros_now+offset*1_000_000
+            transform.header.stamp.sec, transform.header.stamp.nanosec = divmod(stamp, 1_000_000_000)
+            transform.transform.translation.x = .22*offset/1.e3
+            transform.transform.rotation.w = 1.
+            node.scan_guard_tf_buffer.set_transform(transform, 'test_odom')
+        node.on_scan_guard(scan([math.inf]*101, node._ros_now-50_000_000))
+        assert node.core.scan_guard_code == 'CLEAR'
+        assert node.core.scan_guard_metrics['pose_source'] == 'interpolated'
+        assert node.core.scan_guard_metrics['pose_age_seconds'] == 0.
+        metrics = node.core.scan_guard_metrics
+        assert metrics['future_lead_seconds'] == future_ms/1000.
+        assert metrics['pose_uncertainty_seconds'] >= future_ms/1000.
+        assert metrics['longitudinal_uncertainty_m'] >= node.core.max_linear_velocity*future_ms/1000.
+        assert node._scan_guard_pose_cache[0][1] == node._ros_now
+        assert abs(node._scan_guard_pose_cache[0][0][0]) < 1.e-12
+        assert node.last_published_output == (.1, 0.)
+
+
+def test_lookup_gap_reuses_original_pose_without_renewing_stamp_or_motion_bound():
+    node = _MuxHarness()
+    node.on_scan_guard(scan([math.inf]*101))
+    initial_cache = node._scan_guard_pose_cache
+    def missing(at=0):
+        node._scan_guard_pose_lookup = {'failure_kind': 'lookup', 'lookup_error': 'LookupException: temporary'}
+        return None
+    node._scan_guard_pose = missing
+    node._ros_now += 100_000_000
+    node._publish_output_locked()
+    assert node.core.scan_guard_code == 'CLEAR'
+    metrics = node.core.scan_guard_metrics
+    assert metrics['pose_source'] == 'cached'
+    assert metrics['pose_age_seconds'] == .1
+    assert metrics['lookup_error'] == 'LookupException: temporary'
+    assert metrics['longitudinal_uncertainty_m'] >= node.core.max_linear_velocity*.1
+    assert node._scan_guard_pose_cache == initial_cache
+    node._ros_now += 150_000_000
+    node._publish_output_locked()
+    assert node.core.scan_guard_code == 'POSE_UNAVAILABLE'
+    assert node.core.scan_guard_metrics['lookup_error'] == 'LookupException: temporary'
+
+
+def test_invalid_stale_and_unbounded_future_pose_cannot_fall_back_to_cache():
+    for fault in ('geometry', 'stale', 'future'):
+        node = _MuxHarness()
+        node.on_scan_guard(scan([math.inf]*101))
+        assert node._scan_guard_pose_cache is not None
+        def invalid(at=0):
+            node._scan_guard_pose_lookup = {'failure_kind': 'geometry', 'lookup_error': 'Invalid quaternion'}
+            return None
+        node._scan_guard_pose = (invalid if fault == 'geometry' else
+            lambda at=0: ((0., 0., 0.), node._ros_now+(-300_000_000 if fault == 'stale' else 300_000_000)))
+        node._publish_output_locked()
+        assert node.core.scan_guard_code == 'POSE_UNAVAILABLE'
+        assert node._scan_guard_pose_cache is None
+        assert node.core.scan_guard_metrics['pose_source'] == {
+            'geometry': 'invalid_geometry', 'stale': 'stale', 'future': 'future_out_of_bounds'}[fault]
+
+
+def test_pose_geometry_validation_forbids_verified_pose_cache_fallback():
+    from types import MethodType
+    node = _MuxHarness()
+    node.on_scan_guard(scan([math.inf]*101))
+    node._scan_guard_pose = MethodType(MotionMuxNode._scan_guard_pose, node)
+    node.scan_guard_tf_buffer = Mock()
+    node.scan_guard_tf_buffer.lookup_transform.return_value = SimpleNamespace(
+        transform=SimpleNamespace(translation=SimpleNamespace(x=0., y=0.),
+                                  rotation=SimpleNamespace(x=0., y=0., z=0., w=0.)))
+    node._publish_output_locked()
+    assert node.core.scan_guard_code == 'POSE_UNAVAILABLE'
+    assert node.core.scan_guard_metrics['pose_source'] == 'invalid_geometry'
+    assert 'Invalid odometry transform geometry' in node.core.scan_guard_metrics['lookup_error']
+    assert node._scan_guard_pose_cache is None
+
+
+def test_all_guard_faults_include_scan_and_pose_lookup_diagnostics():
+    node = _MuxHarness()
+    node.on_scan_guard(scan([math.nan]*101))
+    assert node.core.scan_guard_code == 'INVALID_SCAN'
+    assert set(('scan_age_seconds', 'pose_age_seconds', 'lookup_error', 'pose_source')) <= node.core.scan_guard_metrics.keys()
+
+
+def test_cached_interpolated_pose_preserves_future_lead_plus_receipt_elapsed():
+    node = _MuxHarness()
+    initial_ns = node._ros_now
+    def future(at=0):
+        return ((0., 0., 0.), at or initial_ns+95_000_000)
+    node._scan_guard_pose = future
+    with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=100.):
+        node.on_scan_guard(scan([math.inf]*101, initial_ns-50_000_000))
+        initial_cache = node._scan_guard_pose_cache
+        assert node.core.scan_guard_metrics['future_lead_seconds'] == .095
+        assert node.core.scan_guard_metrics['pose_uncertainty_seconds'] == .095
+    node._scan_guard_pose = lambda at=0: None
+    node._ros_now += 100_000_000
+    with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=100.1):
+        node._publish_output_locked()
+        metrics = node.core.scan_guard_metrics
+        assert metrics['pose_source'] == 'cached'
+        assert metrics['pose_age_seconds'] == .1
+        assert metrics['future_lead_seconds'] == .095
+        assert abs(metrics['pose_uncertainty_seconds']-.195) < 1.e-12
+        assert abs(metrics['longitudinal_uncertainty_m']-node.core.max_linear_velocity*.195) < 1.e-12
+        assert node._scan_guard_pose_cache == initial_cache
+    node._ros_now += 150_000_000
+    with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=100.25):
+        node._publish_output_locked()
+        assert node.core.scan_guard_code == 'POSE_UNAVAILABLE'
+
+
+def test_repeated_same_future_tf_does_not_refresh_its_evidence_receipt():
+    node = _MuxHarness()
+    initial_ns = node._ros_now
+    node._scan_guard_pose = lambda at=0: ((0., 0., 0.), at or initial_ns+95_000_000)
+    with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=100.):
+        node.on_scan_guard(scan([math.inf]*101, initial_ns-50_000_000))
+    node._ros_now += 60_000_000
+    with patch('smart_vision_amr.motion_mux.time.monotonic', return_value=100.06):
+        node._publish_output_locked()
+        metrics = node.core.scan_guard_metrics
+        assert metrics['future_lead_seconds'] == .095
+        assert abs(metrics['pose_uncertainty_seconds']-.155) < 1.e-12
+        assert node._scan_guard_pose_cache[1] == 100.

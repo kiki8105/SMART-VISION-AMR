@@ -1,0 +1,33 @@
+{
+  "duration_monotonic_sec": 124.91,
+  "domain_id": "176",
+  "observed_samples": 966,
+  "visibility_samples": 966,
+  "goal_count": 2,
+  "confirmed_episodes": 1,
+  "persisted_after_live_disappeared": 1,
+  "carried_into_later_goal": 0,
+  "removed_with_positive_free_evidence": 1,
+  "still_remembered": [],
+  "episodes": [
+    {
+      "cell_index": 5110,
+      "confirmed_at": 27127.413200078,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27128.2035424,
+      "later_goals": [],
+      "free_ray_samples": 49,
+      "first_free_ray_at": 27128.21839936,
+      "cleared_at": 27138.245183391,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    }
+  ]
+}

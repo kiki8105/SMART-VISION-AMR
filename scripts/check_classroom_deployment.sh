@@ -62,7 +62,7 @@ case "$PREFIX" in
   *) printf 'Wrong smart_vision_amr overlay: %s\n' "$PREFIX" >&2; exit 2 ;;
 esac
 if [[ "$ROLE" == pc ]]; then
-  PACKAGES=(nav2_bringup turtlebot3_navigation2 robot_localization compressed_image_transport)
+  PACKAGES=(nav2_bringup turtlebot3_navigation2 robot_localization compressed_image_transport smart_vision_amr_dwb)
   EXECUTABLES=(web_mission_server path_follower astar_planner command_stamper)
 else
   PACKAGES=(turtlebot3_bringup robot_localization)
@@ -73,6 +73,13 @@ for package in "${PACKAGES[@]}"; do
     printf 'Missing ROS dependency: %s\n' "$package" >&2; exit 2
   fi
 done
+if [[ "$ROLE" == pc ]]; then
+  CONTROLLER_PREFIX=$(ros2 pkg prefix smart_vision_amr_dwb)
+  case "$CONTROLLER_PREFIX" in
+    "$WORKSPACE_ROOT/install"|"$WORKSPACE_ROOT/install/"*) ;;
+    *) printf 'Wrong smart_vision_amr_dwb overlay: %s; rerun setup_pc_runtime.sh.\n' "$CONTROLLER_PREFIX" >&2; exit 2 ;;
+  esac
+fi
 for executable in "${EXECUTABLES[@]}"; do
   if [[ ! -x "$PREFIX/lib/smart_vision_amr/$executable" ]]; then
     printf 'Missing built executable: %s\n' "$executable" >&2; exit 2

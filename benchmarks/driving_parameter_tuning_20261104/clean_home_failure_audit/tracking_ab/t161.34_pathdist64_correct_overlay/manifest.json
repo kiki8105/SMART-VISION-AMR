@@ -1,0 +1,24 @@
+{
+  "source_incident": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/benchmarks/driving_parameter_tuning_20261104/clean_home_failure_audit/tracking_ab/captured_inputs.jsonl.gz",
+  "source_time": 161.34,
+  "source_nav_parameters": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/benchmarks/driving_parameter_tuning_20261104/clean_home_failure_audit/tracking_ab/recorded_nav_profile.yaml",
+  "domain": 186,
+  "duration": 1.2,
+  "overrides": [
+    "FollowPath.PathDist.scale=64.0"
+  ],
+  "output_command_topic": "/replay/controller_cmd_vel",
+  "costmap_source": "captured OccupancyGrid via StaticLayer; intermediate costs are re-quantized; lethal100 preserved",
+  "static_tf_source": "TurtleBot3 Waffle Pi URDF: footprint->link z=.01; link->scan x=-.064,z=.122",
+  "model": "frozen open-loop inputs; no claim of closed-loop drive success",
+  "input_snapshot_relative_to_benchmark": "snapshots/t161.34.json",
+  "input_sha256": "136b5299f653af44518618d3f5e2c6eeb521c66c9df20f04ba2210b7d0a8e14d",
+  "source_incident_relative_to_benchmark": "captured_inputs.jsonl.gz",
+  "source_nav_profile_relative_to_benchmark": "recorded_nav_profile.yaml",
+  "scope_limitations": [
+    "captured lethal100 preserved; intermediate soft costs re-quantized byStaticLayer",
+    "frozen open-loop input repeats; no original accumulated critic/pruning history",
+    "evaluation publication enabled/short-circuit disabled for complete candidate scores",
+    "plugin/current actualnav profile; only indicated PathDist orPathAlign parameter changed"
+  ]
+}

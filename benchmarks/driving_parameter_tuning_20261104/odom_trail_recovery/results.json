@@ -1,0 +1,122 @@
+{
+  "scope": "Replay actual odom through old/new selector; no ROS, executor or drive.\n\nFree-map screening isolates the changed corridor policy using identical real\nodometry. Only the late87.85s snapshot has archived dynamic geometry; report\nits original stale15 and independently confirmed0 separately, without calling\nany offline selection a completed physical or Gazebo reverse.\n",
+  "input_source_sha256": "6ec2c96c477fe49bc514a4e2a2576c92a47f8771b5edde46873f2ce058524297",
+  "free_geometry_actual_trace_ab": [
+    {
+      "probe_t": 29.7587,
+      "source_samples": 185,
+      "original_map_trail_count": 1,
+      "source_verified_projected_count": 14,
+      "controlled_free_geometry_old": null,
+      "controlled_free_geometry_new": {
+        "distance_m": 0.1144218639384587,
+        "target_x": 0.019461205954521082,
+        "target_y": -0.4560578905252365,
+        "target_cell": [
+          50,
+          45
+        ],
+        "start_clearance_m": 4.43267421920718,
+        "target_clearance_m": 4.543942109474764,
+        "breadcrumb_count": 5
+      }
+    },
+    {
+      "probe_t": 36.7796,
+      "source_samples": 261,
+      "original_map_trail_count": 3,
+      "source_verified_projected_count": 31,
+      "controlled_free_geometry_old": null,
+      "controlled_free_geometry_new": {
+        "distance_m": 0.11584686362811046,
+        "target_x": 0.08046599653118326,
+        "target_y": -0.9485231811588533,
+        "target_cell": [
+          50,
+          40
+        ],
+        "start_clearance_m": 3.968187226264596,
+        "target_clearance_m": 4.051476818841147,
+        "breadcrumb_count": 6
+      }
+    },
+    {
+      "probe_t": 37.3748,
+      "source_samples": 268,
+      "original_map_trail_count": 3,
+      "source_verified_projected_count": 31,
+      "controlled_free_geometry_old": null,
+      "controlled_free_geometry_new": {
+        "distance_m": 0.1172005840765709,
+        "target_x": 0.07859473280773513,
+        "target_y": -0.9533332699074856,
+        "target_cell": [
+          50,
+          40
+        ],
+        "start_clearance_m": 3.9629388950481017,
+        "target_clearance_m": 4.0466667300925145,
+        "breadcrumb_count": 6
+      }
+    },
+    {
+      "probe_t": 87.8559,
+      "source_samples": 779,
+      "original_map_trail_count": 1,
+      "source_verified_projected_count": 31,
+      "controlled_free_geometry_old": null,
+      "controlled_free_geometry_new": {
+        "distance_m": 0.11748480639197514,
+        "target_x": 0.07129181199426257,
+        "target_y": -0.9627975312330803,
+        "target_cell": [
+          50,
+          40
+        ],
+        "start_clearance_m": 3.9520988242387376,
+        "target_clearance_m": 4.037202468766919,
+        "breadcrumb_count": 6
+      }
+    }
+  ],
+  "late_recorded_measured_geometry_ab": [
+    {
+      "case": "recorded_stale15",
+      "raw_observed": 5,
+      "raw_memory": 15,
+      "old": null,
+      "new": null
+    },
+    {
+      "case": "independent_confirmed0",
+      "raw_observed": 5,
+      "raw_memory": 0,
+      "old": null,
+      "new": {
+        "distance_m": 0.11748480639197514,
+        "target_x": 0.07129181199426257,
+        "target_y": -0.9627975312330803,
+        "target_cell": [
+          34,
+          85
+        ],
+        "start_clearance_m": 0.35209882423873695,
+        "target_clearance_m": 0.43720246876691904,
+        "breadcrumb_count": 6
+      }
+    }
+  ],
+  "file_sha256": {
+    "benchmarks/driving_parameter_tuning_20261104/odom_trail_recovery/actual_odom_input.json.gz": "b9aae48f9f799cf76d6d4d2cda5dc51cdefa37556165a447a8b70251c9a356b8",
+    "benchmarks/driving_parameter_tuning_20261104/odom_trail_recovery/reverse_recovery_before_command_corridor.py": "5b559dfd87e811139c2c34d1137e9d76da90ccfd7587d0a512dd6496c1f49b6f",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/reverse_recovery.py": "97f3c21f4c77b9eac7452451d52e69bda6cb7c5aae9dac874e02eb1f1819f46d",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/odometry_trail.py": "5c555d0808b6c68fd932d58d201ffab53ac9d370b8cfc1db1bb9be9654dea114",
+    "benchmarks/driving_parameter_tuning_20261104/start_egress_audit/fixture.json": "089afaebc5a4abbfde8c24a8d53b5cdda3b0b004da3a0a5c98d98d8fb9324ef4",
+    "ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761"
+  },
+  "limitations": [
+    "No collision geometry exists for early29/36s probes; free-grid cases isolate corridor eligibility only.",
+    "Late measured geometry keeps static/unknown/observed/memory hard. Original virtual-reserve depth is not added to this measured-only endpoint screen.",
+    "No action/stop handshake or closed-loop execution is simulated by this pure replay."
+  ]
+}

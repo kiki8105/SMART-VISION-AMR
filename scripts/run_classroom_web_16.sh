@@ -72,4 +72,5 @@ exec "$SCRIPT_DIR/run_web_mission.sh" \
   --config-file "$SETTINGS_FILE" --access-mode domain --require-localization-health --require-battery-health --minimum-battery-voltage "$MINIMUM_BATTERY_VOLTAGE" --marker-confirmation-mode recognized "${MUX_OPTIONS[@]}" \
   --camera-topic "/camera/image_raw$CAMERA_SUFFIX" --camera-rotation 180 \
   --front-camera-topic "$FRONT_CAMERA_TOPIC" \
+  --rotation-clearance-radius 0.22 \
   --front-camera-rotation 0 "$@"

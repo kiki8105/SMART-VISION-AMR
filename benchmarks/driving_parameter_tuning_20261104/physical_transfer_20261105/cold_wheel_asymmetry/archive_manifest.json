@@ -1,0 +1,173 @@
+{
+  "root_at_capture": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105",
+  "files": [
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/staged_report.json",
+      "archive_path": "staged_report.json",
+      "original_sha256": "628fb90475a367f9d37d2c419f4acfb419e9ab4d1f70fc8f50e558d49cb1e058",
+      "archive_sha256": "628fb90475a367f9d37d2c419f4acfb419e9ab4d1f70fc8f50e558d49cb1e058",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105-source-rates.json",
+      "archive_path": "source_rates.json",
+      "original_sha256": "c474e85ad29c2ac616dbae1a1912ba1ddce660a3ae97a648b1cbef353435ac7f",
+      "archive_sha256": "c474e85ad29c2ac616dbae1a1912ba1ddce660a3ae97a648b1cbef353435ac7f",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105.log",
+      "archive_path": "runner.log.gz",
+      "original_sha256": "56af4a9e7710ad6c2401fd4f63441fbd55a86e43c5ee01238c10e0c26a5b18de",
+      "archive_sha256": "ba9c7ce6437928c79224d0f0029904c345a7e4402a6c233aa80f479911654ab7",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/acceptance.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/acceptance.json",
+      "original_sha256": "43b1507eb4c1ede4fd4fe462a5bbcd56d1164f3b2511b3a93bd82b0e66b77d1b",
+      "archive_sha256": "43b1507eb4c1ede4fd4fe462a5bbcd56d1164f3b2511b3a93bd82b0e66b77d1b",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/derived_evidence.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/derived_evidence.json",
+      "original_sha256": "e28eaef11dc8398e08b62187ded8785eb0a89e41576133efbe1b659915bfa88c",
+      "archive_sha256": "e28eaef11dc8398e08b62187ded8785eb0a89e41576133efbe1b659915bfa88c",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/safety_assessment.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/safety_assessment.json",
+      "original_sha256": "5e539df629f179a00e343c084cf0d4410f2fa566e5b4d99194618fd8e2716352",
+      "archive_sha256": "5e539df629f179a00e343c084cf0d4410f2fa566e5b4d99194618fd8e2716352",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/runtime_manifest.json",
+      "original_sha256": "30f461b0451e8b551799c1cf7515b777804aa962380b746f42d0586c7a03bdfd",
+      "archive_sha256": "30f461b0451e8b551799c1cf7515b777804aa962380b746f42d0586c7a03bdfd",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json",
+      "original_sha256": "c9f9bf6f52f35f578ff03206f0deb69a21916a086db9ff9c08b1fb6a1176c23a",
+      "archive_sha256": "c9f9bf6f52f35f578ff03206f0deb69a21916a086db9ff9c08b1fb6a1176c23a",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+      "original_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "archive_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+      "original_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "archive_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/ekf_hardware_like_sim.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/ekf_hardware_like_sim.yaml",
+      "original_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "archive_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json",
+      "original_sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+      "archive_sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.summary.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/memory_observer.summary.json",
+      "original_sha256": "edcd61df04f2c5fc6ed51a47f95255f6cac5c0b3226581d16fd742037f46bfc4",
+      "archive_sha256": "edcd61df04f2c5fc6ed51a47f95255f6cac5c0b3226581d16fd742037f46bfc4",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf",
+      "original_sha256": "1aa1fb30300bcc7717d1d6c7d8eb1bd5c0b248b78821860e5d388c4b8084f1b9",
+      "archive_sha256": "1aa1fb30300bcc7717d1d6c7d8eb1bd5c0b248b78821860e5d388c4b8084f1b9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+      "original_sha256": "c6fc38d47512f2586320cadcebec8c27fda3a10721d159749a4fe449f16b427a",
+      "archive_sha256": "c6fc38d47512f2586320cadcebec8c27fda3a10721d159749a4fe449f16b427a",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/fixture/waffle_pi_fault.sdf",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/waffle_pi_fault.sdf",
+      "original_sha256": "b6826dedf8ba9ee0e4eb20ad5fc1eaed6643813a0080d76826ce96dc349f30c7",
+      "archive_sha256": "b6826dedf8ba9ee0e4eb20ad5fc1eaed6643813a0080d76826ce96dc349f30c7",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.world",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.world",
+      "original_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "archive_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl.gz",
+      "original_sha256": "276d44790cac46d8b0f3c88bc7779007026246a44630043f155630c5934be7d8",
+      "archive_sha256": "80fffbd30d00f18712e5cd49fa7a824891d770a3f2cea3e70d288adbc59fb7f0",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl.gz",
+      "original_sha256": "8540ca23c18f275341c2724f26cf01448a1602808379337c743f29c1a882e73f",
+      "archive_sha256": "84d272aa3d445f78842762f3de1da1bda0fb1b1229b3160fe0389fca449746b0",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/sensor_faults.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/sensor_faults.jsonl.gz",
+      "original_sha256": "4c267bdf07c04fcbc0b76b36a9e3175e2be664d6fb0b43a13682c51694e774ee",
+      "archive_sha256": "893b696fb1fcde484a5a452593e99bc17e16f959af66007ae05217b9051f168d",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/gazebo_launch.log.gz",
+      "original_sha256": "143aa1a5daaa046f6b57c172fe07e88be31023b2865ca21ca4292c005be76e8f",
+      "archive_sha256": "e86b07f02c5a30cb7c611ba3f1a770c019e0d4703dc9578d4fe20255972812a7",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/web_server.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_server.log.gz",
+      "original_sha256": "57d84292420efc82c98901098d7705ff6370f157c460472d8ff0a7b182139de6",
+      "archive_sha256": "897d8c9fb55cfe5969aa100623e4f6409bc6e46e4ebba6100fe100b2f52e3d2c",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.log.gz",
+      "original_sha256": "acd8296a084a475dc3cafe534dc07caee49d42b01460a387d02b007fa9cac354",
+      "archive_sha256": "76309a43d6a283da1a934e2568a9f7851700797af4f057209659f10e9fe6fc2c",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/sector_3_rear_confirmed.jpg",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/sector_3_rear_confirmed.jpg",
+      "original_sha256": "1f28ae50bd4cad2051080f2eb280c9e28fd43985b75d77c3f61394dc85b45682",
+      "archive_sha256": "1f28ae50bd4cad2051080f2eb280c9e28fd43985b75d77c3f61394dc85b45682",
+      "gzip": false
+    }
+  ]
+}

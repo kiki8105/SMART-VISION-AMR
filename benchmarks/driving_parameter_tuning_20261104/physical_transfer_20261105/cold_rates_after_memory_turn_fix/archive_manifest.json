@@ -1,0 +1,173 @@
+{
+  "root_at_capture": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105",
+  "files": [
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/staged_report.json",
+      "archive_path": "staged_report.json",
+      "original_sha256": "939ebffede603a8a770c736c1c5330ecb8be9a55253f21ac14dfef018a7c82fd",
+      "archive_sha256": "939ebffede603a8a770c736c1c5330ecb8be9a55253f21ac14dfef018a7c82fd",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105-source-rates.json",
+      "archive_path": "source_rates.json",
+      "original_sha256": "5638b1593e2ac709b2b9efbe36e563ed2ed03321ff1e730df1f10bf43f464ae8",
+      "archive_sha256": "5638b1593e2ac709b2b9efbe36e563ed2ed03321ff1e730df1f10bf43f464ae8",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105.log",
+      "archive_path": "runner.log.gz",
+      "original_sha256": "e65601495c795b2e737b1438ef0253a20e58365d35c928fe6045ba9f600ddf92",
+      "archive_sha256": "af93a5b421192368830c339a53b3ecad0311e45924f95fea3e77c71d1e29a8f0",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/acceptance.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/acceptance.json",
+      "original_sha256": "168668d86d1e847ac03329696fffd51315efe9e05fe4f6f87e7d84f01d884c45",
+      "archive_sha256": "168668d86d1e847ac03329696fffd51315efe9e05fe4f6f87e7d84f01d884c45",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/derived_evidence.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/derived_evidence.json",
+      "original_sha256": "d56ff1db5ec46b2c7fbc0b86a04000de8e850b97cb0af90292569f17464b1d81",
+      "archive_sha256": "d56ff1db5ec46b2c7fbc0b86a04000de8e850b97cb0af90292569f17464b1d81",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/safety_assessment.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/safety_assessment.json",
+      "original_sha256": "7727969cdfdbe95593092564a8af774b73e5da96d682bd0c7b1659f8f99beead",
+      "archive_sha256": "7727969cdfdbe95593092564a8af774b73e5da96d682bd0c7b1659f8f99beead",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/runtime_manifest.json",
+      "original_sha256": "30e77245995cf3e52934f4a687dba73930e3d6ad720d2f39294820a2be7dcfb2",
+      "archive_sha256": "30e77245995cf3e52934f4a687dba73930e3d6ad720d2f39294820a2be7dcfb2",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json",
+      "original_sha256": "fe346b13acf95ad2633155c0ee58c3ea462b8a1959cd7dab514ea35fa2b25586",
+      "archive_sha256": "fe346b13acf95ad2633155c0ee58c3ea462b8a1959cd7dab514ea35fa2b25586",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+      "original_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "archive_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+      "original_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "archive_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/ekf_hardware_like_sim.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/ekf_hardware_like_sim.yaml",
+      "original_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "archive_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json",
+      "original_sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+      "archive_sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.summary.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/memory_observer.summary.json",
+      "original_sha256": "11a265a85ebe00998383f166f00882c09804b32da6be5f8eb8bb9e008ee90ede",
+      "archive_sha256": "11a265a85ebe00998383f166f00882c09804b32da6be5f8eb8bb9e008ee90ede",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf",
+      "original_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "archive_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+      "original_sha256": "f4791f09dcdaa4a5391df2292feed2ca8db9ce089b748603640757b65f9fd829",
+      "archive_sha256": "f4791f09dcdaa4a5391df2292feed2ca8db9ce089b748603640757b65f9fd829",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/fixture/waffle_pi_fault.sdf",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/waffle_pi_fault.sdf",
+      "original_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "archive_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.world",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.world",
+      "original_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "archive_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl.gz",
+      "original_sha256": "afed4f902028b463456af9525c29786740d59e9c36515ee68af43cf51d9af082",
+      "archive_sha256": "614a845a3d6e5ce77f070754642a9e74e623f9505f21e95c008722320f872ef7",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl.gz",
+      "original_sha256": "7a009e09edc2d0c73dd9e24760e330e20e32c677d22bf1100d239c50aad381be",
+      "archive_sha256": "9a7fcc36a27cccc14182162fd6f7de8f374d1937a1a99267ed5d3280089aaf94",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/sensor_faults.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/sensor_faults.jsonl.gz",
+      "original_sha256": "26d6b41cd579ca88fc201f4ff0be955b78fbbfcb397ae3f1fca4701a37a12f5f",
+      "archive_sha256": "f956cea6316d4f676fda973fa33333bc3977e65230ca538e3b7c27920b39e708",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/gazebo_launch.log.gz",
+      "original_sha256": "705a94431c02bc2d4280fdf2d2d3129d6d7aa47262d5b9772b6de59d8f3e2b64",
+      "archive_sha256": "17e2f0f3430f16d38b2778f8d485863e9cb7707420e86ede01190c04113e2e3b",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/web_server.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_server.log.gz",
+      "original_sha256": "fdad7c25260c9ac8b06ae8f008930e1e9fba1e8e5fa141ec0f60da97931cef21",
+      "archive_sha256": "fe01cf50d06d408d4150c509e0f63c01e498ffe035fd718ed0f015b9b48ba237",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.log.gz",
+      "original_sha256": "aed6cd6579206bb4cec55bdcf61808346a84d37e4e5bcc21b57654fce199227d",
+      "archive_sha256": "bf0cd1f1a045082f6ddc646802bc906c7e85b494717b8e71d75fe70ac723ab3f",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/sector_3_rear_confirmed.jpg",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/sector_3_rear_confirmed.jpg",
+      "original_sha256": "f3c4b241eb34cf30f8a91d4ee3b22a94e69a531cf7929a92afbfb29217e9cdf0",
+      "archive_sha256": "f3c4b241eb34cf30f8a91d4ee3b22a94e69a531cf7929a92afbfb29217e9cdf0",
+      "gzip": false
+    }
+  ]
+}

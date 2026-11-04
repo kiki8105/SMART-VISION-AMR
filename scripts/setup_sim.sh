@@ -42,6 +42,7 @@ APT_PACKAGES=(git build-essential cmake python3-colcon-common-extensions gazebo
   ros-humble-desktop ros-humble-gazebo-ros-pkgs ros-humble-nav2-bringup
   ros-humble-xacro ros-humble-slam-toolbox ros-humble-robot-localization
   ros-humble-compressed-image-transport
+  ros-humble-dwb-core ros-humble-dwb-critics ros-humble-pluginlib ros-humble-ament-cmake-gtest
   ros-humble-teleop-twist-keyboard python3-opencv python3-pyqt5 python3-numpy
   python3-yaml python3-pil python3-pytest)
 
@@ -70,7 +71,8 @@ for tool in git cmake colcon gazebo ros2; do
   fi
 done
 for package in ament_cmake ament_package gazebo_ros gazebo_plugins nav2_bringup \
-  xacro robot_state_publisher rviz2 slam_toolbox robot_localization compressed_image_transport; do
+  xacro robot_state_publisher rviz2 slam_toolbox robot_localization compressed_image_transport \
+  dwb_core pluginlib; do
   if ! ros2 pkg prefix "$package" >/dev/null 2>&1; then
     printf 'Missing ROS package: %s\n' "$package" >&2
     MISSING=true

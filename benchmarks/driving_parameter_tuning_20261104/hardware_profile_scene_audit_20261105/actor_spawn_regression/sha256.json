@@ -1,0 +1,9 @@
+{
+  "fixture.json": "0cbf9422b845844354efdb4caf1f8dac6a3b6f0d63cefe284369af2cac253eb5",
+  "injector_after.py": "2ccc7928a94469f6331d379b9a86b19c9b82d6e043b67ed686a56170f8f5b126",
+  "injector_before.py": "66e046248ee8931054c33dafbf2d1775681cdeeba631d41cfad9849f8c78f001",
+  "README.md": "1d79e5308fc4e0c029b7ffaf5897169c2582e75b4e56b5abdf09346eafc5249b",
+  "replay.py": "c287b2352f86d93ddc1d3a856c932cb837370fb7c872a6aef4d0eaf3d4771ca4",
+  "spawn_readiness.patch": "f32e16b7ddbaf61f1e2f07ab483e41160fcbea62fc03d659c07941c1828ceb6a",
+  "report.json": "0b3421c0a1dc694936538e69a130c47ea2d9ee54fbe7c6312447e25006949ff0"
+}

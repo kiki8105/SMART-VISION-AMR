@@ -15,7 +15,9 @@ from contextlib import nullcontext
 from smart_vision_amr.runtime_timing import (
     MUX_METRICS, RuntimeTiming, guard_timing_report, timed_call,
 )
-from smart_vision_amr.scan_outlier_guard import NearScanOutlierGuard
+from smart_vision_amr.scan_outlier_guard import (NearScanOutlierGuard,
+    rebase_scan_points, scan_points_in_base, swept_body_decision)
+from smart_vision_amr.command_ramp import CommandRamp
 
 
 class MotionMuxCore:
@@ -38,16 +40,34 @@ class MotionMuxCore:
                  localization_health_timeout=1.0,
                  localization_warning_speed_factor=.5,
                  localization_rotation_limit=.25, startup_estop=False,
-                 marker_alignment_rotation_limit=.15):
+                 marker_alignment_rotation_limit=.15,
+                 auto_turn_slowdown_enabled=False,
+                 auto_turn_start_angular=.08, auto_turn_full_angular=.35,
+                 auto_turn_entry_linear_velocity=.15,
+                 auto_turn_min_linear_velocity=.10):
         self.clock = clock
         self.manual_timeout = float(manual_timeout)
         self.auto_timeout = float(auto_timeout)
         self.max_linear_velocity = float(max_linear_velocity)
         self.max_angular_velocity = float(max_angular_velocity)
+        self.auto_turn_slowdown_enabled = bool(auto_turn_slowdown_enabled)
+        self.auto_turn_start_angular = float(auto_turn_start_angular)
+        self.auto_turn_full_angular = float(auto_turn_full_angular)
+        self.auto_turn_entry_linear_velocity = float(auto_turn_entry_linear_velocity)
+        self.auto_turn_min_linear_velocity = float(auto_turn_min_linear_velocity)
         if any(not math.isfinite(value) or value <= 0 for value in (
                 self.manual_timeout, self.auto_timeout, self.max_linear_velocity,
                 self.max_angular_velocity)):
             raise ValueError('Velocity limits and timeouts must be finite and positive')
+        if (not all(math.isfinite(value) for value in (
+                self.auto_turn_start_angular, self.auto_turn_full_angular,
+                self.auto_turn_entry_linear_velocity,
+                self.auto_turn_min_linear_velocity))
+                or not 0 < self.auto_turn_start_angular < self.auto_turn_full_angular
+                <= self.max_angular_velocity
+                or not 0 < self.auto_turn_min_linear_velocity
+                <= self.auto_turn_entry_linear_velocity <= self.max_linear_velocity):
+            raise ValueError('Invalid autonomous turn slowdown limits')
         self.mode = 'auto'
         self.reason = 'Navigation control'
         self.source_id = None
@@ -71,6 +91,9 @@ class MotionMuxCore:
         # independent of whether A* has already classified/map-projected it.
         self.scan_guard_hold = False
         self.scan_guard_reason = ''
+        self.scan_guard_code = ''
+        self.scan_guard_support = ''
+        self.scan_guard_metrics = {}
         self.require_localization_health = bool(require_localization_health)
         self.localization_health_timeout = float(localization_health_timeout)
         self.localization_warning_speed_factor = float(localization_warning_speed_factor)
@@ -163,6 +186,21 @@ class MotionMuxCore:
             self.auto_at = None
             self.auto_rejected_reason = 'Invalid autonomous velocity'
             return False
+        if self.auto_turn_slowdown_enabled and velocity[0] > 0.:
+            # Keep the controller's angular authority while reducing the
+            # physical turn radius. Nav2's /speed_limit scales angular speed
+            # too, so it cannot safely provide this final-command coupling.
+            yaw_rate = abs(velocity[1])
+            if yaw_rate < self.auto_turn_start_angular:
+                fraction = yaw_rate/self.auto_turn_start_angular
+                linear_cap = (self.max_linear_velocity - fraction *
+                              (self.max_linear_velocity-self.auto_turn_entry_linear_velocity))
+            else:
+                fraction = min(1., (yaw_rate-self.auto_turn_start_angular)
+                               / (self.auto_turn_full_angular-self.auto_turn_start_angular))
+                linear_cap = (self.auto_turn_entry_linear_velocity - fraction *
+                              (self.auto_turn_entry_linear_velocity-self.auto_turn_min_linear_velocity))
+            velocity = min(velocity[0], linear_cap), velocity[1]
         # Drop, rather than retain, navigation output during an override.
         if self.mode != 'auto' or self.estop_latched:
             self.auto_rejected_reason = 'Autonomous command blocked by '+self.mode+' control'
@@ -392,6 +430,9 @@ class MotionMuxCore:
                 'source_id': self.source_id, 'estop_latched': self.estop_latched,
                 'scan_guard_hold': self.scan_guard_hold,
                 'scan_guard_reason': self.scan_guard_reason,
+                'scan_guard_code': self.scan_guard_code,
+                'scan_guard_support': self.scan_guard_support,
+                'scan_guard_metrics': dict(self.scan_guard_metrics),
                 'control_seq': self.sequences.get(self.source_id, -1),
                 'allow_localization': allow_localization,
                 'auto_source_id': self.auto_source_id,
@@ -447,9 +488,22 @@ class MotionMuxNode(Node):
                 ('localization_warning_speed_factor', .5),
                 ('localization_rotation_limit', .25),
                 ('marker_alignment_rotation_limit', .15),
+                ('auto_turn_slowdown_enabled', False),
+                ('auto_turn_start_angular', .08),
+                ('auto_turn_full_angular', .35),
+                ('auto_turn_entry_linear_velocity', .15),
+                ('auto_turn_min_linear_velocity', .10),
+                ('gentle_start_enabled', False),
+                ('gentle_start_linear_acceleration', .20),
+                ('gentle_start_angular_acceleration', .80),
+                ('gentle_start_max_publish_gap', .50),
                 ('startup_estop', False), ('allow_topic_reset', True),
                 ('allow_legacy_auto_input', True), ('enable_timing_diagnostics', False),
-                ('near_scan_guard_enabled', True)):
+                ('near_scan_guard_enabled', True),
+                ('scan_guard_robot_radius', .22),
+                ('scan_guard_base_frame', 'base_footprint'),
+                ('scan_guard_horizon', .5), ('scan_guard_sensor_timeout', 1.0),
+                ('scan_guard_fixed_frame', 'odom'), ('scan_guard_pose_timeout', .25)):
             self.declare_parameter(name, default)
         self.core = MotionMuxCore(**{
             name: self.get_parameter(name).value for name in (
@@ -459,10 +513,43 @@ class MotionMuxNode(Node):
                 'require_localization_health', 'localization_health_timeout',
                 'localization_warning_speed_factor', 'localization_rotation_limit',
                 'marker_alignment_rotation_limit',
+                'auto_turn_slowdown_enabled', 'auto_turn_start_angular',
+                'auto_turn_full_angular', 'auto_turn_entry_linear_velocity',
+                'auto_turn_min_linear_velocity',
                 'startup_estop')})
         self.allow_topic_reset = self.get_parameter('allow_topic_reset').value
+        self.command_ramp = CommandRamp(
+            enabled=self.get_parameter('gentle_start_enabled').value,
+            linear_acceleration=self.get_parameter('gentle_start_linear_acceleration').value,
+            angular_acceleration=self.get_parameter('gentle_start_angular_acceleration').value,
+            max_publish_gap=self.get_parameter('gentle_start_max_publish_gap').value)
+        self.last_published_output = (0., 0.)
         self.near_scan_guard = NearScanOutlierGuard()
         self.near_scan_guard_last_stamp_ns = -1
+        self._scan_guard_enabled = bool(self.get_parameter('near_scan_guard_enabled').value)
+        self._scan_guard_radius = float(self.get_parameter('scan_guard_robot_radius').value)
+        self._scan_guard_base_frame = str(self.get_parameter('scan_guard_base_frame').value)
+        self._scan_guard_horizon = float(self.get_parameter('scan_guard_horizon').value)
+        self._scan_guard_sensor_timeout = float(self.get_parameter('scan_guard_sensor_timeout').value)
+        if (not self._scan_guard_base_frame
+                or not math.isfinite(self._scan_guard_radius) or self._scan_guard_radius <= 0.
+                or not 0. < self._scan_guard_horizon <= 2.
+                or not 0. < self._scan_guard_sensor_timeout <= 1.):
+            raise ValueError('Invalid scan guard geometry or freshness limits')
+        from tf2_ros import Buffer, TransformListener
+        self.scan_guard_tf_buffer = Buffer()
+        self.scan_guard_tf_listener = TransformListener(self.scan_guard_tf_buffer, self)
+        self._scan_guard_tf_cache = {}
+        self._scan_guard_sample = None
+        self._scan_guard_pending = None
+        self._scan_guard_fixed_frame = str(self.get_parameter('scan_guard_fixed_frame').value)
+        self._scan_guard_pose_timeout = float(self.get_parameter('scan_guard_pose_timeout').value)
+        if not self._scan_guard_fixed_frame or not 0. < self._scan_guard_pose_timeout <= .25:
+            raise ValueError('Invalid scan guard odometry frame or pose timeout')
+        if self._scan_guard_enabled:
+            self.core.scan_guard_hold = True
+            self.core.scan_guard_code = 'WAIT_SCAN'
+            self.core.scan_guard_reason = 'Waiting for raw LiDAR and verified laser mounting TF'
         self._timing = (RuntimeTiming(MUX_METRICS, warning=self.get_logger().warning)
                         if self.get_parameter('enable_timing_diagnostics').value else None)
         self._guard_timing = None
@@ -584,34 +671,266 @@ class MotionMuxNode(Node):
             if accepted:
                 self._publish_output_locked()
 
-    def on_scan_guard(self, scan):
-        """Stop auto output on the *first* near-minimum return, before TF.
+    def _scan_guard_extrinsic(self, frame):
+        """Resolve fixed mounting once; never infer a missing laser frame."""
+        if not frame:
+            return None
+        base = self._scan_guard_base_frame
+        if frame == base:
+            return (0., 0., 0.)
+        cached = self._scan_guard_tf_cache.get(frame)
+        if cached is not None:
+            return cached
+        try:
+            transform = self.scan_guard_tf_buffer.lookup_transform(base, frame, rclpy.time.Time())
+            p, q = transform.transform.translation, transform.transform.rotation
+            values = (p.x, p.y, p.z, q.x, q.y, q.z, q.w)
+            norm = q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w
+            if not all(math.isfinite(value) for value in values) or not .8 <= norm <= 1.2:
+                return None
+            scale = math.sqrt(norm)
+            x, y, z, w = q.x/scale, q.y/scale, q.z/scale, q.w/scale
+            # A non-horizontal scan plane needs a 3-D model, not a guessed yaw.
+            if (abs(2*(x*z-w*y)) > .1 or abs(2*(y*z+w*x)) > .1
+                    or 1.-2*(x*x+y*y) < .99):
+                return None
+            result = (p.x, p.y, math.atan2(2*(w*z+x*y), 1-2*(y*y+z*z)))
+        except Exception:
+            return None
+        self._scan_guard_tf_cache[frame] = result
+        return result
 
-        The raw scan continues to Nav2 unchanged. A second scan may establish
-        a real obstacle for A*; it cannot release this hold merely because a
-        fresh path exists while the chassis is still next to that obstacle.
-        Only a fresh, valid scan without a near-range return releases motion.
+    def _scan_guard_pose(self, stamp_ns=0):
+        """Nonblocking continuous-odometry pose, at acquisition or latest TF."""
+        self._scan_guard_pose_lookup = {'failure_kind': '', 'lookup_error': ''}
+        try:
+            transform = self.scan_guard_tf_buffer.lookup_transform(
+                self._scan_guard_fixed_frame, self._scan_guard_base_frame,
+                rclpy.time.Time(nanoseconds=stamp_ns))
+            p, q = transform.transform.translation, transform.transform.rotation
+            norm = q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w
+            if (not all(math.isfinite(v) for v in (p.x, p.y, q.x, q.y, q.z, q.w))
+                    or not .8 <= norm <= 1.2):
+                self._scan_guard_pose_lookup = {
+                    'failure_kind': 'geometry', 'lookup_error': 'Invalid odometry transform geometry'}
+                return None
+            scale = math.sqrt(norm)
+            x, y, z, w = q.x/scale, q.y/scale, q.z/scale, q.w/scale
+            if (abs(2*(x*z-w*y)) > .1 or abs(2*(y*z+w*x)) > .1
+                    or 1.-2*(x*x+y*y) < .99):
+                self._scan_guard_pose_lookup = {
+                    'failure_kind': 'geometry', 'lookup_error': 'Non-planar odometry transform'}
+                return None
+            stamp = transform.header.stamp
+            return ((p.x, p.y, math.atan2(2*(w*z+x*y), 1-2*(y*y+z*z))),
+                    stamp.sec*1_000_000_000+stamp.nanosec)
+        except Exception as exc:
+            self._scan_guard_pose_lookup = {
+                'failure_kind': 'lookup',
+                'lookup_error': (type(exc).__name__+': '+str(exc))[:200]}
+            return None
+
+    def _scan_guard_current_pose(self, now_ns):
+        """Interpolate future TF; bridge only brief lookup gaps, never bad poses.
+
+        Cached poses keep their original ROS timestamp. Neither failed lookups
+        nor reuse renew the age budget used for the directional motion bound.
         """
-        stamp_ns = scan.header.stamp.sec * 1_000_000_000 + scan.header.stamp.nanosec
+        self._scan_guard_pose_lookup = {}
+        pose = self._scan_guard_pose()
+        lookup = dict(getattr(self, '_scan_guard_pose_lookup', {}))
+        source, error = 'latest', lookup.get('lookup_error', '')
+        invalid = lookup.get('failure_kind') == 'geometry'
+        unavailable_age = None
+        future_lead = 0.
+        uncertainty_age = None
+        source_stamp_ns = pose[1] if pose is not None else None
+        received_at = time.monotonic()
+        if pose is not None:
+            age = (now_ns-pose[1])/1.e9
+            future_lead = max(0., -age)
+            if age >= self._scan_guard_pose_timeout or age < -self._scan_guard_pose_timeout:
+                # A stale or far-future stream cannot be hidden by older data.
+                self._scan_guard_pose_cache = None
+                self._scan_guard_pose_diagnostic = {
+                    'pose_source': 'stale' if age >= 0. else 'future_out_of_bounds',
+                    'pose_age_seconds': age, 'lookup_error': error,
+                    'future_lead_seconds': future_lead,
+                    'pose_uncertainty_seconds': None}
+                return None
+            if age < -.05:
+                source = 'interpolated'
+                pose = self._scan_guard_pose(now_ns)
+                lookup = dict(getattr(self, '_scan_guard_pose_lookup', {}))
+                error = lookup.get('lookup_error', '')
+                invalid = lookup.get('failure_kind') == 'geometry'
+        if pose is None:
+            cached = getattr(self, '_scan_guard_pose_cache', None)
+            if invalid:
+                self._scan_guard_pose_cache = None
+                source = 'invalid_geometry'
+            elif cached is not None:
+                cached_pose, received_at, future_lead, source_stamp_ns = cached
+                age = (now_ns-cached_pose[1])/1.e9
+                unavailable_age = age
+                if (-.05 <= age < self._scan_guard_pose_timeout
+                        and time.monotonic()-received_at < self._scan_guard_pose_timeout):
+                    pose, source = cached_pose, 'cached'
+            if pose is None:
+                source = 'invalid_geometry' if invalid else 'lookup_unavailable'
+        else:
+            previous = getattr(self, '_scan_guard_pose_cache', None)
+            if previous is not None and previous[3] == source_stamp_ns:
+                # Re-reading the same TF is not new motion evidence, even if
+                # a catching-up /clock allows a newer interpolated pose.
+                received_at = previous[1]
+                future_lead = max(future_lead, previous[2])
+            self._scan_guard_pose_cache = (pose, received_at, future_lead, source_stamp_ns)
+        if pose is not None:
+            # A future TF may be genuine prediction or a delayed local /clock
+            # callback. Preserve that uncertainty after interpolation and
+            # throughout cache reuse instead of declaring an exact age of zero.
+            uncertainty_age = max(abs((now_ns-pose[1])/1.e9),
+                                  future_lead+max(0., time.monotonic()-received_at))
+        self._scan_guard_pose_diagnostic = {
+            'pose_source': source, 'lookup_error': error,
+            'pose_age_seconds': (now_ns-pose[1])/1.e9 if pose is not None else unavailable_age,
+            'future_lead_seconds': future_lead,
+            'pose_uncertainty_seconds': uncertainty_age}
+        return pose
+
+    def _validate_pending_scan_locked(self):
+        pending = getattr(self, '_scan_guard_pending', None)
+        if pending is None:
+            return
+        pose = self._scan_guard_pose(pending['stamp_ns'])
+        self._scan_guard_acquisition_diagnostic = dict(
+            getattr(self, '_scan_guard_pose_lookup', {}))
+        if pose is not None:
+            pending['scan_pose'] = pose[0]
+            self._scan_guard_sample = pending
+            self._scan_guard_pending = None
+
+    def on_scan_guard(self, scan):
+        """Keep temporal evidence intact, then guard the actual chassis sweep."""
+        stamp_ns = scan.header.stamp.sec*1_000_000_000+scan.header.stamp.nanosec
         now_ns = self.get_clock().now().nanoseconds
         if (stamp_ns <= 0 or stamp_ns <= self.near_scan_guard_last_stamp_ns
                 or not -.25e9 <= now_ns-stamp_ns < 1e9):
             return
         decision = self.near_scan_guard.classify(scan, stamp_ns)
-        if not decision.accepted:
-            return
+        extrinsic = self._scan_guard_extrinsic(scan.header.frame_id) if decision.accepted else None
+        fault = ('INVALID_SCAN' if not decision.accepted else
+                 'TF_UNAVAILABLE' if extrinsic is None else '')
+        points = scan_points_in_base(scan, extrinsic) if not fault else ()
         with self._state_guard():
             if getattr(self, '_closing', False):
                 return
-            self.near_scan_guard_last_stamp_ns = stamp_ns
-            hold = bool(decision.unconfirmed or decision.confirmed)
-            changed = hold != self.core.scan_guard_hold
-            self.core.scan_guard_hold = hold
-            self.core.scan_guard_reason = (
-                'Unconfirmed isolated near-range LiDAR return' if decision.unconfirmed else
-                'Confirmed near-range LiDAR obstacle; waiting for measured clearance' if hold else '')
-            if changed:
-                self._publish_output_locked()
+            if decision.accepted:
+                self.near_scan_guard_last_stamp_ns = stamp_ns
+            sample = {'points': points, 'decision': decision, 'stamp_ns': stamp_ns,
+                      'received_at': time.monotonic(), 'fault': fault}
+            if fault:
+                self._scan_guard_sample, self._scan_guard_pending = sample, None
+            else:
+                # A scan stamp can lead the newest odometry TF by a few ms.
+                # Keep a previous validated scan alive while waiting for the
+                # interpolation, rather than injecting a zero at every scan.
+                self._scan_guard_pending = sample
+                self._validate_pending_scan_locked()
+            self._refresh_scan_guard_locked()
+            self._publish_output_locked()
+
+    def _refresh_scan_guard_locked(self, extra_twist=None):
+        if not getattr(self, '_scan_guard_enabled', False):
+            return
+        self._validate_pending_scan_locked()
+        sample = self._scan_guard_sample
+        code, support = 'WAIT_SCAN', ''
+        metrics = {'scan_age_seconds': None, 'pose_age_seconds': None,
+                   'lookup_error': '', 'pose_source': 'not_requested'}
+        reason = 'Waiting for raw LiDAR and verified acquisition-time odometry TF'
+        if sample is None and getattr(self, '_scan_guard_pending', None) is not None:
+            metrics.update(
+                scan_age_seconds=(self.get_clock().now().nanoseconds-
+                                  self._scan_guard_pending['stamp_ns'])/1.e9,
+                pose_source='waiting_acquisition_pose',
+                lookup_error=getattr(self, '_scan_guard_acquisition_diagnostic', {}).get('lookup_error', ''))
+        if sample is not None:
+            now_ns = self.get_clock().now().nanoseconds
+            age = (now_ns-sample['stamp_ns'])/1.e9
+            code = sample['fault']
+            latest_pose = None if code else self._scan_guard_current_pose(now_ns)
+            pose_age = (now_ns-latest_pose[1])/1.e9 if latest_pose is not None else math.inf
+            metrics['scan_age_seconds'] = age
+            if not code:
+                metrics.update(getattr(self, '_scan_guard_pose_diagnostic', {}))
+            elif code == 'TF_UNAVAILABLE':
+                metrics.update(pose_source='mounting_unavailable', lookup_error='Laser mounting TF unavailable')
+            if code == 'TF_UNAVAILABLE':
+                reason = 'LiDAR mounting TF unavailable; chassis sweep is unverified'
+            elif code == 'INVALID_SCAN':
+                reason = 'Invalid raw LiDAR scan; measured clearance is unverified'
+            elif (not -.25 <= age < self._scan_guard_sensor_timeout
+                  or time.monotonic()-sample['received_at'] >= self._scan_guard_sensor_timeout):
+                code, reason = 'STALE_SCAN', 'Raw LiDAR scan is stale; measured clearance is unverified'
+            elif latest_pose is None or not -.05 <= pose_age < self._scan_guard_pose_timeout:
+                code, reason = 'POSE_UNAVAILABLE', 'Fresh continuous odometry TF unavailable for scan compensation'
+            else:
+                requested = ((self.core.auto_velocity) if self.core.mode == 'auto'
+                    and self.core.auto_at is not None
+                    and self.core.clock()-self.core.auto_at < self.core.auto_timeout else (0., 0.))
+                twists = {requested, getattr(self, 'last_published_output', (0., 0.))}
+                if extra_twist is not None:
+                    twists.add(extra_twist)
+                points = rebase_scan_points(sample['points'], sample['scan_pose'], latest_pose[0])
+                # The full scan age is compensated exactly above. Bound only
+                # the much shorter motion since the latest available pose:
+                # longitudinal speed, lateral turning drift and heading error.
+                dt = max(abs(pose_age), metrics.get('pose_uncertainty_seconds') or 0.)
+                uncertainty = {
+                    'longitudinal_uncertainty': self.core.max_linear_velocity*dt,
+                    'lateral_uncertainty': .5*self.core.max_linear_velocity*self.core.max_angular_velocity*dt*dt,
+                    'yaw_uncertainty': self.core.max_angular_velocity*dt}
+                checks = [(points, sample['decision'], uncertainty)]
+                pending = getattr(self, '_scan_guard_pending', None)
+                if pending is not None:
+                    # A newly measured imminent collision still stops on the
+                    # first scan, even while its stamped TF is being awaited.
+                    checks.append((pending['points'], pending['decision'], {}))
+                results, unconfirmed, confirmed = [], set(), set()
+                for cloud, decision, bounds in checks:
+                    for twist in twists:
+                        result = swept_body_decision(cloud, *twist,
+                            radius=self._scan_guard_radius, horizon=self._scan_guard_horizon, **bounds)
+                        results.append(result)
+                        unconfirmed.update(result.swept & decision.unconfirmed)
+                        confirmed.update(result.swept & decision.confirmed)
+                inside = frozenset().union(*(result.inside for result in results))
+                hits = frozenset().union(*(result.swept for result in results))
+                support = 'unconfirmed' if unconfirmed else 'confirmed' if confirmed else 'raw' if hits else ''
+                code = 'BODY_INTERSECTION' if inside else 'SWEPT_INTERSECTION' if hits else 'CLEAR'
+                prefix = ('Unconfirmed near-range LiDAR return' if support == 'unconfirmed' else
+                          'Confirmed near-range LiDAR obstacle' if support == 'confirmed' else 'LiDAR return')
+                reason = (prefix+' intersects current chassis' if inside else
+                          prefix+' intersects requested chassis sweep' if hits else '')
+                body = min(result.minimum_body_clearance for result in results)
+                sweep = min(result.minimum_swept_clearance for result in results)
+                metrics.update({'robot_radius_m': self._scan_guard_radius,
+                           'horizon_seconds': self._scan_guard_horizon,
+                           'minimum_body_clearance_m': body if math.isfinite(body) else None,
+                           'minimum_swept_clearance_m': sweep if math.isfinite(sweep) else None,
+                           'collision_count': len(hits), 'inside_count': len(inside),
+                           'collision_indices': sorted(hits)[:8], 'scan_age_seconds': age,
+                           'pose_age_seconds': pose_age,
+                           'longitudinal_uncertainty_m': uncertainty['longitudinal_uncertainty'],
+                           'lateral_uncertainty_m': uncertainty['lateral_uncertainty'],
+                           'pending_scan': pending is not None})
+        self.core.scan_guard_code = code
+        self.core.scan_guard_support = support
+        self.core.scan_guard_metrics = metrics
+        self.core.scan_guard_hold = code != 'CLEAR'
+        self.core.scan_guard_reason = reason
 
     def _service_packet(self, mode):
         self.service_seq += 1
@@ -831,6 +1150,7 @@ class MotionMuxNode(Node):
             canceled.set_result(False)
 
     def _publish_output_locked(self):
+        self._refresh_scan_guard_locked()
         timing = getattr(self, '_timing', None)
         if timing is not None:
             timing.gap('output_gap', .05)
@@ -844,6 +1164,9 @@ class MotionMuxNode(Node):
         if not self.output_available:
             # Even a zero command would interfere with an existing, unmanaged
             # controller. Wait for an explicit exclusive handover instead.
+            ramp = getattr(self, 'command_ramp', None)
+            if ramp is not None:
+                ramp.reset()
             return
         message = Twist()
         # Guards briefly observe an unlatched state to acknowledge/veto the
@@ -852,7 +1175,27 @@ class MotionMuxNode(Node):
         message.linear.x, message.angular.z = ((0.0, 0.0) if
             getattr(self, 'pending_reset', None) is not None
             or getattr(self, '_closing', False) else self.core.output())
-        timed_call(timing, 'cmd_vel_publish', self.output_pub.publish, message)
+        ramp = getattr(self, 'command_ramp', None)
+        if ramp is not None:
+            owner = (self.core.mode, self.core.source_id,
+                     self.core.auto_source_id if self.core.mode == 'auto' else self.core.manual_operation)
+            message.linear.x, message.angular.z = ramp.apply(
+                message.linear.x, message.angular.z, now=time.monotonic(), owner=owner)
+        # The ramp can briefly have a different curvature from the new target.
+        # Certify that actual output as well, retaining the full raw-body check.
+        if self.core.mode == 'auto' and getattr(self, '_scan_guard_enabled', False):
+            self._refresh_scan_guard_locked((message.linear.x, message.angular.z))
+            if self.core.scan_guard_hold:
+                message.linear.x, message.angular.z = 0., 0.
+                if ramp is not None:
+                    ramp.reset()
+        try:
+            timed_call(timing, 'cmd_vel_publish', self.output_pub.publish, message)
+        except Exception:
+            if ramp is not None:
+                ramp.reset()
+            raise
+        self.last_published_output = (message.linear.x, message.angular.z)
         self.last_output_was_zero = message.linear.x == 0.0 and message.angular.z == 0.0
         if self.last_output_was_zero:
             self.last_zero_published_at = time.monotonic()
@@ -916,6 +1259,15 @@ class MotionMuxNode(Node):
                 self.check_output_ownership()
             with self._state_guard():
                 status = self.core.status()
+                # The arbitration target may be ahead of a gentle start.
+                # Report the actual emitted command; reads do not advance it.
+                status['requested_linear'] = status['output_linear']
+                status['requested_angular'] = status['output_angular']
+                status['output_linear'], status['output_angular'] = getattr(
+                    self, 'last_published_output', (status['output_linear'], status['output_angular']))
+                ramp = getattr(self, 'command_ramp', None)
+                if ramp is not None:
+                    status['command_ramp'] = ramp.snapshot()
                 reset = getattr(self, 'pending_reset', None)
                 reset_pending = reset is not None and not reset.get('finishing')
                 transition = (status['mode'], status['source_id'], status['estop_latched'],
@@ -941,7 +1293,6 @@ class MotionMuxNode(Node):
                     and time.monotonic()-self.last_zero_published_at < .2)
                 status['reset_pending'] = reset_pending
                 if status['reset_pending']:
-                    status['output_linear'] = status['output_angular'] = 0.0
                     status['output_owner'] = 'safety_reset'
                 if not self.output_available:
                     status['reason'] = self.output_conflict

@@ -1,0 +1,50 @@
+{
+  "stages": [
+    {
+      "stage": "16_web_transient_resume",
+      "outcome": "FAIL",
+      "reasons": [
+        "verifier_failed",
+        "cold_start_without_prior_and_web_initialization_unproven",
+        "web_mission_not_accepted",
+        "web_route_order_mismatch",
+        "sector_route_and_home_not_completed",
+        "sector_1_five_second_dwell_unverified",
+        "sector_1_aruco_unverified",
+        "sector_2_five_second_dwell_unverified",
+        "sector_2_aruco_unverified",
+        "1_gazebo_truth_unverified",
+        "2_gazebo_truth_unverified",
+        "home_gazebo_truth_unverified",
+        "sector_1_independent_dwell_unverified",
+        "sector_2_independent_dwell_unverified",
+        "mid_route_web_fault_not_requested",
+        "safety_timeline_failed",
+        "runner_nonzero_exit"
+      ],
+      "mission_backend_passed": false,
+      "final_state": null,
+      "cold_start_proof": {
+        "passed": false,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend"
+      },
+      "prearm_passed": null,
+      "source_unchanged": true,
+      "actor_moving_steps": null,
+      "actor_bypassed_while_live": null,
+      "actor_minimum_clearance_m": null,
+      "safety_passed": false,
+      "safety_violations": [],
+      "transient": {
+        "passed": false,
+        "reasons": [
+          "mid_route_web_fault_not_requested"
+        ]
+      },
+      "physical_drive": false,
+      "visual_browser_qa": false
+    }
+  ],
+  "passed": false
+}

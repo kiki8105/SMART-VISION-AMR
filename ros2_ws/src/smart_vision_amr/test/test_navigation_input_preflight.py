@@ -337,15 +337,22 @@ def test_repeated_input_rejections_rearm_the_planner_until_inputs_recover():
             'path_smoothing_shortcut_distance', 'path_resample_spacing'))
         # Run the real status/retry callbacks; route computation is independent
         # of this handshake, so emulate its successful publication boundary.
+        def publish_owned_path(path):
+            planner.planned_world_points = [(p.pose.position.x, p.pose.position.y)
+                                            for p in path.poses]
+            planner.planned_cells = [(index, 0) for index in range(len(path.poses))]
+            planner._publish_path(path)
+            node.on_path(path)
+
         def publish_route(retained_goal):
             assert retained_goal is goal
             planner.waiting_for_replan = False
             planner.last_plan_time = time.monotonic()
-            node.on_path(make_path(stamp=node.clock_seconds))
+            publish_owned_path(make_path(stamp=node.clock_seconds))
         planner.plan_to = Mock(side_effect=publish_route)
         node.status_pub.publish.side_effect = planner.on_navigation_status
         node.on_goal(goal)
-        node.on_path(make_path(stamp=5))
+        publish_owned_path(make_path(stamp=5))
         assert planner.waiting_for_replan
         for seconds, monotonic in ((6, 103.), (7, 106.), (8, 109.)):
             clock.return_value = monotonic

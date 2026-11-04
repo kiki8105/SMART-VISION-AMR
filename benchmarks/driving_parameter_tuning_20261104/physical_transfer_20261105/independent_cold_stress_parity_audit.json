@@ -1,0 +1,481 @@
+{
+  "status": "INDEPENDENT_STRICT_PASS",
+  "scope": "Completed actual cold sensor_rates stage17 1→2→3→Home with a fixed unmapped stress crate; read-only independent archive and geometry reassessment. Not physical driving, moving-actor4 test, or visual browser QA.",
+  "archive": "cold_stress_parity",
+  "verified_archive_file_count": 25,
+  "archive_manifest_sha256": "6ffd08a903ac29c17014781b680c0460f9993168e66059d0d372a8d1f3ff9b75",
+  "overall_passed": true,
+  "overall_reasons": [],
+  "source_count": 214,
+  "source_before_after_equal": true,
+  "source_manifest_sha256": "d195b99a67bc444210ff37f4a4b68f1ea5aed83196d37aa42e7a8393cd210008",
+  "critical_source_sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "f73c5fd48383df133b35fad08d4612d1c341fc5715698f6c482096c130f1b009",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/command_ramp.py": "86a59410dd034f2a9329066482e7240249d8d2fa4792219dc49f75a9ba4619cb",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/ekf_sensor_guard.py": "00ee47bcfaf6f3c9ca1293033bdd047b0fb6b2d6142bbf0e69c1b5bc5f565802",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/localization_health.py": "79cc587d80f218b77a0a53a5fcd3a9c90ce5bdf19224c64dee1e6ea148881f6a",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py": "aa2c11a5bf12386f8e8983763d07a53e45ce7ee167ca07c77518fdc08f1a976f",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": "0a43f64213c5a49bd0a85bad54fe444b6a50a6885e3c5842a07849237d17c1c0",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/recovery_episode.py": "98cecd86e1438e29f5228ecd637a8456dbc901368fa7b4b51f758761bcc5ec44",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/reverse_recovery.py": "97f3c21f4c77b9eac7452451d52e69bda6cb7c5aae9dac874e02eb1f1819f46d",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/scan_outlier_guard.py": "a659cfd2196b9ba8430d7e66855e65457ea00dee5e9ffc3bc9bfd0ca35dec6ef"
+  },
+  "official_source_parity": {
+    "passed": true,
+    "authoritative_physical_sources": true,
+    "official_sources": {
+      "nav": {
+        "original_path": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml",
+        "sha256": "363f9ce5851e7e97359d631419645c87d59fa79e4552d36c73b9d78a2bd8f954"
+      },
+      "nodes": {
+        "original_path": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml",
+        "sha256": "59f6b427b89c3a60f77b87254a3d5352e31a4fde245a241f9c6fef839ed81a1f"
+      }
+    },
+    "independently_parsed_yaml_differences": {
+      "nav": [
+        {
+          "path": "/amcl/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/amcl_map_client/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/amcl_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/behavior_server/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/bt_navigator/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/bt_navigator_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/controller_server/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/controller_server_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/global_costmap/global_costmap/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/global_costmap/global_costmap_client/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/global_costmap/global_costmap_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/local_costmap/local_costmap/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/local_costmap/local_costmap_client/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/local_costmap/local_costmap_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/map_saver/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/map_server/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/planner_server/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/planner_server_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/recoveries_server/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/robot_state_publisher/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/velocity_smoother/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        }
+      ],
+      "nodes": []
+    },
+    "interpretation": "Nav2 YAML differs only in21 use_sim_time false→true entries; classroom nodes YAML has no parsed value changes. This is selected official source preservation, not a domain16 live hardware parameter dump.",
+    "known_launch_tf_qos": {
+      "simulation_default": "best_effort depth20",
+      "hardware_default": "best_effort depth20",
+      "scope": "Matching declared launch policy in captured source; not independently querying live DDS QoS after shutdown."
+    }
+  },
+  "actual_spawned_model": {
+    "path": "cold_stress_parity/17_web_hardware_value_parity/actual_spawned_model.sdf",
+    "sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+    "body_radius_m": 0.22,
+    "body_pose": "0 0 0.048 0 0 0",
+    "laser_update_rate_hz": 10.0,
+    "imu_update_rate_hz": 20.0,
+    "joint_update_rate_hz": 20.0,
+    "independent_drive_odom_topic": "gazebo/odom_raw",
+    "drive_publish_odom_tf": "false"
+  },
+  "cold_start_proof": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 6.201931338000577
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 3,
+      "map_tf_messages": 1
+    }
+  },
+  "manual_initial_pose_estop": {
+    "state": "VERIFIED",
+    "latched_after_verification": true,
+    "stop_acknowledged_after_verification": true
+  },
+  "prearm": {
+    "passed": true,
+    "failed_gates": [],
+    "graph": {
+      "map_publishers": [
+        "/map_server"
+      ],
+      "scan_publishers": [
+        "/classroom_fault_relay"
+      ],
+      "odom_publishers": [
+        "/ekf_independent"
+      ],
+      "ekf_output_source_publishers": [],
+      "ekf_tf_source_publishers": [],
+      "battery_publishers": [
+        "/classroom_sim_battery"
+      ],
+      "raw_wheel_publishers": [
+        "/wheel_joint_odometry"
+      ],
+      "raw_imu_publishers": [
+        "/turtlebot3_imu"
+      ],
+      "goal_subscribers": [
+        "/flight_recorder",
+        "/astar_planner",
+        "/path_follower",
+        "/classroom_safety_timeline",
+        "/classroom_stress_crate_witness",
+        "/classroom_memory_observer"
+      ],
+      "planner_status_publishers": [
+        "/astar_planner"
+      ],
+      "cancel_service_types": [
+        "std_srvs/srv/Trigger"
+      ],
+      "raw_input_samples": {
+        "/wheel/odom": {
+          "count": 48,
+          "last_receipt_age_s": 0.047748005999892484
+        },
+        "/imu": {
+          "count": 49,
+          "last_receipt_age_s": 0.0035870600004273
+        }
+      },
+      "guard_battery_minimum_v": 10.8
+    }
+  },
+  "mission": {
+    "dispatch_mode": "manual",
+    "route": [
+      1,
+      2,
+      3
+    ],
+    "completed_ids": [
+      1,
+      2,
+      3
+    ],
+    "final_state": "HOME_REACHED",
+    "elapsed_seconds": 214.320707321167,
+    "truth_endpoints": {
+      "1": {
+        "passed": true,
+        "event_at": 1793813085.1187518,
+        "goal": [
+          1.2,
+          0.575,
+          3.114078
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.055,
+        "position_error_m": 0.126,
+        "heading_error_rad": 0.117,
+        "fixture_wall_front_yaw_rad": 3.114077653589793,
+        "fixture_wall_normal_error_rad": 0.117,
+        "truth": [
+          1.07393,
+          0.57143,
+          2.99708
+        ]
+      },
+      "2": {
+        "passed": true,
+        "event_at": 1793813155.2101076,
+        "goal": [
+          1.525,
+          -2.65,
+          1.543282
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.045,
+        "position_error_m": 0.125,
+        "heading_error_rad": 0.177,
+        "fixture_wall_front_yaw_rad": 1.543281653589793,
+        "fixture_wall_normal_error_rad": 0.177,
+        "truth": [
+          1.57016,
+          -2.53328,
+          1.71993
+        ]
+      },
+      "3": {
+        "passed": true,
+        "event_at": 1793813217.396649,
+        "goal": [
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.057,
+        "position_error_m": 0.102,
+        "heading_error_rad": 0.056,
+        "fixture_wall_front_yaw_rad": -1.598311346410207,
+        "fixture_wall_normal_error_rad": 0.143,
+        "truth": [
+          -0.24386,
+          -2.08197,
+          -1.45577
+        ]
+      },
+      "home": {
+        "passed": true,
+        "event_at": 1793813273.6752799,
+        "goal": [
+          -0.188431,
+          -0.220497,
+          -0.027514
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.017,
+        "position_error_m": 0.109,
+        "heading_error_rad": 0.09,
+        "fixture_wall_front_yaw_rad": null,
+        "fixture_wall_normal_error_rad": null,
+        "truth": [
+          -0.15157,
+          -0.32298,
+          0.06297
+        ]
+      }
+    },
+    "home_stationary": {
+      "passed": true,
+      "end_at": 1793813273.6752799,
+      "duration_s": 1.239,
+      "truth_samples": 12,
+      "command_samples": 26,
+      "truth_max_gap_s": 0.114,
+      "command_max_gap_s": 0.069,
+      "max_translation_m": 0.0,
+      "max_heading_rad": 0.0002,
+      "max_command_linear_mps": 0.0,
+      "max_command_angular_rps": 0.0
+    },
+    "sector_dwell_seconds": {
+      "1": 5.05,
+      "2": 5.063,
+      "3": 5.075
+    }
+  },
+  "fixed_crate": {
+    "original_assessment_passed": true,
+    "independently_recomputed_assessment_passed": true,
+    "robot_radius_m": 0.22,
+    "required_margin_m": 0.02,
+    "minimum_conservative_truth_gap_m": 0.0427,
+    "raw_lidar_hit_samples": 1052,
+    "direct_link_fraction": 1.0,
+    "truth_samples": 1902,
+    "route_reaction_kind": "box_clear_initial_route_after_lidar",
+    "scope": "Fixed20cm crate in stress world; initial box-clear route after LiDAR is supported. unsafe_route_replanned_after_lidar=false, so do not claim a previously unsafe path was necessarily replaced."
+  },
+  "stopping_safety": {
+    "passed": true,
+    "missing_evidence": [],
+    "violations": [],
+    "wait_replan_intervals": []
+  },
+  "actual_commands": {
+    "samples": 4966,
+    "negative_samples": 0,
+    "recovery_requests": 0,
+    "maximum_forward_linear_mps": 0.22,
+    "moving_yaw_max_rps": 0.34615,
+    "pure_or_tiny_linear_yaw_max_rps": 0.5,
+    "reverse_interpretation": "Report actual negative samples separately; no reverse success inferred from planned candidates or a final Home state."
+  },
+  "guard_codes_during_mission": {
+    "CLEAR": 1365,
+    "POSE_UNAVAILABLE": 2,
+    "STALE_SCAN": 1
+  },
+  "source_cadence_final": {
+    "final": true,
+    "streams": {
+      "raw_scan": {
+        "topic": "/classroom_fault/raw_scan",
+        "receipt_sample_count": 1988,
+        "source_stamp_hz": 9.98246662882004,
+        "receipt_wall_hz": 8.821772933546448,
+        "source_stamp_intervals": {
+          "sample_count": 1987,
+          "minimum_seconds": 0.093,
+          "p95_seconds": 0.102,
+          "maximum_seconds": 0.106
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 1988,
+          "minimum": -0.02,
+          "maximum": 0.011,
+          "future_stamp_samples": 1783,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "raw_imu": {
+        "topic": "/imu",
+        "receipt_sample_count": 3972,
+        "source_stamp_hz": 19.93604000261061,
+        "receipt_wall_hz": 17.617676813722987,
+        "source_stamp_intervals": {
+          "sample_count": 3971,
+          "minimum_seconds": 0.049,
+          "p95_seconds": 0.051,
+          "maximum_seconds": 0.059
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 3972,
+          "minimum": -0.02,
+          "maximum": 0.006,
+          "future_stamp_samples": 3902,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "wheel_joint_states": {
+        "topic": "/joint_states",
+        "receipt_sample_count": 3984,
+        "source_stamp_hz": 20.0,
+        "receipt_wall_hz": 17.673578992945114,
+        "source_stamp_intervals": {
+          "sample_count": 3983,
+          "minimum_seconds": 0.05,
+          "p95_seconds": 0.05,
+          "maximum_seconds": 0.05
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 3984,
+          "minimum": -0.011,
+          "maximum": -0.001,
+          "future_stamp_samples": 3984,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "ekf_output": {
+        "topic": "/odom",
+        "receipt_sample_count": 3729,
+        "source_stamp_hz": 18.730185844842918,
+        "receipt_wall_hz": 16.55403899256505,
+        "source_stamp_intervals": {
+          "sample_count": 3728,
+          "minimum_seconds": 0.002,
+          "p95_seconds": 0.1,
+          "maximum_seconds": 0.106
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 3729,
+          "minimum": 0.001,
+          "maximum": 0.059,
+          "future_stamp_samples": 0,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      }
+    },
+    "interpretation": "Observed unique-source-stamp cadence and wall receipt rate are separate. EKF observed source18.73Hz must not be silently rounded to configured20Hz; subscriber loss/scheduling and producer misses are not separable from this observer alone."
+  },
+  "limits": [
+    "One fixed stress scene success; not universal reliability or proof of moving-obstacle actor4 under this route.",
+    "EKF delivery fault injection disabled in this stage; real wireless/clock offsets/OpenCR and physical braking remain separate.",
+    "Current22cm body and QA2cm/25cm thresholds preserved; source guard unchanged during the actual trial."
+  ]
+}

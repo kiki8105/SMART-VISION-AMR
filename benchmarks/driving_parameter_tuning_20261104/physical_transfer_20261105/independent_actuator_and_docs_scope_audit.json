@@ -1,0 +1,282 @@
+{
+  "scope": "Independent read-only completed actuator-lag result and documentation-scope audit. No runtime edits, ROS publication, browser action or extra driving.",
+  "archive": "cold_actuator_lag",
+  "original_overall_outcome": "FAIL",
+  "whole_stage_reasons": [
+    "safety_timeline_failed"
+  ],
+  "archive_verified_files": 24,
+  "archive_manifest_sha256": "ebd90f026c1f0ddc1c2d3fa7a2d4bb5fa16ae4e6ba77c3bf67fdf6d143c89fb5",
+  "trial_source_before_after_equal": true,
+  "trial_source_manifest_sha256": "d195b99a67bc444210ff37f4a4b68f1ea5aed83196d37aa42e7a8393cd210008",
+  "mission": {
+    "backend_passed": true,
+    "elapsed_seconds": 131.08486890792847,
+    "cold_proof_passed": true,
+    "prearm_passed": true,
+    "sector3_truth": {
+      "passed": true,
+      "event_at": 1793812397.495574,
+      "goal": [
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "position_tolerance_m": 0.25,
+      "sample_time_delta_s": 0.05,
+      "position_error_m": 0.085,
+      "heading_error_rad": 0.078,
+      "fixture_wall_front_yaw_rad": -1.598311346410207,
+      "fixture_wall_normal_error_rad": 0.121,
+      "truth": [
+        -0.25566,
+        -2.06507,
+        -1.4775
+      ]
+    },
+    "home_truth": {
+      "passed": true,
+      "event_at": 1793812448.0818958,
+      "goal": [
+        -0.188431,
+        -0.220497,
+        -0.027514
+      ],
+      "position_tolerance_m": 0.25,
+      "sample_time_delta_s": 0.002,
+      "position_error_m": 0.157,
+      "heading_error_rad": 0.112,
+      "fixture_wall_front_yaw_rad": null,
+      "fixture_wall_normal_error_rad": null,
+      "truth": [
+        -0.03189,
+        -0.21791,
+        0.08409
+      ]
+    },
+    "home_final_stationary": {
+      "passed": true,
+      "end_at": 1793812448.0818958,
+      "duration_s": 1.24,
+      "truth_samples": 12,
+      "command_samples": 33,
+      "truth_max_gap_s": 0.113,
+      "command_max_gap_s": 0.066,
+      "max_translation_m": 0.0,
+      "max_heading_rad": 0.0002,
+      "max_command_linear_mps": 0.0,
+      "max_command_angular_rps": 0.0
+    },
+    "inventory": {
+      "request_id": 1,
+      "status": "DELIVERED",
+      "service_active": false
+    }
+  },
+  "moving_obstacle": {
+    "actor_passed": true,
+    "moves": 4,
+    "live_bypass": true,
+    "minimum_actual_gap_m": 0.06063659288474102,
+    "required_gap_m": 0.02,
+    "same_fixed_scene_sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e"
+  },
+  "model": {
+    "actual_spawned_model_sha256": "1ca73365b84a86964edaf6f7b63ac91839acbe33b028eced4509ac74fcb23c45",
+    "actual_wheel_acceleration_limit_mps2": 0.15,
+    "wheel_diameter_m": 0.066,
+    "wheel_separation_m": 0.287,
+    "interpretation": "Explicit uncalibrated actuator sensitivity; not a measured physical TurtleBot braking calibration."
+  },
+  "strict_stopping_qa": {
+    "passed": false,
+    "violation_count": 4,
+    "violations": [
+      {
+        "kind": "excessive_ground_truth_stopping_distance",
+        "t": 37.5498,
+        "start_t": 35.8602,
+        "duration_s": 1.6896,
+        "last_nonzero_command_after_s": 0.10050000000000381,
+        "first_zero_command_after_s": 0.12409999999999854,
+        "max_displacement_m": 0.07,
+        "max_forward_displacement_m": 0.07,
+        "max_heading_change_rad": 0.084,
+        "truth_samples": 16,
+        "entry_speed_mps": 0.1081,
+        "entry_command_speed_mps": 0.0897,
+        "entry_truth_speed_mps": 0.1081,
+        "entry_front_core_min_m": 0.8877761960029602,
+        "entry_front_core_angle_deg": 358.8152065577813,
+        "ground_truth_stopping_distance_bound_m": 0.05,
+        "estimated_front_body_clearance_m": 0.6856
+      },
+      {
+        "kind": "excessive_ground_truth_stopping_rotation",
+        "t": 46.2325,
+        "start_t": 44.6172,
+        "duration_s": 1.6153,
+        "last_nonzero_command_after_s": 0.14330000000000354,
+        "first_zero_command_after_s": 0.20889999999999986,
+        "max_displacement_m": 0.0361,
+        "max_forward_displacement_m": 0.036,
+        "max_heading_change_rad": 0.2059,
+        "truth_samples": 15,
+        "entry_speed_mps": 0.0695,
+        "entry_command_speed_mps": 0.0695,
+        "entry_truth_speed_mps": 0.0661,
+        "entry_front_core_min_m": 0.5057830214500427,
+        "entry_front_core_angle_deg": 350.79698965146224,
+        "ground_truth_stopping_distance_bound_m": 0.05,
+        "estimated_front_body_clearance_m": 0.3313
+      },
+      {
+        "kind": "excessive_ground_truth_stopping_distance",
+        "t": 57.9677,
+        "start_t": 56.2292,
+        "duration_s": 1.7385,
+        "last_nonzero_command_after_s": 0.1291000000000011,
+        "first_zero_command_after_s": 0.15080000000000382,
+        "max_displacement_m": 0.0535,
+        "max_forward_displacement_m": 0.0532,
+        "max_heading_change_rad": 0.2389,
+        "truth_samples": 16,
+        "entry_speed_mps": 0.1042,
+        "entry_command_speed_mps": 0.1042,
+        "entry_truth_speed_mps": 0.0806,
+        "entry_front_core_min_m": 0.9581847786903381,
+        "entry_front_core_angle_deg": 5.01138556644946,
+        "ground_truth_stopping_distance_bound_m": 0.05,
+        "estimated_front_body_clearance_m": 0.7693
+      },
+      {
+        "kind": "excessive_ground_truth_stopping_rotation",
+        "t": 57.9677,
+        "start_t": 56.2292,
+        "duration_s": 1.7385,
+        "last_nonzero_command_after_s": 0.1291000000000011,
+        "first_zero_command_after_s": 0.15080000000000382,
+        "max_displacement_m": 0.0535,
+        "max_forward_displacement_m": 0.0532,
+        "max_heading_change_rad": 0.2389,
+        "truth_samples": 16,
+        "entry_speed_mps": 0.1042,
+        "entry_command_speed_mps": 0.1042,
+        "entry_truth_speed_mps": 0.0806,
+        "entry_front_core_min_m": 0.9581847786903381,
+        "entry_front_core_angle_deg": 5.01138556644946,
+        "ground_truth_stopping_distance_bound_m": 0.05,
+        "estimated_front_body_clearance_m": 0.7693
+      }
+    ],
+    "interpretation": "Mission/live bypass/Home completion does not override excessive actual stopping translation/rotation. Original FAIL and QA bounds remain unchanged."
+  },
+  "actual_commands": {
+    "sample_count": 3261,
+    "negative_linear_count": 44,
+    "maximum_linear_mps": 0.22,
+    "moving_yaw_max_rps": 0.34615,
+    "recovery_requests": 1
+  },
+  "source_cadence_final": {
+    "final": true,
+    "streams": {
+      "raw_scan": {
+        "source_stamp_hz": 9.992483879900313,
+        "receipt_wall_hz": 9.021390099839367,
+        "receipt_sample_count": 1264,
+        "source_age_ros_seconds": {
+          "sample_count": 1264,
+          "minimum": -0.019,
+          "maximum": 0.002,
+          "future_stamp_samples": 1103,
+          "clock_unavailable_samples": 0
+        }
+      },
+      "raw_imu": {
+        "source_stamp_hz": 19.96233819666424,
+        "receipt_wall_hz": 18.085955797607973,
+        "receipt_sample_count": 2524,
+        "source_age_ros_seconds": {
+          "sample_count": 2524,
+          "minimum": -0.019,
+          "maximum": 0.003,
+          "future_stamp_samples": 2488,
+          "clock_unavailable_samples": 0
+        }
+      },
+      "wheel_joint_states": {
+        "source_stamp_hz": 20.0,
+        "receipt_wall_hz": 18.120156701918138,
+        "receipt_sample_count": 2529,
+        "source_age_ros_seconds": {
+          "sample_count": 2529,
+          "minimum": -0.01,
+          "maximum": 0.0,
+          "future_stamp_samples": 1265,
+          "clock_unavailable_samples": 0
+        }
+      },
+      "ekf_output": {
+        "source_stamp_hz": 20.0,
+        "receipt_wall_hz": 18.12025332522091,
+        "receipt_sample_count": 2527,
+        "source_age_ros_seconds": {
+          "sample_count": 2527,
+          "minimum": 0.0,
+          "maximum": 0.03,
+          "future_stamp_samples": 0,
+          "clock_unavailable_samples": 0
+        }
+      }
+    }
+  },
+  "detailed_dynamics_audit": {
+    "file": "independent_actuator_stop_dynamics_audit.json",
+    "sha256": "3e4ab21c7822963b9251bc1b6d3e40b8c5e57e320841a92739872039f32ae331",
+    "scope": "Other agent exact stop trace and coupled-wheel consistency calculation; no source modifications."
+  },
+  "documentation_snapshot_sha256": {
+    "README.md": "529547ad32c8c178187ae739a370bfa1c00bc79ccce7e181d6807734d17bf1b1",
+    "docs/TEAM_QUICKSTART.md": "05cbe9d3050ef9b8db75b1f54c2f68ee25dde659f99a5be0532da641755f80a9",
+    "docs/DRIVING_REPRODUCTION_20261104.md": "3b548f9a87b7de0970991085397672ea9b8b1dbe8fd885a4083c4c3fb8a9ab8b",
+    "docs/NAVIGATION_POLICY.md": "46123d529de6afabacb6178600925456a9bf4ef6c02c0d81e05168e1563be387"
+  },
+  "documentation_overclaim_findings": [
+    {
+      "kind": "stale_recovery_policy",
+      "priority": "P2 documentation",
+      "file": "README.md",
+      "line": 19,
+      "observed": "장애물 때문에 기본 3회 실패하면 웹에 대기 안내를 표시하고, 제거가 2초간 확인되면 재개합니다.",
+      "issue": "This merges physical obstacle episode sequencing with the separate accepted-controller-failure budget and implies a timer-only resume. Current NAVIGATION_POLICY42–45 distinguishes them.",
+      "suggestion": "Describe local→verified reverse→global→wait and relevant actual free/deletion evidence; keep independent controller failure budget separate."
+    },
+    {
+      "kind": "historic_simulation_scope_ambiguous",
+      "priority": "P2 documentation",
+      "file": "README.md",
+      "line": 86,
+      "end_line": 93,
+      "issue": "The undated generic two-world whole PASS can be read as current cold/transfer-matrix success without opening the linked history, although line89 correctly rejects physical-start guarantees.",
+      "suggestion": "Explicitly label those passes as previous preset-AMCL/default-producer conditions and link current physical-transfer PASS/FAIL table."
+    },
+    {
+      "kind": "absolute_real_collision_statement",
+      "priority": "P2 wording",
+      "file": "docs/NAVIGATION_POLICY.md",
+      "line": 27,
+      "observed": "차체와 실제 장애물이 겹치는 경로·명령은 실행하지 않습니다.",
+      "issue": "This is an intended rejection policy using received occupancy and configured geometry, not proof that all real collisions can be prevented despite state error, transport delay and braking dynamics.",
+      "suggestion": "State that candidates colliding under the received map/LiDAR and configured body model are rejected."
+    }
+  ],
+  "positive_documentation_scope": {
+    "docs/DRIVING_REPRODUCTION_20261104.md:3-5": "Explicit22cm/current YAML, no rollover of20cm evidence, no revised physical retest.",
+    "docs/DRIVING_REPRODUCTION_20261104.md:15-26": "Prior2732/source version and warm preset-AMCL condition are explicitly distinguished.",
+    "docs/NAVIGATION_POLICY.md:56-58": "Explicitly rejects interpreting policy/single success as universal completion guarantee.",
+    "docs/TEAM_QUICKSTART.md": "Operational installation/default procedures, not an explicit physical success guarantee.",
+    "docs/GAZEBO_PHYSICAL_TRANSFER.md:114-133": "Actuator mission success versus strict stop failure, uncalibrated dynamics and absent velocity_smoother are explicitly acknowledged."
+  },
+  "conclusion": "No direct claim of guaranteed revised real-robot success was found in the four requested documents. Three narrow wording/policy-age issues should be synchronized, without rewriting old trial outcomes."
+}

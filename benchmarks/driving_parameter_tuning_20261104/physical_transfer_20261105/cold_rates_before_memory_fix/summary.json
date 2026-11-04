@@ -1,0 +1,66 @@
+{
+  "stages": [
+    {
+      "stage": "25_web_inventory_sector3_moving_obstacle",
+      "outcome": "FAIL",
+      "reasons": [
+        "web_obstacle_injector_failed",
+        "web_obstacle_bypassed_while_live_unverified",
+        "safety_timeline_failed",
+        "runner_nonzero_exit"
+      ],
+      "mission_backend_passed": true,
+      "final_state": "HOME_REACHED",
+      "cold_start_proof": {
+        "passed": true,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend",
+        "before": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 0,
+          "map_tf_messages": 0,
+          "web_pose": null,
+          "observed_seconds": 6.283975525999267
+        },
+        "after": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 3,
+          "map_tf_messages": 1
+        }
+      },
+      "prearm_passed": true,
+      "source_unchanged": true,
+      "actor_moving_steps": 4,
+      "actor_bypassed_while_live": false,
+      "actor_minimum_clearance_m": 0.0726869899392801,
+      "safety_passed": false,
+      "safety_violations": [
+        {
+          "kind": "excessive_ground_truth_stopping_rotation",
+          "t": 48.3721,
+          "start_t": 46.9044,
+          "duration_s": 1.4677,
+          "last_nonzero_command_after_s": 0.07309999999999661,
+          "first_zero_command_after_s": 0.11209999999999809,
+          "max_displacement_m": 0.0187,
+          "max_forward_displacement_m": 0.0187,
+          "max_heading_change_rad": 0.1243,
+          "truth_samples": 13,
+          "entry_speed_mps": 0.081,
+          "entry_command_speed_mps": 0.081,
+          "entry_truth_speed_mps": 0.073,
+          "entry_front_core_min_m": 0.5269094109535217,
+          "entry_front_core_angle_deg": 348.79243542488246,
+          "ground_truth_stopping_distance_bound_m": 0.05,
+          "estimated_front_body_clearance_m": 0.3661
+        }
+      ],
+      "transient": null,
+      "physical_drive": false,
+      "visual_browser_qa": false
+    }
+  ],
+  "passed": false
+}

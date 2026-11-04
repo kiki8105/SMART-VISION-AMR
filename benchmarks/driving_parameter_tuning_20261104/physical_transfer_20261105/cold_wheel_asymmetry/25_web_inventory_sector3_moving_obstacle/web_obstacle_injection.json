@@ -1,0 +1,136 @@
+{
+  "passed": false,
+  "domain": 176,
+  "localhost_only": true,
+  "physical_robot_touched": false,
+  "goal": [
+    -0.25,
+    -1.98
+  ],
+  "geometry": {
+    "robot_radius": 0.22,
+    "obstacle_inflation_cells": 5,
+    "nodes_params": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml"
+  },
+  "goal_owner": "web_mission_server",
+  "goal_published_by_injector": false,
+  "spawned": false,
+  "truth_seen": false,
+  "removed": false,
+  "moving_steps": 0,
+  "observed_while_live": false,
+  "observed_cleared": false,
+  "path_reacted_before_removal": false,
+  "bypassed_while_live": false,
+  "minimum_clearance_m": null,
+  "recovery_requests": 0,
+  "events": [
+    {
+      "t": 19.96,
+      "at": 1793812105.6111827,
+      "event": "web_goal_observed",
+      "x": -0.25,
+      "y": -1.98,
+      "stamp": [
+        7,
+        380000000
+      ]
+    },
+    {
+      "t": 19.96,
+      "at": 1793812105.61136,
+      "event": "injector_waiting_for_current_route",
+      "reason": "navigation_not_moving",
+      "path_age_s": null,
+      "navigation_status": null,
+      "observed_age_s": 0.039
+    },
+    {
+      "t": 20.334,
+      "at": 1793812105.9851327,
+      "event": "candidate_search_started",
+      "attempt": 1,
+      "path_sha256": "b98614957975fa4e2ceaa4767d233621ae86332408dfcdf85e17f29ce4609cb4",
+      "robot_xy": [
+        -0.18826163085978742,
+        -0.2205019982076411
+      ],
+      "observed_cells": 5,
+      "remembered_cells": 0
+    },
+    {
+      "t": 24.404,
+      "at": 1793812110.0549068,
+      "event": "candidate_search_finished",
+      "attempt": 1,
+      "duration_s": 0.007,
+      "diagnostics": {
+        "reason": "FIXED_SCENE_TOO_CLOSE_TO_OBSERVED_CELL",
+        "input_status": "INVALID_INPUT",
+        "geometric_candidates": 1,
+        "topology_candidates_tried": 1,
+        "attempts": 1
+      },
+      "candidate_xy": null
+    },
+    {
+      "t": 24.404,
+      "at": 1793812110.0550058,
+      "event": "injector_failed",
+      "reason": "InvalidObstacleScenario('FIXED_SCENE_TOO_CLOSE_TO_OBSERVED_CELL')"
+    }
+  ],
+  "failure": "InvalidObstacleScenario('FIXED_SCENE_TOO_CLOSE_TO_OBSERVED_CELL')",
+  "obstacle_scenario": {
+    "source_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/obstacle_scenario.json",
+    "sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+    "scenario": {
+      "x": 0.5239140050447512,
+      "y": -0.599706838892526,
+      "path_tangent": [
+        0.6954214275160555,
+        -0.7186021417665909
+      ],
+      "movement_side": -1
+    },
+    "actor_positions_by_step": [
+      [
+        0.5239140050447512,
+        -0.599706838892526
+      ],
+      [
+        0.5059489515005864,
+        -0.6170923745804273
+      ],
+      [
+        0.4879838979564216,
+        -0.6344779102683288
+      ],
+      [
+        0.47001884441225683,
+        -0.6518634459562301
+      ],
+      [
+        0.45205379086809205,
+        -0.6692489816441315
+      ]
+    ],
+    "box_size_m": [
+      0.25,
+      0.25,
+      0.5
+    ],
+    "mode": "FIXED_NO_RELOCATION",
+    "copied_path": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json"
+  },
+  "input_status": "INVALID_INPUT",
+  "failure_class": "INVALID_OBSTACLE_SCENARIO",
+  "candidate_diagnostics": {
+    "reason": "FIXED_SCENE_TOO_CLOSE_TO_OBSERVED_CELL",
+    "input_status": "INVALID_INPUT",
+    "geometric_candidates": 1,
+    "topology_candidates_tried": 1,
+    "attempts": 1
+  },
+  "candidate_search_attempts": 1
+}

@@ -1,0 +1,792 @@
+{
+  "scope": "Recorded stale-memory geometry audit, not an executed escape or policy change",
+  "trial": "/tmp/classroom-policy-replaced-baseline-20261104/25_web_inventory_sector3_moving_obstacle",
+  "diagnostic_wall_epoch": 1793802779.557994,
+  "planner_error_wall_epoch": 1793802779.5747232,
+  "map": {
+    "image": "ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm",
+    "sha256": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+    "width": 86,
+    "height": 140,
+    "resolution": 0.05,
+    "origin": [
+      -1.65,
+      -5.25,
+      0.0
+    ]
+  },
+  "parameters": {
+    "body_radius_m": 0.22,
+    "start_egress_margin_m": 0.0,
+    "static_inflation_cells": 5,
+    "memory_inflation_cells": 5,
+    "occlusion_extension_m": 0.2,
+    "occlusion_trigger_m": 1.5
+  },
+  "pose": [
+    0.1522859440099877,
+    -1.0479011757612624,
+    -0.8101346431335743
+  ],
+  "start_cell": [
+    36,
+    84
+  ],
+  "goal_cell": [
+    27,
+    65
+  ],
+  "observed_cells": [
+    [
+      46,
+      99
+    ],
+    [
+      46,
+      100
+    ],
+    [
+      46,
+      101
+    ],
+    [
+      47,
+      99
+    ],
+    [
+      47,
+      100
+    ]
+  ],
+  "planner_remembered_cells": [
+    [
+      39,
+      89
+    ],
+    [
+      39,
+      90
+    ],
+    [
+      39,
+      91
+    ],
+    [
+      39,
+      92
+    ],
+    [
+      39,
+      93
+    ],
+    [
+      40,
+      88
+    ],
+    [
+      40,
+      89
+    ],
+    [
+      40,
+      90
+    ],
+    [
+      40,
+      91
+    ],
+    [
+      40,
+      92
+    ],
+    [
+      40,
+      93
+    ],
+    [
+      41,
+      89
+    ],
+    [
+      42,
+      89
+    ],
+    [
+      43,
+      89
+    ],
+    [
+      44,
+      89
+    ]
+  ],
+  "freed_trigger_blockers": [
+    [
+      39,
+      88
+    ]
+  ],
+  "planner_memory_reconstruction": "Previous recorded16 memory cells minus the (39,88) tracked cell explicitly freed inside on_visibility; observer empty0 was queued during the long callback. Reconstruction matches all runtime inflated masks/counts.",
+  "independent_records": {
+    "latest_observed_before_diagnostic": {
+      "kind": "observed",
+      "monotonic_sec": 16951.021046856,
+      "wall_utc": "2026-11-04T14:32:59.362891+00:00",
+      "count": 5,
+      "cells": [
+        8560,
+        8561,
+        8646,
+        8647,
+        8732
+      ],
+      "remembered_count": 16,
+      "sample": 346
+    },
+    "last_nonempty_memory_before_empty": {
+      "kind": "remembered",
+      "monotonic_sec": 16950.374986697,
+      "wall_utc": "2026-11-04T14:32:58.716829+00:00",
+      "count": 16,
+      "cells": [
+        7607,
+        7608,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7698,
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038
+      ],
+      "added": [],
+      "removed": [
+        8123
+      ],
+      "observed_count": 5
+    },
+    "empty_memory_before_diagnostic": {
+      "kind": "remembered",
+      "monotonic_sec": 16951.036141515,
+      "wall_utc": "2026-11-04T14:32:59.377984+00:00",
+      "count": 0,
+      "cells": [],
+      "added": [],
+      "removed": [
+        7607,
+        7608,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7698,
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038
+      ],
+      "observed_count": 5
+    },
+    "truth_before_diagnostic": {
+      "t": 87.9159,
+      "monotonic": 16951.2109,
+      "wall_time": 1793802779.5527,
+      "kind": "truth",
+      "x": 0.17248,
+      "y": -1.01503,
+      "yaw": -0.8469
+    },
+    "motion_before_diagnostic": {
+      "t": 87.9042,
+      "monotonic": 16951.1991,
+      "wall_time": 1793802779.541,
+      "kind": "motion",
+      "mode": "auto",
+      "available": true,
+      "autonomous_allowed": true,
+      "estop_latched": false,
+      "output_linear": 0.0,
+      "output_angular": 0.0,
+      "requested_linear": 0.0,
+      "requested_angular": 0.0,
+      "scan_guard_hold": false,
+      "scan_guard_code": "CLEAR",
+      "scan_guard_reason": "",
+      "scan_guard_support": "",
+      "localization_speed_factor": 1.0,
+      "localization_reason": "",
+      "status_seq": 486,
+      "sent_at_ns": 70680000000,
+      "mux_instance_id": "mux-service:de2e9caa4a0f48baa16b22913e9a1f7c",
+      "scan_guard_metrics": {
+        "scan_age_seconds": 0.063,
+        "pose_age_seconds": 0.024,
+        "lookup_error": "",
+        "pose_source": "latest",
+        "future_lead_seconds": 0.0,
+        "pose_uncertainty_seconds": 0.024,
+        "robot_radius_m": 0.22,
+        "horizon_seconds": 0.5,
+        "minimum_body_clearance_m": 0.14862434155185547,
+        "minimum_swept_clearance_m": 0.14862434155185547,
+        "collision_count": 0,
+        "inside_count": 0,
+        "collision_indices": [],
+        "longitudinal_uncertainty_m": 0.00528,
+        "lateral_uncertainty_m": 6.336e-05,
+        "pending_scan": false
+      },
+      "command_ramp": {
+        "enabled": true,
+        "limited": false,
+        "reason": "stop",
+        "linear_acceleration": 0.2,
+        "angular_acceleration": 0.8,
+        "max_acceleration_step": 0.1,
+        "target_linear": 0.0,
+        "target_angular": 0.0,
+        "output_linear": 0.0,
+        "output_angular": 0.0
+      }
+    },
+    "planner_wait_after_failed_global": {
+      "t": 87.9408,
+      "monotonic": 16951.2358,
+      "wall_time": 1793802779.5776,
+      "kind": "planner",
+      "status": "WAIT_REPLAN",
+      "goal": {
+        "x": -0.25,
+        "y": -1.98,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 8,
+        "nanosec": 640000000
+      },
+      "input_hold": null,
+      "manual_stop": null,
+      "route_failure": null,
+      "local_detour_state": "FAILED",
+      "message": "장애물로 주행 대기 · 실제 환경 변화 또는 명시적 재개를 기다립니다.",
+      "details": {
+        "plan_kind": "GLOBAL",
+        "local_attempt_id": 3,
+        "global_plan_count": 5,
+        "failure_class": "obstacle",
+        "recovery_stage": "await_clearance",
+        "controller_retry_count": 0,
+        "controller_retry_limit": 3,
+        "failure_edge_fallback": false,
+        "occlusion_fallback": false,
+        "occlusion_fallback_attempted": true,
+        "occlusion_constraint_mode": "SOFT_VIRTUAL",
+        "occlusion_virtual_cells": 49,
+        "occlusion_primary_reason": "no_route_with_hard_virtual_reserve",
+        "occlusion_reused_start_certificate": false,
+        "occlusion_measured_start_certificate": false,
+        "start_certificate_diagnostics": {
+          "start": [
+            36,
+            84
+          ],
+          "helper_called": false,
+          "allowed_edges": [],
+          "enabled": true,
+          "escape_cells_before": [],
+          "static_start": false,
+          "raw_static_start": false,
+          "raw_observed_start": false,
+          "observed_inflated_start": false,
+          "remembered_inflated_start": true,
+          "measured_remembered_inflated_start": true,
+          "observation_receipt_age_s": 0.1869927160005318,
+          "start_tf_stamp_ns": 70499000000,
+          "start_tf_pose": [
+            0.1522859440099877,
+            -1.0479011757612624
+          ],
+          "fresh_pose": null,
+          "fresh_pose_drift_m": null,
+          "first_failed_reason": "not_in_inflation",
+          "neighbor_masks": [
+            {
+              "cell": [
+                35,
+                83
+              ],
+              "static": false,
+              "measured": true,
+              "conservative": true,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                84
+              ],
+              "static": false,
+              "measured": true,
+              "conservative": true,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                85
+              ],
+              "static": false,
+              "measured": true,
+              "conservative": true,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                36,
+                83
+              ],
+              "static": false,
+              "measured": true,
+              "conservative": true,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                36,
+                85
+              ],
+              "static": false,
+              "measured": true,
+              "conservative": true,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                37,
+                83
+              ],
+              "static": false,
+              "measured": true,
+              "conservative": true,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                37,
+                84
+              ],
+              "static": false,
+              "measured": true,
+              "conservative": true,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                37,
+                85
+              ],
+              "static": false,
+              "measured": true,
+              "conservative": true,
+              "virtual_only": false
+            }
+          ]
+        },
+        "global_duration_ms": 66.14882099893293,
+        "motion_pose_diagnostics": {
+          "first_failed_reason": "OK",
+          "node_clock_ns": 70540000000,
+          "checked_monotonic": 16951.212718896,
+          "health_stamp_ns": 70360000000,
+          "health_receipt_age_s": 0.36374151700147195,
+          "health_source_age_s": 0.18,
+          "odom_stamp_ns": 70499000000,
+          "odom_receipt_age_s": 0.22289583900055732,
+          "odom_source_age_s": 0.041,
+          "scan_stamp_ns": 70417000000,
+          "scan_receipt_age_s": 0.31238033900081064,
+          "scan_source_age_s": 0.123,
+          "tf_stamp_ns": 70499000000,
+          "tf_source_age_s": 0.041,
+          "lookup_error": "",
+          "pose": [
+            0.1522859440099877,
+            -1.0479011757612624,
+            -0.8101346431335743
+          ]
+        },
+        "search_duration_ms": 22.467426999355666,
+        "adapter_duration_ms": 185.50374299957184,
+        "expansions": 183,
+        "candidates_examined": 10,
+        "detour_reason": "attempt_budget",
+        "rejoin_progress": 1.292148066875571,
+        "occlusion_reserved_cells": 24,
+        "occlusion_extension": 0.2,
+        "rejoin_buffer": 0.15,
+        "observation_reserved_cells": 0,
+        "observation_margin": 0.0,
+        "rejoin_point": {
+          "x": 0.6083333669851223,
+          "y": -1.155208272316183
+        },
+        "reverse_goal_occlusion_fallback": false,
+        "reverse_goal_occlusion_fallback_attempted": false,
+        "reverse_clearance_neutral_egress": false,
+        "reverse_probe_diagnostics": {
+          "trail_count": 1,
+          "oldest_at": 16951.136501743,
+          "newest_at": 16951.136501743,
+          "current_pose": [
+            0.1522859440099877,
+            -1.0479011757612624,
+            -0.8101346431335743
+          ],
+          "recent_trail": [
+            [
+              16951.136501743,
+              0.1522859440099877,
+              -1.0479011757612624,
+              -0.8101346431335743
+            ]
+          ],
+          "neutral_enabled": false,
+          "conservative_dynamic_count": 393,
+          "measured_dynamic_count": 344,
+          "virtual_dynamic_count": 49,
+          "candidate": null
+        },
+        "reverse_probe_rejection": "NO_SAFE_EGRESS",
+        "recovery_episode_id": "0ccd912c024f4642b5312c14e0738159",
+        "recovery_phase": "WAIT_OBSTACLE",
+        "recovery_wait_reason": "No measured-safe route after local and reverse checks",
+        "sent_at_ns": 70540000000,
+        "path_stamp": {
+          "sec": 23,
+          "nanosec": 320000000
+        }
+      }
+    }
+  },
+  "reference_path_record": {
+    "t": 36.8847,
+    "monotonic": 16900.1797,
+    "wall_time": 1793802728.5215,
+    "kind": "path",
+    "count": 65,
+    "stamp_ns": 23140000000,
+    "frame_id": "map",
+    "points": [
+      [
+        0.175,
+        -1.025
+      ],
+      [
+        0.175,
+        -1.075
+      ],
+      [
+        0.225,
+        -1.075
+      ],
+      [
+        0.275,
+        -1.075
+      ],
+      [
+        0.325,
+        -1.125
+      ],
+      [
+        0.375,
+        -1.125
+      ],
+      [
+        0.425,
+        -1.125
+      ],
+      [
+        0.475,
+        -1.125
+      ],
+      [
+        0.525,
+        -1.125
+      ],
+      [
+        0.575,
+        -1.125
+      ],
+      [
+        0.625,
+        -1.175
+      ],
+      [
+        0.675,
+        -1.225
+      ],
+      [
+        0.675,
+        -1.275
+      ],
+      [
+        0.675,
+        -1.325
+      ],
+      [
+        0.675,
+        -1.375
+      ],
+      [
+        0.675,
+        -1.425
+      ],
+      [
+        0.675,
+        -1.475
+      ],
+      [
+        0.675,
+        -1.525
+      ],
+      [
+        0.675,
+        -1.575
+      ],
+      [
+        0.675,
+        -1.625
+      ],
+      [
+        0.675,
+        -1.675
+      ],
+      [
+        0.675,
+        -1.725
+      ],
+      [
+        0.675,
+        -1.775
+      ],
+      [
+        0.675,
+        -1.825
+      ],
+      [
+        0.675,
+        -1.875
+      ],
+      [
+        0.675,
+        -1.925
+      ],
+      [
+        0.675,
+        -1.975
+      ],
+      [
+        0.675,
+        -2.025
+      ],
+      [
+        0.675,
+        -2.075
+      ],
+      [
+        0.675,
+        -2.125
+      ],
+      [
+        0.675,
+        -2.175
+      ],
+      [
+        0.675,
+        -2.225
+      ],
+      [
+        0.675,
+        -2.275
+      ],
+      [
+        0.675,
+        -2.325
+      ],
+      [
+        0.675,
+        -2.375
+      ],
+      [
+        0.675,
+        -2.425
+      ],
+      [
+        0.675,
+        -2.475
+      ],
+      [
+        0.625,
+        -2.525
+      ],
+      [
+        0.625,
+        -2.575
+      ],
+      [
+        0.575,
+        -2.625
+      ],
+      [
+        0.525,
+        -2.675
+      ],
+      [
+        0.475,
+        -2.725
+      ],
+      [
+        0.425,
+        -2.775
+      ],
+      [
+        0.375,
+        -2.775
+      ],
+      [
+        0.325,
+        -2.775
+      ],
+      [
+        0.275,
+        -2.775
+      ],
+      [
+        0.225,
+        -2.775
+      ],
+      [
+        0.175,
+        -2.775
+      ],
+      [
+        0.125,
+        -2.775
+      ],
+      [
+        0.075,
+        -2.725
+      ],
+      [
+        0.025,
+        -2.675
+      ],
+      [
+        -0.025,
+        -2.625
+      ],
+      [
+        -0.075,
+        -2.575
+      ],
+      [
+        -0.125,
+        -2.525
+      ],
+      [
+        -0.175,
+        -2.475
+      ],
+      [
+        -0.175,
+        -2.425
+      ],
+      [
+        -0.175,
+        -2.375
+      ],
+      [
+        -0.225,
+        -2.325
+      ],
+      [
+        -0.225,
+        -2.275
+      ],
+      [
+        -0.225,
+        -2.225
+      ],
+      [
+        -0.225,
+        -2.175
+      ],
+      [
+        -0.225,
+        -2.125
+      ],
+      [
+        -0.225,
+        -2.075
+      ],
+      [
+        -0.225,
+        -2.025
+      ],
+      [
+        -0.275,
+        -1.975
+      ]
+    ]
+  },
+  "expected_counts": {
+    "observed_raw": 5,
+    "planner_memory_raw": 15,
+    "observed_inflated": 133,
+    "remembered_inflated": 284,
+    "dynamic_union": 393,
+    "measured_union": 344,
+    "virtual_only": 49
+  },
+  "source_files_sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "5220855515070f90df208dd57a3c73c39ef1a44521fe6e20b0f56f684d382cee",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/continuous_start_egress.py": "e4f52c5f2c6aa046bf80e1fb1ccccc380b1f292e2768357c0c62f1b1d75f9317",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/map_utils.py": "c6150f71fd276bcd7936025349bb9bc882918eda7e26064254902e030f4a0601",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/grid.py": "ecf939a51c53eb3387f6bd4db262b8b4dbb85ebfa263724e019e77a4ab9f1ba8",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar.py": "28eb2fdf8d68427206176186ee627c79ffa63137230883f6e9a720b460f568ce",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_geometry.py": "d29b8be2ec9b17578d5f01c6d78e8985ccb7a36bc4fed8d22a6ab6a7892b2f29"
+  },
+  "source_hash_scope": "Analysis checkout hashes captured before any geometry-policy edit; log file hashes identify the authoritative trial. No code fingerprint was added retroactively to the trial runner.",
+  "trial_files_sha256": {
+    "/tmp/classroom-policy-replaced-baseline-20261104/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log": "59808a65bb11685afd3b30d611fab43934f4e61f94c7190430efdd41af814e42",
+    "/tmp/classroom-policy-replaced-baseline-20261104/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl": "7c2ab69f649f4da5e3179432f49490cca2cf4b753b64e0297bf8d179a5af9869",
+    "/tmp/classroom-policy-replaced-baseline-20261104/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl": "6ec2c96c477fe49bc514a4e2a2576c92a47f8771b5edde46873f2ce058524297",
+    "/tmp/classroom-policy-replaced-baseline-20261104/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json": "ee2b7b4000ac8a18740493bfeac90c4c0aad9adc7c08f3c24f58927c513a8f52",
+    "/tmp/classroom-policy-replaced-baseline-20261104/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json": "ab35d813e033019f87b84f91a55dd23b91151debf070172b39115ea19fb4df71"
+  },
+  "actor_removal": {
+    "t": 85.012,
+    "at": 1793802776.910987,
+    "event": "obstacle_removed",
+    "obstacle_name": "classroom_web_obstacle_ed8fbb2921"
+  },
+  "limitations": [
+    "Independent topic callbacks are not an atomic planner snapshot; planner15 is reconstructed and exactly checked against logged masks.",
+    "The saved reference path is the recorder's 4-decimal rounded points; all reconstructed mask counts match logs.",
+    "The point-cloud guard CLEAR is recorded for zero command. Full raw scan ranges for a candidate moving sweep are not in this fixture.",
+    "Forward prefix examples are offline counterfactuals with measured hard cells intact; they are not approved forward-inflation exceptions.",
+    "No actual robot or simulated motion is performed by this audit."
+  ]
+}

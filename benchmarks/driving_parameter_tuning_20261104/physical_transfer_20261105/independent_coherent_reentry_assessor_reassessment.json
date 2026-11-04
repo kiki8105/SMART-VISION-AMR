@@ -1,0 +1,372 @@
+{
+  "status": "ASSESSOR_ONLY_REASSESSMENT_PASS_ORIGINAL_FAIL_PRESERVED",
+  "scope": "Offline pure assess() of the identical archived two-delivery evidence; no new simulation, command, altered telemetry, fabricated cold proof, original report update or physical-drive claim.",
+  "original_archive": "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/coherent_reentry_assessment_failed",
+  "immutable_inputs": {
+    "archive_manifest": {
+      "path": "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/coherent_reentry_assessment_failed/archive_manifest.json",
+      "sha256": "4777cee63353f13a2a6f8191861a8fda5ecadf90edd327466eda8b7f5878f347"
+    },
+    "staged_report": {
+      "path": "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/coherent_reentry_assessment_failed/staged_report.json",
+      "sha256": "152f77190b72daf4e47bd0d39ca4998cbea5ab1d7835922bbf4e168fd1d3d569"
+    },
+    "derived_evidence": {
+      "path": "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/coherent_reentry_assessment_failed/19_web_inventory_sector2_same_session_reentry/derived_evidence.json",
+      "sha256": "80fa357adb69e8245cbad4ad45e33a7c4c575b2f09c6ee87cba35827798f9742"
+    },
+    "backend_acceptance": {
+      "path": "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/coherent_reentry_assessment_failed/19_web_inventory_sector2_same_session_reentry/acceptance.json",
+      "sha256": "4e21e8a6459998439a72535adfc0b5c88f6f8a4ed3357d2abcddf98f17f638b3"
+    }
+  },
+  "archive_file_hashes_verified": 20,
+  "original_result": {
+    "stage": "19_web_inventory_sector2_same_session_reentry",
+    "outcome": "FAIL",
+    "passed": false,
+    "reasons": [
+      "cycle_2:cold_start_without_prior_and_web_initialization_unproven"
+    ],
+    "runner_passed": true,
+    "safety_gate_passed": true,
+    "runner_exit_code": 0
+  },
+  "reassessment": {
+    "stage": "19_web_inventory_sector2_same_session_reentry",
+    "outcome": "PASS",
+    "passed": true,
+    "reasons": [],
+    "runner_passed": true,
+    "route": [
+      2,
+      2
+    ],
+    "legs": []
+  },
+  "assessor_revision": {
+    "path": "scripts/run_classroom_staged_validation.py",
+    "sha256": "c1dbd62c8dec79cefb715c75ddeb554d3a6f94f4845b9f3015c22f3929e7de78"
+  },
+  "focused_regression": {
+    "test": {
+      "path": "ros2_ws/src/smart_vision_amr/test/test_cold_reentry_assessment_context.py",
+      "sha256": "bcd6c026088a3096285908f1976ce48ad837102c7a856afdbd645f01cdffd3e5"
+    },
+    "new_tests_passed": 22,
+    "total_passed": 95,
+    "seconds": 1.97,
+    "other_test_modules": [
+      "test_classroom_staged_validation.py",
+      "test_classroom_realism_modes.py"
+    ],
+    "py_compile": "PASS",
+    "limits": "Synthetic assessor inputs test propagation/gates; the archived completed Gazebo evidence supplies the two actual cycles."
+  },
+  "captured_source_before_after_equal": true,
+  "current_source_differences_from_captured": [
+    {
+      "path": "scripts/run_classroom_staged_validation.py",
+      "captured": "bc84050975f2e8bc8d2eb54a84e705bd7d2d987f74a3e8805e79c59101e1050f",
+      "current": "c1dbd62c8dec79cefb715c75ddeb554d3a6f94f4845b9f3015c22f3929e7de78"
+    }
+  ],
+  "proof_scope": {
+    "cold_boot_required_on": "first cycle only, after actual missing launch prior/AMCL/map TF was observed",
+    "second_cycle": "already-localized continuation, not a second cold boot",
+    "continuation_authorized": true,
+    "cold_runtime_manifest_preserved": true,
+    "parent_first_proof_exactly_equal": true,
+    "first_cold_start_requested": true,
+    "second_cold_start_requested": false,
+    "second_cycle_cold_start_proof_present": false,
+    "cold_start_proof": {
+      "passed": true,
+      "visual_ui_qa": false,
+      "manual_prior_transport": "/set_initial_pose service through web backend",
+      "launch_prior_query": {
+        "service": "/amcl/get_parameters",
+        "parameter": "set_initial_pose",
+        "max_attempts": 3,
+        "per_attempt_timeout_s": 5.0,
+        "attempts": [
+          {
+            "attempt": 1,
+            "timeout_s": 5.0,
+            "elapsed_s": 0.5979863299980934,
+            "outcome": "parameter_observed",
+            "value": false
+          }
+        ],
+        "outcome": "parameter_observed",
+        "attempt_count": 1,
+        "elapsed_s": 3.8525361900028656
+      },
+      "before": {
+        "amcl_set_initial_pose": false,
+        "initial_pose_messages": 0,
+        "amcl_messages": 0,
+        "map_tf_messages": 0,
+        "web_pose": null,
+        "observed_seconds": 6.733276936000038
+      },
+      "after": {
+        "amcl_set_initial_pose": false,
+        "initial_pose_messages": 0,
+        "amcl_messages": 3,
+        "map_tf_messages": 1
+      }
+    },
+    "first_manual_initial_pose": {
+      "source": "registered_gazebo_home",
+      "requested": {
+        "x": -0.188431,
+        "y": -0.220497,
+        "yaw": -0.027514
+      },
+      "requested_at": 1793816659.1201086,
+      "state": "VERIFIED",
+      "verified_at": 1793816660.8157103,
+      "estop_latched_after_verification": true,
+      "stop_acknowledged_after_verification": true,
+      "result": "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요."
+    }
+  },
+  "runtime_continuity": {
+    "same_runtime": true,
+    "runtime_identity_initial": {
+      "web": {
+        "pid": 267148,
+        "start_ticks": 3081628
+      },
+      "gazebo_runner": {
+        "pid": 267115,
+        "start_ticks": 3081608
+      }
+    },
+    "runtime_identity_after_first": {
+      "web": {
+        "pid": 267148,
+        "start_ticks": 3081628
+      },
+      "gazebo_runner": {
+        "pid": 267115,
+        "start_ticks": 3081608
+      }
+    },
+    "runtime_identity_after_second": {
+      "web": {
+        "pid": 267148,
+        "start_ticks": 3081628
+      },
+      "gazebo_runner": {
+        "pid": 267115,
+        "start_ticks": 3081608
+      }
+    }
+  },
+  "cycle_checks": [
+    {
+      "cycle": 1,
+      "backend_passed": true,
+      "dispatch_mode": "inventory",
+      "inventory_status": "DELIVERED",
+      "completed_ids": [
+        2
+      ],
+      "final_state": "HOME_REACHED",
+      "prearm_passed": true,
+      "startup_reset_completed": true,
+      "mission_started_at": 1793816667.983305,
+      "final_observed_at": 1793816754.853921,
+      "web_ground_truth_checks": {
+        "2": {
+          "passed": true,
+          "event_at": 1793816711.4082963,
+          "goal": [
+            1.525,
+            -2.65,
+            1.543282
+          ],
+          "position_tolerance_m": 0.25,
+          "sample_time_delta_s": 0.055,
+          "position_error_m": 0.125,
+          "heading_error_rad": 0.209,
+          "fixture_wall_front_yaw_rad": 1.543281653589793,
+          "fixture_wall_normal_error_rad": 0.209,
+          "truth": [
+            1.55675,
+            -2.52953,
+            1.75231
+          ]
+        },
+        "home": {
+          "passed": true,
+          "event_at": 1793816754.853921,
+          "goal": [
+            -0.188431,
+            -0.220497,
+            -0.027514
+          ],
+          "position_tolerance_m": 0.25,
+          "sample_time_delta_s": 0.036,
+          "position_error_m": 0.161,
+          "heading_error_rad": 0.067,
+          "fixture_wall_front_yaw_rad": null,
+          "fixture_wall_normal_error_rad": null,
+          "truth": [
+            -0.07152,
+            -0.33181,
+            0.03983
+          ]
+        }
+      },
+      "web_independent_dwell_checks": {
+        "2": {
+          "passed": true,
+          "start_event_at": 1793816711.4082963,
+          "end_event_at": 1793816716.6100245,
+          "truth_samples": 47,
+          "command_samples": 126,
+          "truth_max_sample_gap_s": 0.15,
+          "command_max_sample_gap_s": 0.074,
+          "truth_start_delta_s": 0.058,
+          "truth_end_delta_s": 0.049,
+          "gazebo_max_translation_m": 0.0001,
+          "gazebo_max_heading_rad": 0.0,
+          "command_max_linear_mps": 0.0,
+          "command_max_angular_rps": 0.0,
+          "next_ros_goal_at": 1793816717.6112,
+          "next_ros_goal_delay_s": 1.001,
+          "next_target": [
+            -0.188431,
+            -0.220497,
+            -0.027514
+          ],
+          "next_ros_goal_position_error_m": 0.0,
+          "next_ros_goal_heading_error_rad": 0.0
+        }
+      },
+      "home_independent_settle_check": {
+        "passed": true,
+        "end_at": 1793816754.853921,
+        "duration_s": 1.281,
+        "truth_samples": 9,
+        "command_samples": 31,
+        "truth_max_gap_s": 0.157,
+        "command_max_gap_s": 0.089,
+        "max_translation_m": 0.0,
+        "max_heading_rad": 0.0004,
+        "max_command_linear_mps": 0.0,
+        "max_command_angular_rps": 0.0
+      }
+    },
+    {
+      "cycle": 2,
+      "backend_passed": true,
+      "dispatch_mode": "inventory",
+      "inventory_status": "DELIVERED",
+      "completed_ids": [
+        2
+      ],
+      "final_state": "HOME_REACHED",
+      "prearm_passed": true,
+      "startup_reset_completed": true,
+      "mission_started_at": 1793816760.7827005,
+      "final_observed_at": 1793816846.849979,
+      "web_ground_truth_checks": {
+        "2": {
+          "passed": true,
+          "event_at": 1793816802.737336,
+          "goal": [
+            1.525,
+            -2.65,
+            1.543282
+          ],
+          "position_tolerance_m": 0.25,
+          "sample_time_delta_s": 0.052,
+          "position_error_m": 0.101,
+          "heading_error_rad": 0.216,
+          "fixture_wall_front_yaw_rad": 1.543281653589793,
+          "fixture_wall_normal_error_rad": 0.216,
+          "truth": [
+            1.54067,
+            -2.5506,
+            1.75883
+          ]
+        },
+        "home": {
+          "passed": true,
+          "event_at": 1793816846.849979,
+          "goal": [
+            -0.188431,
+            -0.220497,
+            -0.027514
+          ],
+          "position_tolerance_m": 0.25,
+          "sample_time_delta_s": 0.028,
+          "position_error_m": 0.165,
+          "heading_error_rad": 0.115,
+          "fixture_wall_front_yaw_rad": null,
+          "fixture_wall_normal_error_rad": null,
+          "truth": [
+            -0.06374,
+            -0.3283,
+            0.08712
+          ]
+        }
+      },
+      "web_independent_dwell_checks": {
+        "2": {
+          "passed": true,
+          "start_event_at": 1793816802.737336,
+          "end_event_at": 1793816807.9081812,
+          "truth_samples": 45,
+          "command_samples": 113,
+          "truth_max_sample_gap_s": 0.155,
+          "command_max_sample_gap_s": 0.068,
+          "truth_start_delta_s": 0.052,
+          "truth_end_delta_s": 0.1,
+          "gazebo_max_translation_m": 0.0001,
+          "gazebo_max_heading_rad": 0.0,
+          "command_max_linear_mps": 0.0,
+          "command_max_angular_rps": 0.0,
+          "next_ros_goal_at": 1793816808.8121,
+          "next_ros_goal_delay_s": 0.904,
+          "next_target": [
+            -0.188431,
+            -0.220497,
+            -0.027514
+          ],
+          "next_ros_goal_position_error_m": 0.0,
+          "next_ros_goal_heading_error_rad": 0.0
+        }
+      },
+      "home_independent_settle_check": {
+        "passed": true,
+        "end_at": 1793816846.849979,
+        "duration_s": 1.264,
+        "truth_samples": 11,
+        "command_samples": 32,
+        "truth_max_gap_s": 0.125,
+        "command_max_gap_s": 0.067,
+        "max_translation_m": 0.0,
+        "max_heading_rad": 0.0001,
+        "max_command_linear_mps": 0.0,
+        "max_command_angular_rps": 0.0
+      }
+    }
+  ],
+  "reentry_order": {
+    "manual_pose_state": "VERIFIED",
+    "pose_requested_at": 1793816755.4148552,
+    "pose_verified_at": 1793816755.8555274
+  },
+  "limitations": [
+    "Original FAIL remains the authoritative original assessor result; this file separately labels offline reassessment.",
+    "PID/start_ticks prove the recorded web and Gazebo runner wrapper identities; this is not independent proof of every child process identity.",
+    "Both cycles still require their current pre-arm, explicit reset, Sector 2 marker/dwell, independent truth and Home settle evidence.",
+    "The later assessor edit is not a navigation-policy change and does not create a new closed-loop performance measurement.",
+    "No visual browser QA or real robot driving was performed by this reassessment."
+  ]
+}

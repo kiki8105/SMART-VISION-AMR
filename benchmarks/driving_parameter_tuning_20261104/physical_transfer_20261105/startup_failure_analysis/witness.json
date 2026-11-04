@@ -1,0 +1,63 @@
+{
+  "scope": "Read-only diagnosis; original trial remains FAIL; transient was not injected",
+  "installed_versions": {
+    "ros-humble-nav2-lifecycle-manager": "1.1.20-1jammy.20260915.225403",
+    "ros-humble-nav2-util": "1.1.20-1jammy.20260915.211149"
+  },
+  "classification": {
+    "failure_class": "STARTUP_LIFECYCLE_ABORT",
+    "fault_execution": "TRANSIENT_NOT_STARTED",
+    "startup_failure_witness": {
+      "log": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/gazebo_launch.log",
+      "sha256": "8f5e9527c94b17c5cc498fb7302bab29b26fa201bd17203a35a740209e7a6681",
+      "lines": [
+        "[controller_server-10] [INFO] [1793811304.368115013] [controller_server]: Critic plugin initialized",
+        "[controller_server-10] [INFO] [1793811304.368279442] [controller_server]: Using critic \"GoalDist\" (dwb_critics::GoalDistCritic)",
+        "[controller_server-10] [INFO] [1793811304.368461944] [controller_server]: Critic plugin initialized",
+        "[controller_server-10] [INFO] [1793811304.390710528] [controller_server]: DWB local route horizon: 0.55 m along path; anchor search: 0.85 m",
+        "[controller_server-10] [INFO] [1793811304.390812350] [controller_server]: Controller Server has FollowPath  controllers available.",
+        "[controller_server-10] [WARN] [1793811304.562389033] [controller_server.rclcpp]: failed to send response to /controller_server/get_state (timeout): client will not receive response, at ./src/rmw_response.cpp:154, at ./src/rcl/service.c:314",
+        "[lifecycle_manager-16] [ERROR] [1793811306.461925833] [lifecycle_manager_simulation]: Failed to change state for node: controller_server. Exception: controller_server/get_state service client: async_send_request failed.",
+        "[lifecycle_manager-16] [ERROR] [1793811306.468274802] [lifecycle_manager_simulation]: Failed to bring up all requested nodes. Aborting bringup."
+      ],
+      "mission_accepted_via_web": false,
+      "nonzero_command_seen": false,
+      "fault_profile_applied": false
+    }
+  },
+  "original_acceptance_failure": "TimeoutError('Unseeded cold-start did not expose the stopped Home initialization action')",
+  "last_relay_sample": {
+    "counts": {
+      "odom_forwarded": 1235,
+      "odom_received": 1235,
+      "scan_forwarded": 618,
+      "scan_received": 618,
+      "tf_filtered_unowned_edges": 0,
+      "tf_forwarded": 1235,
+      "tf_received": 1235
+    },
+    "event": "sample",
+    "max_delivery_delay_s": {
+      "odom": 0.011,
+      "scan": 0.012,
+      "tf": 0.011
+    },
+    "monotonic": 25547.212041678,
+    "pending": 0,
+    "profile": "clean"
+  },
+  "profile_events": [],
+  "source_sha256": {
+    "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/gazebo_launch.log": "8f5e9527c94b17c5cc498fb7302bab29b26fa201bd17203a35a740209e7a6681",
+    "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/sensor_faults.jsonl": "9ec66eb68298cf9cdfae3e5b673729d12ccf8e62528b3fd05eec26024529d1ce",
+    "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/acceptance.json": "08799675eb07b8edf30b4f966b6fc69a05220caf56ad1e6b2ef118f9889515f3",
+    "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/safety_timeline.jsonl": "d444e997c3b250b190e660f76925ad44034e7e3015a41823742269687f9fc886",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/run_classroom_staged_validation.py": "bc84050975f2e8bc8d2eb54a84e705bd7d2d987f74a3e8805e79c59101e1050f",
+    "/opt/ros/humble/include/nav2_util/lifecycle_service_client.hpp": "0d1e6eb6316b4284d9467e535cccc3ea0a546961405c0dcf172eefa59d5a4ffd",
+    "/opt/ros/humble/include/nav2_lifecycle_manager/lifecycle_manager.hpp": "42b6c4606a58e223d1627018eea1ae8f0ba0e6df4a886d52a7a6254be2ea5977"
+  },
+  "official_sources": [
+    "https://github.com/ros-navigation/navigation2/blob/1.1.20/nav2_lifecycle_manager/src/lifecycle_manager.cpp",
+    "https://github.com/ros-navigation/navigation2/blob/1.1.20/nav2_util/src/lifecycle_service_client.cpp"
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "root_at_capture": "/tmp/classroom-transfer-handoff_common-20261105",
+  "files": [
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/staged_report.json",
+      "archive_path": "staged_report.json",
+      "original_sha256": "fd74583274799e6f63692121769c0001c52ece047721d4a99a20c50f1a2350c4",
+      "archive_sha256": "fd74583274799e6f63692121769c0001c52ece047721d4a99a20c50f1a2350c4",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105-source-rates.json",
+      "archive_path": "source_rates.json",
+      "original_sha256": "e76abdb71a64ed4168deeff484629c52701a9fe74488fba12f8a4cce58fa824b",
+      "archive_sha256": "e76abdb71a64ed4168deeff484629c52701a9fe74488fba12f8a4cce58fa824b",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105.log",
+      "archive_path": "runner.log.gz",
+      "original_sha256": "c6f8993a4fd337f63518d87b5f35fda8016760a9f65e6c821d0c96cf1f2ac920",
+      "archive_sha256": "4b24c320dffcd34f85692110b01c772f87742391ee261340631a8ed824acae76",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/acceptance.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/acceptance.json",
+      "original_sha256": "28b06f3f0478067c9a55be89566b60662968b9f52e79a2c7837c39df181eed73",
+      "archive_sha256": "28b06f3f0478067c9a55be89566b60662968b9f52e79a2c7837c39df181eed73",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/derived_evidence.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/derived_evidence.json",
+      "original_sha256": "c39afd3e0f2565e86ab1d502eaebc620c5e16c97f36a47bbc3be600daa8f9580",
+      "archive_sha256": "c39afd3e0f2565e86ab1d502eaebc620c5e16c97f36a47bbc3be600daa8f9580",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/safety_assessment.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/safety_assessment.json",
+      "original_sha256": "2a52911d15c01ca8daa613d98ce71ad8612658e9c1f68ef8c0c7c24f957951bd",
+      "archive_sha256": "2a52911d15c01ca8daa613d98ce71ad8612658e9c1f68ef8c0c7c24f957951bd",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/runtime_manifest.json",
+      "original_sha256": "5ce696afead80b1de702b4166383b5d6f1f4ef3dffdd7c7c1631e9e21dec56a5",
+      "archive_sha256": "5ce696afead80b1de702b4166383b5d6f1f4ef3dffdd7c7c1631e9e21dec56a5",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json",
+      "original_sha256": "ab7e0b6042985b9172f7a2a270cfa213050a0527531538bf0f58eef3c0a3813b",
+      "archive_sha256": "ab7e0b6042985b9172f7a2a270cfa213050a0527531538bf0f58eef3c0a3813b",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+      "original_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "archive_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+      "original_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "archive_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/ekf_hardware_like_sim.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/ekf_hardware_like_sim.yaml",
+      "original_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "archive_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json",
+      "original_sha256": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e",
+      "archive_sha256": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.summary.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/memory_observer.summary.json",
+      "original_sha256": "80befb2bc384e240084ebeb69b73c95036b6c11ec0fdb490316a0ab941d65abd",
+      "archive_sha256": "80befb2bc384e240084ebeb69b73c95036b6c11ec0fdb490316a0ab941d65abd",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf",
+      "original_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "archive_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+      "original_sha256": "28187411649f3d45b416e645a902dce693b150665f6b37705c9f361d6dfdfc0d",
+      "archive_sha256": "28187411649f3d45b416e645a902dce693b150665f6b37705c9f361d6dfdfc0d",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/fixture/waffle_pi_fault.sdf",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/waffle_pi_fault.sdf",
+      "original_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "archive_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.world",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.world",
+      "original_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "archive_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl.gz",
+      "original_sha256": "c9c1cba0f3d3009e7fb258ebae18e6f8279c35ee14797da5661b07dc6ca99f8d",
+      "archive_sha256": "ed1076da3b0552262080cd1e6305f9e2e72c546e2ff30a7ceda0b8683e955de1",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl.gz",
+      "original_sha256": "010a354d617876049699ab286b5d072db447d9f891be2d9c65f9629a32ec5d42",
+      "archive_sha256": "4f590a6a242cc0c2b291e16f8dea2156d91746325f773121baddd40b93a71c75",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/sensor_faults.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/sensor_faults.jsonl.gz",
+      "original_sha256": "c65b5951e3363f2e5eb2892a5b1426ed409887be5a9ba57f0b53e2172ac88496",
+      "archive_sha256": "0bafa41e2db76853b841ec84b00e52c2fc5f4ab74bff54672d20479dc7d70240",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/gazebo_launch.log.gz",
+      "original_sha256": "b711e559c936278132603afb12ec5f8d43f00cfa8f75152a6695bd750299a84c",
+      "archive_sha256": "d12e7a5f5385ade88cbc36d0020691bde7103a889f1c9ccef61b85e6f2f91435",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/web_server.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_server.log.gz",
+      "original_sha256": "e75c906752174006289871c12505a7ff3149fea8af580141e0941ebf71be0e3e",
+      "archive_sha256": "11c0a4c509e82d5df47236e606e4a2feeb6804c4c00d5b92092480805f13ce50",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.log.gz",
+      "original_sha256": "44312c7cf895c0465be07634e983491dafc523afdca7272f575134000de35495",
+      "archive_sha256": "95261117403f68e31cb636b830c0913619e91c920a5231563eceb2ee966307fc",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/sector_3_rear_confirmed.jpg",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/sector_3_rear_confirmed.jpg",
+      "original_sha256": "e08d560201bb89b7217061f9913639befc9e48a7411cb7caa9d7a8a9cd18a557",
+      "archive_sha256": "e08d560201bb89b7217061f9913639befc9e48a7411cb7caa9d7a8a9cd18a557",
+      "gzip": false
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T185951_553739Z_c32f1c26/manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/incidents/incident_20261104T185951_553739Z_c32f1c26/manifest.json",
+      "original_sha256": "842a7ca99c45a08c7fa4dbdf60fe953beca0e3f1045db0e5892d2732aecacf90",
+      "archive_sha256": "842a7ca99c45a08c7fa4dbdf60fe953beca0e3f1045db0e5892d2732aecacf90",
+      "gzip": false
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T185951_553739Z_c32f1c26/events.jsonl.gz",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/incidents/incident_20261104T185951_553739Z_c32f1c26/events.jsonl.gz",
+      "original_sha256": "9c41e168dcce4237d16da01baecaee0a61a16a52ee5e094b534dc0ffa6b011b7",
+      "archive_sha256": "9c41e168dcce4237d16da01baecaee0a61a16a52ee5e094b534dc0ffa6b011b7",
+      "gzip": false
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T190010_054123Z_57a36fcf/manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/incidents/incident_20261104T190010_054123Z_57a36fcf/manifest.json",
+      "original_sha256": "2c4185fcc5bb4a4a5e5546620725e2eabc53cee1b9da29e03baf72ab16c8d6f4",
+      "archive_sha256": "2c4185fcc5bb4a4a5e5546620725e2eabc53cee1b9da29e03baf72ab16c8d6f4",
+      "gzip": false
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T190010_054123Z_57a36fcf/events.jsonl.gz",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/incidents/incident_20261104T190010_054123Z_57a36fcf/events.jsonl.gz",
+      "original_sha256": "cf975f8e77cd7d8e2e4002b07ca44b8a7776cf6f84c1bc7220f8325dfde1e093",
+      "archive_sha256": "cf975f8e77cd7d8e2e4002b07ca44b8a7776cf6f84c1bc7220f8325dfde1e093",
+      "gzip": false
+    }
+  ]
+}

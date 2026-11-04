@@ -11,6 +11,7 @@ floorplan_file=$repo_dir/ros2_ws/src/smart_vision_amr/config/classroom_floorplan
 http_port=${SMART_VISION_CLASSROOM_SIM_PORT:-8791}
 sim_domain=${SMART_VISION_CLASSROOM_SIM_DOMAIN:-76}
 front_camera_topic=${SMART_VISION_CLASSROOM_SIM_FRONT_CAMERA_TOPIC:-}
+rotation_radius=${SMART_VISION_CLASSROOM_SIM_ROTATION_RADIUS:-0.24}
 
 if [[ "${1:-}" == --help || "${1:-}" == -h ]]; then
   cat <<'EOF'
@@ -24,6 +25,7 @@ Default browser URL: http://127.0.0.1:8791/
 Set SMART_VISION_CLASSROOM_SIM_PORT to change the HTTP port.
 Set SMART_VISION_CLASSROOM_SIM_DOMAIN=176 for run_classroom_fault_sim.sh.
 Set SMART_VISION_CLASSROOM_SIM_FRONT_CAMERA_TOPIC to enable an optional front feed.
+Set SMART_VISION_CLASSROOM_SIM_ROTATION_RADIUS=0.22 only for a matching --physical-footprint simulator.
 EOF
   exit 0
 fi
@@ -50,4 +52,5 @@ exec "$script_dir/run_web_mission.sh" \
   --require-localization-health --marker-confirmation-mode recognized \
   --camera-topic /camera/image_raw/compressed --camera-rotation 0 \
   --front-camera-topic "$front_camera_topic" \
+  --rotation-clearance-radius "$rotation_radius" \
   --front-camera-rotation 0 "$@"

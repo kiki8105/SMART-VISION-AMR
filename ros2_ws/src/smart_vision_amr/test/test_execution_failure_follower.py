@@ -116,8 +116,124 @@ def test_actual_controller_abort_can_report_spatial_failure():
     assert event['reason'] == 'controller_aborted' and event['terminal_confirmed']
 
 
+@pytest.mark.parametrize('require_intent', [True, False])
+def test_mux_scan_guard_is_not_execution_evidence_even_before_zero_output_arrives(require_intent):
+    node, _ = prepared()
+    # The guard status can arrive before the motor/output status reports zero.
+    # Neither branch may reinterpret this externally vetoed command as DWB intent.
+    node.motion_status['scan_guard_hold'] = True
+    assert node._execution_observation(require_intent=require_intent) is None
+
+
+@pytest.mark.parametrize('guard', [
+    {},  # Legacy mux status has only the hold boolean and reason text.
+    {'scan_guard_code': 'WAIT_SCAN', 'scan_guard_support': ''},
+    {'scan_guard_code': 'TF_UNAVAILABLE', 'scan_guard_support': ''},
+    {'scan_guard_code': 'BODY_INTERSECTION', 'scan_guard_support': 'unconfirmed'},
+    {'scan_guard_code': 'BODY_INTERSECTION', 'scan_guard_support': 'confirmed'},
+    {'scan_guard_code': 'SWEPT_INTERSECTION', 'scan_guard_support': 'raw'},
+])
+def test_scan_guard_abort_discards_cached_intent_and_uses_non_failure_retry(guard):
+    node, handle = prepared()
+    requested_goal = node.requested_goal
+    node.on_feedback(SimpleNamespace(feedback=SimpleNamespace(distance_to_goal=2., speed=.1)))
+    node._monitor_execution_progress()
+    assert node.last_executed_intent is not None and node.execution_progress.samples
+    status = dict(node.motion_status, scan_guard_hold=True,
+                  scan_guard_reason='LiDAR guard stopped the accepted command',
+                  output_linear=0., output_angular=0., **guard)
+    node.on_motion_status(String(data=json.dumps(status)))
+    assert node.last_executed_intent is None
+    assert not node.execution_progress.samples
+    assert node.pending_execution_failure is None
+    # A guard observation does not grant a new action or clear the current one.
+    assert node.active_goal is handle and node.requested_goal is requested_goal
+    node.on_result(result_future(GoalStatus.STATUS_ABORTED), handle=handle)
+    node.execution_failure_pub.publish.assert_not_called()
+    messages = [json.loads(call.args[0].data) for call in node.status_pub.publish.call_args_list]
+    assert messages[-1]['status'] == 'WAIT_REPLAN'
+    assert messages[-1]['route_failure'] is False
+    assert not any(message.get('route_failure') for message in messages)
+    assert not any(message['status'] == 'FAILED' for message in messages)
+    assert node.requested_goal is requested_goal and node.active_goal is None
+
+
+def test_terminal_guard_recheck_suppresses_abort_without_prior_status_callback():
+    node, handle = prepared()
+    node.on_feedback(SimpleNamespace(feedback=SimpleNamespace(distance_to_goal=2., speed=.1)))
+    node._monitor_execution_progress()
+    node.motion_status.update(scan_guard_hold=True, output_linear=0.)
+    node.on_result(result_future(GoalStatus.STATUS_ABORTED), handle=handle)
+    node.execution_failure_pub.publish.assert_not_called()
+    assert node.last_executed_intent is None
+    status = json.loads(node.status_pub.publish.call_args.args[0].data)
+    assert status['status'] == 'WAIT_REPLAN' and status['route_failure'] is False
+
+
+def test_brief_scan_guard_discards_pending_diagnosis_without_bypassing_stop_barrier():
+    node, handle = prepared()
+    detect(node)
+    node.on_motion_status(String(data=json.dumps(dict(
+        node.motion_status, scan_guard_hold=True, output_linear=0.))))
+    assert node.pending_execution_failure is None and node.last_executed_intent is None
+    assert not node.execution_progress.samples
+    assert node.active_goal is handle and node.cancel_requested
+    refresh(node)  # Guard clears while cancellation is still unconfirmed.
+    node.on_path(make_path(stamp=node.clock_seconds+1))
+    assert node.client.send_goal_async.call_count == 1
+    node.on_result(result_future(), handle=handle)
+    node.execution_failure_pub.publish.assert_not_called()
+    assert node.pending_path is None and node.active_goal is None
+    status = json.loads(node.status_pub.publish.call_args.args[0].data)
+    assert status['status'] == 'WAIT_REPLAN' and status['route_failure'] is False
+
+
+def test_brief_guard_cannot_lend_old_executed_intent_to_later_abort():
+    node, handle = prepared()
+    node.on_feedback(SimpleNamespace(feedback=SimpleNamespace(distance_to_goal=2., speed=.1)))
+    node._monitor_execution_progress()
+    node.on_motion_status(String(data=json.dumps(dict(
+        node.motion_status, scan_guard_hold=True, output_linear=0.))))
+    refresh(node)
+    node.latest_navigation_command.linear.x = 0.
+    node.motion_status['output_linear'] = 0.
+    node.on_result(result_future(GoalStatus.STATUS_ABORTED), handle=handle)
+    node.execution_failure_pub.publish.assert_not_called()
+    status = json.loads(node.status_pub.publish.call_args.args[0].data)
+    assert status['status'] == 'WAIT_REPLAN' and status['route_failure'] is False
+
+
+def test_clear_guard_resets_detection_window_but_does_not_disable_true_controller_failure():
+    node, handle = prepared()
+    node.on_motion_status(String(data=json.dumps(dict(
+        node.motion_status, scan_guard_hold=True, output_linear=0.))))
+    refresh(node)
+    # Once actual nonzero commands resume, a new full observation window can
+    # still establish a real execution failure; the guard is not a bypass.
+    detect(node)
+    with patch('smart_vision_amr.path_follower.time.monotonic', return_value=node.test_base+6.1):
+        refresh(node)
+        node.on_result(result_future(), handle=handle)
+    node.execution_failure_pub.publish.assert_called_once()
+    event = json.loads(node.execution_failure_pub.publish.call_args.args[0].data)
+    assert event['reason'] == 'execution_no_progress' and event['terminal_confirmed']
+
+
+def test_confirmed_goal_success_still_wins_a_scan_guard_cancel_race():
+    node, handle = prepared()
+    detect(node)
+    node.on_motion_status(String(data=json.dumps(dict(
+        node.motion_status, scan_guard_hold=True, output_linear=0.))))
+    node.on_result(result_future(GoalStatus.STATUS_SUCCEEDED), handle=handle)
+    node.execution_failure_pub.publish.assert_not_called()
+    status = json.loads(node.status_pub.publish.call_args.args[0].data)
+    assert status['status'] == 'SUCCEEDED'
+    assert not node.path_invalidated and node.active_goal is None
+
+
 @pytest.mark.parametrize('fault', ['scan', 'odom', 'health', 'manual', 'estop', 'clock', 'tf',
-                                  'scan_numeric', 'scan_angle', 'odom_numeric', 'output_zero'])
+                                  'scan_numeric', 'scan_angle', 'odom_numeric', 'output_zero',
+                                  'scan_guard'])
 def test_bad_evidence_or_non_auto_control_cannot_accumulate_failure(fault):
     node, _ = prepared()
     for step in range(71):
@@ -135,6 +251,7 @@ def test_bad_evidence_or_non_auto_control_cannot_accumulate_failure(fault):
             if fault == 'scan_angle': node.latest_scan.angle_min = float('nan')
             if fault == 'odom_numeric': node.latest_odom.pose.pose.position.x = float('nan')
             if fault == 'output_zero': node.motion_status['output_linear'] = 0.
+            if fault == 'scan_guard': node.motion_status['scan_guard_hold'] = True
             node._monitor_execution_progress()
     assert node.pending_execution_failure is None
     node.execution_failure_pub.publish.assert_not_called()

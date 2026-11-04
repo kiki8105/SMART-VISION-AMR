@@ -143,6 +143,47 @@ class MissionLogicTests(unittest.TestCase):
         self.m.on_navigation({'status': 'CANCELED', 'manual_stop': True, 'goal_stamp': {'sec': 1, 'nanosec': 0}})
         self.assertEqual(self.m.state, 'PAUSED')
 
+    def test_correlated_controller_hold_preserves_delivery_and_requires_resume(self):
+        self.m.start(home=HOME, auto_return_home=True)
+        self.m.drain_commands()
+        self.m.goal_dispatched((4, 5))
+        self.assertTrue(self.m.on_navigation({'status': 'CONTROLLER_HOLD', 'goal_stamp': [4, 5]}))
+        self.assertEqual(self.m.state, 'PAUSED')
+        self.assertEqual(self.m.expected_id, 2)
+        self.assertEqual(self.m.route, [2, 3])
+        self.assertEqual(self.m.home, HOME)
+        self.assertEqual(self.m.completed_ids, [])
+        self.assertEqual([command[0] for command in self.m.drain_commands()], ['cancel', 'stop'])
+        self.assertFalse(self.m.on_navigation({'status': 'SUCCEEDED', 'goal_stamp': [4, 5]}))
+        self.m.resume()
+        self.assertEqual(self.m.state, 'NAVIGATING')
+        self.assertEqual(self.m.expected_id, 2)
+        self.assertEqual(self.m.drain_commands()[0][0], 'goal')
+
+    def test_controller_hold_for_previous_goal_cannot_pause_current_dispatch(self):
+        self.m.start(home=HOME)
+        self.m.goal_dispatched((8, 9))
+        for stamp in (None, [8, 8], [8, 10]):
+            self.assertFalse(self.m.on_navigation({'status': 'CONTROLLER_HOLD', 'goal_stamp': stamp}))
+        self.assertEqual(self.m.state, 'NAVIGATING')
+        self.assertEqual(self.m.goal_stamp, (8, 9))
+
+    def test_controller_hold_preserves_home_return_target_without_claiming_home(self):
+        self.m.start(home=HOME)
+        self.m.return_home()
+        self.m.drain_commands()
+        self.m.goal_dispatched((9, 1))
+        self.assertTrue(self.m.on_navigation({'status': 'CONTROLLER_HOLD', 'goal_stamp': [9, 1]}))
+        self.assertEqual(self.m.state, 'PAUSED')
+        self.assertTrue(self.m.returning_home)
+        self.assertFalse(self.m.home_navigation_succeeded)
+        self.assertEqual(self.m.home, HOME)
+        self.assertFalse(self.m.observe_home(HOME, True))
+        self.m.drain_commands()
+        self.m.resume()
+        self.assertEqual(self.m.state, 'RETURNING_HOME')
+        self.assertEqual(self.m.drain_commands(), [('goal', HOME)])
+
     def test_emergency_ack_never_restarts(self):
         self.m.start(home=HOME)
         self.m.emergency_stop()

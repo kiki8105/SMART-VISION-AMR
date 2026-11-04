@@ -14,13 +14,14 @@ from std_msgs.msg import Int32MultiArray, String
 from tf2_ros import TransformException
 
 from smart_vision_amr.path_geometry import route_cells
-from test_planner_failure_memory import FailureHarness, refresh
+from test_planner_failure_memory import FailureHarness, refresh, failure_event
 from test_planner_recovery import make_goal, status
+from recovery_test_evidence import stationary_evidence
 
 
-def ready(node, at=100., *, x=.525, y=1.275, yaw=0., odom_x=None, motion=None):
+def ready(node, at=100., *, x=.525, y=1.275, yaw=0., odom_x=None, motion=None, scan_frame='base_scan'):
     node.clock.update(steady=float(at), ros=float(at))
-    refresh(node, x=x, y=y, yaw=yaw, odom_x=odom_x)
+    refresh(node, x=x, y=y, yaw=yaw, odom_x=odom_x, scan_frame=scan_frame)
     payload = {'sent_at_ns': node.get_clock().now().nanoseconds, 'mode': 'auto',
                'available': True, 'autonomous_allowed': True,
                'estop_latched': False, 'reset_pending': False}
@@ -76,6 +77,16 @@ def paths(node):
 
 def packets(node):
     return [json.loads(call.args[0].data) for call in node.status_pub.publish.call_args_list]
+
+
+def stopped_reverse_verdict(node, at=102.2, *, x=.525, y=1.275, yaw=0.):
+    """Supply real stop/source proof, then let the original rear selector decide.
+
+    A stationary fixture has no invented traversed trail, so a rejected reverse
+    safely falls through to the one global search owned by this cycle.
+    """
+    stationary_evidence(node, at, x=x, y=y, yaw=yaw)
+    node.retry_transform()
 
 
 def test_path_stamp_correlates_global_local_and_empty_invalidation(planner_factory):
@@ -215,19 +226,130 @@ def test_complete_corridor_blockage_falls_back_and_never_publishes_partial_local
     assert node.plan_metrics['expansions'] <= node.params['local_detour_max_expansions']
 
 
-def test_new_obstacle_on_active_detour_invalidates_immediately_instead_of_chaining_patches(planner_factory):
+def test_new_obstacle_on_active_detour_repairs_locally_before_global(planner_factory):
     node = planner_factory()
     patch(node)
     assert node.plan_metrics['local_detour_state'] == 'ACTIVE'
+    original_reference = list(node.local_reference_points)
     new_cell = next((int(x/.05), int(y/.05)) for x, y in node.planned_world_points
                     if .85 < x < 1.35 and abs(y-1.275) > .15)
     attempt = node.local_attempt_id
+    node.plan_to = Mock(wraps=node.plan_to)
     node.path_pub.publish.reset_mock()
     patch(node, {(24, 25), new_cell}, at=100.2)
-    assert not paths(node)[-1].poses
+    assert paths(node) and all(path.poses for path in paths(node))
+    assert not node.waiting_for_replan
+    assert node.local_attempt_id == attempt+1 and node.local_detour_attempts == 2
+    assert node.local_reference_points == original_reference
+    assert node.plan_metrics['local_detour_state'] == 'ACTIVE'
+    node.plan_to.assert_not_called()
+
+
+def test_blocked_active_detour_budget_falls_back_without_replenishing_attempts(planner_factory):
+    node = planner_factory()
+    patch(node)
+    node.local_detour_attempts = node.params['local_detour_max_attempts']
+    new_cell = next((int(x/.05), int(y/.05)) for x, y in node.planned_world_points
+                    if .85 < x < 1.35 and abs(y-1.275) > .15)
+    ready(node, 102.2)
+    node.plan_to = Mock(wraps=node.plan_to)
+    node.path_pub.publish.reset_mock()
+    node.on_observed(hits(node, {(24, 25), new_cell}))
+    node.plan_to.assert_not_called()
+    assert node.pending_reverse_probe is not None
+    stopped_reverse_verdict(node, at=103.)
+    node.plan_to.assert_called_once_with(node.last_goal)
+    assert node.local_detour_attempts == node.params['local_detour_max_attempts']
+    assert node.plan_metrics['detour_reason'] == 'attempt_budget'
+
+
+def terminal_event(node, **changes):
+    return failure_event(node,
+        pose={'x': .525, 'y': 1.275, 'yaw': 0.},
+        segment={'start': {'x': .525, 'y': 1.275},
+                 'end': {'x': .745, 'y': 1.275}, 'heading': 0.}, **changes)
+
+
+@pytest.mark.parametrize('layer', ['observed', 'remembered', 'raw'])
+def test_confirmed_terminal_obstacle_repairs_original_suffix_before_global(planner_factory, layer):
+    node = planner_factory()
+    original_reference = list(node.local_reference_points)
+    original_goal, original_map = deepcopy(node.last_goal), list(node.map[0].data)
+    if layer == 'raw':
+        node.latest_scan.header.frame_id = 'base_scan'
+        node.latest_scan.ranges[0] = .35
+    else:
+        getattr(node, layer).add((17, 25))
+    global_count = node.global_plan_count
+    node.plan_to = Mock(wraps=node.plan_to)
+    node.on_execution_failure(terminal_event(node))
+    node.plan_to.assert_not_called()
+    assert node.plan_metrics['plan_kind'] == 'LOCAL_DETOUR'
+    assert node.plan_metrics['local_detour_state'] == 'ACTIVE'
+    assert node.local_reference_points == original_reference
+    assert node.local_detour_attempts == 1 and node.global_plan_count == global_count
+    assert paths(node)[0].poses == []  # terminal invalidation, followed by a certified replacement
+    assert paths(node)[-1].poses
+    assert node.last_goal == original_goal and list(node.map[0].data) == original_map
+    assert node.local_rejoin_anchor is not None
+    rejoin = node.plan_metrics['rejoin_point']
+    suffix = original_reference[original_reference.index((rejoin['x'], rejoin['y'])):]
+    assert node.planned_world_points[-len(suffix):] == suffix
+    if layer == 'raw':
+        assert not node.observed and not node.remembered, 'raw repair cannot fabricate persistent cells'
+
+
+def test_terminal_local_failure_checks_stopped_reverse_before_global(planner_factory):
+    node = planner_factory()
+    node.observed.update((17, y) for y in range(60))
+    node.plan_to = Mock(wraps=node.plan_to)
+    node.on_execution_failure(terminal_event(node))
+    assert node.local_detour_attempts == 1
+    node.plan_to.assert_not_called()
+    assert node.pending_reverse_probe is not None
+    stopped_reverse_verdict(node)
+    node.plan_to.assert_called_once_with(node.last_goal)
     assert node.waiting_for_replan
-    assert node.local_attempt_id == attempt
-    assert node.plan_metrics['detour_reason'] == 'active_detour_obstructed'
+    assert not paths(node)[-1].poses
+
+
+@pytest.mark.parametrize('condition', ['clear', 'side_hit', 'stale_reference', 'manual_hold', 'budget'])
+def test_terminal_classification_preserves_local_reverse_priority_or_clear_controller_policy(planner_factory, condition):
+    node = planner_factory()
+    if condition != 'clear':
+        node.observed.add((17, 25) if condition != 'side_hit' else (17, 34))
+    if condition == 'stale_reference':
+        node.local_reference_key = ('old-map-or-goal',)
+    if condition == 'manual_hold':
+        ready(node, motion={'mode': 'hold'})
+    if condition == 'budget':
+        node.local_detour_attempts = node.params['local_detour_max_attempts']
+    before = node.local_detour_attempts
+    node.plan_to = Mock(wraps=node.plan_to)
+    node.on_execution_failure(terminal_event(node))
+    assert node.local_detour_attempts == before
+    if condition in ('clear', 'side_hit'):
+        node.plan_to.assert_called_once_with(node.last_goal)
+    else:
+        node.plan_to.assert_not_called()
+        assert node.pending_reverse_probe is not None
+        if condition == 'manual_hold':
+            assert node.failure_state == 'SENSOR_HOLD'
+        else:
+            stopped_reverse_verdict(node)
+            node.plan_to.assert_called_once_with(node.last_goal)
+
+
+def test_terminal_repair_requires_correlated_confirmation_and_fresh_sensors(planner_factory):
+    for changes in ({'terminal_confirmed': False}, {'goal_stamp': {'sec': 99, 'nanosec': 0}}, {}):
+        node = planner_factory()
+        node.observed.add((17, 25))
+        if not changes:
+            node.latest_scan_at = 98.
+        node.plan_to = Mock(wraps=node.plan_to)
+        node.on_execution_failure(terminal_event(node, **changes))
+        assert node.local_detour_attempts == 0
+        node.plan_to.assert_not_called()
 
 
 def test_partial_box_front_face_reserves_a_complete_bypass_before_rejoining(planner_factory):
@@ -291,8 +413,7 @@ def test_global_fallback_reserves_hidden_box_depth_without_fabricating_observati
     node.on_observed(hits(node, front_face))
     assert node.waiting_for_replan
 
-    ready(node, 103.2, x=start[0], y=start[1])
-    node.retry_transform()
+    stopped_reverse_verdict(node, at=103.2, x=start[0], y=start[1])
     assert not node.waiting_for_replan
     assert node.plan_metrics['plan_kind'] == 'GLOBAL'
     assert node.local_attempt_id == 0
@@ -329,8 +450,7 @@ def test_global_replan_reserves_hidden_depth_after_front_face_moves_to_memory(
     assert node.waiting_for_replan
     assert not node.observed
 
-    ready(node, 103.2, x=start[0], y=start[1])
-    node.retry_transform()
+    stopped_reverse_verdict(node, at=103.2, x=start[0], y=start[1])
     assert not node.waiting_for_replan
     assert node.plan_metrics['plan_kind'] == 'GLOBAL'
     assert paths(node)[-1].poses
@@ -369,25 +489,28 @@ def test_one_cell_face_refinement_uses_reserved_observation_margin_without_chain
     # or suppression of real collision checks may explain retaining the patch.
     patch(node, front | {(24, 19)}, at=100.2)
     assert node.observed == front | {(24, 19)}
-    assert node.local_attempt_id == attempt and node.local_detour_attempts == 1
     assert node.global_plan_count == global_count
     if not retained:
-        assert paths(node) and not paths(node)[-1].poses
-        assert node.plan_metrics['detour_reason'] == 'active_detour_obstructed'
+        assert paths(node) and all(path.poses for path in paths(node))
+        assert node.local_attempt_id == attempt+1 and node.local_detour_attempts == 2
+        assert node.planned_world_points != original
         return
+    assert node.local_attempt_id == attempt and node.local_detour_attempts == 1
     assert not paths(node)
     assert node.planned_world_points == original
     assert node.plan_metrics['local_detour_state'] == 'ACTIVE'
     assert not node.waiting_for_replan
     assert path_box_clearance(original, (1.20, .95, 1.25, 1.0)) >= .24-1e-8
     # The reserve only plans farther from uncertain returns. It must not make
-    # a larger newly observed obstruction legal, or chain an active repair.
+    # a larger newly observed obstruction legal. A real blocker requires a new
+    # certified prefix and spends the existing finite repair budget.
     new_hit = next((int(x/.05), int(y/.05)) for x, y in original
                    if 1.0 < x < 1.6 and y < .9)
     patch(node, front | {(24, 19), new_hit}, at=100.3)
-    assert paths(node) and not paths(node)[-1].poses
-    assert node.plan_metrics['detour_reason'] == 'active_detour_obstructed'
-    assert node.local_attempt_id == attempt and node.global_plan_count == global_count
+    assert paths(node) and all(path.poses for path in paths(node))
+    assert node.planned_world_points != original
+    assert node.local_attempt_id == attempt+1 and node.local_detour_attempts == 2
+    assert node.global_plan_count == global_count
 
 
 @pytest.mark.parametrize('route_yaw', [1.5707963267948966, 3.141592653589793, -.7])
@@ -435,21 +558,21 @@ def test_partial_face_with_no_footprint_clear_corridor_falls_back_without_a_part
     assert node.params['obstacle_retry_limit'] == 3
 
 
-def test_box_revealed_larger_than_bounded_reserve_still_invalidates_active_patch(planner_factory):
+def test_box_revealed_larger_than_bounded_reserve_repairs_or_falls_back_with_budget(planner_factory):
     node = planner_factory()
     patch(node, {(24, y) for y in range(20, 31)})
     assert node.plan_metrics['local_detour_state'] == 'ACTIVE'
     attempt, global_count = node.local_attempt_id, node.global_plan_count
     node.path_pub.publish.reset_mock()
     # A much longer actual obstacle exceeds the supported .50 m reserve.
-    # Newly measured cells on the route must still revoke it immediately;
-    # the reserve cannot excuse a collision or chain another active prefix.
+    # Newly measured cells on the route must still revoke the old prefix.
+    # Try a certified replacement within the same goal's finite local budget.
     ready(node, 100.2, x=.975, y=.525)
     node.on_observed(hits(node, {(x, y) for x in range(24, 45) for y in range(20, 31)}))
     assert paths(node) and not paths(node)[-1].poses
     assert node.waiting_for_replan
-    assert node.plan_metrics['detour_reason'] == 'active_detour_obstructed'
-    assert node.local_attempt_id == attempt and node.local_detour_attempts == 1
+    assert node.plan_metrics['detour_reason'] != 'active_detour_obstructed'
+    assert node.local_attempt_id == attempt+1 and node.local_detour_attempts == 2
     assert node.global_plan_count == global_count
 
 
@@ -578,8 +701,8 @@ def test_bad_runtime_configuration_disables_only_local_repair_and_preserves_glob
     assert not any(item.get('plan_kind') == 'LOCAL_DETOUR' for item in packets(node))
     # The global planner's optional cache warmup must also tolerate the bad
     # setting. A local feature typo must not crash or disable ordinary routing.
-    ready(node, 102.2)
-    node.plan_to(node.last_goal)
+    assert node.pending_reverse_probe is not None
+    stopped_reverse_verdict(node)
     assert paths(node)[-1].poses
     assert node.global_plan_count == global_count+1
     assert node.plan_metrics['plan_kind'] == 'GLOBAL'

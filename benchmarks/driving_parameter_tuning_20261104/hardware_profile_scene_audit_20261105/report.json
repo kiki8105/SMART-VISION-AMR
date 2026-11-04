@@ -1,0 +1,397 @@
+{
+  "scope": "Offline paired fixed-scene preflight only; future moving-robot truth QA remains required",
+  "input_sha256": {
+    "fixture.json": "51fe90c60154a46c749cc2bb9b2df3e626b5a0ff854b7f948c32cfe469e6b14b",
+    "proposed_scene": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e",
+    "production_injector": "66e046248ee8931054c33dafbf2d1775681cdeeba631d41cfad9849f8c78f001"
+  },
+  "reports": {
+    "original": {
+      "scene": {
+        "x": 0.5239140050447512,
+        "y": -0.599706838892526,
+        "path_tangent": [
+          0.6954214275160555,
+          -0.7186021417665909
+        ],
+        "movement_side": -1
+      },
+      "cases": {
+        "sensor_rates": {
+          "diagnostics": {
+            "reason": "FIXED_FEASIBLE_BYPASS",
+            "input_status": "VALID",
+            "geometric_candidates": 1,
+            "topology_candidates_tried": 1
+          },
+          "candidate": {
+            "x": 0.5239140050447512,
+            "y": -0.599706838892526,
+            "path_tangent": [
+              0.6954214275160555,
+              -0.7186021417665909
+            ],
+            "index": 16,
+            "robot_distance_m": 0.8068395347913363,
+            "static_wall_distance_m": 0.2018436472418978,
+            "approach_along_path_m": -0.76775977996944,
+            "base_path_xy": [
+              0.3,
+              -0.8
+            ],
+            "lateral_offset_m": 0.30019323961575634,
+            "preflight": {
+              "route_cells_by_step": [
+                82,
+                82,
+                83,
+                84,
+                84
+              ],
+              "movement_side": -1,
+              "initial_centerline_clearance_m": -0.0968,
+              "robot_radius": 0.22,
+              "obstacle_inflation_cells": 5
+            },
+            "robot_radius": 0.22,
+            "initial_path_clearance_m": -0.09681693148246996
+          },
+          "nearest_observed": {
+            "index": 8560,
+            "cell": [
+              46,
+              99
+            ],
+            "center": [
+              0.6750000000000003,
+              -0.27499999999999947
+            ],
+            "center_distance_m": 0.3581361599939257
+          },
+          "initial_physical_body_gap_m": 0.41983971655677377,
+          "four_box_moves_with_frozen_initial_robot": [
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.4106834564659655,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.4023972860129309,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.3950163745890566,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.38857366061067045,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            }
+          ]
+        },
+        "wheel_asymmetry": {
+          "diagnostics": {
+            "reason": "FIXED_SCENE_TOO_CLOSE_TO_OBSERVED_CELL",
+            "input_status": "INVALID_INPUT",
+            "geometric_candidates": 1,
+            "topology_candidates_tried": 1
+          },
+          "candidate": null,
+          "nearest_observed": {
+            "index": 8474,
+            "cell": [
+              46,
+              98
+            ],
+            "center": [
+              0.6750000000000003,
+              -0.3249999999999993
+            ],
+            "center_distance_m": 0.31351367626619125
+          },
+          "initial_physical_body_gap_m": 0.41984008035408893,
+          "four_box_moves_with_frozen_initial_robot": [
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.41068377148088053,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.4023975504379562,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.39501658674623474,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.38857381898567533,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            }
+          ]
+        }
+      },
+      "actor_positions": [
+        [
+          0.5239140050447512,
+          -0.599706838892526
+        ],
+        [
+          0.5059489515005864,
+          -0.6170923745804273
+        ],
+        [
+          0.4879838979564216,
+          -0.6344779102683288
+        ],
+        [
+          0.47001884441225683,
+          -0.6518634459562301
+        ],
+        [
+          0.45205379086809205,
+          -0.6692489816441315
+        ]
+      ],
+      "whole_box_sweep_explicit_world_AABB_gap_m": 0.024730694957967952,
+      "nearest_world_collision": {
+        "model": "map_occupied_cells",
+        "link": "occupied_27"
+      }
+    },
+    "proposed": {
+      "scene": {
+        "x": 0.44,
+        "y": -0.6,
+        "path_tangent": [
+          0.6954214275160555,
+          -0.7186021417665909
+        ],
+        "movement_side": -1
+      },
+      "cases": {
+        "sensor_rates": {
+          "diagnostics": {
+            "reason": "FIXED_FEASIBLE_BYPASS",
+            "input_status": "VALID",
+            "geometric_candidates": 1,
+            "topology_candidates_tried": 1
+          },
+          "candidate": {
+            "x": 0.44,
+            "y": -0.6,
+            "path_tangent": [
+              0.6954214275160555,
+              -0.7186021417665909
+            ],
+            "index": 15,
+            "robot_distance_m": 0.733983066939012,
+            "static_wall_distance_m": 0.25465663156493695,
+            "approach_along_path_m": -0.7096148489923432,
+            "base_path_xy": [
+              0.2719,
+              -0.7719
+            ],
+            "lateral_offset_m": 0.2403399634209739,
+            "preflight": {
+              "route_cells_by_step": [
+                83,
+                84,
+                85,
+                85,
+                86
+              ],
+              "movement_side": -1,
+              "initial_centerline_clearance_m": -0.1564,
+              "robot_radius": 0.22,
+              "obstacle_inflation_cells": 5
+            },
+            "robot_radius": 0.22,
+            "initial_path_clearance_m": -0.15636526272997836
+          },
+          "nearest_observed": {
+            "index": 8560,
+            "cell": [
+              46,
+              99
+            ],
+            "center": [
+              0.6750000000000003,
+              -0.27499999999999947
+            ],
+            "center_distance_m": 0.4010610926031101
+          },
+          "initial_physical_body_gap_m": 0.34395139996161916,
+          "four_box_moves_with_frozen_initial_robot": [
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.33626717825909525,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.3296136513024416,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.32402863691874506,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.3195453177234824,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            }
+          ]
+        },
+        "wheel_asymmetry": {
+          "diagnostics": {
+            "reason": "FIXED_FEASIBLE_BYPASS",
+            "input_status": "VALID",
+            "geometric_candidates": 1,
+            "topology_candidates_tried": 1
+          },
+          "candidate": {
+            "x": 0.44,
+            "y": -0.6,
+            "path_tangent": [
+              0.6954214275160555,
+              -0.7186021417665909
+            ],
+            "index": 15,
+            "robot_distance_m": 0.7339832492468701,
+            "static_wall_distance_m": 0.25465663156493695,
+            "approach_along_path_m": -0.7096146770702092,
+            "base_path_xy": [
+              0.2719,
+              -0.7719
+            ],
+            "lateral_offset_m": 0.2403399634209739,
+            "preflight": {
+              "route_cells_by_step": [
+                83,
+                84,
+                85,
+                85,
+                86
+              ],
+              "movement_side": -1,
+              "initial_centerline_clearance_m": -0.1564,
+              "robot_radius": 0.22,
+              "obstacle_inflation_cells": 5
+            },
+            "robot_radius": 0.22,
+            "initial_path_clearance_m": -0.15636526272997836
+          },
+          "nearest_observed": {
+            "index": 8474,
+            "cell": [
+              46,
+              98
+            ],
+            "center": [
+              0.6750000000000003,
+              -0.3249999999999993
+            ],
+            "center_distance_m": 0.36173194495371913
+          },
+          "initial_physical_body_gap_m": 0.34395168411128674,
+          "four_box_moves_with_frozen_initial_robot": [
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.33626740503739583,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.32961381878744644,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.324028743447625,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            },
+            {
+              "passed_at_recorded_initial_Home_only": true,
+              "reason": "ready",
+              "swept_clearance_m": 0.3195453619412213,
+              "required_clearance_m": 0.064,
+              "robot_truth_age_s": 0.0
+            }
+          ]
+        }
+      },
+      "actor_positions": [
+        [
+          0.44,
+          -0.6
+        ],
+        [
+          0.4220349464558352,
+          -0.6173855356879013
+        ],
+        [
+          0.40406989291167045,
+          -0.6347710713758028
+        ],
+        [
+          0.38610483936750567,
+          -0.6521566070637042
+        ],
+        [
+          0.3681397858233409,
+          -0.6695421427516055
+        ]
+      ],
+      "whole_box_sweep_explicit_world_AABB_gap_m": 0.08860022573334667,
+      "nearest_world_collision": {
+        "model": "map_occupied_cells",
+        "link": "occupied_27"
+      }
+    }
+  },
+  "limits": [
+    "Path coordinates were recorded rounded to four decimals, <=0.071 mm planar quantization; actor reports identical original exact path SHA for both runs.",
+    "Observed samples are the last independent samples before candidate search with matching logged counts; raw beam origin per hit was not recorded.",
+    "World box bounds conservatively enclose explicit inline collision boxes only; includes/meshes are not expanded.",
+    "This is not a live spawn or four-move success. Current truth, path ownership, fresh observations and all movement safety barriers must pass again online."
+  ]
+}

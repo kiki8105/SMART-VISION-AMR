@@ -35,8 +35,6 @@ class FailureHarness(PlannerHarness):
         self.rejoin_anchor = None
         self.rejoin_verified = False
         self.failure_status_pub = Mock()
-        # Turn-footprint selection has separate tests; isolate evidence/planning here.
-        self._turn_ready = Mock(return_value=True)
 
     def get_clock(self):
         sec = int(self.clock['ros'])
@@ -46,7 +44,7 @@ class FailureHarness(PlannerHarness):
             nanoseconds=sec * 1_000_000_000 + nanosec, to_msg=lambda: stamp))
 
 
-def refresh(node, x=.55, y=1.55, yaw=0., *, odom_x=None, odom_y=None):
+def refresh(node, x=.55, y=1.55, yaw=0., *, odom_x=None, odom_y=None, scan_frame='base_scan'):
     stamp = node.get_clock().now().to_msg()
     tf = TransformStamped()
     tf.header.frame_id = 'map'
@@ -57,6 +55,7 @@ def refresh(node, x=.55, y=1.55, yaw=0., *, odom_x=None, odom_y=None):
     node.tf_buffer.lookup_transform.return_value = tf
     odom = Odometry()
     odom.header.frame_id = 'odom'
+    odom.child_frame_id = node.params['base_frame']
     odom.header.stamp = stamp
     odom.pose.pose.position.x = x if odom_x is None else odom_x
     odom.pose.pose.position.y = y if odom_y is None else odom_y
@@ -64,13 +63,20 @@ def refresh(node, x=.55, y=1.55, yaw=0., *, odom_x=None, odom_y=None):
     node.on_odom(odom)
     scan = LaserScan()
     scan.header.stamp = stamp
+    scan.header.frame_id = scan_frame
     scan.angle_increment = .1
     scan.range_min, scan.range_max = .05, 5.
     scan.ranges = [3.] * 60
-    node.latest_scan, node.latest_scan_at = scan, node.clock['steady']
+    # Feed the actual source-stamped receive adapter. Tests which exercise
+    # projection also supply its separately stamped visibility event.
+    node.on_scan(scan)
     node.localization_health = {'level': 'ok', 'autonomous_allowed': True,
                                 'sent_at_ns': node.get_clock().now().nanoseconds}
     node.latest_health_at = node.clock['steady']
+    node.latest_motion_status = {'mode': 'auto', 'available': True,
+        'autonomous_allowed': True, 'estop_latched': False, 'reset_pending': False,
+        'sent_at_ns': node.get_clock().now().nanoseconds}
+    node.latest_motion_status_at = node.clock['steady']
 
 
 def failure_event(node, **overrides):
@@ -89,6 +95,10 @@ def failure_event(node, **overrides):
         'evidence': {'duration_sec': 6., 'progress_m': 0.},
         'terminal_confirmed': True,
     }
+    path_ns = (getattr(node, 'current_path_stamp_ns', None) if node.planned_world_points
+               else getattr(node, 'last_invalidated_path_stamp_ns', None))
+    if type(path_ns) is int and path_ns > 0:
+        payload['path_stamp'] = {'sec': path_ns//1_000_000_000, 'nanosec': path_ns%1_000_000_000}
     payload.update(overrides)
     return String(data=json.dumps(payload))
 
@@ -245,6 +255,7 @@ def test_map_tf_only_progress_cannot_verify_rejoin(prepared):
 def test_actual_odom_and_path_progress_verify_rejoin_without_forgetting_failure(prepared):
     node = prepared
     node.on_execution_failure(failure_event(node))
+    node.controller_retry_events.add('independently-counted-controller-failure')
     node.rejoin_anchor = {'points': [(.55, 1.55), (2.55, 1.55)],
                           'progress': 0., 'odom': node.latest_odom, 'pose': (.55, 1.55, 0.)}
     node.rejoin_verified = False
@@ -257,6 +268,7 @@ def test_actual_odom_and_path_progress_verify_rejoin_without_forgetting_failure(
     assert node.rejoin_verified is True
     assert node.recovery_attempts == 0
     assert not node.recovery_attempted_cells
+    assert not node.controller_retry_events and not node.controller_pending_retry_events
     # Advancing on an alternative does not prove that the failed approach works.
     assert count(node) == 1
 

@@ -1,0 +1,8 @@
+{
+  "known_exact_cases": 4,
+  "random_segment_rectangle_cases": 200,
+  "random_rectangles_per_case": 3,
+  "seed": 4242,
+  "maximum_absolute_error_m": 2.220446049250313e-16,
+  "passed": true
+}

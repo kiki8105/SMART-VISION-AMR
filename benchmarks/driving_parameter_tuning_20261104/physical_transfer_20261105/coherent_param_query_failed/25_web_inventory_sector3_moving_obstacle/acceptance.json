@@ -1,0 +1,45 @@
+{
+  "passed": false,
+  "domain": 176,
+  "localhost_only": true,
+  "physical_robot_touched": false,
+  "mission_accepted_via_web": false,
+  "route": [
+    3
+  ],
+  "failure": "RuntimeError('Actual AMCL launch-prior parameter not observed')",
+  "dwell": {},
+  "dispatch_mode": "inventory",
+  "transient_requested": false,
+  "cold_start_requested": true,
+  "ekf_delivery_faults_requested": false,
+  "visual_ui_qa": false,
+  "path_points_per_sector": {
+    "3": 0
+  },
+  "home_path_points": 0,
+  "web_pages": {
+    "inventory": true,
+    "operator": true
+  },
+  "inventory_request": {
+    "marker_id": 3,
+    "item": "Gazebo 전체 운용 검증",
+    "quantity": 1,
+    "note": "",
+    "client_request_id": "classroom-web-3-1793815832052771327",
+    "id": 1,
+    "user_id": 1,
+    "created_at": 1793815832.055312,
+    "updated_at": 1793815832.055312,
+    "status": "PENDING",
+    "trip_id": null,
+    "deletion_pending": false
+  },
+  "inventory_request_created_at": 1793815832.055312,
+  "cold_start_proof": {
+    "passed": false,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend"
+  }
+}

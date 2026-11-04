@@ -4,11 +4,12 @@
     map_frame: map
     base_frame: base_footprint
     occupied_threshold: 65
-    # Four 5 cm cells give at least 20 cm between an occupied square and
-    # any point in the first traversable square. The physical robot's
-    # farthest rotating arc was measured at about 17 cm; three cells would
-    # leave only a 15 cm cell-to-cell gap and physical overlap.
-    obstacle_inflation_cells: 4
+    # A* certifies complete 5 cm squares, including smoothing shortcuts.
+    # Four cells guarantee only 20 cm and underinflate the 22 cm body.
+    # Five-cell Chebyshev dilation guarantees at least 25 cm square-to-square
+    # clearance; its diagonal corners are more conservative than a 22 cm circle.
+    # This is total clearance, not added to the body radius.
+    obstacle_inflation_cells: 5
     # Repair only the nearby route prefix, then rejoin the original route ahead.
     # Static/unknown/live obstacles and the full chassis margin remain blocked.
     local_detour_enabled: true
@@ -16,11 +17,11 @@
     local_detour_max_rejoin_distance: 2.5  # m ahead along the original route.
     local_detour_max_length: 4.0  # m; longer detours use global A*.
     local_detour_max_lateral_distance: 0.9  # m from the original local route.
-    local_detour_clearance_margin: 0.0  # m beyond robot_radius; occupied cells and 4-cell inflation remain blocked.
-    local_detour_observation_margin: 0.0  # m; retain the measured 0.17 m rotating envelope and cell quantization.
+    local_detour_clearance_margin: 0.0  # m beyond robot_radius; occupied cells and 5-cell inflation remain blocked.
+    local_detour_observation_margin: 0.0  # m; retain the configured 0.22 m rotating envelope and cell quantization.
     # A first scan may show only the front face of an unmapped object.
     # Reserve its unseen depth locally; never write these cells to the map/memory.
-    local_detour_occlusion_extension: 0.25  # m along the original forward route.
+    local_detour_occlusion_extension: 0.20  # m; retain hidden depth without sealing the captured 22 cm bypass.
     local_detour_rejoin_buffer: 0.15  # m beyond the last blocked reference segment.
     local_detour_max_expansions: 1500  # Total search budget per local repair.
     local_detour_max_planning_time: 0.06  # s of bounded local search.
@@ -29,7 +30,7 @@
     # Legacy API setting; live observations are range-classified by change_memory.
     # Do not discard a real obstacle merely because it is close to a mapped wall.
     mapped_wall_return_tolerance_cells: 2
-    robot_radius: 0.17
+    robot_radius: 0.22
     start_egress_enabled: true
     start_egress_clearance_margin: 0.0
     start_egress_max_cells: 7
@@ -40,9 +41,9 @@
     # a moving route. Nav2's local costmap still checks every scan for collision.
     live_route_confirmation_scans: 3
     # Choose the wider route when multiple collision-free A* routes exist.
-    # These add only travel cost; unknown/occupied cells and 4-cell inflation
+    # These add only travel cost; unknown/occupied cells and 5-cell inflation
     # remain impassable. They cannot create a route through a sealed corridor.
-    preferred_clearance: 0.18  # m; soft route preference, not the collision radius.
+    preferred_clearance: 0.45  # m; soft aisle-center preference only; narrower safe routes remain legal.
     clearance_penalty_gain: 1.5
     # A bounded escape is allowed only after a continuous straight forward
     # history, physical footprint margin, fresh LiDAR and a reachable A* exit.
@@ -51,7 +52,7 @@
     reverse_recovery_min_distance: 0.10
     reverse_recovery_max_distance: 0.30
     reverse_recovery_clearance_margin: 0.0
-    reverse_recovery_speed: 0.04
+    reverse_recovery_speed: 0.10
     reverse_recovery_max_attempts: 3
     # Round corners only if every segment remains clear of inflated/unknown cells.
     path_smoothing_enabled: true
@@ -60,22 +61,21 @@
     path_resample_spacing: 0.05  # m between tracking poses at most.
     # Temporary failed-approach memory; never writes cells into the saved/SLAM map.
     failure_memory_enabled: true
+    controller_retry_limit: 3  # verified controller stalls; then retain goal and require explicit resume.
     obstacle_hold_enabled: true
     obstacle_retry_limit: 3  # failed published approaches/execution; a no-path retry is not a new attempt.
     obstacle_clear_duration: 2.0  # s of positive fresh free-ray evidence before automatic resume.
-    failure_memory_ttl: 120.0  # s; same bad approach becomes eligible after expiry.
-    failure_memory_radius: 0.25  # m around a failed route segment.
+    failure_memory_ttl: 120.0  # s; directional preference expires; it never becomes occupied geometry.
+    failure_memory_radius: 0.25  # m around a failed route segment; routing cost only.
     failure_memory_heading_tolerance: 1.0471975511965976  # rad (60 deg); reverse remains legal.
     failure_memory_max_entries: 64
-    failure_memory_penalty: 2.0  # nonnegative A* step cost around the restricted approach.
+    failure_memory_penalty: 2.0  # nonnegative A* step cost around the failed approach.
     failure_event_max_age: 3.0  # s; reject stale/replayed execution reports.
     rejoin_progress_distance: 0.35  # m; map+independent odom must confirm actual progress.
     rejoin_cross_track_tolerance: 0.20  # m from the replacement route.
-    recovery_turn_heading_threshold: 0.65  # rad; larger first turn needs full sweep clearance.
-    recovery_turn_clearance_margin: 0.0  # m beyond robot_radius, without relaxing occupancy.
 /path_follower:
   ros__parameters:
-    recovery_robot_radius: 0.17
+    recovery_robot_radius: 0.22
     recovery_rear_margin: 0.01  # m beyond the body for rear LiDAR preflight.
     # Keep an active FollowPath through a brief scan/odom delivery gap while
     # robot-side localization holds velocity at 0.7 s. New goals still need
@@ -97,16 +97,20 @@
     follow_cancel_retry_period: 0.5
     # These are upper bounds; Nav2 retains its lower configured speed limits.
     curve_speed_limit_enabled: true
+    curve_linear_limit_preserves_angular_speed: true  # RouteTrackingDWB only limits linear candidates.
     curve_speed_limit_topic: /speed_limit
-    curve_preview_distance: 0.75  # m ahead along the path.
+    curve_preview_distance: 1.00  # m ahead; begin braking before the next bend.
     curve_base_frame: base_footprint
     curve_pose_timeout: 1.0  # s; stale pose keeps the conservative whole-route cap.
     curve_minimum_chord: 0.15  # m; avoids curvature spikes from dense tracking poses.
     curve_alignment_angle: 0.45  # rad; release angular cap before tight-turn heading error grows.
     curve_goal_heading_distance: 0.30  # m; do not restrict final yaw alignment.
-    curve_max_linear_velocity: 0.24  # m/s; matches the physical DWB upper bound.
+    curve_max_linear_velocity: 0.22  # m/s; matches the physical DWB upper bound.
+    curve_min_linear_speed_limit: 0.12  # m/s; low bend ceiling, not a forced minimum velocity.
     curve_max_angular_velocity: 0.35  # rad/s
     curve_max_lateral_acceleration: 0.10  # m/s^2
+    curve_braking_deceleration: 0.10  # m/s^2; reduce the route cap gradually before bends.
+    curve_braking_margin: 0.15  # m; reach bend speed before the curvature vertex.
 /change_memory:
   ros__parameters:
     map_topic: /map

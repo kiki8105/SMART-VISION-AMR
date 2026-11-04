@@ -1,0 +1,173 @@
+{
+  "root_at_capture": "/tmp/classroom-transfer-cold_sensor_common-20261105",
+  "files": [
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/staged_report.json",
+      "archive_path": "staged_report.json",
+      "original_sha256": "2a1fa866b4aa40723b808e1b3b1ab3dbeb097bda77707d6e17002cb4d6c964f8",
+      "archive_sha256": "2a1fa866b4aa40723b808e1b3b1ab3dbeb097bda77707d6e17002cb4d6c964f8",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105-source-rates.json",
+      "archive_path": "source_rates.json",
+      "original_sha256": "665c14221264e632964ff2824651c9aee3897250af25e1f2ab6851ad0ed1be2e",
+      "archive_sha256": "665c14221264e632964ff2824651c9aee3897250af25e1f2ab6851ad0ed1be2e",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105.log",
+      "archive_path": "runner.log.gz",
+      "original_sha256": "aebcf96e6281026118b03ab4246bb4aaa8aa17b9c3373cd950b5eaf43c2371d4",
+      "archive_sha256": "95c148f6a18f23843fc63640735480cb5c12aaaa00d57db8ecb0af4b1c13ccc5",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/acceptance.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/acceptance.json",
+      "original_sha256": "6b1f597556482b273248cbbf62bb5b5847829508670154e6c8b2b11ea5687647",
+      "archive_sha256": "6b1f597556482b273248cbbf62bb5b5847829508670154e6c8b2b11ea5687647",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/derived_evidence.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/derived_evidence.json",
+      "original_sha256": "d47f63b532ba5205bc481ac79c494cf3e86fd4b35fbfcd91503e1c0107afeeec",
+      "archive_sha256": "d47f63b532ba5205bc481ac79c494cf3e86fd4b35fbfcd91503e1c0107afeeec",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/safety_assessment.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/safety_assessment.json",
+      "original_sha256": "6d0f4da5440cfd556a69429bf34225be612b475a3817a9040853c6e9e3f9aa74",
+      "archive_sha256": "6d0f4da5440cfd556a69429bf34225be612b475a3817a9040853c6e9e3f9aa74",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/runtime_manifest.json",
+      "original_sha256": "f07632c40675e165a7f1cb66768670c64272eb46ca08620ffda3086768109eb3",
+      "archive_sha256": "f07632c40675e165a7f1cb66768670c64272eb46ca08620ffda3086768109eb3",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json",
+      "original_sha256": "8e26a1abd7146d9b4a71715798153cd7743a269b35ba3eed976efdb2cf569539",
+      "archive_sha256": "8e26a1abd7146d9b4a71715798153cd7743a269b35ba3eed976efdb2cf569539",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+      "original_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "archive_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+      "original_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "archive_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/ekf_hardware_like_sim.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/ekf_hardware_like_sim.yaml",
+      "original_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "archive_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json",
+      "original_sha256": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e",
+      "archive_sha256": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.summary.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/memory_observer.summary.json",
+      "original_sha256": "5010672d262abb3f2455d19d3a58ac2917c826fa756081c277d7aa23de9144b1",
+      "archive_sha256": "5010672d262abb3f2455d19d3a58ac2917c826fa756081c277d7aa23de9144b1",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf",
+      "original_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "archive_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+      "original_sha256": "37b419667abc1365a64b39f9a2e06bdbea7efc6b35e1b008eb90e095a89613a7",
+      "archive_sha256": "37b419667abc1365a64b39f9a2e06bdbea7efc6b35e1b008eb90e095a89613a7",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/fixture/waffle_pi_fault.sdf",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/waffle_pi_fault.sdf",
+      "original_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "archive_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.world",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.world",
+      "original_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "archive_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl.gz",
+      "original_sha256": "e6f1a491557a345831ac80e97bfbdac5e861832d9023987534856d415282226d",
+      "archive_sha256": "4a3441ae0e7a15c85573b2b480344e93650dd4f1cde98fc2496c4cdeb82c7627",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl.gz",
+      "original_sha256": "6b637f07800dc1f76ca0536bef20d9469351331db9fd6e0a77d66baa0adfc4fd",
+      "archive_sha256": "bcd6978781112f041d4f3e3e879896029040fe832231c44b993fdb2f40e7947e",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/sensor_faults.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/sensor_faults.jsonl.gz",
+      "original_sha256": "74bcb24b5272448f5f77277eca13a73e60375fcda2bc9da223e3be4ee33c1b58",
+      "archive_sha256": "4944ab33cc5a98ea11cf24534ef037d4cd55d67c4ffe67537923798d66c9a046",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/gazebo_launch.log.gz",
+      "original_sha256": "cdd30808d963aa86aeda788a06a4cdaa06a3d9d9c29194cc6e68a76f3f0b0450",
+      "archive_sha256": "ab05757ce8c244a06bdad1cfd9e1ed599172818e41ccfa252b92e076811191d5",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/web_server.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_server.log.gz",
+      "original_sha256": "ef81afa74c12d93e703fe7c54c13158f12ccbfda41218b0f96717fc3eec8ea9c",
+      "archive_sha256": "3ae688f487abeeeca91db2f938f766c419b19832ddfcaf1f00830f38d7b08362",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.log.gz",
+      "original_sha256": "762a5586348760b279d3cb0a411123cea90e3d3b5b626ff6552887473cb5e067",
+      "archive_sha256": "9b2590b51d2dfb27ab2c923293493b88328802f8d4374f078e4ea7e968db733b",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/sector_3_rear_confirmed.jpg",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/sector_3_rear_confirmed.jpg",
+      "original_sha256": "7397f6adb8e2d9f992cfb9698d507ef43b17553dc6fd9ee41532957a787024d3",
+      "archive_sha256": "7397f6adb8e2d9f992cfb9698d507ef43b17553dc6fd9ee41532957a787024d3",
+      "gzip": false
+    }
+  ]
+}

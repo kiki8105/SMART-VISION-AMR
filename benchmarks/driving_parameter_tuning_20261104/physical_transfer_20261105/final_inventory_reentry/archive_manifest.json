@@ -1,0 +1,173 @@
+{
+  "root_at_capture": "/tmp/classroom-transfer-final_inventory_reentry-20261105",
+  "files": [
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/staged_report.json",
+      "archive_path": "staged_report.json",
+      "original_sha256": "a89de18a682e6d21e9faa78a18bef2da7fe03cff14077d72f95594099c9e9fd8",
+      "archive_sha256": "a89de18a682e6d21e9faa78a18bef2da7fe03cff14077d72f95594099c9e9fd8",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105-source-rates.json",
+      "archive_path": "source_rates.json",
+      "original_sha256": "5c354fca0a914179fe333864a20c71e8758b72f4ca8ef6ed3488c372e8386cbe",
+      "archive_sha256": "5c354fca0a914179fe333864a20c71e8758b72f4ca8ef6ed3488c372e8386cbe",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105.log",
+      "archive_path": "runner.log.gz",
+      "original_sha256": "3edbecaff5dacc632d1ab079e8ebc3d1ed207180f54dc986b078145a7717b252",
+      "archive_sha256": "685b9f7be13c66d44fd16c84e62a5cf0f8a6ac804ae07ab77142d18317e80a8e",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/acceptance.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/acceptance.json",
+      "original_sha256": "1a24b5f4c639ef909df8e7f8159cdf0e8d6b28953eb7321ad7c29914c5d0c252",
+      "archive_sha256": "1a24b5f4c639ef909df8e7f8159cdf0e8d6b28953eb7321ad7c29914c5d0c252",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/derived_evidence.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/derived_evidence.json",
+      "original_sha256": "e04604cc8cbc4e24129913c264c52cf29d323d1568a4869091fa3888ad3513de",
+      "archive_sha256": "e04604cc8cbc4e24129913c264c52cf29d323d1568a4869091fa3888ad3513de",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/safety_assessment.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/safety_assessment.json",
+      "original_sha256": "c6d0edcc39c7e69af4ddab899b1ff792f19246bf4b0d29afad5813e136b7033f",
+      "archive_sha256": "c6d0edcc39c7e69af4ddab899b1ff792f19246bf4b0d29afad5813e136b7033f",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/runtime_manifest.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/runtime_manifest.json",
+      "original_sha256": "e377ca242b9d627e2f28cefaaa707af3d781b9c9220e35edad372d89778f81eb",
+      "archive_sha256": "e377ca242b9d627e2f28cefaaa707af3d781b9c9220e35edad372d89778f81eb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/classroom_nav_sim_time.yaml",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/classroom_nav_sim_time.yaml",
+      "original_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "archive_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/classroom_nodes_sim.yaml",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/classroom_nodes_sim.yaml",
+      "original_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "archive_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/ekf_hardware_like_sim.yaml",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/ekf_hardware_like_sim.yaml",
+      "original_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "archive_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/memory_observer.summary.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/memory_observer.summary.json",
+      "original_sha256": "bdbd10a99af4e59149b0c282197f0b62864eb20319adf7f2017dde8e58c076c3",
+      "archive_sha256": "bdbd10a99af4e59149b0c282197f0b62864eb20319adf7f2017dde8e58c076c3",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/actual_spawned_model.sdf",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/actual_spawned_model.sdf",
+      "original_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "archive_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/fixture/fixture_manifest.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/fixture/fixture_manifest.json",
+      "original_sha256": "aad8f25a4f479807af0a5f884ed93deaf35e0eb4c670247df37f5fbccfaf18f2",
+      "archive_sha256": "aad8f25a4f479807af0a5f884ed93deaf35e0eb4c670247df37f5fbccfaf18f2",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/fixture/waffle_pi_fault.sdf",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/fixture/waffle_pi_fault.sdf",
+      "original_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "archive_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/fixture/classroom_fault.world",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/fixture/classroom_fault.world",
+      "original_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "archive_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/safety_timeline.jsonl",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/safety_timeline.jsonl.gz",
+      "original_sha256": "84cd20e9ca3ffd876e15bd353eb9c235cf2b16dea7da682beb54309e04baca85",
+      "archive_sha256": "7cbef49cf729f113ca6e77c244e4e719269bee3a4b2f4802aa5806a65af47a51",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/memory_observer.jsonl",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/memory_observer.jsonl.gz",
+      "original_sha256": "7f998a72d87061d7e37041a46c3233ce7652c7b8ba6c2e5875826dd9a944eded",
+      "archive_sha256": "fed1b0fe59ed0de598f2ee73bb272b43d66ba5d3d2ff072e176f5bae1825771d",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/sensor_faults.jsonl",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/sensor_faults.jsonl.gz",
+      "original_sha256": "0e93f7520b3352edadbd3ea13a9fe12b55f7a770af5d0c08950b5690d3c32ae8",
+      "archive_sha256": "c3a94c7ba0b40e71e696a556bed495b5844f9a7f2f4c21f2b9c5c7f5629b77a6",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/gazebo_launch.log",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/gazebo_launch.log.gz",
+      "original_sha256": "9c0074ccf48364a6589a2ddd38339d2fa3e35ec5fd2af756ba76296554d8f2f6",
+      "archive_sha256": "173647d83be954fc3813c329b550d7062ac570524f72b205c0f61d6fdb884747",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/web_server.log",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/web_server.log.gz",
+      "original_sha256": "3b00b5c7279b3d1364819063ce5196cfcbea27597911dfe5f2f4fe10fc0d7a6e",
+      "archive_sha256": "1e8c2d7efaeb8ed5776439de7e1b36a3395be6bdadaa76c103f5011484cc339f",
+      "gzip": true
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T190633_429658Z_213bb132/manifest.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/incidents/incident_20261104T190633_429658Z_213bb132/manifest.json",
+      "original_sha256": "535cd3568128304409b86d99a9045a558c6dc5c1ac03e2b00e4a76980859c63e",
+      "archive_sha256": "535cd3568128304409b86d99a9045a558c6dc5c1ac03e2b00e4a76980859c63e",
+      "gzip": false
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T190633_429658Z_213bb132/events.jsonl.gz",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/incidents/incident_20261104T190633_429658Z_213bb132/events.jsonl.gz",
+      "original_sha256": "ba1429f4580d0267c336c6d49118df95349029c73611d0c97defaf5fabd2239c",
+      "archive_sha256": "ba1429f4580d0267c336c6d49118df95349029c73611d0c97defaf5fabd2239c",
+      "gzip": false
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T190807_338738Z_c45fe435/manifest.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/incidents/incident_20261104T190807_338738Z_c45fe435/manifest.json",
+      "original_sha256": "683b80397100ccc2513d76be78d2b2a29f6f0b64349862fb7ab6517be5bd9246",
+      "archive_sha256": "683b80397100ccc2513d76be78d2b2a29f6f0b64349862fb7ab6517be5bd9246",
+      "gzip": false
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T190807_338738Z_c45fe435/events.jsonl.gz",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/incidents/incident_20261104T190807_338738Z_c45fe435/events.jsonl.gz",
+      "original_sha256": "cc95e7b70281d06be77e952ee8ab984f79d4171b772ceb76c42113617284ef1d",
+      "archive_sha256": "cc95e7b70281d06be77e952ee8ab984f79d4171b772ceb76c42113617284ef1d",
+      "gzip": false
+    }
+  ]
+}

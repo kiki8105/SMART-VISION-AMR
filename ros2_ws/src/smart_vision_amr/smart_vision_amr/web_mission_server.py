@@ -38,7 +38,8 @@ from smart_vision_amr.localization_geometry import rotation_clearance, scan_poin
 from smart_vision_amr.home_prior_geometry import home_neighborhood_evidence
 from smart_vision_amr.home_prior_observer import HomePriorObserver
 from smart_vision_amr.operation_status import (operation_summary, route_preview, localization_explanations,
-                                             failure_memory_snapshot, local_detour_snapshot)
+                                             failure_memory_snapshot, local_detour_snapshot,
+                                             CONTROLLER_HOLD_MESSAGE, CONTROLLER_HOLD_ACTION)
 from smart_vision_amr.navigation_graph import goal_consumers_ready
 from smart_vision_amr.marker_alignment import MarkerAlignment, angle_difference, finite_number
 from smart_vision_amr.home_alignment import HomeYawTrim
@@ -414,6 +415,7 @@ class MissionApplication:
         self.localization_amcl_active_at = 0.
         self.localization_clear = False
         self.localization_clearance = None
+        self.rotation_clearance_radius = .30
         self.localization_scan_at = 0.
         self.localization_odom_at = 0.
         self.localization_invalidated = False
@@ -713,13 +715,30 @@ class MissionApplication:
             conditions.append((self.aruco_available, 'OpenCV ArUco'))
         if self.localization.active:
             conditions.append((False, '진행 중인 위치 확인 동작 종료'))
-        if self.manual_pose_state in {'WAITING', 'FAILED'}:
+        # A failed prior request is historical command state. A later valid
+        # localization can recover independently (for example through RViz).
+        # Require the current physical health/map/TF checks; never manufacture
+        # a verified pose or clear an ESTOP from an old failed request.
+        failed_pose_recovered = (
+            self.manual_pose_state == 'FAILED'
+            and self.manual_pose_request is None
+            and self.require_localization_health
+            and self.map_matches_configured is True
+            and self.pose_tf_stamp_ns > 0
+            and 0 <= now-self.pose_at < 2.0
+            and 0 <= now-self.localization_health_at < 1.5
+            and self.localization_health.get('autonomous_allowed') is True
+            and all(valid for valid, _ in conditions))
+        if (self.manual_pose_state == 'WAITING'
+                or (self.manual_pose_state == 'FAILED' and not failed_pose_recovered)):
             conditions.append((False, '초기 위치 입력 검증 완료'))
         elif self.localization_invalidated and not (
                 self.require_localization_health
                 and now-self.localization_health_at < 1.5
                 and self.localization_health.get('autonomous_allowed') is True):
             conditions.append((False, '최신 AMCL 위치·지도 정합 확인'))
+        if failed_pose_recovered:
+            warnings.append('이전 초기 위치 입력은 실패했지만 현재 지도·위치·위치 신뢰도 검사는 정상입니다. 비상정지 해제와 출발은 별도로 요청하세요.')
         for valid, text in conditions:
             if not valid:
                 missing.append(text)
@@ -1066,9 +1085,9 @@ class MissionApplication:
             return False, '회전 도구를 시작하려면 최신 차체 움직임 정보가 필요합니다.'
         if not self.localization_clear:
             clearance = self.localization_clearance
-            if finite_number(clearance) and clearance < .30:
+            if finite_number(clearance) and clearance < self.rotation_clearance_radius:
                 return False, (f'차체 중심에서 가까운 물체까지 약 {clearance*100:.0f}cm입니다. '
-                               '회전 도구에는 중심 반경 30cm 이상의 공간이 필요합니다.')
+                               f'회전 도구에는 중심 반경 {self.rotation_clearance_radius*100:.0f}cm 이상의 공간이 필요합니다.')
             return False, '라이다 관측이 완전하지 않거나 센서 위치를 확인할 수 없어 회전 도구가 대기합니다.'
         return True, '주변 회전 공간을 확보하세요. 라이다와 저장 지도를 대조해 위치를 추정합니다.'
 
@@ -1109,6 +1128,7 @@ class MissionApplication:
         result = self.localization.snapshot()
         startup_available, startup_reason = self.startup_home_readiness()
         result.update(available=available, clearance=self.localization_clearance, scan_match=self.localization_match,
+                      rotation_clearance_radius=self.rotation_clearance_radius,
                       startup_home_available=startup_available, startup_home_reason=startup_reason)
         result['control'] = deepcopy(self.localization_control)
         seed_available, seed_reason = self.seed_home_readiness()
@@ -1284,11 +1304,12 @@ class MissionApplication:
         return True, '실제 차량 위치와 방향을 지도 좌표로 입력하세요. 입력 후에도 비상정지를 유지합니다.'
 
     def manual_pose_geometry_error(self, pose):
-        """Require known free space around the full Waffle Pi footprint.
+        """Require known free space around the configured circular footprint.
 
         Grid coordinates identify cells, not point obstacles. Check distance to
-        each unknown/occupied *cell rectangle* plus half a cell diagonal; a
-        center-only distance transform can miss an unknown cell beside the base.
+        each unknown/occupied *cell rectangle*. Its full extent is already in
+        this exact distance check, so adding half a cell diagonal again would
+        silently enlarge the configured body a second time.
         """
         try:
             metadata = self._display_map_metadata
@@ -1309,7 +1330,9 @@ class MissionApplication:
                 return '초기 위치가 지도에서 확인되지 않은 영역입니다.'
             if data[row, column] >= 65:
                 return '초기 위치가 지도상의 장애물과 겹칩니다.'
-            required = .22+resolution/math.sqrt(2.)
+            required = float(self.rotation_clearance_radius)
+            if not math.isfinite(required) or required <= 0.:
+                raise ValueError('invalid body radius')
             if min(local_x, local_y, width*resolution-local_x, height*resolution-local_y) <= required:
                 return '초기 위치의 차체가 지도 밖과 겹칩니다. 지도 안쪽 위치를 입력하세요.'
             min_column = max(0, math.floor((local_x-required)/resolution)-1)
@@ -1684,6 +1707,10 @@ def image_to_bgr(msg):
 
 def create_ros_bridge(app, options, context):
     """Import ROS lazily so pure mission/HTTP tests need no ROS installation."""
+    rotation_radius = getattr(options, 'rotation_clearance_radius', .30)
+    if not finite_number(rotation_radius) or rotation_radius <= 0.:
+        raise ValueError('rotation_clearance_radius must be finite and positive')
+    app.rotation_clearance_radius = float(rotation_radius)
     import rclpy
     from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Twist
     from lifecycle_msgs.srv import GetState
@@ -1774,6 +1801,7 @@ def create_ros_bridge(app, options, context):
             self.manual_pose_health_error = ''
             self.manual_pose_verified_amcl_stamp_ns = 0
             self.manual_pose_health_verified_stamp_ns = 0
+            self.manual_pose_health_rejected_stamp_ns = 0
             self.manual_pose_nomotion_future = None
             self.manual_pose_nomotion_at = 0.
             self.manual_pose_ros_stamp_ns = 0
@@ -2040,7 +2068,8 @@ def create_ros_bridge(app, options, context):
                     q = transform.transform.rotation
                     self.localization_laser_pose = (transform.transform.translation.x, transform.transform.translation.y,
                         math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z)))
-                    app.localization_clear, app.localization_clearance = rotation_clearance(message, self.localization_laser_pose)
+                    app.localization_clear, app.localization_clearance = rotation_clearance(
+                        message, self.localization_laser_pose, radius=app.rotation_clearance_radius)
                     home = app.delivery.registered_homepoint
                     if (scan_now-app.home_seed_match_at >= .3
                             and (app.mission.estop_latched or app.mission.state in START_STATES)
@@ -2471,6 +2500,18 @@ def create_ros_bridge(app, options, context):
                     payload['goal_stamp'] = normalized['goal_stamp']
                     app.failure_memory_status = payload
                     app.failure_memory_at = time.monotonic()-max(0., age)
+                    if (normalized['state'] == 'CONTROLLER_HOLD'
+                            and app.mission.state in {'NAVIGATING', 'RETURNING_HOME', 'WAIT_REPLAN'}):
+                        # This is a terminally stopped controller episode, not
+                        # evidence that an obstacle disappeared. Preserve the
+                        # delivery/Home target behind the existing explicit
+                        # pause/resume barrier; a late old-goal status cannot
+                        # pause the next target because normalization scoped it.
+                        count, limit = (normalized.get('controller_retry_count'),
+                                        normalized.get('controller_retry_limit'))
+                        attempts = f' · 재시도 {count}/{limit}회' if count is not None and limit else ''
+                        app.mission.pause(CONTROLLER_HOLD_MESSAGE+attempts+'. '+CONTROLLER_HOLD_ACTION)
+                        app.sync_delivery()
             except (ValueError, TypeError, AttributeError):
                 return
 
@@ -2949,6 +2990,7 @@ def create_ros_bridge(app, options, context):
             self.manual_pose_health_error = ''
             self.manual_pose_verified_amcl_stamp_ns = 0
             self.manual_pose_health_verified_stamp_ns = 0
+            self.manual_pose_health_rejected_stamp_ns = 0
             self.clear_manual_pose_nomotion()
             self.manual_pose_last_stop_ack_at = None
             app.manual_pose_request = None
@@ -3026,6 +3068,7 @@ def create_ros_bridge(app, options, context):
                 self.manual_pose_ros_stamp_ns = self.manual_initial_pose_ns = self.localization_epoch_ns = stamp
                 self.manual_pose_verified_amcl_stamp_ns = 0
                 self.manual_pose_health_verified_stamp_ns = 0
+                self.manual_pose_health_rejected_stamp_ns = 0
                 self.manual_pose_health_future = None
                 self.manual_pose_health_last_at = 0.
                 self.manual_pose_health_error = ''
@@ -3149,14 +3192,22 @@ def create_ros_bridge(app, options, context):
                             self.clear_manual_pose_nomotion()
                             app.mission.event(app.manual_pose_result)
                             return
-                        if (definite_rejection and self.manual_pose_health_error
-                                not in {'invalid_request', 'invalid_or_stale_stamp'}):
+                        if definite_rejection and self.manual_pose_health_error == 'invalid_or_stale_stamp':
+                            # The stopped robot may publish its next AMCL
+                            # posterior only after a no-motion update. Do not
+                            # send the same stale pair again or discard the
+                            # operator's initial pose before the deadline.
+                            self.manual_pose_health_rejected_stamp_ns = max(
+                                self.manual_pose_health_rejected_stamp_ns,
+                                self.manual_pose_health_verified_stamp_ns)
+                            self.manual_pose_health_verified_stamp_ns = 0
+                        elif definite_rejection and self.manual_pose_health_error != 'invalid_request':
                             # A definite rejection did not reinitialize health.
                             # Retry with a newer posterior after TF/sensors or
                             # AMCL recover. A timeout/exception is ambiguous:
                             # keep the exact pair for idempotent acknowledgment.
                             self.manual_pose_health_verified_stamp_ns = 0
-                        if self.manual_pose_health_error in {'invalid_request', 'invalid_or_stale_stamp'}:
+                        if self.manual_pose_health_error == 'invalid_request':
                             self.fail_manual_pose('위치 감시 재획득 요청이 거부되었습니다: '
                                                   + self.manual_pose_health_error)
                             return
@@ -3170,6 +3221,8 @@ def create_ros_bridge(app, options, context):
                         self.manual_pose_health_error = '응답 시간 초과'
                     if (self.manual_pose_health_future is None
                             and now-self.manual_pose_health_last_at >= .5
+                            and self.manual_pose_verified_amcl_stamp_ns
+                                > self.manual_pose_health_rejected_stamp_ns
                             and self.manual_pose_health_client.service_is_ready()):
                         if self.manual_pose_health_verified_stamp_ns == 0:
                             self.manual_pose_health_verified_stamp_ns = (
@@ -4003,6 +4056,8 @@ def build_parser():
     parser.add_argument('--battery-topic', default='/battery_state',
                         help='sensor_msgs/BatteryState topic used for the vehicle voltage indicator')
     parser.add_argument('--base-frame', default='base_footprint')
+    parser.add_argument('--rotation-clearance-radius', type=float, default=.30,
+                        help='Total swept body radius in metres for localization, marker search and Home yaw trim; classroom launchers select their physical or Gazebo radius')
     parser.add_argument('--confirmations', type=int, default=3)
     parser.add_argument('--sector-dwell-seconds', type=float, default=5.0,
                         help='Seconds to hold at each camera-confirmed sector before sending the next goal (default 5)')

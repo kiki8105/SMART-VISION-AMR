@@ -1,0 +1,11 @@
+Role: pc
+Selected overlay: /home/kiki/Team2_workspace/install/local_setup.bash
+Inherited ROS_DOMAIN_ID=16 ROS_LOCALHOST_ONLY=0 (check uses 16 / 0 in this shell)
+Package: /home/kiki/Team2_workspace/install/smart_vision_amr
+ROS_DOMAIN_ID=16 ROS_LOCALHOST_ONLY=0
+DDS profile: /home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/dds_udp.xml
+Local UTC clock: 2026-11-04 15:59:22 UTC
+NTPSynchronized=yes
+TimeUSec=Thu 2026-11-05 00:59:22 KST
+Compare PC/robot UTC clocks. Unsynchronized clocks can reject command/sensor timestamps.
+Static checks passed. After terminal 1, PC --live checks discovery and clock-stamped sensors.

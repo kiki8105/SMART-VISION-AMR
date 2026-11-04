@@ -1,0 +1,51 @@
+{
+  "classification": "OPERATOR_ABORT_AFTER_PERSISTENT_AUTONOMY_STALL",
+  "at": 1793820087.5205748,
+  "reason": "Several minutes stationary at Sector 3 approach: alternating coherent-input wait and static-inflation start NoPath, with repeated global plans. Independent trial aborted by operator; not an autonomous completion or a new runtime timeout.",
+  "domain": 176,
+  "physical_robot_touched": false,
+  "mission": {
+    "state": "WAIT_REPLAN",
+    "route": [
+      1,
+      3,
+      2
+    ],
+    "pending_route": null,
+    "current_index": 1,
+    "current_marker_id": 3,
+    "completed_ids": [
+      1
+    ],
+    "reason": "\ubaa9\ud45c\ub97c \uc720\uc9c0\ud558\uace0 \uc815\uc9c0 \uc0c1\ud0dc\uc5d0\uc11c \uacbd\ub85c \uc7ac\uacc4\ud68d\uc744 \uae30\ub2e4\ub9bd\ub2c8\ub2e4.",
+    "sector_dwell_seconds": 5.0,
+    "dwell_marker_id": null,
+    "dwell_remaining_seconds": null,
+    "can_resume": false,
+    "estop_latched": false,
+    "home": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "yaw": -0.027514
+    },
+    "returning_home": false,
+    "auto_return_home": true,
+    "auto_returning_home": false,
+    "can_return_home": true
+  },
+  "navigation": {
+    "status": "FAILED",
+    "planner_status": "PLANNING",
+    "message": "Stopped; replan while avoiding failed approach"
+  },
+  "safety": {
+    "mode": "auto",
+    "available": true,
+    "autonomous_allowed": true,
+    "estop_latched": false,
+    "scan_guard_code": "CLEAR",
+    "output_linear": 0.0,
+    "output_angular": 0.0
+  },
+  "runtime_timeout_policy_changed": false
+}

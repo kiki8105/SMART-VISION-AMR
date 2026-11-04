@@ -1,0 +1,1505 @@
+{
+  "scope": "Offline diagnostic; no ROS node/motors, no runtime policy/config edits",
+  "radius_m": 0.22,
+  "resolution_m": 0.05,
+  "source_sha256": {
+    "ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/map_utils.py": "c6150f71fd276bcd7936025349bb9bc882918eda7e26064254902e030f4a0601",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar.py": "28eb2fdf8d68427206176186ee627c79ffa63137230883f6e9a720b460f568ce",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_geometry.py": "d29b8be2ec9b17578d5f01c6d78e8985ccb7a36bc4fed8d22a6ab6a7892b2f29"
+  },
+  "policy_isolation": "Hard observed and remembered cells retained; virtual occlusion extensions excluded to isolate geometry; no start relaxation or certificate bypass. Exact masks conservatively cover all positions in both source and candidate cells.",
+  "snapshots": [
+    {
+      "label": "occlusion_reserve_certified_start_20261104.json",
+      "metadata": {
+        "fixture_sha256": "1258c1d1332e8ab37f307f2189c945a46ce0f851d3e7371b249b5556b5a005ac",
+        "pose_note": "recorded pose where present; otherwise nominal start-cell center, not live truth"
+      },
+      "start": [
+        33,
+        91
+      ],
+      "goal": [
+        27,
+        65
+      ],
+      "actor_bounds": [
+        0.34501884441225683,
+        -0.7768634459562301,
+        0.5950188444122568,
+        -0.5268634459562301
+      ],
+      "observed_cells": [
+        [
+          38,
+          89
+        ],
+        [
+          38,
+          90
+        ],
+        [
+          38,
+          91
+        ],
+        [
+          38,
+          92
+        ],
+        [
+          38,
+          93
+        ],
+        [
+          39,
+          89
+        ],
+        [
+          39,
+          90
+        ],
+        [
+          39,
+          91
+        ],
+        [
+          39,
+          92
+        ],
+        [
+          39,
+          93
+        ],
+        [
+          39,
+          94
+        ],
+        [
+          40,
+          90
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          40,
+          92
+        ],
+        [
+          40,
+          93
+        ],
+        [
+          46,
+          99
+        ],
+        [
+          46,
+          100
+        ],
+        [
+          46,
+          101
+        ],
+        [
+          46,
+          102
+        ],
+        [
+          46,
+          103
+        ],
+        [
+          46,
+          104
+        ],
+        [
+          46,
+          105
+        ],
+        [
+          47,
+          99
+        ],
+        [
+          47,
+          100
+        ],
+        [
+          47,
+          101
+        ],
+        [
+          47,
+          102
+        ],
+        [
+          47,
+          103
+        ],
+        [
+          47,
+          104
+        ],
+        [
+          47,
+          105
+        ]
+      ],
+      "remembered_cells": [
+        [
+          39,
+          92
+        ],
+        [
+          39,
+          93
+        ],
+        [
+          39,
+          94
+        ],
+        [
+          39,
+          95
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          40,
+          92
+        ],
+        [
+          40,
+          93
+        ],
+        [
+          40,
+          94
+        ],
+        [
+          40,
+          95
+        ]
+      ],
+      "square_memory_cells": 179,
+      "circle_memory_cells": 157,
+      "memory_square_only_cells": 22,
+      "continuous_start": {
+        "reported_pose": {
+          "xy": [
+            0.007734634241251749,
+            -0.6735987818507905
+          ],
+          "static_gap_m": 0.3377346342412516,
+          "memory_gap_m": 0.0732165522731216,
+          "live_gap_m": 0.022265365758748462,
+          "physical_box_gap_m": 0.11728421017100507
+        }
+      },
+      "counterfactual_masks": [
+        {
+          "static": "square5",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "square5",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        }
+      ]
+    },
+    {
+      "label": "occlusion_reserve_certified_start_20261104.json:later_memory",
+      "metadata": {
+        "pose_note": "start-cell center only; fixture has no synchronized later pose/truth"
+      },
+      "start": [
+        33,
+        91
+      ],
+      "goal": [
+        27,
+        65
+      ],
+      "actor_bounds": [
+        0.34501884441225683,
+        -0.7768634459562301,
+        0.5950188444122568,
+        -0.5268634459562301
+      ],
+      "observed_cells": [
+        [
+          38,
+          89
+        ],
+        [
+          38,
+          90
+        ],
+        [
+          38,
+          91
+        ],
+        [
+          38,
+          92
+        ],
+        [
+          38,
+          94
+        ],
+        [
+          39,
+          89
+        ],
+        [
+          39,
+          90
+        ],
+        [
+          39,
+          91
+        ],
+        [
+          39,
+          92
+        ],
+        [
+          39,
+          93
+        ],
+        [
+          39,
+          94
+        ],
+        [
+          46,
+          99
+        ],
+        [
+          46,
+          100
+        ],
+        [
+          46,
+          101
+        ],
+        [
+          46,
+          102
+        ],
+        [
+          46,
+          103
+        ],
+        [
+          46,
+          104
+        ],
+        [
+          46,
+          105
+        ],
+        [
+          47,
+          99
+        ],
+        [
+          47,
+          100
+        ],
+        [
+          47,
+          101
+        ],
+        [
+          47,
+          102
+        ],
+        [
+          47,
+          103
+        ],
+        [
+          47,
+          104
+        ],
+        [
+          47,
+          105
+        ]
+      ],
+      "remembered_cells": [
+        [
+          38,
+          90
+        ],
+        [
+          38,
+          91
+        ],
+        [
+          38,
+          92
+        ],
+        [
+          38,
+          93
+        ],
+        [
+          38,
+          94
+        ],
+        [
+          39,
+          89
+        ],
+        [
+          39,
+          90
+        ],
+        [
+          39,
+          91
+        ],
+        [
+          39,
+          92
+        ],
+        [
+          39,
+          93
+        ],
+        [
+          39,
+          94
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          40,
+          92
+        ],
+        [
+          40,
+          93
+        ]
+      ],
+      "square_memory_cells": 204,
+      "circle_memory_cells": 177,
+      "memory_square_only_cells": 27,
+      "continuous_start": {
+        "reported_pose": {
+          "xy": [
+            0.025000000000000133,
+            -0.6749999999999998
+          ],
+          "static_gap_m": 0.355,
+          "memory_gap_m": 0.005000000000000088,
+          "live_gap_m": 0.005000000000000088,
+          "physical_box_gap_m": 0.1000188444122567
+        }
+      },
+      "counterfactual_masks": [
+        {
+          "static": "square5",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": true,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "square5",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": true,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": true,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": true,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        }
+      ]
+    },
+    {
+      "label": "occlusion_reserve_inflation022_20261104.json",
+      "metadata": {
+        "fixture_sha256": "565aac5d03ad4c8570c3d89da17e6208c6c23c798c272955095cee49a52b74a2",
+        "pose_note": "recorded pose where present; otherwise nominal start-cell center, not live truth"
+      },
+      "start": [
+        32,
+        96
+      ],
+      "goal": [
+        27,
+        65
+      ],
+      "actor_bounds": [
+        0.39891400504475116,
+        -0.724706838892526,
+        0.6489140050447512,
+        -0.47470683889252596
+      ],
+      "observed_cells": [
+        [
+          39,
+          93
+        ],
+        [
+          39,
+          95
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          40,
+          92
+        ],
+        [
+          40,
+          93
+        ],
+        [
+          40,
+          94
+        ],
+        [
+          40,
+          95
+        ],
+        [
+          40,
+          96
+        ],
+        [
+          42,
+          96
+        ],
+        [
+          43,
+          96
+        ],
+        [
+          46,
+          98
+        ],
+        [
+          46,
+          99
+        ],
+        [
+          46,
+          100
+        ],
+        [
+          46,
+          101
+        ],
+        [
+          46,
+          102
+        ],
+        [
+          46,
+          103
+        ],
+        [
+          46,
+          104
+        ],
+        [
+          46,
+          105
+        ],
+        [
+          47,
+          99
+        ],
+        [
+          47,
+          100
+        ],
+        [
+          47,
+          101
+        ],
+        [
+          47,
+          102
+        ],
+        [
+          47,
+          103
+        ],
+        [
+          47,
+          104
+        ],
+        [
+          47,
+          105
+        ]
+      ],
+      "remembered_cells": [],
+      "square_memory_cells": 0,
+      "circle_memory_cells": 0,
+      "memory_square_only_cells": 0,
+      "continuous_start": {
+        "reported_pose": {
+          "xy": [
+            -0.02499999999999991,
+            -0.4249999999999998
+          ],
+          "static_gap_m": 0.30559490104071585,
+          "memory_gap_m": null,
+          "live_gap_m": 0.1059601202601326,
+          "physical_box_gap_m": 0.20681829096908297
+        }
+      },
+      "counterfactual_masks": [
+        {
+          "static": "square5",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 75,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.054999999999999966,
+          "physical_box_gap_m": 0.059285036744709946,
+          "path_length_m": 3.8164136310987975
+        },
+        {
+          "static": "square5",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 75,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.054999999999999966,
+          "physical_box_gap_m": 0.059285036744709946,
+          "path_length_m": 3.8164136310987975
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 69,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.04544503305537759,
+          "physical_box_gap_m": 0.08472663109486214,
+          "path_length_m": 3.564030051325266
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 69,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.04544503305537759,
+          "physical_box_gap_m": 0.08472663109486214,
+          "path_length_m": 3.564030051325266
+        }
+      ]
+    },
+    {
+      "label": "occlusion_reserve_second_first_20261104.json",
+      "metadata": {
+        "fixture_sha256": "4cff200d52a69be2a39e4199045a4edd94ec728b550405cdc316122a2c1e6d50",
+        "pose_note": "recorded pose where present; otherwise nominal start-cell center, not live truth"
+      },
+      "start": [
+        32,
+        95
+      ],
+      "goal": [
+        27,
+        65
+      ],
+      "actor_bounds": [
+        0.39891400504475116,
+        -0.724706838892526,
+        0.6489140050447512,
+        -0.47470683889252596
+      ],
+      "observed_cells": [
+        [
+          39,
+          91
+        ],
+        [
+          39,
+          92
+        ],
+        [
+          39,
+          93
+        ],
+        [
+          39,
+          94
+        ],
+        [
+          39,
+          95
+        ],
+        [
+          40,
+          90
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          40,
+          92
+        ],
+        [
+          40,
+          93
+        ],
+        [
+          40,
+          94
+        ],
+        [
+          40,
+          95
+        ],
+        [
+          42,
+          95
+        ],
+        [
+          45,
+          101
+        ],
+        [
+          46,
+          99
+        ],
+        [
+          46,
+          100
+        ],
+        [
+          46,
+          101
+        ],
+        [
+          46,
+          102
+        ],
+        [
+          46,
+          103
+        ],
+        [
+          46,
+          104
+        ],
+        [
+          46,
+          105
+        ],
+        [
+          47,
+          99
+        ],
+        [
+          47,
+          100
+        ],
+        [
+          47,
+          101
+        ],
+        [
+          47,
+          102
+        ],
+        [
+          47,
+          103
+        ],
+        [
+          47,
+          104
+        ]
+      ],
+      "remembered_cells": [],
+      "square_memory_cells": 0,
+      "circle_memory_cells": 0,
+      "memory_square_only_cells": 0,
+      "continuous_start": {
+        "reported_pose": {
+          "xy": [
+            -0.02499999999999991,
+            -0.47499999999999964
+          ],
+          "static_gap_m": 0.30499999999999994,
+          "memory_gap_m": null,
+          "live_gap_m": 0.10500000000000018,
+          "physical_box_gap_m": 0.20391400504475107
+        }
+      },
+      "counterfactual_masks": [
+        {
+          "static": "square5",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 75,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.04845144155058698,
+          "physical_box_gap_m": 0.09458414087177128,
+          "path_length_m": 3.7808105556093596
+        },
+        {
+          "static": "square5",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 75,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.04845144155058698,
+          "physical_box_gap_m": 0.09458414087177128,
+          "path_length_m": 3.7808105556093596
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 69,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.04544503305537759,
+          "physical_box_gap_m": 0.1123942709992248,
+          "path_length_m": 3.550868702317215
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 69,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.04544503305537759,
+          "physical_box_gap_m": 0.1123942709992248,
+          "path_length_m": 3.550868702317215
+        }
+      ]
+    },
+    {
+      "label": "occlusion_reserve_second_memory_20261104.json",
+      "metadata": {
+        "fixture_sha256": "da00ecf79ccd6eb6d35d5eb7b452826cea8ffdf55d4bef052a55e069ab4334e6",
+        "pose_note": "recorded pose where present; otherwise nominal start-cell center, not live truth"
+      },
+      "start": [
+        32,
+        94
+      ],
+      "goal": [
+        27,
+        65
+      ],
+      "actor_bounds": [
+        0.39891400504475116,
+        -0.724706838892526,
+        0.6489140050447512,
+        -0.47470683889252596
+      ],
+      "observed_cells": [
+        [
+          39,
+          90
+        ],
+        [
+          39,
+          91
+        ],
+        [
+          39,
+          92
+        ],
+        [
+          39,
+          93
+        ],
+        [
+          39,
+          94
+        ],
+        [
+          39,
+          95
+        ],
+        [
+          40,
+          90
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          40,
+          94
+        ],
+        [
+          45,
+          101
+        ],
+        [
+          46,
+          98
+        ],
+        [
+          46,
+          99
+        ],
+        [
+          46,
+          100
+        ],
+        [
+          46,
+          101
+        ],
+        [
+          46,
+          102
+        ],
+        [
+          46,
+          103
+        ],
+        [
+          46,
+          104
+        ],
+        [
+          46,
+          105
+        ]
+      ],
+      "remembered_cells": [
+        [
+          39,
+          90
+        ],
+        [
+          39,
+          91
+        ],
+        [
+          39,
+          92
+        ],
+        [
+          39,
+          93
+        ],
+        [
+          39,
+          94
+        ],
+        [
+          39,
+          95
+        ],
+        [
+          40,
+          90
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          40,
+          92
+        ],
+        [
+          40,
+          93
+        ],
+        [
+          40,
+          94
+        ],
+        [
+          40,
+          95
+        ]
+      ],
+      "square_memory_cells": 192,
+      "circle_memory_cells": 172,
+      "memory_square_only_cells": 20,
+      "continuous_start": {
+        "reported_pose": {
+          "xy": [
+            -0.02499999999999991,
+            -0.5249999999999995
+          ],
+          "static_gap_m": 0.30499999999999994,
+          "memory_gap_m": 0.10500000000000018,
+          "live_gap_m": 0.10500000000000018,
+          "physical_box_gap_m": 0.20391400504475107
+        }
+      },
+      "counterfactual_masks": [
+        {
+          "static": "square5",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 77,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.054999999999999966,
+          "physical_box_gap_m": 0.14233717606396837,
+          "path_length_m": 3.857930189290198
+        },
+        {
+          "static": "square5",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 75,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.04845144155058698,
+          "physical_box_gap_m": 0.11281337317476656,
+          "path_length_m": 3.779411962169378
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 71,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.045124245184433004,
+          "physical_box_gap_m": 0.17507208171414143,
+          "path_length_m": 3.5998359734072536
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": false,
+          "route_cells": 69,
+          "full_segments_verified": true,
+          "raw_occupied_unknown_live_memory_gap_m": 0.04544503305537759,
+          "physical_box_gap_m": 0.140274718302784,
+          "path_length_m": 3.517430891212691
+        }
+      ]
+    },
+    {
+      "label": "latest_baseline:1793798470.678023",
+      "metadata": {
+        "source_trial": "/tmp/classroom-tuning-fixed-baseline-20261104/25_web_inventory_sector3_moving_obstacle",
+        "diagnostic_wall_epoch": 1793798470.678023,
+        "diagnostic_start_tf_stamp_ns": 18193000000,
+        "diagnostic_gate": "remembered_inflation_start",
+        "diagnostic_memory_blocked_measured": false,
+        "diagnostic_memory_blocked_with_virtual_reserve": true,
+        "observed_receipt_age_s": 0.04060721397399902,
+        "memory_update_age_s": 2.338869094848633,
+        "truth_receipt_age_s": 0.023622989654541016,
+        "warning": "Independent observer queue; not an exact atomic dump of planner state. Durable memory contents match reported count."
+      },
+      "start": [
+        34,
+        93
+      ],
+      "goal": [
+        27,
+        65
+      ],
+      "actor_bounds": [
+        0.3809489515005864,
+        -0.7420923745804273,
+        0.6309489515005864,
+        -0.4920923745804273
+      ],
+      "observed_cells": [
+        [
+          39,
+          93
+        ],
+        [
+          39,
+          94
+        ],
+        [
+          40,
+          90
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          40,
+          92
+        ],
+        [
+          40,
+          93
+        ],
+        [
+          40,
+          94
+        ],
+        [
+          40,
+          95
+        ],
+        [
+          46,
+          99
+        ],
+        [
+          46,
+          100
+        ],
+        [
+          46,
+          101
+        ],
+        [
+          46,
+          102
+        ],
+        [
+          46,
+          103
+        ],
+        [
+          46,
+          104
+        ],
+        [
+          46,
+          105
+        ],
+        [
+          47,
+          99
+        ],
+        [
+          47,
+          100
+        ],
+        [
+          47,
+          101
+        ],
+        [
+          47,
+          102
+        ],
+        [
+          47,
+          103
+        ],
+        [
+          47,
+          104
+        ],
+        [
+          47,
+          105
+        ]
+      ],
+      "remembered_cells": [
+        [
+          40,
+          90
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          40,
+          92
+        ],
+        [
+          40,
+          93
+        ],
+        [
+          40,
+          94
+        ],
+        [
+          40,
+          95
+        ]
+      ],
+      "square_memory_cells": 176,
+      "circle_memory_cells": 156,
+      "memory_square_only_cells": 20,
+      "continuous_start": {
+        "reported_pose": {
+          "xy": [
+            0.0706595982259933,
+            -0.5820050889245145
+          ],
+          "static_gap_m": 0.32555165149803744,
+          "memory_gap_m": 0.05934040177400676,
+          "live_gap_m": 0.009340401774006968,
+          "physical_box_gap_m": 0.09028935327459306
+        },
+        "truth": {
+          "xy": [
+            0.08866,
+            -0.5716
+          ],
+          "static_gap_m": 0.3055998055555199,
+          "memory_gap_m": 0.04134000000000007,
+          "live_gap_m": -0.008659999999999751,
+          "physical_box_gap_m": 0.07228895150058637
+        }
+      },
+      "counterfactual_masks": [
+        {
+          "static": "square5",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "square5",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": false,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        }
+      ]
+    },
+    {
+      "label": "latest_baseline:1793798481.33909",
+      "metadata": {
+        "source_trial": "/tmp/classroom-tuning-fixed-baseline-20261104/25_web_inventory_sector3_moving_obstacle",
+        "diagnostic_wall_epoch": 1793798481.33909,
+        "diagnostic_start_tf_stamp_ns": 28194000000,
+        "diagnostic_gate": "remembered_inflation_start",
+        "diagnostic_memory_blocked_measured": true,
+        "diagnostic_memory_blocked_with_virtual_reserve": true,
+        "observed_receipt_age_s": 0.051035165786743164,
+        "memory_update_age_s": 0.2386791706085205,
+        "truth_receipt_age_s": 0.03999018669128418,
+        "warning": "Independent observer queue; not an exact atomic dump of planner state. Durable memory contents match reported count."
+      },
+      "start": [
+        34,
+        93
+      ],
+      "goal": [
+        27,
+        65
+      ],
+      "actor_bounds": [
+        0.3809489515005864,
+        -0.7420923745804273,
+        0.6309489515005864,
+        -0.4920923745804273
+      ],
+      "observed_cells": [
+        [
+          39,
+          91
+        ],
+        [
+          39,
+          92
+        ],
+        [
+          39,
+          93
+        ],
+        [
+          39,
+          94
+        ],
+        [
+          39,
+          95
+        ],
+        [
+          40,
+          90
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          40,
+          92
+        ],
+        [
+          40,
+          93
+        ],
+        [
+          40,
+          94
+        ],
+        [
+          40,
+          95
+        ],
+        [
+          46,
+          99
+        ],
+        [
+          46,
+          100
+        ],
+        [
+          46,
+          101
+        ],
+        [
+          46,
+          102
+        ],
+        [
+          46,
+          103
+        ],
+        [
+          46,
+          104
+        ],
+        [
+          46,
+          105
+        ],
+        [
+          47,
+          99
+        ],
+        [
+          47,
+          100
+        ],
+        [
+          47,
+          101
+        ],
+        [
+          47,
+          102
+        ],
+        [
+          47,
+          103
+        ],
+        [
+          47,
+          104
+        ],
+        [
+          47,
+          105
+        ]
+      ],
+      "remembered_cells": [
+        [
+          39,
+          93
+        ],
+        [
+          39,
+          94
+        ],
+        [
+          40,
+          90
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          40,
+          92
+        ],
+        [
+          40,
+          93
+        ],
+        [
+          40,
+          94
+        ],
+        [
+          40,
+          95
+        ]
+      ],
+      "square_memory_cells": 188,
+      "circle_memory_cells": 163,
+      "memory_square_only_cells": 25,
+      "continuous_start": {
+        "reported_pose": {
+          "xy": [
+            0.06433872004247729,
+            -0.576380548198264
+          ],
+          "static_gap_m": 0.33036810391648386,
+          "memory_gap_m": 0.015661279957522978,
+          "live_gap_m": 0.015661279957522978,
+          "physical_box_gap_m": 0.09661023145810907
+        },
+        "truth": {
+          "xy": [
+            0.08857,
+            -0.57155
+          ],
+          "static_gap_m": 0.3056758006604453,
+          "memory_gap_m": -0.008569999999999717,
+          "live_gap_m": -0.008569999999999717,
+          "physical_box_gap_m": 0.0723789515005864
+        }
+      },
+      "counterfactual_masks": [
+        {
+          "static": "square5",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": true,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "square5",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": true,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "square5",
+          "start_static_blocked": false,
+          "start_memory_blocked": true,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        },
+        {
+          "static": "circle22_fullcells",
+          "memory": "circle22_fullcells",
+          "start_static_blocked": false,
+          "start_memory_blocked": true,
+          "start_live_blocked": true,
+          "route_cells": 0,
+          "full_segments_verified": false
+        }
+      ]
+    }
+  ]
+}

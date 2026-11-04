@@ -1,0 +1,180 @@
+{
+  "root_at_capture": "/tmp/classroom-transfer-cold_stress_parity-20261105",
+  "files": [
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/staged_report.json",
+      "archive_path": "staged_report.json",
+      "original_sha256": "a6a743e86c6c18aed1dce4a46c9358e5d9b3c6956d6ec2d15f09667ed5cbcd81",
+      "archive_sha256": "a6a743e86c6c18aed1dce4a46c9358e5d9b3c6956d6ec2d15f09667ed5cbcd81",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105-source-rates.json",
+      "archive_path": "source_rates.json",
+      "original_sha256": "f5687cbff6f6ed75ab7f968f914e48e526a90ee6ed6acb2959b626784893195f",
+      "archive_sha256": "f5687cbff6f6ed75ab7f968f914e48e526a90ee6ed6acb2959b626784893195f",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105.log",
+      "archive_path": "runner.log.gz",
+      "original_sha256": "9ae99fb2b81574b88b9b095ed3e02f3f0449d57abfb37c62afa2e6b582ba235a",
+      "archive_sha256": "0dc152b8c1da82752e96cc41c9af350ef9e478d8d9283105928609cd4a0f7ca9",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/acceptance.json",
+      "archive_path": "17_web_hardware_value_parity/acceptance.json",
+      "original_sha256": "57f4b2fc4e2df3ae9c02fe7789be53f40e14511a6e65022f183895c3448a44c4",
+      "archive_sha256": "57f4b2fc4e2df3ae9c02fe7789be53f40e14511a6e65022f183895c3448a44c4",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/derived_evidence.json",
+      "archive_path": "17_web_hardware_value_parity/derived_evidence.json",
+      "original_sha256": "2a9f2ed5a7c40b086e9e9ac8f03b5f7f4c092e9e49cb2c66bcaddd5a2abb27d8",
+      "archive_sha256": "2a9f2ed5a7c40b086e9e9ac8f03b5f7f4c092e9e49cb2c66bcaddd5a2abb27d8",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/safety_assessment.json",
+      "archive_path": "17_web_hardware_value_parity/safety_assessment.json",
+      "original_sha256": "d73069ad62664d82bb65a78e64023e1d57e988b9cb70a80ded758fc83e190c15",
+      "archive_sha256": "d73069ad62664d82bb65a78e64023e1d57e988b9cb70a80ded758fc83e190c15",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/runtime_manifest.json",
+      "archive_path": "17_web_hardware_value_parity/runtime_manifest.json",
+      "original_sha256": "73beb113e3f6b8e1d2128690e506db7a6da645f558634e7a3b480ecc5977c422",
+      "archive_sha256": "73beb113e3f6b8e1d2128690e506db7a6da645f558634e7a3b480ecc5977c422",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/stress_crate_assessment.json",
+      "archive_path": "17_web_hardware_value_parity/stress_crate_assessment.json",
+      "original_sha256": "f5152da8371b7babe56056fdecd3a6d80a8461c9598c02083be0efda63953bc9",
+      "archive_sha256": "f5152da8371b7babe56056fdecd3a6d80a8461c9598c02083be0efda63953bc9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/classroom_nav_sim_time.yaml",
+      "archive_path": "17_web_hardware_value_parity/classroom_nav_sim_time.yaml",
+      "original_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "archive_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/classroom_nodes_sim.yaml",
+      "archive_path": "17_web_hardware_value_parity/classroom_nodes_sim.yaml",
+      "original_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "archive_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/ekf_hardware_like_sim.yaml",
+      "archive_path": "17_web_hardware_value_parity/ekf_hardware_like_sim.yaml",
+      "original_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "archive_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/memory_observer.summary.json",
+      "archive_path": "17_web_hardware_value_parity/memory_observer.summary.json",
+      "original_sha256": "9e3f4e49ef88e5b8bf7b1f11cd633177ac29919f3838141a1351d6cb5052c338",
+      "archive_sha256": "9e3f4e49ef88e5b8bf7b1f11cd633177ac29919f3838141a1351d6cb5052c338",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/actual_spawned_model.sdf",
+      "archive_path": "17_web_hardware_value_parity/actual_spawned_model.sdf",
+      "original_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "archive_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/fixture/fixture_manifest.json",
+      "archive_path": "17_web_hardware_value_parity/fixture/fixture_manifest.json",
+      "original_sha256": "9517b435a942d6233cc9bbbfce1383339b689060a32ce1cce2e669c718cda99c",
+      "archive_sha256": "9517b435a942d6233cc9bbbfce1383339b689060a32ce1cce2e669c718cda99c",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/fixture/waffle_pi_fault.sdf",
+      "archive_path": "17_web_hardware_value_parity/fixture/waffle_pi_fault.sdf",
+      "original_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "archive_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/fixture/classroom_fault.world",
+      "archive_path": "17_web_hardware_value_parity/fixture/classroom_fault.world",
+      "original_sha256": "856e052c4a38b6e472a513210109d040c896938a309093ec5bc271572742b020",
+      "archive_sha256": "856e052c4a38b6e472a513210109d040c896938a309093ec5bc271572742b020",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/safety_timeline.jsonl",
+      "archive_path": "17_web_hardware_value_parity/safety_timeline.jsonl.gz",
+      "original_sha256": "eccb31c710699ab15d32574fa2443fb3c31797ee4a6682a79f43fce46002549b",
+      "archive_sha256": "42b32de361c7ea48a0c95030e3956b5e9bc0c1499b7a7fb7b762e4a3522844c7",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/memory_observer.jsonl",
+      "archive_path": "17_web_hardware_value_parity/memory_observer.jsonl.gz",
+      "original_sha256": "f87a3088c62693efd917b2bd083fd078540e58bb7341a29740d33c5f4b08a309",
+      "archive_sha256": "6efe2e803b0c286ecb8827f1124d1fd90f8cdddef563d8e5228e18f11466ecb5",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/sensor_faults.jsonl",
+      "archive_path": "17_web_hardware_value_parity/sensor_faults.jsonl.gz",
+      "original_sha256": "693dc94a81acf86f87140dca7c9549d104bbab7da532a50ca50a1d2e37f468b1",
+      "archive_sha256": "ee1c1e32123728f2a0942f0f0b388f7c57f2bde8b9cb3aec434d478ad2d4565a",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/stress_crate_trace.jsonl",
+      "archive_path": "17_web_hardware_value_parity/stress_crate_trace.jsonl.gz",
+      "original_sha256": "4aaca58328fb73fddc2b1741c0588aa60fb5fbe862399ad263e34989cb93e08a",
+      "archive_sha256": "604c955a3665b6c987acda9fb6b2d1f1f2482abba90cb1f51c72418e18c73b0c",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/gazebo_launch.log",
+      "archive_path": "17_web_hardware_value_parity/gazebo_launch.log.gz",
+      "original_sha256": "9a51e06ff0d9fa83085bb20e1801f1713002758ae13a4604638c84f7618912db",
+      "archive_sha256": "032e513bc31d2b177764361dbd41e4cde360bd9119fe50fe44df2ed32e2525fd",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/web_server.log",
+      "archive_path": "17_web_hardware_value_parity/web_server.log.gz",
+      "original_sha256": "c03ec8c241c877ffdfc14fb5394faec8a2308a4eeeb3cfb860a72077a764a023",
+      "archive_sha256": "06f9c8a88e3b9d4f456de7517c056fb9646e1b5f86d516114060c4d76a732899",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/sector_2_rear_confirmed.jpg",
+      "archive_path": "17_web_hardware_value_parity/sector_2_rear_confirmed.jpg",
+      "original_sha256": "46b18fd77e444a38304412cd8ab821f33cede0d39fe97bd8984c72b091167141",
+      "archive_sha256": "46b18fd77e444a38304412cd8ab821f33cede0d39fe97bd8984c72b091167141",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/sector_1_rear_confirmed.jpg",
+      "archive_path": "17_web_hardware_value_parity/sector_1_rear_confirmed.jpg",
+      "original_sha256": "a0fad8940d2b5097fe31d62c09622ca42e0ef7cf24cf3c55f2258dd31b41d15c",
+      "archive_sha256": "a0fad8940d2b5097fe31d62c09622ca42e0ef7cf24cf3c55f2258dd31b41d15c",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_parity-20261105/17_web_hardware_value_parity/sector_3_rear_confirmed.jpg",
+      "archive_path": "17_web_hardware_value_parity/sector_3_rear_confirmed.jpg",
+      "original_sha256": "966e1ffe1945a6a9f0610c5b19e82b32d5607a130f0bca868e5eb93594e75710",
+      "archive_sha256": "966e1ffe1945a6a9f0610c5b19e82b32d5607a130f0bca868e5eb93594e75710",
+      "gzip": false
+    }
+  ]
+}

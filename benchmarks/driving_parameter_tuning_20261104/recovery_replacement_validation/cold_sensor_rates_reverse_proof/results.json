@@ -1,0 +1,111 @@
+{
+  "scope": "Recorded one reverse only; whole trial remains strict FAIL",
+  "episode_id": "d4407c00d51e45ef8a1076b24c7ec306",
+  "goal_id": "7:980000000",
+  "request_t": 30.2864,
+  "start_t": 30.3013,
+  "terminal_t": 31.9225,
+  "terminal": "RECOVERY_SUCCEEDED",
+  "requested_distance_m": 0.10505431121254993,
+  "negative_output_samples": 36,
+  "negative_output_first_last": [
+    {
+      "t": 30.4089,
+      "monotonic": 24402.4055,
+      "wall_time": 1793810230.7473,
+      "kind": "cmd_vel",
+      "linear": -0.01905,
+      "angular": 0.0
+    },
+    {
+      "t": 31.895,
+      "monotonic": 24403.8915,
+      "wall_time": 1793810232.2334,
+      "kind": "cmd_vel",
+      "linear": -0.1,
+      "angular": 0.0
+    }
+  ],
+  "truth_displacement_m": 0.11814220922261438,
+  "truth_samples": 15,
+  "truth_first_last": [
+    {
+      "t": 30.3862,
+      "monotonic": 24402.3828,
+      "wall_time": 1793810230.7246,
+      "kind": "truth",
+      "x": 0.07236,
+      "y": -0.47295,
+      "yaw": -0.95649
+    },
+    {
+      "t": 31.8979,
+      "monotonic": 24403.8945,
+      "wall_time": 1793810232.2363,
+      "kind": "truth",
+      "x": 0.00426,
+      "y": -0.37641,
+      "yaw": -0.95647
+    }
+  ],
+  "maximum_truth_sample_gap_s": 0.120000000000001,
+  "sampled_swept_box_clearance_lower_bound_m": 0.05509477215097777,
+  "pre_dispatch_300ms_odom_samples": 2,
+  "pre_dispatch_max_odom_linear_mps": 0.00028,
+  "pre_dispatch_max_odom_angular_radps": 0.01899,
+  "pre_dispatch_output_samples": 3,
+  "pre_dispatch_outputs_all_zero": true,
+  "cold_start_proof": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 6.283975525999267
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 3,
+      "map_tf_messages": 1
+    }
+  },
+  "whole_trial": {
+    "backend_acceptance_passed": true,
+    "home_state": "HOME_REACHED",
+    "moving_steps": 4,
+    "live_bypass": false,
+    "strict_outcome": "FAIL"
+  },
+  "retained_stop_qa_violation": [
+    {
+      "kind": "excessive_ground_truth_stopping_rotation",
+      "t": 48.3721,
+      "start_t": 46.9044,
+      "duration_s": 1.4677,
+      "last_nonzero_command_after_s": 0.07309999999999661,
+      "first_zero_command_after_s": 0.11209999999999809,
+      "max_displacement_m": 0.0187,
+      "max_forward_displacement_m": 0.0187,
+      "max_heading_change_rad": 0.1243,
+      "truth_samples": 13,
+      "entry_speed_mps": 0.081,
+      "entry_command_speed_mps": 0.081,
+      "entry_truth_speed_mps": 0.073,
+      "entry_front_core_min_m": 0.5269094109535217,
+      "entry_front_core_angle_deg": 348.79243542488246,
+      "ground_truth_stopping_distance_bound_m": 0.05,
+      "estimated_front_body_clearance_m": 0.3661
+    }
+  ],
+  "limits": [
+    "sampled Gazebo truth, not physical robot validation",
+    "no reconstructed sensor/odom/health/terminal",
+    "no continuous collision guarantee between truth samples",
+    "actual actor bypass failed; stop-rotation QA remains failed"
+  ]
+}

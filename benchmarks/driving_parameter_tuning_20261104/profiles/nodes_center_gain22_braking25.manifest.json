@@ -1,0 +1,21 @@
+{
+  "scope": "Benchmark candidate only; not installed or adopted by runtime/config",
+  "base": "benchmarks/driving_parameter_tuning_20261104/profiles/nodes_braking_25.yaml",
+  "base_sha256": "ebecd500363b1b4fbf86d99330193501c296ac307ef51c5fb151aef82958a417",
+  "candidate": "benchmarks/driving_parameter_tuning_20261104/profiles/nodes_center_gain22_braking25.yaml",
+  "candidate_sha256": "0b93065491423621767c0141c65a04cdfee24f1dce2062d3af2d080ff6118d85",
+  "changes": {
+    "/astar_planner.ros__parameters.clearance_penalty_gain": {
+      "from": 1.5,
+      "to": 2.2
+    }
+  },
+  "unchanged": {
+    "preferred_clearance_m": 0.45,
+    "curve_braking_margin_m": 0.25,
+    "robot_radius_m": 0.22,
+    "obstacle_inflation_cells": 5
+  },
+  "planner_evidence": "benchmarks/driving_parameter_tuning_20261104/planner_screen.json",
+  "closed_loop_status": "NOT_TESTED"
+}

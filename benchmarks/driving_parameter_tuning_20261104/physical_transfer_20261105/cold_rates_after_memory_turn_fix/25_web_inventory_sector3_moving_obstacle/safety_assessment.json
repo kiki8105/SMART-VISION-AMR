@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "missing_evidence": [],
+  "violations": [],
+  "counts": {
+    "planner": 53,
+    "path": 7,
+    "scan": 1143,
+    "truth": 1144,
+    "cmd_vel": 3191,
+    "planning_active_front_clear": 3,
+    "planning_route_unverified": 12,
+    "wait_replan_samples": 28,
+    "recovery_exempt_samples": 0
+  },
+  "wait_replan_intervals": [
+    {
+      "start_t": 39.2618,
+      "duration_s": 1.1485,
+      "last_nonzero_command_after_s": 0.08910000000000196,
+      "first_zero_command_after_s": 0.14159999999999684,
+      "max_displacement_m": 0.0197,
+      "max_forward_displacement_m": 0.0197,
+      "max_heading_change_rad": 0.0773,
+      "truth_samples": 10,
+      "entry_speed_mps": 0.0926,
+      "entry_command_speed_mps": 0.0926,
+      "entry_truth_speed_mps": 0.0808,
+      "entry_front_core_min_m": 0.6503914594650269,
+      "entry_front_core_angle_deg": 348.79243542488246,
+      "ground_truth_stopping_distance_bound_m": 0.05,
+      "estimated_front_body_clearance_m": 0.4863
+    }
+  ],
+  "static_world_outliers": [],
+  "recovery_transitions": [],
+  "last_planner_change": {
+    "t": 137.1104,
+    "status": "IDLE"
+  },
+  "bounds": {
+    "command_stop_s": 0.25,
+    "ground_truth_stopping_distance_m": 0.05,
+    "ground_truth_stopping_distance_rule": "max(0.05, v*command_stop_s+v^2/(2*decel_limit_mps2))",
+    "max_linear_speed_mps": 0.22,
+    "decel_limit_mps2": 0.4,
+    "truth_entry_bracket_max_s": 0.15,
+    "ground_truth_heading_change_rad": 0.12,
+    "front_laser_to_body_m": 0.132,
+    "front_body_clearance_m": 0.02,
+    "simulation_robot_collision_radius_m": 0.22,
+    "simulation_static_swept_clearance_m": 0.05
+  },
+  "interpretation": "PLANNING with a nonempty prior path and a fresh, clear front scan may move while replanning; this is not a full swept-path proof. WAIT_REPLAN permits bounded deceleration for 0.25 s and speed-dependent ground-truth travel based on the active Nav2 speed/deceleration profile. Navigation RECOVERING is logged separately. No instant command or inertial motion is automatically a failure. Only a known static Gazebo fixture can use the independent collision-geometry witness; it does not certify real-world or moving-obstacle safety.",
+  "static_geometry_witness": null
+}

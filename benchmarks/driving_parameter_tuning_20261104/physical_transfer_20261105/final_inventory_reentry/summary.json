@@ -1,0 +1,69 @@
+{
+  "stages": [
+    {
+      "stage": "19_web_inventory_sector2_same_session_reentry",
+      "outcome": "PASS",
+      "reasons": [],
+      "mission_backend_passed": true,
+      "final_state": null,
+      "cold_start_proof": {
+        "passed": true,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend",
+        "launch_prior_query": {
+          "service": "/amcl/get_parameters",
+          "parameter": "set_initial_pose",
+          "max_attempts": 3,
+          "per_attempt_timeout_s": 5.0,
+          "attempts": [
+            {
+              "attempt": 1,
+              "timeout_s": 5.0,
+              "elapsed_s": 0.2826291390010738,
+              "outcome": "parameter_observed",
+              "value": false
+            }
+          ],
+          "outcome": "parameter_observed",
+          "attempt_count": 1,
+          "elapsed_s": 3.53746619100275
+        },
+        "before": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 0,
+          "map_tf_messages": 0,
+          "web_pose": null,
+          "observed_seconds": 6.976623964001192
+        },
+        "after": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 2,
+          "map_tf_messages": 1
+        }
+      },
+      "prearm_passed": null,
+      "source_unchanged": true,
+      "actor_moving_steps": null,
+      "actor_bypassed_while_live": null,
+      "actor_minimum_clearance_m": null,
+      "safety_passed": true,
+      "safety_violations": [],
+      "incident_capture_count": 2,
+      "operator_aborted_after_stall": false,
+      "incident_selection": {
+        "method": "serial domain-176 trigger wall-time membership",
+        "observer_wall_time_window": [
+          1793819192.3143,
+          1793819374.5142
+        ],
+        "sampling_is_not_rosbag": true
+      },
+      "transient": null,
+      "physical_drive": false,
+      "visual_browser_qa": false
+    }
+  ],
+  "passed": true
+}

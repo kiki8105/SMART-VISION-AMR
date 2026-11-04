@@ -1,0 +1,324 @@
+{
+  "scope": "Offline exact-stamp-owned FollowPath intervals before initial obstacle-induced empty route, first40 observer seconds; not a closed-loop pass. Latest receipt-bounded map->odom and odom->base TF composition is an estimated map pose, not independently recorded AMCL pose or synchronized controller internal pose. Gazebo truth is independent. Recorder path XY rounded to0.1mm.",
+  "witnesses": {
+    "v2": {
+      "first_local": {
+        "tag": "first_owned_sample",
+        "path_stamp_ns": 13480000000,
+        "observer_t": 26.1553,
+        "truth_yaw_rad": -0.94223,
+        "estimated_yaw_rad": -0.89524,
+        "same_follower_15cm_lookahead_target_xy": [
+          -0.025,
+          -0.6622422504310036
+        ],
+        "reconstructed_heading_error_deg": -47.4977683005655,
+        "truth_cross_track_m": 0.0479,
+        "estimated_cross_track_m": 0.02319774941157081,
+        "truth_body_box_gap_m": 0.15601400504475113,
+        "projection_body_box_gap_m": 0.20391400504475118,
+        "map_tf_receipt_age_s": 0.09960007667541504,
+        "odom_tf_receipt_age_s": 0.0011000633239746094,
+        "actual_command": {
+          "t": 26.141,
+          "linear": 0.0,
+          "angular": 0.0
+        },
+        "dwb_command": {
+          "t": 26.1141,
+          "linear": 0.0,
+          "angular": 0.0
+        },
+        "mux_command": {
+          "t": 26.069,
+          "output_linear": 0.05789473684210526,
+          "output_angular": 0.012135958296652913,
+          "scan_guard_code": "CLEAR",
+          "command_ramp": {
+            "enabled": true,
+            "limited": true,
+            "reason": "small_heading_slew",
+            "linear_acceleration": 0.2,
+            "angular_acceleration": 0.8,
+            "max_acceleration_step": 0.1,
+            "target_linear": 0.05789473684210526,
+            "target_angular": 0.012820512820512935,
+            "output_linear": 0.05789473684210526,
+            "output_angular": 0.012135958296652913
+          }
+        }
+      },
+      "last_local_first": {
+        "tag": "first_owned_sample",
+        "path_stamp_ns": 15280000000,
+        "observer_t": 28.1085,
+        "truth_yaw_rad": -1.2814,
+        "estimated_yaw_rad": -1.23214,
+        "same_follower_15cm_lookahead_target_xy": [
+          -0.025,
+          -0.7210116556138246
+        ],
+        "reconstructed_heading_error_deg": -58.0043226298764,
+        "truth_cross_track_m": 0.06331600113715333,
+        "estimated_cross_track_m": 0.0542211941526632,
+        "truth_body_box_gap_m": 0.0673238979564216,
+        "projection_body_box_gap_m": 0.11798389795642159,
+        "map_tf_receipt_age_s": 0.04060006141662598,
+        "odom_tf_receipt_age_s": 0.0009999275207519531,
+        "actual_command": {
+          "t": 28.0999,
+          "linear": 0.0,
+          "angular": 0.0
+        },
+        "dwb_command": {
+          "t": 28.0555,
+          "linear": 0.0,
+          "angular": 0.0
+        },
+        "mux_command": {
+          "t": 28.0552,
+          "output_linear": 0.10421052631578946,
+          "output_angular": -0.21794871794871779,
+          "scan_guard_code": "CLEAR",
+          "command_ramp": {
+            "enabled": true,
+            "limited": false,
+            "reason": "tracking",
+            "linear_acceleration": 0.2,
+            "angular_acceleration": 0.8,
+            "max_acceleration_step": 0.1,
+            "target_linear": 0.10421052631578946,
+            "target_angular": -0.21794871794871779,
+            "output_linear": 0.10421052631578946,
+            "output_angular": -0.21794871794871779
+          }
+        }
+      },
+      "last_local_last": {
+        "tag": "last_owned_sample",
+        "path_stamp_ns": 15280000000,
+        "observer_t": 28.5299,
+        "truth_yaw_rad": -1.32843,
+        "estimated_yaw_rad": -1.2815699999999999,
+        "same_follower_15cm_lookahead_target_xy": [
+          -0.025,
+          -0.728540169687738
+        ],
+        "reconstructed_heading_error_deg": -60.78053936066646,
+        "truth_cross_track_m": 0.07985356879939684,
+        "estimated_cross_track_m": 0.07156187934904933,
+        "truth_body_box_gap_m": 0.062173897956421614,
+        "projection_body_box_gap_m": 0.11863889795642166,
+        "map_tf_receipt_age_s": 0.037799835205078125,
+        "odom_tf_receipt_age_s": 0.03939986228942871,
+        "actual_command": {
+          "t": 28.5211,
+          "linear": 0.08236,
+          "angular": -0.13679
+        },
+        "dwb_command": {
+          "t": 28.4893,
+          "linear": 0.11579,
+          "angular": -0.19231
+        },
+        "mux_command": {
+          "t": 28.5227,
+          "output_linear": 0.0823631118000776,
+          "output_angular": -0.1367918814861428,
+          "scan_guard_code": "CLEAR",
+          "command_ramp": {
+            "enabled": true,
+            "limited": true,
+            "reason": "acceleration_limited",
+            "linear_acceleration": 0.2,
+            "angular_acceleration": 0.8,
+            "max_acceleration_step": 0.1,
+            "target_linear": 0.11578947368421051,
+            "target_angular": -0.19230769230769215,
+            "output_linear": 0.0823631118000776,
+            "output_angular": -0.1367918814861428
+          }
+        }
+      },
+      "timeline_sha256": "82ccfc5a059860c8e349be47421815aab3902b1c49d19cc4ae0d173dcc8d33f5"
+    },
+    "local025": {
+      "first_local": {
+        "tag": "first_owned_sample",
+        "path_stamp_ns": 14720000000,
+        "observer_t": 27.4676,
+        "truth_yaw_rad": -0.82956,
+        "estimated_yaw_rad": -0.7925800000000001,
+        "same_follower_15cm_lookahead_target_xy": [
+          -0.075,
+          -0.6042893218813452
+        ],
+        "reconstructed_heading_error_deg": -75.49194024943381,
+        "truth_cross_track_m": 0.06175330436502973,
+        "estimated_cross_track_m": 0.024290335854821668,
+        "truth_body_box_gap_m": 0.14378914888960212,
+        "projection_body_box_gap_m": 0.20391400504475118,
+        "map_tf_receipt_age_s": 0.1352999210357666,
+        "odom_tf_receipt_age_s": 0.0011000633239746094,
+        "actual_command": {
+          "t": 27.4319,
+          "linear": 0.08105,
+          "angular": -0.01282
+        },
+        "dwb_command": {
+          "t": 27.4359,
+          "linear": 0.0,
+          "angular": 0.0
+        },
+        "mux_command": {
+          "t": 27.3709,
+          "output_linear": 0.08105263157894736,
+          "output_angular": 0.0,
+          "scan_guard_code": "CLEAR",
+          "command_ramp": {
+            "enabled": true,
+            "limited": false,
+            "reason": "tracking",
+            "linear_acceleration": 0.2,
+            "angular_acceleration": 0.8,
+            "max_acceleration_step": 0.1,
+            "target_linear": 0.08105263157894736,
+            "target_angular": 0.0,
+            "output_linear": 0.08105263157894736,
+            "output_angular": 0.0
+          }
+        }
+      },
+      "last_local_first": {
+        "tag": "first_owned_sample",
+        "path_stamp_ns": 16340000000,
+        "observer_t": 29.4464,
+        "truth_yaw_rad": -1.25316,
+        "estimated_yaw_rad": -1.23766,
+        "same_follower_15cm_lookahead_target_xy": [
+          -0.025,
+          -0.7042893218813452
+        ],
+        "reconstructed_heading_error_deg": -61.432697824055964,
+        "truth_cross_track_m": 0.07255894155788105,
+        "estimated_cross_track_m": 0.05034697613508232,
+        "truth_body_box_gap_m": 0.0635489515005864,
+        "projection_body_box_gap_m": 0.13594895150058636,
+        "map_tf_receipt_age_s": 0.1624000072479248,
+        "odom_tf_receipt_age_s": 0.044300079345703125,
+        "actual_command": {
+          "t": 29.4419,
+          "linear": 0.0,
+          "angular": 0.0
+        },
+        "dwb_command": {
+          "t": 29.4268,
+          "linear": 0.11579,
+          "angular": -0.24359
+        },
+        "mux_command": {
+          "t": 29.3267,
+          "output_linear": 0.017522214399650696,
+          "output_angular": -0.053891814554740215,
+          "scan_guard_code": "CLEAR",
+          "command_ramp": {
+            "enabled": true,
+            "limited": true,
+            "reason": "acceleration_limited",
+            "linear_acceleration": 0.2,
+            "angular_acceleration": 0.8,
+            "max_acceleration_step": 0.1,
+            "target_linear": 0.10421052631578946,
+            "target_angular": -0.3205128205128204,
+            "output_linear": 0.017522214399650696,
+            "output_angular": -0.053891814554740215
+          }
+        }
+      },
+      "last_local_last": {
+        "tag": "last_owned_sample",
+        "path_stamp_ns": 16340000000,
+        "observer_t": 31.207,
+        "truth_yaw_rad": -1.49966,
+        "estimated_yaw_rad": -1.4827000000000001,
+        "same_follower_15cm_lookahead_target_xy": [
+          -0.025,
+          -0.8744221422868026
+        ],
+        "reconstructed_heading_error_deg": -41.78602508610756,
+        "truth_cross_track_m": 0.14537,
+        "estimated_cross_track_m": 0.1119633324730937,
+        "truth_body_box_gap_m": 0.04057895150058641,
+        "projection_body_box_gap_m": 0.1859489515005864,
+        "map_tf_receipt_age_s": 0.038899898529052734,
+        "odom_tf_receipt_age_s": 0.0007998943328857422,
+        "actual_command": {
+          "t": 31.1691,
+          "linear": 0.11579,
+          "angular": -0.01282
+        },
+        "dwb_command": {
+          "t": 31.1351,
+          "linear": 0.11579,
+          "angular": -0.01282
+        },
+        "mux_command": {
+          "t": 31.083,
+          "output_linear": 0.11578947368421051,
+          "output_angular": -0.012820512820512706,
+          "scan_guard_code": "CLEAR",
+          "command_ramp": {
+            "enabled": true,
+            "limited": false,
+            "reason": "tracking",
+            "linear_acceleration": 0.2,
+            "angular_acceleration": 0.8,
+            "max_acceleration_step": 0.1,
+            "target_linear": 0.11578947368421051,
+            "target_angular": -0.012820512820512706,
+            "output_linear": 0.11578947368421051,
+            "output_angular": -0.012820512820512706
+          }
+        }
+      },
+      "timeline_sha256": "b638fc47155ba2a93547f5203a1f6901f42e04932fd9ff62f5b3fb700e91e7ae"
+    }
+  },
+  "limitations": [
+    "Ownership begins only at a MOVING status carrying exact published path_stamp; initial Spin MOVING excluded. Unowned early feedback is not used to infer route acceptance.",
+    "No equivalent-route alias ACK occurs in either first40s trace. We do not match nearby geometries or infer aliases from newer timestamps.",
+    "Each new owned ACK ends preceding route interval; empty path or terminal/wait/recovery also ends ownership. Last-published route alone is not evidence of execution.",
+    "Latest received TF composition at truth receipt time has map receipt<=250ms and odom receipt<=100ms. AMCL map->odom TF is future-stamped by transform tolerance; simultaneous controller map pose is not recorded. Freshest witness receipts are39ms/1ms for candidate,38ms/39ms for v2.",
+    "Polyline point-to-projection distance is geometric cross-track incl clamped endpoints. Whole-path box gap uses1mm samples; conservative continuous lower bound is value-0.5mm. Projection gap and actual body gap at witness are exact for axis-aligned25cm box and22cm circle.",
+    "Initial original global path intersects the newly spawned box as expected before obstacle replan. Claim of geometric clearance concerns replacement local routes, not the old pre-detection route.",
+    "Changes in actor position are applied by absolute wall_time of actual spawn/move events; deferred proposed movement is never treated as completed movement.",
+    "Closed-loop whole-system test result remains FAIL in both runs despite independent HOME success. These metrics diagnose accepted-route tracking; no source/runtime change was made."
+  ],
+  "code_witnesses": [
+    {
+      "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py",
+      "line": 586,
+      "fact": "Initial heading alignment gated by completion for entire explicit goal generation, not accepted replacement route or obstacle episode."
+    },
+    {
+      "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py",
+      "line": 864,
+      "fact": "Any dispatched FollowPath marks initial alignment complete for goal generation. Subsequent changed local prefix bypasses existing heading-spin path."
+    },
+    {
+      "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py",
+      "line": 646,
+      "fact": "Existing alignment error uses current-pose\u2192path-progress+15cm lookahead vector."
+    },
+    {
+      "file": "ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml",
+      "line": 121,
+      "fact": "Route horizon55cm; DWB sim_time2s; speed/angular command choices still native weighted critic output, not hard centerline following."
+    },
+    {
+      "file": "ros2_ws/src/smart_vision_amr_dwb/src/route_tracking_dwb.cpp",
+      "line": 85,
+      "fact": "Plugin rejects excess linear/turn speed but delegates remaining trajectory scoring to native DWB; no hard cross-track/reorientation condition."
+    }
+  ]
+}

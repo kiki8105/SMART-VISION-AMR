@@ -1,0 +1,331 @@
+{
+  "status": "OVERALL_FAIL_OBSTACLE_NOT_INJECTED",
+  "scope": "Completed read-only cold wheel-asymmetry Gazebo sensitivity audit; backend mission and safety passed, but moving-obstacle test was invalid before spawn and remains whole FAIL. No physical robot or visual-browser QA.",
+  "archive": "cold_wheel_asymmetry",
+  "archive_manifest_sha256": "8ac3c1b87a50ce4b9b47a10ae4b6313acad4da5cf2c7f0770a2220c2fb0467a0",
+  "verified_archive_file_count": 24,
+  "source_before_after_equal": true,
+  "source_manifest_sha256": "d195b99a67bc444210ff37f4a4b68f1ea5aed83196d37aa42e7a8393cd210008",
+  "source_changes_vs_sensor_rate_after_fix": {
+    "scripts/run_classroom_staged_validation.py": {
+      "before": "7fec05c6ade9a9d62d80584982c1221d7e6e8a8266a471cda5c83b319d70ab55",
+      "after": "bc84050975f2e8bc8d2eb54a84e705bd7d2d987f74a3e8805e79c59101e1050f"
+    }
+  },
+  "motion_application_source_hashes_unchanged_vs_previous": true,
+  "actual_spawned_model": {
+    "path": "cold_wheel_asymmetry/25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf",
+    "sha256": "1aa1fb30300bcc7717d1d6c7d8eb1bd5c0b248b78821860e5d388c4b8084f1b9",
+    "actual_left_wheel_collision_radius_m": 0.03267,
+    "actual_right_wheel_collision_radius_m": 0.03333,
+    "encoder_plugin_nominal_wheel_diameter_m": 0.066,
+    "encoder_plugin_nominal_wheel_separation_m": 0.287,
+    "body_proxy_radius_m": 0.22,
+    "drive_odom_topic": "gazebo/odom_raw",
+    "drive_publish_odom_tf": "false",
+    "configured_scan_rate_hz": 10.0,
+    "configured_imu_rate_hz": 20.0,
+    "configured_joint_rate_hz": 20.0
+  },
+  "measured_source_cadence_final": {
+    "final": true,
+    "streams": {
+      "raw_scan": {
+        "topic": "/classroom_fault/raw_scan",
+        "receipt_sample_count": 990,
+        "source_stamp_hz": 9.988990899817189,
+        "receipt_wall_hz": 9.092130228853069,
+        "source_stamp_intervals": {
+          "sample_count": 989,
+          "minimum_seconds": 0.095,
+          "p95_seconds": 0.101,
+          "maximum_seconds": 0.107
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 990,
+          "minimum": -0.019,
+          "maximum": 0.003,
+          "future_stamp_samples": 868,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "raw_imu": {
+        "topic": "/imu",
+        "receipt_sample_count": 1976,
+        "source_stamp_hz": 19.95110716017456,
+        "receipt_wall_hz": 18.243270146649277,
+        "source_stamp_intervals": {
+          "sample_count": 1975,
+          "minimum_seconds": 0.05,
+          "p95_seconds": 0.051,
+          "maximum_seconds": 0.056
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 1976,
+          "minimum": -0.02,
+          "maximum": 0.002,
+          "future_stamp_samples": 1945,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "wheel_joint_states": {
+        "topic": "/joint_states",
+        "receipt_sample_count": 1981,
+        "source_stamp_hz": 20.0,
+        "receipt_wall_hz": 18.28840026384522,
+        "source_stamp_intervals": {
+          "sample_count": 1980,
+          "minimum_seconds": 0.05,
+          "p95_seconds": 0.05,
+          "maximum_seconds": 0.05
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 1981,
+          "minimum": -0.012,
+          "maximum": -0.002,
+          "future_stamp_samples": 1981,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "ekf_output": {
+        "topic": "/odom",
+        "receipt_sample_count": 1979,
+        "source_stamp_hz": 20.0,
+        "receipt_wall_hz": 18.28986118259391,
+        "source_stamp_intervals": {
+          "sample_count": 1978,
+          "minimum_seconds": 0.023,
+          "p95_seconds": 0.071,
+          "maximum_seconds": 0.077
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 1979,
+          "minimum": 0.001,
+          "maximum": 0.028,
+          "future_stamp_samples": 0,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      }
+    }
+  },
+  "cold_initialization_proof": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 5.837348583998391
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 3,
+      "map_tf_messages": 1
+    }
+  },
+  "prearm_passed": true,
+  "prearm_map_publisher_note": [
+    "_NODE_NAMESPACE_UNKNOWN_/_NODE_NAME_UNKNOWN_"
+  ],
+  "prearm_map_identity_limitation": "One publisher was observed but its DDS node identity was temporarily UNKNOWN; do not rewrite this as positively identified /map_server.",
+  "mission_elapsed_seconds": 99.86947274208069,
+  "sector3_and_home_truth": {
+    "3": {
+      "passed": true,
+      "event_at": 1793812156.8325188,
+      "goal": [
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "position_tolerance_m": 0.25,
+      "sample_time_delta_s": 0.025,
+      "position_error_m": 0.107,
+      "heading_error_rad": 0.022,
+      "fixture_wall_front_yaw_rad": -1.598311346410207,
+      "fixture_wall_normal_error_rad": 0.176,
+      "truth": [
+        -0.22566,
+        -2.08447,
+        -1.42212
+      ]
+    },
+    "home": {
+      "passed": true,
+      "event_at": 1793812205.3012314,
+      "goal": [
+        -0.188431,
+        -0.220497,
+        -0.027514
+      ],
+      "position_tolerance_m": 0.25,
+      "sample_time_delta_s": 0.011,
+      "position_error_m": 0.194,
+      "heading_error_rad": 0.073,
+      "fixture_wall_front_yaw_rad": null,
+      "fixture_wall_normal_error_rad": null,
+      "truth": [
+        0.00113,
+        -0.262,
+        0.04514
+      ]
+    }
+  },
+  "home_stationary": {
+    "passed": true,
+    "end_at": 1793812205.3012314,
+    "duration_s": 1.241,
+    "truth_samples": 12,
+    "command_samples": 30,
+    "truth_max_gap_s": 0.112,
+    "command_max_gap_s": 0.067,
+    "max_translation_m": 0.0,
+    "max_heading_rad": 0.0002,
+    "max_command_linear_mps": 0.0,
+    "max_command_angular_rps": 0.0
+  },
+  "rear_marker3": {
+    "bytes": 7620,
+    "raw_camera_age_s": 0.03,
+    "unannotated": true,
+    "detected_ids": [
+      3
+    ],
+    "expected_visible": true,
+    "center_error": 0.2828124999999999
+  },
+  "pose_estimate_versus_truth": {
+    "mission": {
+      "samples": 913,
+      "xy_error_m": {
+        "median": 0.04538624306150227,
+        "p95": 0.06579309848853333,
+        "maximum": 0.07453724286388119
+      },
+      "heading_error_rad": {
+        "median": 0.024920000000000053,
+        "p95": 0.06007000000000007,
+        "maximum": 0.07728000000000002
+      },
+      "maximum_xy_witness": {
+        "wall_time": 1793812175.2613,
+        "seconds_after_mission": 69.82954144477844,
+        "xy_error_m": 0.07453724286388119,
+        "heading_error_rad": 0.06326000000000004,
+        "truth": [
+          0.50891,
+          -2.64508,
+          0.56269
+        ],
+        "estimated_map_pose": [
+          0.4562978519016826,
+          -2.697879265584191,
+          0.49943
+        ],
+        "map_odom_stamp_ns": 71674000000,
+        "odom_stamp_ns": 70732000000,
+        "map_tf_receipt_age_s": 0.10590004920959473,
+        "odom_receipt_age_s": 0.04590010643005371
+      }
+    },
+    "first40_wall_seconds": {
+      "samples": 362,
+      "xy_error_m": {
+        "median": 0.04259435042280764,
+        "p95": 0.06345127564495824,
+        "maximum": 0.06735581606468882
+      },
+      "heading_error_rad": {
+        "median": 0.016715000000000146,
+        "p95": 0.03734000000000004,
+        "maximum": 0.04554999999999998
+      },
+      "maximum_xy_witness": {
+        "wall_time": 1793812113.1963,
+        "seconds_after_mission": 7.764541387557983,
+        "xy_error_m": 0.06735581606468882,
+        "heading_error_rad": 0.011719999999999953,
+        "truth": [
+          0.28897,
+          -0.75626,
+          -0.82212
+        ],
+        "estimated_map_pose": [
+          0.22390816124869198,
+          -0.7736888007630757,
+          -0.8104
+        ],
+        "map_odom_stamp_ns": 15310000000,
+        "odom_stamp_ns": 14334000000,
+        "map_tf_receipt_age_s": 0.04010009765625,
+        "odom_receipt_age_s": 0.041899919509887695
+      }
+    },
+    "method": "latest prior map<-odom and odom pose receipts bounded by .25s/.10s, composed and compared with Gazebo truth",
+    "limitations": [
+      "Not direct /amcl_pose samples, covariance validation or active-path tracking error.",
+      "Receipt-time pairing is not controller-internal timestamp synchronization.",
+      "Previous successful case included an injected obstacle; this one did not. Mission duration/error differences are not an isolated causal wheel comparison."
+    ]
+  },
+  "actual_commands": {
+    "samples": 2415,
+    "negative_samples": 0,
+    "maximum_linear_mps": 0.22,
+    "moving_yaw_max_rps": 0.34615,
+    "pure_or_tiny_linear_yaw_max_rps": 0.5
+  },
+  "safety": {
+    "passed": true,
+    "violations": []
+  },
+  "mission_health": {
+    "samples": 400,
+    "levels": {
+      "ok": 400
+    },
+    "autonomous_disallowed_samples": 0
+  },
+  "obstacle": {
+    "input_status": "INVALID_INPUT",
+    "reason": "InvalidObstacleScenario('FIXED_SCENE_TOO_CLOSE_TO_OBSERVED_CELL')",
+    "spawned": false,
+    "moving_steps": 0,
+    "bypassed_while_live": false,
+    "minimum_gap_m": null,
+    "interpretation": "No obstacle was injected. Clean navigation under wheel-contact mismatch is evidenced, moving-obstacle avoidance is not."
+  },
+  "overall_reasons": [
+    "web_obstacle_injector_failed",
+    "web_obstacle_spawned_unverified",
+    "web_obstacle_truth_seen_unverified",
+    "web_obstacle_removed_unverified",
+    "web_obstacle_observed_while_live_unverified",
+    "web_obstacle_observed_cleared_unverified",
+    "web_obstacle_path_reacted_before_removal_unverified",
+    "web_obstacle_bypassed_while_live_unverified",
+    "web_obstacle_motion_unverified",
+    "web_obstacle_clearance_unverified",
+    "web_red_obstacle_overlay_unverified",
+    "web_red_obstacle_clearance_unverified",
+    "runner_nonzero_exit"
+  ],
+  "inventory_final": {
+    "request_id": 1,
+    "status": "DELIVERED",
+    "service_active": false
+  },
+  "physical_transfer_limitation": "Explicit uncalibrated stress envelope with unequal actual collision radii and unchanged nominal encoder/drive kinematics; this does not establish measured real wheel calibration."
+}

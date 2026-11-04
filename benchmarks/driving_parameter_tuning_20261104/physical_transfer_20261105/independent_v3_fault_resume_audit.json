@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "trial": "cold_ekf_delivery_transient_v3",
+  "stage": "16_web_transient_resume",
+  "strict_outcome": "PASS",
+  "audit_method": "Independent read-only extraction from completed recorder/relay/backend evidence; no ROS, web, browser or actuation requests issued by this audit.",
+  "evidence_archive": "cold_ekf_delivery_transient_pass",
+  "source_trial_root": "/tmp/classroom-transfer-cold-ekf-transient-v3-20261105",
+  "input_sha256": {
+    "staged_report.json": "515f9650a2a7e46231e8c29ac6160c375e609a36f4a40afa7a44ffa94e4dc434",
+    "16_web_transient_resume/acceptance.json": "1856dbd3f1fd3e02a20399f814dc676596c319aed67b76537b8953b7ee793c7f",
+    "16_web_transient_resume/derived_evidence.json": "18b1fd9a33754a9d24669b4f34fba09b0edf8ddf6fd78ffd73f1fba778a92c67",
+    "16_web_transient_resume/safety_assessment.json": "90b553f70c2f7a00c93b385b1ff9250869f8354463c866d0d77776a94445174f",
+    "16_web_transient_resume/safety_timeline.jsonl": "8c5457bb23365742ac0de284fe71eff9697188643a3819fe88a755a2e9beaf49",
+    "16_web_transient_resume/sensor_faults.jsonl": "ae171c075b65077d5f0ea98e073fb3fa9671ab1f9cfaca0369572a1ced75942b",
+    "16_web_transient_resume/runtime_manifest.json": "a42085d738dac1ab2e1d89097e0e2797fe8575202dd4570c3a302d6565fbb3bc",
+    "16_web_transient_resume/actual_spawned_model.sdf": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+    "16_web_transient_resume/classroom_nav_sim_time.yaml": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+    "16_web_transient_resume/classroom_nodes_sim.yaml": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+    "16_web_transient_resume/gazebo_launch.log": "fdaaa3666cc53ee256b34c1805bb0df81b2838766b5383f80348b284db8699f1"
+  },
+  "runtime_source_unchanged": true,
+  "source_manifest_entries": 214,
+  "source_manifest_sha256": "23ca13584964e5c821883176af7e2eff0815d0ea662f69d6c649bd0535aab75b",
+  "scope": {
+    "mode": "ekf_independent",
+    "domain": 176,
+    "localhost_only": true,
+    "physical_robot_touched": false,
+    "cold_start": true,
+    "memory_session": true,
+    "hardware_profile": "sensor_rates",
+    "fault_scope": "scan and actual EKF odom/odom->base TF output delivery; raw wheel/IMU and EKF CPU remain unfaulted",
+    "visual_ui_qa": false,
+    "limits": [
+      "Gazebo output-delivery fault simulation, not real Pi CPU overrun or raw IMU/joint input delay.",
+      "Physical robot reliability is not established by this Gazebo PASS.",
+      "Independent scan source age cannot be computed because scan timeline rows omit receipt clock_stamp_ns; relay delay is recorded instead."
+    ]
+  },
+  "cold_start_proof": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 6.062882889000321
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 3,
+      "map_tf_messages": 1
+    }
+  },
+  "actual_graph_ownership": {
+    "map_publishers": [
+      "/map_server"
+    ],
+    "scan_publishers": [
+      "/classroom_fault_relay"
+    ],
+    "odom_publishers": [
+      "/classroom_fault_relay"
+    ],
+    "ekf_output_source_publishers": [
+      "/ekf_independent"
+    ],
+    "ekf_tf_source_publishers": [
+      "/ekf_independent"
+    ],
+    "raw_wheel_publishers": [
+      "/wheel_joint_odometry"
+    ],
+    "raw_imu_publishers": [
+      "/turtlebot3_imu"
+    ]
+  },
+  "fault_delivery": {
+    "relay_config": {
+      "ekf_cpu_or_raw_input_faults": false,
+      "ekf_delivery_faults": true,
+      "event": "relay_config",
+      "scan_only": false,
+      "source_stamps_preserved": true,
+      "streams": [
+        "scan",
+        "odom",
+        "tf"
+      ],
+      "tf_output_depth": 100,
+      "tf_output_reliability": "RELIABLE",
+      "tf_source_depth": 100,
+      "tf_source_reliability": "RELIABLE"
+    },
+    "final_counts": {
+      "odom_dropped_transient": 16,
+      "odom_forwarded": 2477,
+      "odom_received": 2493,
+      "scan_dropped_transient": 7,
+      "scan_forwarded": 1239,
+      "scan_received": 1246,
+      "tf_dropped_transient": 16,
+      "tf_filtered_unowned_edges": 0,
+      "tf_forwarded": 2477,
+      "tf_received": 2493
+    },
+    "transient_stream_checks": {
+      "scan": {
+        "dropped_transient": 7,
+        "max_delivery_delay_s": 0.36,
+        "increase_over_clean_s": 0.349,
+        "fault_observed": true
+      },
+      "odom": {
+        "dropped_transient": 16,
+        "max_delivery_delay_s": 0.358,
+        "increase_over_clean_s": 0.347,
+        "fault_observed": true
+      },
+      "tf": {
+        "dropped_transient": 16,
+        "max_delivery_delay_s": 0.36,
+        "increase_over_clean_s": 0.348,
+        "fault_observed": true
+      }
+    },
+    "profile_applied_monotonic": 26117.067709669,
+    "fault_window_seconds": 5,
+    "odom_source_age": {
+      "samples": 41,
+      "maximum_seconds": 0.364
+    },
+    "forwarded_odom_tf_source_age": {
+      "samples": 78,
+      "maximum_seconds": 0.364
+    },
+    "raw_to_forwarded_tf_identity": {
+      "fields": [
+        "parent",
+        "child",
+        "stamp_ns",
+        "x",
+        "y",
+        "yaw"
+      ],
+      "forwarded_window_samples": 78,
+      "exact_raw_matches": 78
+    }
+  },
+  "hold_and_resume": {
+    "health_hold_offset_seconds": 2.2383903310001187,
+    "health_recovered_offset_seconds": 2.487790330997086,
+    "health_hold_reasons": [
+      "odom_unavailable"
+    ],
+    "health_stop_latched": false,
+    "first_zero_after_health_hold_seconds": 0.002300000000104774,
+    "late_nonzero_commands_after_250ms_in_hold": 0,
+    "nearest_truth_sample_offsets_seconds": [
+      0.0059000000001105946,
+      -0.027999999998428393
+    ],
+    "sampled_truth_translation_m": 1.4142135623745093e-05,
+    "sampled_truth_yaw_rad": 0.00015999999999993794,
+    "resumed_moving_offset_seconds": 4.731790330999502,
+    "original_goal_stamp": {
+      "sec": 10,
+      "nanosec": 0
+    },
+    "resumed_goal_stamp": {
+      "sec": 10,
+      "nanosec": 0
+    },
+    "original_path_stamp": {
+      "sec": 10,
+      "nanosec": 0
+    },
+    "replacement_path_stamp": {
+      "sec": 20,
+      "nanosec": 940000000
+    },
+    "navigation_window": [
+      {
+        "offset_seconds": 0.7757903309975518,
+        "status": "MOVING",
+        "goal_stamp": {
+          "sec": 10,
+          "nanosec": 0
+        },
+        "input_hold": null,
+        "route_failure": null
+      },
+      {
+        "offset_seconds": 1.788890330997674,
+        "status": "MOVING",
+        "goal_stamp": {
+          "sec": 10,
+          "nanosec": 0
+        },
+        "input_hold": null,
+        "route_failure": null
+      },
+      {
+        "offset_seconds": 2.463990330998058,
+        "status": "WAIT_REPLAN",
+        "goal_stamp": {
+          "sec": 10,
+          "nanosec": 0
+        },
+        "input_hold": true,
+        "route_failure": false
+      },
+      {
+        "offset_seconds": 2.5632903309997346,
+        "status": "WAIT_REPLAN",
+        "goal_stamp": {
+          "sec": 10,
+          "nanosec": 0
+        },
+        "input_hold": true,
+        "route_failure": false
+      },
+      {
+        "offset_seconds": 4.731790330999502,
+        "status": "MOVING",
+        "goal_stamp": {
+          "sec": 10,
+          "nanosec": 0
+        },
+        "input_hold": null,
+        "route_failure": null
+      },
+      {
+        "offset_seconds": 4.755990330999339,
+        "status": "MOVING",
+        "goal_stamp": {
+          "sec": 10,
+          "nanosec": 0
+        },
+        "input_hold": null,
+        "route_failure": null
+      }
+    ]
+  },
+  "operator_intervention": {
+    "profile_wall_time_estimated_from_paired_timeline": 1793811945.4096096,
+    "startup_reset_attempts": [
+      {
+        "at": 1793811929.1500418,
+        "accepted": true
+      },
+      {
+        "at": 1793811932.2356942,
+        "accepted": true
+      }
+    ],
+    "all_startup_resets_precede_fault": true,
+    "mission_start_count": 1,
+    "mission_cancel_count": 0,
+    "manual_stop_navigation_during_fault": false,
+    "operator_reset_needed_for_resume": false
+  },
+  "mission_result": {
+    "backend_acceptance_passed": true,
+    "strict_stage_passed": true,
+    "final_state": "HOME_REACHED",
+    "route": [
+      1,
+      2
+    ],
+    "route_preserved": true,
+    "completed_prefix_valid": true,
+    "marker_confirmations": {
+      "1": 1,
+      "2": 1
+    },
+    "safety_assessment_passed": true,
+    "safety_violations": [],
+    "failure_reasons": []
+  },
+  "historical_failure_preservation": "The v2 lifecycle startup failure remains separately archived under ekf_delivery_startup_failed; this successful fresh owned restart does not relabel the failed attempt."
+}

@@ -1,0 +1,36 @@
+{
+  "python_package_and_scripts_suite": {
+    "passed": true,
+    "count": 2820,
+    "seconds": 148.33,
+    "log": "final_python_suite.log"
+  },
+  "cpp": {
+    "passed": true,
+    "gtests": 12,
+    "ctest_targets": 1
+  },
+  "build": {
+    "passed": true,
+    "packages": 2,
+    "seconds": 3.98
+  },
+  "deployment": {
+    "static_passed": true,
+    "live_physical_query": false
+  },
+  "physical_robot_driven": false,
+  "runtime_source_sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "f73c5fd48383df133b35fad08d4612d1c341fc5715698f6c482096c130f1b009",
+    "ros2_ws/src/smart_vision_amr_dwb/src/route_tracking_dwb.cpp": "03f14e3b3057be848f1d56fe64a87548551b708dd791d47be47767c726a03484",
+    "ros2_ws/src/smart_vision_amr_dwb/include/smart_vision_amr_dwb/command_envelope.hpp": "1a9724d4a92371f5dde2391a371bb445ee0ea7a36b4038223a32808e0be45877",
+    "ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml": "363f9ce5851e7e97359d631419645c87d59fa79e4552d36c73b9d78a2bd8f954",
+    "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": "59f6b427b89c3a60f77b87254a3d5352e31a4fde245a241f9c6fef839ed81a1f"
+  },
+  "closed_loop_results": {
+    "cold_rates_before_memory_fix": "FAIL",
+    "cold_rates_after_memory_turn_fix": "PASS",
+    "ekf_delivery_startup_failed": "STARTUP_LIFECYCLE_ABORT / TRANSIENT_NOT_STARTED"
+  },
+  "additional_cases": "RUNNING; only completed evidence may be marked PASS"
+}

@@ -10,6 +10,7 @@ import argparse
 import json
 import math
 from pathlib import Path
+import xml.etree.ElementTree as ET
 
 from capture_classroom_stress_crate import (CRATE_CENTER, CRATE_HALF_SIZE,
                                             CRATE_NAME)
@@ -29,6 +30,45 @@ CRATE_POSE_TOLERANCE_M = .005
 # motion_mux clamps both forward and reverse speed to 0.25 m/s. Between two
 # truth samples the robot can move away from, then return to, the same point.
 MAX_ENVELOPE_LINEAR_MPS = .25
+
+
+def positive_robot_radius(value):
+    if isinstance(value, bool):
+        raise ValueError('robot radius must be numeric, not boolean')
+    radius = float(value)
+    if not math.isfinite(radius) or radius <= 0.:
+        raise ValueError('robot radius must be finite and positive')
+    return radius
+
+
+def verified_runtime_robot_radius(manifest_path):
+    """Use the declared body only after checking its copied collision proxy.
+
+    Stock Gazebo retains the existing enclosing radius. A physical proxy must
+    agree across both manifest declarations and the actual centered SDF body;
+    a missing/mismatched fixture fails closed instead of choosing a smaller body.
+    """
+    manifest_path = Path(manifest_path)
+    manifest = json.loads(manifest_path.read_text())
+    radius = positive_robot_radius(
+        manifest['sim_footprint_overrides']['robot_radius_m'])
+    if manifest.get('physical_footprint') is True:
+        declared = positive_robot_radius(
+            manifest['collision_model']['copied_centered_cylinder_radius_m'])
+        root = ET.parse(manifest_path.parent/'fixture/waffle_pi_fault.sdf').getroot()
+        body = next((node for node in root.iter('collision')
+                     if node.get('name') == 'base_collision'), None)
+        if body is None:
+            raise ValueError('copied SDF base collision is missing')
+        actual = positive_robot_radius(body.findtext('geometry/cylinder/radius'))
+        pose = [float(value) for value in (body.findtext('pose') or '').split()]
+        if (declared != radius or actual != radius or len(pose) != 6 or
+                not all(math.isfinite(value) for value in pose) or
+                any(abs(pose[index]) > 1.e-12 for index in (0, 1, 3, 4))):
+            raise ValueError('physical body radius/center disagrees with manifest or copied SDF')
+    elif manifest.get('physical_footprint') is not False or radius != BODY_RADIUS_M:
+        raise ValueError('stock enclosing radius or physical-footprint declaration is unverified')
+    return radius
 
 
 def point_rectangle_distance(point, center=CRATE_CENTER, half_size=CRATE_HALF_SIZE):
@@ -82,13 +122,13 @@ def segment_rectangle_distance(start, end, center=CRATE_CENTER,
                  for corner in corners))
 
 
-def path_rectangle_clearance(points, center=CRATE_CENTER):
+def path_rectangle_clearance(points, center=CRATE_CENTER, *, robot_radius=BODY_RADIUS_M):
     """Exact segment-to-rectangle distance minus an enclosing robot radius."""
     if not points:
         return None
     if len(points) == 1:
-        return point_rectangle_distance(points[0], center)-BODY_RADIUS_M
-    return min(segment_rectangle_distance(start, end, center)-BODY_RADIUS_M
+        return point_rectangle_distance(points[0], center)-robot_radius
+    return min(segment_rectangle_distance(start, end, center)-robot_radius
                for start, end in zip(points, points[1:]))
 
 
@@ -164,14 +204,14 @@ def resolve_fixed_crate_truth(truth):
     return resolved, metrics
 
 
-def conservative_truth_body_clearance(truth):
+def conservative_truth_body_clearance(truth, *, robot_radius=BODY_RADIUS_M):
     """Minimum clearance with bounded travel between robot-truth samples."""
     if not truth:
         return None
     half = tuple(value+CRATE_POSE_TOLERANCE_M for value in CRATE_HALF_SIZE)
     if len(truth) == 1:
         return point_rectangle_distance(truth[0]['robot'], CRATE_CENTER,
-                                        half)-BODY_RADIUS_M
+                                        half)-robot_radius
     values = []
     for before, after in zip(truth, truth[1:]):
         gap = after['at']-before['at']
@@ -183,7 +223,7 @@ def conservative_truth_body_clearance(truth):
         excursion_reserve = MAX_ENVELOPE_LINEAR_MPS*gap/2.
         values.append(segment_rectangle_distance(
             before['robot'], after['robot'], CRATE_CENTER, half)-
-            BODY_RADIUS_M-excursion_reserve)
+            robot_radius-excursion_reserve)
     return min(values)
 
 
@@ -196,13 +236,14 @@ def _target(evidence, marker_id):
     return target[:2]
 
 
-def assess(records, web_evidence, expected_route=(1, 2, 3)):
+def assess(records, web_evidence, expected_route=(1, 2, 3), *, robot_radius=BODY_RADIUS_M):
     """Return a conservative verdict; absence of any source fails closed."""
+    robot_radius = positive_robot_radius(robot_radius)
     reasons = []
     checks = {}
     metrics = {'crate_center': list(CRATE_CENTER),
                'crate_size_m': [2*value for value in CRATE_HALF_SIZE],
-               'robot_enclosing_radius_m': BODY_RADIUS_M,
+               'robot_enclosing_radius_m': robot_radius,
                'required_margin_m': REQUIRED_BODY_MARGIN_M}
 
     meta = next((record for record in records if record.get('kind') == 'meta'), {})
@@ -250,7 +291,7 @@ def assess(records, web_evidence, expected_route=(1, 2, 3)):
                           if crossing_goal is not None and first_crossing is not None
                           and crossing_goal['at'] <= record['at'] <= first_crossing['at']]
     closest_crossing_leg = min(
-        (point_rectangle_distance(record['robot'])-BODY_RADIUS_M
+        (point_rectangle_distance(record['robot'])-robot_radius
          for record in crossing_leg_truth), default=None)
     metrics['crossing_leg_minimum_body_clearance_m'] = (
         round(closest_crossing_leg, 4)
@@ -282,7 +323,7 @@ def assess(records, web_evidence, expected_route=(1, 2, 3)):
                        (first_crossing is None or
                         record['at'] < first_crossing['at'])]
     metrics[f'{goal_prefix}_matching_path_count'] = len(path_candidates)
-    first_path_margin = (path_rectangle_clearance(path_candidates[0]['points'])
+    first_path_margin = (path_rectangle_clearance(path_candidates[0]['points'], robot_radius=robot_radius)
                          if path_candidates else None)
     metrics[f'initial_{goal_prefix}_path_body_clearance_m'] = (
         round(first_path_margin, 4) if first_path_margin is not None else None)
@@ -334,7 +375,7 @@ def assess(records, web_evidence, expected_route=(1, 2, 3)):
                 near_truth['robot'][1] <= -.35 or
                 near_crate is None):
             continue
-        margin = path_rectangle_clearance(path['points'], near_crate[:2])
+        margin = path_rectangle_clearance(path['points'], near_crate[:2], robot_radius=robot_radius)
         if margin is not None and margin >= REQUIRED_BODY_MARGIN_M:
             safe_paths.append((path, margin, witness, near_truth))
     safe_path = min(safe_paths, key=lambda item: item[0]['at']) if safe_paths else None
@@ -347,7 +388,7 @@ def assess(records, web_evidence, expected_route=(1, 2, 3)):
     prior_unsafe_paths = ([path for path in path_candidates
                            if safe_path and path['at'] < safe_path[0]['at'] and
                            path['points'] != safe_path[0]['points'] and
-                           (path_rectangle_clearance(path['points']) or 0.)
+                           (path_rectangle_clearance(path['points'], robot_radius=robot_radius) or 0.)
                            < REQUIRED_BODY_MARGIN_M]
                           if safe_path else [])
     checks['unsafe_route_replanned_after_lidar'] = bool(prior_unsafe_paths)
@@ -367,7 +408,7 @@ def assess(records, web_evidence, expected_route=(1, 2, 3)):
     if not checks[f'{goal_prefix}_path_after_lidar_is_box_clear']:
         reasons.append(f'{goal_prefix}_box_aware_safe_path_unproven')
 
-    minimum = (conservative_truth_body_clearance(mission_truth)
+    minimum = (conservative_truth_body_clearance(mission_truth, robot_radius=robot_radius)
                if crate_poses is not None else None)
     metrics['minimum_truth_body_clearance_m'] = (
         round(minimum, 4) if minimum is not None else None)
@@ -429,6 +470,8 @@ def main():
     parser.add_argument('--trace', type=Path, required=True)
     parser.add_argument('--web-evidence', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--robot-radius', type=positive_robot_radius, default=BODY_RADIUS_M,
+                        help='Verified enclosing body radius in metres; stock Gazebo default 0.24')
     parser.add_argument('--expected-route', default='1,2,3',
                         help='Ordered sector IDs from the staged trial, e.g. 1,3,2')
     args = parser.parse_args()
@@ -439,7 +482,7 @@ def main():
         expected_route = tuple(int(value) for value in args.expected_route.split(','))
         if not expected_route or len(set(expected_route)) != len(expected_route):
             raise ValueError('expected_route must contain distinct sector IDs')
-        result = assess(records, web_evidence, expected_route)
+        result = assess(records, web_evidence, expected_route, robot_radius=args.robot_radius)
     except (OSError, ValueError, TypeError, KeyError) as exc:
         result = {'passed': False, 'reasons': ['evidence_read_error: '+str(exc)],
                   'checks': {}, 'metrics': {}}

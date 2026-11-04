@@ -1,0 +1,278 @@
+{
+  "source_trial": "/tmp/classroom-tuning-fixed-repaired-infl30-20261104/25_web_inventory_sector3_moving_obstacle",
+  "wall_epoch": 1793799587.5028617,
+  "pose": [
+    0.006046177882180426,
+    -0.8890810131876927,
+    -1.5213212994718863
+  ],
+  "start": [
+    33,
+    87
+  ],
+  "scope": "Offline necessary-gate analysis; no runtime or YAML edits, no ROS nodes; observer samples are not atomic planner state.",
+  "snapshot_inputs": {
+    "observed": {
+      "age": 0.20599675178527832,
+      "cells": [
+        [
+          38,
+          88
+        ],
+        [
+          38,
+          89
+        ],
+        [
+          42,
+          89
+        ],
+        [
+          38,
+          90
+        ],
+        [
+          38,
+          91
+        ],
+        [
+          38,
+          92
+        ],
+        [
+          38,
+          93
+        ],
+        [
+          46,
+          102
+        ],
+        [
+          46,
+          103
+        ]
+      ]
+    },
+    "remembered": {
+      "age": 0.3910856246948242,
+      "cells": [
+        [
+          38,
+          89
+        ],
+        [
+          39,
+          89
+        ],
+        [
+          42,
+          89
+        ],
+        [
+          38,
+          90
+        ],
+        [
+          39,
+          90
+        ],
+        [
+          40,
+          90
+        ],
+        [
+          38,
+          91
+        ],
+        [
+          39,
+          91
+        ],
+        [
+          40,
+          91
+        ],
+        [
+          38,
+          92
+        ],
+        [
+          39,
+          92
+        ],
+        [
+          40,
+          92
+        ],
+        [
+          38,
+          93
+        ],
+        [
+          39,
+          93
+        ],
+        [
+          40,
+          93
+        ]
+      ]
+    }
+  },
+  "mask_counts": {
+    "observed_conservative": 346,
+    "memory_conservative": 261,
+    "observed_raw": 9,
+    "memory_raw": 15
+  },
+  "raw_clearance_start_m": 0.2470643497505647,
+  "required_start_clearance_m": 0.235,
+  "focused_ahead_observed_cells": [],
+  "straight_sweep_min_clearance_m": 0.24558805807891357,
+  "straight_sweep_first_decrease_at_m": 0.001,
+  "straight_sweep_001m_samples": [
+    {
+      "distance_m": 0.01,
+      "cell": [
+        33,
+        87
+      ],
+      "raw_clearance_m": 0.24617356285458875,
+      "gain_m": -0.0008907868959759646,
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": false
+    },
+    {
+      "distance_m": 0.025,
+      "cell": [
+        33,
+        87
+      ],
+      "raw_clearance_m": 0.2455959450903074,
+      "gain_m": -0.0014684046602572998,
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": false
+    },
+    {
+      "distance_m": 0.05,
+      "cell": [
+        33,
+        88
+      ],
+      "raw_clearance_m": 0.24642656440831381,
+      "gain_m": -0.0006377853422508961,
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": false
+    },
+    {
+      "distance_m": 0.1,
+      "cell": [
+        33,
+        89
+      ],
+      "raw_clearance_m": 0.2488993066988078,
+      "gain_m": 0.0018349569482430939,
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": false
+    },
+    {
+      "distance_m": 0.15,
+      "cell": [
+        32,
+        90
+      ],
+      "raw_clearance_m": 0.25137204898930177,
+      "gain_m": 0.004307699238737056,
+      "full_inflation_blocked": false,
+      "measured_inflation_blocked": false,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": true
+    },
+    {
+      "distance_m": 0.2,
+      "cell": [
+        32,
+        91
+      ],
+      "raw_clearance_m": 0.25384479127979576,
+      "gain_m": 0.006780441529231046,
+      "full_inflation_blocked": false,
+      "measured_inflation_blocked": false,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": true
+    },
+    {
+      "distance_m": 0.25,
+      "cell": [
+        32,
+        92
+      ],
+      "raw_clearance_m": 0.25631753357028997,
+      "gain_m": 0.009253183819725258,
+      "full_inflation_blocked": false,
+      "measured_inflation_blocked": false,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": true
+    },
+    {
+      "distance_m": 0.3,
+      "cell": [
+        32,
+        93
+      ],
+      "raw_clearance_m": 0.25879027586078396,
+      "gain_m": 0.011725926110219248,
+      "full_inflation_blocked": false,
+      "measured_inflation_blocked": false,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": true
+    }
+  ],
+  "ideal_history_probe": {
+    "candidate": "None",
+    "can_reach_called": 0,
+    "note": "Assumed perfectly straight and fresh 13-pose history, not the unlogged actual planner history."
+  },
+  "rear_scan_sector": {
+    "t": 39.5267,
+    "monotonic": 13759.0688,
+    "wall_time": 1793799587.4107,
+    "kind": "scan",
+    "front_min_m": 0.5709360241889954,
+    "front_min_angle_deg": 359.8174836710712,
+    "front_core_min_m": 0.5709360241889954,
+    "front_core_angle_deg": 359.8174836710712,
+    "rear_min_m": 1.2031009197235107,
+    "rear_min_angle_deg": 209.47591667758743,
+    "stamp_ns": 25972000000
+  },
+  "truth": {
+    "t": 39.5505,
+    "monotonic": 13759.0927,
+    "wall_time": 1793799587.4345,
+    "kind": "truth",
+    "x": 0.05144,
+    "y": -0.8688,
+    "yaw": -1.56686
+  },
+  "missing_inputs": [
+    "exact planner breadcrumb list/anchor and their receipt times",
+    "exact raw_dynamic/blocked masks and blocking_cells supplied at each reverse call",
+    "all acquisition-time raw scan beams+laser mounting TF to certify an actual rear swept body",
+    "exact predicate failure identifier inside select_reverse_egress"
+  ],
+  "conclusion": [
+    "Recorded aggregate NO_SAFE_EGRESS does not identify the first internal selector rejection.",
+    "Matching-size measured snapshots admit >23.5cm raw geometric clearance on the nominal rear ray, but strict all-obstacle monotonic clearance fails within its first millimeters.",
+    "Even ideal history therefore yields None without calling retained-goal reachability; virtual-mask effects are not required to reproduce refusal.",
+    "Full-reserve endpoint/goal checks add further restrictions shown in the table. No assertion of physically safe commanded backup follows from one rear-sector minimum."
+  ]
+}

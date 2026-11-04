@@ -1,0 +1,27 @@
+{
+  "source": "ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml",
+  "source_sha256": "50ad86d4c404a8028f857b29208a5769b38dbc10f449f19a05533a00611826f6",
+  "physical_radius_m": 0.22,
+  "astar_static_inflation_cells": 5,
+  "changed_fields_only": [
+    "local_costmap.local_costmap.ros__parameters.inflation_layer.inflation_radius",
+    "global_costmap.global_costmap.ros__parameters.inflation_layer.inflation_radius"
+  ],
+  "profiles": {
+    "022": {
+      "path": "benchmarks/inflation_tuning_20261104/profiles/nav_inflation_022.yaml",
+      "inflation_radius_m": 0.22,
+      "sha256": "50ad86d4c404a8028f857b29208a5769b38dbc10f449f19a05533a00611826f6"
+    },
+    "030": {
+      "path": "benchmarks/inflation_tuning_20261104/profiles/nav_inflation_030.yaml",
+      "inflation_radius_m": 0.3,
+      "sha256": "7e28ad5ea91b9f991a9905205cd0e72bb4c2e43bee686763bd780fb3718f94a3"
+    },
+    "040": {
+      "path": "benchmarks/inflation_tuning_20261104/profiles/nav_inflation_040.yaml",
+      "inflation_radius_m": 0.4,
+      "sha256": "be3be04a559142dbfb84e676c5d3143b7711de7d6a614d689b27b445b67575a0"
+    }
+  }
+}

@@ -24,7 +24,7 @@ def test_final_physical_value_parity_allows_only_declared_gazebo_overrides(tmp_p
     monkeypatch.setattr(staged, 'REPO', tmp_path)
     config = tmp_path/'ros2_ws/src/smart_vision_amr/config'
     config.mkdir(parents=True)
-    nav = config/'curve_tuning_waffle_pi.yaml'
+    nav = config/'classroom_demo_operator_20261104.yaml'
     nodes = config/'classroom_hardware_nodes.yaml'
     ekf = config/'ekf_hardware.yaml'
     generated = tmp_path/'classroom_nav_sim_time.yaml'
@@ -33,16 +33,16 @@ def test_final_physical_value_parity_allows_only_declared_gazebo_overrides(tmp_p
         'controller_server': {'ros__parameters': {
             'use_sim_time': False, 'max_vel_x': 0.12}},
         'local_costmap': {'local_costmap': {'ros__parameters': {
-            'robot_radius': .17, 'inflation_layer': {'inflation_radius': .18}}}},
+            'robot_radius': .22, 'inflation_layer': {'inflation_radius': .22}}}},
         'global_costmap': {'global_costmap': {'ros__parameters': {
-            'robot_radius': .17, 'inflation_layer': {'inflation_radius': .18}}}},
+            'robot_radius': .22, 'inflation_layer': {'inflation_radius': .22}}}},
     }
     nodes_data = {
         '/astar_planner': {'ros__parameters': {
-            'robot_radius': .17, 'obstacle_inflation_cells': 4,
+            'robot_radius': .22, 'obstacle_inflation_cells': 5,
             'preferred_clearance': .18, 'unrelated_tuning': .06}},
         '/path_follower': {'ros__parameters': {
-            'recovery_robot_radius': .17, 'curve_max_linear_velocity': .24}},
+            'recovery_robot_radius': .22, 'curve_max_linear_velocity': .22}},
     }
     nav.write_text(yaml.safe_dump(nav_data))
     generated.write_text(yaml.safe_dump(build_nav_profile_data(nav_data)))
@@ -55,14 +55,17 @@ def test_final_physical_value_parity_allows_only_declared_gazebo_overrides(tmp_p
         'config_sha256': {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
                           for path in (nav, nodes, ekf, generated, generated_nodes)},
     }
-    assert staged.check_physical_source_value_parity(tmp_path, manifest)['passed']
+    result = staged.check_physical_source_value_parity(tmp_path, manifest)
+    assert result['passed']
+    assert result['copy_preserves_selected_values']
+    assert result['authoritative_physical_sources']
     generated.write_text(generated.read_text().replace('0.12', '0.13'))
     checks = staged.check_physical_source_value_parity(tmp_path, manifest)['checks']
     assert not checks['nav_values_equal_except_declared_sim_overrides']
     assert not checks['generated_nav_hash_matches_runtime']
     generated.write_text(yaml.safe_dump(build_nav_profile_data(nav_data)))
     generated_nodes.write_text(generated_nodes.read_text().replace(
-        'curve_max_linear_velocity: 0.24', 'curve_max_linear_velocity: 0.25'))
+        'curve_max_linear_velocity: 0.22', 'curve_max_linear_velocity: 0.23'))
     checks = staged.check_physical_source_value_parity(tmp_path, manifest)['checks']
     assert not checks['nodes_values_equal_except_declared_sim_overrides']
     assert not checks['generated_nodes_hash_matches_runtime']
@@ -173,7 +176,7 @@ def route_evidence(stage):
             'route': list(stage.route), 'legs': legs}
 
 
-def test_web_ground_truth_position_uses_effective_nav2_goal_checker_tolerance():
+def test_web_ground_truth_position_keeps_independent_25cm_requirement():
     config = {'controller_server': {'ros__parameters': {
         'goal_checker_plugins': ['general_goal_checker'],
         'general_goal_checker': {'xy_goal_tolerance': .25},
@@ -191,6 +194,9 @@ def test_web_ground_truth_position_uses_effective_nav2_goal_checker_tolerance():
     assert check(.24)['passed'] is True
     assert check(.24)['position_tolerance_m'] == .25
     assert check(.26)['passed'] is False
+    config['controller_server']['ros__parameters']['general_goal_checker']['xy_goal_tolerance'] = .15
+    assert staged.effective_nav2_goal_tolerance(config) == .15
+    assert staged.web_truth_xy_tolerance(config) == .25
 
 
 def test_web_ground_truth_rejects_missing_or_invalid_nav2_goal_tolerance():
@@ -282,6 +288,138 @@ def test_optional_nav_profile_reaches_web_and_route_trials_without_changing_defa
     assert custom_route == default_route + ['--nav-params-source', str(profile)]
 
 
+def test_optional_nodes_profile_reaches_web_and_route_without_changing_defaults(tmp_path):
+    nodes, nav = tmp_path/'nodes.yaml', tmp_path/'nav.yaml'
+    web = staged.BY_KEY['25_web_inventory_sector3_moving_obstacle']
+    route = staged.BY_KEY['03_sector_3']
+    for builder, arguments in (
+            (staged.web_stage_runner_command, (web, tmp_path/'web')),
+            (staged.stage_runner_command, (route, tmp_path/'route', 180, 15))):
+        default = builder(*arguments)
+        assert '--nodes-params-source' not in default
+        selected = builder(*arguments, nav_params_source=nav,
+                           physical_footprint=True, nodes_params_source=nodes)
+        assert selected == default+['--nav-params-source', str(nav),
+            '--physical-footprint', '--nodes-params-source', str(nodes)]
+
+
+def test_nodes_profile_reaches_namespace_inner_command(tmp_path, monkeypatch):
+    selected = tmp_path/'selected_nodes.yaml'
+    captured = {}
+
+    def run(command, **kwargs):
+        captured['command'] = command
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(staged.subprocess, 'run', run)
+    assert staged.run_in_network_namespace(
+        staged.BY_KEY['09_wan_absent'], tmp_path, 180, 15,
+        physical_footprint=True, nodes_params_source=selected) == 0
+    command = captured['command']
+    assert '--run-inner' in command
+    assert command[command.index('--nodes-params-source')+1] == str(selected)
+    assert '--physical-footprint' in command
+
+
+@pytest.mark.parametrize('action,stage_key', [
+    ('--run', '03_sector_3'),
+    ('--run', '25_web_inventory_sector3_moving_obstacle'),
+    ('--run', '09_wan_absent'),
+    ('--run-inner', '03_sector_3'),
+    ('--run-inner', '25_web_inventory_sector3_moving_obstacle'),
+])
+def test_selected_nodes_cli_reaches_outer_and_inner_execution(
+        tmp_path, monkeypatch, action, stage_key):
+    selected = tmp_path/'selected_nodes.yaml'
+    selected.write_text('/astar_planner:\n  ros__parameters:\n    robot_radius: 0.22\n')
+    output = tmp_path/'trial'
+    if action == '--run-inner':
+        output.mkdir()
+    monkeypatch.setattr(sys, 'argv', ['staged', action, stage_key,
+        '--output', str(output), '--nodes-params-source', str(selected),
+        '--physical-footprint'])
+    monkeypatch.setattr(staged, 'assert_master_free', lambda *_: None)
+    monkeypatch.setattr(staged, 'web_runtime_source_hashes', lambda *_: {})
+
+    class ExecutionCaptured(Exception):
+        pass
+
+    def execution(*args):
+        assert args[-1] == selected.resolve()
+        assert args[-2] is True
+        raise ExecutionCaptured
+
+    monkeypatch.setattr(staged, 'execute_stage', execution)
+    monkeypatch.setattr(staged, 'run_in_network_namespace', execution)
+    with pytest.raises(ExecutionCaptured):
+        staged.main()
+
+
+def test_selected_nodes_reaches_web_execution_dispatch(tmp_path, monkeypatch):
+    selected = tmp_path/'selected_nodes.yaml'
+    monkeypatch.setattr(staged, 'assert_master_free', lambda *_: None)
+    captured = {}
+
+    def web_execution(*args):
+        captured['args'] = args
+        return 6
+
+    monkeypatch.setattr(staged, 'execute_web_stage', web_execution)
+    assert staged.execute_stage(
+        staged.BY_KEY['25_web_inventory_sector3_moving_obstacle'], tmp_path,
+        180, 15, physical_footprint=True, nodes_params_source=selected) == 6
+    assert captured['args'][-2:] == (True, selected)
+
+
+def test_custom_source_parity_uses_selected_node_tuning_and_preserves_radius(tmp_path, monkeypatch):
+    config = ROOT/'ros2_ws/src/smart_vision_amr/config'
+    nav = tmp_path/'selected_nav.yaml'
+    nodes = tmp_path/'selected_nodes.yaml'
+    nav_data = yaml.safe_load((config/'classroom_demo_operator_20261104.yaml').read_text())
+    nodes_data = yaml.safe_load((config/'classroom_hardware_nodes.yaml').read_text())
+    nodes_data['/astar_planner']['ros__parameters']['preferred_clearance'] = .55
+    nodes_data['/path_follower']['ros__parameters']['curve_preview_distance'] = .8
+    nodes.write_text(yaml.safe_dump(nodes_data))
+    nav.write_text(yaml.safe_dump(nav_data))
+    generated = tmp_path/'classroom_nav_sim_time.yaml'
+    generated_nodes = tmp_path/'classroom_nodes_sim.yaml'
+    generated.write_text(yaml.safe_dump(build_nav_profile_data(nav_data, physical_footprint=True)))
+    generated_nodes.write_text(yaml.safe_dump(build_nodes_profile_data(nodes_data, physical_footprint=True)))
+    ekf = config/'ekf_hardware.yaml'
+    manifest = {'physical_footprint': True,
+        'nav_profile_source': str(nav), 'nodes_profile_source': str(nodes),
+        'config_sha256': {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in (nav, nodes, ekf, generated, generated_nodes)}}
+    result = staged.check_physical_source_value_parity(tmp_path, manifest)
+    assert result['copy_preserves_selected_values'], result
+    assert not result['authoritative_physical_sources']
+    assert not result['passed']
+    assert result['source_paths']['nodes'] == str(nodes)
+    # A faithful benchmark copy does not establish use of the official live
+    # profiles. Even a legacy/overridden aggregate flag cannot pass Stage 17.
+    stage17 = staged.BY_KEY['17_web_hardware_value_parity']
+    outcome = staged.assess(stage17, {'physical_value_parity': {**result, 'passed': True}})
+    assert 'authoritative_physical_sources_unverified' in outcome['reasons']
+    # Equality is not enough: a nonmatching proxy radius must still fail.
+    nodes_data['/astar_planner']['ros__parameters']['robot_radius'] = .20
+    nodes.write_text(yaml.safe_dump(nodes_data))
+    generated_nodes.write_text(yaml.safe_dump(build_nodes_profile_data(nodes_data, physical_footprint=True)))
+    for path in (nodes, generated_nodes):
+        manifest['config_sha256'][str(path)] = hashlib.sha256(path.read_bytes()).hexdigest()
+    result = staged.check_physical_source_value_parity(tmp_path, manifest)
+    assert not result['passed']
+    assert not result['copy_preserves_selected_values']
+    assert not result['checks']['sim_footprint_matches_stock_sdf']
+
+
+def test_physical_footprint_flag_reaches_both_full_web_and_route_runners(tmp_path):
+    web = staged.BY_KEY['03_web_sector3_clean']
+    route = staged.BY_KEY['03_sector_3']
+    assert staged.web_stage_runner_command(web, tmp_path/'web', physical_footprint=True)[-1] == '--physical-footprint'
+    assert staged.stage_runner_command(route, tmp_path/'route', 180, 15,
+                                      physical_footprint=True)[-1] == '--physical-footprint'
+
+
 def test_nav_profile_missing_file_fails_before_stage_start(tmp_path):
     result = subprocess.run(
         [sys.executable, str(ROOT/'scripts/run_classroom_staged_validation.py'),
@@ -291,6 +429,33 @@ def test_nav_profile_missing_file_fails_before_stage_start(tmp_path):
         capture_output=True, text=True)
     assert result.returncode == 2
     assert '--nav-params-source must name a nonempty YAML file' in result.stderr
+    assert not (tmp_path/'trial').exists()
+
+
+@pytest.mark.parametrize('filename,content', [
+    ('missing.yaml', None), ('empty.yaml', ''), ('wrong.txt', 'data: {}\n')])
+def test_nodes_profile_invalid_file_fails_before_stage_start(tmp_path, filename, content):
+    source = tmp_path/filename
+    if content is not None:
+        source.write_text(content)
+    result = subprocess.run(
+        [sys.executable, str(ROOT/'scripts/run_classroom_staged_validation.py'),
+         '--run', '25_web_inventory_sector3_moving_obstacle',
+         '--output', str(tmp_path/'trial'), '--nodes-params-source', str(source)],
+        capture_output=True, text=True)
+    assert result.returncode == 2
+    assert '--nodes-params-source must name a nonempty YAML file' in result.stderr
+    assert not (tmp_path/'trial').exists()
+
+
+def test_fault_runner_parses_nodes_option_and_rejects_missing_file_before_launch(tmp_path):
+    result = subprocess.run([str(staged.RUNNER), '--nodes-params-source',
+                             str(tmp_path/'missing.yaml'),
+                             '--output', str(tmp_path/'trial')],
+                            capture_output=True, text=True)
+    assert result.returncode == 2
+    assert 'classroom hardware-like YAML missing' in result.stderr
+    assert 'Unknown argument' not in result.stderr
     assert not (tmp_path/'trial').exists()
 
 
@@ -479,11 +644,20 @@ def test_wait_replan_requires_zero_command_by_deadline():
 
 def test_recovery_does_not_erase_unsafe_preceding_hold():
     records = base_timeline()+[
+        {'t': .06, 'kind': 'goal', 'stamp_ns': 1_000_000_000},
         {'t': .10, 'kind': 'planner', 'status': 'WAIT_REPLAN'},
         {'t': .20, 'kind': 'cmd_vel', 'linear': .1, 'angular': 0.},
         {'t': .20, 'kind': 'truth', 'x': 0., 'y': 0., 'yaw': 0.},
         {'t': .30, 'kind': 'truth', 'x': .06, 'y': 0., 'yaw': 0.},
-        {'t': .32, 'kind': 'navigation', 'status': 'RECOVERING'},
+        {'t': .31, 'kind': 'recovery_request',
+         'payload': {'goal_id': '1:0', 'episode_id': 'checked-reverse'}},
+        {'t': .315, 'kind': 'planner', 'status': 'WAIT_REPLAN',
+         'goal_stamp': {'sec': 1, 'nanosec': 0},
+         'details': {'recovery_episode_id': 'checked-reverse', 'recovery_phase': 'REVERSING'}},
+        {'t': .32, 'kind': 'navigation', 'status': 'RECOVERING',
+         'goal_stamp': {'sec': 1, 'nanosec': 0},
+         'details': {'episode_id': 'checked-reverse'},
+         'message': 'Nav2 collision-checked reverse started'},
         {'t': .35, 'kind': 'cmd_vel', 'linear': -.04, 'angular': 0.},
         {'t': .42, 'kind': 'planner', 'status': 'RECOVERING'},
     ]
@@ -524,6 +698,62 @@ def test_near_lidar_snapshot_preserves_adjacent_invalid_and_valid_beams():
     assert [item['index'] for item in snapshot] == [0, 1, 2, 3, 4, 5]
     assert [item['range_m'] for item in snapshot] == [
         'inf', .88, .124, .126, 'nan', .91]
+
+
+def test_motion_timeline_retains_guard_geometry_and_actual_command_ramp():
+    payload = {'mode': 'auto', 'output_linear': 0., 'output_angular': 0.,
+               'requested_linear': .12, 'requested_angular': -.2,
+               'scan_guard_hold': True, 'scan_guard_code': 'SWEPT_INTERSECTION',
+               'scan_guard_support': 'unconfirmed',
+               'scan_guard_reason': 'raw hit intersects requested sweep',
+               'scan_guard_metrics': {'robot_radius_m': .22, 'horizon_seconds': .5,
+                   'minimum_body_clearance_m': .04, 'minimum_swept_clearance_m': -.01,
+                   'scan_age_seconds': .15, 'pose_age_seconds': .02, 'collision_indices': [102]},
+               'command_ramp': {'reason': 'stop', 'target_linear': 0., 'output_linear': 0.},
+               'unrelated_transport_history': ['do not duplicate large histories']}
+    snapshot = capture.motion_snapshot(payload)
+    assert snapshot['scan_guard_code'] == 'SWEPT_INTERSECTION'
+    assert snapshot['scan_guard_support'] == 'unconfirmed'
+    assert snapshot['scan_guard_metrics'] == payload['scan_guard_metrics']
+    assert snapshot['command_ramp'] == payload['command_ramp']
+    assert snapshot['requested_linear'] == .12 and snapshot['output_linear'] == 0.
+    assert 'unrelated_transport_history' not in snapshot
+    snapshot['scan_guard_metrics']['scan_age_seconds'] = 10.
+    assert payload['scan_guard_metrics']['scan_age_seconds'] == .15
+
+
+def test_inflation_summary_reads_guard_transitions_from_existing_timeline(tmp_path):
+    import importlib.util
+    import json
+    module_path = ROOT/'benchmarks/inflation_tuning_20261104/summarize_inflation_trials.py'
+    spec = importlib.util.spec_from_file_location('inflation_summary_regression', module_path)
+    summary = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(summary)
+    evidence = {'passed': True, 'route': [3], 'completed_ids': [3],
+                'final_state': 'HOME_REACHED', 'mission_started_at': 10., 'final_observed_at': 11.}
+    (tmp_path/'derived_evidence.json').write_text(json.dumps(evidence))
+    payload = {'scan_guard_hold': False, 'scan_guard_code': 'CLEAR',
+               'scan_guard_metrics': {'robot_radius_m': .22, 'horizon_seconds': .5,
+                   'minimum_body_clearance_m': .05, 'minimum_swept_clearance_m': .03,
+                   'scan_age_seconds': .1, 'pose_age_seconds': .02},
+               'command_ramp': {'reason': 'tracking'}}
+    clear = capture.motion_snapshot(payload)
+    payload.update(scan_guard_hold=True, scan_guard_code='SWEPT_INTERSECTION',
+                   command_ramp={'reason': 'stop'})
+    blocked = capture.motion_snapshot(payload)
+    rows = [{'kind': 'motion', 'wall_time': at, **values}
+            for at, values in ((10., clear), (10.1, blocked), (10.2, clear))]
+    (tmp_path/'safety_timeline.jsonl').write_text('\n'.join(json.dumps(row) for row in rows))
+    result = summary.summarize('022', tmp_path)
+    assert result['completed_route_and_home'] is True
+    guard = result['guard']
+    assert guard['available'] and guard['code_samples'] == {'CLEAR': 2, 'SWEPT_INTERSECTION': 1}
+    assert guard['hold_episode_count'] == 1
+    assert guard['sampled_hold_seconds'] == pytest.approx(.1)
+    assert guard['robot_radius_m'] == [.22] and guard['horizon_seconds'] == [.5]
+    assert guard['ramp_reason_samples'] == {'tracking': 2, 'stop': 1}
+    assert guard['minimum_swept_clearance_m'] == .03
+    assert result['tracking_error']['rms_m'] is None
 
 
 def test_known_static_world_proves_isolated_min_range_return_is_not_a_collision():
@@ -759,3 +989,104 @@ def test_web_transient_rejects_missing_hold_or_duplicate_delivery(tmp_path):
     result = staged.check_web_transient(records, relay, evidence)
     assert 'bounded_localization_hold_and_recovery_not_proven' in result['reasons']
     assert 'duplicate_or_missing_sector_delivery' in result['reasons']
+
+
+def write_fixed_scenario(path):
+    path.write_text('{"x":0.5239140050447512,"y":-0.599706838892526,'
+                    '"path_tangent":[0.6954214275160555,-0.7186021417665909],'
+                    '"movement_side":-1}\n')
+    return path
+
+
+def test_fixed_scenario_reaches_injector_without_changing_default_command(tmp_path, monkeypatch):
+    import shlex
+    scene = write_fixed_scenario(tmp_path/'actor scene.json')
+    captured = []
+    monkeypatch.setattr(staged.subprocess, 'Popen', lambda command, **kwargs: captured.append(command))
+    stage = staged.BY_KEY['25_web_inventory_sector3_moving_obstacle']
+    staged.start_web_obstacle_injector(stage, tmp_path)
+    default = captured[-1][2]
+    staged.start_web_obstacle_injector(stage, tmp_path, scene)
+    assert captured[-1][2] == default+' --obstacle-scenario '+shlex.quote(str(scene))
+    assert '--goal-x -0.25 --goal-y -1.98' in default
+    assert 'ROS_DOMAIN_ID=176 ROS_LOCALHOST_ONLY=1' in default
+
+
+def test_fixed_scenario_reaches_web_dispatch_and_namespace_inner(tmp_path, monkeypatch):
+    scene = write_fixed_scenario(tmp_path/'scene.json')
+    selected = tmp_path/'nodes.yaml'
+    captured = {}
+    monkeypatch.setattr(staged, 'assert_master_free', lambda *_: None)
+    def web(*args, **kwargs):
+        captured['web'] = (args, kwargs)
+        return 6
+    monkeypatch.setattr(staged, 'execute_web_stage', web)
+    assert staged.execute_stage(staged.BY_KEY['25_web_inventory_sector3_moving_obstacle'],
+        tmp_path, 180, 15, nodes_params_source=selected, obstacle_scenario=scene) == 6
+    assert captured['web'][1] == {'obstacle_scenario': scene}
+    monkeypatch.setattr(staged.subprocess, 'run',
+        lambda command, **kwargs: captured.update(command=command) or SimpleNamespace(returncode=0))
+    assert staged.run_in_network_namespace(staged.BY_KEY['09_wan_absent'], tmp_path,
+        180, 15, obstacle_scenario=scene) == 0
+    cmd = captured['command']
+    assert cmd[cmd.index('--obstacle-scenario')+1] == str(scene)
+
+
+@pytest.mark.parametrize('action', ['--run', '--run-inner'])
+def test_fixed_scenario_cli_preserves_copied_input_hash_and_reaches_execution(
+        tmp_path, monkeypatch, action):
+    scene = write_fixed_scenario(tmp_path/'scene.json')
+    root = tmp_path/'trial'
+    if action == '--run-inner':
+        root.mkdir()
+    monkeypatch.setattr(sys, 'argv', ['staged', action,
+        '25_web_inventory_sector3_moving_obstacle', '--output', str(root),
+        '--obstacle-scenario', str(scene)])
+    monkeypatch.setattr(staged, 'assert_master_free', lambda *_: None)
+    monkeypatch.setattr(staged, 'web_runtime_source_hashes', lambda *_: {})
+    class ExecutionCaptured(Exception):
+        pass
+    def execute(*args, **kwargs):
+        forwarded = kwargs['obstacle_scenario']
+        assert forwarded == (root/'obstacle_scenario.json' if action == '--run' else scene)
+        assert forwarded.read_bytes() == scene.read_bytes()
+        raise ExecutionCaptured
+    monkeypatch.setattr(staged, 'execute_stage', execute)
+    with pytest.raises(ExecutionCaptured):
+        staged.main()
+
+
+def test_fixed_scenario_cli_rejects_non_obstacle_stage_before_process_start(tmp_path, monkeypatch):
+    scene = write_fixed_scenario(tmp_path/'scene.json')
+    monkeypatch.setattr(sys, 'argv', ['staged', '--run', '03_web_sector3_clean',
+        '--output', str(tmp_path/'trial'), '--obstacle-scenario', str(scene)])
+    with pytest.raises(SystemExit) as exc:
+        staged.main()
+    assert exc.value.code == 2
+    assert not (tmp_path/'trial').exists()
+
+
+@pytest.mark.parametrize('matching', [True, False])
+def test_fixed_scenario_hash_is_required_in_derived_stage_acceptance(
+        tmp_path, monkeypatch, matching):
+    import json
+    scene = write_fixed_scenario(tmp_path/'scene.json')
+    stage_key = '25_web_inventory_sector3_moving_obstacle'
+    directory = tmp_path/stage_key
+    directory.mkdir()
+    expected = hashlib.sha256(scene.read_bytes()).hexdigest()
+    (directory/'acceptance.json').write_text(json.dumps({'web_obstacle': {
+        'obstacle_scenario': {'sha256': expected if matching else 'different'}}}))
+    monkeypatch.setattr(sys, 'argv', ['staged', '--assess-existing', stage_key,
+        '--output', str(tmp_path), '--obstacle-scenario', str(scene)])
+    monkeypatch.setattr(staged, 'web_runtime_source_hashes', lambda *_: {})
+    monkeypatch.setattr(staged, 'attach_timeline_and_network',
+                        lambda *_: {'passed': True, 'violations': []})
+    monkeypatch.setattr(staged, 'assess', lambda *_: {
+        'passed': True, 'outcome': 'PASS', 'reasons': []})
+    assert staged.main() == (0 if matching else 1)
+    report = json.loads((tmp_path/'staged_report.json').read_text())
+    assert report['obstacle_scenario']['sha256'] == expected
+    assert len(report['obstacle_scenario']['actor_positions_by_step']) == 5
+    assert report['stages'][0]['obstacle_scenario_hash_matches'] == matching
+    assert ('fixed_obstacle_scenario_hash_mismatch' in report['stages'][0]['reasons']) == (not matching)

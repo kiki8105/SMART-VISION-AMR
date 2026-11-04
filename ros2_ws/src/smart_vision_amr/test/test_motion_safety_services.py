@@ -21,6 +21,11 @@ def test_robot_side_services_acknowledge_zero_and_allow_a_guard_to_veto_reset():
     with patch.dict(os.environ, {'ROS_LOCALHOST_ONLY': '1'}):
         rclpy.init(context=context, domain_id=228)
     mux = MotionMuxNode(context=context)
+    # This fixture tests the stop/reset service protocol without sensors.
+    # The raw-scan/TF guard is tested separately and correctly holds a node
+    # with no scan, so it must not mask this test's initial moving command.
+    mux._scan_guard_enabled = False
+    mux.core.scan_guard_hold = False
     probe = Node('safety_protocol_probe', context=context)
     executor = MultiThreadedExecutor(num_threads=4, context=context)
     executor.add_node(mux)

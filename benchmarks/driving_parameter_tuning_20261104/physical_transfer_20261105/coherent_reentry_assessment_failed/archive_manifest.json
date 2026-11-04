@@ -1,0 +1,145 @@
+{
+  "root_at_capture": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105",
+  "files": [
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/staged_report.json",
+      "archive_path": "staged_report.json",
+      "original_sha256": "152f77190b72daf4e47bd0d39ca4998cbea5ab1d7835922bbf4e168fd1d3d569",
+      "archive_sha256": "152f77190b72daf4e47bd0d39ca4998cbea5ab1d7835922bbf4e168fd1d3d569",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105-source-rates.json",
+      "archive_path": "source_rates.json",
+      "original_sha256": "63510ee28238b828beb45ce040c687ae777ce40fadc3889f5837638900ac2e99",
+      "archive_sha256": "63510ee28238b828beb45ce040c687ae777ce40fadc3889f5837638900ac2e99",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105.log",
+      "archive_path": "runner.log.gz",
+      "original_sha256": "b9b6212aa8c307e9b3e7371e6943647d08391b0d4793535fad1ff1d729a1d55a",
+      "archive_sha256": "593624738fe79e361c8fe9f99ba90ef28994d4b8cdbbbd5f1a0d55f071477637",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/acceptance.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/acceptance.json",
+      "original_sha256": "4e21e8a6459998439a72535adfc0b5c88f6f8a4ed3357d2abcddf98f17f638b3",
+      "archive_sha256": "4e21e8a6459998439a72535adfc0b5c88f6f8a4ed3357d2abcddf98f17f638b3",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/derived_evidence.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/derived_evidence.json",
+      "original_sha256": "80fa357adb69e8245cbad4ad45e33a7c4c575b2f09c6ee87cba35827798f9742",
+      "archive_sha256": "80fa357adb69e8245cbad4ad45e33a7c4c575b2f09c6ee87cba35827798f9742",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/safety_assessment.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/safety_assessment.json",
+      "original_sha256": "b9251701d4133ebcf5cdf3940c20040c10183a2750f76573c4f4c9dfdf99863a",
+      "archive_sha256": "b9251701d4133ebcf5cdf3940c20040c10183a2750f76573c4f4c9dfdf99863a",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/runtime_manifest.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/runtime_manifest.json",
+      "original_sha256": "4c341554aedcc7b5232ba603b5d105bbd7886b8a7df9df05a379325c820a2c09",
+      "archive_sha256": "4c341554aedcc7b5232ba603b5d105bbd7886b8a7df9df05a379325c820a2c09",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/classroom_nav_sim_time.yaml",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/classroom_nav_sim_time.yaml",
+      "original_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "archive_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/classroom_nodes_sim.yaml",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/classroom_nodes_sim.yaml",
+      "original_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "archive_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/ekf_hardware_like_sim.yaml",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/ekf_hardware_like_sim.yaml",
+      "original_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "archive_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/memory_observer.summary.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/memory_observer.summary.json",
+      "original_sha256": "c172b845546215a45bdacc299a61bdffe14c95ff2ae5bc2b1fd6a27211ffd9c8",
+      "archive_sha256": "c172b845546215a45bdacc299a61bdffe14c95ff2ae5bc2b1fd6a27211ffd9c8",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/actual_spawned_model.sdf",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/actual_spawned_model.sdf",
+      "original_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "archive_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/fixture/fixture_manifest.json",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/fixture/fixture_manifest.json",
+      "original_sha256": "58e2b6c21f7f4aef5312d4fafd9e31b8fdccf410139dbe262548026f457b66c1",
+      "archive_sha256": "58e2b6c21f7f4aef5312d4fafd9e31b8fdccf410139dbe262548026f457b66c1",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/fixture/waffle_pi_fault.sdf",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/fixture/waffle_pi_fault.sdf",
+      "original_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "archive_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/fixture/classroom_fault.world",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/fixture/classroom_fault.world",
+      "original_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "archive_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/safety_timeline.jsonl",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/safety_timeline.jsonl.gz",
+      "original_sha256": "76ead605c4dfc1b05b1f17d6bb70c60659ea2ccfb623039af986590ae926dda5",
+      "archive_sha256": "c4efd759aca74c27ccff674b811838660b0fc559300534078e19e8f51fb55e96",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/memory_observer.jsonl",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/memory_observer.jsonl.gz",
+      "original_sha256": "523de548a4df87ccfb931796f7271f9063ef950c14f935c7146a0385fc808458",
+      "archive_sha256": "7d29786083647221d51ba14889556bbc66793089f729f80b95166b0e726a3e15",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/sensor_faults.jsonl",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/sensor_faults.jsonl.gz",
+      "original_sha256": "598ba3fdd6019c186adae05bf55dda42749db47dd1040811aa3d7664b8eb232d",
+      "archive_sha256": "8271efd8128976647d7ca65bbf33f5b53d0012a4b9ff4cf651d3ea134c24ff2e",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/gazebo_launch.log",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/gazebo_launch.log.gz",
+      "original_sha256": "89de82d0612d896e6c0a5f06c5b9b1258baab3f5c9fb5d6a85cc8557f5c56ad4",
+      "archive_sha256": "d8b66ac5e8fcc6a94f6ad790923be2cae6af7c44480e217e162a11995ec7a04d",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-coherent_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/web_server.log",
+      "archive_path": "19_web_inventory_sector2_same_session_reentry/web_server.log.gz",
+      "original_sha256": "cd61aa75226719000769e6d4adc39ca1da7df406643c0cf286fab9607cee4243",
+      "archive_sha256": "8c9a48188f01969466d5323062724598ff9cd85a77271f2a3e1885add794041a",
+      "gzip": true
+    }
+  ]
+}

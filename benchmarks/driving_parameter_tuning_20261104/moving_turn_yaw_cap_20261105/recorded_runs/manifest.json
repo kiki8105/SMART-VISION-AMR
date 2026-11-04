@@ -1,0 +1,17 @@
+{
+  "scope": "Frozen open-loop actual Nav2, no Gazebo/closed-loop/physical/stop-QA pass",
+  "costmap": "Reconstructed from identical captured scan, not captured costmap history",
+  "comparison": ".50 cap matches previous finite candidate range; .35 rejects translating yaw only",
+  "domain": 186,
+  "localhost_only": true,
+  "duration_seconds": 2.0,
+  "output_topic": "/replay/controller_cmd_vel",
+  "profile_sha256": "363f9ce5851e7e97359d631419645c87d59fa79e4552d36c73b9d78a2bd8f954",
+  "plugin_sha256": "90e835a0f84dc94c9fc67e47afef91bf549331d5195864890c24aa312105c63f",
+  "runner_sha256": "a1411638bbb635741439563ccdc4afdb2f93a2564737030c2adde6accac1cecf",
+  "replay_sha256": "da86053f916a47984fc910941a4ef66a18c8d7042431b7e018691d648ed92584",
+  "inputs": {
+    "folded_physical_incident": "0a4c416af2e33c7bc085f936bde7856b4f9b296484554feca6d8b4157c025f22",
+    "corner": "11bd33f724ba983dc6ac0dad91180edfd2503b38063b633862753caaf9e905aa"
+  }
+}

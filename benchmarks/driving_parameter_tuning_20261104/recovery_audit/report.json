@@ -1,0 +1,111 @@
+{
+  "scope": "Frozen necessary-gate counterfactual, not actual breadcrumb replay or a robot/Gazebo drive",
+  "fixture_sha256": "ee4c5124d34ff904b3f9b3e25d844645f9745a4a8966327fc18d12411540bc30",
+  "raw_start_clearance_m": 0.2470643497505647,
+  "required_raw_clearance_m": 0.23500000000000001,
+  "rear_0_to_30cm_sampled_minimum_clearance_m": 0.24558805807891357,
+  "rear_0_to_30cm_certified_lower_bound_m": 0.24508805807891357,
+  "raw_sweep_clearance_passed": true,
+  "maximum_initial_clearance_decrease_m": 0.001476291671651142,
+  "endpoints": [
+    {
+      "distance_m": 0.1,
+      "point": [
+        0.0011006933011923547,
+        -0.7892033771410821
+      ],
+      "cell": [
+        33,
+        89
+      ],
+      "raw_clearance_m": 0.2488993066988078,
+      "outside_full_static_dynamic_inflation": false,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": false
+    },
+    {
+      "distance_m": 0.15,
+      "point": [
+        -0.0013720489893016804,
+        -0.7392645591177769
+      ],
+      "cell": [
+        32,
+        90
+      ],
+      "raw_clearance_m": 0.25137204898930177,
+      "outside_full_static_dynamic_inflation": true,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": true
+    },
+    {
+      "distance_m": 0.2,
+      "point": [
+        -0.0038447912797957163,
+        -0.6893257410944715
+      ],
+      "cell": [
+        32,
+        91
+      ],
+      "raw_clearance_m": 0.25384479127979576,
+      "outside_full_static_dynamic_inflation": true,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": true
+    },
+    {
+      "distance_m": 0.25,
+      "point": [
+        -0.006317533570289751,
+        -0.6393869230711662
+      ],
+      "cell": [
+        32,
+        92
+      ],
+      "raw_clearance_m": 0.25631753357028997,
+      "outside_full_static_dynamic_inflation": true,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": true
+    },
+    {
+      "distance_m": 0.3,
+      "point": [
+        -0.008790275860783786,
+        -0.5894481050478609
+      ],
+      "cell": [
+        32,
+        93
+      ],
+      "raw_clearance_m": 0.25879027586078396,
+      "outside_full_static_dynamic_inflation": true,
+      "retained_goal_reachable_full": false,
+      "retained_goal_reachable_measured": true
+    }
+  ],
+  "synthetic_history_probes": [
+    {
+      "allow_parallel_static_egress": false,
+      "candidate_found": false,
+      "goal_callback_count": 0
+    },
+    {
+      "allow_parallel_static_egress": true,
+      "candidate_found": false,
+      "goal_callback_count": 0
+    }
+  ],
+  "interpretation": [
+    "Perfectly straight 13-point history is assumed; actual breadcrumbs were not recorded.",
+    "The unchanged selector rejects before any goal callback, even with its current parallel-static flag enabled.",
+    "15-30cm endpoints exit full inflation, but the full virtual-reserve goal tail has no route; measured-only tail has a route.",
+    "Neither this counterfactual nor a rear-sector minimum proves an actual executable/verified reverse maneuver."
+  ],
+  "limitations": [
+    "Exact planner breadcrumb list/anchor and callback receipt ordering were not logged.",
+    "Observer cells are not an atomic planner dump; their raw and reconstructed inflation counts exactly match the log.",
+    "The rear +/-30deg minimum does not cover the entire swept chassis and cannot establish actual reverse clearance alone.",
+    "The assumed straight history is a geometric necessary-gate probe, not reconstructed real history."
+  ]
+}

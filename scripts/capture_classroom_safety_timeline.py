@@ -41,6 +41,24 @@ def yaw(q):
     return math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))
 
 
+def motion_snapshot(payload):
+    """Preserve bounded mux diagnostics alongside the actual motor command.
+
+    Do not flatten guard geometry into one generic stop reason: a body/sweep
+    hit, stale scan and missing mounting TF require different corrective work.
+    Reading these already-published fields never advances the command ramp.
+    """
+    keys = ('mode', 'available', 'autonomous_allowed', 'estop_latched',
+            'output_linear', 'output_angular', 'requested_linear', 'requested_angular',
+            'scan_guard_hold', 'scan_guard_code', 'scan_guard_reason', 'scan_guard_support',
+            'localization_speed_factor', 'localization_reason',
+            'status_seq', 'sent_at_ns', 'mux_instance_id')
+    result = {key: payload.get(key) for key in keys}
+    for key in ('scan_guard_metrics', 'command_ramp'):
+        result[key] = dict(payload[key]) if isinstance(payload.get(key), dict) else {}
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
@@ -196,11 +214,7 @@ def main():
                 payload = json.loads(message.data)
             except (TypeError, ValueError):
                 payload = {}
-            self.emit('motion', mode=payload.get('mode'),
-                      autonomous_allowed=payload.get('autonomous_allowed'),
-                      estop_latched=payload.get('estop_latched'),
-                      output_linear=payload.get('output_linear'),
-                      output_angular=payload.get('output_angular'))
+            self.emit('motion', **motion_snapshot(payload))
 
         def path(self, message):
             self.emit('path', count=len(message.poses),

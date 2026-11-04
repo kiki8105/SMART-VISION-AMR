@@ -41,6 +41,10 @@ MEMORY_SESSION=false
 LASER_FILTER_PREFIX=${SMART_VISION_LASER_FILTER_PREFIX:-}
 GAZEBO_SEED=4242
 MEASURE_SCAN_FILTER=false
+PHYSICAL_FOOTPRINT=false
+COLD_START=false
+EKF_DELIVERY_FAULTS=false
+HARDWARE_PROFILE=nominal
 
 usage() {
   cat <<'EOF'
@@ -67,7 +71,12 @@ Usage: run_classroom_fault_sim.sh [--mode baseline|ekf_independent]
        [--gazebo-seed INTEGER]  # fixed 4242 by default for comparable A/B scans
        [--expect-sustained-outage-hold]  # profile outages: safety latch, no auto-resume
        [--nav-params-source YAML]  # Nav2 source profile, default classroom YAML
+       [--nodes-params-source YAML]  # A*/follower source, default classroom hardware YAML
        [--master-port PORT]  # dedicated localhost Gazebo master, default 11576
+       [--physical-footprint]  # copied 0.22 m collision proxy, physical YAML values preserved
+       [--cold-start]  # external web initializes AMCL; no launch-time perfect prior
+       [--ekf-delivery-faults]  # fault actual EKF output delivery, not its CPU/input processing
+       [--hardware-profile nominal|sensor_rates|wheel_asymmetry|actuator_lag]
        [--output DIRECTORY]
 
 Creates a copied SDF/world/map and runs Gazebo on localhost ROS domain 176.
@@ -99,6 +108,9 @@ while (($#)); do
     --laser-filter-for-change-memory) LASER_FILTER_FOR_CHANGE_MEMORY=true; shift;;
     --memory-session) MEMORY_SESSION=true; shift;;
     --measure-scan-filter) MEASURE_SCAN_FILTER=true; shift;;
+    --physical-footprint) PHYSICAL_FOOTPRINT=true; shift;;
+    --cold-start) COLD_START=true; shift;;
+    --ekf-delivery-faults) EKF_DELIVERY_FAULTS=true; shift;;
     --expect-sustained-outage-hold) EXPECT_SUSTAINED_OUTAGE_HOLD=true; shift;;
     --sector1-candidate) MISSION_ROUTE=true; SECTOR1_CANDIDATE=true; shift;;
     --sector1-original) MISSION_ROUTE=true; SECTOR1_ORIGINAL=true; shift;;
@@ -107,7 +119,7 @@ while (($#)); do
       MISSION_ROUTE=true
       SINGLE_GOAL=("$2" "$3" "$4" "$5")
       shift 5;;
-    --mode|--profile|--obstacle|--world|--map|--goal-x|--goal-y|--goal-yaw|--initial-x|--initial-y|--initial-yaw|--timeout|--obstacle-hold-timeout|--output|--nav-params-source|--master-port|--lifetime|--laser-filter-prefix|--gazebo-seed)
+    --mode|--profile|--obstacle|--world|--map|--goal-x|--goal-y|--goal-yaw|--initial-x|--initial-y|--initial-yaw|--timeout|--obstacle-hold-timeout|--output|--nav-params-source|--nodes-params-source|--master-port|--lifetime|--laser-filter-prefix|--gazebo-seed|--hardware-profile)
       if (($# < 2)); then usage >&2; exit 2; fi
       case "$1" in
         --mode) MODE=$2;; --profile) PROFILE=$2;; --obstacle) OBSTACLE=$2;;
@@ -118,10 +130,12 @@ while (($#)); do
         --timeout) TIMEOUT=$2;; --output) OUTPUT=$2;;
         --obstacle-hold-timeout) OBSTACLE_HOLD_TIMEOUT=$2;;
         --nav-params-source) NAV_PARAMS_SOURCE=$2;;
+        --nodes-params-source) NODES_PARAMS_SOURCE=$2;;
         --master-port) MASTER_PORT=$2;;
         --lifetime) LIFETIME=$2;;
         --laser-filter-prefix) LASER_FILTER_PREFIX=$2;;
         --gazebo-seed) GAZEBO_SEED=$2;;
+        --hardware-profile) HARDWARE_PROFILE=$2;;
       esac
       shift 2;;
     -h|--help) usage; exit 0;;
@@ -131,6 +145,15 @@ done
 case "$MODE" in baseline|ekf_independent) ;; *) usage >&2; exit 2;; esac
 case "$PROFILE" in clean|jitter|outages|mixed) ;; *) usage >&2; exit 2;; esac
 case "$OBSTACLE" in none|moving) ;; *) usage >&2; exit 2;; esac
+case "$HARDWARE_PROFILE" in nominal|sensor_rates|wheel_asymmetry|actuator_lag) ;; *) usage >&2; exit 2;; esac
+if [[ "$EKF_DELIVERY_FAULTS" == true && "$MODE" != ekf_independent ]]; then
+  printf '%s\n' '--ekf-delivery-faults requires --mode ekf_independent.' >&2
+  exit 2
+fi
+if [[ "$COLD_START" == true && ( "$MODE" != ekf_independent || "$NO_VERIFIER" != true ) ]]; then
+  printf '%s\n' '--cold-start requires the external web verifier (--mode ekf_independent --no-verifier).' >&2
+  exit 2
+fi
 if [[ ! "$LIFETIME" =~ ^[0-9]+$ ]] || ((LIFETIME < 10 || LIFETIME > 3600)); then
   printf 'Gazebo lifetime must be 10 to 3600 seconds.\n' >&2
   exit 2
@@ -202,6 +225,8 @@ if [[ ! -s "$WORLD" || ! -s "$MAP" || ! -s "$NAV_PARAMS_SOURCE" || ! -s "$NODES_
   printf 'World, map, or classroom hardware-like YAML missing.\n' >&2
   exit 2
 fi
+NAV_PARAMS_SOURCE=$(realpath -- "$NAV_PARAMS_SOURCE")
+NODES_PARAMS_SOURCE=$(realpath -- "$NODES_PARAMS_SOURCE")
 MODEL=$WORKSPACE/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf
 if [[ ! -s "$MODEL" || ! -f "$WORKSPACE/install/local_setup.bash" ]]; then
   printf 'Build the Team2 simulation workspace first with scripts/setup_sim.sh.\n' >&2
@@ -215,30 +240,42 @@ fi
 mkdir -p -- "$OUTPUT"
 OUTPUT=$(cd -- "$OUTPUT" && pwd)
 FIXTURE=$OUTPUT/fixture
+FOOTPRINT_ARGS=()
+if [[ "$PHYSICAL_FOOTPRINT" == true ]]; then FOOTPRINT_ARGS+=(--physical-footprint); fi
 /usr/bin/python3 "$REPO/scripts/prepare_classroom_fault_fixture.py" \
   --source-model "$MODEL" --world "$WORLD" --map "$MAP" \
-  --mode "$MODE" --output "$FIXTURE"
+  --mode "$MODE" --output "$FIXTURE" --hardware-profile "$HARDWARE_PROFILE" "${FOOTPRINT_ARGS[@]}"
 NAV_PARAMS=$OUTPUT/classroom_nav_sim_time.yaml
 NODES_PARAMS=$OUTPUT/classroom_nodes_sim.yaml
 /usr/bin/python3 "$REPO/scripts/build_classroom_replay_nav_profile.py" \
   --source "$NAV_PARAMS_SOURCE" --nodes-source "$NODES_PARAMS_SOURCE" \
-  --nodes-destination "$NODES_PARAMS" "$NAV_PARAMS"
+  --nodes-destination "$NODES_PARAMS" "${FOOTPRINT_ARGS[@]}" "$NAV_PARAMS"
 /usr/bin/python3 - "$OUTPUT/runtime_manifest.json" "$MODE" "$NAV_PARAMS" "$NODES_PARAMS" \
   "$REPO/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml" "$NAV_PARAMS_SOURCE" \
   "$NODES_PARAMS_SOURCE" \
   "$REPO/ros2_ws/src/smart_vision_amr/config/change_memory_speckle.yaml" \
   "$MASTER" "$RECORD_INCIDENTS" "$LASER_FILTER_FOR_CHANGE_MEMORY" "$GAZEBO_SEED" \
   "$MEASURE_SCAN_FILTER" "$MEMORY_SESSION" \
-  "$INITIAL_X" "$INITIAL_Y" "$INITIAL_YAW" <<'PY'
+  "$INITIAL_X" "$INITIAL_Y" "$INITIAL_YAW" "$PHYSICAL_FOOTPRINT" \
+  "$COLD_START" "$EKF_DELIVERY_FAULTS" "$HARDWARE_PROFILE" "$FIXTURE/fixture_manifest.json" <<'PY'
 import hashlib, json, sys
 from pathlib import Path
 (_, manifest_path, mode, nav_generated, nodes_generated, ekf_source,
  nav_source, nodes_source, filter_source, master, record_incidents,
  laser_filter, gazebo_seed, measure_scan_filter, memory_session,
- initial_x, initial_y, initial_yaw) = sys.argv
+ initial_x, initial_y, initial_yaw, physical_footprint, cold_start,
+ ekf_delivery_faults, hardware_profile, fixture_manifest) = sys.argv
 files = [Path(path) for path in (nav_generated, nodes_generated, ekf_source,
                                 nav_source, nodes_source, filter_source)]
 payload = {'domain': 176, 'localhost_only': True, 'mode': mode,
+           'physical_footprint': physical_footprint == 'true',
+           'cold_start': cold_start == 'true',
+           'amcl_launch_prior_enabled': cold_start != 'true',
+           'ekf_delivery_faults': ekf_delivery_faults == 'true',
+           'hardware_profile': hardware_profile,
+           'fixture_manifest': {'path': fixture_manifest,
+                                'sha256': hashlib.sha256(Path(fixture_manifest).read_bytes()).hexdigest()},
+           'fault_streams': (['scan', 'odom', 'tf'] if mode == 'baseline' or ekf_delivery_faults == 'true' else ['scan']),
            'gazebo_master_uri': master,
            'config_sha256': {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
                              for path in files},
@@ -250,7 +287,7 @@ payload = {'domain': 176, 'localhost_only': True, 'mode': mode,
                'robot_radius_m': 0.24,
                'nav2_inflation_radius_m': 0.26,
                'astar_static_inflation_cells': 5,
-               'astar_preferred_clearance_m': 0.25,
+               'astar_preferred_clearance_m': 0.45,
                'follower_recovery_radius_m': 0.24,
            },
            'record_incidents': record_incidents == 'true',
@@ -270,8 +307,41 @@ payload = {'domain': 176, 'localhost_only': True, 'mode': mode,
            'nav_profile_note': 'Physical Nav2 tuning copied with simulated time and Gazebo collision radius/inflation only.',
            'nodes_profile_note': 'Physical A*/follower tuning copied with Gazebo collision radius and 5-cell static inflation only.',
            'sensor_fault_scope': ('scan, Gazebo odom, Gazebo odom->base TF' if mode == 'baseline'
+                                  else 'scan and actual EKF odom/odom->base TF output delivery; raw wheel/IMU and EKF CPU remain unfaulted' if ekf_delivery_faults == 'true'
                                   else 'scan only; independent EKF publishes /odom and odom->base TF directly')}
+fixture = json.loads(Path(fixture_manifest).read_text())
+if fixture.get('hardware_profile') != hardware_profile:
+    raise SystemExit('Copied fixture hardware profile does not match requested profile')
+payload['hardware_profile_edits'] = fixture['hardware_profile_edits']
+payload['hardware_profile_calibration'] = fixture['hardware_profile_calibration']
 Path(manifest_path).write_text(json.dumps(payload, indent=2)+'\n')
+PY
+/usr/bin/python3 - "$OUTPUT/runtime_manifest.json" "$NAV_PARAMS" "$NODES_PARAMS" <<'PY'
+import json, sys, yaml
+from pathlib import Path
+path = Path(sys.argv[1])
+payload = json.loads(path.read_text())
+nav, nodes = (yaml.safe_load(Path(p).read_text()) for p in sys.argv[2:])
+planner = nodes['/astar_planner']['ros__parameters']
+follower = nodes['/path_follower']['ros__parameters']
+if payload['physical_footprint'] and (planner['robot_radius'] != .22 or follower['recovery_robot_radius'] != .22 or
+    any(nav[name][name]['ros__parameters']['robot_radius'] != .22
+        for name in ('local_costmap', 'global_costmap'))):
+    raise SystemExit('--physical-footprint requires 0.22 m source radius in every physical profile')
+payload['sim_footprint_overrides'] = {
+    'robot_radius_m': planner['robot_radius'],
+    'nav2_inflation_radius_m': nav['local_costmap']['local_costmap']['ros__parameters']['inflation_layer']['inflation_radius'],
+    'astar_static_inflation_cells': planner['obstacle_inflation_cells'],
+    'astar_preferred_clearance_m': planner['preferred_clearance'],
+    'follower_recovery_radius_m': follower['recovery_robot_radius'],
+    'physical_values_preserved': payload['physical_footprint'],
+    'only_use_sim_time_changed': payload['physical_footprint']}
+if payload['physical_footprint']:
+    payload['collision_model'] = {'copied_centered_cylinder_radius_m': .22, 'stock_source_unchanged': True}
+    payload['nav_profile_note'] = payload['nodes_profile_note'] = 'Physical values preserved; use_sim_time only; copied SDF body collision proxy radius 0.22 m.'
+    payload['camera_producer'] = {'layout': 'classroom_rear_physical', 'front_enabled': False,
+                                 'rear_width': 320, 'rear_height': 240, 'rear_fps': 5.0}
+path.write_text(json.dumps(payload, indent=2)+'\n')
 PY
 
 # Do not source sim_env.bash: its domain 76 might have a separate running test.
@@ -284,6 +354,23 @@ if [[ -f /usr/share/gazebo/setup.sh ]]; then source /usr/share/gazebo/setup.sh; 
 # shellcheck disable=SC1091
 source "$WORKSPACE/install/local_setup.bash"
 export ROS_DOMAIN_ID=$DOMAIN ROS_LOCALHOST_ONLY=1 GAZEBO_MASTER_URI=$MASTER
+/usr/bin/python3 - "$OUTPUT/runtime_manifest.json" "$NAV_PARAMS" <<'PY'
+import hashlib, json, sys, yaml
+from pathlib import Path
+from ament_index_python.packages import get_package_prefix
+manifest = Path(sys.argv[1])
+data = json.loads(manifest.read_text())
+nav = yaml.safe_load(Path(sys.argv[2]).read_text())
+plugin = nav['controller_server']['ros__parameters']['FollowPath']['plugin']
+data['controller'] = {'plugin': plugin}
+if plugin == 'smart_vision_amr_dwb::RouteTrackingDWB':
+    library = Path(get_package_prefix('smart_vision_amr_dwb'))/'lib/libroute_tracking_dwb.so'
+    if not library.is_file():
+        raise SystemExit('Classroom DWB library is missing; rerun scripts/setup_pc_runtime.sh --no-install')
+    data['controller'].update(library=str(library.resolve()),
+        library_sha256=hashlib.sha256(library.read_bytes()).hexdigest())
+manifest.write_text(json.dumps(data, indent=2)+'\n')
+PY
 if [[ "$LASER_FILTER_FOR_CHANGE_MEMORY" == true ]]; then
   if [[ -n "$LASER_FILTER_PREFIX" ]]; then
     if [[ ! -f "$LASER_FILTER_PREFIX/share/laser_filters/package.xml" ]]; then
@@ -409,7 +496,11 @@ if [[ "$TF_SOURCE_BEST_EFFORT" == true ]]; then
   TF_SOURCE_ARGS+=(--tf-source-best-effort)
 fi
 if [[ "$MODE" == ekf_independent ]]; then
-  TF_SOURCE_ARGS+=(--scan-only)
+  if [[ "$EKF_DELIVERY_FAULTS" == true ]]; then
+    TF_SOURCE_ARGS+=(--ekf-delivery-faults)
+  else
+    TF_SOURCE_ARGS+=(--scan-only)
+  fi
 fi
 setsid /usr/bin/python3 "$REPO/scripts/classroom_fault_relay.py" \
   --domain "$DOMAIN" --output "$OUTPUT/sensor_faults.jsonl" \
@@ -423,13 +514,22 @@ if [[ "$MEASURE_SCAN_FILTER" == true ]]; then
   PAIR_PID=$!
 fi
 
+CAMERA_ARGS=("camera_layout:=classroom_dual" "scan_guard_robot_radius:=0.24")
+if [[ "$PHYSICAL_FOOTPRINT" == true ]]; then
+  CAMERA_ARGS=("camera_layout:=classroom_rear_physical" "camera_update_rate:=5.0" "scan_guard_robot_radius:=0.22")
+fi
+SET_INITIAL_POSE=true
+if [[ "$COLD_START" == true ]]; then SET_INITIAL_POSE=false; fi
 setsid ros2 launch smart_vision_amr simulation.launch.py \
   "world:=$FIXTURE/classroom_fault.world" "map:=$FIXTURE/classroom_fault.yaml" \
   "robot_model_file:=$FIXTURE/waffle_pi_fault.sdf" \
+  "robot_model_snapshot_file:=$OUTPUT/actual_spawned_model.sdf" \
   "nav_params_file:=$NAV_PARAMS" "nodes_params_file:=$NODES_PARAMS" \
   "x_pose:=$INITIAL_X" "y_pose:=$INITIAL_Y" "yaw:=$INITIAL_YAW" \
   "initial_x:=$INITIAL_X" "initial_y:=$INITIAL_Y" "initial_yaw:=$INITIAL_YAW" \
-  "localization_mode:=$MODE" "camera_layout:=classroom_dual" \
+  "localization_mode:=$MODE" "${CAMERA_ARGS[@]}" \
+  "set_initial_pose:=$SET_INITIAL_POSE" \
+  "ekf_delivery_faults:=$EKF_DELIVERY_FAULTS" \
   "gazebo_seed:=$GAZEBO_SEED" \
   "laser_filter_for_change_memory:=$LASER_FILTER_FOR_CHANGE_MEMORY" \
   "memory_enabled:=$MEMORY_SESSION" "memory_persist_to_disk:=false" \
@@ -486,8 +586,11 @@ VERIFY_PID=$!
 wait "$VERIFY_PID"
 STATUS=$?
 if [[ -s "$OUTPUT/acceptance.json" && -s "$OUTPUT/sensor_faults.jsonl" ]]; then
+  DELIVERY_ASSESS_ARGS=()
+  if [[ "$EKF_DELIVERY_FAULTS" == true ]]; then DELIVERY_ASSESS_ARGS+=(--ekf-delivery-faults); fi
   /usr/bin/python3 "$REPO/scripts/assess_classroom_fault_delivery.py" \
     --profile "$PROFILE" --mode "$MODE" \
+    "${DELIVERY_ASSESS_ARGS[@]}" \
     --relay "$OUTPUT/sensor_faults.jsonl" --acceptance "$OUTPUT/acceptance.json" \
     >"$OUTPUT/fault_delivery.log" 2>&1
   if (($? != 0)); then STATUS=1; fi

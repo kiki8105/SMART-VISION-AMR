@@ -1,0 +1,3085 @@
+{
+  "passed": false,
+  "domain": 176,
+  "localhost_only": true,
+  "physical_robot_touched": false,
+  "mission_accepted_via_web": true,
+  "route": [
+    3
+  ],
+  "failure": "RuntimeError('Mission stopped in PAUSED: 경로 추종 불안정 · 정지 대기. 차량 자세와 경로를 확인한 뒤 임무를 명시적으로 재개하세요. 자동 출발하지 않습니다.')",
+  "dwell": {},
+  "dispatch_mode": "inventory",
+  "transient_requested": false,
+  "cold_start_requested": true,
+  "ekf_delivery_faults_requested": false,
+  "visual_ui_qa": false,
+  "path_points_per_sector": {
+    "3": 95
+  },
+  "home_path_points": 0,
+  "web_pages": {
+    "inventory": true,
+    "operator": true
+  },
+  "inventory_request": {
+    "marker_id": 3,
+    "item": "Gazebo 전체 운용 검증",
+    "quantity": 1,
+    "note": "",
+    "client_request_id": "classroom-web-3-1793813438612218638",
+    "id": 1,
+    "user_id": 1,
+    "created_at": 1793813438.613688,
+    "updated_at": 1793813438.613688,
+    "status": "PENDING",
+    "trip_id": null,
+    "deletion_pending": false
+  },
+  "inventory_request_created_at": 1793813438.613688,
+  "cold_start_proof": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 6.233062287999928
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 3,
+      "map_tf_messages": 1
+    }
+  },
+  "manual_initial_pose": {
+    "source": "registered_gazebo_home",
+    "requested": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "yaw": -0.027514
+    },
+    "requested_at": 1793813449.6776128,
+    "state": "VERIFIED",
+    "verified_at": 1793813451.3484929,
+    "estop_latched_after_verification": true,
+    "stop_acknowledged_after_verification": true,
+    "result": "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요."
+  },
+  "manual_initial_pose_trace": [
+    {
+      "at": 1793813449.6775985,
+      "status": [
+        true,
+        "실제 차량 위치와 방향을 지도 좌표로 입력하세요. 입력 후에도 비상정지를 유지합니다.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793813449.6882389,
+      "status": [
+        "WAITING",
+        "AMCL에 초기 위치를 입력하는 중입니다. 비상정지를 유지합니다.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793813449.8980656,
+      "status": [
+        "WAITING",
+        "AMCL이 초기 위치 입력을 수신했습니다. LiDAR·지도와 새 TF 검증 중입니다.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793813451.1393902,
+      "status": [
+        "WAITING",
+        "새 AMCL 위치·TF 확인 완료. 위치 감시 노드의 재획득 응답을 기다리는 중 · 비상정지 유지.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793813451.3484893,
+      "status": [
+        "VERIFIED",
+        "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.",
+        true,
+        true
+      ]
+    }
+  ],
+  "startup_reset_requested_via_web": true,
+  "startup_reset_attempts": [
+    {
+      "at": 1793813451.4099054,
+      "accepted": true
+    },
+    {
+      "at": 1793813454.504501,
+      "accepted": true
+    }
+  ],
+  "startup_reset_accepted_at": 1793813451.4099054,
+  "startup_reset_completed": true,
+  "prearm_graph": {
+    "map_publishers": [
+      "/map_server"
+    ],
+    "scan_publishers": [
+      "/classroom_fault_relay"
+    ],
+    "odom_publishers": [
+      "/ekf_independent"
+    ],
+    "ekf_output_source_publishers": [],
+    "ekf_tf_source_publishers": [],
+    "battery_publishers": [
+      "/classroom_sim_battery"
+    ],
+    "raw_wheel_publishers": [
+      "/wheel_joint_odometry"
+    ],
+    "raw_imu_publishers": [
+      "/turtlebot3_imu"
+    ],
+    "goal_subscribers": [
+      "/flight_recorder",
+      "/astar_planner",
+      "/path_follower",
+      "/classroom_safety_timeline",
+      "/classroom_memory_observer",
+      "/classroom_web_obstacle_injector"
+    ],
+    "planner_status_publishers": [
+      "/astar_planner"
+    ],
+    "cancel_service_types": [
+      "std_srvs/srv/Trigger"
+    ],
+    "raw_input_samples": {
+      "/wheel/odom": {
+        "count": 2,
+        "last_receipt_age_s": 0.019010346000868594
+      },
+      "/imu": {
+        "count": 2,
+        "last_receipt_age_s": 0.0038537660002475604
+      }
+    },
+    "guard_battery_minimum_v": 10.8
+  },
+  "prearm": {
+    "passed": true,
+    "sampled_at": 1793813457.5611377,
+    "checks": {
+      "isolated_ros_domain": {
+        "passed": true,
+        "observed": 176,
+        "requirement": "domain 176, localhost only"
+      },
+      "configured_occupancy_map": {
+        "passed": true,
+        "observed": {
+          "preview": false,
+          "configured_match": true,
+          "version": 3
+        },
+        "requirement": "real /map matching configured YAML"
+      },
+      "single_map_publisher": {
+        "passed": true,
+        "observed": [
+          "/map_server"
+        ],
+        "requirement": "exactly one /map publisher"
+      },
+      "fresh_map_base_tf": {
+        "passed": true,
+        "observed": {
+          "pose_age_s": 0.03,
+          "map_tf_age_s": 0.034,
+          "pose": {
+            "x": -0.22749244646951858,
+            "y": -0.2027664456708414,
+            "yaw": -0.047362919669548385
+          }
+        },
+        "requirement": "current map→base pose and TF younger than 1 s"
+      },
+      "fresh_scan": {
+        "passed": true,
+        "observed": {
+          "web_age_s": 0.06,
+          "health_age_s": 0.15543183800036786,
+          "header_age_s": 0.046,
+          "valid": true,
+          "publishers": [
+            "/classroom_fault_relay"
+          ]
+        },
+        "requirement": "live topic, health receipt/header age ≤0.5 s"
+      },
+      "fresh_odom": {
+        "passed": true,
+        "observed": {
+          "web_age_s": 0.03,
+          "health_age_s": 0.05763596500037238,
+          "header_age_s": 0.034,
+          "valid": true,
+          "publishers": [
+            "/ekf_independent"
+          ]
+        },
+        "requirement": "live topic, health receipt/header age ≤0.5 s"
+      },
+      "amcl_position_uncertainty": {
+        "passed": true,
+        "observed": 0.21133073057501386,
+        "requirement": "≤0.50 m"
+      },
+      "amcl_yaw_uncertainty": {
+        "passed": true,
+        "observed": 0.21169649111883965,
+        "requirement": "<0.5 rad"
+      },
+      "amcl_pose_freshness": {
+        "passed": true,
+        "observed": {
+          "receipt_age_s": 1.2195524210001167,
+          "header_age_s": 0.846
+        },
+        "requirement": "AMCL receipt/header ages <8 s, future header ≤0.25 s"
+      },
+      "scan_map_agreement": {
+        "passed": true,
+        "observed": 0.8375,
+        "requirement": "≥0.55 health warning threshold"
+      },
+      "localization_health": {
+        "passed": true,
+        "observed": {
+          "level": "ok",
+          "reasons": [],
+          "stop_latched": false,
+          "autonomous_allowed": true
+        },
+        "requirement": "acquired, level ok or bounded position warning, no health stop latch"
+      },
+      "rear_camera": {
+        "passed": true,
+        "observed": {
+          "age_s": 0.09,
+          "raw_age_s": 0.09
+        },
+        "requirement": "fresh rear raw and processed frames"
+      },
+      "battery_sensor": {
+        "passed": true,
+        "observed": {
+          "power": {
+            "status": "online",
+            "voltage": 12.0,
+            "percentage": 0.75,
+            "age": 0.18,
+            "source": "/battery_state"
+          },
+          "publishers": [
+            "/classroom_sim_battery"
+          ]
+        },
+        "requirement": "live /battery_state ≥10.8 V"
+      },
+      "robot_guard_battery_limit": {
+        "passed": true,
+        "observed": 10.8,
+        "requirement": "live EKF guard parameter minimum_battery_voltage=10.8 V"
+      },
+      "fresh_raw_wheel": {
+        "passed": true,
+        "observed": {
+          "publishers": [
+            "/wheel_joint_odometry"
+          ],
+          "sample": {
+            "count": 2,
+            "last_receipt_age_s": 0.019010346000868594
+          }
+        },
+        "requirement": "two independent raw sensor samples with last receipt <1 s"
+      },
+      "fresh_raw_imu": {
+        "passed": true,
+        "observed": {
+          "publishers": [
+            "/turtlebot3_imu"
+          ],
+          "sample": {
+            "count": 2,
+            "last_receipt_age_s": 0.0038537660002475604
+          }
+        },
+        "requirement": "two independent raw sensor samples with last receipt <1 s"
+      },
+      "astar_and_cancel": {
+        "passed": true,
+        "observed": {
+          "goal_subscribers": [
+            "/flight_recorder",
+            "/astar_planner",
+            "/path_follower",
+            "/classroom_safety_timeline",
+            "/classroom_memory_observer",
+            "/classroom_web_obstacle_injector"
+          ],
+          "planner_status_publishers": [
+            "/astar_planner"
+          ],
+          "cancel_service_types": [
+            "std_srvs/srv/Trigger"
+          ]
+        },
+        "requirement": "A* and follower goal subscribers, planner status, cancel service"
+      },
+      "mux_stop_ack_and_explicit_reset": {
+        "passed": true,
+        "observed": {
+          "requested": true,
+          "latched": false,
+          "stop_acknowledged": true,
+          "pending": null,
+          "autonomous_allowed": true
+        },
+        "requirement": "explicit web reset, robot-side stopped ACK, autonomous handoff"
+      },
+      "web_departure_readiness": {
+        "passed": true,
+        "observed": {
+          "ready": true,
+          "missing": []
+        },
+        "requirement": "all web departure conditions ready"
+      }
+    },
+    "failed_gates": []
+  },
+  "prearm_trace": [
+    {
+      "sampled_at": 1793813457.5611377,
+      "failed_gates": []
+    }
+  ],
+  "front_camera_enabled": false,
+  "marker_targets": {
+    "0": [
+      -0.188431,
+      -0.220497,
+      -0.027514
+    ],
+    "1": [
+      1.2,
+      0.575,
+      3.114078
+    ],
+    "2": [
+      1.525,
+      -2.65,
+      1.543282
+    ],
+    "3": [
+      -0.25,
+      -1.98,
+      -1.4
+    ]
+  },
+  "mission_started_at": 1793813457.5654228,
+  "dispatch_load_confirmed": true,
+  "configured_dwell_seconds": 5.0,
+  "home_target": {
+    "x": -0.188431,
+    "y": -0.220497,
+    "yaw": -0.027514
+  },
+  "start_pose": [
+    -0.22749244646951858,
+    -0.2027664456708414
+  ],
+  "pause_marker_alignment": {
+    "state": "IDLE",
+    "reason": "섹터 도착 후 표식을 탐색합니다."
+  },
+  "pause_goal": 3,
+  "final_state": "PAUSED",
+  "final_route": [
+    3
+  ],
+  "completed_ids": [],
+  "final_observed_at": 1793813480.7836833,
+  "terminal_snapshot": {
+    "mission": {
+      "state": "PAUSED",
+      "route": [
+        3
+      ],
+      "pending_route": null,
+      "current_index": 0,
+      "current_marker_id": 3,
+      "completed_ids": [],
+      "reason": "경로 추종 불안정 · 정지 대기. 차량 자세와 경로를 확인한 뒤 임무를 명시적으로 재개하세요. 자동 출발하지 않습니다.",
+      "sector_dwell_seconds": 5.0,
+      "dwell_marker_id": null,
+      "dwell_remaining_seconds": null,
+      "can_resume": true,
+      "estop_latched": false,
+      "home": {
+        "x": -0.188431,
+        "y": -0.220497,
+        "yaw": -0.027514
+      },
+      "returning_home": false,
+      "auto_return_home": true,
+      "auto_returning_home": false,
+      "can_return_home": true
+    },
+    "navigation": {
+      "status": "CANCELED",
+      "planner_status": "WAIT_REPLAN",
+      "message": "Navigation manually stopped"
+    },
+    "failure_memory": {
+      "state": "CLEAR",
+      "count": 0,
+      "active": [],
+      "available": false
+    },
+    "observed_obstacles": {
+      "map_version": 3,
+      "cells": [
+        7604,
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039
+      ],
+      "age": 0.03
+    },
+    "pose": {
+      "x": -0.06417678142951735,
+      "y": -0.4093060378018797,
+      "yaw": -1.2764628007671646
+    },
+    "safety": {
+      "mode": "hold",
+      "available": true,
+      "reason": "Motion held",
+      "source_id": "rS03ohTj3qwgUy1IgrbzXVdY",
+      "estop_latched": false,
+      "scan_guard_hold": false,
+      "scan_guard_reason": "",
+      "scan_guard_code": "CLEAR",
+      "scan_guard_support": "",
+      "scan_guard_metrics": {
+        "scan_age_seconds": 0.054,
+        "pose_age_seconds": 0.042,
+        "lookup_error": "",
+        "pose_source": "latest",
+        "future_lead_seconds": 0.0,
+        "pose_uncertainty_seconds": 0.042,
+        "robot_radius_m": 0.22,
+        "horizon_seconds": 0.5,
+        "minimum_body_clearance_m": 0.06321369075297786,
+        "minimum_swept_clearance_m": 0.06321369075297786,
+        "collision_count": 0,
+        "inside_count": 0,
+        "collision_indices": [],
+        "longitudinal_uncertainty_m": 0.00924,
+        "lateral_uncertainty_m": 0.00019404,
+        "pending_scan": false
+      },
+      "control_seq": 5,
+      "allow_localization": true,
+      "auto_source_id": "nav:f3445011084d41c98901c784de5a5a89",
+      "auto_rejected_reason": "",
+      "control_rejected_reason": "",
+      "control_received": 14,
+      "control_accepted": 14,
+      "control_rejected": 0,
+      "auto_received": 82,
+      "auto_accepted": 82,
+      "auto_rejected": 0,
+      "control_by_origin": {
+        "topic": {
+          "received": 12,
+          "accepted": 12,
+          "rejected": 0
+        },
+        "service": {
+          "received": 2,
+          "accepted": 2,
+          "rejected": 0
+        }
+      },
+      "auto_by_origin": {
+        "topic": {
+          "received": 82,
+          "accepted": 82,
+          "rejected": 0
+        }
+      },
+      "last_control": {
+        "source_id": "rS03ohTj3qwgUy1IgrbzXVdY",
+        "seq": 5,
+        "mode": "hold",
+        "accepted": true,
+        "reason": "",
+        "origin": "topic",
+        "received_at_monotonic_ns": 27652284276072
+      },
+      "last_control_rejection": null,
+      "last_auto": {
+        "source_id": "nav:f3445011084d41c98901c784de5a5a89",
+        "seq": 82,
+        "mode": null,
+        "accepted": true,
+        "reason": "",
+        "origin": "topic",
+        "received_at_monotonic_ns": 27651696307933
+      },
+      "last_auto_rejection": null,
+      "output_owner": "hold",
+      "localization_speed_factor": 1.0,
+      "autonomous_allowed": true,
+      "localization_reason": "",
+      "output_linear": 0.0,
+      "output_angular": 0.0,
+      "requested_linear": 0.0,
+      "requested_angular": 0.0,
+      "command_ramp": {
+        "enabled": true,
+        "limited": false,
+        "reason": "stop",
+        "linear_acceleration": 0.2,
+        "angular_acceleration": 0.8,
+        "max_acceleration_step": 0.1,
+        "target_linear": 0.0,
+        "target_angular": 0.0,
+        "output_linear": 0.0,
+        "output_angular": 0.0
+      },
+      "status_seq": 233,
+      "sent_at_ns": 26080000000,
+      "mux_instance_id": "mux-service:859ca7fe51074e49a3d16b5d6eba96bf",
+      "output_publishers": 1,
+      "stop_acknowledged": true,
+      "reset_pending": false,
+      "latched": false,
+      "pending": null,
+      "result": "Emergency reset acknowledged; motion remains held. Explicit resume required."
+    },
+    "localization_health": {
+      "level": "ok",
+      "reasons": [],
+      "advisories": [],
+      "metrics": {
+        "map_available": true,
+        "scan_age_seconds": 0.0009157289969152771,
+        "odom_age_seconds": 0.037096877000294626,
+        "scan_header_age_seconds": -0.007,
+        "odom_header_age_seconds": 0.032,
+        "scan_valid": true,
+        "odom_valid": true,
+        "position_std_m": 0.07380649473341301,
+        "yaw_std_rad": 0.07700578769775508,
+        "amcl_age_seconds": 0.4376946880001924,
+        "amcl_update_epoch": 27651.915721231,
+        "amcl_header_age_seconds": 0.394,
+        "moving": false,
+        "pose_jump": false,
+        "scan_map_agreement": 0.7125,
+        "agreement_age_seconds": 0.05066131799685536,
+        "agreement_header_age_seconds": 0.094,
+        "map_tf_age_seconds": 0.032,
+        "odom_tf_valid": true,
+        "odom_tf_age_seconds": 0.032,
+        "map_tf_lookup_error": "",
+        "odom_tf_lookup_error": "",
+        "amcl_update_requests": 13,
+        "amcl_update_responses": 13,
+        "amcl_update_timeouts": 0,
+        "amcl_update_errors": 0,
+        "scan_tf_state": "WAITING_FOR_MEASUREMENT_TF",
+        "scan_tf_error": "Lookup would require extrapolation into the future.  Requested time 26.127000 but the latest data is at time 26.088000, when looking up transform from frame [base_footprint] to frame [map]",
+        "scan_tf_wait_ms": 79.10221100246417,
+        "scan_tf_drop_count": 11,
+        "scan_tf_pending_count": 1,
+        "amcl_refresh_mode": "stationary",
+        "amcl_refresh_state": "RESPONDED",
+        "amcl_stationary_update_requests": 0,
+        "dynamic_tf_qos": "BEST_EFFORT",
+        "dynamic_tf_received_count": 1293,
+        "dynamic_tf_transform_count": 1812,
+        "dynamic_tf_receive_age_seconds": 0.026512677999562584,
+        "dynamic_tf_receive_interval_seconds": 0.011865034997754265,
+        "dynamic_tf_latest_header_age_seconds": -0.906,
+        "dynamic_tf_map_odom_count": 257,
+        "dynamic_tf_map_odom_header_age_seconds": -0.906,
+        "dynamic_tf_map_odom_receive_age_seconds": 0.07807337199847098,
+        "dynamic_tf_map_odom_receive_interval_seconds": 0.1549659670017718,
+        "dynamic_tf_odom_base_count": 517,
+        "dynamic_tf_odom_base_header_age_seconds": 0.032,
+        "dynamic_tf_odom_base_receive_age_seconds": 0.03837771299731685,
+        "dynamic_tf_odom_base_receive_interval_seconds": 0.052946777002944145,
+        "odom_last_received_age_seconds": 0.037096877000294626,
+        "odom_raw_header_age_seconds": 0.032,
+        "odom_rejected_count": 0,
+        "odom_rejection_reason": "",
+        "odom_last_rejection_reason": "",
+        "odom_receive_interval_seconds": 0.040246832999400795,
+        "odom_header_interval_seconds": 0.05,
+        "scan_last_received_age_seconds": 0.0009157289969152771,
+        "scan_raw_header_age_seconds": -0.007,
+        "scan_rejected_count": 0,
+        "scan_rejection_reason": "",
+        "scan_last_rejection_reason": "",
+        "scan_receive_interval_seconds": 0.12884780000240426,
+        "scan_header_interval_seconds": 0.101,
+        "amcl_motion_without_update_seconds": 0.0,
+        "amcl_motion_dt_clamped": 0
+      },
+      "stop_latched": false,
+      "autonomous_allowed": true,
+      "allow_localization": true,
+      "reinitialization_requested": true,
+      "stable_seconds": 29.250382156998967,
+      "stamp_ns": 26120000000,
+      "sent_at_ns": 26120000000,
+      "explanations": []
+    }
+  },
+  "rear_camera_frames": {},
+  "rear_camera_frame_errors": {},
+  "front_camera_frames": {},
+  "marker_alignment_trace": [],
+  "web_route_trace": [
+    {
+      "at": 1793813457.6088357,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "IDLE"
+    },
+    {
+      "at": 1793813457.8185773,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813458.2354023,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 95,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813463.2400277,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 93,
+      "planner_status": "READY"
+    },
+    {
+      "at": 1793813466.1788132,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 94,
+      "planner_status": "READY"
+    },
+    {
+      "at": 1793813466.805156,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813467.8441737,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813468.055917,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813468.4713817,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813468.6772616,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 83,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813469.0936284,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 83,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813469.7366877,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813471.6140432,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813471.824148,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 82,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813472.0292447,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813472.866427,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813473.0716796,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813473.4913328,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 82,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813473.696777,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813473.9021788,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813474.1080287,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813474.5303812,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813474.7373412,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813475.1504278,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813475.3577712,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 82,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813475.7819202,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 82,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813475.992644,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813477.0383682,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813477.2432203,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813477.6542006,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813477.8636506,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813478.2753246,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813478.4830272,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 82,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813478.688922,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813478.8978317,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 82,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813479.10572,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813479.5262346,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 82,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793813479.9415417,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813480.3587916,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 82,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813480.5706859,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793813480.783628,
+      "state": "PAUSED",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    }
+  ],
+  "observed_obstacle_overlay_trace": [
+    {
+      "at": 1793813457.608824,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813463.0331678,
+      "cells": [
+        7778,
+        7864,
+        7949,
+        7950,
+        8036,
+        8122,
+        8208,
+        8209,
+        8210,
+        8211,
+        8212,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813463.2400136,
+      "cells": [
+        7778,
+        7864,
+        7950,
+        8036,
+        8122,
+        8208,
+        8209,
+        8210,
+        8211,
+        8212,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813463.4458623,
+      "cells": [
+        7778,
+        7864,
+        7950,
+        8036,
+        8122,
+        8208,
+        8209,
+        8210,
+        8211,
+        8212
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813463.666807,
+      "cells": [
+        7778,
+        7864,
+        7950,
+        8036,
+        8121,
+        8122,
+        8208,
+        8209,
+        8210,
+        8211,
+        8212
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813463.8833487,
+      "cells": [
+        7778,
+        7864,
+        7950,
+        8036,
+        8122,
+        8208,
+        8209,
+        8210,
+        8211,
+        8212
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813464.0915306,
+      "cells": [
+        7778,
+        7864,
+        7950,
+        8036,
+        8122,
+        8207,
+        8208,
+        8209,
+        8210,
+        8212,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813464.2973924,
+      "cells": [
+        7778,
+        7864,
+        7950,
+        8036,
+        8122,
+        8208,
+        8209,
+        8210,
+        8211,
+        8212,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813464.5046256,
+      "cells": [
+        7778,
+        7864,
+        7950,
+        8036,
+        8122,
+        8208,
+        8209,
+        8210,
+        8212,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813464.7127802,
+      "cells": [
+        7778,
+        7864,
+        7950,
+        8036,
+        8122,
+        8208,
+        8209,
+        8210,
+        8211,
+        8212,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813464.9265373,
+      "cells": [
+        7777,
+        7778,
+        7863,
+        7864,
+        7949,
+        7950,
+        8035,
+        8036,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8208,
+        8209
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.13,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813465.1329846,
+      "cells": [
+        7692,
+        7777,
+        7778,
+        7863,
+        7864,
+        7949,
+        7950,
+        8035,
+        8036,
+        8121,
+        8122,
+        8123,
+        8124,
+        8126,
+        8209,
+        8211
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813465.345105,
+      "cells": [
+        7777,
+        7778,
+        7864,
+        7949,
+        7950,
+        8035,
+        8036,
+        8121,
+        8122,
+        8123,
+        8125,
+        8207,
+        8209,
+        8210,
+        8211
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.11,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813465.5514114,
+      "cells": [
+        7692,
+        7777,
+        7778,
+        7863,
+        7864,
+        7949,
+        7950,
+        8035,
+        8036,
+        8121,
+        8122,
+        8124,
+        8125,
+        8126,
+        8208,
+        8209,
+        8211
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813465.759939,
+      "cells": [
+        7691,
+        7692,
+        7777,
+        7778,
+        7863,
+        7864,
+        7949,
+        7950,
+        8035,
+        8036,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813465.9678285,
+      "cells": [
+        7691,
+        7692,
+        7777,
+        7778,
+        7863,
+        7864,
+        7949,
+        7950,
+        8035,
+        8036,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813466.1788,
+      "cells": [
+        7691,
+        7692,
+        7777,
+        7778,
+        7863,
+        7864,
+        7949,
+        7950,
+        8035,
+        8036,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813466.594125,
+      "cells": [
+        7691,
+        7692,
+        7777,
+        7778,
+        7863,
+        7864,
+        7949,
+        7950,
+        8034,
+        8035,
+        8036,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813466.805142,
+      "cells": [
+        7691,
+        7692,
+        7777,
+        7778,
+        7863,
+        7864,
+        7948,
+        7949,
+        7950,
+        8035,
+        8036,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813467.219213,
+      "cells": [
+        7691,
+        7692,
+        7776,
+        7777,
+        7778,
+        7863,
+        7864,
+        7949,
+        7950,
+        8035,
+        8036,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813467.431017,
+      "cells": [
+        7691,
+        7692,
+        7777,
+        7778,
+        7863,
+        7864,
+        7949,
+        7950,
+        8034,
+        8035,
+        8036,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813467.6370552,
+      "cells": [
+        7605,
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8039,
+        8121,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813467.8441591,
+      "cells": [
+        7604,
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121,
+        8122,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813468.0558982,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8121,
+        8122,
+        8123,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813468.2657065,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121,
+        8122,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813468.4713695,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8121,
+        8122,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813468.8853166,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8121
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813469.0936155,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813469.3045917,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8121,
+        8122,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.17,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813469.5165474,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813469.736671,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813469.943579,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8121,
+        8122
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813470.3626277,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813470.7740576,
+      "cells": [
+        7605,
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8121,
+        8124
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.16,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813470.9850154,
+      "cells": [
+        7604,
+        7690,
+        7691,
+        7776,
+        7777,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8121,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.17,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813471.1921265,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8122,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.17,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813471.4030519,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8120
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.13,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813471.6140232,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8121,
+        8122
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.13,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813471.8241327,
+      "cells": [
+        7604,
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8122,
+        8123,
+        8124
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813472.0292327,
+      "cells": [
+        7605,
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8122,
+        8123,
+        8124
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813472.2348237,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813472.6561234,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8121,
+        8122,
+        8123,
+        8124
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813472.8664126,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121,
+        8123,
+        8124,
+        8125,
+        8126
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813473.0716631,
+      "cells": [
+        7690,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813473.2792037,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8120,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813473.6967628,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8040,
+        8120,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813473.9021692,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8040,
+        8120,
+        8121,
+        8122,
+        8123,
+        8124
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813474.1080194,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8040,
+        8120,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813474.3164577,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8040,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813474.7373264,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8120,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.13,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813475.150197,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813475.3577492,
+      "cells": [
+        7690,
+        7691,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813475.5716233,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8121,
+        8122
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813475.7819047,
+      "cells": [
+        7604,
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8121,
+        8122,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813475.9926307,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8121,
+        8122,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813476.2104795,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8120,
+        8121,
+        8122,
+        8123,
+        8124
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813476.4163065,
+      "cells": [
+        7604,
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8120
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.13,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813476.6274703,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8124
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813476.8333125,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813477.0383546,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8121,
+        8122,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813477.243211,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121,
+        8122,
+        8123,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.13,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813477.448156,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121,
+        8122,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813477.6541848,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.11,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813477.863637,
+      "cells": [
+        7691,
+        7776,
+        7777,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8121
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813478.070539,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813478.2753108,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.16,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813478.4830103,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8122,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813478.6889064,
+      "cells": [
+        7605,
+        7691,
+        7776,
+        7777,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813478.897814,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.19,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813479.105706,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121,
+        8122
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813479.3176408,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813479.5262206,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813479.7364492,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813479.941532,
+      "cells": [
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8120,
+        8121
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813480.1491494,
+      "cells": [
+        7605,
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8121
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.14,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813480.3587737,
+      "cells": [
+        7605,
+        7691,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8121,
+        8123,
+        8124,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813480.5706742,
+      "cells": [
+        7605,
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8120,
+        8122,
+        8123,
+        8124
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793813480.7836106,
+      "cells": [
+        7604,
+        7690,
+        7691,
+        7776,
+        7777,
+        7862,
+        7863,
+        7948,
+        7949,
+        8034,
+        8035,
+        8036,
+        8037,
+        8038,
+        8039
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    }
+  ]
+}

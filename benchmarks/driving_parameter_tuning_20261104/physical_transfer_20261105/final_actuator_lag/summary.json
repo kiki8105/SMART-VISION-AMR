@@ -1,0 +1,79 @@
+{
+  "stages": [
+    {
+      "stage": "25_web_inventory_sector3_moving_obstacle",
+      "outcome": "FAIL",
+      "reasons": [
+        "web_obstacle_injector_failed",
+        "web_obstacle_observed_cleared_unverified",
+        "web_obstacle_path_reacted_before_removal_unverified",
+        "web_obstacle_bypassed_while_live_unverified",
+        "web_obstacle_motion_unverified",
+        "web_obstacle_clearance_unverified",
+        "web_red_obstacle_overlay_unverified",
+        "web_red_obstacle_clearance_unverified",
+        "runner_nonzero_exit"
+      ],
+      "mission_backend_passed": true,
+      "final_state": "HOME_REACHED",
+      "cold_start_proof": {
+        "passed": true,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend",
+        "launch_prior_query": {
+          "service": "/amcl/get_parameters",
+          "parameter": "set_initial_pose",
+          "max_attempts": 3,
+          "per_attempt_timeout_s": 5.0,
+          "attempts": [
+            {
+              "attempt": 1,
+              "timeout_s": 5.0,
+              "elapsed_s": 0.4075505750006414,
+              "outcome": "parameter_observed",
+              "value": false
+            }
+          ],
+          "outcome": "parameter_observed",
+          "attempt_count": 1,
+          "elapsed_s": 3.1643583230033983
+        },
+        "before": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 0,
+          "map_tf_messages": 0,
+          "web_pose": null,
+          "observed_seconds": 6.1367392699976335
+        },
+        "after": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 3,
+          "map_tf_messages": 1
+        }
+      },
+      "prearm_passed": true,
+      "source_unchanged": true,
+      "actor_moving_steps": 0,
+      "actor_bypassed_while_live": false,
+      "actor_minimum_clearance_m": 0.017707324897100835,
+      "safety_passed": true,
+      "safety_violations": [],
+      "incident_capture_count": 1,
+      "operator_aborted_after_stall": false,
+      "incident_selection": {
+        "method": "serial domain-176 trigger wall-time membership",
+        "observer_wall_time_window": [
+          1793820152.3201,
+          1793820282.493
+        ],
+        "sampling_is_not_rosbag": true
+      },
+      "transient": null,
+      "physical_drive": false,
+      "visual_browser_qa": false
+    }
+  ],
+  "passed": false
+}

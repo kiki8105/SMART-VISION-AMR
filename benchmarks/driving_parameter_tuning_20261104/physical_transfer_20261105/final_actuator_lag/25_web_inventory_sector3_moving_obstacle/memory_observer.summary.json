@@ -1,0 +1,56 @@
+{
+  "duration_monotonic_sec": 141.465,
+  "domain_id": "176",
+  "observed_samples": 1098,
+  "visibility_samples": 1097,
+  "goal_count": 2,
+  "confirmed_episodes": 2,
+  "persisted_after_live_disappeared": 2,
+  "carried_into_later_goal": 2,
+  "removed_with_positive_free_evidence": 2,
+  "still_remembered": [],
+  "episodes": [
+    {
+      "cell_index": 5110,
+      "confirmed_at": 34399.085268558,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 34399.491481024,
+      "later_goals": [
+        2
+      ],
+      "free_ray_samples": 50,
+      "first_free_ray_at": 34399.495669697,
+      "cleared_at": 34410.39149517,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": true,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 5196,
+      "confirmed_at": 34403.219271225,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 34403.722172401,
+      "later_goals": [
+        2
+      ],
+      "free_ray_samples": 63,
+      "first_free_ray_at": 34403.734912827,
+      "cleared_at": 34413.499054256,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": true,
+      "removed_with_positive_free_evidence": true
+    }
+  ]
+}

@@ -1,0 +1,1618 @@
+{
+  "status": "STOPPED_BY_PARENT_NO_NEW_SCENE_ADOPTED",
+  "preserved_scene": "benchmarks/driving_parameter_tuning_20261104/scenarios/hardware_profiles_common_box.json",
+  "preserved_scene_sha256": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e",
+  "fixture_sha256": "51fe90c60154a46c749cc2bb9b2df3e626b5a0ff854b7f948c32cfe469e6b14b",
+  "production_selector_sha256": "66e046248ee8931054c33dafbf2d1775681cdeeba631d41cfad9849f8c78f001",
+  "query": {
+    "requested_x_m": [
+      0.46,
+      0.56
+    ],
+    "requested_y_m": [
+      -0.72,
+      -0.62
+    ],
+    "spacing_m": 0.01,
+    "minimum_initial_home_distance_m": 0.8,
+    "tangent": [
+      0.6954214275160555,
+      -0.7186021417665909
+    ],
+    "movement_side": -1,
+    "same_actual_initial_inputs": "fixture.json",
+    "body_radius_m": 0.22,
+    "static_inflation_cells": 5,
+    "all_original_selector_gates_unchanged": true
+  },
+  "decision": "Do not move the existing common scene to work around re-use of an initial candidate-selection radius after physical departure. Opposite-side results are exploratory and are not adopted as a paired trial scene. Future live spawn/movement QA is not covered by these initial-input checks.",
+  "groups": {
+    "requested_grid": {
+      "attempts": 99,
+      "both_initial_inputs_valid": 0,
+      "first_failure_counts": {
+        "FIXED_SCENE_MOVED_BYPASS_UNPROVED": 45,
+        "FIXED_SCENE_CURRENT_BYPASS_CLOSED": 54
+      },
+      "results": [
+        {
+          "center_xy": [
+            0.49,
+            -0.66
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8082061051757276,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.48,
+            -0.68
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8109943624893364,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.46,
+            -0.7
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8063258572867414,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.46,
+            -0.72
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8183772669629927,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.7
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8553085294605188,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.68
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8611057707553713,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.56,
+            -0.66
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8677866190997006,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.51,
+            -0.62
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8044672854448383,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.62
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8131622401202847,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.53,
+            -0.62
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8218868803940677,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.62
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8306402708575749,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.55,
+            -0.62
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8394215121003262,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.56,
+            -0.62
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.848229739152814,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.63
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8008697643317817,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.51,
+            -0.63
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8094798297841005,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.63
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.818121513122439,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.53,
+            -0.63
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8267938229330224,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.63
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8354958055230767,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.55,
+            -0.63
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8442265433241882,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.56,
+            -0.63
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8529851533640901,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.64
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.806028759348668,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.51,
+            -0.64
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8145842966222745,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.64
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8231723948906806,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.53,
+            -0.64
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8317920455958396,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.64
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8404422779245247,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.55,
+            -0.64
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8491221572479527,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.56,
+            -0.64
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8578307836256925,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.49,
+            -0.65
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8028120122214226,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.65
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8112782151478385,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.51,
+            -0.65
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8197789688567981,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.65
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.828313209593067,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.53,
+            -0.65
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8368799128864433,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.65
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.845478091968842,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.55,
+            -0.65
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8541067962530953,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.56,
+            -0.65
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8627651098718464,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.66
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.816616387203791,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.51,
+            -0.66
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8250621426633419,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.66
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8335422932657212,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.53,
+            -0.66
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8420557998548138,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.66
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8506016608704589,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.55,
+            -0.66
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.859178910868997,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.48,
+            -0.67
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8053706441838911,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.49,
+            -0.67
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8136873416243051,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.67
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8220415472018926,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.51,
+            -0.67
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8304321289139373,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.67
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8388579952167036,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.53,
+            -0.67
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8473180934840467,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.67
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.855811408519361,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.55,
+            -0.67
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8643369611201094,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.56,
+            -0.67
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.872893806694032,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.47,
+            -0.68
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8027743397636925,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.49,
+            -0.68
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8192539724627145,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.68
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8275519843504642,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.51,
+            -0.68
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8358872544840265,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.68
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8442586793248242,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.53,
+            -0.68
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8526651939781225,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.55,
+            -0.68
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8695794177846293,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.56,
+            -0.68
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8780851776684923,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.46,
+            -0.69
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8004195191603519,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.47,
+            -0.69
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8085398085804693,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.48,
+            -0.69
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8167018044952482,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.49,
+            -0.69
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8249042689138222,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.69
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8331460065790991,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.51,
+            -0.69
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8414258634515301,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.69
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8497427252360598,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.53,
+            -0.69
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8580955159526582,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.69
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8664831965505803,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.55,
+            -0.69
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8749047635662777,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.56,
+            -0.69
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8833592478246984,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.47,
+            -0.7
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8143872564914381,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.48,
+            -0.7
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8224912272736433,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.49,
+            -0.7
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8306365236061781,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.7
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8388219416270712,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.51,
+            -0.7
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.847046318191315,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.53,
+            -0.7
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8636074895311922,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.7
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8719421491021184,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.55,
+            -0.7
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8803114941810505,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.56,
+            -0.7
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8887145448307496,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.46,
+            -0.71
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8123123596286763,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.47,
+            -0.71
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8203149303846424,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.48,
+            -0.71
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8283609119329651,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.49,
+            -0.71
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8364490515416144,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.71
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8445781380259136,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.51,
+            -0.71
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8527470003686743,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.71
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8609545063731444,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.53,
+            -0.71
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8691995613497959,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.71
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8774811068377087,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.55,
+            -0.71
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8857981193610558,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.56,
+            -0.71
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8941496092209826,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.47,
+            -0.72
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8263211037413181,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.48,
+            -0.72
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8343091644556729,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.49,
+            -0.72
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8423401909568223,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.72
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.850412965980428,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.51,
+            -0.72
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8585263118356253,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.72
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8666790891215354,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.53,
+            -0.72
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8748701954730125,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.72
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8830985643366429,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.55,
+            -0.72
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8913631637777572,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.56,
+            -0.72
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.8996629953189946,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_CURRENT_BYPASS_CLOSED"
+            }
+          }
+        }
+      ]
+    },
+    "nearby_lower_distance": {
+      "attempts": 9,
+      "both_initial_inputs_valid": 0,
+      "first_failure_counts": {
+        "FIXED_SCENE_MOVED_BYPASS_UNPROVED": 9
+      },
+      "results": [
+        {
+          "center_xy": [
+            0.48,
+            -0.63
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.7837486514233616,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.47,
+            -0.64
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.7805681998888979,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.46,
+            -0.65
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.7776319699881501,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.48,
+            -0.64
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.7890196005703835,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.49,
+            -0.63
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.7922923475677338,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.62
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.7958029894041201,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.46,
+            -0.64
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.7721538054502755,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.47,
+            -0.63
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.7752397907753994,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.45,
+            -0.66
+          ],
+          "movement_side": -1,
+          "initial_home_center_distance_m": 0.7749427377668029,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        }
+      ]
+    },
+    "opposite_side_not_adopted": {
+      "attempts": 6,
+      "both_initial_inputs_valid": 4,
+      "first_failure_counts": {
+        "FIXED_SCENE_MOVED_BYPASS_UNPROVED": 2,
+        "FIXED_FEASIBLE_BYPASS": 4
+      },
+      "results": [
+        {
+          "center_xy": [
+            0.52,
+            -0.64
+          ],
+          "movement_side": 1,
+          "initial_home_center_distance_m": 0.8231723948906806,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.54,
+            -0.64
+          ],
+          "movement_side": 1,
+          "initial_home_center_distance_m": 0.8404422779245247,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_SCENE_MOVED_BYPASS_UNPROVED"
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.65
+          ],
+          "movement_side": 1,
+          "initial_home_center_distance_m": 0.8112782151478385,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_FEASIBLE_BYPASS",
+              "route_cells_by_step": [
+                83,
+                83,
+                81,
+                81,
+                81
+              ],
+              "initial_path_clearance_m": -0.1492893218813453
+            },
+            "wheel_asymmetry": {
+              "reason": "FIXED_FEASIBLE_BYPASS",
+              "route_cells_by_step": [
+                83,
+                83,
+                81,
+                81,
+                81
+              ],
+              "initial_path_clearance_m": -0.1492893218813453
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.49,
+            -0.66
+          ],
+          "movement_side": 1,
+          "initial_home_center_distance_m": 0.8082061051757276,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_FEASIBLE_BYPASS",
+              "route_cells_by_step": [
+                83,
+                83,
+                82,
+                81,
+                81
+              ],
+              "initial_path_clearance_m": -0.16343145750507626
+            },
+            "wheel_asymmetry": {
+              "reason": "FIXED_FEASIBLE_BYPASS",
+              "route_cells_by_step": [
+                83,
+                83,
+                82,
+                81,
+                81
+              ],
+              "initial_path_clearance_m": -0.16343145750507626
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.52,
+            -0.65
+          ],
+          "movement_side": 1,
+          "initial_home_center_distance_m": 0.828313209593067,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_FEASIBLE_BYPASS",
+              "route_cells_by_step": [
+                83,
+                82,
+                81,
+                81,
+                80
+              ],
+              "initial_path_clearance_m": -0.13516465236018624
+            },
+            "wheel_asymmetry": {
+              "reason": "FIXED_FEASIBLE_BYPASS",
+              "route_cells_by_step": [
+                83,
+                82,
+                81,
+                81,
+                80
+              ],
+              "initial_path_clearance_m": -0.13516465236018624
+            }
+          }
+        },
+        {
+          "center_xy": [
+            0.5,
+            -0.66
+          ],
+          "movement_side": 1,
+          "initial_home_center_distance_m": 0.816616387203791,
+          "cases": {
+            "sensor_rates": {
+              "reason": "FIXED_FEASIBLE_BYPASS",
+              "route_cells_by_step": [
+                83,
+                83,
+                82,
+                81,
+                81
+              ],
+              "initial_path_clearance_m": -0.15636526272997847
+            },
+            "wheel_asymmetry": {
+              "reason": "FIXED_FEASIBLE_BYPASS",
+              "route_cells_by_step": [
+                83,
+                83,
+                82,
+                81,
+                81
+              ],
+              "initial_path_clearance_m": -0.15636526272997847
+            }
+          }
+        }
+      ]
+    }
+  }
+}

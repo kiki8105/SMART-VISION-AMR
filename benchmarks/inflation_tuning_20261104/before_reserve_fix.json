@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "single_trial_per_profile": true,
+  "limitation": "One run per value compares these scenarios, not statistically proven reliability.",
+  "trials": [
+    {
+      "label": "022_before_reserve_fix",
+      "directory": "/tmp/classroom-inflation-20261104-022/25_web_inventory_sector3_moving_obstacle",
+      "completed_route_and_home": true,
+      "prearm_passed": true,
+      "runner_passed": true,
+      "derived_passed": true,
+      "actor_passed": false,
+      "final_state": "HOME_REACHED",
+      "failure": null,
+      "mission_elapsed_seconds": 167.555,
+      "goal_dispatch_count": 2,
+      "published_nonempty_path_count": 3,
+      "published_empty_path_count": 1,
+      "local_attempt_count": 2,
+      "global_plan_count": 65,
+      "initial_spin_start_count": 1,
+      "large_yaw_reversals": {
+        "count": 0,
+        "qualified_turn_episodes": 9,
+        "definition": "actual /cmd_vel |yaw| >=0.15 rad/s, integrated >=0.10 rad; opposite turn starts within 2 s"
+      },
+      "reverse_motion_episodes": 0,
+      "recovery_request_count": 0,
+      "guard": {
+        "available": true,
+        "samples": 1036,
+        "code_samples": {
+          "CLEAR": 1033,
+          "POSE_UNAVAILABLE": 3
+        },
+        "held_code_transitions": {
+          "POSE_UNAVAILABLE": 3
+        },
+        "hold_episode_count": 3,
+        "ramp_reason_samples": {
+          "stop": 473,
+          "acceleration_limited": 209,
+          "tracking": 341,
+          "yaw_direction_changed": 1,
+          "small_heading_slew": 7,
+          "first_sample": 2,
+          "reset": 3
+        },
+        "robot_radius_m": [
+          0.22
+        ],
+        "horizon_seconds": [
+          0.5
+        ],
+        "minimum_body_clearance_m": 0.05619891949393693,
+        "minimum_swept_clearance_m": 0.054010538653320526,
+        "maximum_scan_age_seconds": 0.262,
+        "maximum_pose_age_seconds": 0.067,
+        "sampled_hold_seconds": 0.648,
+        "duration_note": "sampled intervals capped at 0.3 s; long missing intervals are not inferred"
+      },
+      "tracking_error": {
+        "max_m": null,
+        "rms_m": null,
+        "reason": "published replacement paths can precede FollowPath cancellation/acceptance; active action path is not uniquely correlated in this timeline"
+      },
+      "minimum_actual_box_clearance_m": 0.15451980739054574,
+      "box_clearance_radius_m": 0.22,
+      "actor_moving_steps": 0,
+      "actor_local_bypass_confirmed": false,
+      "footprint": {
+        "robot_radius_m": 0.22,
+        "nav2_inflation_radius_m": 0.22,
+        "astar_static_inflation_cells": 5,
+        "astar_preferred_clearance_m": 0.45,
+        "follower_recovery_radius_m": 0.22,
+        "physical_values_preserved": true,
+        "only_use_sim_time_changed": true
+      },
+      "timeline": "/tmp/classroom-inflation-20261104-022/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+      "guard_log": null,
+      "overall_passed": false,
+      "overall_reasons": [
+        "web_obstacle_injector_failed",
+        "web_obstacle_path_reacted_before_removal_unverified",
+        "web_obstacle_bypassed_while_live_unverified",
+        "web_obstacle_motion_unverified",
+        "runner_nonzero_exit"
+      ]
+    }
+  ],
+  "additional_reproduction": {
+    "outcome": "INTERRUPTED_AFTER_REPRODUCTION",
+    "directory": "/tmp/classroom-inflation-fixed-20261104-022/25_web_inventory_sector3_moving_obstacle",
+    "nav2_inflation_m": 0.22,
+    "body_radius_m": 0.22,
+    "astar_inflation_cells": 5,
+    "occlusion_extension_m": 0.2,
+    "observed_raw_at_first_no_path": 26,
+    "start_cell": [
+      32,
+      95
+    ],
+    "guard_code": "CLEAR",
+    "reason": "One-cell changes reproduced false NoPath; fixed extension tuning alone is insufficient. No completed obstacle verdict claimed."
+  },
+  "actor_setup_interruption": {
+    "outcome": "INTERRUPTED_TEST_INPUT_NOT_INJECTED",
+    "directory": "/tmp/classroom-inflation-confidence-20261104-022/25_web_inventory_sector3_moving_obstacle",
+    "body_radius_m": 0.22,
+    "nav2_inflation_m": 0.22,
+    "spawned": false,
+    "reason": "Actor rejected a valid near-wall box with broad 35 cm proximity veto and waited fixed drain intervals; vehicle passed placement window. No obstacle-navigation verdict."
+  }
+}

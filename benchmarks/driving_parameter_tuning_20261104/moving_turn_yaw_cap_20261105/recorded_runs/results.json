@@ -1,0 +1,74 @@
+[
+  {
+    "cap_radps": 0.5,
+    "case": "folded_physical_incident",
+    "evaluations": 4,
+    "forward_valid_last": 127,
+    "winner": {
+      "x": 0.11578947368421051,
+      "y": 0.0,
+      "theta": 0.08974358974358984
+    },
+    "valid_moving_over_035": 192,
+    "max_valid_moving_yaw": 0.5000000000000002,
+    "invalid_by_critic_last": {
+      "ObstacleFootprint": 80,
+      "BaseObstacle": 60,
+      "CommandEnvelope": 403
+    },
+    "selected_pure_yaw": 0
+  },
+  {
+    "cap_radps": 0.5,
+    "case": "corner",
+    "evaluations": 4,
+    "forward_valid_last": 271,
+    "winner": {
+      "x": 0.09263157894736841,
+      "y": 0.0,
+      "theta": 0.3205128205128206
+    },
+    "valid_moving_over_035": 384,
+    "max_valid_moving_yaw": 0.5000000000000002,
+    "invalid_by_critic_last": {
+      "CommandEnvelope": 344
+    },
+    "selected_pure_yaw": 0
+  },
+  {
+    "cap_radps": 0.35,
+    "case": "folded_physical_incident",
+    "evaluations": 4,
+    "forward_valid_last": 103,
+    "winner": {
+      "x": 0.11578947368421051,
+      "y": 0.0,
+      "theta": 0.08974358974358984
+    },
+    "valid_moving_over_035": 0,
+    "max_valid_moving_yaw": 0.34615384615384626,
+    "invalid_by_critic_last": {
+      "CommandEnvelope": 499,
+      "ObstacleFootprint": 64,
+      "BaseObstacle": 28
+    },
+    "selected_pure_yaw": 0
+  },
+  {
+    "cap_radps": 0.35,
+    "case": "corner",
+    "evaluations": 4,
+    "forward_valid_last": 223,
+    "winner": {
+      "x": 0.09263157894736841,
+      "y": 0.0,
+      "theta": 0.3205128205128206
+    },
+    "valid_moving_over_035": 0,
+    "max_valid_moving_yaw": 0.34615384615384626,
+    "invalid_by_critic_last": {
+      "CommandEnvelope": 440
+    },
+    "selected_pure_yaw": 0
+  }
+]

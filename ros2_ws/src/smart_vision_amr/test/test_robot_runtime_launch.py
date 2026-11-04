@@ -66,7 +66,19 @@ def test_robot_runtime_has_one_mux_and_local_health_and_uses_pi_geometry(tmp_pat
     assert wheel[0].endswith('/config/ekf_hardware.yaml')
     assert nodes['motion_mux']['parameters'][-1] == {
         'allow_legacy_auto_input': False, 'require_localization_health': True,
-        'startup_estop': True, 'allow_topic_reset': False}
+        'startup_estop': True, 'allow_topic_reset': False,
+        'max_linear_velocity': 0.22,
+        'scan_guard_robot_radius': 0.22,
+        'scan_guard_base_frame': 'base_footprint',
+        'auto_turn_slowdown_enabled': True,
+        'auto_turn_start_angular': 0.08,
+        'auto_turn_full_angular': 0.35,
+        'auto_turn_entry_linear_velocity': 0.15,
+        'auto_turn_min_linear_velocity': 0.10,
+        'gentle_start_enabled': True,
+        'gentle_start_linear_acceleration': 0.20,
+        'gentle_start_angular_acceleration': 0.80,
+        'gentle_start_max_publish_gap': 0.50}
     assert nodes['ekf_hardware']['remappings'] == [('odometry/filtered', '/odom')]
     assert all(node['on_exit'] is not None for node in nodes.values())
     assert stock.read_text() == original

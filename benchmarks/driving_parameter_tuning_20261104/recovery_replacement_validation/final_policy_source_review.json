@@ -1,0 +1,221 @@
+{
+  "scope": "Independent read-only production-source review after execution-memory cost-only simplification, planner dead-probe/duplicate turn-gate removal, follower counter cleanup, and conditional web FAILED recovery. No runtime/test source edits, action/service/web request or physical robot operation during this review. This is not a new full-system or real-robot pass.",
+  "source_sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "64c7d94e992dea7f550c3c3fbbe98999cf54aa6d589ef2660f0f03cc1245aceb",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": "0a43f64213c5a49bd0a85bad54fe444b6a50a6885e3c5842a07849237d17c1c0",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": "2d8724b452c9e8c414ba094b74d351b8f86d07386e827c4b493566db798cc38d",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py": "aa2c11a5bf12386f8e8983763d07a53e45ce7ee167ca07c77518fdc08f1a976f",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/scan_outlier_guard.py": "a659cfd2196b9ba8430d7e66855e65457ea00dee5e9ffc3bc9bfd0ca35dec6ef",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/recovery_episode.py": "98cecd86e1438e29f5228ecd637a8456dbc901368fa7b4b51f758761bcc5ec44",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/reverse_recovery.py": "97f3c21f4c77b9eac7452451d52e69bda6cb7c5aae9dac874e02eb1f1819f46d",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/command_ramp.py": "86a59410dd034f2a9329066482e7240249d8d2fa4792219dc49f75a9ba4619cb",
+    "ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml": "50ad86d4c404a8028f857b29208a5769b38dbc10f449f19a05533a00611826f6",
+    "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": "59f6b427b89c3a60f77b87254a3d5352e31a4fde245a241f9c6fef839ed81a1f",
+    "ros2_ws/src/smart_vision_amr_dwb/src/route_tracking_dwb.cpp": "1615123fea6fd4002d90b93e5a233b557db9637a56e1b7eaa557881a41eca981"
+  },
+  "critical_findings": [],
+  "reviewed_invariants": [
+    {
+      "finding": "Execution failure memory produces bounded directional costs and an empty hard-edge set for all planner adapter callers. Static/unknown/live/remembered occupancy and directed first-edge certificates remain independent hard constraints.",
+      "references": [
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 1583,
+          "function": "_failure_constraints"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 2823,
+          "function": "plan_to"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 1147,
+          "function": "_try_local_detour"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 2578,
+          "function": "_maybe_request_reverse"
+        }
+      ]
+    },
+    {
+      "finding": "Accepted controller event IDs, not spatial-memory counts or old segments, own the three-event retry budget. A real registered physical episode may defer charging; unrelated side returns cannot create that exemption. No historical classifier, per-entry classification cache, entry_ids filter, legacy segment-block dispatch veto or timer-only hold_probe production call remains.",
+      "references": [
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 1601,
+          "function": "_controller_retry_policy"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 1742,
+          "function": "on_execution_failure"
+        }
+      ]
+    },
+    {
+      "finding": "Physical recovery remains LOCAL then owned stop proof then verified reverse or unavailable verdict then GLOBAL then FOLLOW/WAIT. Same-goal/map/episode correlation and no timer-only WAIT reopening are retained.",
+      "references": [
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 422,
+          "function": "_start_physical_recovery"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 639,
+          "function": "_process_pending_reverse"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 587,
+          "function": "_recovery_wait_owns_retry"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 517,
+          "function": "_wait_after_recovery_cycle"
+        }
+      ]
+    },
+    {
+      "finding": "Follower retains source/receipt freshness, raw scan validity, local-costmap/footprint frame/time/model consistency and current goal ownership before dispatch. Material heading alignment requires the previous action to end and dense independent source-stamped odometry to prove stillness; initial and changed-route Spin start budgets remain bounded.",
+      "references": [
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py",
+          "line": 593,
+          "function": "_send_path"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py",
+          "line": 1989,
+          "function": "_navigation_input_error"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py",
+          "line": 733,
+          "function": "_try_pending_replan_alignment"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py",
+          "line": 697,
+          "function": "_replan_alignment_stopped"
+        }
+      ]
+    },
+    {
+      "finding": "Verified reverse retains real odometry trail/current projection, complete raw occupied/unknown/body sweep, full-inflation exit and same-goal oracle. Follower requires old action ownership to clear, fresh rear sensing and exact source-pose certificate before Nav2 collision-checked BackUp; action acceptance is not actual reverse success.",
+      "references": [
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 2578,
+          "function": "_maybe_request_reverse"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py",
+          "line": 2658,
+          "function": "_try_start_recovery"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py",
+          "line": 2625,
+          "function": "_recovery_preflight"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py",
+          "line": 2368,
+          "function": "_recovery_start_error"
+        }
+      ]
+    },
+    {
+      "finding": "Web historical FAILED becomes a warning only with fresh current configured-map/positive TF/health/autonomous/current readiness proof. WAITING or pending prior requests still block. It does not mutate failed/verified certificates, localization_invalidated, ESTOP or mission commands.",
+      "references": [
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py",
+          "line": 668,
+          "function": "readiness"
+        }
+      ]
+    },
+    {
+      "finding": "Final command publication retains exclusive command ownership, source lease/health/ESTOP priority, zero-output reset window, gentle acceleration and a second raw body/trajectory guard on the actual ramped command. Stops/collision holds remain immediate zero.",
+      "references": [
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py",
+          "line": 1152,
+          "function": "_publish_output_locked"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py",
+          "line": 844,
+          "function": "_refresh_scan_guard_locked"
+        }
+      ]
+    }
+  ],
+  "production_forbidden_call_scan": {
+    "forbidden_names": [
+      "_controller_failure_policy",
+      "_execution_entries_scan_clear",
+      "_hold_probe_ready",
+      "_hold_route_is_distinct",
+      "_safe_failure_edge_fallback",
+      "_turn_ready",
+      "segment_blocked"
+    ],
+    "matches": [],
+    "entry_ids_or_classifier_cache_in_planner": false
+  },
+  "independently_executed_prior_focused_checks": {
+    "execution_cost_policy_tests": {
+      "passed": 8,
+      "duration_seconds": 1.01,
+      "scope": "Latest pure-budget policy before subsequent dead-helper cleanup; no new full-suite claim."
+    },
+    "web_failed_recovery_and_existing_manual_pose_localization_tests": {
+      "passed": 205,
+      "duration_seconds": 5.22
+    },
+    "actual_276_edge_oracle": "Portable archived frozen-source replay reproduces276hard/740cost/noRoute; boundedcost33cells; unchanged map alone27cells."
+  },
+  "nonblocking_remaining_notes": [
+    {
+      "note": "Web readiness source ages2s and follower initial.75s/continuous1s differ. UI can display ready while lower execution layer correctly refuses; align the shared definition in a separately tested change rather than weakening actual guards.",
+      "references": [
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py",
+          "line": 668,
+          "function": "readiness"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py",
+          "line": 1989,
+          "function": "_navigation_input_error"
+        }
+      ]
+    },
+    {
+      "note": "Global failure-cost recovery still requires _fresh_motion_pose while initial static planning can publish a proposal earlier. Actual dispatch remains protected by follower/mux. This conservative context-dependent preflight remains a future consistency-review item, not permission to relax source age/geometry/health bounds.",
+      "references": [
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 2823,
+          "function": "plan_to"
+        },
+        {
+          "file": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+          "line": 1694,
+          "function": "_fresh_motion_pose"
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Source inspection does not establish full-system liveness, path tracking quality or real-world safety.",
+    "The next isolated baseline1→2→3→Home and moving-obstacle repeats must be assessed from actual action ACKs, command output, independent truth and original QA.",
+    "Previously archived material-heading live-bypass PASS used an earlier planner source; it is not relabeled as a pass of these final hashes."
+  ]
+}

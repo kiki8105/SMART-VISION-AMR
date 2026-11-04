@@ -1,0 +1,293 @@
+{
+  "scope": "Reduced actual planner counter and goal transitions; values and receipt wall times unchanged. Runtime/evidence verdicts are not altered.",
+  "trials": [
+    {
+      "stage": "12_web_integrated_clean",
+      "mission_started_at": 1793808468.9759727,
+      "final_observed_at": 1793808668.392561,
+      "source_timeline": "/tmp/classroom-simple-policy-validation-20261105/12_web_integrated_clean/safety_timeline.jsonl",
+      "source_timeline_sha256": "2d18989035219ef8945ff45252bcff99fd9d765ba3a793addf7187811d1c4903",
+      "source_evidence_sha256": "22502850f96d0f1e3e1f0543658e6f56c6c973154b848d20f6f04990a9ac1ad1",
+      "source_planner_samples": 14,
+      "selected_rows": [
+        {
+          "kind": "planner",
+          "wall_time": 1793808458.9474,
+          "goal_stamp": null,
+          "status": "IDLE",
+          "details": {
+            "global_plan_count": 0,
+            "local_attempt_id": 0
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808469.1185,
+          "goal_stamp": {
+            "sec": 7,
+            "nanosec": 700000000
+          },
+          "status": "PLANNING",
+          "details": {
+            "global_plan_count": 0,
+            "local_attempt_id": 0
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808469.3331,
+          "goal_stamp": {
+            "sec": 7,
+            "nanosec": 700000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 1,
+            "local_attempt_id": 0
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808501.4178,
+          "goal_stamp": {
+            "sec": 37,
+            "nanosec": 420000000
+          },
+          "status": "PLANNING",
+          "details": {
+            "global_plan_count": 1,
+            "local_attempt_id": 0
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808501.5851,
+          "goal_stamp": {
+            "sec": 37,
+            "nanosec": 420000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 2,
+            "local_attempt_id": 0
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808562.2215,
+          "goal_stamp": {
+            "sec": 88,
+            "nanosec": 660000000
+          },
+          "status": "PLANNING",
+          "details": {
+            "global_plan_count": 2,
+            "local_attempt_id": 0
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808562.405,
+          "goal_stamp": {
+            "sec": 88,
+            "nanosec": 660000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 3,
+            "local_attempt_id": 0
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808625.2164,
+          "goal_stamp": {
+            "sec": 146,
+            "nanosec": 460000000
+          },
+          "status": "PLANNING",
+          "details": {
+            "global_plan_count": 3,
+            "local_attempt_id": 0
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808625.3477,
+          "goal_stamp": {
+            "sec": 146,
+            "nanosec": 460000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 4,
+            "local_attempt_id": 0
+          }
+        }
+      ],
+      "expected": {
+        "global_plan_count": 4,
+        "local_attempt_count": 0,
+        "legacy_global_max_per_goal_sum": 10,
+        "legacy_local_max_per_goal_sum": 0
+      }
+    },
+    {
+      "stage": "25_web_inventory_sector3_moving_obstacle",
+      "mission_started_at": 1793808694.5975237,
+      "final_observed_at": 1793808813.3334887,
+      "source_timeline": "/tmp/classroom-simple-policy-validation-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+      "source_timeline_sha256": "de2861367b5e7656a4ab0d440012b009566c38ae0e59019242f38752c28986f1",
+      "source_evidence_sha256": "a46f97cecf98f415fd5675f04bc131b8e11b311ab5cecd5eee713009cecaa781",
+      "source_planner_samples": 42,
+      "selected_rows": [
+        {
+          "kind": "planner",
+          "wall_time": 1793808685.0419,
+          "goal_stamp": null,
+          "status": "IDLE",
+          "details": {
+            "global_plan_count": 0,
+            "local_attempt_id": 0
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808694.7127,
+          "goal_stamp": {
+            "sec": 8,
+            "nanosec": 500000000
+          },
+          "status": "PLANNING",
+          "details": {
+            "global_plan_count": 0,
+            "local_attempt_id": 0
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808695.027,
+          "goal_stamp": {
+            "sec": 8,
+            "nanosec": 500000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 1,
+            "local_attempt_id": 0
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808700.3184,
+          "goal_stamp": {
+            "sec": 8,
+            "nanosec": 500000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 1,
+            "local_attempt_id": 1
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808702.2958,
+          "goal_stamp": {
+            "sec": 8,
+            "nanosec": 500000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 1,
+            "local_attempt_id": 2
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808702.6167,
+          "goal_stamp": {
+            "sec": 8,
+            "nanosec": 500000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 1,
+            "local_attempt_id": 3
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808704.1373,
+          "goal_stamp": {
+            "sec": 8,
+            "nanosec": 500000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 2,
+            "local_attempt_id": 3
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808705.1501,
+          "goal_stamp": {
+            "sec": 8,
+            "nanosec": 500000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 3,
+            "local_attempt_id": 3
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808707.153,
+          "goal_stamp": {
+            "sec": 8,
+            "nanosec": 500000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 4,
+            "local_attempt_id": 3
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808768.3236,
+          "goal_stamp": {
+            "sec": 75,
+            "nanosec": 140000000
+          },
+          "status": "PLANNING",
+          "details": {
+            "global_plan_count": 4,
+            "local_attempt_id": 3
+          }
+        },
+        {
+          "kind": "planner",
+          "wall_time": 1793808768.5667,
+          "goal_stamp": {
+            "sec": 75,
+            "nanosec": 140000000
+          },
+          "status": "READY",
+          "details": {
+            "global_plan_count": 5,
+            "local_attempt_id": 3
+          }
+        }
+      ],
+      "expected": {
+        "global_plan_count": 5,
+        "local_attempt_count": 3,
+        "legacy_global_max_per_goal_sum": 9,
+        "legacy_local_max_per_goal_sum": 6
+      }
+    }
+  ]
+}

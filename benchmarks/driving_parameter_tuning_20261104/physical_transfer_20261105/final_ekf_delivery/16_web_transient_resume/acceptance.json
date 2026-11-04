@@ -1,0 +1,403 @@
+{
+  "passed": false,
+  "domain": 176,
+  "localhost_only": true,
+  "physical_robot_touched": false,
+  "mission_accepted_via_web": false,
+  "route": [
+    1,
+    2
+  ],
+  "failure": "RuntimeError('Physical-style prearm failed: actual_ekf_output_relay_graph')",
+  "dwell": {},
+  "dispatch_mode": "manual",
+  "transient_requested": true,
+  "cold_start_requested": true,
+  "ekf_delivery_faults_requested": true,
+  "visual_ui_qa": false,
+  "path_points_per_sector": {
+    "1": 0,
+    "2": 0
+  },
+  "home_path_points": 0,
+  "cold_start_proof": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "launch_prior_query": {
+      "service": "/amcl/get_parameters",
+      "parameter": "set_initial_pose",
+      "max_attempts": 3,
+      "per_attempt_timeout_s": 5.0,
+      "attempts": [
+        {
+          "attempt": 1,
+          "timeout_s": 5.0,
+          "elapsed_s": 0.8458212170007755,
+          "outcome": "parameter_observed",
+          "value": false
+        }
+      ],
+      "outcome": "parameter_observed",
+      "attempt_count": 1,
+      "elapsed_s": 3.603625635994831
+    },
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 5.718910438998137
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 3,
+      "map_tf_messages": 1
+    }
+  },
+  "manual_initial_pose": {
+    "source": "registered_gazebo_home",
+    "requested": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "yaw": -0.027514
+    },
+    "requested_at": 1793820114.5963733,
+    "state": "VERIFIED",
+    "verified_at": 1793820116.2597437,
+    "estop_latched_after_verification": true,
+    "stop_acknowledged_after_verification": true,
+    "result": "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요."
+  },
+  "manual_initial_pose_trace": [
+    {
+      "at": 1793820114.596364,
+      "status": [
+        true,
+        "실제 차량 위치와 방향을 지도 좌표로 입력하세요. 입력 후에도 비상정지를 유지합니다.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793820114.6133702,
+      "status": [
+        "WAITING",
+        "AMCL 초기 위치 서비스 응답과 새 map→base TF를 기다립니다. 비상정지 유지.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793820114.81793,
+      "status": [
+        "WAITING",
+        "AMCL이 초기 위치 입력을 수신했습니다. LiDAR·지도와 새 TF 검증 중입니다.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793820116.056795,
+      "status": [
+        "WAITING",
+        "새 AMCL 위치·TF 확인 완료. 위치 감시 노드의 재획득 응답을 기다리는 중 · 비상정지 유지.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793820116.259741,
+      "status": [
+        "VERIFIED",
+        "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.",
+        true,
+        true
+      ]
+    }
+  ],
+  "startup_reset_requested_via_web": true,
+  "startup_reset_attempts": [
+    {
+      "at": 1793820116.3230195,
+      "accepted": true
+    },
+    {
+      "at": 1793820119.414552,
+      "accepted": true
+    }
+  ],
+  "startup_reset_accepted_at": 1793820116.3230195,
+  "startup_reset_completed": true,
+  "prearm_graph": {
+    "map_publishers": [
+      "/map_server"
+    ],
+    "scan_publishers": [
+      "_NODE_NAMESPACE_UNKNOWN_/_NODE_NAME_UNKNOWN_"
+    ],
+    "odom_publishers": [
+      "_NODE_NAMESPACE_UNKNOWN_/_NODE_NAME_UNKNOWN_"
+    ],
+    "ekf_output_source_publishers": [
+      "/ekf_independent"
+    ],
+    "ekf_tf_source_publishers": [
+      "/ekf_independent"
+    ],
+    "battery_publishers": [
+      "_NODE_NAMESPACE_UNKNOWN_/_NODE_NAME_UNKNOWN_"
+    ],
+    "raw_wheel_publishers": [
+      "/wheel_joint_odometry"
+    ],
+    "raw_imu_publishers": [
+      "/turtlebot3_imu"
+    ],
+    "goal_subscribers": [
+      "/classroom_safety_timeline",
+      "/classroom_memory_observer",
+      "_NODE_NAMESPACE_UNKNOWN_/_NODE_NAME_UNKNOWN_",
+      "/astar_planner",
+      "/path_follower"
+    ],
+    "planner_status_publishers": [
+      "/astar_planner"
+    ],
+    "cancel_service_types": [
+      "std_srvs/srv/Trigger"
+    ],
+    "raw_input_samples": {
+      "/wheel/odom": {
+        "count": 9,
+        "last_receipt_age_s": 0.09292276600172045
+      },
+      "/imu": {
+        "count": 7,
+        "last_receipt_age_s": 0.005958178000582848
+      }
+    },
+    "guard_battery_minimum_v": 10.8
+  },
+  "prearm": {
+    "passed": false,
+    "sampled_at": 1793820137.7809486,
+    "checks": {
+      "isolated_ros_domain": {
+        "passed": true,
+        "observed": 176,
+        "requirement": "domain 176, localhost only"
+      },
+      "configured_occupancy_map": {
+        "passed": true,
+        "observed": {
+          "preview": false,
+          "configured_match": true,
+          "version": 3
+        },
+        "requirement": "real /map matching configured YAML"
+      },
+      "single_map_publisher": {
+        "passed": true,
+        "observed": [
+          "/map_server"
+        ],
+        "requirement": "exactly one /map publisher"
+      },
+      "actual_ekf_output_relay_graph": {
+        "passed": false,
+        "observed": {
+          "odom_publishers": [
+            "_NODE_NAMESPACE_UNKNOWN_/_NODE_NAME_UNKNOWN_"
+          ],
+          "ekf_output_source_publishers": [
+            "/ekf_independent"
+          ],
+          "ekf_tf_source_publishers": [
+            "/ekf_independent"
+          ]
+        },
+        "requirement": "one actual EKF source and one output relay; no direct /odom bypass"
+      },
+      "fresh_map_base_tf": {
+        "passed": true,
+        "observed": {
+          "pose_age_s": 0.08,
+          "map_tf_age_s": 0.074,
+          "pose": {
+            "x": -0.24698350318679255,
+            "y": -0.2568779998863686,
+            "yaw": -0.01619411783696845
+          }
+        },
+        "requirement": "current map→base pose and TF younger than 1 s"
+      },
+      "fresh_scan": {
+        "passed": true,
+        "observed": {
+          "web_age_s": 0.04,
+          "health_age_s": 0.06080732199916383,
+          "header_age_s": 0.062,
+          "valid": true,
+          "publishers": [
+            "_NODE_NAMESPACE_UNKNOWN_/_NODE_NAME_UNKNOWN_"
+          ]
+        },
+        "requirement": "live topic, health receipt/header age ≤0.5 s"
+      },
+      "fresh_odom": {
+        "passed": true,
+        "observed": {
+          "web_age_s": 0.04,
+          "health_age_s": 0.05391859600058524,
+          "header_age_s": 0.074,
+          "valid": true,
+          "publishers": [
+            "_NODE_NAMESPACE_UNKNOWN_/_NODE_NAME_UNKNOWN_"
+          ]
+        },
+        "requirement": "live topic, health receipt/header age ≤0.5 s"
+      },
+      "amcl_position_uncertainty": {
+        "passed": true,
+        "observed": 0.14505138945951004,
+        "requirement": "≤0.50 m"
+      },
+      "amcl_yaw_uncertainty": {
+        "passed": true,
+        "observed": 0.12908392890626263,
+        "requirement": "<0.5 rad"
+      },
+      "amcl_pose_freshness": {
+        "passed": true,
+        "observed": {
+          "receipt_age_s": 0.9588290579995373,
+          "header_age_s": 0.962
+        },
+        "requirement": "AMCL receipt/header ages <8 s, future header ≤0.25 s"
+      },
+      "scan_map_agreement": {
+        "passed": true,
+        "observed": 0.75625,
+        "requirement": "≥0.55 health warning threshold"
+      },
+      "localization_health": {
+        "passed": true,
+        "observed": {
+          "level": "ok",
+          "reasons": [],
+          "stop_latched": false,
+          "autonomous_allowed": true
+        },
+        "requirement": "acquired, level ok or bounded position warning, no health stop latch"
+      },
+      "rear_camera": {
+        "passed": true,
+        "observed": {
+          "age_s": 0.06,
+          "raw_age_s": 0.06
+        },
+        "requirement": "fresh rear raw and processed frames"
+      },
+      "battery_sensor": {
+        "passed": true,
+        "observed": {
+          "power": {
+            "status": "online",
+            "voltage": 12.0,
+            "percentage": 0.75,
+            "age": 0.15,
+            "source": "/battery_state"
+          },
+          "publishers": [
+            "_NODE_NAMESPACE_UNKNOWN_/_NODE_NAME_UNKNOWN_"
+          ]
+        },
+        "requirement": "live /battery_state ≥10.8 V"
+      },
+      "robot_guard_battery_limit": {
+        "passed": true,
+        "observed": 10.8,
+        "requirement": "live EKF guard parameter minimum_battery_voltage=10.8 V"
+      },
+      "fresh_raw_wheel": {
+        "passed": true,
+        "observed": {
+          "publishers": [
+            "/wheel_joint_odometry"
+          ],
+          "sample": {
+            "count": 9,
+            "last_receipt_age_s": 0.09292276600172045
+          }
+        },
+        "requirement": "two independent raw sensor samples with last receipt <1 s"
+      },
+      "fresh_raw_imu": {
+        "passed": true,
+        "observed": {
+          "publishers": [
+            "/turtlebot3_imu"
+          ],
+          "sample": {
+            "count": 7,
+            "last_receipt_age_s": 0.005958178000582848
+          }
+        },
+        "requirement": "two independent raw sensor samples with last receipt <1 s"
+      },
+      "astar_and_cancel": {
+        "passed": true,
+        "observed": {
+          "goal_subscribers": [
+            "/classroom_safety_timeline",
+            "/classroom_memory_observer",
+            "_NODE_NAMESPACE_UNKNOWN_/_NODE_NAME_UNKNOWN_",
+            "/astar_planner",
+            "/path_follower"
+          ],
+          "planner_status_publishers": [
+            "/astar_planner"
+          ],
+          "cancel_service_types": [
+            "std_srvs/srv/Trigger"
+          ]
+        },
+        "requirement": "A* and follower goal subscribers, planner status, cancel service"
+      },
+      "mux_stop_ack_and_explicit_reset": {
+        "passed": true,
+        "observed": {
+          "requested": true,
+          "latched": false,
+          "stop_acknowledged": true,
+          "pending": null,
+          "autonomous_allowed": true
+        },
+        "requirement": "explicit web reset, robot-side stopped ACK, autonomous handoff"
+      },
+      "web_departure_readiness": {
+        "passed": true,
+        "observed": {
+          "ready": true,
+          "missing": []
+        },
+        "requirement": "all web departure conditions ready"
+      }
+    },
+    "failed_gates": [
+      "actual_ekf_output_relay_graph"
+    ]
+  },
+  "prearm_trace": [
+    {
+      "sampled_at": 1793820122.6396327,
+      "failed_gates": [
+        "actual_ekf_output_relay_graph"
+      ]
+    }
+  ],
+  "front_camera_enabled": false
+}

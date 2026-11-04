@@ -1,0 +1,55 @@
+{
+  "physical_measurement": true,
+  "new_physical_test": false,
+  "simulation_coefficients_not_calibrated_from_these_durations": true,
+  "recordings": [
+    {
+      "source_path_at_capture": "/home/kiki/smart_vision_logs/robot_bringup_async_timing_20261030.log",
+      "sha256": "d750adc313d215e2042fd0fac1ebc182298641d727fcc72db8259cbd0bfd2c5f",
+      "overrun_count": 22,
+      "parsed_count": 22,
+      "median_seconds": 0.100939107,
+      "max_seconds": 0.250456517,
+      "verbatim_overrun_lines": [
+        "[ekf_node-6] Failed to meet update rate! Took 0.10102817399999999837seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.25045651699999998963seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.24973119399999998969seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.060457257000000000358seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.082979966000000002224seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.24917601600000000017seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.12152454499999999771seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.054536412999999998863seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.18183074599999998755seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.10085004000000000191seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.21382834800000000142seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.13396905400000000408seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.098622321999999998376seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.071803992999999996516seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.083774704000000005388seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.064213241000000004233seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.14028957699999999864seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.097981376999999994504seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.10319514200000000359seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.097240443999999995328seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.1011105050000000033seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.062501494000000004658seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors."
+      ]
+    },
+    {
+      "source_path_at_capture": "/home/kiki/smart_vision_logs/robot_bringup_cyclone_timing_20261030.log",
+      "sha256": "5f3d2909ee964fc878e831388055ac086fdcada876fa3072c5de4a81ab2f16bd",
+      "overrun_count": 6,
+      "parsed_count": 6,
+      "median_seconds": 0.225890916,
+      "max_seconds": 0.341131876,
+      "verbatim_overrun_lines": [
+        "[ekf_node-6] Failed to meet update rate! Took 0.071141842999999996278seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.34113187600000000055seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.26667767999999997253seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.18510415199999999403seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.17786695399999999379seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors.",
+        "[ekf_node-6] Failed to meet update rate! Took 0.2810593800000000253seconds. Try decreasing the rate, limiting sensor output frequency, or limiting the number of sensors."
+      ]
+    }
+  ]
+}

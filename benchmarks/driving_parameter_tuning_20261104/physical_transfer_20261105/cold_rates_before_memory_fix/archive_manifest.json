@@ -1,0 +1,166 @@
+{
+  "root_at_capture": "/tmp/classroom-transfer-cold-rates-obstacle-20261105",
+  "files": [
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/staged_report.json",
+      "archive_path": "staged_report.json",
+      "original_sha256": "24c5fdfd710504263ee1aa1f00b04662a175f6289e14059a67a3767f27c267cf",
+      "archive_sha256": "24c5fdfd710504263ee1aa1f00b04662a175f6289e14059a67a3767f27c267cf",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105-source-rates.json",
+      "archive_path": "source_rates.json",
+      "original_sha256": "0e569240146a650db9cf5e959aee06b11d948b79a7d573ee30273d29be14ebfe",
+      "archive_sha256": "0e569240146a650db9cf5e959aee06b11d948b79a7d573ee30273d29be14ebfe",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105.log",
+      "archive_path": "runner.log.gz",
+      "original_sha256": "14b9ca9e407ec9d491092e4c404008640b502ec3b8fb66126a0e9eb72eae683c",
+      "archive_sha256": "090b67d02cef5b0bd8b20c08966c15dbfe7437eb187b5c13e780ed29d69252ae",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/acceptance.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/acceptance.json",
+      "original_sha256": "1503f8e39d07af1e5f64598433962227202055be03cfa218dc764cb4de345e84",
+      "archive_sha256": "1503f8e39d07af1e5f64598433962227202055be03cfa218dc764cb4de345e84",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/derived_evidence.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/derived_evidence.json",
+      "original_sha256": "b9b95b3412133741cc490986c97d87686fbd8642c97aa7b3ca50907f8d24f6e5",
+      "archive_sha256": "b9b95b3412133741cc490986c97d87686fbd8642c97aa7b3ca50907f8d24f6e5",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/safety_assessment.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/safety_assessment.json",
+      "original_sha256": "bfcb75438a2dae5a8e8ea5d27a26f6a6abca02f065fa63e47be3cbc3b1e97f06",
+      "archive_sha256": "bfcb75438a2dae5a8e8ea5d27a26f6a6abca02f065fa63e47be3cbc3b1e97f06",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/runtime_manifest.json",
+      "original_sha256": "61caada874a627e312afb8cf19d595c6f8584a527cc36930f26d4d123356b466",
+      "archive_sha256": "61caada874a627e312afb8cf19d595c6f8584a527cc36930f26d4d123356b466",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json",
+      "original_sha256": "0beb02c4e9b9dbe1aa827018d779dff592e9a2b63953d03cc4ae91db7cdd0b80",
+      "archive_sha256": "0beb02c4e9b9dbe1aa827018d779dff592e9a2b63953d03cc4ae91db7cdd0b80",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+      "original_sha256": "080c8aa7da6020c0c427a67d1631012d51e6c21c1b476e0479115f3a71555f27",
+      "archive_sha256": "080c8aa7da6020c0c427a67d1631012d51e6c21c1b476e0479115f3a71555f27",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+      "original_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "archive_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/ekf_hardware_like_sim.yaml",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/ekf_hardware_like_sim.yaml",
+      "original_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "archive_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json",
+      "original_sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+      "archive_sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.summary.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/memory_observer.summary.json",
+      "original_sha256": "2a8801f02b064b79183eba5d95c3a901bfa26f7c0b5495fc0cd22363c723bbae",
+      "archive_sha256": "2a8801f02b064b79183eba5d95c3a901bfa26f7c0b5495fc0cd22363c723bbae",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+      "original_sha256": "81980912285e91753b71c0db8da953094e7fd8b559e1c5d7b7c6dbd67c1078d8",
+      "archive_sha256": "81980912285e91753b71c0db8da953094e7fd8b559e1c5d7b7c6dbd67c1078d8",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/fixture/waffle_pi_fault.sdf",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/waffle_pi_fault.sdf",
+      "original_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "archive_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.world",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.world",
+      "original_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "archive_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl.gz",
+      "original_sha256": "facaae8e55505d4ed75e0705b9d5e7aaa46a5051409b701b38080bb04dc8c09e",
+      "archive_sha256": "937f70381ce3a2d440d5617907d3b6a1fb1c9f2d058a5d388e21721deccee44f",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl.gz",
+      "original_sha256": "f4a67d704bf66ec1af9dcb1d33a5ffbaf7caa823b7c62fb6c71108023d2a9be0",
+      "archive_sha256": "96b1322b71a4c714929764c30925bf31b73e67dbcb835cb1cd85f6d343445f59",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/sensor_faults.jsonl",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/sensor_faults.jsonl.gz",
+      "original_sha256": "5cf0a6be3f7c9748a90e984f49e5b44ffd0bc1b6b1f98b6fb6d2b920ab5c9e44",
+      "archive_sha256": "b567b31113b8d779ce3ba0fc5618645e5d576a4c3660b062e433bb9ddd66ef82",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/gazebo_launch.log.gz",
+      "original_sha256": "4a07a7886c115d5bb1d71cd2a8f08905a7c899e40d3f4b14eb4337ac1c7a7b4f",
+      "archive_sha256": "e6e90020fbaae70f88a7e83476eca9bb68721b64f3b91ed7447091c7b896bb3e",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/web_server.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_server.log.gz",
+      "original_sha256": "abc52229262597176aec91c65c500eae76ef494a39f1c8d0ab2602964a4118a9",
+      "archive_sha256": "85f39915eef9d2ceafae3b94a65ae105cca17ca1281d43255d87bea112cdbc0d",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.log",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.log.gz",
+      "original_sha256": "2ebecfdfa9c4c3a654a05816700a0f4ec37ca18feb460a4fcfc46eb0c57a115d",
+      "archive_sha256": "86a9d31f07a4754779a997eefb3c51f3a673f8354b5a6d0554f53a6398cf1a79",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/sector_3_rear_confirmed.jpg",
+      "archive_path": "25_web_inventory_sector3_moving_obstacle/sector_3_rear_confirmed.jpg",
+      "original_sha256": "db13294ef3ad82304e60884dda0deac6006fa4c390dc76de1a3458bf605a1051",
+      "archive_sha256": "db13294ef3ad82304e60884dda0deac6006fa4c390dc76de1a3458bf605a1051",
+      "gzip": false
+    }
+  ]
+}

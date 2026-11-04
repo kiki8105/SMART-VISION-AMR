@@ -6,7 +6,7 @@ The runner owns Gazebo cleanup; this wrapper never starts two worlds at once.
 """
 
 import argparse
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -77,12 +77,14 @@ def web_runtime_source_hashes(stage: 'Stage') -> dict[str, str]:
         (package/'config', {'.yaml', '.xml'}),
         (package/'maps', {'.yaml', '.pgm'}),
         (package/'worlds', {'.world', '.sdf'}),
+        (REPO/'ros2_ws/src/smart_vision_amr_dwb', {'.cpp', '.hpp', '.xml', '.txt'}),
         (REPO/'gazebo_models', {'.config', '.sdf', '.material', '.png', '.jpg',
                               '.obj', '.json'}),
     )
     paths = sorted({path for directory, suffixes in roots
                     for path in directory.rglob('*')
-                    if path.is_file() and path.suffix in suffixes})
+                    if path.is_file() and path.suffix in suffixes
+                    and 'test' not in path.relative_to(REPO).parts})
     return {str(path.relative_to(REPO)): hashlib.sha256(path.read_bytes()).hexdigest()
             for path in paths}
 
@@ -207,7 +209,7 @@ STAGES = (
           ('Sector 1', 'Sector 2', 'Sector 3', 'Home'), 'home_obstacle'),
     Stage('16_web_transient_resume',
           '웹 소유 Sector 1 → 2 → Home 중 0.3~0.4초 센서 지연 후 목표 유지·자동 재개',
-          (), ('Sector 1', 'Sector 2', 'Home'), 'web_transient'),
+          ('--ekf-delivery-faults',), ('Sector 1', 'Sector 2', 'Home'), 'web_transient'),
 )
 BY_KEY = {stage.key: stage for stage in STAGES}
 
@@ -222,7 +224,54 @@ def diagnosed_leg_terminal(leg: dict) -> str | None:
     return terminal
 
 
-def assess(stage: Stage, evidence: dict) -> dict:
+@dataclass(frozen=True)
+class _ColdStartContinuation:
+    """Assessor-only provenance for cycle 2; never fabricated cold evidence."""
+    runtime_identity: dict
+    first_cycle_proof: dict
+
+
+def _cold_reentry_continuation(evidence: dict, cycles: list):
+    """A cold boot happens once, only on a proved uninterrupted runtime."""
+    initial = evidence.get('runtime_identity_initial') or {}
+    identities = [evidence.get(key) for key in (
+        'runtime_identity_after_first', 'runtime_identity_after_second')]
+    if (len(cycles) != 2 or evidence.get('same_runtime') is not True
+            or not isinstance(initial, dict)
+            or not {'web', 'gazebo_runner'} <= initial.keys()
+            or any(not isinstance(initial[key], dict) or any(
+                type(initial[key].get(field)) is not int or initial[key][field] <= 0
+                for field in ('pid', 'start_ticks')) for key in ('web', 'gazebo_runner'))
+            or any(identity != initial for identity in identities)):
+        return None, 'cold_reentry_runtime_identity_unverified'
+    first = cycles[0]
+    proof = evidence.get('cold_start_proof') or {}
+    before, after = proof.get('before') or {}, proof.get('after') or {}
+    manual = first.get('manual_initial_pose') or {}
+    observed = before.get('observed_seconds')
+    if (proof.get('passed') is not True or proof != first.get('cold_start_proof')
+            or first.get('cold_start_requested') is not True
+            or first.get('passed') is not True
+            or before.get('amcl_set_initial_pose') is not False
+            or any(type(before.get(key)) is not int or before[key] != 0 for key in
+                   ('initial_pose_messages', 'amcl_messages', 'map_tf_messages'))
+            or 'web_pose' not in before or before['web_pose'] is not None
+            or type(observed) not in (int, float) or not math.isfinite(observed)
+            or observed < .5
+            or after.get('amcl_set_initial_pose') is not False
+            or type(after.get('initial_pose_messages')) is not int
+            or after['initial_pose_messages'] != 0
+            or any(type(after.get(key)) is not int or after[key] <= 0
+                   for key in ('amcl_messages', 'map_tf_messages'))
+            or manual.get('state') != 'VERIFIED'
+            or manual.get('estop_latched_after_verification') is not True
+            or manual.get('stop_acknowledged_after_verification') is not True):
+        return None, 'cold_reentry_first_cycle_proof_unverified'
+    return _ColdStartContinuation(initial, proof), None
+
+
+def assess(stage: Stage, evidence: dict, *,
+           _cold_start_continuation: _ColdStartContinuation | None = None) -> dict:
     """Require observed behavior, rather than trusting only a runner exit code."""
     reasons = []
     if evidence.get('domain') != 176 or evidence.get('localhost_only') is not True:
@@ -231,6 +280,14 @@ def assess(stage: Stage, evidence: dict) -> dict:
         reasons.append('physical_robot_scope_not_proven')
     if evidence.get('passed') is not True:
         reasons.append('verifier_failed')
+    if evidence.get('failure_class') == 'STARTUP_LIFECYCLE_ABORT':
+        reasons.append('startup_lifecycle_abort')
+        if evidence.get('fault_execution') == 'TRANSIENT_NOT_STARTED':
+            reasons.append('transient_not_started')
+    if (evidence.get('web_runtime_manifest') or {}).get('cold_start') is True:
+        if ((evidence.get('cold_start_proof') or {}).get('passed') is not True
+                and not isinstance(_cold_start_continuation, _ColdStartContinuation)):
+            reasons.append('cold_start_without_prior_and_web_initialization_unproven')
     if (stage.kind not in {'web_disconnect', 'web_dwell', 'web_transient',
                            'web_moving_obstacle', 'web_reentry'} and
             evidence.get('fault_delivery', {}).get('passed') is not True):
@@ -261,12 +318,19 @@ def assess(stage: Stage, evidence: dict) -> dict:
                 'outcome': 'PASS' if not reasons else 'FAIL',
                 'passed': not reasons, 'reasons': reasons,
                 'runner_passed': evidence.get('passed') is True,
+                'failure_class': evidence.get('failure_class'),
+                'fault_execution': evidence.get('fault_execution'),
                 'route': evidence.get('route'), 'legs': []}
 
     if stage.kind == 'web_reentry':
         cycles = evidence.get('cycles') or []
         if len(cycles) != 2 or evidence.get('same_runtime') is not True:
             reasons.append('two_deliveries_same_runtime_unverified')
+        continuation = None
+        if (evidence.get('web_runtime_manifest') or {}).get('cold_start') is True:
+            continuation, error = _cold_reentry_continuation(evidence, cycles)
+            if error:
+                reasons.append(error)
         reentry = evidence.get('reentry') or {}
         if (reentry.get('manual_pose_state') != 'VERIFIED' or
                 not isinstance(reentry.get('pose_verified_at'), (int, float))):
@@ -289,7 +353,11 @@ def assess(stage: Stage, evidence: dict) -> dict:
             if index < len(derived):
                 cycle = {**cycle, **derived[index],
                          'web_runtime_manifest': evidence.get('web_runtime_manifest')}
-            outcome = assess(cycle_stage, cycle)
+            # Keep the actual launch manifest unchanged. Only this second
+            # cycle may reuse the first cycle's genuine cold-start provenance;
+            # all present-time pre-arm, pose, dwell and truth checks still run.
+            outcome = assess(cycle_stage, cycle, _cold_start_continuation=(
+                continuation if index == 1 else None))
             if outcome['passed'] is not True:
                 reasons.extend(f'cycle_{index+1}:{reason}'
                                for reason in outcome['reasons'])
@@ -334,9 +402,13 @@ def assess(stage: Stage, evidence: dict) -> dict:
                     reasons.append('runtime_memory_not_enabled')
                 if manifest.get('laser_filter_for_change_memory') is not False:
                     reasons.append('laser_filter_not_disabled')
-            if stage.key == '17_web_hardware_value_parity' and evidence.get(
-                    'physical_value_parity', {}).get('passed') is not True:
-                reasons.append('physical_source_yaml_value_parity_unverified')
+            if stage.key == '17_web_hardware_value_parity':
+                parity = evidence.get('physical_value_parity') or {}
+                if (parity.get('passed') is not True or
+                        parity.get('copy_preserves_selected_values') is not True):
+                    reasons.append('physical_source_yaml_value_parity_unverified')
+                if parity.get('authoritative_physical_sources') is not True:
+                    reasons.append('authoritative_physical_sources_unverified')
         for marker_id in expected:
             item = evidence.get('dwell', {}).get(str(marker_id), {})
             if item.get('event_duration_s') is None or item['event_duration_s'] < 4.9:
@@ -459,6 +531,8 @@ def assess(stage: Stage, evidence: dict) -> dict:
                 'outcome': 'PASS' if not reasons else 'FAIL',
                 'passed': not reasons, 'reasons': reasons,
                 'runner_passed': evidence.get('passed') is True,
+                'failure_class': evidence.get('failure_class'),
+                'fault_execution': evidence.get('fault_execution'),
                 'route': evidence.get('route'), 'legs': []}
 
     route = stage.kind in ('route', 'wan_absent', 'route_obstacle', 'home_obstacle')
@@ -686,7 +760,8 @@ def start_memory_observer(output: Path):
     return observer, log
 
 
-def start_web_obstacle_injector(stage: Stage, directory: Path):
+def start_web_obstacle_injector(stage: Stage, directory: Path,
+                               obstacle_scenario: Path | None = None):
     """Launch a Gazebo-only obstacle actor; the web server alone owns goals."""
     target = (-.25, -1.98) if stage.key in {
         '06_web_sector3_moving_obstacle',
@@ -705,7 +780,10 @@ def start_web_obstacle_injector(stage: Stage, directory: Path):
         'export FASTDDS_DEFAULT_PROFILES_FILE="$FASTRTPS_DEFAULT_PROFILES_FILE"; '
         f'exec /usr/bin/python3 {shlex.quote(str(script))} '
         f'--output {shlex.quote(str(output))} '
-        f'--goal-x {target[0]} --goal-y {target[1]}')
+        f'--goal-x {target[0]} --goal-y {target[1]} '
+        f'--nodes-params {shlex.quote(str(directory/"classroom_nodes_sim.yaml"))}')
+    if obstacle_scenario is not None:
+        shell += ' --obstacle-scenario '+shlex.quote(str(obstacle_scenario))
     log = directory/'web_obstacle_injection.log'
     with log.open('w') as stream:
         actor = subprocess.Popen(['bash', '-c', shell], cwd=REPO,
@@ -767,10 +845,22 @@ def terminate_group(child: subprocess.Popen, timeout: float = 20.) -> None:
     child.wait(timeout=2.)
 
 
+def realism_options(stage: Stage) -> list[str]:
+    """Only explicit, simulation-only model/delivery/cold-start switches."""
+    options = [flag for flag in ('--cold-start', '--ekf-delivery-faults')
+               if flag in stage.options]
+    if '--hardware-profile' in stage.options:
+        index = stage.options.index('--hardware-profile')
+        options += ['--hardware-profile', stage.options[index+1]]
+    return options
+
+
 def web_stage_runner_command(stage: Stage, directory: Path,
                              laser_filter_for_change_memory: bool = False,
                              measure_scan_filter: bool = False,
-                             nav_params_source: Path | None = None) -> list[str]:
+                             nav_params_source: Path | None = None,
+                             physical_footprint: bool = False,
+                             nodes_params_source: Path | None = None) -> list[str]:
     dwell = stage.kind in {'web_dwell', 'web_transient', 'web_moving_obstacle',
                            'web_reentry'}
     command = [str(RUNNER), '--no-verifier', '--lifetime',
@@ -790,13 +880,21 @@ def web_stage_runner_command(stage: Stage, directory: Path,
         command.append('--measure-scan-filter')
     if nav_params_source is not None:
         command += ['--nav-params-source', str(nav_params_source)]
+    if physical_footprint:
+        command.append('--physical-footprint')
+    if nodes_params_source is not None:
+        command += ['--nodes-params-source', str(nodes_params_source)]
+    command += realism_options(stage)
     return command
 
 
 def execute_web_stage(stage: Stage, root: Path,
                       laser_filter_for_change_memory: bool = False,
                       measure_scan_filter: bool = False,
-                      nav_params_source: Path | None = None) -> int:
+                      nav_params_source: Path | None = None,
+                      physical_footprint: bool = False,
+                      nodes_params_source: Path | None = None,
+                      obstacle_scenario: Path | None = None) -> int:
     assert_master_free(8792)
     # A second web_mission_server is also a potential control publisher.
     # The operator observes the mission on this stage's 8792 owner instead.
@@ -819,7 +917,8 @@ def execute_web_stage(stage: Stage, root: Path,
                                'web_reentry'}
         command = web_stage_runner_command(
             stage, directory, laser_filter_for_change_memory,
-            measure_scan_filter, nav_params_source)
+            measure_scan_filter, nav_params_source, physical_footprint,
+            nodes_params_source)
         runner = subprocess.Popen(command, cwd=REPO, start_new_session=True)
         deadline = time.monotonic()+15.
         while not directory.is_dir() and time.monotonic() < deadline:
@@ -829,7 +928,8 @@ def execute_web_stage(stage: Stage, root: Path,
         if not directory.is_dir():
             return 1
         if stage.kind == 'web_moving_obstacle':
-            injector = start_web_obstacle_injector(stage, directory)
+            injector = start_web_obstacle_injector(stage, directory, **(
+                {'obstacle_scenario': obstacle_scenario} if obstacle_scenario is not None else {}))
         elif stage.key == '24_web_memory_sector1_to_sector2_removal':
             injector = start_memory_transition_actor(directory)
         environment = dict(os.environ)
@@ -837,6 +937,9 @@ def execute_web_stage(stage: Stage, root: Path,
                             'SMART_VISION_CLASSROOM_SIM_PORT': '8792',
                             'SMART_VISION_CLASSROOM_SIM_CONFIG':
                                 str(root/(stage.key+'.web-config.json'))})
+        if physical_footprint:
+            environment['SMART_VISION_CLASSROOM_SIM_ROTATION_RADIUS'] = '0.22'
+        environment['SMART_VISION_CLASSROOM_SIM_FRONT_CAMERA_TOPIC'] = ''
         web_command = [str(REPO/'scripts/run_classroom_replay_web.sh'),
                        '--host', '127.0.0.1']
         if dwell:
@@ -868,6 +971,10 @@ def execute_web_stage(stage: Stage, root: Path,
                 verifier += ['--obstacle-hold-timeout', '120']
             if stage.kind == 'web_transient':
                 verifier += ['--inject-transient']
+        if '--cold-start' in stage.options:
+            verifier.append('--cold-start')
+        if '--ekf-delivery-faults' in stage.options:
+            verifier.append('--ekf-delivery-faults')
         verdict = subprocess.run(verifier, cwd=REPO, env={**os.environ,
                                  'ROS_DOMAIN_ID': '176', 'ROS_LOCALHOST_ONLY': '1'},
                                  check=False, timeout=(1950 if stage.kind == 'web_reentry'
@@ -922,7 +1029,9 @@ def stage_runner_command(stage: Stage, directory: Path, leg_timeout: int,
                          tf_source_best_effort: bool = False,
                          laser_filter_for_change_memory: bool = False,
                          measure_scan_filter: bool = False,
-                         nav_params_source: Path | None = None) -> list[str]:
+                         nav_params_source: Path | None = None,
+                         physical_footprint: bool = False,
+                         nodes_params_source: Path | None = None) -> list[str]:
     command = [str(RUNNER), '--mode', 'baseline', '--profile', 'clean',
                '--timeout', str(leg_timeout),
                '--obstacle-hold-timeout', str(obstacle_hold_timeout),
@@ -935,6 +1044,10 @@ def stage_runner_command(stage: Stage, directory: Path, leg_timeout: int,
         command.append('--measure-scan-filter')
     if nav_params_source is not None:
         command += ['--nav-params-source', str(nav_params_source)]
+    if physical_footprint:
+        command.append('--physical-footprint')
+    if nodes_params_source is not None:
+        command += ['--nodes-params-source', str(nodes_params_source)]
     return command
 
 
@@ -943,17 +1056,24 @@ def execute_stage(stage: Stage, root: Path, leg_timeout: int,
                   tf_source_best_effort: bool = False,
                   laser_filter_for_change_memory: bool = False,
                   measure_scan_filter: bool = False,
-                  nav_params_source: Path | None = None) -> int:
+                  nav_params_source: Path | None = None,
+                  physical_footprint: bool = False,
+                  nodes_params_source: Path | None = None,
+                  obstacle_scenario: Path | None = None) -> int:
     assert_master_free(MASTER_PORT)
     if stage.kind in {'web_disconnect', 'web_dwell', 'web_transient',
                       'web_moving_obstacle', 'web_reentry'}:
         return execute_web_stage(stage, root, laser_filter_for_change_memory,
-                                 measure_scan_filter, nav_params_source)
+                                 measure_scan_filter, nav_params_source, physical_footprint,
+                                 nodes_params_source, **(
+                                     {'obstacle_scenario': obstacle_scenario}
+                                     if obstacle_scenario is not None else {}))
     directory = root/stage.key
     command = stage_runner_command(stage, directory, leg_timeout,
                                    obstacle_hold_timeout, tf_source_best_effort,
                                    laser_filter_for_change_memory, measure_scan_filter,
-                                   nav_params_source)
+                                   nav_params_source, physical_footprint,
+                                   nodes_params_source)
     print('\n'+stage.key+': '+' '.join(command), flush=True)
     timeline_file = root/(stage.key+'.safety_timeline.jsonl')
     observer, observer_log = start_timeline(timeline_file)
@@ -994,7 +1114,10 @@ def run_in_network_namespace(stage: Stage, root: Path, leg_timeout: int,
                              obstacle_hold_timeout: int,
                              laser_filter_for_change_memory: bool = False,
                              measure_scan_filter: bool = False,
-                             nav_params_source: Path | None = None) -> int:
+                             nav_params_source: Path | None = None,
+                             physical_footprint: bool = False,
+                             nodes_params_source: Path | None = None,
+                             obstacle_scenario: Path | None = None) -> int:
     # Isolate the entire Gazebo/DDS/observer process tree in *one* new user
     # and network namespace. Host Wi-Fi, domain 16, and host routing stay intact.
     env = dict(os.environ)
@@ -1012,11 +1135,30 @@ def run_in_network_namespace(stage: Stage, root: Path, leg_timeout: int,
         command.append('--measure-scan-filter')
     if nav_params_source is not None:
         command += ['--nav-params-source', str(nav_params_source)]
+    if physical_footprint:
+        command.append('--physical-footprint')
+    if nodes_params_source is not None:
+        command += ['--nodes-params-source', str(nodes_params_source)]
+    if obstacle_scenario is not None:
+        command += ['--obstacle-scenario', str(obstacle_scenario)]
+    if '--memory-session' in stage.options:
+        command.append('--memory-session')
+    command += realism_options(stage)
     return subprocess.run(command, cwd=REPO, env=env, check=False).returncode
 
 
 def web_truth_xy_tolerance(nav_config: dict) -> float:
-    """Use the active Nav2 goal checker's tolerance, capped for independent QA."""
+    """Keep the independent 25 cm arrival requirement fixed across controller tuning.
+
+    A tighter internal Nav2 stopping band reserves room for localization error;
+    it must not move the independent world-position goalposts as well.
+    """
+    effective_nav2_goal_tolerance(nav_config)
+    return MAX_WEB_TRUTH_XY_TOLERANCE_M
+
+
+def effective_nav2_goal_tolerance(nav_config: dict) -> float:
+    """Validate the internal stopping band is no looser than external QA."""
     try:
         controller = nav_config['controller_server']['ros__parameters']
         plugins = controller['goal_checker_plugins']
@@ -1326,7 +1468,15 @@ def check_web_transient(records: list[dict], relay_file: Path,
         max_angular = max(abs(item['angular']) for item in commands)
         result['fault_window_command_max'] = [round(max_linear, 3),
                                               round(max_angular, 3)]
-        if max_linear > .17 or max_angular > 1.05:
+        command_limits = evidence.get('runtime_command_limits') or {
+            'linear_mps': .17, 'angular_radps': 1.05,
+            'source': 'legacy evidence without captured runtime profile'}
+        result['fault_window_command_limits'] = command_limits
+        linear_limit, angular_limit = (command_limits.get('linear_mps'),
+                                       command_limits.get('angular_radps'))
+        if (not all(type(value) in (int, float) and math.isfinite(value) and value > 0
+                    for value in (linear_limit, angular_limit)) or
+                max_linear > linear_limit+1e-6 or max_angular > angular_limit+1e-6):
             reasons.append('unbounded_command_during_transient')
         if any(item.get('stop_latched') is True for item in health):
             reasons.append('short_transient_caused_emergency_latch')
@@ -1489,10 +1639,19 @@ def check_physical_source_value_parity(directory: Path, manifest: dict) -> dict:
     """
     config = REPO/'ros2_ws/src/smart_vision_amr/config'
     sources = {
-        'nav': config/'curve_tuning_waffle_pi.yaml',
-        'nodes': config/'classroom_hardware_nodes.yaml',
+        'nav': Path(manifest.get('nav_profile_source') or
+                    config/'curve_tuning_waffle_pi.yaml').expanduser().resolve(),
+        'nodes': Path(manifest.get('nodes_profile_source') or
+                      config/'classroom_hardware_nodes.yaml').expanduser().resolve(),
         'ekf': config/'ekf_hardware.yaml',
     }
+    authoritative = {
+        'nav': (config/'classroom_demo_operator_20261104.yaml').resolve(),
+        'nodes': (config/'classroom_hardware_nodes.yaml').resolve(),
+    }
+    authoritative_checks = {
+        name+'_source_selected': sources[name] == path
+        for name, path in authoritative.items()}
     generated_nav = directory/'classroom_nav_sim_time.yaml'
     generated_nodes = directory/'classroom_nodes_sim.yaml'
     checks = {'source_files_available': all(path.is_file() for path in sources.values()),
@@ -1533,30 +1692,36 @@ def check_physical_source_value_parity(directory: Path, manifest: dict) -> dict:
             sim_nav = yaml.safe_load(generated_nav.read_text())
             source_nodes = yaml.safe_load(sources['nodes'].read_text())
             sim_nodes = yaml.safe_load(generated_nodes.read_text())
+            physical = manifest.get('physical_footprint') is True
             checks['nav_values_equal_except_declared_sim_overrides'] = (
-                sim_nav == build_nav_profile_data(source_nav))
+                sim_nav == build_nav_profile_data(source_nav, physical_footprint=physical))
             checks['nodes_values_equal_except_declared_sim_overrides'] = (
-                sim_nodes == build_nodes_profile_data(source_nodes))
+                sim_nodes == build_nodes_profile_data(source_nodes, physical_footprint=physical))
             without_sim_time(source_nav, source_times)
             without_sim_time(sim_nav, generated_times)
             checks['sim_clock_is_true_after_override'] = bool(
                 source_times and len(source_times) == len(generated_times)
                 and all(value is False for value in source_times)
                 and all(value is True for value in generated_times))
+            expected_radius = .22 if physical else SIM_ROBOT_RADIUS_M
+            expected_inflation = (source_nav['local_costmap']['local_costmap']['ros__parameters']['inflation_layer']['inflation_radius']
+                                  if physical else SIM_INFLATION_RADIUS_M)
+            expected_cells = (source_nodes['/astar_planner']['ros__parameters']['obstacle_inflation_cells']
+                              if physical else SIM_STATIC_INFLATION_CELLS)
             checks['sim_footprint_matches_stock_sdf'] = bool(
                 all(sim_nav[name][name]['ros__parameters']['robot_radius'] ==
-                    SIM_ROBOT_RADIUS_M and
+                    expected_radius and
                     sim_nav[name][name]['ros__parameters']['inflation_layer'][
-                        'inflation_radius'] == SIM_INFLATION_RADIUS_M
+                        'inflation_radius'] == expected_inflation
                     for name in ('local_costmap', 'global_costmap')) and
                 sim_nodes['/astar_planner']['ros__parameters']['robot_radius'] ==
-                SIM_ROBOT_RADIUS_M and
+                expected_radius and
                 sim_nodes['/astar_planner']['ros__parameters'][
-                    'obstacle_inflation_cells'] == SIM_STATIC_INFLATION_CELLS and
+                    'obstacle_inflation_cells'] == expected_cells and
                 sim_nodes['/astar_planner']['ros__parameters'][
-                    'preferred_clearance'] == SIM_PREFERRED_CLEARANCE_M and
+                    'preferred_clearance'] == source_nodes['/astar_planner']['ros__parameters']['preferred_clearance'] and
                 sim_nodes['/path_follower']['ros__parameters'][
-                    'recovery_robot_radius'] == SIM_ROBOT_RADIUS_M)
+                    'recovery_robot_radius'] == expected_radius)
         except (OSError, yaml.YAMLError, KeyError, TypeError):
             checks['nav_values_equal_except_declared_sim_overrides'] = False
             checks['nodes_values_equal_except_declared_sim_overrides'] = False
@@ -1567,17 +1732,63 @@ def check_physical_source_value_parity(directory: Path, manifest: dict) -> dict:
         checks['nodes_values_equal_except_declared_sim_overrides'] = False
         checks['sim_clock_is_true_after_override'] = False
         checks['sim_footprint_matches_stock_sdf'] = False
+    copy_preserved = all(checks.values())
+    authoritative_selected = all(authoritative_checks.values())
     return {
-        'passed': all(checks.values()), 'checks': checks,
+        'passed': copy_preserved and authoritative_selected, 'checks': checks,
+        'copy_preserves_selected_values': copy_preserved,
+        'authoritative_physical_sources': authoritative_selected,
+        'authoritative_source_checks': authoritative_checks,
+        'authoritative_source_paths': {name: str(path) for name, path in authoritative.items()},
+        'source_paths': {name: str(path) for name, path in sources.items()},
         'source_sha256': source_hashes,
         'sim_clock_entries': {'physical': len(source_times), 'simulation': len(generated_times)},
-        'scope': 'checked-in Nav2, classroom nodes and EKF source values with '
+        'scope': 'selected YAML copy preservation is separate from strict official physical-source path selection; '
+                 'Nav2 and classroom nodes YAML, checked-in EKF source values with '
                  'declared Gazebo collision geometry overrides only; not live '
                  'robot ros2 param dump or hardware topology',
     }
 
 
+def classify_startup_lifecycle_failure(directory: Path, evidence: dict) -> dict:
+    """Label a witnessed pre-mission abort; never turn a failed trial green."""
+    if (evidence.get('passed') is True or evidence.get('mission_accepted_via_web') is not False
+            or evidence.get('mission_started_at') is not None
+            or evidence.get('transient_injected_mid_route') is True
+            or evidence.get('transient_profile_request')):
+        return {}
+    log, relay = directory/'gazebo_launch.log', directory/'sensor_faults.jsonl'
+    timeline = directory/'safety_timeline.jsonl'
+    if not all(path.is_file() for path in (log, relay, timeline)):
+        return {}
+    try:
+        raw = log.read_bytes()
+        lines = raw.decode(errors='replace').splitlines()
+        marker = 'Failed to bring up all requested nodes. Aborting bringup.'
+        index = next((i for i, line in enumerate(lines) if marker in line), None)
+        events = [json.loads(line) for line in relay.read_text().splitlines() if line.strip()]
+        records = [json.loads(line) for line in timeline.read_text().splitlines() if line.strip()]
+        if (index is None or not any(event.get('event') == 'sample' for event in events)
+                or any(event.get('event') == 'profile' and event.get('name') != 'clean'
+                       for event in events)
+                or any(row.get('kind') == 'goal' or
+                       row.get('kind') == 'cmd_vel' and
+                       (abs(row.get('linear', 0.)) > 1e-6 or abs(row.get('angular', 0.)) > 1e-6)
+                       for row in records)):
+            return {}
+    except (OSError, ValueError, TypeError):
+        return {}
+    return {'failure_class': 'STARTUP_LIFECYCLE_ABORT',
+            'fault_execution': ('TRANSIENT_NOT_STARTED' if evidence.get('transient_requested') is True
+                                else 'NOT_STARTED'),
+            'startup_failure_witness': {'log': str(log), 'sha256': hashlib.sha256(raw).hexdigest(),
+                'lines': lines[max(0, index-7):index+1],
+                'mission_accepted_via_web': False, 'nonzero_command_seen': False,
+                'fault_profile_applied': False}}
+
+
 def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -> dict:
+    evidence.update(classify_startup_lifecycle_failure(directory, evidence))
     if '--memory-session' in stage.options:
         memory_summary = directory/'memory_observer.summary.json'
         if memory_summary.is_file():
@@ -1615,7 +1826,13 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
                     stop_model = {
                         'max_linear_speed_mps': float(follower['max_vel_x']),
                         'decel_limit_mps2': abs(float(follower['decel_lim_x'])),
+                        'robot_collision_radius_m': float(nav_config['local_costmap']['local_costmap']['ros__parameters']['robot_radius']),
                     }
+                    evidence['runtime_command_limits'] = {
+                        'linear_mps': float(follower['max_vel_x']),
+                        'angular_radps': float(follower['max_vel_theta']),
+                        'source': str(nav_parameters),
+                        'sha256': hashlib.sha256(nav_parameters.read_bytes()).hexdigest()}
                 except (KeyError, TypeError, AttributeError) as exc:
                     raise ValueError('Nav2 FollowPath stopping model missing') from exc
             safety = safety_timeline.assess(records, static_world_boxes=boxes,
@@ -1626,6 +1843,7 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
                               'web_reentry'}:
                 truth_xy_tolerance = web_truth_xy_tolerance(nav_config)
                 evidence['web_truth_xy_tolerance_m'] = truth_xy_tolerance
+                evidence['nav2_internal_xy_tolerance_m'] = effective_nav2_goal_tolerance(nav_config)
                 manifest = directory/'runtime_manifest.json'
                 if manifest.is_file():
                     evidence['web_runtime_manifest'] = json.loads(manifest.read_text())
@@ -1698,20 +1916,30 @@ def attach_timeline_and_network(stage: Stage, directory: Path, evidence: dict) -
         assessment = directory/'stress_crate_assessment.json'
         assessor = REPO/'scripts/assess_classroom_stress_crate.py'
         if trace.is_file() and assessor.is_file():
-            verdict = subprocess.run(
-                [sys.executable, str(assessor), '--trace', str(trace),
-                 '--web-evidence', str(directory/'acceptance.json'),
-                 '--output', str(assessment), '--expected-route',
-                 ','.join(stop.removeprefix('Sector ') for stop in stage.route
-                          if stop.startswith('Sector '))], cwd=REPO,
-                check=False, capture_output=True, text=True, timeout=30)
-            if assessment.is_file():
-                evidence['stress_crate_assessment'] = json.loads(assessment.read_text())
-            else:
+            try:
+                from assess_classroom_stress_crate import verified_runtime_robot_radius
+                robot_radius = verified_runtime_robot_radius(directory/'runtime_manifest.json')
+            except (OSError, ValueError, TypeError, KeyError, ET.ParseError) as exc:
                 evidence['stress_crate_assessment'] = {
-                    'passed': False, 'reasons': ['assessor_no_output'],
-                    'returncode': verdict.returncode,
-                    'stderr': verdict.stderr[-1000:]}
+                    'passed': False, 'reasons': ['runtime_body_radius_unverified'],
+                    'detail': str(exc)}
+            else:
+                verdict = subprocess.run(
+                    [sys.executable, str(assessor), '--trace', str(trace),
+                     '--web-evidence', str(directory/'acceptance.json'),
+                     '--output', str(assessment), '--robot-radius', str(robot_radius),
+                     '--expected-route',
+                     ','.join(stop.removeprefix('Sector ') for stop in stage.route
+                              if stop.startswith('Sector '))], cwd=REPO,
+                    check=False, capture_output=True, text=True, timeout=30)
+                if assessment.is_file():
+                    evidence['stress_crate_assessment'] = json.loads(assessment.read_text())
+                    evidence['stress_crate_assessment']['runtime_body_radius_verified'] = True
+                else:
+                    evidence['stress_crate_assessment'] = {
+                        'passed': False, 'reasons': ['assessor_no_output'],
+                        'returncode': verdict.returncode,
+                        'stderr': verdict.stderr[-1000:]}
         else:
             evidence['stress_crate_assessment'] = {
                 'passed': False, 'reasons': ['observer_or_assessor_missing']}
@@ -1753,6 +1981,21 @@ def main() -> int:
                         help='Record paired raw/filtered scan arrival and singleton statistics')
     parser.add_argument('--nav-params-source', type=Path,
                         help='Nav2 YAML for the trial (default: classroom Gazebo profile)')
+    parser.add_argument('--nodes-params-source', type=Path,
+                        help='A*/follower YAML for the trial (default: classroom hardware profile)')
+    parser.add_argument('--obstacle-scenario', type=Path,
+                        help='Fixed JSON actor input for paired web obstacle tests; never relocated')
+    parser.add_argument('--physical-footprint', action='store_true',
+                        help='Copied 0.22 m collision proxy and unchanged physical parameter values')
+    parser.add_argument('--memory-session', action='store_true',
+                        help='Enable session obstacle memory in every selected stage')
+    parser.add_argument('--cold-start', action='store_true',
+                        help='Web stages: AMCL boots without a prior; verify stopped Home initialization through actual backend API')
+    parser.add_argument('--ekf-delivery-faults', action='store_true',
+                        help='Web stages: relay actual EKF odom/TF output delivery (not EKF CPU/raw-input faults)')
+    parser.add_argument('--hardware-profile', default='nominal',
+                        choices=('nominal', 'sensor_rates', 'wheel_asymmetry', 'actuator_lag'),
+                        help='Copied-model stress envelope; not calibrated physical equivalence')
     args = parser.parse_args()
     if args.leg_timeout < 30 or args.leg_timeout > 600:
         parser.error('--leg-timeout must be 30..600 seconds')
@@ -1767,16 +2010,42 @@ def main() -> int:
         parser.error('--output is required')
     if args.tf_source_best_effort and args.run not in ('03_sector_3',):
         parser.error('--tf-source-best-effort is only for the isolated Stage03 A/B run')
-    if args.nav_params_source is not None and (args.run or args.run_inner):
-        args.nav_params_source = args.nav_params_source.expanduser().resolve()
-        if (args.nav_params_source.suffix.lower() not in {'.yaml', '.yml'} or
-                not args.nav_params_source.is_file() or
-                not args.nav_params_source.stat().st_size):
-            parser.error('--nav-params-source must name a nonempty YAML file')
+    for name in ('nav_params_source', 'nodes_params_source'):
+        value = getattr(args, name)
+        if value is not None and (args.run or args.run_inner):
+            value = value.expanduser().resolve()
+            if (value.suffix.lower() not in {'.yaml', '.yml'} or
+                    not value.is_file() or not value.stat().st_size):
+                parser.error('--'+name.replace('_', '-')+' must name a nonempty YAML file')
+            setattr(args, name, value)
     try:
         stages = selected_stages(args.run or args.assess_existing or args.run_inner)
     except ValueError as exc:
         parser.error(str(exc))
+    scenario_manifest = None
+    if args.obstacle_scenario is not None:
+        from inject_classroom_web_obstacle import obstacle_scenario_manifest
+        if not any(stage.kind == 'web_moving_obstacle' for stage in stages):
+            parser.error('--obstacle-scenario requires a web moving-obstacle stage')
+        args.obstacle_scenario = args.obstacle_scenario.expanduser().resolve()
+        try:
+            scenario_manifest = obstacle_scenario_manifest(args.obstacle_scenario)
+        except (OSError, ValueError, TypeError) as exc:
+            parser.error('--obstacle-scenario: '+str(exc))
+    if args.memory_session:
+        stages = [replace(stage, options=(*stage.options, '--memory-session'))
+                  if '--memory-session' not in stage.options else stage for stage in stages]
+    if (args.cold_start or args.ekf_delivery_faults) and any(
+            stage.kind not in WEB_RUNTIME_KINDS for stage in stages):
+        parser.error('--cold-start/--ekf-delivery-faults require full web stages')
+    selected_realism = [flag for enabled, flag in (
+        (args.cold_start, '--cold-start'),
+        (args.ekf_delivery_faults, '--ekf-delivery-faults')) if enabled]
+    if args.hardware_profile != 'nominal':
+        selected_realism += ['--hardware-profile', args.hardware_profile]
+    stages = [replace(stage, options=(*stage.options,
+                 *(flag for flag in selected_realism if flag not in stage.options)))
+              for stage in stages]
     root = args.output.expanduser().resolve()
     if args.run:
         if root.exists():
@@ -1785,6 +2054,16 @@ def main() -> int:
         root.mkdir(parents=True)
     elif not root.is_dir():
         parser.error('Existing evidence root missing: '+str(root))
+    if scenario_manifest is not None and args.run:
+        copied = root/'obstacle_scenario.json'
+        copied.write_bytes(args.obstacle_scenario.read_bytes())
+        preserved = obstacle_scenario_manifest(copied)
+        if preserved['sha256'] != scenario_manifest['sha256']:
+            parser.error('Obstacle scenario changed while copying')
+        scenario_manifest['copied_path'] = str(copied)
+        args.obstacle_scenario = copied
+    scenario_options = ({'obstacle_scenario': args.obstacle_scenario}
+                        if args.obstacle_scenario is not None else {})
     if args.run_inner:
         if len(stages) != 1:
             parser.error('--run-inner requires one stage')
@@ -1793,10 +2072,17 @@ def main() -> int:
                              args.tf_source_best_effort,
                              args.laser_filter_for_change_memory,
                              args.measure_scan_filter,
-                             args.nav_params_source)
+                             args.nav_params_source, args.physical_footprint,
+                             args.nodes_params_source, **scenario_options)
     report = {'created_utc': datetime.now(timezone.utc).isoformat(),
               'domain': 176, 'localhost_only': True,
               'physical_robot_touched': False,
+              'physical_footprint': args.physical_footprint,
+              'memory_session_forced': args.memory_session,
+              'cold_start_requested': args.cold_start,
+              'ekf_delivery_faults_requested': args.ekf_delivery_faults,
+              'hardware_profile': args.hardware_profile,
+              'visual_ui_qa': 'NOT_RUN_BACKEND_API_AND_STATIC_JS_ONLY',
               'web_client_outage': 'NOT_RUN_SEPARATE_MANUAL_GATE',
               'physical_dds_outage': 'NOT_RUN_REQUIRES_SUPERVISED_ROBOT',
               'physical_drive': 'NOT_RUN_USER_OPERATED',
@@ -1804,6 +2090,9 @@ def main() -> int:
               'scan_pair_observer': args.measure_scan_filter,
               'nav_params_source': (str(args.nav_params_source)
                                     if args.nav_params_source is not None else None),
+              'nodes_params_source': (str(args.nodes_params_source)
+                                      if args.nodes_params_source is not None else None),
+              'obstacle_scenario': scenario_manifest,
               'stages': []}
     for stage in stages:
         directory = root/stage.key
@@ -1816,14 +2105,16 @@ def main() -> int:
                                                        args.obstacle_hold_timeout,
                                                        args.laser_filter_for_change_memory,
                                                        args.measure_scan_filter,
-                                                       args.nav_params_source)
+                                                       args.nav_params_source, args.physical_footprint,
+                                                       args.nodes_params_source, **scenario_options)
                               if stage.kind == 'wan_absent' else
                               execute_stage(stage, root, args.leg_timeout,
                                             args.obstacle_hold_timeout,
                                             args.tf_source_best_effort,
                                             args.laser_filter_for_change_memory,
                                             args.measure_scan_filter,
-                                            args.nav_params_source))
+                                            args.nav_params_source, args.physical_footprint,
+                                            args.nodes_params_source, **scenario_options))
             except KeyboardInterrupt:
                 print('Interrupted; the child runner owns Gazebo cleanup.', file=sys.stderr)
                 raise
@@ -1835,6 +2126,14 @@ def main() -> int:
                 (directory/'derived_evidence.json').write_text(json.dumps(
                     evidence, ensure_ascii=False, indent=2)+'\n')
                 outcome = assess(stage, evidence)
+                if scenario_manifest is not None and stage.kind == 'web_moving_obstacle':
+                    actor_scene = (evidence.get('web_obstacle') or {}).get('obstacle_scenario') or {}
+                    outcome['obstacle_scenario_hash_matches'] = (
+                        actor_scene.get('sha256') == scenario_manifest['sha256'])
+                    if not outcome['obstacle_scenario_hash_matches']:
+                        outcome['passed'] = False
+                        outcome['outcome'] = 'FAIL'
+                        outcome['reasons'].append('fixed_obstacle_scenario_hash_mismatch')
                 outcome['safety_gate_passed'] = safety['passed']
                 outcome['safety_violations'] = len(safety['violations'])
                 if not safety['passed']:

@@ -6,7 +6,7 @@ import time
 import pytest
 
 from smart_vision_amr.operation_status import (failure_memory_snapshot, operation_summary,
-                                              OBSTACLE_HOLD_MESSAGE)
+                                              OBSTACLE_HOLD_MESSAGE, CONTROLLER_HOLD_MESSAGE)
 from smart_vision_amr.web_mission_server import DEFAULT_MARKERS, MissionApplication
 
 
@@ -86,6 +86,76 @@ def test_bad_optional_obstacle_counters_are_not_exposed():
     result = failure_memory_snapshot(value, (12, 45), 'NAVIGATING', .1)
     assert result['state'] == 'OBSTACLE_HOLD'
     assert not {'retry_count', 'retry_limit', 'blocked_obstacle_count', 'clear_wait_seconds'} & result.keys()
+
+
+@pytest.mark.parametrize('stage', ['await_reverse_stop', 'await_reverse_inputs', 'reverse_probe'])
+def test_pending_reverse_is_visible_and_does_not_claim_detour_or_global_planning(stage):
+    value = payload('WAIT_REVERSE')
+    value.update(active=[], failure_class='obstacle', recovery_stage=stage)
+    result = failure_memory_snapshot(value, (12, 45), 'NAVIGATING', .1)
+    assert result['available'] and result['recovery_stage'] == stage
+    state = {'connection': {'connected': True}, 'health': {'missing': []},
+             'mission': {'state': 'NAVIGATING'}, 'failure_memory': result,
+             'local_detour': {'available': True, 'plan_kind': 'LOCAL_DETOUR', 'state': 'ACTIVE'}}
+    assert operation_summary(state)['phase'] == 'reverse_check'
+    state['manual'] = {'active': True}
+    assert operation_summary(state)['phase'] == 'manual'
+    state['safety'] = {'latched': True}
+    assert operation_summary(state)['phase'] == 'estopped'
+    assert not failure_memory_snapshot(value, (12, 46), 'NAVIGATING', .1)['available']
+
+
+@pytest.mark.parametrize('phase,expected', [
+    ('STOP_PROOF', 'reverse_check'), ('REVERSE_VERDICT', 'reverse_check'),
+    ('REVERSING', 'failure_reversing'), ('GLOBAL', 'replanning'),
+    ('WAIT_OBSTACLE', 'obstacle_hold')])
+def test_owned_episode_phase_overrides_old_local_detour_display(phase, expected):
+    value = payload('WAIT_ALTERNATIVE')
+    value.update(recovery_phase=phase, recovery_episode_id='owned-episode', recovery_wait_reason='current cause')
+    result = failure_memory_snapshot(value, (12, 45), 'NAVIGATING', .1)
+    assert result['recovery_episode_id'] == 'owned-episode'
+    assert result['recovery_phase'] == phase
+    state = {'connection': {'connected': True}, 'health': {'missing': []},
+             'mission': {'state': 'NAVIGATING'}, 'failure_memory': result,
+             'local_detour': {'available': True, 'plan_kind': 'LOCAL_DETOUR', 'state': 'ACTIVE'}}
+    assert operation_summary(state)['phase'] == expected
+    if phase == 'WAIT_OBSTACLE':
+        assert operation_summary(state)['detail'] == OBSTACLE_HOLD_MESSAGE
+    result['state'] = 'SENSOR_HOLD'
+    assert operation_summary(state)['phase'] == 'sensor_hold'
+    assert not failure_memory_snapshot(value, (12, 46), 'NAVIGATING', .1)['available']
+    assert not failure_memory_snapshot(value, (12, 45), 'NAVIGATING', 2.)['available']
+
+
+@pytest.mark.parametrize('phase', ['UNTRUSTED', [], {}, None, True])
+def test_unknown_episode_phase_cannot_change_operator_status(phase):
+    value = payload('WAIT_ALTERNATIVE')
+    value.update(recovery_phase=phase, recovery_episode_id='ignored', recovery_wait_reason='ignored')
+    result = failure_memory_snapshot(value, (12, 45), 'NAVIGATING', .1)
+    assert not {'recovery_phase', 'recovery_episode_id', 'recovery_wait_reason'} & result.keys()
+
+
+def test_controller_hold_is_not_misreported_as_obstacle_or_active_detour():
+    value = payload('CONTROLLER_HOLD')
+    value.update(failure_class='controller', recovery_stage='await_operator',
+                 controller_retry_count=3, controller_retry_limit=3)
+    result = failure_memory_snapshot(value, (12, 45), 'NAVIGATING', .1)
+    assert result['available'] and result['failure_class'] == 'controller'
+    assert result['recovery_stage'] == 'await_operator'
+    assert result['controller_retry_count'] == result['controller_retry_limit'] == 3
+    state = {'connection': {'connected': True}, 'health': {'missing': []},
+             'mission': {'state': 'NAVIGATING'}, 'failure_memory': result,
+             'local_detour': {'available': True, 'plan_kind': 'LOCAL_DETOUR', 'state': 'ACTIVE'}}
+    operation = operation_summary(state)
+    assert operation['phase'] == 'controller_hold'
+    assert operation['detail'] == CONTROLLER_HOLD_MESSAGE
+    assert '명시적으로 재개' in operation['next_action']['action']
+    assert '자동 출발하지 않습니다' in operation['next_action']['action']
+    state['mission'] = {'state': 'PAUSED', 'reason': CONTROLLER_HOLD_MESSAGE+'. 원인 확인 후 재개'}
+    state['failure_memory'] = {'available': False}
+    assert operation_summary(state)['phase'] == 'controller_hold'
+    state['safety'] = {'latched': True}
+    assert operation_summary(state)['phase'] == 'estopped'
 
 
 def test_operator_priority_and_no_finished_mission_recovery_banner():

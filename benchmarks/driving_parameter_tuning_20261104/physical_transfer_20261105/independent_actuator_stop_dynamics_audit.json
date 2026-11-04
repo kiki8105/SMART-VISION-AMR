@@ -1,0 +1,790 @@
+{
+  "trial": "cold_actuator_lag_20261105",
+  "method": "Read-only completed-trial analysis; no runtime mutation, ROS process, web request or drive command.",
+  "strict_outcome": "FAIL",
+  "mission_result": "Mission/Home and live actor bypass succeeded, but strict safety stopping QA failed and is preserved.",
+  "source_archive": "cold_actuator_lag",
+  "inputs_sha256": {
+    "staged_report.json": "ab9f525ea130768188c4a2b0f612b4a07b2e6d2206fbe73189b39a05b9668060",
+    "25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl": "4c901e430b6767aadce8a59aa83a877b3e2621c03a964424a89113d420b793f1",
+    "25_web_inventory_sector3_moving_obstacle/safety_assessment.json": "3d47d91b361d3ebd81efbdfb062aacb37cd0332eaef9df632b4d2344c4277e00",
+    "25_web_inventory_sector3_moving_obstacle/runtime_manifest.json": "14dbb0d8bddc562c4c56858b7e95ea4696d31ea0c203b7e7398537dfbea34f2f",
+    "25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+    "25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+    "25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf": "1ca73365b84a86964edaf6f7b63ac91839acbe33b028eced4509ac74fcb23c45",
+    "25_web_inventory_sector3_moving_obstacle/gazebo_launch.log": "2aa5896b77daf7b80d545c8084fc75971e71ea56f48db8be21f3102667add430"
+  },
+  "dynamics": {
+    "actual_wheel_acceleration_mps2": 0.15,
+    "wheel_separation_m": 0.287,
+    "dwb_acceleration_x_mps2": 0.2,
+    "dwb_acceleration_theta_radps2": 0.8,
+    "dwb_deceleration_x_mps2": -0.4,
+    "dwb_deceleration_theta_radps2": -1.6,
+    "trajectory_generator": "dwb_plugins::StandardTrajectoryGenerator default",
+    "limit_vel_cmd_in_traj": false,
+    "mux_acceleration_x_mps2": 0.2,
+    "mux_acceleration_theta_radps2": 0.8,
+    "velocity_smoother_active": false,
+    "velocity_smoother_note": "simulation.launch.py launches controller/behavior cmd_vel directly to navigation_cmd_vel; configured velocity_smoother YAML block is not an active Node in this launch.",
+    "coupled_wheel_acceleration_constraint": "abs(a_v +/- wheel_separation*a_w/2) <= actual_wheel_acceleration; independent x/theta bounds are not equivalent.",
+    "translating_yaw_cap_radps": 0.35,
+    "pure_pivot_max_yaw_radps": 0.5
+  },
+  "pure_pivot_hypothesis": {
+    "query": "navigation_cmd_vel between t=33..58, abs(v)<=.010001 and abs(w)>.35",
+    "matching_samples": 0,
+    "conclusion": "The three recorded stop failures are translating turns/straight braking, not selection of the pure-pivot .5 exception."
+  },
+  "windows": [
+    {
+      "stop_start_t": 35.8602,
+      "qa": {
+        "start_t": 35.8602,
+        "duration_s": 1.6896,
+        "last_nonzero_command_after_s": 0.10050000000000381,
+        "first_zero_command_after_s": 0.12409999999999854,
+        "max_displacement_m": 0.07,
+        "max_forward_displacement_m": 0.07,
+        "max_heading_change_rad": 0.084,
+        "truth_samples": 16,
+        "entry_speed_mps": 0.1081,
+        "entry_command_speed_mps": 0.0897,
+        "entry_truth_speed_mps": 0.1081,
+        "entry_front_core_min_m": 0.8877761960029602,
+        "entry_front_core_angle_deg": 358.8152065577813,
+        "ground_truth_stopping_distance_bound_m": 0.05,
+        "estimated_front_body_clearance_m": 0.6856
+      },
+      "last_nav_before_invalidation": {
+        "t": 35.8434,
+        "monotonic": 26503.486,
+        "wall_time": 1793812331.8279,
+        "kind": "navigation_cmd_vel",
+        "linear": 0.13895,
+        "angular": -0.0641
+      },
+      "nav_zero_latency_s": 0.04469999999999885,
+      "mux_zero_latency_s": 0.12409999999999854,
+      "odom_before_mux_zero": {
+        "t": 35.9349,
+        "monotonic": 26503.5775,
+        "wall_time": 1793812331.9194,
+        "kind": "odom",
+        "stamp_ns": 20837000000,
+        "clock_stamp_ns": 20860000000,
+        "frame_id": "odom",
+        "child_frame_id": "base_footprint",
+        "x": 0.23751,
+        "y": -0.34636,
+        "yaw": -1.45149,
+        "linear_x": 0.14299,
+        "angular_z": -0.08192
+      },
+      "wheel_model": {
+        "left_speed_mps": 0.15474552,
+        "right_speed_mps": 0.13123448000000001,
+        "ideal_independent_wheel_stop_translation_m": 0.06861444116823467,
+        "ideal_independent_wheel_stop_yaw_rad": -0.07809160533333327,
+        "ideal_stop_duration_s": 1.0316368,
+        "independent_dwb_theta_decel_1p6_stop_yaw_rad": -0.002097152,
+        "assumptions": "Ideal constant per-wheel deceleration from nearest measured EKF twist; excludes transport delay, slip and nonlinear plugin/physics error. This is a causal consistency calculation, not an exact physics replay."
+      },
+      "trace": [
+        {
+          "requested_offset_s": -0.2,
+          "odom_offset_s": -0.1816999999999993,
+          "odom_source_stamp_ns": 20637000000,
+          "odom_v_mps": 0.12518,
+          "odom_w_radps": -0.11329,
+          "latest_nav_v_w": [
+            0.15053,
+            -0.0641
+          ],
+          "latest_mux_v_w": [
+            0.15053,
+            -0.0641
+          ],
+          "truth_offset_s": -0.24799999999999756,
+          "truth_pose": [
+            0.03801,
+            -0.54563,
+            -1.45704
+          ]
+        },
+        {
+          "requested_offset_s": 0,
+          "odom_offset_s": 0.015100000000003888,
+          "odom_source_stamp_ns": 20787000000,
+          "odom_v_mps": 0.14576,
+          "odom_w_radps": -0.09354,
+          "latest_nav_v_w": [
+            0.13895,
+            -0.0641
+          ],
+          "latest_mux_v_w": [
+            0.08973,
+            -0.11742
+          ],
+          "truth_offset_s": 0.01670000000000016,
+          "truth_pose": [
+            0.04087,
+            -0.57321,
+            -1.47804
+          ]
+        },
+        {
+          "requested_offset_s": 0.1,
+          "odom_offset_s": 0.07469999999999999,
+          "odom_source_stamp_ns": 20837000000,
+          "odom_v_mps": 0.14299,
+          "odom_w_radps": -0.08192,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.11471,
+            -0.0641
+          ],
+          "truth_offset_s": 0.11420000000000385,
+          "truth_pose": [
+            0.04206,
+            -0.58667,
+            -1.48646
+          ]
+        },
+        {
+          "requested_offset_s": 0.2,
+          "odom_offset_s": 0.1846000000000032,
+          "odom_source_stamp_ns": 20937000000,
+          "odom_v_mps": 0.12908,
+          "odom_w_radps": -0.08971,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.22290000000000276,
+          "truth_pose": [
+            0.04303,
+            -0.59863,
+            -1.49526
+          ]
+        },
+        {
+          "requested_offset_s": 0.4,
+          "odom_offset_s": 0.3982000000000028,
+          "odom_source_stamp_ns": 21137000000,
+          "odom_v_mps": 0.09884,
+          "odom_w_radps": -0.08661,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.4369999999999976,
+          "truth_pose": [
+            0.04433,
+            -0.6181,
+            -1.5128
+          ]
+        },
+        {
+          "requested_offset_s": 0.6,
+          "odom_offset_s": 0.6107000000000014,
+          "odom_source_stamp_ns": 21337000000,
+          "odom_v_mps": 0.0686,
+          "odom_w_radps": -0.0876,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.6551000000000045,
+          "truth_pose": [
+            0.04501,
+            -0.6316,
+            -1.53032
+          ]
+        },
+        {
+          "requested_offset_s": 0.8,
+          "odom_offset_s": 0.8301000000000016,
+          "odom_source_stamp_ns": 21537000000,
+          "odom_v_mps": 0.03824,
+          "odom_w_radps": -0.08746,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.7629999999999981,
+          "truth_pose": [
+            0.04518,
+            -0.6361,
+            -1.53905
+          ]
+        },
+        {
+          "requested_offset_s": 1.0,
+          "odom_offset_s": 1.0463999999999984,
+          "odom_source_stamp_ns": 21737000000,
+          "odom_v_mps": 0.01024,
+          "odom_w_radps": -0.06079,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.9817000000000036,
+          "truth_pose": [
+            0.04529,
+            -0.64064,
+            -1.5564
+          ]
+        },
+        {
+          "requested_offset_s": 1.2,
+          "odom_offset_s": 1.1570000000000036,
+          "odom_source_stamp_ns": 21837000000,
+          "odom_v_mps": 0.00194,
+          "odom_w_radps": -0.00358,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 1.1940999999999988,
+          "truth_pose": [
+            0.0453,
+            -0.64129,
+            -1.56053
+          ]
+        }
+      ]
+    },
+    {
+      "stop_start_t": 44.6172,
+      "qa": {
+        "start_t": 44.6172,
+        "duration_s": 1.6153,
+        "last_nonzero_command_after_s": 0.14330000000000354,
+        "first_zero_command_after_s": 0.20889999999999986,
+        "max_displacement_m": 0.0361,
+        "max_forward_displacement_m": 0.036,
+        "max_heading_change_rad": 0.2059,
+        "truth_samples": 15,
+        "entry_speed_mps": 0.0695,
+        "entry_command_speed_mps": 0.0695,
+        "entry_truth_speed_mps": 0.0661,
+        "entry_front_core_min_m": 0.5057830214500427,
+        "entry_front_core_angle_deg": 350.79698965146224,
+        "ground_truth_stopping_distance_bound_m": 0.05,
+        "estimated_front_body_clearance_m": 0.3313
+      },
+      "last_nav_before_invalidation": {
+        "t": 44.5385,
+        "monotonic": 26512.1811,
+        "wall_time": 1793812340.523,
+        "kind": "navigation_cmd_vel",
+        "linear": 0.06947,
+        "angular": 0.34615
+      },
+      "nav_zero_latency_s": 0.10710000000000264,
+      "mux_zero_latency_s": 0.20889999999999986,
+      "odom_before_mux_zero": {
+        "t": 44.7591,
+        "monotonic": 26512.4017,
+        "wall_time": 1793812340.7436,
+        "kind": "odom",
+        "stamp_ns": 28847000000,
+        "clock_stamp_ns": 28860000000,
+        "frame_id": "odom",
+        "child_frame_id": "base_footprint",
+        "x": 0.31016,
+        "y": -0.75706,
+        "yaw": -0.9307,
+        "linear_x": 0.07208,
+        "angular_z": 0.31229
+      },
+      "wheel_model": {
+        "left_speed_mps": 0.027266385000000004,
+        "right_speed_mps": 0.116893615,
+        "ideal_independent_wheel_stop_translation_m": 0.02401262163122742,
+        "ideal_independent_wheel_stop_yaw_rad": 0.1500657546666667,
+        "ideal_stop_duration_s": 0.7792907666666667,
+        "independent_dwb_theta_decel_1p6_stop_yaw_rad": 0.030476576281250004,
+        "assumptions": "Ideal constant per-wheel deceleration from nearest measured EKF twist; excludes transport delay, slip and nonlinear plugin/physics error. This is a causal consistency calculation, not an exact physics replay."
+      },
+      "trace": [
+        {
+          "requested_offset_s": -0.2,
+          "odom_offset_s": -0.18779999999999575,
+          "odom_source_stamp_ns": 28547000000,
+          "odom_v_mps": 0.0877,
+          "odom_w_radps": 0.32141,
+          "latest_nav_v_w": [
+            0.08105,
+            0.32051
+          ],
+          "latest_mux_v_w": [
+            0.08105,
+            0.32051
+          ],
+          "truth_offset_s": -0.2539999999999978,
+          "truth_pose": [
+            0.08817,
+            -0.96528,
+            -1.06027
+          ]
+        },
+        {
+          "requested_offset_s": 0,
+          "odom_offset_s": 0.027300000000003877,
+          "odom_source_stamp_ns": 28747000000,
+          "odom_v_mps": 0.07917,
+          "odom_w_radps": 0.28917,
+          "latest_nav_v_w": [
+            0.06947,
+            0.29487
+          ],
+          "latest_mux_v_w": [
+            0.06947,
+            0.34615
+          ],
+          "truth_offset_s": -0.03829999999999956,
+          "truth_pose": [
+            0.09652,
+            -0.97915,
+            -0.9996
+          ]
+        },
+        {
+          "requested_offset_s": 0.1,
+          "odom_offset_s": 0.07740000000000435,
+          "odom_source_stamp_ns": 28797000000,
+          "odom_v_mps": 0.076,
+          "odom_w_radps": 0.29132,
+          "latest_nav_v_w": [
+            0.06947,
+            0.29487
+          ],
+          "latest_mux_v_w": [
+            0.06947,
+            0.29487
+          ],
+          "truth_offset_s": 0.07540000000000191,
+          "truth_pose": [
+            0.10069,
+            -0.9854,
+            -0.97073
+          ]
+        },
+        {
+          "requested_offset_s": 0.2,
+          "odom_offset_s": 0.24890000000000612,
+          "odom_source_stamp_ns": 28947000000,
+          "odom_v_mps": 0.06877,
+          "odom_w_radps": 0.29551,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.1828000000000003,
+          "truth_pose": [
+            0.10471,
+            -0.99105,
+            -0.93967
+          ]
+        },
+        {
+          "requested_offset_s": 0.4,
+          "odom_offset_s": 0.35420000000000584,
+          "odom_source_stamp_ns": 29047000000,
+          "odom_v_mps": 0.05723,
+          "odom_w_radps": 0.33061,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.4000000000000057,
+          "truth_pose": [
+            0.11162,
+            -0.99998,
+            -0.87651
+          ]
+        },
+        {
+          "requested_offset_s": 0.6,
+          "odom_offset_s": 0.5677000000000021,
+          "odom_source_stamp_ns": 29247000000,
+          "odom_v_mps": 0.03644,
+          "odom_w_radps": 0.23613,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.6106000000000051,
+          "truth_pose": [
+            0.11638,
+            -1.00553,
+            -0.82433
+          ]
+        },
+        {
+          "requested_offset_s": 0.8,
+          "odom_offset_s": 0.7782000000000053,
+          "odom_source_stamp_ns": 29447000000,
+          "odom_v_mps": 0.02142,
+          "odom_w_radps": 0.13724,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.8204000000000065,
+          "truth_pose": [
+            0.11935,
+            -1.00867,
+            -0.79361
+          ]
+        },
+        {
+          "requested_offset_s": 1.0,
+          "odom_offset_s": 1.000700000000002,
+          "odom_source_stamp_ns": 29647000000,
+          "odom_v_mps": 0.00632,
+          "odom_w_radps": 0.03349,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 1.0464000000000055,
+          "truth_pose": [
+            0.12029,
+            -1.00962,
+            -0.784
+          ]
+        },
+        {
+          "requested_offset_s": 1.2,
+          "odom_offset_s": 1.2243000000000066,
+          "odom_source_stamp_ns": 29847000000,
+          "odom_v_mps": -0.00103,
+          "odom_w_radps": -0.00773,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 1.1589000000000027,
+          "truth_pose": [
+            0.1203,
+            -1.00951,
+            -0.78543
+          ]
+        }
+      ]
+    },
+    {
+      "stop_start_t": 56.2292,
+      "qa": {
+        "start_t": 56.2292,
+        "duration_s": 1.7385,
+        "last_nonzero_command_after_s": 0.1291000000000011,
+        "first_zero_command_after_s": 0.15080000000000382,
+        "max_displacement_m": 0.0535,
+        "max_forward_displacement_m": 0.0532,
+        "max_heading_change_rad": 0.2389,
+        "truth_samples": 16,
+        "entry_speed_mps": 0.1042,
+        "entry_command_speed_mps": 0.1042,
+        "entry_truth_speed_mps": 0.0806,
+        "entry_front_core_min_m": 0.9581847786903381,
+        "entry_front_core_angle_deg": 5.01138556644946,
+        "ground_truth_stopping_distance_bound_m": 0.05,
+        "estimated_front_body_clearance_m": 0.7693
+      },
+      "last_nav_before_invalidation": {
+        "t": 56.1408,
+        "monotonic": 26523.7834,
+        "wall_time": 1793812352.1252,
+        "kind": "navigation_cmd_vel",
+        "linear": 0.10421,
+        "angular": 0.32051
+      },
+      "nav_zero_latency_s": 0.09190000000000254,
+      "mux_zero_latency_s": 0.15080000000000382,
+      "odom_before_mux_zero": {
+        "t": 56.3531,
+        "monotonic": 26523.9957,
+        "wall_time": 1793812352.3376,
+        "kind": "odom",
+        "stamp_ns": 39330000000,
+        "clock_stamp_ns": 39360000000,
+        "frame_id": "odom",
+        "child_frame_id": "base_footprint",
+        "x": 0.43244,
+        "y": -0.85009,
+        "yaw": -0.41053,
+        "linear_x": 0.0999,
+        "angular_z": 0.31404
+      },
+      "wheel_model": {
+        "left_speed_mps": 0.05483526000000001,
+        "right_speed_mps": 0.14496473999999998,
+        "ideal_independent_wheel_stop_translation_m": 0.04003613597089199,
+        "ideal_independent_wheel_stop_yaw_rad": 0.20915063999999994,
+        "ideal_stop_duration_s": 0.9664316,
+        "independent_dwb_theta_decel_1p6_stop_yaw_rad": 0.030819100499999995,
+        "assumptions": "Ideal constant per-wheel deceleration from nearest measured EKF twist; excludes transport delay, slip and nonlinear plugin/physics error. This is a causal consistency calculation, not an exact physics replay."
+      },
+      "trace": [
+        {
+          "requested_offset_s": -0.2,
+          "odom_offset_s": -0.20109999999999673,
+          "odom_source_stamp_ns": 39030000000,
+          "odom_v_mps": 0.09304,
+          "odom_w_radps": 0.28811,
+          "latest_nav_v_w": [
+            0.08105,
+            0.26923
+          ],
+          "latest_mux_v_w": [
+            0.08105,
+            0.26923
+          ],
+          "truth_offset_s": -0.1646999999999963,
+          "truth_pose": [
+            0.20355,
+            -1.07449,
+            -0.50499
+          ]
+        },
+        {
+          "requested_offset_s": 0,
+          "odom_offset_s": 0.008900000000004127,
+          "odom_source_stamp_ns": 39230000000,
+          "odom_v_mps": 0.09147,
+          "odom_w_radps": 0.26366,
+          "latest_nav_v_w": [
+            0.10421,
+            0.32051
+          ],
+          "latest_mux_v_w": [
+            0.10421,
+            0.32051
+          ],
+          "truth_offset_s": 0.05480000000000018,
+          "truth_pose": [
+            0.21962,
+            -1.08277,
+            -0.44741
+          ]
+        },
+        {
+          "requested_offset_s": 0.1,
+          "odom_offset_s": 0.12389999999999901,
+          "odom_source_stamp_ns": 39330000000,
+          "odom_v_mps": 0.0999,
+          "odom_w_radps": 0.31404,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.10421,
+            0.29487
+          ],
+          "truth_offset_s": 0.05480000000000018,
+          "truth_pose": [
+            0.21962,
+            -1.08277,
+            -0.44741
+          ]
+        },
+        {
+          "requested_offset_s": 0.2,
+          "odom_offset_s": 0.22290000000000276,
+          "odom_source_stamp_ns": 39430000000,
+          "odom_v_mps": 0.10231,
+          "odom_w_radps": 0.28716,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.164200000000001,
+          "truth_pose": [
+            0.22898,
+            -1.08711,
+            -0.41785
+          ]
+        },
+        {
+          "requested_offset_s": 0.4,
+          "odom_offset_s": 0.45000000000000284,
+          "odom_source_stamp_ns": 39630000000,
+          "odom_v_mps": 0.07095,
+          "odom_w_radps": 0.29556,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.379800000000003,
+          "truth_pose": [
+            0.24462,
+            -1.09355,
+            -0.35909
+          ]
+        },
+        {
+          "requested_offset_s": 0.6,
+          "odom_offset_s": 0.5698000000000008,
+          "odom_source_stamp_ns": 39730000000,
+          "odom_v_mps": 0.05591,
+          "odom_w_radps": 0.29219,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.613900000000001,
+          "truth_pose": [
+            0.2549,
+            -1.09712,
+            -0.30019
+          ]
+        },
+        {
+          "requested_offset_s": 0.8,
+          "odom_offset_s": 0.7931999999999988,
+          "odom_source_stamp_ns": 39930000000,
+          "odom_v_mps": 0.0341,
+          "odom_w_radps": 0.22766,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.8447999999999993,
+          "truth_pose": [
+            0.26128,
+            -1.09896,
+            -0.25315
+          ]
+        },
+        {
+          "requested_offset_s": 1.0,
+          "odom_offset_s": 1.0242000000000004,
+          "odom_source_stamp_ns": 40130000000,
+          "odom_v_mps": 0.01902,
+          "odom_w_radps": 0.12592,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 0.9517999999999986,
+          "truth_pose": [
+            0.26342,
+            -1.09949,
+            -0.23772
+          ]
+        },
+        {
+          "requested_offset_s": 1.2,
+          "odom_offset_s": 1.1831999999999994,
+          "odom_source_stamp_ns": 40280000000,
+          "odom_v_mps": 0.00746,
+          "odom_w_radps": 0.04761,
+          "latest_nav_v_w": [
+            0.0,
+            0.0
+          ],
+          "latest_mux_v_w": [
+            0.0,
+            0.0
+          ],
+          "truth_offset_s": 1.178200000000004,
+          "truth_pose": [
+            0.26555,
+            -1.09999,
+            -0.22221
+          ]
+        }
+      ]
+    }
+  ],
+  "recommendation": {
+    "no_change_yet": true,
+    "do_not_repeat_existing_acc_values": ".20/.80 were already applied in this actual trial.",
+    "braking_model_mismatch": "Physical independent wheel braking predicts yaw .078/.150/.209 rad from the near-zero-command actual twists, versus independent theta model .002/.030/.031 rad; observed full-window yaw .084/.206/.239 also includes 124..209 ms command delay.",
+    "profile_only_candidate": "A conservative independent acceleration/deceleration box inside the .15 wheel diamond, e.g. .075 m/s2 and .50 rad/s2 (sum .14675), plus limit_vel_cmd_in_traj=true can be tested; this remains an approximation and is not a guaranteed stop-QA fix.",
+    "exact_dynamics_option": "A wheel-aware generator integrating actual left/right wheel limits would represent the curved stopping tail more directly.",
+    "physical_limit": "With both wheels forward, ideal stopping yaw is approximately v*w/a_wheel; at .10 m/s and .30 rad/s with a_wheel=.15, it is .20 rad even after the command is zero. Matching a planner predictor alone cannot guarantee the existing .12 rad sudden-stop bound at that state.",
+    "qa": "Retain all recorded FAILs and the .12 rad/physical collision bounds; require an actual same-scene repeat before a corrected claim."
+  },
+  "official_primary_sources": [
+    "https://github.com/ros-navigation/navigation2/blob/1.1.20/nav2_dwb_controller/dwb_plugins/src/standard_traj_generator.cpp",
+    "https://github.com/ros-navigation/navigation2/blob/1.1.20/nav2_dwb_controller/dwb_core/src/dwb_local_planner.cpp",
+    "https://github.com/ros-simulation/gazebo_ros_pkgs/blob/ros2/gazebo_plugins/src/gazebo_ros_diff_drive.cpp"
+  ]
+}

@@ -18,6 +18,26 @@ import time
 from classroom_fault_profile import FaultProfile
 
 
+def relay_topics(*, scan_only=False, ekf_delivery_faults=False):
+    """Declare the graph; defaults retain the historical baseline relay."""
+    if type(scan_only) is not bool or type(ekf_delivery_faults) is not bool:
+        raise ValueError('relay scope flags must be boolean')
+    if scan_only and ekf_delivery_faults:
+        raise ValueError('scan-only and EKF output delivery are mutually exclusive')
+    topics = {'scan': ('/classroom_fault/raw_scan', '/scan')}
+    if not scan_only:
+        topics.update(odom=('/classroom_fault/raw_odom', '/odom'),
+                      tf=('/classroom_fault/raw_tf', '/tf'))
+    return topics
+
+
+def ekf_odom_transforms(message):
+    """Select only the EKF-owned edge, preserving original transform objects."""
+    return [transform for transform in message.transforms
+            if transform.header.frame_id == 'odom'
+            and transform.child_frame_id == 'base_footprint']
+
+
 def tf_source_qos(best_effort):
     """Only the Gazebo raw-TF subscription changes in the QoS experiment."""
     from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
@@ -39,7 +59,14 @@ def main():
                              'forwarded /tf remains reliable depth 100')
     parser.add_argument('--scan-only', action='store_true',
                         help='Independent-EKF simulation: relay only LiDAR; EKF alone owns /odom and odom TF')
+    parser.add_argument('--ekf-delivery-faults', action='store_true',
+                        help='Relay actual EKF output /odom and odom->base TF; not raw-input or CPU faults')
     args = parser.parse_args()
+    try:
+        topics = relay_topics(scan_only=args.scan_only,
+                              ekf_delivery_faults=args.ekf_delivery_faults)
+    except ValueError as exc:
+        parser.error(str(exc))
     if args.domain == 16 or os.environ.get('ROS_DOMAIN_ID') != str(args.domain):
         raise SystemExit('Refusing physical or mismatched ROS domain')
     if os.environ.get('ROS_LOCALHOST_ONLY') != '1':
@@ -71,10 +98,9 @@ def main():
             raw_tf_qos = tf_source_qos(args.tf_source_best_effort)
             qos = {'scan': qos_profile_sensor_data, 'odom': qos_profile_sensor_data,
                    'tf': tf_qos}
-            spec = {'scan': (LaserScan, '/classroom_fault/raw_scan', '/scan')}
-            if not args.scan_only:
-                spec['odom'] = (Odometry, '/classroom_fault/raw_odom', '/odom')
-                spec['tf'] = (TFMessage, '/classroom_fault/raw_tf', '/tf')
+            message_types = {'scan': LaserScan, 'odom': Odometry, 'tf': TFMessage}
+            spec = {name: (message_types[name], *endpoints)
+                    for name, endpoints in topics.items()}
             self.relay_publishers = {}
             for topic, (message_type, source, destination) in spec.items():
                 self.relay_publishers[topic] = self.create_publisher(message_type, destination, qos[topic])
@@ -89,7 +115,11 @@ def main():
                                                   else 'RELIABLE'),
                         'tf_source_depth': raw_tf_qos.depth,
                         'tf_output_reliability': 'RELIABLE', 'tf_output_depth': tf_qos.depth,
-                        'scan_only': args.scan_only})
+                        'scan_only': args.scan_only,
+                        'ekf_delivery_faults': args.ekf_delivery_faults,
+                        'streams': list(topics),
+                        'source_stamps_preserved': True,
+                        'ekf_cpu_or_raw_input_faults': False})
 
         def write(self, event):
             self.file.write(json.dumps(event, sort_keys=True)+'\n')
@@ -107,6 +137,12 @@ def main():
                 self.get_logger().warning('Invalid fault control: '+str(exc))
 
         def received(self, topic, message):
+            if topic == 'tf' and args.ekf_delivery_faults:
+                selected = ekf_odom_transforms(message)
+                self.counts['tf_filtered_unowned_edges'] += len(message.transforms)-len(selected)
+                if not selected:
+                    return
+                message = TFMessage(transforms=selected)
             now = time.monotonic()
             decision = self.policy.decide(topic, now)
             self.counts[topic+'_received'] += 1

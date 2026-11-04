@@ -1,0 +1,185 @@
+{
+  "scope": "Recorded stale-memory geometry audit, not an executed escape or policy change",
+  "fixture_sha256": "089afaebc5a4abbfde8c24a8d53b5cdda3b0b004da3a0a5c98d98d8fb9324ef4",
+  "reconstructed_counts": {
+    "observed_raw": 5,
+    "planner_memory_raw": 15,
+    "observed_inflated": 133,
+    "remembered_inflated": 284,
+    "dynamic_union": 393,
+    "measured_union": 344,
+    "virtual_only": 49
+  },
+  "raw_start_center_clearance_m": 0.27974224440315043,
+  "raw_start_body_gap_m": 0.05974224440315043,
+  "nominal_cell_center_clearance_m": 0.2474873734152914,
+  "legacy_halo_quantization_requirement_m": 0.2553553390593274,
+  "continuous_helper_full_allowed_edges": [],
+  "continuous_helper_measured_allowed_edges": [],
+  "neighbors": [
+    {
+      "cell": [
+        35,
+        83
+      ],
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "direct_actual_pose_sweep_clearance_m": 0.27974224440315043,
+      "via_nominal_center_sweep_clearance_m": 0.2474873734152914
+    },
+    {
+      "cell": [
+        35,
+        84
+      ],
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "direct_actual_pose_sweep_clearance_m": 0.27974224440315043,
+      "via_nominal_center_sweep_clearance_m": 0.2474873734152914
+    },
+    {
+      "cell": [
+        35,
+        85
+      ],
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "direct_actual_pose_sweep_clearance_m": 0.24748737341529153,
+      "via_nominal_center_sweep_clearance_m": 0.2474873734152914
+    },
+    {
+      "cell": [
+        36,
+        83
+      ],
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "direct_actual_pose_sweep_clearance_m": 0.27974224440315043,
+      "via_nominal_center_sweep_clearance_m": 0.2474873734152914
+    },
+    {
+      "cell": [
+        36,
+        85
+      ],
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "direct_actual_pose_sweep_clearance_m": 0.21505813167606552,
+      "via_nominal_center_sweep_clearance_m": 0.21505813167606552
+    },
+    {
+      "cell": [
+        37,
+        83
+      ],
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "direct_actual_pose_sweep_clearance_m": 0.2573907535246755,
+      "via_nominal_center_sweep_clearance_m": 0.2474873734152914
+    },
+    {
+      "cell": [
+        37,
+        84
+      ],
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "direct_actual_pose_sweep_clearance_m": 0.21505813167606552,
+      "via_nominal_center_sweep_clearance_m": 0.21505813167606552
+    },
+    {
+      "cell": [
+        37,
+        85
+      ],
+      "full_inflation_blocked": true,
+      "measured_inflation_blocked": true,
+      "direct_actual_pose_sweep_clearance_m": 0.1767766952966369,
+      "via_nominal_center_sweep_clearance_m": 0.1767766952966369
+    }
+  ],
+  "start_memory_inflation_contributors": [
+    [
+      39,
+      89
+    ],
+    [
+      40,
+      88
+    ],
+    [
+      40,
+      89
+    ],
+    [
+      41,
+      89
+    ]
+  ],
+  "offline_prefixes": [
+    {
+      "exit_cell": [
+        36,
+        82
+      ],
+      "prefix_length_m": 0.0803751021057714,
+      "prefix_center_clearance_m": 0.2749999999999997,
+      "endpoint_outside_full_inflation": false,
+      "endpoint_outside_measured_inflation": true,
+      "full_hard_virtual_tail_cells": 0,
+      "measured_hard_tail_cells": 64,
+      "full_measured_hard_prefix_and_tail_center_clearance_m": 0.2749999999999997,
+      "full_measured_hard_prefix_and_tail_body_gap_m": 0.05499999999999969,
+      "note": "Offline geometric comparison only, no deployed forward escape relaxation. Virtual depth may be soft only under existing separately gated policy."
+    },
+    {
+      "exit_cell": [
+        34,
+        83
+      ],
+      "prefix_length_m": 0.08189910510278442,
+      "prefix_center_clearance_m": 0.27974224440315043,
+      "endpoint_outside_full_inflation": false,
+      "endpoint_outside_measured_inflation": true,
+      "full_hard_virtual_tail_cells": 0,
+      "measured_hard_tail_cells": 67,
+      "full_measured_hard_prefix_and_tail_center_clearance_m": 0.2749999999999997,
+      "full_measured_hard_prefix_and_tail_body_gap_m": 0.05499999999999969,
+      "note": "Offline geometric comparison only, no deployed forward escape relaxation. Virtual depth may be soft only under existing separately gated policy."
+    },
+    {
+      "exit_cell": [
+        33,
+        84
+      ],
+      "prefix_length_m": 0.12932971581876282,
+      "prefix_center_clearance_m": 0.27974224440315043,
+      "endpoint_outside_full_inflation": true,
+      "endpoint_outside_measured_inflation": true,
+      "full_hard_virtual_tail_cells": 0,
+      "measured_hard_tail_cells": 68,
+      "full_measured_hard_prefix_and_tail_center_clearance_m": 0.2749999999999997,
+      "full_measured_hard_prefix_and_tail_body_gap_m": 0.05499999999999969,
+      "note": "Offline geometric comparison only, no deployed forward escape relaxation. Virtual depth may be soft only under existing separately gated policy."
+    }
+  ],
+  "observer_empty0_normal_astar": {
+    "route_cells": 64,
+    "raw_occupied_unknown_observed_body_gap_m": 0.054999999999999966,
+    "start_inflation_exception_used": false,
+    "memory_source": "independent empty0 received at wall1793802779.377984, not used by the stale15 planner callback"
+  },
+  "conclusion": [
+    "The reported continuous22cm body is raw-free; the global masks are reconstructed exactly.",
+    "All eight adjacent cells remain memory-inflated. Existing one-cell selected-edge certification returns empty even if its remembered-inflation adapter gate were removed.",
+    "Do not delete confirmed memory or weaken its inflation from this audit. Fix processing/wake of relevant queued memory15-to-empty0 first.",
+    "An ordinary unchanged A* route exists once the producer-confirmed empty memory is consumed; no new forward exception is required for that snapshot."
+  ],
+  "limitations": [
+    "Independent topic callbacks are not an atomic planner snapshot; planner15 is reconstructed and exactly checked against logged masks.",
+    "The saved reference path is the recorder's 4-decimal rounded points; all reconstructed mask counts match logs.",
+    "The point-cloud guard CLEAR is recorded for zero command. Full raw scan ranges for a candidate moving sweep are not in this fixture.",
+    "Forward prefix examples are offline counterfactuals with measured hard cells intact; they are not approved forward-inflation exceptions.",
+    "No actual robot or simulated motion is performed by this audit."
+  ]
+}

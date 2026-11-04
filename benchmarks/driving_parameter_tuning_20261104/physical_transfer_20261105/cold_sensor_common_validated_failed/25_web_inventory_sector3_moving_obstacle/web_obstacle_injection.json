@@ -1,0 +1,426 @@
+{
+  "passed": false,
+  "domain": 176,
+  "localhost_only": true,
+  "physical_robot_touched": false,
+  "goal": [
+    -0.25,
+    -1.98
+  ],
+  "geometry": {
+    "robot_radius": 0.22,
+    "obstacle_inflation_cells": 5,
+    "nodes_params": "/tmp/classroom-transfer-cold_sensor_common_validated-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml"
+  },
+  "goal_owner": "web_mission_server",
+  "goal_published_by_injector": false,
+  "spawned": true,
+  "truth_seen": true,
+  "removed": true,
+  "moving_steps": 4,
+  "observed_while_live": true,
+  "observed_cleared": true,
+  "path_reacted_before_removal": true,
+  "bypassed_while_live": false,
+  "minimum_clearance_m": 0.0804437363600167,
+  "recovery_requests": 0,
+  "events": [
+    {
+      "t": 21.537,
+      "at": 1793813457.7243958,
+      "event": "web_goal_observed",
+      "x": -0.25,
+      "y": -1.98,
+      "stamp": [
+        7,
+        280000000
+      ]
+    },
+    {
+      "t": 21.538,
+      "at": 1793813457.7246459,
+      "event": "injector_waiting_for_current_route",
+      "reason": "navigation_not_moving",
+      "path_age_s": null,
+      "navigation_status": null,
+      "observed_age_s": 0.099
+    },
+    {
+      "t": 21.955,
+      "at": 1793813458.1417787,
+      "event": "candidate_search_started",
+      "attempt": 1,
+      "path_sha256": "0dd21b95201d7cc1654abdff0efcb06c21c637abf171052dd9ee16b85ef236ce",
+      "robot_xy": [
+        -0.18826256409678122,
+        -0.22050125175670118
+      ],
+      "observed_cells": 10,
+      "remembered_cells": 0
+    },
+    {
+      "t": 26.136,
+      "at": 1793813462.3225405,
+      "event": "candidate_search_finished",
+      "attempt": 1,
+      "duration_s": 0.326,
+      "diagnostics": {
+        "reason": "FIXED_FEASIBLE_BYPASS",
+        "input_status": "VALID",
+        "geometric_candidates": 1,
+        "topology_candidates_tried": 1,
+        "attempts": 1
+      },
+      "candidate_xy": [
+        0.44,
+        -0.6
+      ]
+    },
+    {
+      "t": 26.423,
+      "at": 1793813462.6099157,
+      "event": "current_observed_bypass_proved",
+      "route_cells": 81,
+      "observed_cells": 14,
+      "spawn_readiness": {
+        "reason": "ready",
+        "swept_clearance_m": 0.2098893195638267,
+        "required_clearance_m": 0.06453971785950126,
+        "robot_truth_age_s": 0.0024532629977329634,
+        "robot_distance_m": 0.5950072685242691,
+        "approach_along_path_m": -0.5640086064587746,
+        "initial_selection_distance_window": false,
+        "current_path_clearance_m": -0.15726199355832704
+      }
+    },
+    {
+      "t": 26.627,
+      "at": 1793813462.814077,
+      "event": "obstacle_spawned",
+      "x": 0.44,
+      "y": -0.6,
+      "path_sha256": "0dd21b95201d7cc1654abdff0efcb06c21c637abf171052dd9ee16b85ef236ce",
+      "robot_xy": [
+        -0.07418511983380575,
+        -0.34186599977326004
+      ]
+    },
+    {
+      "t": 26.82,
+      "at": 1793813463.0072067,
+      "event": "obstacle_seen_in_lidar_map",
+      "near_cells": 12
+    },
+    {
+      "t": 26.978,
+      "at": 1793813463.1650875,
+      "event": "matching_path_changed_clear_of_box",
+      "previous_sha256": "0dd21b95201d7cc1654abdff0efcb06c21c637abf171052dd9ee16b85ef236ce",
+      "new_sha256": "192379a983bcb15b5a5ad92b8f8b56bb5190db111d22351ac730d1f955759b0e",
+      "robot_xy": [
+        -0.030761646411081586,
+        -0.388647929304106
+      ],
+      "conservative_clearance_m": 0.1618
+    },
+    {
+      "t": 28.019,
+      "at": 1793813464.2057273,
+      "event": "obstacle_moved",
+      "step": 1,
+      "x": 0.4220349464558352,
+      "y": -0.6173855356879013,
+      "reason": "ready",
+      "swept_clearance_m": 0.11133561369274839,
+      "required_clearance_m": 0.08328992339970137,
+      "robot_truth_age_s": 0.08768146999864257
+    },
+    {
+      "t": 28.824,
+      "at": 1793813465.0106268,
+      "event": "obstacle_moved",
+      "step": 2,
+      "x": 0.40406989291167045,
+      "y": -0.6347710713758028,
+      "reason": "ready",
+      "swept_clearance_m": 0.09946077321780819,
+      "required_clearance_m": 0.07540059205979924,
+      "robot_truth_age_s": 0.05182087299908744
+    },
+    {
+      "t": 29.639,
+      "at": 1793813465.8259506,
+      "event": "obstacle_moved",
+      "step": 3,
+      "x": 0.38610483936750567,
+      "y": -0.6521566070637042,
+      "reason": "ready",
+      "swept_clearance_m": 0.08920413593620971,
+      "required_clearance_m": 0.07484868531994289,
+      "robot_truth_age_s": 0.0493122059997404
+    },
+    {
+      "t": 30.411,
+      "at": 1793813466.5984435,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 30.481,
+      "at": 1793813466.668237,
+      "event": "obstacle_moved",
+      "step": 4,
+      "x": 0.3681397858233409,
+      "y": -0.6695421427516055,
+      "reason": "ready",
+      "swept_clearance_m": 0.08089866616602923,
+      "required_clearance_m": 0.07730113971976971,
+      "robot_truth_age_s": 0.06045972599895322
+    },
+    {
+      "t": 31.845,
+      "at": 1793813468.0317774,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 33.498,
+      "at": 1793813469.6851177,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 35.77,
+      "at": 1793813471.9565887,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 36.196,
+      "at": 1793813472.3827221,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 36.767,
+      "at": 1793813472.953783,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 37.306,
+      "at": 1793813473.493443,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 37.906,
+      "at": 1793813474.0926182,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 38.492,
+      "at": 1793813474.679514,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 39.633,
+      "at": 1793813475.820419,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 40.006,
+      "at": 1793813476.192741,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 40.962,
+      "at": 1793813477.1492798,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 41.536,
+      "at": 1793813477.7227938,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 42.401,
+      "at": 1793813478.587536,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 42.878,
+      "at": 1793813479.0654862,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 43.703,
+      "at": 1793813479.890072,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 44.29,
+      "at": 1793813480.4765575,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 87.009,
+      "at": 1793813523.1964207,
+      "event": "obstacle_removed",
+      "obstacle_name": "classroom_web_obstacle_777f96be22"
+    },
+    {
+      "t": 89.012,
+      "at": 1793813525.1994078,
+      "event": "post_remove_observation",
+      "near_count": 0,
+      "owned_remaining": 0,
+      "total_observed": 14,
+      "robot_distance_m": 0.506,
+      "samples": 1
+    }
+  ],
+  "failure": null,
+  "obstacle_scenario": {
+    "source_path": "/tmp/classroom-transfer-cold_sensor_common_validated-20261105/obstacle_scenario.json",
+    "sha256": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e",
+    "scenario": {
+      "x": 0.44,
+      "y": -0.6,
+      "path_tangent": [
+        0.6954214275160555,
+        -0.7186021417665909
+      ],
+      "movement_side": -1
+    },
+    "actor_positions_by_step": [
+      [
+        0.44,
+        -0.6
+      ],
+      [
+        0.4220349464558352,
+        -0.6173855356879013
+      ],
+      [
+        0.40406989291167045,
+        -0.6347710713758028
+      ],
+      [
+        0.38610483936750567,
+        -0.6521566070637042
+      ],
+      [
+        0.3681397858233409,
+        -0.6695421427516055
+      ]
+    ],
+    "box_size_m": [
+      0.25,
+      0.25,
+      0.5
+    ],
+    "mode": "FIXED_NO_RELOCATION",
+    "copied_path": "/tmp/classroom-transfer-cold_sensor_common_validated-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json"
+  },
+  "input_status": "VALID",
+  "candidate": {
+    "x": 0.44,
+    "y": -0.6,
+    "path_tangent": [
+      0.6954214275160555,
+      -0.7186021417665909
+    ],
+    "index": 15,
+    "robot_distance_m": 0.7339844340063982,
+    "static_wall_distance_m": 0.25465670560068654,
+    "approach_along_path_m": -0.7096158624644556,
+    "base_path_xy": [
+      0.2437500282190741,
+      -0.7374999327585101
+    ],
+    "lateral_offset_m": 0.23664604956569113,
+    "preflight": {
+      "route_cells_by_step": [
+        83,
+        84,
+        85,
+        85,
+        86
+      ],
+      "movement_side": -1,
+      "initial_centerline_clearance_m": -0.1573,
+      "robot_radius": 0.22,
+      "obstacle_inflation_cells": 5
+    },
+    "robot_radius": 0.22,
+    "initial_path_clearance_m": -0.15726199355832704
+  },
+  "obstacle_name": "classroom_web_obstacle_777f96be22",
+  "first_observed_at": 1793813463.0072067,
+  "observed_indices_live": [
+    7604,
+    7605,
+    7690,
+    7691,
+    7692,
+    7776,
+    7777,
+    7778,
+    7862,
+    7863,
+    7864,
+    7948,
+    7949,
+    7950,
+    8034,
+    8035,
+    8036,
+    8037,
+    8038,
+    8039,
+    8040,
+    8120,
+    8121,
+    8122,
+    8123,
+    8124,
+    8125,
+    8126,
+    8207,
+    8208,
+    8209,
+    8210,
+    8211,
+    8212,
+    8213
+  ],
+  "changed_path_clearance_m": 0.0605,
+  "path_reaction_before_box": true,
+  "path_reaction_at": 1793813463.1650875,
+  "planner_counters_while_live": {
+    "global_plan_count": 17,
+    "local_attempt_id": 3,
+    "plan_kind": "GLOBAL"
+  },
+  "path_observation_temporal_link": true,
+  "observed_clear_latency_s": 2.283,
+  "candidate_diagnostics": {
+    "reason": "FIXED_FEASIBLE_BYPASS",
+    "input_status": "VALID",
+    "geometric_candidates": 1,
+    "topology_candidates_tried": 1,
+    "attempts": 1
+  },
+  "candidate_search_attempts": 1
+}

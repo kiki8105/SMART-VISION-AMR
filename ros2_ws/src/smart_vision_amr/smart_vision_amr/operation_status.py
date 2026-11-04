@@ -6,13 +6,26 @@ from math import isfinite
 _FAILURE_PHASES = {
     'AVOIDING': ('failure_avoiding', '실패 접근 회피 · 경로 재계획'),
     'WAIT_ALTERNATIVE': ('failure_wait', '목표 유지 · 대체 경로 대기'),
+    'WAIT_REVERSE': ('reverse_check', '후진 준비 · 정지와 후방 경로 확인 중'),
     'RECOVERING': ('failure_reversing', '안전 후진 · 재진입 준비'),
     'REJOINING': ('failure_rejoining', '새 경로 진입 확인 중'),
     'SENSOR_HOLD': ('sensor_hold', '센서 회복 대기 · 정지 유지'),
     'OBSTACLE_HOLD': ('obstacle_hold', '장애물 해소 대기'),
+    'CONTROLLER_HOLD': ('controller_hold', '경로 추종 불안정 · 정지 대기'),
+}
+
+_RECOVERY_PHASES = {
+    'LOCAL': ('local_detour', '국소 우회 경로 확인 중'),
+    'STOP_PROOF': ('reverse_check', '정지 확인 · 후진 준비'),
+    'REVERSE_VERDICT': ('reverse_check', '후방 경로 확인 중'),
+    'REVERSING': ('failure_reversing', '후진 중 · 재진입 공간 확보'),
+    'GLOBAL': ('replanning', '전체 경로 재계획 중'),
+    'WAIT_OBSTACLE': ('obstacle_hold', '장애물 해소 대기'),
 }
 
 OBSTACLE_HOLD_MESSAGE = '장애물이 있어 경로 주행을 잠시 멈춥니다. 장애물을 치우면 경로를 재개합니다.'
+CONTROLLER_HOLD_MESSAGE = '경로 추종 불안정 · 정지 대기'
+CONTROLLER_HOLD_ACTION = '차량 자세와 경로를 확인한 뒤 임무를 명시적으로 재개하세요. 자동 출발하지 않습니다.'
 
 
 def local_detour_snapshot(payload, goal_stamp, mission_state, age):
@@ -110,10 +123,26 @@ def failure_memory_snapshot(payload, goal_stamp, mission_state, age):
             'rejoin_verified': payload.get('rejoin_verified') is True,
             'recovery_attempts': min(100000, max(0, attempts)) if type(attempts) is int else 0,
             'goal_stamp': {'sec': current[0], 'nanosec': current[1]}}
-    for key in ('retry_count', 'retry_limit', 'blocked_obstacle_count'):
+    for key in ('retry_count', 'retry_limit', 'blocked_obstacle_count',
+                'controller_retry_count', 'controller_retry_limit'):
         value = payload.get(key)
         if type(value) is int and value >= 0:
             result[key] = min(100000, value)
+    if (isinstance(payload.get('failure_class'), str)
+            and payload['failure_class'] in {'none', 'controller', 'obstacle', 'sensor', 'execution', 'recovery'}):
+        result['failure_class'] = payload['failure_class']
+    if (isinstance(payload.get('recovery_stage'), str)
+            and payload['recovery_stage'] in {'tracking', 'soft_replan', 'hard_replan',
+                'await_operator', 'await_clearance', 'await_fresh_evidence', 'classify_failure', 'reverse',
+                'await_reverse_stop', 'await_reverse_inputs', 'reverse_probe', 'global_replan'}):
+        result['recovery_stage'] = payload['recovery_stage']
+    recovery_phase = payload.get('recovery_phase')
+    if isinstance(recovery_phase, str) and recovery_phase in {*_RECOVERY_PHASES, 'FOLLOW'}:
+        result['recovery_phase'] = recovery_phase
+        for key, limit in (('recovery_episode_id', 128), ('recovery_wait_reason', 240)):
+            value = payload.get(key)
+            if isinstance(value, str):
+                result[key] = value[:limit]
     wait = payload.get('clear_wait_seconds')
     if type(wait) in (int, float) and isfinite(wait) and wait >= 0:
         result['clear_wait_seconds'] = min(3600., float(wait))
@@ -226,7 +255,8 @@ def operation_summary(snapshot):
           and detour.get('available') is True and detour.get('plan_kind') == 'LOCAL_DETOUR'
           and detour.get('state') == 'ACTIVE'
           and not (failure_memory.get('available') is True
-                   and failure_memory.get('state') in {'SENSOR_HOLD', 'OBSTACLE_HOLD', 'RECOVERING', 'WAIT_ALTERNATIVE'})):
+                   and (failure_memory.get('state') in {'SENSOR_HOLD', 'OBSTACLE_HOLD', 'CONTROLLER_HOLD', 'RECOVERING', 'WAIT_REVERSE', 'WAIT_ALTERNATIVE'}
+                        or failure_memory.get('recovery_phase') in set(_RECOVERY_PHASES)-{'LOCAL'}))):
         phase, label = 'local_detour', '장애물 국소 우회 · 원래 경로 합류 중'
         detail = '라이다와 차체 여유를 확인하며 가까운 장애물을 돌아 원래 경로의 앞쪽에 합류합니다.'
         action = {'title': '국소 우회 중', 'detail': detail,
@@ -236,11 +266,18 @@ def operation_summary(snapshot):
           and failure_memory.get('available') is True
           and failure_memory.get('state') in _FAILURE_PHASES):
         phase, label = _FAILURE_PHASES[failure_memory['state']]
+        recovery_phase = failure_memory.get('recovery_phase')
+        if (recovery_phase in _RECOVERY_PHASES
+                and failure_memory['state'] not in {'SENSOR_HOLD', 'CONTROLLER_HOLD'}):
+            phase, label = _RECOVERY_PHASES[recovery_phase]
         level = 'warning'
-        detail = (OBSTACLE_HOLD_MESSAGE if failure_memory['state'] == 'OBSTACLE_HOLD' else
+        detail = (CONTROLLER_HOLD_MESSAGE if failure_memory['state'] == 'CONTROLLER_HOLD' else
+                  OBSTACLE_HOLD_MESSAGE if (failure_memory['state'] == 'OBSTACLE_HOLD'
+                                           or recovery_phase == 'WAIT_OBSTACLE') else
                   failure_memory.get('reason') or '현재 목표를 유지하며 같은 실패 접근의 반복을 피합니다.')
         action = {'title': '복구 상태 확인', 'detail': detail,
-                  'action': ('장애물을 치운 뒤 경로가 열리는지 확인하세요. 조이스틱·일시정지·비상정지가 우선합니다.'
+                  'action': (CONTROLLER_HOLD_ACTION if failure_memory['state'] == 'CONTROLLER_HOLD' else
+                             '장애물을 치운 뒤 경로가 열리는지 확인하세요. 조이스틱·일시정지·비상정지가 우선합니다.'
                              if failure_memory['state'] == 'OBSTACLE_HOLD' else
                              '센서가 회복될 때까지 정지합니다. 수신 상태와 위치 신뢰도를 확인하세요.'
                              if failure_memory['state'] == 'SENSOR_HOLD' else
@@ -254,7 +291,12 @@ def operation_summary(snapshot):
     elif mission.get('state') == 'PAUSED':
         level, phase, label = 'warning', 'paused', '임무 일시정지'
         detail = mission.get('reason', '')
-        if alignment.get('state') == 'FAILED':
+        if detail.startswith(CONTROLLER_HOLD_MESSAGE):
+            phase, label = 'controller_hold', CONTROLLER_HOLD_MESSAGE
+            action = {'title': '자세·경로 확인 후 재개', 'detail': detail,
+                      'action': CONTROLLER_HOLD_ACTION,
+                      'target': 'diagnostics', 'conditions': health.get('missing', [])}
+        elif alignment.get('state') == 'FAILED':
             label = '표식 확인 일시정지'
             detail = alignment.get('reason') or '도착 표식의 중앙 정렬을 확인하지 못했습니다.'
             action = {'title': '카메라와 표식 확인', 'detail': detail,

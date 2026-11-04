@@ -343,7 +343,9 @@ class FollowerBackupTest(unittest.TestCase):
                    self.node.status_pub.publish.call_args_list
                    if json.loads(call.args[0].data)["status"] == "RECOVERY_STOPPED"]
         self.assertEqual(len(stopped), 1)
-        self.assertEqual(stopped[0]["goal_stamp"], {"sec": 12, "nanosec": 0})
+        # The terminal belongs to the canceled BackUp's owned goal, rather
+        # than the newer goal that arrived while its result was in flight.
+        self.assertEqual(stopped[0]["goal_stamp"], {"sec": 10, "nanosec": 0})
 
     def test_manual_override_does_not_take_away_manual_control(self):
         self.feed_sensors()

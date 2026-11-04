@@ -1,0 +1,84 @@
+{
+  "python_package_and_scripts_suite": {
+    "passed": true,
+    "count": 2948,
+    "seconds": 158.95,
+    "log": "final_python_suite.log",
+    "post_suite_edits": "Six test-file EOF blank lines only; AST equality verified in source_format_check.json"
+  },
+  "cpp": {
+    "passed": true,
+    "gtests": 12,
+    "ctest_targets": 1,
+    "log": "final_ctest.log",
+    "failures": 0,
+    "errors": 0
+  },
+  "build": {
+    "passed": true,
+    "packages": 2,
+    "seconds": 3.19,
+    "log": "final_build.log",
+    "package_names": [
+      "smart_vision_amr",
+      "smart_vision_amr_dwb"
+    ]
+  },
+  "deployment": {
+    "static_passed": true,
+    "live_physical_query": false,
+    "log": "final_deployment.log"
+  },
+  "physical_robot_driven": false,
+  "runtime_source_sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "ee656f4e5eae08003e2db253bdd5e67cb1cf697fb64005bd8e9fd4ed4be300a6",
+    "ros2_ws/src/smart_vision_amr_dwb/src/route_tracking_dwb.cpp": "03f14e3b3057be848f1d56fe64a87548551b708dd791d47be47767c726a03484",
+    "ros2_ws/src/smart_vision_amr_dwb/include/smart_vision_amr_dwb/command_envelope.hpp": "1a9724d4a92371f5dde2391a371bb445ee0ea7a36b4038223a32808e0be45877",
+    "ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml": "363f9ce5851e7e97359d631419645c87d59fa79e4552d36c73b9d78a2bd8f954",
+    "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": "59f6b427b89c3a60f77b87254a3d5352e31a4fde245a241f9c6fef839ed81a1f",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": "3112079a158913796379bdd7048e02cae9413dc20f09945f49441ea4e5e62dc1",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/flight_recorder.py": "bab5a9d2a40cc6f9e079279f64581d06ec0563768858ea792e91ca6c7d1d1353",
+    "scripts/run_classroom_staged_validation.py": "c1dbd62c8dec79cefb715c75ddeb554d3a6f94f4845b9f3015c22f3929e7de78",
+    "scripts/verify_classroom_web_dwell.py": "940c89ec9a749dd46707a1b4687d6629c2c41b71a198831747167797fc32db08",
+    "scripts/assess_classroom_safety_timeline.py": "4705c3780edc38c7c36061efda3e4d121620546783574218cafef9f0465ec3f4"
+  },
+  "closed_loop_results": {
+    "coherent_param_query_failed": "FAIL_OR_ABORT",
+    "coherent_reentry_assessment_failed": "FAIL_OR_ABORT",
+    "cold_actuator_lag": "FAIL_OR_ABORT",
+    "cold_common_prefix_owned": "FAIL_OR_ABORT",
+    "cold_ekf_delivery_transient_pass": "PASS",
+    "cold_rates_after_memory_turn_fix": "PASS",
+    "cold_rates_before_memory_fix": "FAIL_OR_ABORT",
+    "cold_sensor_common_invalid_spawn": "FAIL_OR_ABORT",
+    "cold_sensor_common_validated_failed": "FAIL_OR_ABORT",
+    "cold_stress_parity": "PASS",
+    "cold_stress_permuted": "PASS",
+    "cold_wheel_asymmetry": "FAIL_OR_ABORT",
+    "common_coherent_no_live_bypass": "FAIL_OR_ABORT",
+    "ekf_delivery_startup_failed": "FAIL_OR_ABORT",
+    "final_actuator_lag": "FAIL_OR_ABORT",
+    "final_common_recorded": "FAIL_OR_ABORT",
+    "final_ekf_delivery": "FAIL_OR_ABORT",
+    "final_ekf_delivery_discovery_fixed": "PASS",
+    "final_inventory_reentry": "PASS",
+    "final_stress_parity": "PASS",
+    "final_stress_permuted": "FAIL_OR_ABORT",
+    "final_wheel_common_coherent_aborted": "FAIL_OR_ABORT",
+    "handoff_common": "FAIL_OR_ABORT",
+    "handoff_wheel": "FAIL_OR_ABORT"
+  },
+  "final_matrix": {
+    "file": "final_matrix.json",
+    "original_cases": 8,
+    "effective_passes": 3,
+    "failures_or_aborts": 5,
+    "physical_ready_claim": false
+  },
+  "cancellation_stop_reassessment": "cancel_stop_reassessment.json",
+  "archive_integrity": "archive_integrity.json",
+  "source_whitespace_check": {
+    "passed": true,
+    "scope": "runtime/scripts/docs and benchmark source; native archived log/CSV/SDF whitespace preserved"
+  }
+}

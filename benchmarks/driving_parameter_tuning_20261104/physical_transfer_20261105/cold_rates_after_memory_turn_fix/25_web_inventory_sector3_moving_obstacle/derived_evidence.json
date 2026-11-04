@@ -1,0 +1,7676 @@
+{
+  "passed": true,
+  "domain": 176,
+  "localhost_only": true,
+  "physical_robot_touched": false,
+  "mission_accepted_via_web": true,
+  "route": [
+    3
+  ],
+  "failure": null,
+  "dwell": {
+    "3": {
+      "sample_count": 22,
+      "first_pose": [
+        -0.2847345247552031,
+        -2.109425552847009
+      ],
+      "max_pose_delta_m": 0.00508483184345008,
+      "max_linear_mps": 1.1171171268848259e-05,
+      "max_angular_rps": 0.00028889237122442795,
+      "stale_odom_samples": 0,
+      "alignment_at_dwell": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "observed_dwelling": true,
+      "marker_confirmed": true,
+      "start_event_at": 1793810947.1326494,
+      "end_event_at": 1793810952.2558224,
+      "event_duration_s": 5.123,
+      "next_goal_after_dwell": true
+    }
+  },
+  "dispatch_mode": "inventory",
+  "transient_requested": false,
+  "cold_start_requested": true,
+  "ekf_delivery_faults_requested": false,
+  "visual_ui_qa": false,
+  "path_points_per_sector": {
+    "3": 95
+  },
+  "home_path_points": 91,
+  "web_pages": {
+    "inventory": true,
+    "operator": true
+  },
+  "inventory_request": {
+    "marker_id": 3,
+    "item": "Gazebo 전체 운용 검증",
+    "quantity": 1,
+    "note": "",
+    "client_request_id": "classroom-web-3-1793810860070077725",
+    "id": 1,
+    "user_id": 1,
+    "created_at": 1793810860.071219,
+    "updated_at": 1793810860.071219,
+    "status": "PENDING",
+    "trip_id": null,
+    "deletion_pending": false
+  },
+  "inventory_request_created_at": 1793810860.071219,
+  "cold_start_proof": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 6.280556435001927
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 3,
+      "map_tf_messages": 1
+    }
+  },
+  "manual_initial_pose": {
+    "source": "registered_gazebo_home",
+    "requested": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "yaw": -0.027514
+    },
+    "requested_at": 1793810870.7472465,
+    "state": "VERIFIED",
+    "verified_at": 1793810872.197617,
+    "estop_latched_after_verification": true,
+    "stop_acknowledged_after_verification": true,
+    "result": "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요."
+  },
+  "manual_initial_pose_trace": [
+    {
+      "at": 1793810870.7472365,
+      "status": [
+        true,
+        "실제 차량 위치와 방향을 지도 좌표로 입력하세요. 입력 후에도 비상정지를 유지합니다.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793810870.7535508,
+      "status": [
+        "WAITING",
+        "AMCL에 초기 위치를 입력하는 중입니다. 비상정지를 유지합니다.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793810870.9646864,
+      "status": [
+        "WAITING",
+        "AMCL이 초기 위치 입력을 수신했습니다. LiDAR·지도와 새 TF 검증 중입니다.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793810871.9915435,
+      "status": [
+        "WAITING",
+        "새 AMCL 위치·TF 확인 완료. 위치 감시 노드의 재획득 응답을 기다리는 중 · 비상정지 유지.",
+        true,
+        true
+      ]
+    },
+    {
+      "at": 1793810872.1976142,
+      "status": [
+        "VERIFIED",
+        "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.",
+        true,
+        true
+      ]
+    }
+  ],
+  "startup_reset_requested_via_web": true,
+  "startup_reset_attempts": [
+    {
+      "at": 1793810872.2588792,
+      "accepted": true
+    },
+    {
+      "at": 1793810875.362667,
+      "accepted": true
+    }
+  ],
+  "startup_reset_accepted_at": 1793810872.2588792,
+  "startup_reset_completed": true,
+  "prearm_graph": {
+    "map_publishers": [
+      "/map_server"
+    ],
+    "scan_publishers": [
+      "/classroom_fault_relay"
+    ],
+    "odom_publishers": [
+      "/ekf_independent"
+    ],
+    "ekf_output_source_publishers": [],
+    "ekf_tf_source_publishers": [],
+    "battery_publishers": [
+      "/classroom_sim_battery"
+    ],
+    "raw_wheel_publishers": [
+      "/wheel_joint_odometry"
+    ],
+    "raw_imu_publishers": [
+      "/turtlebot3_imu"
+    ],
+    "goal_subscribers": [
+      "/flight_recorder",
+      "/astar_planner",
+      "/path_follower",
+      "/classroom_safety_timeline",
+      "/classroom_memory_observer",
+      "/classroom_web_obstacle_injector"
+    ],
+    "planner_status_publishers": [
+      "/astar_planner"
+    ],
+    "cancel_service_types": [
+      "std_srvs/srv/Trigger"
+    ],
+    "raw_input_samples": {
+      "/wheel/odom": {
+        "count": 2,
+        "last_receipt_age_s": 0.012826518999645486
+      },
+      "/imu": {
+        "count": 2,
+        "last_receipt_age_s": 0.004601282998919487
+      }
+    },
+    "guard_battery_minimum_v": 10.8
+  },
+  "prearm": {
+    "passed": true,
+    "sampled_at": 1793810878.6064327,
+    "checks": {
+      "isolated_ros_domain": {
+        "passed": true,
+        "observed": 176,
+        "requirement": "domain 176, localhost only"
+      },
+      "configured_occupancy_map": {
+        "passed": true,
+        "observed": {
+          "preview": false,
+          "configured_match": true,
+          "version": 3
+        },
+        "requirement": "real /map matching configured YAML"
+      },
+      "single_map_publisher": {
+        "passed": true,
+        "observed": [
+          "/map_server"
+        ],
+        "requirement": "exactly one /map publisher"
+      },
+      "fresh_map_base_tf": {
+        "passed": true,
+        "observed": {
+          "pose_age_s": 0.05,
+          "map_tf_age_s": 0.014,
+          "pose": {
+            "x": -0.24775563452546648,
+            "y": -0.25910538932910887,
+            "yaw": -0.03989430132591239
+          }
+        },
+        "requirement": "current map→base pose and TF younger than 1 s"
+      },
+      "fresh_scan": {
+        "passed": true,
+        "observed": {
+          "web_age_s": 0.02,
+          "health_age_s": 0.11970113399729598,
+          "header_age_s": 0.066,
+          "valid": true,
+          "publishers": [
+            "/classroom_fault_relay"
+          ]
+        },
+        "requirement": "live topic, health receipt/header age ≤0.5 s"
+      },
+      "fresh_odom": {
+        "passed": true,
+        "observed": {
+          "web_age_s": 0.02,
+          "health_age_s": 0.0010268579972034786,
+          "header_age_s": 0.014,
+          "valid": true,
+          "publishers": [
+            "/ekf_independent"
+          ]
+        },
+        "requirement": "live topic, health receipt/header age ≤0.5 s"
+      },
+      "amcl_position_uncertainty": {
+        "passed": true,
+        "observed": 0.18918781334228243,
+        "requirement": "≤0.50 m"
+      },
+      "amcl_yaw_uncertainty": {
+        "passed": true,
+        "observed": 0.19164656991013196,
+        "requirement": "<0.5 rad"
+      },
+      "amcl_pose_freshness": {
+        "passed": true,
+        "observed": {
+          "receipt_age_s": 0.8403000719990814,
+          "header_age_s": 0.666
+        },
+        "requirement": "AMCL receipt/header ages <8 s, future header ≤0.25 s"
+      },
+      "scan_map_agreement": {
+        "passed": true,
+        "observed": 0.775,
+        "requirement": "≥0.55 health warning threshold"
+      },
+      "localization_health": {
+        "passed": true,
+        "observed": {
+          "level": "ok",
+          "reasons": [],
+          "stop_latched": false,
+          "autonomous_allowed": true
+        },
+        "requirement": "acquired, level ok or bounded position warning, no health stop latch"
+      },
+      "rear_camera": {
+        "passed": true,
+        "observed": {
+          "age_s": 0.32,
+          "raw_age_s": 0.32
+        },
+        "requirement": "fresh rear raw and processed frames"
+      },
+      "battery_sensor": {
+        "passed": true,
+        "observed": {
+          "power": {
+            "status": "online",
+            "voltage": 12.0,
+            "percentage": 0.75,
+            "age": 0.44,
+            "source": "/battery_state"
+          },
+          "publishers": [
+            "/classroom_sim_battery"
+          ]
+        },
+        "requirement": "live /battery_state ≥10.8 V"
+      },
+      "robot_guard_battery_limit": {
+        "passed": true,
+        "observed": 10.8,
+        "requirement": "live EKF guard parameter minimum_battery_voltage=10.8 V"
+      },
+      "fresh_raw_wheel": {
+        "passed": true,
+        "observed": {
+          "publishers": [
+            "/wheel_joint_odometry"
+          ],
+          "sample": {
+            "count": 2,
+            "last_receipt_age_s": 0.012826518999645486
+          }
+        },
+        "requirement": "two independent raw sensor samples with last receipt <1 s"
+      },
+      "fresh_raw_imu": {
+        "passed": true,
+        "observed": {
+          "publishers": [
+            "/turtlebot3_imu"
+          ],
+          "sample": {
+            "count": 2,
+            "last_receipt_age_s": 0.004601282998919487
+          }
+        },
+        "requirement": "two independent raw sensor samples with last receipt <1 s"
+      },
+      "astar_and_cancel": {
+        "passed": true,
+        "observed": {
+          "goal_subscribers": [
+            "/flight_recorder",
+            "/astar_planner",
+            "/path_follower",
+            "/classroom_safety_timeline",
+            "/classroom_memory_observer",
+            "/classroom_web_obstacle_injector"
+          ],
+          "planner_status_publishers": [
+            "/astar_planner"
+          ],
+          "cancel_service_types": [
+            "std_srvs/srv/Trigger"
+          ]
+        },
+        "requirement": "A* and follower goal subscribers, planner status, cancel service"
+      },
+      "mux_stop_ack_and_explicit_reset": {
+        "passed": true,
+        "observed": {
+          "requested": true,
+          "latched": false,
+          "stop_acknowledged": true,
+          "pending": null,
+          "autonomous_allowed": true
+        },
+        "requirement": "explicit web reset, robot-side stopped ACK, autonomous handoff"
+      },
+      "web_departure_readiness": {
+        "passed": true,
+        "observed": {
+          "ready": true,
+          "missing": []
+        },
+        "requirement": "all web departure conditions ready"
+      }
+    },
+    "failed_gates": []
+  },
+  "prearm_trace": [
+    {
+      "sampled_at": 1793810878.6064327,
+      "failed_gates": []
+    }
+  ],
+  "front_camera_enabled": false,
+  "marker_targets": {
+    "0": [
+      -0.188431,
+      -0.220497,
+      -0.027514
+    ],
+    "1": [
+      1.2,
+      0.575,
+      3.114078
+    ],
+    "2": [
+      1.525,
+      -2.65,
+      1.543282
+    ],
+    "3": [
+      -0.25,
+      -1.98,
+      -1.4
+    ]
+  },
+  "mission_started_at": 1793810878.6159294,
+  "dispatch_load_confirmed": true,
+  "configured_dwell_seconds": 5.0,
+  "home_target": {
+    "x": -0.188431,
+    "y": -0.220497,
+    "yaw": -0.027514
+  },
+  "start_pose": [
+    -0.24775563452546648,
+    -0.25910538932910887
+  ],
+  "home_stationary_verified": true,
+  "home_stationary_duration_s": 1.268,
+  "home_pose_drift_m": 0.0052,
+  "final_state": "HOME_REACHED",
+  "transient_injected_mid_route": false,
+  "final_route": [
+    3
+  ],
+  "completed_ids": [
+    3
+  ],
+  "final_observed_at": 1793810997.7856264,
+  "final_home_distance_m": 0.1671692595741861,
+  "final_speed": [
+    6.840442574635781e-06,
+    -0.0010548578479112147
+  ],
+  "inventory_completion": {
+    "request_id": 1,
+    "status": "DELIVERED",
+    "service_active": false
+  },
+  "events_observed": 25,
+  "mission_continuity": {
+    "samples": 569,
+    "route_preserved": true,
+    "completed_prefix_valid": true,
+    "states": {
+      "NAVIGATING": 296,
+      "WAIT_REPLAN": 7,
+      "CONFIRMING": 26,
+      "DWELLING": 22,
+      "RETURNING_HOME": 211,
+      "HOME_REACHED": 7
+    },
+    "web_wait_replan_seen": true,
+    "start_event_count": 1,
+    "cancel_event_count": 0,
+    "marker_confirmations": {
+      "3": 1
+    }
+  },
+  "rear_camera_frames": {
+    "3": {
+      "file": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/sector_3_rear_confirmed.jpg",
+      "bytes": 7373,
+      "raw_camera_age_s": 0.06,
+      "unannotated": true,
+      "detected_ids": [
+        3
+      ],
+      "expected_visible": true,
+      "center_error": 0.26249999999999996
+    }
+  },
+  "rear_camera_frame_errors": {},
+  "front_camera_frames": {},
+  "observed_obstacle_overlay_trace": [
+    {
+      "at": 1793810878.662423,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810884.2683175,
+      "cells": [
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8209,
+        8210,
+        8211,
+        8212,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.13,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810884.4723694,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8209,
+        8210,
+        8211,
+        8212,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810884.8858013,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8209,
+        8210,
+        8211,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810885.0984626,
+      "cells": [
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8209,
+        8210,
+        8211,
+        8212
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810885.3041449,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8209,
+        8210,
+        8211,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810885.5110388,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8209,
+        8210,
+        8211,
+        8212
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810885.7178996,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8124,
+        8210,
+        8211,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810885.9251087,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8209,
+        8210,
+        8211,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810886.135269,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8209,
+        8210,
+        8211,
+        8213,
+        8214
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810886.3391175,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8209,
+        8210,
+        8212
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810886.544937,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8209,
+        8210,
+        8211,
+        8212,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810886.7523336,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127,
+        8128,
+        8209,
+        8211,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810886.9588904,
+      "cells": [
+        7693,
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127,
+        8128,
+        8212,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810887.1670575,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127,
+        8128,
+        8209,
+        8210,
+        8211,
+        8212,
+        8213,
+        8214
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810887.372615,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127,
+        8128,
+        8209,
+        8210,
+        8211,
+        8212,
+        8214
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.11,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810887.5835297,
+      "cells": [
+        7693,
+        7778,
+        7779,
+        7780,
+        7864,
+        7865,
+        7866,
+        7950,
+        7951,
+        7952,
+        8036,
+        8037,
+        8038,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127,
+        8128,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810887.795961,
+      "cells": [
+        7693,
+        7778,
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8036,
+        8037,
+        8038,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127,
+        8128,
+        8212,
+        8213
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810888.0034828,
+      "cells": [
+        7693,
+        7779,
+        7780,
+        7864,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810888.2143447,
+      "cells": [
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810888.4217696,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7780,
+        7864,
+        7865,
+        7866,
+        7950,
+        7951,
+        8036,
+        8037,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810888.6276727,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7780,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8040,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810888.837309,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8040,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810889.0423024,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8041,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810889.2499814,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8041,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127,
+        8128
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810889.4587452,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8039,
+        8041,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810889.6708078,
+      "cells": [
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810889.8815176,
+      "cells": [
+        7692,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810890.0876343,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810890.2984176,
+      "cells": [
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810890.5050712,
+      "cells": [
+        7607,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810890.7120888,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810890.9192836,
+      "cells": [
+        7607,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810891.1283202,
+      "cells": [
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810891.3352785,
+      "cells": [
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810891.5421054,
+      "cells": [
+        7693,
+        7778,
+        7779,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810891.7514565,
+      "cells": [
+        7693,
+        7778,
+        7779,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127,
+        8128
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810891.9660087,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041,
+        8126
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810892.177235,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041,
+        8042
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810892.3873162,
+      "cells": [
+        7607,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810892.5954926,
+      "cells": [
+        7607,
+        7692,
+        7693,
+        7779,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810892.804307,
+      "cells": [
+        7692,
+        7693,
+        7779,
+        7864,
+        7865,
+        7951,
+        8036,
+        8037,
+        8038,
+        8039,
+        8040,
+        8041,
+        8125
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810893.0137439,
+      "cells": [
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8040,
+        8041,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810893.2182007,
+      "cells": [
+        7693,
+        7779,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810893.4254198,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8122,
+        8123,
+        8124,
+        8125,
+        8126,
+        8127
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810893.6349378,
+      "cells": [
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8122,
+        8124,
+        8125,
+        8126
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810893.8421788,
+      "cells": [
+        7692,
+        7693,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8123,
+        8124,
+        8126
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810894.0550268,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8123,
+        8126
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810894.2654142,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8038,
+        8122,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810894.471197,
+      "cells": [
+        7692,
+        7693,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8122
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810894.677332,
+      "cells": [
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810894.884714,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810895.0941598,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8122,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810895.304253,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8122
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.11,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810895.5119095,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8122,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810895.717972,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037,
+        8123
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810896.3481982,
+      "cells": [
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810896.5523682,
+      "cells": [
+        7606,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810897.1744034,
+      "cells": [
+        7606,
+        7607,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810897.3853095,
+      "cells": [
+        7606,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810898.0103674,
+      "cells": [
+        7607,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810898.2207649,
+      "cells": [
+        7606,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810898.4364467,
+      "cells": [
+        7606,
+        7607,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810898.6466033,
+      "cells": [
+        7606,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810898.8506575,
+      "cells": [
+        7606,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810899.2676961,
+      "cells": [
+        7607,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.11,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810899.4747176,
+      "cells": [
+        7606,
+        7607,
+        7610,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810899.6807544,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7611,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810900.0974598,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7610,
+        7611,
+        7692,
+        7693,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810900.3047817,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7692,
+        7693,
+        7697,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810900.5132627,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7692,
+        7694,
+        7696,
+        7697,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810900.7209797,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7692,
+        7694,
+        7695,
+        7697,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810900.929621,
+      "cells": [
+        7607,
+        7692,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810901.1369412,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7692,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810901.3422039,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7692,
+        7693,
+        7694,
+        7695,
+        7697,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810901.547151,
+      "cells": [
+        7607,
+        7608,
+        7609,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810901.7555242,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7698,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        7951,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810901.9673638,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7611,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810902.1737452,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7779,
+        7864,
+        7865,
+        7950,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810903.0048766,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7611,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7778,
+        7864,
+        7865,
+        7950,
+        8036,
+        8037
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810903.214932,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7864,
+        7865,
+        7950
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810903.423576,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7611,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7864,
+        7865,
+        7950,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810903.6290214,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7611,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7864,
+        7950,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810904.252892,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7864,
+        7950,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810904.675266,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7864,
+        7950
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810904.8823483,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7864,
+        7950,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810905.095524,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7611,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7778,
+        7864,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810905.3033733,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7611,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7864,
+        7950
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810905.50998,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7611,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7864,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810905.7188327,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7611,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7778,
+        7864,
+        7950
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810905.924542,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7611,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7778,
+        7864,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810906.1309822,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7611,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7778,
+        7950,
+        8036
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810906.335678,
+      "cells": [
+        7606,
+        7607,
+        7608,
+        7609,
+        7610,
+        7611,
+        7692,
+        7693,
+        7694,
+        7695,
+        7696,
+        7697,
+        7950
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810906.5415082,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810913.423866,
+      "cells": [
+        6390
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810913.629161,
+      "cells": [
+        6391,
+        6394
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810913.8370798,
+      "cells": [
+        6392,
+        6393,
+        6395
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810914.0451431,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810919.4387958,
+      "cells": [
+        6502
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810919.6464634,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810921.5156832,
+      "cells": [
+        6072
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810921.7251217,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810922.1479714,
+      "cells": [
+        6072
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810922.359869,
+      "cells": [
+        5986
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.11,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810922.5678048,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810922.7753615,
+      "cells": [
+        5900,
+        6072
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810922.9814456,
+      "cells": [
+        4868
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810923.1859605,
+      "cells": [
+        5814,
+        5900
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810923.3971176,
+      "cells": [
+        5814,
+        5986
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810923.6068344,
+      "cells": [
+        5728
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810923.8129132,
+      "cells": [
+        5728,
+        5814
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810924.0194962,
+      "cells": [
+        4868,
+        5728,
+        5814
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810924.2302458,
+      "cells": [
+        5728
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810924.4439118,
+      "cells": [
+        5642,
+        5728
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810924.648584,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810924.8556778,
+      "cells": [
+        4868,
+        5642
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810925.063209,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810926.7353992,
+      "cells": [
+        4868,
+        5712
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810926.941583,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810927.148271,
+      "cells": [
+        5884
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810927.3541791,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810927.563996,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810927.7761183,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810927.9816363,
+      "cells": [
+        3922
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810928.1890464,
+      "cells": [
+        4008,
+        4180,
+        4266,
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810928.3933666,
+      "cells": [
+        4008,
+        4180,
+        4266,
+        4352,
+        4438
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810928.5977328,
+      "cells": [
+        4438,
+        4524
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810928.8054578,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810932.3529503,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810932.5718415,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810935.929963,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810936.1384296,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810936.5582163,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810936.9704175,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810937.388712,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810937.5939288,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810937.803541,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810938.2220383,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810938.4283056,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810938.840645,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810939.4661467,
+      "cells": [
+        5110,
+        6228
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810939.6716914,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810940.3027742,
+      "cells": [
+        6228
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810940.5111704,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.11,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810941.344018,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810941.5572636,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.15,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810941.7627254,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810942.5970316,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810943.0094683,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810943.4294927,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810943.6391716,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810943.8444145,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810944.0566506,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810944.4706955,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810944.6760154,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810945.0940318,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810945.2991045,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810945.7097034,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810945.9202282,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810946.1341639,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.11,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810946.3415916,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.11,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810946.7652051,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810946.977064,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810947.1904094,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810948.0521703,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.14,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810948.889988,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810949.1000445,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810949.5181978,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810949.7281857,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810949.937774,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810950.1441271,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810950.3528168,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810950.5683253,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810950.7776191,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810951.197081,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.11,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810951.4057064,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810951.6150303,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810951.8190002,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810952.658519,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810952.867132,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810953.4863067,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.13,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810953.6963565,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.07,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810953.9018404,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810954.1079552,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810954.314892,
+      "cells": [
+        5110,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810954.5214777,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.14,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810954.7331126,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810955.1629188,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810955.582624,
+      "cells": [
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810955.7882054,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810956.620276,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810957.0354166,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810957.2468143,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810957.6662896,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810957.8740919,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810960.3677125,
+      "cells": [
+        4438,
+        5196
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810960.5787408,
+      "cells": [
+        4266,
+        4438,
+        4524,
+        4696,
+        4782
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810960.786523,
+      "cells": [
+        4180,
+        4352
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.06,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810960.9950643,
+      "cells": [
+        3922,
+        4008,
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810961.2053049,
+      "cells": [
+        3836
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810961.6167822,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810964.5364308,
+      "cells": [
+        5642
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810964.7459478,
+      "cells": [
+        5728
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810964.9546888,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810965.168083,
+      "cells": [
+        5110,
+        5642
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810965.5968888,
+      "cells": [
+        5642
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810965.8093781,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810967.9136515,
+      "cells": [
+        6072
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810968.1212718,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810968.3280458,
+      "cells": [
+        6072
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810968.5343037,
+      "cells": [
+        5900,
+        6072
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810968.7446432,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810968.9562163,
+      "cells": [
+        5110
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.13,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810969.1721456,
+      "cells": [
+        5900
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.09,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810969.379232,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810971.9077039,
+      "cells": [
+        6314
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810973.5846958,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.01,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810976.7281334,
+      "cells": [
+        8132
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.04,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810976.9403555,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.1,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810991.3101943,
+      "cells": [
+        9246
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810991.521761,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810992.5825593,
+      "cells": [
+        9332
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810992.786923,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.12,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810993.6132555,
+      "cells": [
+        9246
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.05,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810993.8211076,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.08,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810994.2379198,
+      "cells": [
+        8903,
+        8989
+      ],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.02,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810994.4446862,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.03,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true
+    },
+    {
+      "at": 1793810997.7879934,
+      "cells": [],
+      "map_version": 3,
+      "observed_map_version": 3,
+      "observed_age": 0.0,
+      "map_preview": false,
+      "configured_match": true,
+      "renderable": true,
+      "terminal_snapshot": true
+    }
+  ],
+  "marker_alignment_trace": [
+    {
+      "at": 1793810941.7627401,
+      "marker_id": 3,
+      "state": {
+        "state": "SEARCHING",
+        "camera": "rear",
+        "marker_id": 3,
+        "reason": "주행 종료·정지 응답과 오도메트리를 확인합니다.",
+        "frames": 0,
+        "required": 3,
+        "max_seconds": 45.0
+      },
+      "localization_clearance_m": 0.38532424766454126,
+      "localization_available": true,
+      "scan_age_s": 0.12,
+      "odom_age_s": 0.05,
+      "rear_camera_age_s": 0.15,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810941.973869,
+      "marker_id": 3,
+      "state": {
+        "state": "SEARCHING",
+        "reason": "선택한 rear 카메라로 마커 3을 저속 탐색합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": null,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 0.0,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 0.0,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3797823583951889,
+      "localization_available": true,
+      "scan_age_s": 0.1,
+      "odom_age_s": 0.05,
+      "rear_camera_age_s": 0.13,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810942.1842394,
+      "marker_id": 3,
+      "state": {
+        "state": "SEARCHING",
+        "reason": "목표 마커 미검출 · 제한된 범위에서 저속 탐색합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": null,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.12,
+        "rotation_degrees": 0.1008925549202648,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 0.1999470470000233,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3953266582578705,
+      "localization_available": true,
+      "scan_age_s": 0.09,
+      "odom_age_s": 0.03,
+      "rear_camera_age_s": 0.13,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810942.39288,
+      "marker_id": 3,
+      "state": {
+        "state": "SEARCHING",
+        "reason": "목표 마커 미검출 · 제한된 범위에서 저속 탐색합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": null,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.12,
+        "rotation_degrees": 1.1312516564669224,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 0.4001633999978367,
+        "required": 3
+      },
+      "localization_clearance_m": 0.38601848293050983,
+      "localization_available": true,
+      "scan_age_s": 0.09,
+      "odom_age_s": 0.04,
+      "rear_camera_age_s": 0.13,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810942.5970457,
+      "marker_id": 3,
+      "state": {
+        "state": "SEARCHING",
+        "reason": "목표 마커 미검출 · 제한된 범위에서 저속 탐색합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": null,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.12,
+        "rotation_degrees": 2.2917959865721307,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 0.600339325999812,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3939035053453829,
+      "localization_available": true,
+      "scan_age_s": 0.09,
+      "odom_age_s": 0.03,
+      "rear_camera_age_s": 0.12,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810942.8047206,
+      "marker_id": 3,
+      "state": {
+        "state": "SEARCHING",
+        "reason": "목표 마커 미검출 · 제한된 범위에서 저속 탐색합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": null,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.12,
+        "rotation_degrees": 3.651140700751556,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 0.8000544589995116,
+        "required": 3
+      },
+      "localization_clearance_m": 0.38745768686402815,
+      "localization_available": true,
+      "scan_age_s": 0.08,
+      "odom_age_s": 0.02,
+      "rear_camera_age_s": 0.11,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810943.0094903,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.78125,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 5.014795592183211,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 1.0015815049991943,
+        "required": 3
+      },
+      "localization_clearance_m": 0.39803228739742047,
+      "localization_available": true,
+      "scan_age_s": 0.06,
+      "odom_age_s": 0.01,
+      "rear_camera_age_s": 0.1,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810943.2176592,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.73125,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 5.794524536888988,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 1.2000785540003562,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3912396880757989,
+      "localization_available": true,
+      "scan_age_s": 0.05,
+      "odom_age_s": 0.0,
+      "rear_camera_age_s": 0.09,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810943.4295137,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.6875,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 6.931575701350826,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 1.4008083529988653,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3820840660332249,
+      "localization_available": true,
+      "scan_age_s": 0.06,
+      "odom_age_s": 0.0,
+      "rear_camera_age_s": 0.1,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810943.6391914,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.64375,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 8.072221279871876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 1.6000980559983873,
+        "required": 3
+      },
+      "localization_clearance_m": 0.38806995602228117,
+      "localization_available": true,
+      "scan_age_s": 0.05,
+      "odom_age_s": 0.04,
+      "rear_camera_age_s": 0.09,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810943.844426,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.6015625,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 9.207149189479408,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 1.8000073250004789
+      },
+      "localization_clearance_m": 0.3866960325549767,
+      "localization_available": true,
+      "scan_age_s": 0.04,
+      "odom_age_s": 0.03,
+      "rear_camera_age_s": 0.08,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810944.0566688,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.5562499999999999,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 10.059197463998162,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 1.9999978960004228
+      },
+      "localization_clearance_m": 0.3896050381244637,
+      "localization_available": true,
+      "scan_age_s": 0.04,
+      "odom_age_s": 0.02,
+      "rear_camera_age_s": 0.07,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810944.2645466,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.515625,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 11.764932139339138,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 2.29997977399762,
+        "required": 3
+      },
+      "localization_clearance_m": 0.38850659287446976,
+      "localization_available": true,
+      "scan_age_s": 0.03,
+      "odom_age_s": 0.02,
+      "rear_camera_age_s": 0.07,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810944.4707117,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.4750000000000001,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 12.61591889484735,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 2.5006557870001416,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3862388287057242,
+      "localization_available": true,
+      "scan_age_s": 0.02,
+      "odom_age_s": 0.01,
+      "rear_camera_age_s": 0.06,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810944.6760314,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.43437499999999996,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 13.749829239801452,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 2.7008545889984816,
+        "required": 3
+      },
+      "localization_clearance_m": 0.39352052996301223,
+      "localization_available": true,
+      "scan_age_s": 0.02,
+      "odom_age_s": 0.01,
+      "rear_camera_age_s": 0.05,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810944.8862126,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.39375000000000004,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 14.883475223391986,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 2.9001916099987284,
+        "required": 3
+      },
+      "localization_clearance_m": 0.39006458118981024,
+      "localization_available": true,
+      "scan_age_s": 0.02,
+      "odom_age_s": 0.0,
+      "rear_camera_age_s": 0.05,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810945.094055,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.3531249999999999,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 16.01729624664982,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 3.100473193997459
+      },
+      "localization_clearance_m": 0.3786567617684325,
+      "localization_available": true,
+      "scan_age_s": 0.1,
+      "odom_age_s": 0.05,
+      "rear_camera_age_s": 0.03,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810945.2991145,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.31562500000000004,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 16.868927133201172,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 3.299951463999605
+      },
+      "localization_clearance_m": 0.37815802953095934,
+      "localization_available": true,
+      "scan_age_s": 0.08,
+      "odom_age_s": 0.03,
+      "rear_camera_age_s": 0.01,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810945.5034082,
+      "marker_id": 3,
+      "state": {
+        "state": "CENTERING",
+        "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.31562500000000004,
+        "center_tolerance": 0.08,
+        "frames": 0,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": null,
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": -0.1,
+        "rotation_degrees": 18.00422048664567,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 3.4999948570002744,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3863766530162107,
+      "localization_available": true,
+      "scan_age_s": 0.08,
+      "odom_age_s": 0.02,
+      "rear_camera_age_s": 0.21,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810945.7097218,
+      "marker_id": 3,
+      "state": {
+        "state": "SETTLING",
+        "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.2749999999999999,
+        "center_tolerance": 0.08,
+        "frames": 1,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.115743178482937,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 3.7000757349997,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3899017442003654,
+      "localization_available": true,
+      "scan_age_s": 0.06,
+      "odom_age_s": 0.01,
+      "rear_camera_age_s": 0.21,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810945.9202454,
+      "marker_id": 3,
+      "state": {
+        "state": "SETTLING",
+        "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.2562500000000001,
+        "center_tolerance": 0.08,
+        "frames": 2,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.503108003162076,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 3.9007820949991583,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3905522260393996,
+      "localization_available": true,
+      "scan_age_s": 0.06,
+      "odom_age_s": 0.01,
+      "rear_camera_age_s": 0.21,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810946.1341822,
+      "marker_id": 3,
+      "state": {
+        "state": "SETTLING",
+        "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.2562500000000001,
+        "center_tolerance": 0.08,
+        "frames": 3,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.691681255739933,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 4.102378365998447,
+        "required": 3
+      },
+      "localization_clearance_m": 0.39480075800812964,
+      "localization_available": true,
+      "scan_age_s": 0.06,
+      "odom_age_s": 0.01,
+      "rear_camera_age_s": 0.2,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810946.3416111,
+      "marker_id": 3,
+      "state": {
+        "state": "SETTLING",
+        "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 4,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.750422531158264,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 4.300085593000404,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3940217917516566,
+      "localization_available": true,
+      "scan_age_s": 0.03,
+      "odom_age_s": 0.03,
+      "rear_camera_age_s": 0.19,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810946.558127,
+      "marker_id": 3,
+      "state": {
+        "state": "SETTLING",
+        "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 5,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.760389734959894,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 4.499998719998985,
+        "required": 3
+      },
+      "localization_clearance_m": 0.378514858575636,
+      "localization_available": true,
+      "scan_age_s": 0.0,
+      "odom_age_s": 0.07,
+      "rear_camera_age_s": 0.17,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810946.76522,
+      "marker_id": 3,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 6,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.764927030801342,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 4.80008548099795,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3955308370433688,
+      "localization_available": true,
+      "scan_age_s": 0.1,
+      "odom_age_s": 0.05,
+      "rear_camera_age_s": 0.13,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810946.9770806,
+      "marker_id": 3,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 7,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.76583750331697,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.000025678000384,
+        "required": 3
+      },
+      "localization_clearance_m": 0.3880400102546672,
+      "localization_available": true,
+      "scan_age_s": 0.06,
+      "odom_age_s": 0.05,
+      "rear_camera_age_s": 0.11,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810947.1904283,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.37357345166666667,
+      "localization_available": true,
+      "scan_age_s": 0.01,
+      "odom_age_s": 0.01,
+      "rear_camera_age_s": 0.06,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810948.05219,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.3886725346864534,
+      "localization_available": true,
+      "scan_age_s": 0.06,
+      "odom_age_s": 0.06,
+      "rear_camera_age_s": 0.11,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810948.26735,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.3937577466583897,
+      "localization_available": true,
+      "scan_age_s": 0.12,
+      "odom_age_s": 0.06,
+      "rear_camera_age_s": 0.02,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810948.477386,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.3893334335574956,
+      "localization_available": true,
+      "scan_age_s": 0.07,
+      "odom_age_s": 0.05,
+      "rear_camera_age_s": 0.23,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810948.6860101,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.38546860763141677,
+      "localization_available": true,
+      "scan_age_s": 0.01,
+      "odom_age_s": 0.0,
+      "rear_camera_age_s": 0.19,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810948.8900006,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.38867739603154944,
+      "localization_available": true,
+      "scan_age_s": 0.11,
+      "odom_age_s": 0.06,
+      "rear_camera_age_s": 0.14,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810949.100063,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.39171376544351283,
+      "localization_available": true,
+      "scan_age_s": 0.06,
+      "odom_age_s": 0.01,
+      "rear_camera_age_s": 0.11,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810949.3083687,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.38772249801544684,
+      "localization_available": true,
+      "scan_age_s": 0.02,
+      "odom_age_s": 0.01,
+      "rear_camera_age_s": 0.07,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810949.518216,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.3941079793093625,
+      "localization_available": true,
+      "scan_age_s": 0.07,
+      "odom_age_s": 0.02,
+      "rear_camera_age_s": 0.28,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810949.7282028,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.38742187775369774,
+      "localization_available": true,
+      "scan_age_s": 0.01,
+      "odom_age_s": 0.0,
+      "rear_camera_age_s": 0.21,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810949.937799,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.3823740806789296,
+      "localization_available": true,
+      "scan_age_s": 0.08,
+      "odom_age_s": 0.02,
+      "rear_camera_age_s": 0.13,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810950.1441429,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.3785175609175514,
+      "localization_available": true,
+      "scan_age_s": 0.05,
+      "odom_age_s": 0.04,
+      "rear_camera_age_s": 0.09,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810950.3528335,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.3833582904479508,
+      "localization_available": true,
+      "scan_age_s": 0.0,
+      "odom_age_s": 0.0,
+      "rear_camera_age_s": 0.05,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810950.5683491,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.3760663684477,
+      "localization_available": true,
+      "scan_age_s": 0.11,
+      "odom_age_s": 0.05,
+      "rear_camera_age_s": 0.03,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810950.777635,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.38740227323409593,
+      "localization_available": true,
+      "scan_age_s": 0.07,
+      "odom_age_s": 0.0,
+      "rear_camera_age_s": 0.25,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810950.9846857,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.38497528600911496,
+      "localization_available": true,
+      "scan_age_s": 0.02,
+      "odom_age_s": 0.02,
+      "rear_camera_age_s": 0.19,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810951.197112,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.3922993746904034,
+      "localization_available": true,
+      "scan_age_s": 0.01,
+      "odom_age_s": 0.07,
+      "rear_camera_age_s": 0.17,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810951.4057236,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.38302063872762226,
+      "localization_available": true,
+      "scan_age_s": 0.1,
+      "odom_age_s": 0.05,
+      "rear_camera_age_s": 0.14,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810951.6150517,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.3882434821303403,
+      "localization_available": true,
+      "scan_age_s": 0.07,
+      "odom_age_s": 0.03,
+      "rear_camera_age_s": 0.12,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810951.8190138,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.38869936765962565,
+      "localization_available": true,
+      "scan_age_s": 0.03,
+      "odom_age_s": 0.03,
+      "rear_camera_age_s": 0.08,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810952.0266826,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.39107082609780486,
+      "localization_available": true,
+      "scan_age_s": 0.02,
+      "odom_age_s": 0.02,
+      "rear_camera_age_s": 0.07,
+      "front_camera_age_s": null
+    },
+    {
+      "at": 1793810952.2351606,
+      "marker_id": null,
+      "state": {
+        "state": "CONFIRMED",
+        "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+        "marker_id": 3,
+        "confirmation_mode": "recognized",
+        "camera": "rear",
+        "center_error": 0.26249999999999996,
+        "center_tolerance": 0.08,
+        "frames": 8,
+        "soft_center_tolerance": 0.3,
+        "soft_center_exit_tolerance": 0.36,
+        "soft_center_result": "centered",
+        "soft_center_timeout": 3.0,
+        "soft_center_max_rotation_degrees": 17.188733853924695,
+        "wall_required": false,
+        "wall_reliable": false,
+        "wall_heading_error_rad": null,
+        "wall_angle_tolerance": 0.05,
+        "wall_samples": 0,
+        "wall_required_samples": 3,
+        "wall_reason": "벽 방향 측정을 기다립니다.",
+        "required_frames": 3,
+        "linear": 0.0,
+        "angular": 0.0,
+        "rotation_degrees": 19.766228756083876,
+        "awaiting_post_clearance_frame": false,
+        "max_seconds": 45.0,
+        "elapsed": 5.099874468000053
+      },
+      "localization_clearance_m": 0.38807659949354517,
+      "localization_available": true,
+      "scan_age_s": 0.02,
+      "odom_age_s": 0.02,
+      "rear_camera_age_s": 0.06,
+      "front_camera_age_s": null
+    }
+  ],
+  "web_route_trace": [
+    {
+      "at": 1793810878.6624348,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "IDLE"
+    },
+    {
+      "at": 1793810878.8716087,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793810879.2837126,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 95,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793810884.4723768,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 91,
+      "planner_status": "READY"
+    },
+    {
+      "at": 1793810888.2143583,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 92,
+      "planner_status": "READY"
+    },
+    {
+      "at": 1793810896.761669,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "WAIT_REPLAN"
+    },
+    {
+      "at": 1793810898.0103812,
+      "state": "WAIT_REPLAN",
+      "marker_id": 3,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793810898.220777,
+      "state": "NAVIGATING",
+      "marker_id": 3,
+      "path_points": 88,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793810941.762745,
+      "state": "CONFIRMING",
+      "marker_id": 3,
+      "path_points": 88,
+      "planner_status": "IDLE"
+    },
+    {
+      "at": 1793810947.1904335,
+      "state": "DWELLING",
+      "marker_id": null,
+      "path_points": 0,
+      "planner_status": "IDLE"
+    },
+    {
+      "at": 1793810952.4436517,
+      "state": "RETURNING_HOME",
+      "marker_id": null,
+      "path_points": 0,
+      "planner_status": "IDLE"
+    },
+    {
+      "at": 1793810953.2787335,
+      "state": "RETURNING_HOME",
+      "marker_id": null,
+      "path_points": 0,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793810953.4863253,
+      "state": "RETURNING_HOME",
+      "marker_id": null,
+      "path_points": 91,
+      "planner_status": "PLANNING"
+    },
+    {
+      "at": 1793810994.6511862,
+      "state": "RETURNING_HOME",
+      "marker_id": null,
+      "path_points": 91,
+      "planner_status": "IDLE"
+    },
+    {
+      "at": 1793810996.5173357,
+      "state": "HOME_REACHED",
+      "marker_id": null,
+      "path_points": 91,
+      "planner_status": "IDLE"
+    }
+  ],
+  "reasons": [],
+  "memory_session_observer": {
+    "duration_monotonic_sec": 142.595,
+    "domain_id": "176",
+    "observed_samples": 1126,
+    "visibility_samples": 1126,
+    "goal_count": 2,
+    "confirmed_episodes": 31,
+    "persisted_after_live_disappeared": 31,
+    "carried_into_later_goal": 0,
+    "removed_with_positive_free_evidence": 31,
+    "still_remembered": [],
+    "episodes": [
+      {
+        "cell_index": 7952,
+        "confirmed_at": 25057.840315923,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25060.030475724,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7780,
+        "confirmed_at": 25057.934181053,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25060.45363318,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7866,
+        "confirmed_at": 25057.934181053,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25060.153580968,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7951,
+        "confirmed_at": 25058.038106418,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25073.458581793,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8037,
+        "confirmed_at": 25058.038106418,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25068.933815401,
+        "later_goals": [],
+        "free_ray_samples": 28,
+        "first_free_ray_at": 25068.938696341,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8038,
+        "confirmed_at": 25058.038106418,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25060.030475724,
+        "later_goals": [],
+        "free_ray_samples": 13,
+        "first_free_ray_at": 25061.064480191,
+        "cleared_at": 25079.017840724,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8124,
+        "confirmed_at": 25058.038106418,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25063.56125758,
+        "later_goals": [],
+        "free_ray_samples": 26,
+        "first_free_ray_at": 25063.573160804,
+        "cleared_at": 25067.688443479,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8210,
+        "confirmed_at": 25058.038106418,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25058.248354281,
+        "later_goals": [],
+        "free_ray_samples": 27,
+        "first_free_ray_at": 25058.255286903,
+        "cleared_at": 25061.254895118,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7865,
+        "confirmed_at": 25058.354489682,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25075.169959688,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7779,
+        "confirmed_at": 25058.924170615,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25074.637661516,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8123,
+        "confirmed_at": 25059.583618198,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25063.433018795,
+        "later_goals": [],
+        "free_ray_samples": 38,
+        "first_free_ray_at": 25063.441605188,
+        "cleared_at": 25070.180644711,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8125,
+        "confirmed_at": 25060.361239438,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25060.738111465,
+        "later_goals": [],
+        "free_ray_samples": 25,
+        "first_free_ray_at": 25060.74267188,
+        "cleared_at": 25067.915669279,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8126,
+        "confirmed_at": 25060.361239438,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25060.738111465,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25060.74267188,
+        "cleared_at": 25078.043028927,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8127,
+        "confirmed_at": 25060.460199977,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25063.433018795,
+        "later_goals": [],
+        "free_ray_samples": 23,
+        "first_free_ray_at": 25063.441605188,
+        "cleared_at": 25078.043028927,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7778,
+        "confirmed_at": 25062.074564059,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25064.169867623,
+        "later_goals": [],
+        "free_ray_samples": 30,
+        "first_free_ray_at": 25064.180048492,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7950,
+        "confirmed_at": 25062.074564059,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25064.389592284,
+        "later_goals": [],
+        "free_ray_samples": 27,
+        "first_free_ray_at": 25064.398514529,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8036,
+        "confirmed_at": 25062.074564059,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25074.839356497,
+        "later_goals": [],
+        "free_ray_samples": 29,
+        "first_free_ray_at": 25074.847080683,
+        "cleared_at": 25080.00903832,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7693,
+        "confirmed_at": 25063.705549064,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25069.893220252,
+        "later_goals": [],
+        "free_ray_samples": 27,
+        "first_free_ray_at": 25069.898988216,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8039,
+        "confirmed_at": 25063.705549064,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25064.499620009,
+        "later_goals": [],
+        "free_ray_samples": 9,
+        "first_free_ray_at": 25064.504845733,
+        "cleared_at": 25078.705388713,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8040,
+        "confirmed_at": 25064.302616682,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25064.701787131,
+        "later_goals": [],
+        "free_ray_samples": 9,
+        "first_free_ray_at": 25064.708390026,
+        "cleared_at": 25078.705388713,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8041,
+        "confirmed_at": 25064.302616682,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25064.701787131,
+        "later_goals": [],
+        "free_ray_samples": 9,
+        "first_free_ray_at": 25064.708390026,
+        "cleared_at": 25078.705388713,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7864,
+        "confirmed_at": 25067.146850381,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25077.72569917,
+        "later_goals": [],
+        "free_ray_samples": 22,
+        "first_free_ray_at": 25077.731050685,
+        "cleared_at": 25080.00903832,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7692,
+        "confirmed_at": 25068.442333691,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25077.819858166,
+        "later_goals": [],
+        "free_ray_samples": 22,
+        "first_free_ray_at": 25077.824743268,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7607,
+        "confirmed_at": 25072.819378627,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25078.035451662,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7694,
+        "confirmed_at": 25074.31931939,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25078.035451662,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7608,
+        "confirmed_at": 25074.983198739,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25078.035451662,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7609,
+        "confirmed_at": 25074.983198739,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25078.035451662,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7695,
+        "confirmed_at": 25074.983198739,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25078.035451662,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7696,
+        "confirmed_at": 25075.069150206,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25078.035451662,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7606,
+        "confirmed_at": 25075.513289507,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25078.035451662,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 25078.041254394,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 7610,
+        "confirmed_at": 25075.731839555,
+        "goal_at_confirmation": [
+          "map",
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 25076.150513203,
+        "later_goals": [],
+        "free_ray_samples": 22,
+        "first_free_ray_at": 25076.155116926,
+        "cleared_at": 25080.29005244,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      }
+    ]
+  },
+  "runtime_command_limits": {
+    "linear_mps": 0.22,
+    "angular_radps": 0.5,
+    "source": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+    "sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef"
+  },
+  "web_truth_xy_tolerance_m": 0.25,
+  "nav2_internal_xy_tolerance_m": 0.15,
+  "web_runtime_manifest": {
+    "domain": 176,
+    "localhost_only": true,
+    "mode": "ekf_independent",
+    "physical_footprint": true,
+    "cold_start": true,
+    "amcl_launch_prior_enabled": false,
+    "ekf_delivery_faults": false,
+    "hardware_profile": "sensor_rates",
+    "fixture_manifest": {
+      "path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+      "sha256": "f4791f09dcdaa4a5391df2292feed2ca8db9ce089b748603640757b65f9fd829"
+    },
+    "fault_streams": [
+      "scan"
+    ],
+    "gazebo_master_uri": "http://127.0.0.1:11576",
+    "config_sha256": {
+      "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml": "242dc4549e58950662cc951a8b84e2c1c654b8d0ca8966d921ddaaf5d3399049",
+      "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml": "363f9ce5851e7e97359d631419645c87d59fa79e4552d36c73b9d78a2bd8f954",
+      "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": "59f6b427b89c3a60f77b87254a3d5352e31a4fde245a241f9c6fef839ed81a1f",
+      "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/change_memory_speckle.yaml": "65ca37cbd514e76bb85f041add54c1150d882c556f3800440df965df940cf977"
+    },
+    "nav_profile_source": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml",
+    "nodes_profile_source": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml",
+    "nav_profile_generated": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+    "nodes_profile_generated": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+    "sim_footprint_overrides": {
+      "robot_radius_m": 0.22,
+      "nav2_inflation_radius_m": 0.22,
+      "astar_static_inflation_cells": 5,
+      "astar_preferred_clearance_m": 0.45,
+      "follower_recovery_radius_m": 0.22,
+      "physical_values_preserved": true,
+      "only_use_sim_time_changed": true
+    },
+    "record_incidents": true,
+    "laser_filter_for_change_memory": false,
+    "laser_filter_input_topic": "/scan",
+    "laser_filter_output_topic": "/scan_filtered_for_change",
+    "laser_filter_consumer": "change_memory only; raw /scan retained by Nav2, AMCL and motion_mux",
+    "scan_pair_observer": false,
+    "memory_session": true,
+    "initial_pose": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "yaw": -0.027514
+    },
+    "gazebo_seed": 4242,
+    "simulated_battery": {
+      "topic": "/battery_state",
+      "voltage_v": 12.0,
+      "percentage": 0.75,
+      "rate_hz": 2.0,
+      "guard_minimum_voltage_v": 10.8
+    },
+    "nav_profile_note": "Physical values preserved; use_sim_time only; copied SDF body collision proxy radius 0.22 m.",
+    "nodes_profile_note": "Physical values preserved; use_sim_time only; copied SDF body collision proxy radius 0.22 m.",
+    "sensor_fault_scope": "scan only; independent EKF publishes /odom and odom->base TF directly",
+    "hardware_profile_edits": [
+      {
+        "sdf_path": "./model/link[@name='base_scan']/sensor[@name='hls_lfcd_lds']/update_rate",
+        "before": 5.0,
+        "after": 10.0,
+        "units": "Hz",
+        "effect": "laser_sensor_producer",
+        "changed": true
+      },
+      {
+        "sdf_path": "./model/link[@name='imu_link']/sensor[@name='tb3_imu']/update_rate",
+        "before": 200.0,
+        "after": 20.0,
+        "units": "Hz",
+        "effect": "imu_sensor_producer",
+        "changed": true
+      },
+      {
+        "sdf_path": "./model/plugin[@name='turtlebot3_joint_state']/update_rate",
+        "before": 30.0,
+        "after": 20.0,
+        "units": "Hz",
+        "effect": "wheel_joint_state_producer",
+        "changed": true
+      }
+    ],
+    "hardware_profile_calibration": "stress_envelope_not_physical_calibration",
+    "collision_model": {
+      "copied_centered_cylinder_radius_m": 0.22,
+      "stock_source_unchanged": true
+    },
+    "camera_producer": {
+      "layout": "classroom_rear_physical",
+      "front_enabled": false,
+      "rear_width": 320,
+      "rear_height": 240,
+      "rear_fps": 5.0
+    },
+    "controller": {
+      "plugin": "smart_vision_amr_dwb::RouteTrackingDWB",
+      "library": "/home/kiki/Team2_workspace/build/smart_vision_amr_dwb/libroute_tracking_dwb.so",
+      "library_sha256": "90e835a0f84dc94c9fc67e47afef91bf549331d5195864890c24aa312105c63f"
+    }
+  },
+  "web_world_variant": "replay",
+  "web_ground_truth_checks": {
+    "3": {
+      "passed": true,
+      "event_at": 1793810947.1326494,
+      "goal": [
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "position_tolerance_m": 0.25,
+      "sample_time_delta_s": 0.034,
+      "position_error_m": 0.107,
+      "heading_error_rad": 0.064,
+      "fixture_wall_front_yaw_rad": -1.598311346410207,
+      "fixture_wall_normal_error_rad": 0.134,
+      "truth": [
+        -0.24525,
+        -2.0868,
+        -1.46383
+      ]
+    },
+    "home": {
+      "passed": true,
+      "event_at": 1793810997.7856264,
+      "goal": [
+        -0.188431,
+        -0.220497,
+        -0.027514
+      ],
+      "position_tolerance_m": 0.25,
+      "sample_time_delta_s": 0.048,
+      "position_error_m": 0.218,
+      "heading_error_rad": 0.099,
+      "fixture_wall_front_yaw_rad": null,
+      "fixture_wall_normal_error_rad": null,
+      "truth": [
+        0.02935,
+        -0.21087,
+        0.07129
+      ]
+    }
+  },
+  "web_independent_dwell_checks": {
+    "3": {
+      "passed": true,
+      "start_event_at": 1793810947.1326494,
+      "end_event_at": 1793810952.2558224,
+      "truth_samples": 41,
+      "command_samples": 120,
+      "truth_max_sample_gap_s": 0.177,
+      "command_max_sample_gap_s": 0.076,
+      "truth_start_delta_s": 0.086,
+      "truth_end_delta_s": 0.002,
+      "gazebo_max_translation_m": 0.0001,
+      "gazebo_max_heading_rad": 0.0,
+      "command_max_linear_mps": 0.0,
+      "command_max_angular_rps": 0.0,
+      "next_ros_goal_at": 1793810953.2594,
+      "next_ros_goal_delay_s": 1.004,
+      "next_target": [
+        -0.188431,
+        -0.220497,
+        -0.027514
+      ],
+      "next_ros_goal_position_error_m": 0.0,
+      "next_ros_goal_heading_error_rad": 0.0
+    }
+  },
+  "home_independent_settle_check": {
+    "passed": true,
+    "end_at": 1793810997.7856264,
+    "duration_s": 1.268,
+    "truth_samples": 10,
+    "command_samples": 29,
+    "truth_max_gap_s": 0.162,
+    "command_max_gap_s": 0.074,
+    "max_translation_m": 0.0,
+    "max_heading_rad": 0.0002,
+    "max_command_linear_mps": 0.0,
+    "max_command_angular_rps": 0.0
+  },
+  "web_obstacle": {
+    "passed": true,
+    "domain": 176,
+    "localhost_only": true,
+    "physical_robot_touched": false,
+    "goal": [
+      -0.25,
+      -1.98
+    ],
+    "geometry": {
+      "robot_radius": 0.22,
+      "obstacle_inflation_cells": 5,
+      "nodes_params": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml"
+    },
+    "goal_owner": "web_mission_server",
+    "goal_published_by_injector": false,
+    "spawned": true,
+    "truth_seen": true,
+    "removed": true,
+    "moving_steps": 4,
+    "observed_while_live": true,
+    "observed_cleared": true,
+    "path_reacted_before_removal": true,
+    "bypassed_while_live": true,
+    "minimum_clearance_m": 0.09658421321233399,
+    "recovery_requests": 0,
+    "events": [
+      {
+        "t": 21.162,
+        "at": 1793810878.7572913,
+        "event": "web_goal_observed",
+        "x": -0.25,
+        "y": -1.98,
+        "stamp": [
+          7,
+          460000000
+        ]
+      },
+      {
+        "t": 21.163,
+        "at": 1793810878.7586029,
+        "event": "injector_waiting_for_current_route",
+        "reason": "navigation_not_moving",
+        "path_age_s": null,
+        "navigation_status": null,
+        "observed_age_s": 0.079
+      },
+      {
+        "t": 21.579,
+        "at": 1793810879.1749327,
+        "event": "candidate_search_started",
+        "attempt": 1,
+        "path_sha256": "b98614957975fa4e2ceaa4767d233621ae86332408dfcdf85e17f29ce4609cb4",
+        "robot_xy": [
+          -0.18826077032263952,
+          -0.2205009261845269
+        ],
+        "observed_cells": 5,
+        "remembered_cells": 0
+      },
+      {
+        "t": 25.783,
+        "at": 1793810883.379023,
+        "event": "candidate_search_finished",
+        "attempt": 1,
+        "duration_s": 0.296,
+        "diagnostics": {
+          "reason": "FIXED_FEASIBLE_BYPASS",
+          "input_status": "VALID",
+          "geometric_candidates": 1,
+          "topology_candidates_tried": 1,
+          "attempts": 1
+        },
+        "candidate_xy": [
+          0.5239140050447512,
+          -0.599706838892526
+        ]
+      },
+      {
+        "t": 26.04,
+        "at": 1793810883.6361363,
+        "event": "current_observed_bypass_proved",
+        "route_cells": 80,
+        "observed_cells": 15
+      },
+      {
+        "t": 26.299,
+        "at": 1793810883.8945637,
+        "event": "obstacle_spawned",
+        "x": 0.5239140050447512,
+        "y": -0.599706838892526,
+        "path_sha256": "b98614957975fa4e2ceaa4767d233621ae86332408dfcdf85e17f29ce4609cb4",
+        "robot_xy": [
+          -0.05052504886116121,
+          -0.36480492080856897
+        ]
+      },
+      {
+        "t": 26.537,
+        "at": 1793810884.1322708,
+        "event": "obstacle_seen_in_lidar_map",
+        "near_cells": 14
+      },
+      {
+        "t": 26.835,
+        "at": 1793810884.4305518,
+        "event": "matching_path_changed_clear_of_box",
+        "previous_sha256": "b98614957975fa4e2ceaa4767d233621ae86332408dfcdf85e17f29ce4609cb4",
+        "new_sha256": "e6043e721b51067bb98319b8d688d6ad4235e4959025188d5fbe20e60f0a96a9",
+        "robot_xy": [
+          0.01739711003274165,
+          -0.4370335780107052
+        ],
+        "conservative_clearance_m": 0.1803
+      },
+      {
+        "t": 27.84,
+        "at": 1793810885.4361925,
+        "event": "obstacle_moved",
+        "step": 1,
+        "x": 0.5059489515005864,
+        "y": -0.6170923745804273,
+        "reason": "ready",
+        "swept_clearance_m": 0.1389772269099517,
+        "required_clearance_m": 0.08721290509971732,
+        "robot_truth_age_s": 0.10551320499871508
+      },
+      {
+        "t": 28.675,
+        "at": 1793810886.2710729,
+        "event": "obstacle_moved",
+        "step": 2,
+        "x": 0.4879838979564216,
+        "y": -0.6344779102683288,
+        "reason": "ready",
+        "swept_clearance_m": 0.1237068744179999,
+        "required_clearance_m": 0.08628393640027207,
+        "robot_truth_age_s": 0.10129062000123668
+      },
+      {
+        "t": 29.511,
+        "at": 1793810887.106507,
+        "event": "obstacle_moved",
+        "step": 3,
+        "x": 0.47001884441225683,
+        "y": -0.6518634459562301,
+        "reason": "ready",
+        "swept_clearance_m": 0.1095829051071113,
+        "required_clearance_m": 0.08029277253960027,
+        "robot_truth_age_s": 0.07405805699818302
+      },
+      {
+        "t": 30.326,
+        "at": 1793810887.92175,
+        "event": "obstacle_moved",
+        "step": 4,
+        "x": 0.45205379086809205,
+        "y": -0.6692489816441315,
+        "reason": "ready",
+        "swept_clearance_m": 0.09689202883525941,
+        "required_clearance_m": 0.06838327186042444,
+        "robot_truth_age_s": 0.019923963001929224
+      },
+      {
+        "t": 39.1,
+        "at": 1793810896.6954284,
+        "event": "matching_path_invalidated",
+        "reason": "empty_path"
+      },
+      {
+        "t": 48.594,
+        "at": 1793810906.189965,
+        "event": "obstacle_removed",
+        "obstacle_name": "classroom_web_obstacle_0a20500357"
+      },
+      {
+        "t": 50.659,
+        "at": 1793810908.2550716,
+        "event": "post_remove_observation",
+        "near_count": 0,
+        "owned_remaining": 0,
+        "total_observed": 0,
+        "robot_distance_m": 0.617,
+        "samples": 1
+      }
+    ],
+    "failure": null,
+    "obstacle_scenario": {
+      "source_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/obstacle_scenario.json",
+      "sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+      "scenario": {
+        "x": 0.5239140050447512,
+        "y": -0.599706838892526,
+        "path_tangent": [
+          0.6954214275160555,
+          -0.7186021417665909
+        ],
+        "movement_side": -1
+      },
+      "actor_positions_by_step": [
+        [
+          0.5239140050447512,
+          -0.599706838892526
+        ],
+        [
+          0.5059489515005864,
+          -0.6170923745804273
+        ],
+        [
+          0.4879838979564216,
+          -0.6344779102683288
+        ],
+        [
+          0.47001884441225683,
+          -0.6518634459562301
+        ],
+        [
+          0.45205379086809205,
+          -0.6692489816441315
+        ]
+      ],
+      "box_size_m": [
+        0.25,
+        0.25,
+        0.5
+      ],
+      "mode": "FIXED_NO_RELOCATION",
+      "copied_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json"
+    },
+    "input_status": "VALID",
+    "candidate": {
+      "x": 0.5239140050447512,
+      "y": -0.599706838892526,
+      "path_tangent": [
+        0.6954214275160555,
+        -0.7186021417665909
+      ],
+      "index": 16,
+      "robot_distance_m": 0.8068395347913363,
+      "static_wall_distance_m": 0.20184372645132564,
+      "approach_along_path_m": -0.76775977996944,
+      "base_path_xy": [
+        0.3000000290572644,
+        -0.7999999336898327
+      ],
+      "lateral_offset_m": 0.3001931726216327,
+      "preflight": {
+        "route_cells_by_step": [
+          82,
+          82,
+          83,
+          84,
+          84
+        ],
+        "movement_side": -1,
+        "initial_centerline_clearance_m": -0.0968,
+        "robot_radius": 0.22,
+        "obstacle_inflation_cells": 5
+      },
+      "robot_radius": 0.22,
+      "initial_path_clearance_m": -0.09681699891742761
+    },
+    "obstacle_name": "classroom_web_obstacle_0a20500357",
+    "first_observed_at": 1793810884.1322708,
+    "observed_indices_live": [
+      7606,
+      7607,
+      7608,
+      7609,
+      7610,
+      7611,
+      7692,
+      7693,
+      7694,
+      7695,
+      7696,
+      7697,
+      7698,
+      7778,
+      7779,
+      7780,
+      7864,
+      7865,
+      7866,
+      7950,
+      7951,
+      7952,
+      8036,
+      8037,
+      8038,
+      8039,
+      8040,
+      8041,
+      8042,
+      8122,
+      8123,
+      8124,
+      8125,
+      8126,
+      8127,
+      8128,
+      8209,
+      8210,
+      8211,
+      8212,
+      8213,
+      8214
+    ],
+    "changed_path_clearance_m": 0.1108,
+    "path_reaction_before_box": true,
+    "path_reaction_at": 1793810884.4305518,
+    "planner_counters_while_live": {
+      "global_plan_count": 2,
+      "local_attempt_id": 3,
+      "plan_kind": "GLOBAL"
+    },
+    "path_observation_temporal_link": true,
+    "observed_clear_latency_s": 2.287,
+    "candidate_diagnostics": {
+      "reason": "FIXED_FEASIBLE_BYPASS",
+      "input_status": "VALID",
+      "geometric_candidates": 1,
+      "topology_candidates_tried": 1,
+      "attempts": 1
+    },
+    "candidate_search_attempts": 1
+  },
+  "web_obstacle_overlay_checks": {
+    "red_cells_while_live": true,
+    "red_cells_cleared_after_removal": true,
+    "spawned_at": 1793810883.8945637,
+    "removed_at": 1793810906.189965,
+    "owned_observed_cells": [
+      7606,
+      7607,
+      7608,
+      7609,
+      7610,
+      7611,
+      7692,
+      7693,
+      7694,
+      7695,
+      7696,
+      7697,
+      7698,
+      7778,
+      7779,
+      7780,
+      7864,
+      7865,
+      7866,
+      7950,
+      7951,
+      7952,
+      8036,
+      8037,
+      8038,
+      8039,
+      8040,
+      8041,
+      8042,
+      8122,
+      8123,
+      8124,
+      8125,
+      8126,
+      8127,
+      8128,
+      8209,
+      8210,
+      8211,
+      8212,
+      8213,
+      8214
+    ]
+  }
+}

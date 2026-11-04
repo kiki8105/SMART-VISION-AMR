@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "generated_by": "smart_vision_amr.flight_recorder",
+  "format": "sampled ROS messages as gzip JSONL; not rosbag",
+  "trigger": {
+    "reason": "/smart_vision_amr/motion_status ESTOP",
+    "monotonic_sec": 34324.204745854,
+    "ros_time_ns": 0,
+    "wall_time_ns": 1793820152547822790
+  },
+  "triggers": [
+    {
+      "reason": "/smart_vision_amr/motion_status ESTOP",
+      "monotonic_sec": 34324.204745854,
+      "ros_time_ns": 0,
+      "wall_time_ns": 1793820152547822790
+    },
+    {
+      "reason": "/smart_vision_amr/motion_status ESTOP",
+      "monotonic_sec": 34328.169922065,
+      "ros_time_ns": 2160000000,
+      "wall_time_ns": 1793820156511798587
+    }
+  ],
+  "configured_pre_seconds": 30.0,
+  "configured_post_seconds": 5.0,
+  "actual_pre_seconds": 1.969864606995543,
+  "actual_post_seconds": 4.970623788001831,
+  "finished_early": false,
+  "sample_count": 169,
+  "uncompressed_bytes": 273948,
+  "capture_overflow_samples": 0,
+  "oversize_messages_during_capture": 0,
+  "prebuffer_oversize_messages_total": 0,
+  "nonfinite_numeric_encoding": "NaN / Infinity / -Infinity strings",
+  "sensitive_fields": "redacted recursively; no HTTP credentials/config captured",
+  "sample_period_seconds": {
+    "/odom": 0.2,
+    "/imu": 0.2,
+    "/cmd_vel": 0.2,
+    "/smart_vision_amr/navigation_cmd_vel": 0.2,
+    "/speed_limit": 0.2,
+    "/local_costmap/costmap": 0.5,
+    "/scan": 0.5,
+    "/tf": 0.2,
+    "/tf_static": 0.0,
+    "/smart_vision_amr/goal": 0.0,
+    "/smart_vision_amr/path": 1.0,
+    "/smart_vision_amr/planner_status": 0.2,
+    "/smart_vision_amr/navigation_status": 0.2,
+    "/smart_vision_amr/motion_status": 0.2,
+    "/smart_vision_amr/localization_health": 0.2,
+    "/smart_vision_amr/scan_projection_status": 0.2,
+    "/smart_vision_amr/execution_failure": 0.2,
+    "/smart_vision_amr/failure_memory_status": 0.2,
+    "/smart_vision_amr/controller_diagnostics": 0.2,
+    "/smart_vision_amr/navigation_control": 0.2
+  },
+  "ros_domain_id": "176",
+  "last_observed_static_transforms": {
+    "received_monotonic_sec": 34322.282794619,
+    "received_ros_time_ns": 0,
+    "message": {
+      "transforms": [
+        {
+          "header": {
+            "stamp": {
+              "sec": 1793820147,
+              "nanosec": 997969554
+            },
+            "frame_id": "base_link"
+          },
+          "child_frame_id": "rear_camera_link",
+          "transform": {
+            "translation": {
+              "x": -0.08,
+              "y": 0.0,
+              "z": 0.14
+            },
+            "rotation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 1.0,
+              "w": 6.123233995736766e-17
+            }
+          }
+        }
+      ]
+    }
+  }
+}

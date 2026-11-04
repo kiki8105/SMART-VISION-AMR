@@ -1,0 +1,285 @@
+{
+  "scope": "same production speed-ceiling helper on fixed paths; no motors, tracking, arrival or obstacle pass inferred",
+  "input_sha256": "0a4c416af2e33c7bc085f936bde7856b4f9b296484554feca6d8b4157c025f22",
+  "fixed": {
+    "maximum_forward_mps": 0.22,
+    "minimum_bend_ceiling_mps": 0.12,
+    "maximum_yaw_radps": 0.35,
+    "lateral_acceleration_mps2": 0.1,
+    "braking_deceleration_mps2": 0.1,
+    "sampling_m": 0.01
+  },
+  "rows": [
+    {
+      "route": "sparse_bend_calibration",
+      "preview_m": 0.6,
+      "braking_margin_m": 0.15,
+      "first_cap_reduction_at_progress_m": 0.89,
+      "theoretical_minimum_time_at_ceiling_s": 12.6709,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "372612d5f01fef5dc8fae72320f1d0ca38290c9a8ce580f3c326278394a218b1"
+    },
+    {
+      "route": "sparse_bend_calibration",
+      "preview_m": 0.6,
+      "braking_margin_m": 0.25,
+      "first_cap_reduction_at_progress_m": 0.79,
+      "theoretical_minimum_time_at_ceiling_s": 13.0496,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "1e94f37a6fd709c1ebe103ba9164fdf49e6e1ba65fac8dbd0ac830918bbeb645"
+    },
+    {
+      "route": "sparse_bend_calibration",
+      "preview_m": 0.6,
+      "braking_margin_m": 0.35,
+      "first_cap_reduction_at_progress_m": 0.6900000000000001,
+      "theoretical_minimum_time_at_ceiling_s": 13.4284,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "a8df2827c920763a20dc88da644c4046e09f25b4df1b03d2c3952ce1e5fc3aed"
+    },
+    {
+      "route": "sparse_bend_calibration",
+      "preview_m": 1.0,
+      "braking_margin_m": 0.15,
+      "first_cap_reduction_at_progress_m": 0.89,
+      "theoretical_minimum_time_at_ceiling_s": 12.6709,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "372612d5f01fef5dc8fae72320f1d0ca38290c9a8ce580f3c326278394a218b1"
+    },
+    {
+      "route": "sparse_bend_calibration",
+      "preview_m": 1.0,
+      "braking_margin_m": 0.25,
+      "first_cap_reduction_at_progress_m": 0.79,
+      "theoretical_minimum_time_at_ceiling_s": 13.0496,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "1e94f37a6fd709c1ebe103ba9164fdf49e6e1ba65fac8dbd0ac830918bbeb645"
+    },
+    {
+      "route": "sparse_bend_calibration",
+      "preview_m": 1.0,
+      "braking_margin_m": 0.35,
+      "first_cap_reduction_at_progress_m": 0.6900000000000001,
+      "theoretical_minimum_time_at_ceiling_s": 13.4284,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "a8df2827c920763a20dc88da644c4046e09f25b4df1b03d2c3952ce1e5fc3aed"
+    },
+    {
+      "route": "sparse_bend_calibration",
+      "preview_m": 1.2,
+      "braking_margin_m": 0.15,
+      "first_cap_reduction_at_progress_m": 0.89,
+      "theoretical_minimum_time_at_ceiling_s": 12.6709,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "372612d5f01fef5dc8fae72320f1d0ca38290c9a8ce580f3c326278394a218b1"
+    },
+    {
+      "route": "sparse_bend_calibration",
+      "preview_m": 1.2,
+      "braking_margin_m": 0.25,
+      "first_cap_reduction_at_progress_m": 0.79,
+      "theoretical_minimum_time_at_ceiling_s": 13.0496,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "1e94f37a6fd709c1ebe103ba9164fdf49e6e1ba65fac8dbd0ac830918bbeb645"
+    },
+    {
+      "route": "sparse_bend_calibration",
+      "preview_m": 1.2,
+      "braking_margin_m": 0.35,
+      "first_cap_reduction_at_progress_m": 0.6900000000000001,
+      "theoretical_minimum_time_at_ceiling_s": 13.4284,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "a8df2827c920763a20dc88da644c4046e09f25b4df1b03d2c3952ce1e5fc3aed"
+    },
+    {
+      "route": "dense_ninety_degree_bend",
+      "preview_m": 0.6,
+      "braking_margin_m": 0.15,
+      "first_cap_reduction_at_progress_m": 0.79,
+      "theoretical_minimum_time_at_ceiling_s": 12.6254,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "865c5bb32ce8ae9514f135e5f4a3216642b7f050275be047bca46b5d686d6118"
+    },
+    {
+      "route": "dense_ninety_degree_bend",
+      "preview_m": 0.6,
+      "braking_margin_m": 0.25,
+      "first_cap_reduction_at_progress_m": 0.6900000000000001,
+      "theoretical_minimum_time_at_ceiling_s": 13.0042,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "a28c029c728cf1dc2ed11680d5b0a5c051f69caf11645623f063b460842478aa"
+    },
+    {
+      "route": "dense_ninety_degree_bend",
+      "preview_m": 0.6,
+      "braking_margin_m": 0.35,
+      "first_cap_reduction_at_progress_m": 0.59,
+      "theoretical_minimum_time_at_ceiling_s": 13.383,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "243337e28326cb801e02b9eae3da7cf3a001b9c10a942ec6472ebb6f308191a1"
+    },
+    {
+      "route": "dense_ninety_degree_bend",
+      "preview_m": 1.0,
+      "braking_margin_m": 0.15,
+      "first_cap_reduction_at_progress_m": 0.79,
+      "theoretical_minimum_time_at_ceiling_s": 12.6254,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "865c5bb32ce8ae9514f135e5f4a3216642b7f050275be047bca46b5d686d6118"
+    },
+    {
+      "route": "dense_ninety_degree_bend",
+      "preview_m": 1.0,
+      "braking_margin_m": 0.25,
+      "first_cap_reduction_at_progress_m": 0.6900000000000001,
+      "theoretical_minimum_time_at_ceiling_s": 13.0042,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "a28c029c728cf1dc2ed11680d5b0a5c051f69caf11645623f063b460842478aa"
+    },
+    {
+      "route": "dense_ninety_degree_bend",
+      "preview_m": 1.0,
+      "braking_margin_m": 0.35,
+      "first_cap_reduction_at_progress_m": 0.59,
+      "theoretical_minimum_time_at_ceiling_s": 13.383,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "243337e28326cb801e02b9eae3da7cf3a001b9c10a942ec6472ebb6f308191a1"
+    },
+    {
+      "route": "dense_ninety_degree_bend",
+      "preview_m": 1.2,
+      "braking_margin_m": 0.15,
+      "first_cap_reduction_at_progress_m": 0.79,
+      "theoretical_minimum_time_at_ceiling_s": 12.6254,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "865c5bb32ce8ae9514f135e5f4a3216642b7f050275be047bca46b5d686d6118"
+    },
+    {
+      "route": "dense_ninety_degree_bend",
+      "preview_m": 1.2,
+      "braking_margin_m": 0.25,
+      "first_cap_reduction_at_progress_m": 0.6900000000000001,
+      "theoretical_minimum_time_at_ceiling_s": 13.0042,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "a28c029c728cf1dc2ed11680d5b0a5c051f69caf11645623f063b460842478aa"
+    },
+    {
+      "route": "dense_ninety_degree_bend",
+      "preview_m": 1.2,
+      "braking_margin_m": 0.35,
+      "first_cap_reduction_at_progress_m": 0.59,
+      "theoretical_minimum_time_at_ceiling_s": 13.383,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "243337e28326cb801e02b9eae3da7cf3a001b9c10a942ec6472ebb6f308191a1"
+    },
+    {
+      "route": "captured_folded_route",
+      "preview_m": 0.6,
+      "braking_margin_m": 0.15,
+      "first_cap_reduction_at_progress_m": 0.84,
+      "theoretical_minimum_time_at_ceiling_s": 21.6206,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "e5f63ad17826a73a6df079519e8493ebf5b4afbebbd6d62e119314781757bd77"
+    },
+    {
+      "route": "captured_folded_route",
+      "preview_m": 0.6,
+      "braking_margin_m": 0.25,
+      "first_cap_reduction_at_progress_m": 0.74,
+      "theoretical_minimum_time_at_ceiling_s": 22.5897,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "c5f2fe50a3b36f1d165ae4721ac8aeec0b2f47400e8f3cdc7c3086a2ca780fc8"
+    },
+    {
+      "route": "captured_folded_route",
+      "preview_m": 0.6,
+      "braking_margin_m": 0.35,
+      "first_cap_reduction_at_progress_m": 0.64,
+      "theoretical_minimum_time_at_ceiling_s": 23.3586,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "67fa5066b6fe07f8b07781893d7dfbe0d8bf138ea545a47807149803c2ef8ef8"
+    },
+    {
+      "route": "captured_folded_route",
+      "preview_m": 1.0,
+      "braking_margin_m": 0.15,
+      "first_cap_reduction_at_progress_m": 0.84,
+      "theoretical_minimum_time_at_ceiling_s": 21.6206,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "e5f63ad17826a73a6df079519e8493ebf5b4afbebbd6d62e119314781757bd77"
+    },
+    {
+      "route": "captured_folded_route",
+      "preview_m": 1.0,
+      "braking_margin_m": 0.25,
+      "first_cap_reduction_at_progress_m": 0.74,
+      "theoretical_minimum_time_at_ceiling_s": 22.5897,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "c5f2fe50a3b36f1d165ae4721ac8aeec0b2f47400e8f3cdc7c3086a2ca780fc8"
+    },
+    {
+      "route": "captured_folded_route",
+      "preview_m": 1.0,
+      "braking_margin_m": 0.35,
+      "first_cap_reduction_at_progress_m": 0.64,
+      "theoretical_minimum_time_at_ceiling_s": 23.3586,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "67fa5066b6fe07f8b07781893d7dfbe0d8bf138ea545a47807149803c2ef8ef8"
+    },
+    {
+      "route": "captured_folded_route",
+      "preview_m": 1.2,
+      "braking_margin_m": 0.15,
+      "first_cap_reduction_at_progress_m": 0.84,
+      "theoretical_minimum_time_at_ceiling_s": 21.6206,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "e5f63ad17826a73a6df079519e8493ebf5b4afbebbd6d62e119314781757bd77"
+    },
+    {
+      "route": "captured_folded_route",
+      "preview_m": 1.2,
+      "braking_margin_m": 0.25,
+      "first_cap_reduction_at_progress_m": 0.74,
+      "theoretical_minimum_time_at_ceiling_s": 22.5897,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "c5f2fe50a3b36f1d165ae4721ac8aeec0b2f47400e8f3cdc7c3086a2ca780fc8"
+    },
+    {
+      "route": "captured_folded_route",
+      "preview_m": 1.2,
+      "braking_margin_m": 0.35,
+      "first_cap_reduction_at_progress_m": 0.64,
+      "theoretical_minimum_time_at_ceiling_s": 23.3586,
+      "minimum_ceiling_mps": 0.12,
+      "maximum_implied_braking_deceleration_mps2": 0.1,
+      "caps_sha256": "67fa5066b6fe07f8b07781893d7dfbe0d8bf138ea545a47807149803c2ef8ef8"
+    }
+  ],
+  "recommendation": "Screen 0.25 m braking margin in closed loop against current 0.15 m. Preview changes are not assumed to improve tracking."
+}

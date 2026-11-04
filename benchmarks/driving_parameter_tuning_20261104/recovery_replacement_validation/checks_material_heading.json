@@ -1,0 +1,26 @@
+{
+  "python_suite": {
+    "passed": true,
+    "tests": 2704,
+    "seconds": 141.67
+  },
+  "build": {
+    "passed": true,
+    "packages": [
+      "smart_vision_amr",
+      "smart_vision_amr_dwb"
+    ],
+    "seconds": 2.85
+  },
+  "closed_loop_stage25": {
+    "passed": true,
+    "completed_route_and_home": true,
+    "source_unchanged": true,
+    "parameter_changes_from_v2": [],
+    "same_obstacle_scene": true
+  },
+  "physical_robot_driven": false,
+  "additional_matrix": "INTERRUPTED_FOR_DIAGNOSIS at clean Home return; 25/17/stress/reentry not executed",
+  "current_source_frozen_for_this_validation": false,
+  "subsequent_work": "Separate classified controller execution costs from hard measured occupancy; earlier suite/build apply to material-heading trial snapshot."
+}

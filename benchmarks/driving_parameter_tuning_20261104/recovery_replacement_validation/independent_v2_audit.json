@@ -1,0 +1,485 @@
+{
+  "scope": "Independent offline audit of one completed isolated full-web Gazebo stage25. No runtime/source/configuration modification, ROS service/action, backend request, or physical robot operation was performed by this audit.",
+  "directory": "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle",
+  "domain": 176,
+  "physical_robot_touched": false,
+  "input_sha256": {
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl": "82ccfc5a059860c8e349be47421815aab3902b1c49d19cc4ae0d173dcc8d33f5",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl": "23e95a3aad371005279930dfcb25a691a94a9273c814d3fc0a2e2add5a2270e8",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json": "21de7ca52d7ec9523a4d7ee4020193ead000de4a16a201ce209accb5a2131733",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/derived_evidence.json": "20c16091db36c1254bc5a468e62d98666b2a1ed635a1f1d6aa524b021221db80",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/acceptance.json": "d20bb020aed17b1f5102fc65dac6bb55abb210de5a99aa8a51e2c31e1cd719f0",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/safety_assessment.json": "a4d5292b74548e5e6a72b098a1b86a881b1df559d4b96de3335c6f0debbd4e3b",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log": "6891548d1889d6ffaa51db72a414717565fdcee7efed00daf0ca58d7573a2ae3",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json": "d1bdd9d146d4bae412eb488d31a4046615faa0815a3f5e28f486961e3ee7e041",
+    "/tmp/classroom-recovery-replaced-v2-20261104/staged_report.json": "017a30118bf297ab3ed64e3d51e790b68c6ccb151c2d8a1a17e6d6cf3fa744b5"
+  },
+  "outcome": {
+    "overall_passed": false,
+    "overall_reasons": [
+      "web_obstacle_injector_failed",
+      "web_obstacle_bypassed_while_live_unverified",
+      "web_obstacle_motion_unverified",
+      "runner_nonzero_exit"
+    ],
+    "prearm_passed": true,
+    "route_and_home_passed": true,
+    "completed_ids": [
+      3
+    ],
+    "final_state": "HOME_REACHED",
+    "mission_elapsed_seconds": 163.422,
+    "actor_passed": false,
+    "actor_moves_completed": 2,
+    "actor_moves_required": 4,
+    "live_bypass_confirmed": false,
+    "interpretation": "Sector3 and Home completion does not certify moving-obstacle bypass. Overall FAIL is retained."
+  },
+  "reverse": {
+    "request": {
+      "t": 29.5734,
+      "monotonic": 18727.1358,
+      "wall_time": 1793804555.4777,
+      "kind": "recovery_request",
+      "payload": {
+        "goal_id": "7:940000000",
+        "episode_id": "185600932c664abcb73b013a934ed17c",
+        "source_path_stamp": {
+          "sec": 15,
+          "nanosec": 280000000
+        },
+        "distance": 0.1078810202767848,
+        "speed": 0.1,
+        "reason": "Local repair unavailable; verified recent retreat before global replanning",
+        "recovery_trigger": "blocked_active_route",
+        "start_cell": [
+          34,
+          91
+        ],
+        "exit_cell": [
+          33,
+          93
+        ],
+        "blocking_cells": [
+          [
+            40,
+            90
+          ]
+        ],
+        "certified_start": {
+          "frame_id": "odom",
+          "child_frame_id": "base_footprint",
+          "stamp_ns": 16699000000,
+          "x": 0.29084074445665253,
+          "y": -0.4155951702479593,
+          "yaw": -1.300235377672459,
+          "certified_at_ns": 16699000000,
+          "max_position_drift_m": 0.003,
+          "max_yaw_drift_rad": 0.01,
+          "sweep_reserve_m": 0.01,
+          "map_frame": "map",
+          "map_base_frame": "base_footprint",
+          "map_x": 0.06432681896421932,
+          "map_y": -0.6641056855539677,
+          "map_yaw": -1.3217198512122357,
+          "map_stamp_ns": 16699000000
+        }
+      }
+    },
+    "matching_episode_navigation": [
+      {
+        "t": 29.5799,
+        "monotonic": 18727.1423,
+        "wall_time": 1793804555.4842,
+        "kind": "navigation",
+        "status": "RECOVERING",
+        "goal": {
+          "x": -0.25,
+          "y": -1.98,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 7,
+          "nanosec": 940000000
+        },
+        "input_hold": null,
+        "manual_stop": false,
+        "route_failure": null,
+        "local_detour_state": null,
+        "message": "Waiting for FollowPath to stop before checked reverse",
+        "details": {
+          "path_stamp": null,
+          "episode_id": "185600932c664abcb73b013a934ed17c",
+          "stop_stamp": null
+        }
+      },
+      {
+        "t": 29.5933,
+        "monotonic": 18727.1557,
+        "wall_time": 1793804555.4976,
+        "kind": "navigation",
+        "status": "RECOVERING",
+        "goal": {
+          "x": -0.25,
+          "y": -1.98,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 7,
+          "nanosec": 940000000
+        },
+        "input_hold": null,
+        "manual_stop": false,
+        "route_failure": null,
+        "local_detour_state": null,
+        "message": "Nav2 collision-checked reverse started",
+        "details": {
+          "path_stamp": null,
+          "episode_id": "185600932c664abcb73b013a934ed17c",
+          "stop_stamp": null
+        }
+      },
+      {
+        "t": 29.6036,
+        "monotonic": 18727.1659,
+        "wall_time": 1793804555.5078,
+        "kind": "navigation",
+        "status": "RECOVERY_FAILED",
+        "goal": {
+          "x": -0.25,
+          "y": -1.98,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 7,
+          "nanosec": 940000000
+        },
+        "input_hold": null,
+        "manual_stop": false,
+        "route_failure": null,
+        "local_detour_state": null,
+        "message": "Nav2 BackUp ended with status 6",
+        "details": {
+          "path_stamp": null,
+          "episode_id": "185600932c664abcb73b013a934ed17c",
+          "stop_stamp": null
+        }
+      }
+    ],
+    "actual_cmd_vel_samples": 3852,
+    "actual_negative_linear_samples": 0,
+    "actual_linear_min_mps": 0.0,
+    "navigation_cmd_samples": 899,
+    "navigation_negative_linear_samples": 0,
+    "interpretation": "One selector certificate and one accepted BackUp action were observed. No nonzero reverse command or actual reverse motion was demonstrated; BackUp aborted on its first collision check."
+  },
+  "stop_terminal_barrier": {
+    "empty_path_wall_time": 1793804554.5248,
+    "controller_cancel_wall_time": 1793804554.5739899,
+    "owned_follow_path_terminal5_wall_time": 1793804554.5799978,
+    "backup_started_navigation_wall_time": 1793804555.4976,
+    "terminal_to_backup_seconds": 0.917602,
+    "backup_action_start_wall_time": 1793804555.499923,
+    "backup_collision_ahead_wall_time": 1793804555.5009184,
+    "backup_action_abort_wall_time": 1793804555.5019953,
+    "matching_backup_terminal6_navigation_wall_time": 1793804555.5078,
+    "same_goal_and_episode_for_request_start_terminal": true,
+    "interpretation": "Actual FollowPath terminal5 precedes BackUp; matching BackUp terminal6 precedes GLOBAL. No action-ownership bypass was observed in this episode."
+  },
+  "sampled_phase_transitions": [
+    {
+      "wall_time": 1793804551.9392,
+      "t": 26.035,
+      "status": "READY",
+      "message": "Local prefix repaired; original forward suffix and goal retained",
+      "recovery_episode_id": "4cae12466a9443cf83e1a8d393cef1a6",
+      "recovery_phase": "FOLLOW",
+      "global_plan_count": 1
+    },
+    {
+      "wall_time": 1793804552.5953,
+      "t": 26.6911,
+      "status": "READY",
+      "message": "Local prefix repaired; original forward suffix and goal retained",
+      "recovery_episode_id": "0d659e1d1fab40f9a4d377075d2cb9c1",
+      "recovery_phase": "FOLLOW",
+      "global_plan_count": 1
+    },
+    {
+      "wall_time": 1793804553.8958,
+      "t": 27.9915,
+      "status": "READY",
+      "message": "Local prefix repaired; original forward suffix and goal retained",
+      "recovery_episode_id": "11921a8406534c878c8419272543f472",
+      "recovery_phase": "FOLLOW",
+      "global_plan_count": 1
+    },
+    {
+      "wall_time": 1793804554.5243,
+      "t": 28.62,
+      "status": "WAIT_REPLAN",
+      "message": "Waiting for measured chassis stop before reverse probe",
+      "recovery_episode_id": "185600932c664abcb73b013a934ed17c",
+      "recovery_phase": "STOP_PROOF",
+      "global_plan_count": 1
+    },
+    {
+      "wall_time": 1793804555.481,
+      "t": 29.5767,
+      "status": "RECOVERING",
+      "message": "Backing up 0.11 m to replan retained goal",
+      "recovery_episode_id": "185600932c664abcb73b013a934ed17c",
+      "recovery_phase": "REVERSE_VERDICT",
+      "global_plan_count": 1
+    },
+    {
+      "wall_time": 1793804555.4876,
+      "t": 29.5834,
+      "status": "RECOVERING",
+      "message": "Verified short reverse is in progress",
+      "recovery_episode_id": "185600932c664abcb73b013a934ed17c",
+      "recovery_phase": "REVERSING",
+      "global_plan_count": 1
+    },
+    {
+      "wall_time": 1793804555.5111,
+      "t": 29.6068,
+      "status": "PLANNING",
+      "message": "Planning to retained goal",
+      "recovery_episode_id": "185600932c664abcb73b013a934ed17c",
+      "recovery_phase": "GLOBAL",
+      "global_plan_count": 1
+    },
+    {
+      "wall_time": 1793804555.6336,
+      "t": 29.7294,
+      "status": "WAIT_REPLAN",
+      "message": "No safe A* route from (34, 91) to (27, 65); retrying",
+      "recovery_episode_id": "185600932c664abcb73b013a934ed17c",
+      "recovery_phase": "GLOBAL",
+      "global_plan_count": 2
+    },
+    {
+      "wall_time": 1793804555.638,
+      "t": 29.7337,
+      "status": "WAIT_REPLAN",
+      "message": "장애물로 주행 대기 · 실제 환경 변화 또는 명시적 재개를 기다립니다.",
+      "recovery_episode_id": "185600932c664abcb73b013a934ed17c",
+      "recovery_phase": "WAIT_OBSTACLE",
+      "global_plan_count": 2
+    },
+    {
+      "wall_time": 1793804566.2201,
+      "t": 40.3159,
+      "status": "WAIT_REPLAN",
+      "message": "Fresh physical evidence changed the blocked route",
+      "recovery_episode_id": "d476ca67585c41f1ade6d250ee7c1aaf",
+      "recovery_phase": "STOP_PROOF",
+      "global_plan_count": 2
+    },
+    {
+      "wall_time": 1793804566.289,
+      "t": 40.3847,
+      "status": "PLANNING",
+      "message": "Planning to retained goal",
+      "recovery_episode_id": "d476ca67585c41f1ade6d250ee7c1aaf",
+      "recovery_phase": "GLOBAL",
+      "global_plan_count": 2
+    },
+    {
+      "wall_time": 1793804566.3802,
+      "t": 40.476,
+      "status": "WAIT_REPLAN",
+      "message": "No safe A* route from (34, 91) to (27, 65); retrying",
+      "recovery_episode_id": "d476ca67585c41f1ade6d250ee7c1aaf",
+      "recovery_phase": "GLOBAL",
+      "global_plan_count": 3
+    },
+    {
+      "wall_time": 1793804566.3887,
+      "t": 40.4845,
+      "status": "WAIT_REPLAN",
+      "message": "장애물로 주행 대기 · 실제 환경 변화 또는 명시적 재개를 기다립니다.",
+      "recovery_episode_id": "d476ca67585c41f1ade6d250ee7c1aaf",
+      "recovery_phase": "WAIT_OBSTACLE",
+      "global_plan_count": 3
+    },
+    {
+      "wall_time": 1793804613.5834,
+      "t": 87.6791,
+      "status": "WAIT_REPLAN",
+      "message": "Fresh physical evidence changed the blocked route",
+      "recovery_episode_id": "0f461fd52ec34b30960460c2621e1ba3",
+      "recovery_phase": "STOP_PROOF",
+      "global_plan_count": 3
+    },
+    {
+      "wall_time": 1793804613.6459,
+      "t": 87.7417,
+      "status": "PLANNING",
+      "message": "Planning to retained goal",
+      "recovery_episode_id": "0f461fd52ec34b30960460c2621e1ba3",
+      "recovery_phase": "GLOBAL",
+      "global_plan_count": 3
+    },
+    {
+      "wall_time": 1793804613.7328,
+      "t": 87.8285,
+      "status": "WAIT_REPLAN",
+      "message": "No safe A* route from (34, 91) to (27, 65); retrying",
+      "recovery_episode_id": "0f461fd52ec34b30960460c2621e1ba3",
+      "recovery_phase": "GLOBAL",
+      "global_plan_count": 4
+    },
+    {
+      "wall_time": 1793804613.7395,
+      "t": 87.8352,
+      "status": "WAIT_REPLAN",
+      "message": "장애물로 주행 대기 · 실제 환경 변화 또는 명시적 재개를 기다립니다.",
+      "recovery_episode_id": "0f461fd52ec34b30960460c2621e1ba3",
+      "recovery_phase": "WAIT_OBSTACLE",
+      "global_plan_count": 4
+    },
+    {
+      "wall_time": 1793804613.7633,
+      "t": 87.8591,
+      "status": "READY",
+      "message": "Measured removal restored the existing safe forward route",
+      "recovery_episode_id": "667f9683e68a4b0fac335f941ce40633",
+      "recovery_phase": "FOLLOW",
+      "global_plan_count": 4
+    }
+  ],
+  "removal_wake": {
+    "box_removed_wall_time": 1793804611.2545583,
+    "remembered_zero_wall_time": 1793804613.574018,
+    "remembered_previous_count": 11,
+    "remembered_removed_indices": [
+      7693,
+      7694,
+      7779,
+      7780,
+      7865,
+      7866,
+      7951,
+      7952,
+      8037,
+      8038,
+      8123
+    ],
+    "producer_memory_clear_latency_seconds": 2.31946,
+    "follow_wall_time": 1793804613.7633,
+    "memory0_to_follow_seconds": 0.189282,
+    "follow_message": "Measured removal restored the existing safe forward route",
+    "first_nonzero_actual_command": {
+      "t": 87.9529,
+      "monotonic": 18785.5153,
+      "wall_time": 1793804613.8572,
+      "kind": "cmd_vel",
+      "linear": 0.00495,
+      "angular": 0.03195
+    },
+    "memory0_to_actual_command_seconds": 0.283182,
+    "first_truth_translation_over5mm": {
+      "t": 88.3314,
+      "monotonic": 18785.8938,
+      "wall_time": 1793804614.2356,
+      "kind": "truth",
+      "x": 0.08637,
+      "y": -0.65601,
+      "yaw": -1.32332
+    },
+    "removal_to_truth_movement_seconds": 2.981042,
+    "interpretation": "Confirmed memory11→0 woke the retained mission and produced actual forward motion; no manual clear_memory or fresh operator goal was required. A same-callback attempted GLOBAL still failed on stale memory before the queued zero-memory update resumed a verified suffix."
+  },
+  "clearance": {
+    "actor_minimum_actual_box_clearance_m": 0.057945779968028605,
+    "independent_sampled_piecewise_static_box_minimum": {
+      "clearance_m": 0.0579438979564216,
+      "truth_wall_time": 1793804609.8175,
+      "box_step": 2,
+      "truth_xy": [
+        0.08504,
+        -0.65032
+      ],
+      "box_xy": [
+        0.4879838979564216,
+        -0.6344779102683288
+      ]
+    },
+    "method": "Distance from recorded truth center to axis-aligned25cm-square box minus22cm circular body, box positions selected by spawn/move event times. Truth is sampled; moving-box interpolation and unseen between-sample extrema are not reconstructed. This is an independent sampled cross-check, not a new collision certificate."
+  },
+  "home": {
+    "reported_map_pose_distance_m": 0.14720540138166474,
+    "ground_truth_check": {
+      "passed": true,
+      "event_at": 1793804708.9951723,
+      "goal": [
+        -0.188431,
+        -0.220497,
+        -0.027514
+      ],
+      "position_tolerance_m": 0.25,
+      "sample_time_delta_s": 0.031,
+      "position_error_m": 0.188,
+      "heading_error_rad": 0.097,
+      "fixture_wall_front_yaw_rad": null,
+      "fixture_wall_normal_error_rad": null,
+      "truth": [
+        -0.00196,
+        -0.24291,
+        0.06989
+      ]
+    },
+    "independent_final_truth": {
+      "t": 183.8781,
+      "monotonic": 18881.4405,
+      "wall_time": 1793804709.7823,
+      "kind": "truth",
+      "x": -0.00195,
+      "y": -0.24291,
+      "yaw": 0.06989
+    },
+    "independent_final_truth_position_error_m": 0.18782307081399768,
+    "stationary_settle_check": {
+      "passed": true,
+      "end_at": 1793804708.9951723,
+      "duration_s": 1.244,
+      "truth_samples": 12,
+      "command_samples": 28,
+      "truth_max_gap_s": 0.112,
+      "command_max_gap_s": 0.064,
+      "max_translation_m": 0.0,
+      "max_heading_rad": 0.0001,
+      "max_command_linear_mps": 0.0,
+      "max_command_angular_rps": 0.0
+    },
+    "interpretation": "Home is PASS under the existing25cm truth acceptance tolerance. Actual final truth error is about18.8cm, not the14.7cm AMCL/map-pose estimate; this does not establish centimeter docking accuracy."
+  },
+  "source_provenance": {
+    "recorded_source_entries_before": 213,
+    "recorded_source_entries_after": 213,
+    "recorded_before_equals_after": true,
+    "source_mapping_before_sha256": "fc28f203e9ef9d54f94983cdd4f1e5271ea0dabc0336539f906abc4689b716b2",
+    "source_mapping_after_sha256": "fc28f203e9ef9d54f94983cdd4f1e5271ea0dabc0336539f906abc4689b716b2",
+    "critical_runtime_sha256": {
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "08531cb3b3c362dbed2635ea9d0b75e79b407b7aa3f4464eab756a0bb813f92a",
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/command_ramp.py": "86a59410dd034f2a9329066482e7240249d8d2fa4792219dc49f75a9ba4619cb",
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py": "aa2c11a5bf12386f8e8983763d07a53e45ce7ee167ca07c77518fdc08f1a976f",
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": "1b551fabf3b1c02aea64a4a9c9d012c69bc3bccfcaa995be90a5e88f99edcca4",
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/recovery_episode.py": "98cecd86e1438e29f5228ecd637a8456dbc901368fa7b4b51f758761bcc5ec44",
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/reverse_recovery.py": "97f3c21f4c77b9eac7452451d52e69bda6cb7c5aae9dac874e02eb1f1819f46d"
+    },
+    "official_profile_sources": {
+      "nav": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml",
+      "nodes": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml"
+    },
+    "note": "Source hashes are taken from the completed staged report, not retroactively inferred from the analysis checkout. The report file hash above anchors the complete213-entry mapping."
+  },
+  "limitations": [
+    "Single same-scene Gazebo trial; no real robot retest or reliability claim.",
+    "Published planner phases are event samples; synchronous LOCAL work can be absent from the timeline. Source review plus preceding successful local repair records supports priority, but this file does not invent unsampled callback timestamps.",
+    "The detailed first BackUp CollisionAhead cause is a separate costmap/footprint reconstruction. No collision gate, body radius, or rear margin has been relaxed.",
+    "The motion guard remained CLEAR in sampled motion_status; zero actual output alone is not evidence of a motion-mux guard stop."
+  ]
+}

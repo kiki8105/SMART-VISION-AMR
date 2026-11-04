@@ -1,0 +1,14 @@
+{
+  "source": "ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml",
+  "source_sha256": "50ad86d4c404a8028f857b29208a5769b38dbc10f449f19a05533a00611826f6",
+  "candidate_sha256": "8129c19a4c79106dc49bbb5c87b44ee62c0ebf33b083e52f651e8c744c27ba0a",
+  "differences": [
+    {
+      "parameter": "/local_costmap/local_costmap/ros__parameters/resolution",
+      "baseline": 0.05,
+      "candidate": 0.025
+    }
+  ],
+  "status": "EXPERIMENT_NOT_PROMOTED",
+  "physical_radius_changed": false
+}

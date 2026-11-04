@@ -1,0 +1,58 @@
+{
+  "stages": [
+    {
+      "stage": "25_web_inventory_sector3_moving_obstacle",
+      "outcome": "FAIL",
+      "reasons": [
+        "verifier_failed",
+        "sector_route_and_home_not_completed",
+        "sector_3_five_second_dwell_unverified",
+        "sector_3_aruco_unverified",
+        "sector_3_rear_camera_center_unverified",
+        "sector_3_excessive_marker_search_rotation",
+        "sector_3_rear_camera_frame_missing",
+        "3_gazebo_truth_unverified",
+        "home_gazebo_truth_unverified",
+        "sector_3_independent_dwell_unverified",
+        "home_independent_settle_unverified",
+        "web_obstacle_injector_failed",
+        "web_obstacle_bypassed_while_live_unverified",
+        "web_red_obstacle_clearance_unverified",
+        "inventory_delivery_completion_unverified",
+        "runner_nonzero_exit"
+      ],
+      "mission_backend_passed": false,
+      "final_state": "PAUSED",
+      "cold_start_proof": {
+        "passed": true,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend",
+        "before": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 0,
+          "map_tf_messages": 0,
+          "web_pose": null,
+          "observed_seconds": 6.233062287999928
+        },
+        "after": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 3,
+          "map_tf_messages": 1
+        }
+      },
+      "prearm_passed": true,
+      "source_unchanged": true,
+      "actor_moving_steps": 4,
+      "actor_bypassed_while_live": false,
+      "actor_minimum_clearance_m": 0.0804437363600167,
+      "safety_passed": true,
+      "safety_violations": [],
+      "transient": null,
+      "physical_drive": false,
+      "visual_browser_qa": false
+    }
+  ],
+  "passed": false
+}

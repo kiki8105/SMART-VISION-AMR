@@ -1,0 +1,195 @@
+{
+  "scope": "First actual local025 reverse refusal: pure recorded-cell/source replay.",
+  "counts": {
+    "observed": 24,
+    "memory": 11,
+    "conservative_dynamic": 422
+  },
+  "first_return": [
+    {
+      "line": 247,
+      "start_clearance_m": 0.21068085294919872,
+      "required_m": 0.23500000000000001,
+      "returned_none": true
+    }
+  ],
+  "candidate": "None",
+  "goal_oracle_calls": [],
+  "closest_raw_cells": [
+    {
+      "cell": [
+        39,
+        90
+      ],
+      "distance_m": 0.21068085294919886,
+      "observed": true,
+      "remembered": true
+    },
+    {
+      "cell": [
+        39,
+        89
+      ],
+      "distance_m": 0.21071969640567675,
+      "observed": false,
+      "remembered": true
+    },
+    {
+      "cell": [
+        39,
+        91
+      ],
+      "distance_m": 0.2156344325987471,
+      "observed": true,
+      "remembered": true
+    },
+    {
+      "cell": [
+        39,
+        92
+      ],
+      "distance_m": 0.23150297317975585,
+      "observed": true,
+      "remembered": true
+    },
+    {
+      "cell": [
+        39,
+        93
+      ],
+      "distance_m": 0.25629874104245964,
+      "observed": true,
+      "remembered": true
+    },
+    {
+      "cell": [
+        40,
+        90
+      ],
+      "distance_m": 0.2606808529491987,
+      "observed": true,
+      "remembered": true
+    }
+  ],
+  "independent_chord_screen": [
+    {
+      "distance": 0.1,
+      "minimum_raw_clearance": 0.21068085294919872,
+      "endpoint": [
+        34,
+        92
+      ],
+      "outside_full_inflation": false,
+      "goal_route_cells": 0
+    },
+    {
+      "distance": 0.11,
+      "minimum_raw_clearance": 0.21068085294919872,
+      "endpoint": [
+        34,
+        92
+      ],
+      "outside_full_inflation": false,
+      "goal_route_cells": 0
+    },
+    {
+      "distance": 0.12,
+      "minimum_raw_clearance": 0.21068085294919872,
+      "endpoint": [
+        34,
+        92
+      ],
+      "outside_full_inflation": false,
+      "goal_route_cells": 0
+    },
+    {
+      "distance": 0.125,
+      "minimum_raw_clearance": 0.21068085294919872,
+      "endpoint": [
+        34,
+        92
+      ],
+      "outside_full_inflation": false,
+      "goal_route_cells": 0
+    },
+    {
+      "distance": 0.15,
+      "minimum_raw_clearance": 0.21068085294919872,
+      "endpoint": [
+        34,
+        93
+      ],
+      "outside_full_inflation": false,
+      "goal_route_cells": 0
+    },
+    {
+      "distance": 0.175,
+      "minimum_raw_clearance": 0.21068085294919872,
+      "endpoint": [
+        34,
+        93
+      ],
+      "outside_full_inflation": false,
+      "goal_route_cells": 0
+    },
+    {
+      "distance": 0.2,
+      "minimum_raw_clearance": 0.21068085294919872,
+      "endpoint": [
+        34,
+        94
+      ],
+      "outside_full_inflation": false,
+      "goal_route_cells": 0
+    },
+    {
+      "distance": 0.225,
+      "minimum_raw_clearance": 0.21068085294919872,
+      "endpoint": [
+        34,
+        94
+      ],
+      "outside_full_inflation": false,
+      "goal_route_cells": 0
+    },
+    {
+      "distance": 0.25,
+      "minimum_raw_clearance": 0.21068085294919872,
+      "endpoint": [
+        34,
+        95
+      ],
+      "outside_full_inflation": false,
+      "goal_route_cells": 0
+    },
+    {
+      "distance": 0.275,
+      "minimum_raw_clearance": 0.21068085294919872,
+      "endpoint": [
+        34,
+        95
+      ],
+      "outside_full_inflation": false,
+      "goal_route_cells": 0
+    },
+    {
+      "distance": 0.3,
+      "minimum_raw_clearance": 0.21068085294919872,
+      "endpoint": [
+        34,
+        96
+      ],
+      "outside_full_inflation": false,
+      "goal_route_cells": 0
+    }
+  ],
+  "source_sha256": {
+    "benchmarks/driving_parameter_tuning_20261104/backup_start_rejection_20261105/fixture.json": "41107e6dd8977a02f660ea25dbf9a6e8313e9e32f54863e111574dfc7d0a8cd5",
+    "ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/reverse_recovery.py": "97f3c21f4c77b9eac7452451d52e69bda6cb7c5aae9dac874e02eb1f1819f46d"
+  },
+  "limitations": [
+    "Cell/source reconstruction matches actual24observed/11memory/422conservative mask; no ROS/node/drive started.",
+    "First return is current raw occupied square clearance, before historical polyline, monotonicity, gain or goal-oracle evaluation."
+  ]
+}

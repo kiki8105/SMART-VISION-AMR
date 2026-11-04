@@ -1,0 +1,88 @@
+{
+  "scope": "Offline fixed actor topology gate, fake fresh messages; not ROS/Gazebo/closed-loop execution",
+  "input_sha256": {
+    "ros2_ws/src/smart_vision_amr/test/fixtures/occlusion_reserve_inflation022_20261104.json": "565aac5d03ad4c8570c3d89da17e6208c6c23c798c272955095cee49a52b74a2",
+    "scripts/inject_classroom_web_obstacle.py": "66e046248ee8931054c33dafbf2d1775681cdeeba631d41cfad9849f8c78f001",
+    "ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761"
+  },
+  "scene": {
+    "source_path": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/benchmarks/driving_parameter_tuning_20261104/scenarios/baseline_sector3_box.json",
+    "sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+    "scenario": {
+      "x": 0.5239140050447512,
+      "y": -0.599706838892526,
+      "path_tangent": [
+        0.6954214275160555,
+        -0.7186021417665909
+      ],
+      "movement_side": -1
+    },
+    "actor_positions_by_step": [
+      [
+        0.5239140050447512,
+        -0.599706838892526
+      ],
+      [
+        0.5059489515005864,
+        -0.6170923745804273
+      ],
+      [
+        0.4879838979564216,
+        -0.6344779102683288
+      ],
+      [
+        0.47001884441225683,
+        -0.6518634459562301
+      ],
+      [
+        0.45205379086809205,
+        -0.6692489816441315
+      ]
+    ],
+    "box_size_m": [
+      0.25,
+      0.25,
+      0.5
+    ],
+    "mode": "FIXED_NO_RELOCATION"
+  },
+  "diagnostics": {
+    "reason": "FIXED_FEASIBLE_BYPASS",
+    "input_status": "VALID",
+    "geometric_candidates": 1,
+    "topology_candidates_tried": 1
+  },
+  "candidate": {
+    "x": 0.5239140050447512,
+    "y": -0.599706838892526,
+    "path_tangent": [
+      0.6954214275160555,
+      -0.7186021417665909
+    ],
+    "index": 16,
+    "robot_distance_m": 0.8069916406785773,
+    "static_wall_distance_m": 0.2018436472418978,
+    "approach_along_path_m": -0.7678809826992856,
+    "base_path_xy": [
+      0.3083,
+      -0.8083
+    ],
+    "lateral_offset_m": 0.3000008396874769,
+    "preflight": {
+      "route_cells_by_step": [
+        82,
+        82,
+        83,
+        84,
+        84
+      ],
+      "movement_side": -1,
+      "initial_centerline_clearance_m": -0.0968,
+      "robot_radius": 0.22,
+      "obstacle_inflation_cells": 5
+    },
+    "robot_radius": 0.22,
+    "initial_path_clearance_m": -0.09681693148246993
+  },
+  "closed_loop_status": "NOT_TESTED"
+}

@@ -1,0 +1,635 @@
+{
+  "trial": "common_coherent_no_live_bypass",
+  "original_verdict": {
+    "stage": "FAIL",
+    "reasons": [
+      "web_obstacle_injector_failed",
+      "web_obstacle_bypassed_while_live_unverified",
+      "runner_nonzero_exit"
+    ],
+    "backend": true,
+    "final_state": "HOME_REACHED",
+    "actor": false,
+    "actor_four_moves": 4,
+    "actor_live_bypass": false,
+    "actor_minimum_truth_body_gap_m": 0.08271580104938839,
+    "stop_safety": true,
+    "stop_violations": []
+  },
+  "cold_start": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "launch_prior_query": {
+      "service": "/amcl/get_parameters",
+      "parameter": "set_initial_pose",
+      "max_attempts": 3,
+      "per_attempt_timeout_s": 5.0,
+      "attempts": [
+        {
+          "attempt": 1,
+          "timeout_s": 5.0,
+          "elapsed_s": 0.37070261199914967,
+          "outcome": "parameter_observed",
+          "value": false
+        }
+      ],
+      "outcome": "parameter_observed",
+      "attempt_count": 1,
+      "elapsed_s": 3.629472189997614
+    },
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 6.59596127199984
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 3,
+      "map_tf_messages": 1
+    }
+  },
+  "home": {
+    "target": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "yaw": -0.027514
+    },
+    "backend_estimated_distance_m": 0.1653273847418363,
+    "actual_truth": {
+      "t": 190.1122,
+      "monotonic": 30771.3096,
+      "wall_time": 1793816599.6515,
+      "kind": "truth",
+      "x": -0.00882,
+      "y": -0.23301,
+      "yaw": 0.08192
+    },
+    "truth_sample_offset_s": -0.039826154708862305,
+    "actual_truth_distance_m": 0.1800463453947344,
+    "stationary_verified": true,
+    "interpretation": "HOME_REACHED is not exact docking: backend16.53cm, actualtruth18.00cm from registered Home. Original settle/QA verdict preserved."
+  },
+  "source_and_model": {
+    "source_unchanged": true,
+    "astar_sha256": "ee656f4e5eae08003e2db253bdd5e67cb1cf697fb64005bd8e9fd4ed4be300a6",
+    "cold_verifier_sha256": "87cd470ed7e4f696068c45c73ac2bf8bf05c63a0cc2f3fce88de5177417c9a0d",
+    "physical_robot_touched": false,
+    "body_radius_m": 0.22,
+    "serialized_actual_sensor_rates_hz": {
+      "tb3_imu": 20.0,
+      "hls_lfcd_lds": 10.0,
+      "rear_camera": 5.0,
+      "joint_state": 20.0
+    },
+    "wheel_collision_radius_m": {
+      "wheel_left_collision": 0.033,
+      "wheel_right_collision": 0.033
+    },
+    "camera": {
+      "layout": "classroom_rear_physical",
+      "front_enabled": false,
+      "rear_width": 320,
+      "rear_height": 240,
+      "rear_fps": 5.0
+    },
+    "memory_session": true,
+    "scan_filter": false,
+    "nav2": {
+      "plugin": "smart_vision_amr_dwb::RouteTrackingDWB",
+      "max_vel_x": 0.22,
+      "max_vel_theta": 0.5,
+      "moving_turn_max_angular": 0.35,
+      "acc_lim_x": 0.2,
+      "acc_lim_theta": 0.8,
+      "decel_lim_x": -0.4,
+      "decel_lim_theta": -1.6,
+      "route_horizon_distance": 0.55
+    },
+    "local_costmap": {
+      "robot_radius": 0.22,
+      "footprint_padding": 0.0,
+      "resolution": 0.05
+    },
+    "astar_robot_radius_m": 0.22,
+    "reverse_clearance_margin_m": 0.0,
+    "neutral_egress_enabled": false
+  },
+  "actual_reverse_successes": [
+    {
+      "request": {
+        "t": 28.6696,
+        "monotonic": 30609.867,
+        "wall_time": 1793816438.2088,
+        "kind": "recovery_request",
+        "payload": {
+          "goal_id": "7:820000000",
+          "episode_id": "3a81cf38ada149aeaf20c19f6d97d15c",
+          "source_path_stamp": {
+            "sec": 12,
+            "nanosec": 900000000
+          },
+          "distance": 0.10293434115367642,
+          "speed": 0.1,
+          "reason": "Local repair unavailable; verified recent retreat before global replanning",
+          "recovery_trigger": "blocked_active_route",
+          "start_cell": [
+            32,
+            95
+          ],
+          "exit_cell": [
+            30,
+            97
+          ],
+          "blocking_cells": [
+            [
+              37,
+              94
+            ]
+          ],
+          "certified_start": {
+            "frame_id": "odom",
+            "child_frame_id": "base_footprint",
+            "stamp_ns": 13699000000,
+            "x": 0.20396250677650302,
+            "y": -0.21264113307181567,
+            "yaw": -0.8583094915958634,
+            "certified_at_ns": 13699000000,
+            "max_position_drift_m": 0.003,
+            "max_yaw_drift_rad": 0.01,
+            "sweep_reserve_m": 0.01,
+            "map_frame": "map",
+            "map_base_frame": "base_footprint",
+            "map_x": -0.04382850253635148,
+            "map_y": -0.4621681993806924,
+            "map_yaw": -0.8491398243053561,
+            "map_stamp_ns": 13699000000
+          }
+        }
+      },
+      "terminal": {
+        "t": 30.1822,
+        "monotonic": 30611.3796,
+        "wall_time": 1793816439.7214,
+        "kind": "navigation",
+        "status": "RECOVERY_SUCCEEDED",
+        "goal": {
+          "x": -0.25,
+          "y": -1.98,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 7,
+          "nanosec": 820000000
+        },
+        "input_hold": null,
+        "manual_stop": false,
+        "route_failure": null,
+        "local_detour_state": null,
+        "message": "Checked reverse completed; replan retained goal",
+        "details": {
+          "path_stamp": null,
+          "episode_id": "3a81cf38ada149aeaf20c19f6d97d15c",
+          "stop_stamp": null
+        }
+      },
+      "negative_command_count": 35,
+      "min_command_linear_mps": -0.1,
+      "actual_truth_displacement_m": 0.11581992272489224,
+      "truth_start": {
+        "t": 28.6239,
+        "monotonic": 30609.8213,
+        "wall_time": 1793816438.1631,
+        "kind": "truth",
+        "x": 0.01183,
+        "y": -0.44008,
+        "yaw": -0.88569
+      },
+      "truth_end": {
+        "t": 30.1999,
+        "monotonic": 30611.3973,
+        "wall_time": 1793816439.7391,
+        "kind": "truth",
+        "x": -0.06145,
+        "y": -0.35039,
+        "yaw": -0.88573
+      },
+      "scope": "truth samples nearest request/terminal, not exact stopping-distance assessment"
+    },
+    {
+      "request": {
+        "t": 89.6346,
+        "monotonic": 30670.8319,
+        "wall_time": 1793816499.1738,
+        "kind": "recovery_request",
+        "payload": {
+          "goal_id": "7:820000000",
+          "episode_id": "d219ed81b2e243ef890754bc17ed2e03",
+          "source_path_stamp": {
+            "sec": 18,
+            "nanosec": 380000001
+          },
+          "distance": 0.1245149113601788,
+          "speed": 0.1,
+          "reason": "Local repair unavailable; verified recent retreat before global replanning",
+          "recovery_trigger": "blocked_active_route",
+          "start_cell": [
+            36,
+            81
+          ],
+          "exit_cell": [
+            34,
+            82
+          ],
+          "blocking_cells": [],
+          "certified_start": {
+            "frame_id": "odom",
+            "child_frame_id": "base_footprint",
+            "stamp_ns": 69830000000,
+            "x": 0.42140661716643124,
+            "y": -0.8746853359324388,
+            "yaw": -0.07778158257348933,
+            "certified_at_ns": 69830000000,
+            "max_position_drift_m": 0.003,
+            "max_yaw_drift_rad": 0.01,
+            "sweep_reserve_m": 0.01,
+            "map_frame": "map",
+            "map_base_frame": "base_footprint",
+            "map_x": 0.17435232951906435,
+            "map_y": -1.151765399937319,
+            "map_yaw": -0.10794989791271625,
+            "map_stamp_ns": 69830000000
+          }
+        }
+      },
+      "terminal": {
+        "t": 91.461,
+        "monotonic": 30672.6584,
+        "wall_time": 1793816501.0003,
+        "kind": "navigation",
+        "status": "RECOVERY_SUCCEEDED",
+        "goal": {
+          "x": -0.25,
+          "y": -1.98,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 7,
+          "nanosec": 820000000
+        },
+        "input_hold": null,
+        "manual_stop": false,
+        "route_failure": null,
+        "local_detour_state": null,
+        "message": "Checked reverse completed; replan retained goal",
+        "details": {
+          "path_stamp": null,
+          "episode_id": "d219ed81b2e243ef890754bc17ed2e03",
+          "stop_stamp": null
+        }
+      },
+      "negative_command_count": 42,
+      "min_command_linear_mps": -0.1,
+      "actual_truth_displacement_m": 0.13179263598547528,
+      "truth_start": {
+        "t": 89.6504,
+        "monotonic": 30670.8478,
+        "wall_time": 1793816499.1897,
+        "kind": "truth",
+        "x": 0.20758,
+        "y": -1.10814,
+        "yaw": -0.12068
+      },
+      "truth_end": {
+        "t": 91.4453,
+        "monotonic": 30672.6427,
+        "wall_time": 1793816500.9846,
+        "kind": "truth",
+        "x": 0.07675,
+        "y": -1.09224,
+        "yaw": -0.12096
+      },
+      "scope": "truth samples nearest request/terminal, not exact stopping-distance assessment"
+    }
+  ],
+  "actor_recovery_count_scope": "actor reports1 live recovery; independent fulltimeline has2 ownedsuccessful reverses including1 after removal.",
+  "owned_tracking": {
+    "path_stamp_ns": 18380000001,
+    "path_points": 104,
+    "following_interval_t": [
+      37.4075,
+      47.6436
+    ],
+    "sample_count": 93,
+    "maximum_direct_truth_xte_m": 0.06843662563790973,
+    "maximum_latest_received_tf_composition_xte_m": 0.03895273539848787,
+    "max_truth_sample": {
+      "t": 43.7475,
+      "wall_time": 1793816453.2868,
+      "truth": [
+        -0.07859,
+        -0.94842,
+        -0.98494
+      ],
+      "estimated_latest_tf_composition": [
+        -0.13022323201824426,
+        -0.9576856650638104,
+        -0.97662
+      ],
+      "truth_projection": {
+        "xte_m": 0.06843662563790973,
+        "progress_m": 0.6103424726844896,
+        "segment": 15,
+        "xy": [
+          -0.14115559543452902,
+          -0.9761529766997026
+        ]
+      },
+      "estimate_projection": {
+        "xte_m": 0.017478116999507246,
+        "progress_m": 0.5978896177879441,
+        "segment": 15,
+        "xy": [
+          -0.1462019391353115,
+          -0.9647684253107374
+        ]
+      },
+      "map_tf_receipt_age_s": 0.041699886322021484,
+      "odom_tf_receipt_age_s": 0.002199888229370117
+    },
+    "stalled_authoritative_pose": {
+      "planner_t": 48.677,
+      "fresh_pose": [
+        0.17983426709884415,
+        -1.155173578011551,
+        -0.11498289947186202
+      ],
+      "truth": {
+        "t": 48.6427,
+        "monotonic": 30629.8401,
+        "wall_time": 1793816458.182,
+        "kind": "truth",
+        "x": 0.20716,
+        "y": -1.10808,
+        "yaw": -0.1214
+      },
+      "truth_projection": [
+        0.013252726153045185,
+        1.0055074308791483,
+        26,
+        [
+          0.20631355726942446,
+          -1.1213056676652433
+        ]
+      ],
+      "estimate_projection": [
+        0.03546722899845854,
+        0.981151085468323,
+        25,
+        [
+          0.182005510443378,
+          -1.119772871307194
+        ]
+      ]
+    },
+    "limitations": [
+      "Estimated series composes last-received map/odomTF, not exact historic tf2 interpolation.",
+      "Truth-vs-map path difference includes localization/world registration error.",
+      "No14cm estimated-XTE recurrence is established by this interval."
+    ]
+  },
+  "main_wait_cause": {
+    "at_t": 48.677,
+    "current_pose": [
+      0.17983426709884415,
+      -1.155173578011551,
+      -0.11498289947186202
+    ],
+    "start_cell": [
+      36,
+      81
+    ],
+    "measured_dynamic_cells": 250,
+    "virtual_dynamic_cells": 46,
+    "fullcell_neighbor_masks": [
+      {
+        "cell": [
+          35,
+          80
+        ],
+        "static": true,
+        "measured": false,
+        "conservative": false,
+        "virtual_only": false
+      },
+      {
+        "cell": [
+          35,
+          81
+        ],
+        "static": true,
+        "measured": false,
+        "conservative": false,
+        "virtual_only": false
+      },
+      {
+        "cell": [
+          35,
+          82
+        ],
+        "static": false,
+        "measured": true,
+        "conservative": true,
+        "virtual_only": false
+      },
+      {
+        "cell": [
+          36,
+          80
+        ],
+        "static": true,
+        "measured": false,
+        "conservative": false,
+        "virtual_only": false
+      },
+      {
+        "cell": [
+          36,
+          82
+        ],
+        "static": false,
+        "measured": true,
+        "conservative": true,
+        "virtual_only": false
+      },
+      {
+        "cell": [
+          37,
+          80
+        ],
+        "static": true,
+        "measured": false,
+        "conservative": false,
+        "virtual_only": false
+      },
+      {
+        "cell": [
+          37,
+          81
+        ],
+        "static": true,
+        "measured": false,
+        "conservative": false,
+        "virtual_only": false
+      },
+      {
+        "cell": [
+          37,
+          82
+        ],
+        "static": false,
+        "measured": true,
+        "conservative": true,
+        "virtual_only": false
+      }
+    ],
+    "nearest_static_center_clearance_m": 0.24482636461897833,
+    "nearest_observed_center_clearance_m": 0.2559692284068832,
+    "nearest_memory_center_clearance_m": 0.3051736435766603,
+    "body_radius_m": 0.22,
+    "retained_suffix_raw_fullcell_body_gap": {
+      "minimum_m": 0.00046232394639397767,
+      "segment": 1,
+      "from": [
+        0.182005510443378,
+        -1.119772871307194
+      ],
+      "to": [
+        0.1906,
+        -1.1203
+      ],
+      "scope": "All raw static/unknown plus same independent observed11+memory23 snapshot; no transform uncertainty or tracking margin; no currentplan authorization."
+    },
+    "reverse_physical_candidate_if_goal_oracle_forced_true": [
+      {
+        "line": 356,
+        "returned": "ReverseCandidate(distance_m=0.12428917141822221, target_x=0.05636580859948623, target_y=-1.1409139185618813, target_cell=(34, 82), start_clearance_m=0.24482636461897833, target_clearance_m=0.25908602406864834, breadcrumb_count=6)",
+        "locals": {
+          "start_clearance": 0.24482636461897833,
+          "required": 0.23500000000000001,
+          "focused": [],
+          "parallel_static_egress": true,
+          "clearance_neutral_egress": false,
+          "segment": 0.030475479723710848,
+          "backward_distance": 0.12428917141822221,
+          "lateral_error": 0.01532256375012539,
+          "clearance": 0.25908602406864834,
+          "progress_clearance": 0.25908602406864834,
+          "previous_progress_clearance": 0.2665821145095043,
+          "gain": 0.021755749890525977,
+          "cell": [
+            34,
+            82
+          ],
+          "target_x": 0.05636580859948623,
+          "target_y": -1.1409139185618813,
+          "used": 6
+        }
+      }
+    ],
+    "retained_goal_measured_only_routes": {
+      "from_30_82": 0,
+      "from_31_82": 0,
+      "from_32_82": 0,
+      "from_33_82": 0,
+      "from_34_82": 0,
+      "goal": [
+        27,
+        65
+      ]
+    },
+    "interpretation": [
+      "Static5cell mask closes5neighbors; fresh observed37,87 full-cell mask closesother3.",
+      "Continuous raw-safe retreat exists in weaker oracleTrue replay, but retained-goal A* stillhasNoPath withvirtualreserve entirelyremoved. NO_SAFE_EGRESS is not proof that historicalyaw/neutralFalse failed.",
+      "Retained smoothed forward suffix has only0.46mm rawmappedbodygap. This is no robust authorization to ignore rawcells or release the old suffix.",
+      "Freshpose/health/stop were valid; body/trail missing and old TFfuture certificate churn are not the observed mainwait cause."
+    ],
+    "snapshot_limit": "Observed11 frame is independently received1.659ms before reconstructed planner receipt; all8loggedneighbor masks and250measured count match, not claimed bit-for-bit internalDDS capture.",
+    "raw_ray_provenance_limit": "The trial flightrecorder incident182021 captures startup only (configured post5s, actual capture ending before mission). Full raw ranges/acquisition TF for observed37,87 at the mainwait are unavailable in that artifact. Fresh observed delivery and matching hardmask are established; phantom/ghost or emittingobject is not established."
+  },
+  "mission_continuity": {
+    "samples": 810,
+    "route_preserved": true,
+    "completed_prefix_valid": true,
+    "states": {
+      "NAVIGATING": 306,
+      "WAIT_REPLAN": 239,
+      "CONFIRMING": 28,
+      "DWELLING": 22,
+      "RETURNING_HOME": 208,
+      "HOME_REACHED": 7
+    },
+    "web_wait_replan_seen": true,
+    "start_event_count": 1,
+    "cancel_event_count": 0,
+    "marker_confirmations": {
+      "3": 1
+    }
+  },
+  "limitations": [
+    "Overall FAIL retained despite backend/Home/stop PASS.",
+    "No actual physical robot drive or visual browser QA.",
+    "Source rates and simulated geometry do not calibrate physical lidar/AMCL/traction.",
+    "No runtime, QA, Spinbudget, bodyradius, or actorgeometry change made by this audit."
+  ],
+  "input_hashes": {
+    "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_no_live_bypass/staged_report.json": {
+      "sha256": "0badccadd06d482996b25c2fa6900522ada5c98a941e7b40ed65f342297b955d",
+      "bytes": 58899
+    },
+    "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_no_live_bypass/25_web_inventory_sector3_moving_obstacle/acceptance.json": {
+      "sha256": "b8ff4d117bad7889405e309fedbd812d52ea3cc97a786e2d1c92e64a2d252b5a",
+      "bytes": 236108
+    },
+    "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_no_live_bypass/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json": {
+      "sha256": "5e30a3d89bdb200c0c652ef0dddfd9bbb9039a19d88b54af56ed721ff5900932",
+      "bytes": 9898
+    },
+    "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_no_live_bypass/25_web_inventory_sector3_moving_obstacle/safety_assessment.json": {
+      "sha256": "cbc733dee2010d2281c38fd3255625616374a8d69e36d4e8a1fa83a51b23a241",
+      "bytes": 5562
+    },
+    "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_no_live_bypass/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json": {
+      "sha256": "5f5be114b6d89d152648fa320af3b67beb72ab5906e76202d0196eaf0f1dafe7",
+      "bytes": 4922
+    },
+    "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_no_live_bypass/25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf": {
+      "sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "bytes": 14319
+    },
+    "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_no_live_bypass/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml": {
+      "sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "bytes": 3873
+    },
+    "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_no_live_bypass/25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml": {
+      "sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "bytes": 11396
+    },
+    "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_no_live_bypass/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl.gz": {
+      "sha256": "bea9e41b3d3e7043cf73e4a918a8d1da268107f24f99e74cc1ba566ecd2f0380",
+      "bytes": 708712
+    },
+    "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_no_live_bypass/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl.gz": {
+      "sha256": "10371e0bec3815e7565f0a1116eab0a5135d963a60b2ed8d60d0771f37eab034",
+      "bytes": 39833
+    },
+    "ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm": {
+      "sha256": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+      "bytes": 12054
+    }
+  }
+}

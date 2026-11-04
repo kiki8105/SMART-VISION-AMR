@@ -1,0 +1,99 @@
+{
+  "all_passed": true,
+  "cases": [
+    {
+      "case": "straight",
+      "passed": true,
+      "errors": [],
+      "command_count": 5,
+      "evaluation_count": 5,
+      "max_linear": 0.18526315789473682,
+      "max_abs_angular": 0.0
+    },
+    {
+      "case": "corner",
+      "passed": true,
+      "errors": [],
+      "command_count": 5,
+      "evaluation_count": 5,
+      "max_linear": 0.09263157894736841,
+      "max_abs_angular": 0.3205128205128206
+    },
+    {
+      "case": "obstacle",
+      "passed": true,
+      "errors": [],
+      "command_count": 5,
+      "evaluation_count": 5,
+      "max_linear": 0.05789473684210526,
+      "max_abs_angular": 0.0
+    },
+    {
+      "case": "arrival",
+      "passed": true,
+      "errors": [],
+      "command_count": 2,
+      "evaluation_count": 1,
+      "max_linear": 0.0,
+      "max_abs_angular": 0.0
+    },
+    {
+      "case": "footprint_obstacle",
+      "passed": true,
+      "errors": [],
+      "command_count": 5,
+      "evaluation_count": 5,
+      "max_linear": 0.18526315789473682,
+      "max_abs_angular": 0.012820512820512706
+    },
+    {
+      "case": "incident_original",
+      "passed": true,
+      "errors": [],
+      "command_count": 8,
+      "evaluation_count": 9,
+      "max_linear": 0.0,
+      "max_abs_angular": 0.2727272727272727
+    },
+    {
+      "case": "incident_fixed",
+      "passed": true,
+      "errors": [],
+      "command_count": 8,
+      "evaluation_count": 8,
+      "max_linear": 0.10421052631578946,
+      "max_abs_angular": 0.06410256410256399
+    }
+  ],
+  "scope": "real Nav2 DWB with frozen loopback inputs; not a closed-loop driving pass",
+  "footprint": {
+    "robot_radius_m": 0.2,
+    "footprint_padding_m": 0.0,
+    "local_and_global_inflation_radius_m": 0.2,
+    "published_vertices": 16,
+    "published_vertex_radius_min_m": 0.19999999704651872,
+    "published_vertex_radius_max_m": 0.20000000922120034,
+    "critic": "ObstacleFootprint",
+    "critic_scale": 0.02
+  },
+  "near_box": {
+    "box_m": [
+      0.215,
+      0.375,
+      0.465,
+      0.625
+    ],
+    "nominal_centerline_body_clearance_m": 0.015,
+    "old_invalid_by_critic": {
+      "CommandEnvelope": 344
+    },
+    "new_invalid_by_critic": {
+      "CommandEnvelope": 344,
+      "ObstacleFootprint": 2
+    },
+    "new_valid_count": 452,
+    "new_forward_valid_count": 269,
+    "interpretation": "Whole-body border rejects two collision candidates that center-cell critic accepts; 15mm gap remains traversable in frozen controller inputs. This does not establish closed-loop 2cm clearance."
+  },
+  "selection_reason": "Scale0.5 delayed normal progress in captured integrated-route costmap. Scale0.02 restores forward candidates while the full-body collision-rejected candidate set is unchanged; see controller_footprint_soft_cost_ab_20261104."
+}

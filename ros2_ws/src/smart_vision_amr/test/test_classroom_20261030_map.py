@@ -15,8 +15,10 @@ import yaml
 
 from smart_vision_amr.web_mission_server import load_saved_map
 from smart_vision_amr.astar import AStarPlanner
+from smart_vision_amr.clearance_cost import clearance_penalties
 from smart_vision_amr.map_utils import (
     inflate_cells_circular, occupancy_to_grid, world_to_cell)
+from smart_vision_amr.path_geometry import resample_path, smooth_grid_path
 
 
 PACKAGE = Path(__file__).resolve().parents[1]
@@ -83,11 +85,11 @@ class Classroom20261030MapTests(unittest.TestCase):
         metadata, data = load_saved_map(MAPS / 'classroom_20261030_cleaned.yaml')
         settings = yaml.safe_load((PACKAGE / 'config/classroom_hardware_nodes.yaml').read_text())[
             '/astar_planner']['ros__parameters']
-        # The measured physical envelope needs four 5 cm cells. The stock
+        # The requested 22 cm body needs five full-cell 5 cm inflation cells. The stock
         # Gazebo Waffle Pi collision box reaches 23.7 cm, so its generated
         # simulation profile retains five cells on this same map.
-        self.assertEqual(settings['robot_radius'], 0.17)
-        self.assertEqual(settings['obstacle_inflation_cells'], 4)
+        self.assertEqual(settings['robot_radius'], 0.22)
+        self.assertEqual(settings['obstacle_inflation_cells'], 5)
         gazebo_inflation_cells = 5
         origin = metadata['origin']
         info = SimpleNamespace(
@@ -117,6 +119,51 @@ class Classroom20261030MapTests(unittest.TestCase):
                     self.assertEqual(path[0], cells[start_id])
                     self.assertEqual(path[-1], cells[goal_id])
                     self.assertTrue(all(not grid.is_static_obstacle(cell) for cell in path))
+
+    def test_home_sector3_sector2_sector1_home_sweep_clears_raw_map_squares(self):
+        """Exercise the requested physical route and certify its full sweep."""
+        metadata, data = load_saved_map(MAPS / 'classroom_20261030_cleaned.yaml')
+        settings = yaml.safe_load((PACKAGE / 'config/classroom_hardware_nodes.yaml').read_text())[
+            '/astar_planner']['ros__parameters']
+        origin = metadata['origin']
+        resolution = metadata['resolution']
+        info = SimpleNamespace(
+            width=metadata['width'], height=metadata['height'], resolution=resolution,
+            origin=SimpleNamespace(
+                position=SimpleNamespace(x=origin['x'], y=origin['y']),
+                orientation=SimpleNamespace(x=0., y=0., z=sin(origin['yaw']/2),
+                                            w=cos(origin['yaw']/2))))
+        message = SimpleNamespace(info=info, data=data.ravel().tolist())
+        grid = occupancy_to_grid(
+            message, settings['occupied_threshold'], settings['obstacle_inflation_cells'])
+        raw_grid = occupancy_to_grid(message, settings['occupied_threshold'], 0)
+        costs = clearance_penalties(raw_grid, set(), resolution,
+                                    settings['preferred_clearance'],
+                                    settings['clearance_penalty_gain'])
+        markers = yaml.safe_load(MARKERS.read_text())['markers']
+        cells = {marker['id']: world_to_cell(info, marker['x'], marker['y'])
+                 for marker in markers}
+        # Include unknown cells as occupied square areas, matching A* policy.
+        occupied_centers = np.argwhere(data != 0)[:, ::-1] + .5
+        for start, goal in zip((0, 3, 2, 1), (3, 2, 1, 0)):
+            with self.subTest(start=start, goal=goal):
+                route = AStarPlanner().plan(grid, cells[start], cells[goal], cell_penalty=costs)
+                self.assertTrue(route)
+                points, _ = smooth_grid_path(
+                    route, grid.is_static_obstacle,
+                    spacing=settings['path_resample_spacing']/resolution,
+                    shortcut_distance=settings['path_smoothing_shortcut_distance']/resolution,
+                    iterations=settings['path_smoothing_iterations'], cell_penalty=costs)
+                # Distance to an obstacle is 1-Lipschitz. Samples no farther
+                # than 1 mm apart, minus .5 mm, certify every point between.
+                minimum = float('inf')
+                for point in resample_path(points, .001/resolution):
+                    delta = np.maximum(np.abs(occupied_centers-point)-.5, 0.)
+                    clearance = np.hypot(delta[:, 0], delta[:, 1]).min()*resolution
+                    edge_clearance = min(point[0], point[1],
+                                         info.width-point[0], info.height-point[1])*resolution
+                    minimum = min(minimum, clearance, edge_clearance)
+                self.assertGreaterEqual(minimum-.0005, settings['robot_radius'])
 
     def test_sector2_goal_survives_captured_wall_edge_returns_and_sees_marker(self):
         """Keep the stop inside the turning area without hiding live scan hits."""

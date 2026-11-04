@@ -285,6 +285,7 @@ def test_new_map_discards_live_cells_instead_of_applying_old_indices():
 
 def test_scan_to_live_overlay_to_astar_detour_uses_same_goal_without_slam_map_write():
     from test_planner_recovery import PlannerHarness, make_goal
+    from recovery_test_evidence import stationary_evidence
     with harness() as sensor:
         planner = PlannerHarness()
         planner.params['live_obstacle_layer_required'] = True
@@ -299,11 +300,12 @@ def test_scan_to_live_overlay_to_astar_detour_uses_same_goal_without_slam_map_wr
             sensor.scan(2.)
             planner.on_observed(sensor.observation_pub.publish.call_args.args[0])
             assert not planner.path_pub.publish.call_args.args[0].poses
-            clock.return_value = 102.1
-            # Another sensor sample keeps the live layer fresh while the retry
-            # throttle permits replacement of the canceled direct route.
+            # A scan refresh alone cannot authorize a replacement action.
+            assert not planner._reverse_start_stopped()
+            stationary_evidence(planner, 102.1, x=.5, y=1.5, receipt_clock=clock)
             sensor.scan(2.)
             planner.on_observed(sensor.observation_pub.publish.call_args.args[0])
+            planner.retry_transform()
             assert planner.planned_cells
             assert (2, 1) not in planner.planned_cells
             assert planner.last_goal is goal

@@ -1,0 +1,120 @@
+{
+  "scope": "Offline real adapter callbacks with fake clock/TF/publishers; not closed-loop acceptance",
+  "closed_loop_status": "PENDING",
+  "cases": [
+    {
+      "fixture": "occlusion_reserve_inflation022_20261104.json",
+      "observed": 25,
+      "remembered": 0,
+      "recorded_hard_extension_m": 0.25,
+      "local": {
+        "accepted": true,
+        "actual_box_gap_m": 0.11531510287349386,
+        "local_attempts": 1,
+        "metrics": {
+          "occlusion_fallback": true,
+          "occlusion_fallback_attempted": true,
+          "occlusion_constraint_mode": "SOFT_VIRTUAL",
+          "occlusion_primary_reason": "no_local_route",
+          "expansions": 255,
+          "candidates_examined": 10,
+          "search_duration_ms": 18.661975998838898,
+          "local_detour_state": "ACTIVE",
+          "global_plan_count": 0
+        }
+      },
+      "global": {
+        "accepted": true,
+        "actual_box_gap_m": 0.11531510287349414,
+        "local_attempts": 0,
+        "metrics": {
+          "occlusion_fallback": true,
+          "occlusion_fallback_attempted": true,
+          "occlusion_constraint_mode": "SOFT_VIRTUAL",
+          "occlusion_primary_reason": "no_route_with_hard_virtual_reserve",
+          "expansions": null,
+          "candidates_examined": null,
+          "search_duration_ms": null,
+          "local_detour_state": "NONE",
+          "global_plan_count": 1
+        }
+      }
+    },
+    {
+      "fixture": "occlusion_reserve_second_first_20261104.json",
+      "observed": 26,
+      "remembered": 0,
+      "recorded_hard_extension_m": 0.2,
+      "local": {
+        "accepted": true,
+        "actual_box_gap_m": 0.15067044193282123,
+        "local_attempts": 1,
+        "metrics": {
+          "occlusion_fallback": true,
+          "occlusion_fallback_attempted": true,
+          "occlusion_constraint_mode": "SOFT_VIRTUAL",
+          "occlusion_primary_reason": "no_local_route",
+          "expansions": 225,
+          "candidates_examined": 10,
+          "search_duration_ms": 20.863260000623995,
+          "local_detour_state": "ACTIVE",
+          "global_plan_count": 0
+        }
+      },
+      "global": {
+        "accepted": true,
+        "actual_box_gap_m": 0.15067044193282156,
+        "local_attempts": 0,
+        "metrics": {
+          "occlusion_fallback": true,
+          "occlusion_fallback_attempted": true,
+          "occlusion_constraint_mode": "SOFT_VIRTUAL",
+          "occlusion_primary_reason": "no_route_with_hard_virtual_reserve",
+          "expansions": null,
+          "candidates_examined": null,
+          "search_duration_ms": null,
+          "local_detour_state": "NONE",
+          "global_plan_count": 1
+        }
+      }
+    },
+    {
+      "fixture": "occlusion_reserve_second_memory_20261104.json",
+      "observed": 18,
+      "remembered": 12,
+      "recorded_hard_extension_m": 0.2,
+      "local": {
+        "accepted": true,
+        "actual_box_gap_m": 0.18029316110747404,
+        "local_attempts": 1,
+        "metrics": {
+          "occlusion_fallback": true,
+          "occlusion_fallback_attempted": true,
+          "occlusion_constraint_mode": "SOFT_VIRTUAL",
+          "occlusion_primary_reason": "no_local_route",
+          "expansions": 189,
+          "candidates_examined": 10,
+          "search_duration_ms": 15.525271999649704,
+          "local_detour_state": "ACTIVE",
+          "global_plan_count": 0
+        }
+      },
+      "global": {
+        "accepted": true,
+        "actual_box_gap_m": 0.18029316110747404,
+        "local_attempts": 0,
+        "metrics": {
+          "occlusion_fallback": true,
+          "occlusion_fallback_attempted": true,
+          "occlusion_constraint_mode": "SOFT_VIRTUAL",
+          "occlusion_primary_reason": "no_route_with_hard_virtual_reserve",
+          "expansions": null,
+          "candidates_examined": null,
+          "search_duration_ms": null,
+          "local_detour_state": "NONE",
+          "global_plan_count": 1
+        }
+      }
+    }
+  ]
+}

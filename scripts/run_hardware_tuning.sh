@@ -43,6 +43,11 @@ source /opt/ros/humble/setup.bash
 source "$WORKSPACE_ROOT/install/local_setup.bash"
 export ROS_DOMAIN_ID="$DOMAIN_ID" ROS_LOCALHOST_ONLY=0 TURTLEBOT3_MODEL=waffle_pi
 source "$SCRIPT_DIR/dds_env.bash" ""
+if grep -q 'smart_vision_amr_dwb' "$PARAMS_FILE" && \
+   ! ros2 pkg prefix smart_vision_amr_dwb >/dev/null 2>&1; then
+  printf 'The classroom DWB controller is not built in this workspace. Run scripts/setup_pc_runtime.sh --no-install first.\n' >&2
+  exit 2
+fi
 # An EKF run needs robot_localization on the PC. Reuse the non-root Humble
 # package used by our benchmark when the host apt installation is absent.
 needs_ekf=false

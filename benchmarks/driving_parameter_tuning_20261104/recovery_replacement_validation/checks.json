@@ -1,0 +1,39 @@
+{
+  "recorded_at_utc": "2026-11-04T15:02:30.673417+00:00",
+  "python_suite": {
+    "passed": true,
+    "tests": 2688,
+    "seconds": 144.67,
+    "command": "python3 -m pytest -q -p benchmarks.startup_20261030.pytest_isolated_runtime ros2_ws/src/smart_vision_amr/test scripts",
+    "ros_domain": 223,
+    "localhost_only": true
+  },
+  "ros_build": {
+    "passed": true,
+    "packages": [
+      "smart_vision_amr",
+      "smart_vision_amr_dwb"
+    ],
+    "seconds": 3.36
+  },
+  "cpp_ctest": {
+    "passed": true,
+    "target": "test_route_horizon"
+  },
+  "static_deployment": {
+    "passed": true,
+    "live": false
+  },
+  "actual_input_replay": {
+    "archived_report_reproduced_identically": true,
+    "physical_or_gazebo_drive": false
+  },
+  "closed_loop_stage25": {
+    "status": "FAIL",
+    "directory": "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle",
+    "completed_route_and_home": true,
+    "passed": false,
+    "source_unchanged": true
+  },
+  "physical_robot_driven": false
+}

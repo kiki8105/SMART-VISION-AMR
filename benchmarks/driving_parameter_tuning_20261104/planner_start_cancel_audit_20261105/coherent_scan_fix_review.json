@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "scope": "완료된 이전 Gazebo 실패 로그와 동결 소스·집중 회귀를 비교한 읽기 검토. 새 실제 Gazebo 결과를 판정하지 않음.",
+  "reviewed_astar_source": "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py",
+  "reviewed_astar_sha256": "ee656f4e5eae08003e2db253bdd5e67cb1cf697fb64005bd8e9fd4ed4be300a6",
+  "recorded_failure": {
+    "audit": "../physical_transfer_20261105/independent_prefix_owned_tf_revocation_audit.json",
+    "audit_sha256": "efe1faf430a272118f2ea63466a99073acc34b7d6870abe607928b791a68d10e",
+    "archive": "../physical_transfer_20261105/cold_common_prefix_owned/",
+    "executed_astar_sha256": "b5f2950fa7c6be67d72a61e124bb9aa6164f1995579204b138acb06eaf638aff",
+    "strict_outcome": "FAIL",
+    "mission_home_pass": true,
+    "live_bypass_verified": false,
+    "actor_moving_steps": 1,
+    "revocations": {
+      "active_to_revoked_transitions": 12,
+      "direct_raw_scan_transform_exception": 9,
+      "future_tf_gap_min_s": 0.033999999999991815,
+      "future_tf_gap_max_s": 0.12100000000000222,
+      "other_reasons": [
+        "selected_edge_no_longer_certified"
+      ],
+      "counting_note": "Count only first REVOKED after a published ACTIVE state. Prefix diagnostics retained from an older event are not counted as a new TF cause when certificate_reason differs."
+    },
+    "counting_boundary": "ACTIVE 이후 처음 REVOKED 전이의 현재 reason만 원인으로 계산. 이전 진단이 남은 별도 geometry 거부를 TF 거부로 중복 계산하지 않음.",
+    "witnesses": [
+      {
+        "t": 47.5975,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "future_tf_gap_s": 0.062000000000001165,
+        "original_scan_stamp_ns": 30948000000,
+        "acquisition_tf_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 30.948000 but the latest data is at time 30.886000, when looking up transform from frame [base_scan] to frame [map]"
+      },
+      {
+        "t": 53.4507,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "future_tf_gap_s": 0.09799999999999898,
+        "original_scan_stamp_ns": 32949000000,
+        "acquisition_tf_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 32.949000 but the latest data is at time 32.851000, when looking up transform from frame [base_scan] to frame [map]"
+      },
+      {
+        "t": 54.5096,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "future_tf_gap_s": 0.10099999999999909,
+        "original_scan_stamp_ns": 37556000000,
+        "acquisition_tf_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 37.556000 but the latest data is at time 37.455000, when looking up transform from frame [base_scan] to frame [map]"
+      },
+      {
+        "t": 56.4969,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "future_tf_gap_s": 0.09499999999999886,
+        "original_scan_stamp_ns": 39159000000,
+        "acquisition_tf_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 39.159000 but the latest data is at time 39.064000, when looking up transform from frame [base_scan] to frame [map]"
+      },
+      {
+        "t": 58.5187,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "future_tf_gap_s": 0.08900000000000574,
+        "original_scan_stamp_ns": 41060000000,
+        "acquisition_tf_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 41.060000 but the latest data is at time 40.971000, when looking up transform from frame [base_scan] to frame [map]"
+      },
+      {
+        "t": 60.0735,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "future_tf_gap_s": 0.11700000000000443,
+        "original_scan_stamp_ns": 42468000000,
+        "acquisition_tf_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 42.468000 but the latest data is at time 42.351000, when looking up transform from frame [base_scan] to frame [map]"
+      },
+      {
+        "t": 60.6111,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "future_tf_gap_s": 0.12100000000000222,
+        "original_scan_stamp_ns": 42972000000,
+        "acquisition_tf_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 42.972000 but the latest data is at time 42.851000, when looking up transform from frame [base_scan] to frame [map]"
+      },
+      {
+        "t": 61.2596,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "future_tf_gap_s": 0.09299999999999642,
+        "original_scan_stamp_ns": 43376000000,
+        "acquisition_tf_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 43.376000 but the latest data is at time 43.283000, when looking up transform from frame [base_scan] to frame [map]"
+      },
+      {
+        "t": 138.1583,
+        "reason": "raw_scan_transform_unavailable_or_invalid",
+        "future_tf_gap_s": 0.033999999999991815,
+        "original_scan_stamp_ns": 68091000000,
+        "acquisition_tf_error": "ExtrapolationException: Lookup would require extrapolation into the future.  Requested time 68.091000 but the latest data is at time 68.057000, when looking up transform from frame [base_scan] to frame [map]"
+      }
+    ]
+  },
+  "fixed_rule": {
+    "raw_history_max_events": 8,
+    "visibility_history_max_events": 8,
+    "source_and_each_first_receipt_age_strict_upper_s": 0.25,
+    "existing_future_source_tolerance_s": 0.25,
+    "minimum_selected_valid_or_positive_infinity_beam_fraction": 0.8,
+    "pairing": "동일 physical context의 원본 raw stamp == 실제 수신한 projected visibility 원본 stamp. 획득 시각 TF가 준비된 pair 중 가장 최신 것을 선택. 신규/소유 first edge 모두 동일 규칙.",
+    "first_receipt": "중복·역순 source 수신은 최초 수신 시각을 갱신하지 않음. frame/map/odom/clock 변경 시 양쪽 캐시와 기존 인증 소유권 폐기; 이전 cache stamp는 bounded retired barrier로 새 receipt 재무장 금지.",
+    "publication": "새 선택 first edge도 발행 전에 paired 원본 scan의 획득 TF로 전체 차체·sweep 검증 필수.",
+    "pending": "유효 pair/획득 TF 없음은 SENSOR_HOLD + 단일 빈 경로 취소. 물리 장애물 실패 예산에 차감하지 않음. 목표 보존·입력 회복 후 자동 재계획; 기존 LOCAL clear-suffix 단계는 같은 episode LOCAL에서 재개.",
+    "not_used": [
+      "원본 scan restamp",
+      "lookup Time(0)로 획득 TF 대체",
+      "TF extrapolation 허용",
+      "source/receipt age 한도 증가",
+      "Spin 예산 환불",
+      "raw 미확인 신호를 free로 변환"
+    ]
+  },
+  "hard_checks_preserved": [
+    "현재 observed와 callback의 새 current_hits, confirmed remembered 및 raw static/unknown 전체 cell-square 차체/sweep 검사를 pair 선택 전에 실행.",
+    "기존 22cm 원형 차체와 기존 clearance margin, 정적 5cell 팽창 유지; 기억 삭제·TTL 우회 없음.",
+    "인증은 실제 선택 first edge와 원래 start 1셀에만 결속. 이후 셀·재진입·인접 대각·새 실제 충돌에는 면제 없음.",
+    "fresh current pose, authority/manual/estop 및 경로·map·goal 소유권 조건 유지.",
+    "더 최신 UNPAIRED raw 근접점은 older paired proof로 free라고 선언하지 않음. 별도의 최종 MotionMux/ScanOutlierGuard가 최신 원본 raw의 실제 body/sweep 교차에서 cmd0을 강제."
+  ],
+  "evidence_levels": {
+    "recorded_actual_gazebo": "기존 b5 소스의 획득 TF 미래 예외 9회, 34–121ms는 완료된 실제 Gazebo 로그의 직접 진단. 이전 시험 FAIL 보존.",
+    "recorded_geometry_plus_synthetic_callbacks": "기록된 두 raster frame/선택 간선에 신선한 합성 raw·TF·odom callback을 결합. 원 시험 raw beam 전체의 정확 재생이라고 표현하지 않음.",
+    "actual_tf2_unit": "실제 tf2 Buffer의 100ms 미래 extrapolation, 새/소유 경로 모두 이전 acquisition-ready pair로 검증. 별도 120ms TF lag·10Hz 연속7tick은 합성 시각/TF 응답 모델 회귀.",
+    "final_mux_unit": "독립 신규/소유 × acquisition-ready/pending 네 반례에서 실제 planner 및 MotionMux/ScanOutlierGuard 실행. 최신 unpaired .21m raw hit→BODY_INTERSECTION→cmd0.",
+    "new_closed_loop": "final_common_coherent 시험 RUNNING. 이 검토 파일에서는 결과 미판정/PENDING. Unit PASS는 실제 Gazebo 완주·실차 PASS를 뜻하지 않음."
+  },
+  "checks": {
+    "focused_suite": {
+      "passed": 155,
+      "duration_s": 30.83,
+      "files": [
+        "test_coherent_start_scan.py",
+        "test_dynamic_escape_certificate_ownership.py",
+        "test_active_start_certificate_independent.py",
+        "test_measured_start_fallback.py",
+        "test_certified_occlusion_fallback.py",
+        "test_occlusion_reserve_incident.py",
+        "test_recovery_episode_policy_independent.py",
+        "test_coherent_scan_final_raw_interlock.py"
+      ],
+      "note": "paired 구현 집중 suite. 마지막 ROS epoch reset bookkeeping 1줄을 정리한 후 아래 5개 epoch 반례를 최종 SHA에서 다시 확인."
+    },
+    "final_epoch_recheck": {
+      "passed": 5,
+      "deselected": 22,
+      "duration_s": 1.78,
+      "selector": "clock or epoch or context_reset or real_odom or frame_change",
+      "note": "155개와 중복되는 재확인이며 160개 고유 테스트로 합산하지 않음."
+    },
+    "py_compile": "PASS",
+    "git_diff_check": "PASS",
+    "independent_source_review": "controller_replay 읽기 검토: 추가 critical 없음",
+    "new_closed_loop_result": "PENDING"
+  },
+  "focused_test_sha256": {
+    "test_coherent_start_scan.py": "70a2a4fd07c641ca1f50eaf55712b22ae35f776a993cfff4f0fd66e910e97279",
+    "test_dynamic_escape_certificate_ownership.py": "ca67c8d0515c4f55f2f2707c7cad83f962fe546fdfe19532b1b200e9c7e56a7d",
+    "test_active_start_certificate_independent.py": "530e3ba8689abe06f0cfdfe5e6a72d79d2fa0a48ae1998050553d8564060286a",
+    "test_measured_start_fallback.py": "e35696a4930eb9309c2b80139b972d8bf7ce0b290e6d536506fefc6700f049a5",
+    "test_certified_occlusion_fallback.py": "765cddb50329a431946d9dbef057ed86f8285ae01508e832346ddf269263128a",
+    "test_occlusion_reserve_incident.py": "612e7beccde634d71ab2671a3401efa091c99f37964359e330fd545e37956212",
+    "test_recovery_episode_policy_independent.py": "32d4ea0dc761a8e6142ea4a3deed6784a4eabe938f0f911467c5e9eaa62afd9f",
+    "test_coherent_scan_final_raw_interlock.py": "0aa7c73b86348167c50d5d0984927c2fc55a7a380cb16d0dae9879573526c095"
+  }
+}

@@ -33,6 +33,10 @@ def test_best_effort_control_and_navigation_packets_drive_then_hold():
     with patch.dict(os.environ, {'ROS_LOCALHOST_ONLY': '1'}):
         rclpy.init(context=context, domain_id=231)
     mux = MotionMuxNode(context=context)
+    # This test isolates DDS arbitration; geometry/TF interlocks have their
+    # own raw-scan tests and intentionally block a node without sensor input.
+    mux._scan_guard_enabled = False
+    mux.core.scan_guard_hold = False
     probe = Node('mux_best_effort_probe', context=context)
     executor = MultiThreadedExecutor(num_threads=4, context=context)
     executor.add_node(mux)

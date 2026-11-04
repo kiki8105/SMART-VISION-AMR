@@ -114,12 +114,12 @@ def _ray_polygon_distance(origin, direction, polygon):
     return nearest
 
 
-def static_sweep_clearance(truth_samples, boxes):
+def static_sweep_clearance(truth_samples, boxes, *, robot_radius=SIM_ROBOT_COLLISION_RADIUS_M):
     """Minimum center-to-box distance minus an enclosing robot radius."""
     if not truth_samples or not boxes:
         return None
     return min(_point_polygon_distance((pose['x'], pose['y']), polygon)-
-               SIM_ROBOT_COLLISION_RADIUS_M
+               robot_radius
                for pose in truth_samples for _, polygon in boxes)
 
 
@@ -206,11 +206,55 @@ def stopping_distance_bound(entry_speed_mps, *, max_linear_speed_mps,
                speed*COMMAND_STOP_BOUND_S+speed*speed/(2.*decel_limit_mps2))
 
 
+def _stamp_ns(value):
+    if not isinstance(value, dict):
+        return None
+    sec, ns = value.get('sec'), value.get('nanosec')
+    if type(sec) is int and type(ns) is int and sec >= 0 and 0 <= ns < 1_000_000_000:
+        return sec*1_000_000_000+ns or None
+    return None
+
+
+def _navigation_context(record):
+    return (_stamp_ns(record.get('goal_stamp')),
+            _stamp_ns((record.get('details') or {}).get('path_stamp')))
+
+
+def _owned_motion_boundary(record, owner, current_goal, current_path, recovery,
+                           recovery_episode, recovery_phase):
+    """Recorded action ownership, not a generic MOVING/RECOVERING label."""
+    goal, path = _navigation_context(record)
+    if goal is None or goal != current_goal or (owner is not None and goal != owner['goal']):
+        return None
+    details = record.get('details') or {}
+    if record.get('status') == 'MOVING' and owner is not None:
+        if path is None or path != current_path:
+            return None
+        if (path > owner['path'] or (owner['wait_stop'] and path == owner['path'])):
+            if details.get('heading_alignment_phase') == 'SPIN':
+                return 'spin'
+            if record.get('message') == 'Following A* route':
+                return 'follow'
+    if (record.get('status') == 'RECOVERING'
+            and record.get('message') == 'Nav2 collision-checked reverse started'
+            and isinstance(recovery, dict) and recovery.get('cancel') is not True
+            and recovery.get('goal_id') == f'{goal//1_000_000_000}:{goal%1_000_000_000}'
+            and isinstance(details.get('episode_id'), str)
+            and details['episode_id'] and details['episode_id'] == recovery.get('episode_id')
+            and details['episode_id'] == recovery_episode and recovery_phase == 'REVERSING'
+            and (owner is None or _stamp_ns(recovery.get('source_path_stamp')) == owner['path'])):
+        return 'reverse'
+    return None
+
+
 def assess(records, *, static_world_boxes=None,
            max_linear_speed_mps=DEFAULT_MAX_LINEAR_SPEED_MPS,
-           decel_limit_mps2=DEFAULT_DECEL_LIMIT_MPS2):
+           decel_limit_mps2=DEFAULT_DECEL_LIMIT_MPS2,
+           robot_collision_radius_m=SIM_ROBOT_COLLISION_RADIUS_M):
     if max_linear_speed_mps <= 0. or decel_limit_mps2 <= 0.:
         raise ValueError('Nav2 max speed and deceleration must be positive')
+    if not math.isfinite(robot_collision_radius_m) or robot_collision_radius_m <= 0.:
+        raise ValueError('collision radius must be finite and positive')
     # Only a caller that has proved the trial contains no spawned/dynamic
     # obstacle may pass static_world_boxes.  Otherwise raw LiDAR limits apply.
     static_world_boxes = static_world_boxes or []
@@ -220,6 +264,14 @@ def assess(records, *, static_world_boxes=None,
     planner_since = None
     navigation = None
     navigation_at = None
+    navigation_stop_owner = None
+    checked_reverse_active = False
+    checked_spin_active = False
+    recovery_request = None
+    recovery_episode = recovery_phase = None
+    current_path_stamp = None
+    current_goal_stamp = None
+    unverified_stop_events = []
     path_count = 0
     scan = None
     truth = None
@@ -240,7 +292,7 @@ def assess(records, *, static_world_boxes=None,
         if len(violations) < 100:
             violations.append({'kind': name, 't': record['t'], **detail})
 
-    def begin_wait(t):
+    def begin_wait(t, source='planner_wait_replan'):
         entry_truth, observed_speed = truth_at_entry(all_truth, t)
         commanded_speed = (abs(last_linear_command)
                            if last_command_t is not None and
@@ -250,7 +302,7 @@ def assess(records, *, static_world_boxes=None,
                       and t-scan['t'] <= .35 else None)
         entry_angle = (scan.get('front_core_angle_deg') if scan is not None
                        and t-scan['t'] <= .35 else None)
-        return {'start_t': t, 'start_truth': entry_truth,
+        return {'start_t': t, 'start_truth': entry_truth, 'stop_sources': [source],
                 'entry_speed_mps': entry_speed,
                 'entry_command_speed_mps': commanded_speed,
                 'entry_truth_speed_mps': observed_speed,
@@ -273,6 +325,7 @@ def assess(records, *, static_world_boxes=None,
         zero_time = (None if zero_time is None else
                      max(0., zero_time-waiting['start_t']))
         interval = {'start_t': waiting['start_t'], 'duration_s': round(duration, 4),
+                    'stop_sources': waiting['stop_sources'],
                     'last_nonzero_command_after_s': stopping_time,
                     'first_zero_command_after_s': zero_time,
                     'max_displacement_m': round(waiting['max_displacement_m'], 4),
@@ -292,7 +345,8 @@ def assess(records, *, static_world_boxes=None,
         interval['ground_truth_stopping_distance_bound_m'] = round(distance_bound, 4)
         sweep_truth = [pose for pose in all_truth if
                        waiting['start_t']-.15 <= pose['t'] <= end_t]
-        static_margin = static_sweep_clearance(sweep_truth, static_world_boxes)
+        static_margin = static_sweep_clearance(sweep_truth, static_world_boxes,
+                                               robot_radius=robot_collision_radius_m)
         if static_margin is not None:
             interval['static_world_swept_clearance_m'] = round(static_margin, 4)
             if static_margin < SIM_STATIC_SWEEP_MARGIN_M:
@@ -352,22 +406,75 @@ def assess(records, *, static_world_boxes=None,
         if kind in counts:
             counts[kind] += 1
         if kind == 'planner':
+            goal_stamp = _stamp_ns(record.get('goal_stamp'))
+            old_context = (current_goal_stamp, recovery_episode, recovery_phase)
+            if goal_stamp is not None:
+                current_goal_stamp = max(current_goal_stamp or 0, goal_stamp)
+            detail = record.get('details') or {}
+            recovery_episode, recovery_phase = (detail.get('recovery_episode_id'),
+                                                detail.get('recovery_phase'))
+            if old_context != (current_goal_stamp, recovery_episode, recovery_phase):
+                checked_reverse_active = checked_spin_active = False
             next_status = record.get('status')
             if next_status != planner:
-                if planner == 'WAIT_REPLAN':
+                if (waiting is not None and navigation_stop_owner is None
+                        and next_status not in {'WAIT_REPLAN', 'RECOVERING'}):
                     finish_wait(t)
                 planner = next_status
                 planner_since = t
                 last_planner_change = {'t': t, 'status': planner}
                 if planner == 'WAIT_REPLAN':
-                    waiting = begin_wait(t)
+                    if waiting is None:
+                        waiting = begin_wait(t)
+                    elif 'planner_wait_replan' not in waiting['stop_sources']:
+                        waiting['stop_sources'].append('planner_wait_replan')
                 elif planner == 'RECOVERING':
                     recovery_transitions.append({'t': t, 'source': 'planner'})
         elif kind == 'navigation':
             previous_navigation = navigation
             navigation = record.get('status')
             navigation_at = t
-            if navigation == 'RECOVERING' and waiting is not None:
+            details = record.get('details') or {}
+            if navigation in {'WAIT_CANCEL', 'WAIT_STOP'} or details.get('heading_alignment_phase') == 'WAIT_STOP':
+                goal, path = _navigation_context(record)
+                if goal is None or path is None or current_goal_stamp is None:
+                    unverified_stop_events.append({'t': t, 'reason': 'cancel_wait_context_missing'})
+                elif goal == current_goal_stamp:
+                    # A later wait can update its target, never refund the
+                    # original reaction/deceleration clock with a new anchor.
+                    if (navigation_stop_owner is None or goal != navigation_stop_owner['goal'] or
+                            (goal == navigation_stop_owner['goal'] and path >= navigation_stop_owner['path'])):
+                        navigation_stop_owner = {'goal': goal, 'path': path,
+                            'wait_stop': details.get('heading_alignment_phase') == 'WAIT_STOP'}
+                    if waiting is None:
+                        waiting = begin_wait(t, 'navigation_cancel_wait')
+                    elif 'navigation_cancel_wait' not in waiting['stop_sources']:
+                        waiting['stop_sources'].append('navigation_cancel_wait')
+            boundary = _owned_motion_boundary(record, navigation_stop_owner,
+                current_goal_stamp, current_path_stamp, recovery_request,
+                recovery_episode, recovery_phase)
+            if boundary is not None:
+                navigation_stop_owner = None
+                if waiting is not None and (boundary == 'spin' or
+                        (boundary == 'follow' and planner != 'WAIT_REPLAN')):
+                    finish_wait(t)
+            if boundary == 'spin':
+                checked_spin_active = True
+            elif navigation != 'MOVING' or details.get('heading_alignment_phase') != 'SPIN':
+                checked_spin_active = False
+            elif _navigation_context(record) != (current_goal_stamp, current_path_stamp):
+                checked_spin_active = False
+            if navigation != 'RECOVERING':
+                checked_reverse_active = False
+            elif boundary == 'reverse':
+                checked_reverse_active = True
+            else:
+                checked_reverse_active = False
+                if (record.get('message') == 'Nav2 collision-checked reverse started'
+                        and (not isinstance(recovery_request, dict) or not details.get('episode_id')
+                             or not recovery_episode or recovery_phase != 'REVERSING')):
+                    unverified_stop_events.append({'t': t, 'reason': 'reverse_start_ownership_unverified'})
+            if boundary == 'reverse' and waiting is not None:
                 # A checked reverse is a distinct phase. Do not let a later
                 # recovery erase unsafe motion during the preceding hold.
                 finish_wait(t)
@@ -376,8 +483,19 @@ def assess(records, *, static_world_boxes=None,
                   navigation != 'RECOVERING' and planner == 'WAIT_REPLAN' and
                   waiting is None):
                 waiting = begin_wait(t)
+        elif kind == 'recovery_request':
+            recovery_request = record.get('payload')
+        elif kind == 'goal':
+            stamp = record.get('stamp_ns')
+            if type(stamp) is int and stamp > 0:
+                if stamp != current_goal_stamp:
+                    checked_reverse_active = checked_spin_active = False
+                current_goal_stamp = max(current_goal_stamp or 0, stamp)
         elif kind == 'path':
             path_count = max(0, int(record.get('count') or 0))
+            if not path_count or record.get('stamp_ns') != current_path_stamp:
+                checked_reverse_active = checked_spin_active = False
+            current_path_stamp = record.get('stamp_ns') if path_count else None
         elif kind == 'scan':
             scan = record
             if (waiting is not None and waiting['entry_core_m'] is None
@@ -407,7 +525,7 @@ def assess(records, *, static_world_boxes=None,
             last_linear_command = linear
             last_command_t = t
             nonzero = abs(linear) > .015 or abs(angular) > .04
-            recovering = (navigation == 'RECOVERING' and navigation_at is not None
+            recovering = (checked_reverse_active and navigation_at is not None
                           and t-navigation_at <= 1.)
             if recovering:
                 counts['recovery_exempt_samples'] += 1
@@ -426,7 +544,7 @@ def assess(records, *, static_world_boxes=None,
                     counts['planning_route_unverified'] += 1
                     if (planner_since is not None and
                             t-planner_since > COMMAND_STOP_BOUND_S and
-                            nonzero and not recovering):
+                            nonzero and not recovering and not checked_spin_active):
                         violation('motion_during_unverified_planning', record,
                                   path_count=path_count, front_min_m=front)
     finish_wait(last_time)
@@ -436,9 +554,12 @@ def assess(records, *, static_world_boxes=None,
     if not any(record.get('kind') == 'path' and record.get('count', 0) > 0
                for record in records):
         missing.append('nonempty_path')
+    if unverified_stop_events:
+        missing.append('navigation_stop_ownership_unverified')
     return {'passed': not missing and not violations,
             'missing_evidence': missing, 'violations': violations,
             'counts': counts, 'wait_replan_intervals': waiting_intervals,
+            'unverified_navigation_stop_events': unverified_stop_events,
             'static_world_outliers': static_world_outliers,
             'recovery_transitions': recovery_transitions,
             'last_planner_change': last_planner_change,
@@ -452,11 +573,12 @@ def assess(records, *, static_world_boxes=None,
                        'ground_truth_heading_change_rad': STOP_HEADING_BOUND_RAD,
                        'front_laser_to_body_m': FRONT_LASER_TO_BODY_M,
                        'front_body_clearance_m': MIN_BODY_CLEARANCE_M,
-                       'simulation_robot_collision_radius_m': SIM_ROBOT_COLLISION_RADIUS_M,
+                       'simulation_robot_collision_radius_m': robot_collision_radius_m,
                        'simulation_static_swept_clearance_m': SIM_STATIC_SWEEP_MARGIN_M},
             'interpretation': ('PLANNING with a nonempty prior path and a fresh, clear '
                                'front scan may move while replanning; this is not a full '
-                               'swept-path proof. WAIT_REPLAN permits bounded deceleration '
+                               'swept-path proof. Planner WAIT_REPLAN and owned navigation '
+                               'WAIT_CANCEL/WAIT_STOP permit bounded deceleration '
                                'for 0.25 s and speed-dependent ground-truth travel '
                                'based on the active Nav2 speed/deceleration profile. '
                                'Navigation RECOVERING is logged separately. No instant '

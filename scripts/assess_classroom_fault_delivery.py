@@ -6,8 +6,9 @@ import json
 from pathlib import Path
 
 
-def assess(events, profile, mode):
-    streams = ('scan', 'odom', 'tf') if mode == 'baseline' else ('scan',)
+def assess(events, profile, mode, *, ekf_delivery_faults=False):
+    streams = (('scan', 'odom', 'tf') if mode == 'baseline' or ekf_delivery_faults
+               else ('scan',))
     applied = (profile == 'clean' or any(event.get('event') == 'profile'
                and event.get('name') == profile for event in events))
     samples = [event for event in events if event.get('event') == 'sample'
@@ -36,11 +37,13 @@ def main():
     parser.add_argument('--profile', choices=('clean', 'jitter', 'outages', 'mixed'),
                         required=True)
     parser.add_argument('--mode', choices=('baseline', 'ekf_independent'), required=True)
+    parser.add_argument('--ekf-delivery-faults', action='store_true')
     parser.add_argument('--relay', type=Path, required=True)
     parser.add_argument('--acceptance', type=Path, required=True)
     args = parser.parse_args()
     events = [json.loads(line) for line in args.relay.read_text().splitlines() if line.strip()]
-    outcome = assess(events, args.profile, args.mode)
+    outcome = assess(events, args.profile, args.mode,
+                     ekf_delivery_faults=args.ekf_delivery_faults)
     evidence = json.loads(args.acceptance.read_text())
     evidence['fault_delivery'] = outcome
     if args.profile != 'clean' and not outcome['passed']:

@@ -6,6 +6,7 @@ it never publishes a navigation goal, a velocity, a reset, or an emergency stop.
 """
 
 import argparse
+from functools import partial
 import hashlib
 import json
 import math
@@ -16,9 +17,7 @@ import threading
 import time
 import uuid
 
-from verify_classroom_route import (conservative_body_clearance,
-                                    distance_to_blocked_cell,
-                                    select_path_obstacle)
+from verify_classroom_route import conservative_body_clearance, distance_to_blocked_cell
 
 
 def hash_path(path):
@@ -26,35 +25,171 @@ def hash_path(path):
     return hashlib.sha256(coordinates.encode()).hexdigest()
 
 
-def path_clearance_from_box(path, center):
-    """Conservative centerline clearance for the robot and 25 cm square box."""
+class InvalidObstacleScenario(ValueError):
+    """A fixed paired-test input cannot satisfy the unchanged fixture gates."""
+
+
+def obstacle_scenario_manifest(path):
+    """Read one immutable scene; never relocate or reverse its movement side."""
+    data = Path(path).read_bytes()
+    scene = json.loads(data)
+    if not isinstance(scene, dict) or set(scene) != {'x', 'y', 'path_tangent', 'movement_side'}:
+        raise ValueError('Obstacle scenario requires exactly x, y, path_tangent, movement_side')
+    tangent = scene['path_tangent']
+    finite = lambda value: type(value) in (int, float) and math.isfinite(value)
+    if (not finite(scene['x']) or not finite(scene['y']) or
+            not isinstance(tangent, list) or len(tangent) != 2 or
+            not all(finite(value) for value in tangent) or
+            not math.isclose(math.hypot(*tangent), 1., abs_tol=1.e-6) or
+            not finite(scene['movement_side']) or scene['movement_side'] not in (-1, 1)):
+        raise ValueError('Obstacle scenario needs finite coordinates, a unit tangent and side -1 or +1')
+    perpendicular = (-tangent[1], tangent[0])
+    positions = [[scene['x']+.025*step*scene['movement_side']*perpendicular[0],
+                  scene['y']+.025*step*scene['movement_side']*perpendicular[1]]
+                 for step in range(5)]
+    return {'source_path': str(Path(path).resolve()), 'sha256': hashlib.sha256(data).hexdigest(),
+            'scenario': scene, 'actor_positions_by_step': positions,
+            'box_size_m': [.25, .25, .5], 'mode': 'FIXED_NO_RELOCATION'}
+
+
+def geometry_parameters(nodes_params=None, robot_radius=None, obstacle_inflation_cells=None):
+    """Use the generated navigation geometry, with explicit overrides for replay."""
+    parameters = {}
+    if nodes_params is not None:
+        import yaml
+        profile = yaml.safe_load(Path(nodes_params).read_text())
+        parameters = profile.get('/astar_planner', profile.get('astar_planner', {})).get('ros__parameters', {})
+        if not {'robot_radius', 'obstacle_inflation_cells'} <= parameters.keys():
+            raise ValueError('Generated nodes YAML lacks A* geometry')
+    radius = float(robot_radius if robot_radius is not None else parameters.get('robot_radius', .24))
+    inflation = (obstacle_inflation_cells if obstacle_inflation_cells is not None
+                 else parameters.get('obstacle_inflation_cells', 5))
+    if (not math.isfinite(radius) or not 0 < radius < 1.
+            or type(inflation) is not int or not 0 <= inflation <= 100):
+        raise ValueError('Invalid obstacle fixture radius or static inflation')
+    return {'robot_radius': radius, 'obstacle_inflation_cells': inflation}
+
+
+def segment_box_distance(start, end, center, half_size=.125):
+    """Exact Euclidean distance between a segment and an axis-aligned square."""
+    lower = (center[0]-half_size, center[1]-half_size)
+    upper = (center[0]+half_size, center[1]+half_size)
+    delta = (end[0]-start[0], end[1]-start[1])
+    lo, hi = 0., 1.
+    for axis in (0, 1):
+        if abs(delta[axis]) < 1.e-12:
+            if not lower[axis] <= start[axis] <= upper[axis]:
+                break
+        else:
+            a = (lower[axis]-start[axis])/delta[axis]
+            b = (upper[axis]-start[axis])/delta[axis]
+            lo, hi = max(lo, min(a, b)), min(hi, max(a, b))
+            if lo > hi:
+                break
+    else:
+        return 0.
+
+    def point_box(point):
+        return math.hypot(max(lower[0]-point[0], 0., point[0]-upper[0]),
+                          max(lower[1]-point[1], 0., point[1]-upper[1]))
+
+    length_sq = delta[0]**2+delta[1]**2
+    distances = [point_box(start), point_box(end)]
+    for x in (lower[0], upper[0]):
+        for y in (lower[1], upper[1]):
+            fraction = (max(0., min(1., ((x-start[0])*delta[0]+(y-start[1])*delta[1])/length_sq))
+                        if length_sq else 0.)
+            distances.append(math.hypot(start[0]+fraction*delta[0]-x,
+                                        start[1]+fraction*delta[1]-y))
+    return min(distances)
+
+
+def path_clearance_from_box(path, center, robot_radius=.24):
+    """Exact circular-body clearance from the physical 25 cm square box."""
     if not path or center is None:
         return -math.inf
-    nearest = math.inf
-    for start, end in zip(path, path[1:]):
-        dx, dy = end[0]-start[0], end[1]-start[1]
-        squared = dx*dx+dy*dy
-        fraction = 0. if squared == 0 else max(0., min(1.,
-            ((center[0]-start[0])*dx+(center[1]-start[1])*dy)/squared))
-        nearest = min(nearest, math.hypot(
-            start[0]+fraction*dx-center[0],
-            start[1]+fraction*dy-center[1]))
-    if len(path) == 1:
-        nearest = math.hypot(path[0][0]-center[0], path[0][1]-center[1])
-    return nearest-(.24+.25*math.sqrt(2)/2)
+    segments = list(zip(path, path[1:])) or [(path[0], path[0])]
+    return min(segment_box_distance(a, b, center) for a, b in segments)-robot_radius
 
 
-def candidate_still_ahead(candidate, robot_xy, current_path):
-    """Reject a box that the robot reached while the topology search ran."""
+def candidate_still_ahead(candidate, robot_xy, current_path, robot_radius=.24):
+    """Initial selection: .60--1.00 m ahead and >1 cm route obstruction.
+
+    Final spawn uses spawn_placement_readiness with current physical clearance.
+    """
     if candidate is None or robot_xy is None or not current_path:
         return False
     center = (candidate['x'], candidate['y'])
     tangent = candidate['path_tangent']
-    along = sum((robot_xy[index]-center[index])*tangent[index]
-                for index in (0, 1))
+    along = sum((robot_xy[index]-center[index])*tangent[index] for index in (0, 1))
     distance = math.hypot(robot_xy[0]-center[0], robot_xy[1]-center[1])
     return (along <= -.25 and .60 <= distance <= 1.00 and
-            path_clearance_from_box(current_path, center) <= .05)
+            path_clearance_from_box(current_path, center, robot_radius) < -.01)
+
+
+def movement_step_readiness(box_xy, target_xy, robot_xy, robot_age_s,
+                            robot_radius=.24, minimum_clearance=.02,
+                            reaction_seconds=.20, maximum_speed=.22):
+    """Keep an owned box's whole translation outside the current robot margin.
+
+    Translating a square along a segment is the same distance query as that
+    center segment against a square around the stationary robot. The reaction
+    disc covers possible robot motion during stale truth and service delivery.
+    """
+    if (box_xy is None or robot_xy is None or robot_age_s is None
+            or not math.isfinite(robot_age_s) or not 0. <= robot_age_s <= .20):
+        return False, {'reason': 'truth_unavailable_or_stale'}
+    values = (*box_xy, *target_xy, *robot_xy, robot_radius,
+              minimum_clearance, reaction_seconds, maximum_speed)
+    if not all(math.isfinite(value) for value in values):
+        return False, {'reason': 'invalid_movement_geometry'}
+    clearance = segment_box_distance(box_xy, target_xy, robot_xy)-robot_radius
+    required = minimum_clearance+maximum_speed*(reaction_seconds+robot_age_s)
+    return clearance >= required, {
+        'reason': 'ready' if clearance >= required else 'robot_near_box_sweep',
+        'swept_clearance_m': clearance, 'required_clearance_m': required,
+        'robot_truth_age_s': robot_age_s}
+
+
+
+def spawn_placement_readiness(candidate, robot_xy, current_path, robot_age_s,
+                              robot_radius=.24, *, route_reason,
+                              current_goal_stamp, expected_goal_stamp):
+    """Revalidate a selected box with physical spawn clearance, not search range.
+
+    The .60--1.00 m range belongs to initial candidate selection. A robot may
+    safely enter that range during callback refresh; the fixed box stays put.
+    Reuse the owned-movement sweep gate with a stationary box, preserving its
+    2 cm margin, reaction distance, truth-age bound and selected body radius.
+    """
+    if route_reason is not None:
+        return False, {'reason': route_reason}
+    if expected_goal_stamp is None or current_goal_stamp != expected_goal_stamp:
+        return False, {'reason': 'goal_rearmed_during_preflight'}
+    if candidate is None or robot_xy is None or not current_path:
+        return False, {'reason': 'spawn_geometry_unavailable'}
+    center = (candidate['x'], candidate['y'])
+    ready, metrics = movement_step_readiness(
+        center, center, robot_xy, robot_age_s, robot_radius=robot_radius)
+    if not ready:
+        return False, metrics
+    tangent = candidate['path_tangent']
+    along = sum((robot_xy[index]-center[index])*tangent[index] for index in (0, 1))
+    distance = math.hypot(robot_xy[0]-center[0], robot_xy[1]-center[1])
+    route_clearance = path_clearance_from_box(current_path, center, robot_radius)
+    metrics.update(robot_distance_m=distance, approach_along_path_m=along,
+                   initial_selection_distance_window=.60 <= distance <= 1.00,
+                   current_path_clearance_m=route_clearance)
+    if not all(math.isfinite(value) for value in (along, distance, route_clearance)):
+        metrics['reason'] = 'invalid_spawn_geometry'
+        return False, metrics
+    if along > -.25:
+        metrics['reason'] = 'candidate_actually_passed_or_not_ahead'
+        return False, metrics
+    if route_clearance >= -.01:
+        metrics['reason'] = 'current_route_no_longer_blocked'
+        return False, metrics
+    return True, metrics
 
 
 def departed_home(robot_xy, goal_start_xy, threshold_m=.10):
@@ -120,6 +255,59 @@ def near_obstacle_indices(indices, before, grid, center, cell_to_world):
     return sorted(nearby)
 
 
+def box_overlapping_obstacle_indices(indices, grid, center, cell_to_world):
+    """Observed cell squares that touch the actual 25 cm spawn box.
+
+    The 35 cm observation association above deliberately also sees nearby
+    returns. It is not a placement exclusion radius: an adjacent wall is
+    allowed when the box itself fits and the full bypass proof still passes.
+    SAT checks both rectangles' axes, including rotated occupancy grids.
+    """
+    if grid is None or center is None:
+        return []
+    info = grid.info
+    q = info.origin.orientation
+    yaw = math.atan2(2.*(q.w*q.z+q.x*q.y),
+                     1.-2.*(q.y*q.y+q.z*q.z))
+    cosine, sine = math.cos(yaw), math.sin(yaw)
+    cell_half, box_half = info.resolution/2., .125
+    axis_sum = abs(cosine)+abs(sine)
+    world_extent = box_half+cell_half*axis_sum
+    cell_extent = cell_half+box_half*axis_sum
+    overlaps = []
+    for index in set(indices):
+        if not 0 <= index < info.width*info.height:
+            continue
+        x, y = cell_to_world(info, (index % info.width, index // info.width))
+        dx, dy = x-center[0], y-center[1]
+        if (abs(dx) <= world_extent+1e-12 and
+                abs(dy) <= world_extent+1e-12 and
+                abs(dx*cosine+dy*sine) <= cell_extent+1e-12 and
+                abs(-dx*sine+dy*cosine) <= cell_extent+1e-12):
+            overlaps.append(index)
+    return sorted(overlaps)
+
+
+def refresh_placement_callbacks(observer, check_at, maximum_wait, *, spin_once,
+                                active=lambda: True, clock=time.monotonic):
+    """Wait at most the budget, returning early on two post-check callbacks.
+
+    The caller retains its independent age, goal, path and geometry gates.
+    A budget expiry is not evidence that either stream refreshed.
+    """
+    deadline = check_at+maximum_wait
+    while active():
+        if (observer.robot_at is not None and observer.robot_at > check_at and
+                observer.observed_at is not None and
+                observer.observed_at > check_at):
+            return True
+        remaining = deadline-clock()
+        if remaining <= 0.:
+            break
+        spin_once(observer, timeout_sec=min(.01, remaining))
+    return False
+
+
 def box_cells_on_raw_map(raw, info, position, world_to_cell, cell_to_world):
     """Return every grid cell touched by the 25 cm square, or None on a wall."""
     cx, cy = world_to_cell(info, *position)
@@ -155,13 +343,14 @@ def projected_lidar_box_cells(raw, info, position, world_to_cell, cell_to_world)
     return inflate_cells(box, info.width, info.height, 1)
 
 
-def prepare_preflight_context(grid_message, robot_xy, goal_xy, world_to_cell):
+def prepare_preflight_context(grid_message, robot_xy, goal_xy, world_to_cell,
+                              obstacle_inflation_cells=5):
     """Build the immutable map/start snapshot once per topology search."""
     from smart_vision_amr.astar import AStarPlanner
     from smart_vision_amr.map_utils import occupancy_to_grid
 
     info = grid_message.info
-    static = occupancy_to_grid(grid_message, 65, 5)
+    static = occupancy_to_grid(grid_message, 65, obstacle_inflation_cells)
     raw = occupancy_to_grid(grid_message, 65, 0)
     start = world_to_cell(info, *robot_xy)
     goal = world_to_cell(info, *goal_xy)
@@ -176,18 +365,19 @@ def prepare_preflight_context(grid_message, robot_xy, goal_xy, world_to_cell):
 
 def preflight_box_route(grid_message, robot_xy, goal_xy, center, path,
                         world_to_cell, cell_to_world, movement_side=None,
-                        prepared=None, *, observed_indices=(), remembered_indices=()):
+                        prepared=None, *, observed_indices=(), remembered_indices=(),
+                        robot_radius=.24, obstacle_inflation_cells=5,
+                        require_path_obstruction=False):
     """Prove a full-size box leaves an inflated A* route at every moved pose.
 
     This is an injection-fixture gate. It uses the same static inflation and
     circular live-obstacle footprint as the classroom planner, never a smaller
     clearance just to make a test pass.
     """
-    from math import sqrt
-    from smart_vision_amr.map_utils import inflate_cells, inflate_cells_circular
+    from smart_vision_amr.map_utils import inflate_cells, inflate_cells_footprint
 
     prepared = prepared or prepare_preflight_context(
-        grid_message, robot_xy, goal_xy, world_to_cell)
+        grid_message, robot_xy, goal_xy, world_to_cell, obstacle_inflation_cells)
     if prepared is None:
         return None
     info = prepared['info']
@@ -195,7 +385,8 @@ def preflight_box_route(grid_message, robot_xy, goal_xy, center, path,
     static, raw = prepared['static'], prepared['raw']
     start, goal, planner = (prepared['start'], prepared['goal'],
                             prepared['planner'])
-    if path_clearance_from_box(path, center) > .05:
+    clearance = path_clearance_from_box(path, center, robot_radius)
+    if clearance > .05 or require_path_obstruction and clearance >= -.01:
         return None
     tangent = None
     if movement_side is not None:
@@ -208,7 +399,7 @@ def preflight_box_route(grid_message, robot_xy, goal_xy, center, path,
                 if 0 <= index < width*height}
     remembered = {(index % width, index // width) for index in remembered_indices
                   if 0 <= index < width*height}
-    memory_blocked = inflate_cells(remembered, width, height, 5)
+    memory_blocked = inflate_cells(remembered, width, height, obstacle_inflation_cells)
     routes = []
     for step in range(5):
         position = (center[0]+.025*step*side*perpendicular[0],
@@ -217,8 +408,8 @@ def preflight_box_route(grid_message, robot_xy, goal_xy, center, path,
                                         world_to_cell, cell_to_world)
         if box is None:
             return None
-        radius_cells = (.22+.02)/info.resolution+sqrt(2)/2
-        blocked = (inflate_cells_circular(box | observed, width, height,
+        radius_cells = robot_radius/info.resolution
+        blocked = (inflate_cells_footprint(box | observed, width, height,
                                           radius_cells) | memory_blocked)
         route = planner.plan(static, start, goal, blocked)
         if not route:
@@ -226,12 +417,14 @@ def preflight_box_route(grid_message, robot_xy, goal_xy, center, path,
         routes.append(len(route))
     return {'route_cells_by_step': routes,
             'movement_side': side,
-            'initial_centerline_clearance_m': round(path_clearance_from_box(path, center), 4)}
+            'initial_centerline_clearance_m': round(clearance, 4),
+            'robot_radius': robot_radius, 'obstacle_inflation_cells': obstacle_inflation_cells}
 
 
 def current_observed_bypass_route(grid_message, robot_xy, goal_xy, center,
                                   observed_indices, world_to_cell, cell_to_world,
-                                  prepared=None, *, remembered_indices=()):
+                                  prepared=None, *, remembered_indices=(),
+                                  robot_radius=.24, obstacle_inflation_cells=5):
     """One final inflated A* check using the latest live and remembered cells.
 
     The five shifted-pose static preflights remain mandatory. This additional
@@ -239,12 +432,12 @@ def current_observed_bypass_route(grid_message, robot_xy, goal_xy, center,
     closed the escape corridor since its background preflight snapshot.
     """
     from smart_vision_amr.astar import AStarPlanner
-    from smart_vision_amr.map_utils import (inflate_cells, inflate_cells_circular,
+    from smart_vision_amr.map_utils import (inflate_cells, inflate_cells_footprint,
                                             occupancy_to_grid)
 
     if prepared is None:
         info = grid_message.info
-        static = occupancy_to_grid(grid_message, 65, 5)
+        static = occupancy_to_grid(grid_message, 65, obstacle_inflation_cells)
         raw = occupancy_to_grid(grid_message, 65, 0)
         start = world_to_cell(info, *robot_xy)
         goal = world_to_cell(info, *goal_xy)
@@ -262,42 +455,44 @@ def current_observed_bypass_route(grid_message, robot_xy, goal_xy, center,
     observed = {(index % info.width, index // info.width)
                 for index in observed_indices
                 if 0 <= index < info.width*info.height}
-    radius_cells = .24/info.resolution + math.sqrt(2)/2
-    blocked = inflate_cells_circular(
+    radius_cells = robot_radius/info.resolution
+    blocked = inflate_cells_footprint(
         box | observed, info.width, info.height, radius_cells)
     remembered = {(index % info.width, index // info.width)
                   for index in remembered_indices
                   if 0 <= index < info.width*info.height}
-    # The classroom planner gives confirmed memory the same five-cell square
-    # inflation as the static map. A box that is feasible against the current
+    # Confirmed memory uses the selected static square inflation. A box
+    # that is feasible against the current
     # scan alone may seal the only bypass when prior-sector memory is included.
-    blocked |= inflate_cells(remembered, info.width, info.height, 5)
+    blocked |= inflate_cells(remembered, info.width, info.height, obstacle_inflation_cells)
     route = planner.plan(static, start, goal, blocked)
     return route or None
 
 
-def newly_observed_route_clear(route, new_indices, info):
+def newly_observed_route_clear(route, new_indices, info, robot_radius=.24):
     """Do not use a preflight route newly blocked during the final ROS spin."""
-    from smart_vision_amr.map_utils import inflate_cells_circular
+    from smart_vision_amr.map_utils import inflate_cells_footprint
 
     new_cells = {(index % info.width, index // info.width)
                  for index in new_indices
                  if 0 <= index < info.width*info.height}
     if not new_cells:
         return True
-    radius_cells = .24/info.resolution + math.sqrt(2)/2
-    blocked = inflate_cells_circular(
+    radius_cells = robot_radius/info.resolution
+    blocked = inflate_cells_footprint(
         new_cells, info.width, info.height, radius_cells)
     return not any(cell in blocked for cell in route)
 
 
 def select_feasible_web_obstacle(path, robot_xy, goal_xy, grid,
                                  world_to_cell, cell_to_world, observed_indices=(),
-                                 diagnostics=None, *, remembered_indices=()):
+                                 diagnostics=None, *, remembered_indices=(),
+                                 robot_radius=.24, obstacle_inflation_cells=5):
     """Select an unexpected box that blocks the path but preserves an A* bypass."""
     if not path or robot_xy is None or grid is None:
         return None
-    prepared = prepare_preflight_context(grid, robot_xy, goal_xy, world_to_cell)
+    prepared = prepare_preflight_context(
+        grid, robot_xy, goal_xy, world_to_cell, obstacle_inflation_cells)
     if prepared is None:
         if diagnostics is not None:
             diagnostics['reason'] = 'NO_BASELINE_STATIC_ROUTE'
@@ -331,23 +526,25 @@ def select_feasible_web_obstacle(path, robot_xy, goal_xy, grid,
                                        center[1]-goal_xy[1])
             approach = ((robot_xy[0]-center[0])*tangent[0] +
                         (robot_xy[1]-center[1])*tangent[1])
-            if not (.60 <= distance <= 1.00 and goal_distance >= .45 and
+            # Search starts while the robot is still at Home. Leave enough
+            # lead for the mandatory departure and two fresh-state barriers.
+            if not (.80 <= distance <= 1.00 and goal_distance >= .45 and
                     approach <= -.25):
                 continue
             if any(math.hypot(center[0]-ox, center[1]-oy) <= .35
                    for ox, oy in observed_xy):
                 continue
-            # Grid cell rounding can block the old A* route even with a few
-            # centimeters of continuous geometric clearance.
-            old_route_clearance = path_clearance_from_box(path, center)
-            if old_route_clearance > .05:
+            # A test box must physically obstruct this route, rather than only
+            # touching an over-conservative grid/circumscribed-circle halo.
+            old_route_clearance = path_clearance_from_box(path, center, robot_radius)
+            if old_route_clearance >= -.01:
                 continue
             wall_distance = distance_to_blocked_cell(
                 grid, *center, world_to_cell, cell_to_world)
             if wall_distance < .16:
                 continue
-            proposals.append(((-wall_distance, abs(distance-.75),
-                               abs(old_route_clearance)),
+            proposals.append(((index-first, abs(distance-.80),
+                               -wall_distance, abs(old_route_clearance)),
                               index, base, center, offset, distance,
                               wall_distance, tangent, approach))
     proposals.sort()
@@ -364,20 +561,26 @@ def select_feasible_web_obstacle(path, robot_xy, goal_xy, grid,
         if current_observed_bypass_route(
                 grid, robot_xy, goal_xy, center, observed_indices,
                 world_to_cell, cell_to_world, prepared=prepared,
-                remembered_indices=remembered_indices) is None:
+                remembered_indices=remembered_indices, robot_radius=robot_radius,
+                obstacle_inflation_cells=obstacle_inflation_cells) is None:
             observed_rejected += 1
             continue
         perpendicular = (-tangent[1], tangent[0])
-        sides = sorted((-1., 1.), key=lambda side: -distance_to_blocked_cell(
-            grid, center[0]+.10*side*perpendicular[0],
-            center[1]+.10*side*perpendicular[1],
-            world_to_cell, cell_to_world))
+        # Prefer moving away from the original centerline when that side has
+        # the same independently proved static/live/memory bypass. Either side
+        # must still pass every one of the five pose proofs below.
+        sides = sorted((-1., 1.), key=lambda side: (
+            side*offset < 0., -distance_to_blocked_cell(
+                grid, center[0]+.10*side*perpendicular[0],
+                center[1]+.10*side*perpendicular[1],
+                world_to_cell, cell_to_world)))
         for movement_side in sides:
             result = preflight_box_route(grid, robot_xy, goal_xy,
                 center, path, world_to_cell, cell_to_world,
                 (tangent, movement_side), prepared=prepared,
                 observed_indices=observed_indices,
-                remembered_indices=remembered_indices)
+                remembered_indices=remembered_indices, robot_radius=robot_radius,
+                obstacle_inflation_cells=obstacle_inflation_cells, require_path_obstruction=True)
             if result is None:
                 continue
             candidate = {'index': index, 'x': center[0], 'y': center[1],
@@ -386,7 +589,8 @@ def select_feasible_web_obstacle(path, robot_xy, goal_xy, grid,
                 'path_tangent': list(tangent),
                 'approach_along_path_m': approach,
                 'base_path_xy': list(base), 'lateral_offset_m': offset,
-                'preflight': result}
+                'preflight': result, 'robot_radius': robot_radius,
+                'initial_path_clearance_m': path_clearance_from_box(path, center, robot_radius)}
             if diagnostics is not None:
                 diagnostics.update({'reason': 'FEASIBLE_BYPASS',
                                     'topology_candidates_tried': tried,
@@ -399,6 +603,67 @@ def select_feasible_web_obstacle(path, robot_xy, goal_xy, grid,
     return None
 
 
+def select_fixed_web_obstacle(path, robot_xy, goal_xy, grid,
+                              world_to_cell, cell_to_world, observed_indices=(),
+                              diagnostics=None, *, scenario, remembered_indices=(),
+                              robot_radius=.24, obstacle_inflation_cells=5):
+    """Prove the requested paired scene against this route without adaptation."""
+    def invalid(reason):
+        if diagnostics is not None:
+            diagnostics.update(reason=reason, input_status='INVALID_INPUT',
+                               geometric_candidates=1, topology_candidates_tried=1)
+        return None
+
+    if not path or robot_xy is None or grid is None:
+        return invalid('FIXED_INPUTS_UNAVAILABLE')
+    center = (scenario['x'], scenario['y'])
+    tangent, side = scenario['path_tangent'], scenario['movement_side']
+    candidate = {'x': center[0], 'y': center[1], 'path_tangent': list(tangent)}
+    if path_clearance_from_box(path, center, robot_radius) >= -.01:
+        return invalid('FIXED_SCENE_DOES_NOT_BLOCK_CURRENT_PATH')
+    distance = math.hypot(robot_xy[0]-center[0], robot_xy[1]-center[1])
+    if not .60 <= distance <= 1.00 or not candidate_still_ahead(candidate, robot_xy, path, robot_radius):
+        return invalid('FIXED_SCENE_NOT_AHEAD_OR_OUT_OF_RANGE')
+    if math.hypot(center[0]-goal_xy[0], center[1]-goal_xy[1]) < .45:
+        return invalid('FIXED_SCENE_TOO_CLOSE_TO_GOAL')
+    wall_distance = distance_to_blocked_cell(grid, *center, world_to_cell, cell_to_world)
+    if wall_distance < .16:
+        return invalid('FIXED_SCENE_TOO_CLOSE_TO_STATIC_WALL')
+    observed_xy = [cell_to_world(grid.info, (index % grid.info.width, index // grid.info.width))
+                   for index in set(observed_indices)
+                   if 0 <= index < grid.info.width*grid.info.height]
+    if any(math.hypot(center[0]-x, center[1]-y) <= .35 for x, y in observed_xy):
+        return invalid('FIXED_SCENE_TOO_CLOSE_TO_OBSERVED_CELL')
+    prepared = prepare_preflight_context(grid, robot_xy, goal_xy, world_to_cell,
+                                         obstacle_inflation_cells)
+    if prepared is None:
+        return invalid('FIXED_SCENE_NO_BASELINE_STATIC_ROUTE')
+    if current_observed_bypass_route(grid, robot_xy, goal_xy, center, observed_indices,
+            world_to_cell, cell_to_world, prepared=prepared,
+            remembered_indices=remembered_indices, robot_radius=robot_radius,
+            obstacle_inflation_cells=obstacle_inflation_cells) is None:
+        return invalid('FIXED_SCENE_CURRENT_BYPASS_CLOSED')
+    result = preflight_box_route(grid, robot_xy, goal_xy, center, path,
+        world_to_cell, cell_to_world, (tangent, side), prepared=prepared,
+        observed_indices=observed_indices, remembered_indices=remembered_indices,
+        robot_radius=robot_radius, obstacle_inflation_cells=obstacle_inflation_cells,
+        require_path_obstruction=True)
+    if result is None:
+        return invalid('FIXED_SCENE_MOVED_BYPASS_UNPROVED')
+    index = min(range(len(path)), key=lambda i: math.hypot(path[i][0]-center[0], path[i][1]-center[1]))
+    base = path[index]
+    candidate.update(index=index, robot_distance_m=math.hypot(robot_xy[0]-center[0], robot_xy[1]-center[1]),
+        static_wall_distance_m=wall_distance,
+        approach_along_path_m=sum((robot_xy[i]-center[i])*tangent[i] for i in (0, 1)),
+        base_path_xy=list(base), lateral_offset_m=(center[0]-base[0])*-tangent[1]+(center[1]-base[1])*tangent[0],
+        preflight=result, robot_radius=robot_radius,
+        initial_path_clearance_m=path_clearance_from_box(path, center, robot_radius))
+    if diagnostics is not None:
+        diagnostics.update(reason='FIXED_FEASIBLE_BYPASS', input_status='VALID',
+                           geometric_candidates=1, topology_candidates_tried=1)
+    return candidate
+
+
 class CandidateSearch:
     """Run only the pure map topology search away from ROS callback dispatch.
 
@@ -409,7 +674,8 @@ class CandidateSearch:
 
     def __init__(self, path, robot_xy, goal_xy, grid, observed_indices,
                  goal_stamp=None,
-                 selector=select_feasible_web_obstacle, *, remembered_indices=()):
+                 selector=select_feasible_web_obstacle, *, remembered_indices=(),
+                 robot_radius=.24, obstacle_inflation_cells=5):
         from smart_vision_amr.map_utils import cell_to_world, world_to_cell
 
         path_snapshot = tuple(tuple(point) for point in path)
@@ -434,7 +700,8 @@ class CandidateSearch:
                 self.candidate = selector(
                     path_snapshot, robot_snapshot, goal_snapshot, grid,
                     world_to_cell, cell_to_world, observed_snapshot,
-                    self.diagnostics, remembered_indices=remembered_snapshot)
+                    self.diagnostics, remembered_indices=remembered_snapshot,
+                    robot_radius=robot_radius, obstacle_inflation_cells=obstacle_inflation_cells)
             except Exception as exc:
                 self.error = repr(exc)
             finally:
@@ -452,6 +719,11 @@ def main():
     parser.add_argument('--goal-x', type=float, required=True)
     parser.add_argument('--goal-y', type=float, required=True)
     parser.add_argument('--wait-timeout', type=float, default=800.)
+    parser.add_argument('--nodes-params', type=Path)
+    parser.add_argument('--robot-radius', type=float)
+    parser.add_argument('--obstacle-inflation-cells', type=int)
+    parser.add_argument('--obstacle-scenario', type=Path,
+                        help='Fixed paired-test JSON; invalid geometry fails without relocation')
     args = parser.parse_args()
     if (os.environ.get('ROS_DOMAIN_ID') != '176' or
             os.environ.get('ROS_LOCALHOST_ONLY') != '1'):
@@ -460,6 +732,28 @@ def main():
         parser.error('Refusing to overwrite '+str(args.output))
     if not all(math.isfinite(value) for value in (args.goal_x, args.goal_y)):
         parser.error('Goal must be finite')
+    scenario = None
+    if args.obstacle_scenario is not None:
+        try:
+            scenario = obstacle_scenario_manifest(args.obstacle_scenario)
+        except (OSError, ValueError, TypeError) as exc:
+            parser.error('--obstacle-scenario: '+str(exc))
+        # Preserve the exact input bytes, separate from source/config fingerprints.
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        copied_scenario = args.output.parent/'obstacle_scenario.json'
+        if copied_scenario.resolve() != args.obstacle_scenario.resolve():
+            copied_scenario.write_bytes(args.obstacle_scenario.read_bytes())
+        copied = obstacle_scenario_manifest(copied_scenario)
+        if copied['sha256'] != scenario['sha256']:
+            parser.error('Obstacle scenario changed while copying')
+        scenario['copied_path'] = str(copied_scenario.resolve())
+
+    if args.nodes_params is not None:
+        deadline = time.monotonic()+20.
+        while not args.nodes_params.is_file() and time.monotonic() < deadline:
+            time.sleep(.05)
+    geometry = geometry_parameters(args.nodes_params, args.robot_radius,
+                                   args.obstacle_inflation_cells)
 
     import rclpy
     from gazebo_msgs.msg import EntityState, ModelStates
@@ -476,12 +770,16 @@ def main():
     running = True
     evidence = {'passed': False, 'domain': 176, 'localhost_only': True,
                 'physical_robot_touched': False, 'goal': [args.goal_x, args.goal_y],
+                'geometry': {**geometry, 'nodes_params': str(args.nodes_params) if args.nodes_params else None},
                 'goal_owner': 'web_mission_server', 'goal_published_by_injector': False,
                 'spawned': False, 'truth_seen': False, 'removed': False,
                 'moving_steps': 0, 'observed_while_live': False,
                 'observed_cleared': False, 'path_reacted_before_removal': False,
                 'bypassed_while_live': False, 'minimum_clearance_m': None,
                 'recovery_requests': 0, 'events': [], 'failure': None}
+    if scenario is not None:
+        evidence['obstacle_scenario'] = scenario
+        evidence['input_status'] = 'PENDING_VALIDATION'
 
     def elapsed():
         return round(time.monotonic()-started, 3)
@@ -491,6 +789,16 @@ def main():
         evidence['events'].append(record)
         print(json.dumps(record), flush=True)
         return record
+
+    def reject_candidate(reason, **values):
+        emit('candidate_rejected', reason=reason, **values)
+        if scenario is not None and reason in {
+                'passed_or_route_changed', 'candidate_actually_passed_or_not_ahead',
+                'current_route_no_longer_blocked', 'robot_near_box_sweep',
+                'invalid_spawn_geometry', 'observed_cell_overlaps_box',
+                'current_obstacle_bypass_closed', 'new_observation_blocks_bypass',
+                'new_observed_cell_overlaps_box', 'new_memory_or_observation_blocks_bypass'}:
+            raise InvalidObstacleScenario(reason)
 
     def stop(*_):
         nonlocal running
@@ -606,7 +914,7 @@ def main():
                     and not evidence['bypassed_while_live'] and before_box
                     and self.path_before != hash_path(path)):
                 clearance = path_clearance_from_box(
-                    path, self.obstacle or self.candidate)
+                    path, self.obstacle or self.candidate, geometry['robot_radius'])
                 evidence['changed_path_clearance_m'] = round(clearance, 4)
                 if clearance >= .02:
                     if not self.planner_reacted:
@@ -636,7 +944,7 @@ def main():
             else:
                 self.obstacle = None
             if evidence['spawned'] and not evidence['removed'] and self.robot and self.obstacle:
-                clearance = conservative_body_clearance(self.robot, self.obstacle)
+                clearance = path_clearance_from_box([self.robot], self.obstacle, geometry['robot_radius'])
                 current = evidence['minimum_clearance_m']
                 evidence['minimum_clearance_m'] = min(current if current is not None else math.inf,
                                                      clearance)
@@ -786,9 +1094,11 @@ def main():
                 # Full-grid topology search can last several seconds on a
                 # loaded Gazebo PC. ROS callbacks must keep flowing so the
                 # post-search robot, path, and observations remain current.
+                selector = (partial(select_fixed_web_obstacle, scenario=scenario['scenario'])
+                            if scenario is not None else select_feasible_web_obstacle)
                 search = CandidateSearch(node.path, node.robot,
                     (args.goal_x, args.goal_y), node.grid, node.observed,
-                    node.goal_stamp, remembered_indices=node.remembered)
+                    node.goal_stamp, selector=selector, remembered_indices=node.remembered, **geometry)
                 search_attempts += 1
                 emit('candidate_search_started', attempt=search_attempts,
                      path_sha256=search.path_hash, robot_xy=search.robot_xy,
@@ -821,6 +1131,8 @@ def main():
             if error:
                 raise RuntimeError('Candidate topology search failed: '+error)
             if candidate is None:
+                if scenario is not None:
+                    raise InvalidObstacleScenario(diagnostics.get('reason', 'FIXED_SCENE_UNPROVED'))
                 continue
             if searched_goal_stamp != node.goal_stamp:
                 emit('candidate_rejected', reason='goal_rearmed_during_search',
@@ -830,10 +1142,10 @@ def main():
             # The candidate was selected on an earlier immutable snapshot.
             # Recheck its relative pose, route intersection, and fresh LiDAR
             # observations after draining current Gazebo callbacks.
-            search_finished_at = now
-            refresh_deadline = search_finished_at+.30
-            while running and rclpy.ok() and time.monotonic() < refresh_deadline:
-                rclpy.spin_once(node, timeout_sec=.01)
+            search_finished_at = time.monotonic()
+            refresh_placement_callbacks(
+                node, search_finished_at, .30, spin_once=rclpy.spin_once,
+                active=lambda: running and rclpy.ok())
             if not running or not rclpy.ok():
                 break
             route_reason = route_readiness(
@@ -853,15 +1165,18 @@ def main():
                      robot_age_s=(round(time.monotonic()-node.robot_at, 3)
                                   if node.robot_at is not None else None))
                 continue
-            if not candidate_still_ahead(candidate, node.robot, node.path):
-                diagnostics['stale_or_passed_candidates'] = (
-                    diagnostics.get('stale_or_passed_candidates', 0)+1)
-                emit('candidate_rejected', reason='passed_or_route_changed',
-                     robot_xy=node.robot)
+            placement_ready, placement_metrics = spawn_placement_readiness(
+                candidate, node.robot, node.path, time.monotonic()-node.robot_at,
+                geometry['robot_radius'], route_reason=route_reason,
+                current_goal_stamp=node.goal_stamp, expected_goal_stamp=searched_goal_stamp)
+            if not placement_ready:
+                reject_candidate(reason=placement_metrics['reason'],
+                                 spawn_readiness=placement_metrics)
                 continue
-            if near_obstacle_indices(node.observed, set(), node.grid,
-                                     (candidate['x'], candidate['y']), cell_to_world):
-                emit('candidate_rejected', reason='new_observed_cell_near_box')
+            if box_overlapping_obstacle_indices(
+                    node.observed, node.grid,
+                    (candidate['x'], candidate['y']), cell_to_world):
+                reject_candidate(reason='observed_cell_overlaps_box')
                 continue
             observed_snapshot = set(node.observed)
             remembered_snapshot = set(node.remembered)
@@ -869,16 +1184,16 @@ def main():
                 node.grid, node.robot, (args.goal_x, args.goal_y),
                 (candidate['x'], candidate['y']), observed_snapshot,
                 world_to_cell, cell_to_world,
-                remembered_indices=remembered_snapshot)
+                remembered_indices=remembered_snapshot, **geometry)
             if current_bypass is None:
-                emit('candidate_rejected', reason='current_obstacle_bypass_closed',
+                reject_candidate(reason='current_obstacle_bypass_closed',
                      observed_cells=len(observed_snapshot),
                      remembered_cells=len(remembered_snapshot))
                 continue
             final_check_at = time.monotonic()
-            while (running and rclpy.ok() and
-                   time.monotonic()-final_check_at < .15):
-                rclpy.spin_once(node, timeout_sec=.01)
+            refresh_placement_callbacks(
+                node, final_check_at, .15, spin_once=rclpy.spin_once,
+                active=lambda: running and rclpy.ok())
             if not running or not rclpy.ok():
                 break
             route_reason = route_readiness(
@@ -886,15 +1201,23 @@ def main():
                 node.navigation_at, node.path, node.path_at, node.observed_at,
                 time.monotonic(), (args.goal_x, args.goal_y),
                 node.navigation_goal_stamp, node.goal_stamp)
-            if (route_reason is not None or node.robot_at is None or
-                    time.monotonic()-node.robot_at > .35 or
-                    not candidate_still_ahead(candidate, node.robot, node.path)):
-                emit('candidate_rejected', reason='state_changed_after_final_preflight',
-                     route_reason=route_reason)
+            placement_ready, placement_metrics = spawn_placement_readiness(
+                candidate, node.robot, node.path,
+                time.monotonic()-node.robot_at if node.robot_at is not None else None,
+                geometry['robot_radius'], route_reason=route_reason,
+                current_goal_stamp=node.goal_stamp, expected_goal_stamp=searched_goal_stamp)
+            if not placement_ready:
+                reject_candidate(reason=placement_metrics['reason'],
+                                 spawn_readiness=placement_metrics)
                 continue
             if not newly_observed_route_clear(
-                    current_bypass, node.observed-observed_snapshot, node.grid.info):
-                emit('candidate_rejected', reason='new_observation_blocks_bypass')
+                    current_bypass, node.observed-observed_snapshot, node.grid.info, geometry['robot_radius']):
+                reject_candidate(reason='new_observation_blocks_bypass')
+                continue
+            if box_overlapping_obstacle_indices(
+                    node.observed-observed_snapshot, node.grid,
+                    (candidate['x'], candidate['y']), cell_to_world):
+                reject_candidate(reason='new_observed_cell_overlaps_box')
                 continue
             if (node.observed != observed_snapshot or
                     node.remembered != remembered_snapshot):
@@ -902,9 +1225,9 @@ def main():
                     node.grid, node.robot, (args.goal_x, args.goal_y),
                     (candidate['x'], candidate['y']), node.observed,
                     world_to_cell, cell_to_world,
-                    remembered_indices=node.remembered)
+                    remembered_indices=node.remembered, **geometry)
                 if refreshed_route is None:
-                    emit('candidate_rejected', reason='new_memory_or_observation_blocks_bypass',
+                    reject_candidate(reason='new_memory_or_observation_blocks_bypass',
                          observed_cells=len(node.observed),
                          remembered_cells=len(node.remembered))
                     continue
@@ -918,9 +1241,26 @@ def main():
                 continue
             if not running or not rclpy.ok():
                 break
+            # A refreshed memory bypass proof may itself take time. Recheck
+            # every existing route lease immediately before service dispatch.
+            route_reason = route_readiness(
+                node.goal_active, node.navigation_status, node.navigation_goal_xy,
+                node.navigation_at, node.path, node.path_at, node.observed_at,
+                time.monotonic(), (args.goal_x, args.goal_y),
+                node.navigation_goal_stamp, node.goal_stamp)
+            placement_ready, placement_metrics = spawn_placement_readiness(
+                candidate, node.robot, node.path,
+                time.monotonic()-node.robot_at if node.robot_at is not None else None,
+                geometry['robot_radius'], route_reason=route_reason,
+                current_goal_stamp=node.goal_stamp, expected_goal_stamp=searched_goal_stamp)
+            if not placement_ready:
+                reject_candidate(reason=placement_metrics['reason'],
+                                 spawn_readiness=placement_metrics)
+                continue
             emit('current_observed_bypass_proved',
                  route_cells=len(current_bypass),
-                 observed_cells=len(node.observed))
+                 observed_cells=len(node.observed),
+                 spawn_readiness=placement_metrics)
             node.candidate = (candidate['x'], candidate['y'])
             node.tangent = tuple(candidate['path_tangent'])
             node.before_observed = set(node.observed)
@@ -928,6 +1268,8 @@ def main():
             node.planner_before = node.last_status.get('global_plan_count', 0)
             node.planner_local_before = node.last_status.get('local_attempt_id', 0)
             evidence['candidate'] = candidate
+            if scenario is not None:
+                evidence['input_status'] = 'VALID'
             node.name = 'classroom_web_obstacle_'+uuid.uuid4().hex[:10]
             request = SpawnEntity.Request()
             request.name = node.name
@@ -957,6 +1299,7 @@ def main():
 
         spawned_at = time.monotonic()
         next_move_at = None
+        last_deferred_move_log = 0.
         side = evidence['candidate']['preflight']['movement_side']
         perpendicular = (-node.tangent[1], node.tangent[0])
         while running and rclpy.ok() and live:
@@ -974,28 +1317,45 @@ def main():
             if (next_move_at is not None and evidence['moving_steps'] < 4
                     and now >= next_move_at):
                 step = evidence['moving_steps']+1
-                state = EntityState()
-                state.name = node.name
-                state.reference_frame = 'world'
-                state.pose.position.x = node.candidate[0]+.025*step*side*perpendicular[0]
-                state.pose.position.y = node.candidate[1]+.025*step*side*perpendicular[1]
-                state.pose.position.z = .25
-                state.pose.orientation.w = 1.
-                response = node.await_future(node.move.call_async(
-                    SetEntityState.Request(state=state)), 5., 'move')
-                if response is None or not response.success:
-                    raise RuntimeError('Gazebo rejected obstacle movement')
-                evidence['moving_steps'] = step
-                emit('obstacle_moved', step=step, x=state.pose.position.x,
-                     y=state.pose.position.y)
-                next_move_at = now+.8
+                target = (node.candidate[0]+.025*step*side*perpendicular[0],
+                          node.candidate[1]+.025*step*side*perpendicular[1])
+                ready, movement = movement_step_readiness(
+                    node.obstacle, target, node.robot,
+                    now-node.robot_at if node.robot_at is not None else None,
+                    robot_radius=geometry['robot_radius'])
+                if not ready:
+                    # Preserve the live obstacle and let the robot complete
+                    # its bypass. Never teleport the box into an approaching
+                    # chassis merely to finish the four-step actor schedule.
+                    evidence['deferred_movement_checks'] = evidence.get('deferred_movement_checks', 0)+1
+                    if now-last_deferred_move_log >= 1.:
+                        emit('obstacle_move_deferred', step=step, target_xy=target,
+                             robot_xy=node.robot, **movement)
+                        last_deferred_move_log = now
+                    next_move_at = now+.10
+                else:
+                    state = EntityState()
+                    state.name = node.name
+                    state.reference_frame = 'world'
+                    state.pose.position.x, state.pose.position.y = target
+                    state.pose.position.z = .25
+                    state.pose.orientation.w = 1.
+                    response = node.await_future(node.move.call_async(
+                        SetEntityState.Request(state=state)), 5., 'move')
+                    if response is None or not response.success:
+                        raise RuntimeError('Gazebo rejected obstacle movement')
+                    evidence['moving_steps'] = step
+                    emit('obstacle_moved', step=step, x=state.pose.position.x,
+                         y=state.pose.position.y, **movement)
+                    next_move_at = now+.8
             # Keep the box long enough for a slow real-speed robot to plan
             # and pass it. An early removal is allowed only after a measured
             # safe bypass and a matching clear path; the 60 s limit prevents
             # an indefinitely blocked trial.
             if (now-spawned_at >= 60. or
                     (now-spawned_at >= 14. and
-                     evidence['bypassed_while_live'] and node.planner_reacted)):
+                     evidence['bypassed_while_live'] and node.planner_reacted
+                     and evidence['moving_steps'] == 4)):
                 observed_at = evidence.get('first_observed_at')
                 reaction_at = evidence.get('path_reaction_at')
                 # DDS callbacks can arrive out of order. A changed route more
@@ -1027,6 +1387,9 @@ def main():
             evidence['minimum_clearance_m'] is not None and
             evidence['minimum_clearance_m'] >= .02)
     except Exception as exc:
+        if isinstance(exc, InvalidObstacleScenario):
+            evidence['input_status'] = 'INVALID_INPUT'
+            evidence['failure_class'] = 'INVALID_OBSTACLE_SCENARIO'
         evidence['failure'] = repr(exc)
         emit('injector_failed', reason=repr(exc))
     finally:

@@ -1,0 +1,29 @@
+{
+  "scope": "Actual recorded cleanHOME failure tracking + isolated realDWB three-frame single-factor screen, not a new closed-loop pass orselectedproductionparameter",
+  "domain": 186,
+  "localhost_only": true,
+  "output_command_topic": "/replay/controller_cmd_vel",
+  "hardware_touched": false,
+  "frames_ros_seconds": [
+    159.3,
+    161.34,
+    163.44
+  ],
+  "variants": {
+    "baseline": "actualnav values",
+    "pathdist64": "ONLY FollowPath.PathDist.scale32\u219264",
+    "pathalign64": "ONLY FollowPath.PathAlign.scale32\u219264"
+  },
+  "raw_input_sha256": "4cf9653915165060a8651779fbbe556bc1b06906d514dd3e50f8e6e0a833ce3d",
+  "nav_input_sha256": "080c8aa7da6020c0c427a67d1631012d51e6c21c1b476e0479115f3a71555f27",
+  "helper_sha256": "e2626f989d07b8141241a2433573ee71f35d84e7bb35e0611741ab0919882432",
+  "plugin_library_sha256": "a98b2365210a38ced0f26106999350da8aaa36227136388314a0d7a1776040cf",
+  "all_six_paired_candidate_verdict_checks": true,
+  "not_replayed": [
+    "actualmovingclosedloop",
+    "sensorfuturelatency",
+    "AMCLupdates",
+    "previousoscillationcriticstate",
+    "physicalrobot"
+  ]
+}

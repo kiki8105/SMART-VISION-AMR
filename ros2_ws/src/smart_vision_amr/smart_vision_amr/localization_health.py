@@ -420,15 +420,17 @@ class LocalizationHealth(Node):
             result.successful = True
             result.reason = 'already_confirmed_stop_latch_retained'
             return response
+        amcl_header_age = (now_ros-verified)/1e9
         if (initial <= self.last_manual_confirmed_stamp_ns or now_ros <= 0
                 or initial > now_ros+int(self.core.future_tolerance*1e9)
-                or now_ros-verified > 2_000_000_000):
+                or not -self.core.future_tolerance <= amcl_header_age <= self.core.amcl_pose_timeout):
             result.reason = 'invalid_or_stale_stamp'
             return response
         if self.last_amcl_stamp_ns is None or self.last_amcl_stamp_ns < verified:
             result.reason = 'amcl_not_seen_yet'
             return response
-        if (self.amcl_at is None or not 0. <= now-self.amcl_at <= 2.
+        if (self.amcl_at is None
+                or not 0. <= now-self.amcl_at <= self.core.amcl_pose_timeout
                 or self.position_std is None or self.yaw_std is None
                 or not math.isfinite(self.position_std) or not math.isfinite(self.yaw_std)):
             result.reason = 'amcl_not_fresh'
@@ -450,6 +452,17 @@ class LocalizationHealth(Node):
                 or abs(twist.linear.x) >= .01 or abs(twist.angular.z) >= .03):
             result.reason = 'robot_not_stopped'
             return response
+        if amcl_header_age > 2.:
+            # A stationary AMCL posterior need not refresh on every laser scan.
+            # Permit the same bounded age as the normal health watchdog only
+            # when a *new* scan still agrees with the saved map. Service
+            # receipt alone is never proof of a current pose or safe motion.
+            if (self.agreement is None or not math.isfinite(self.agreement)
+                    or self.agreement_at is None
+                    or not 0. <= now-self.agreement_at <= self.core.sensor_timeout
+                    or self.agreement_stamp is None or self.agreement_stamp <= initial):
+                result.reason = 'scan_map_not_fresh'
+                return response
         try:
             for frame in (self.map_frame, self.odom_frame):
                 transform = self._tf(frame, self.base_frame)

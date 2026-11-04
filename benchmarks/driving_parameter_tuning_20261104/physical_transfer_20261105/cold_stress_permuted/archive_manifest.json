@@ -1,0 +1,180 @@
+{
+  "root_at_capture": "/tmp/classroom-transfer-cold_stress_permuted-20261105",
+  "files": [
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/staged_report.json",
+      "archive_path": "staged_report.json",
+      "original_sha256": "fa17ecfc7d78fc7342ee5a1e15a32690bcba84699fcb2f61a045804f04d5b85f",
+      "archive_sha256": "fa17ecfc7d78fc7342ee5a1e15a32690bcba84699fcb2f61a045804f04d5b85f",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105-source-rates.json",
+      "archive_path": "source_rates.json",
+      "original_sha256": "b3350a06c6c3bbf5fe63f15669224ba86e33838ce6d50f85db38ed29630d12ba",
+      "archive_sha256": "b3350a06c6c3bbf5fe63f15669224ba86e33838ce6d50f85db38ed29630d12ba",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105.log",
+      "archive_path": "runner.log.gz",
+      "original_sha256": "21b6b47d409b7a571875de500268316328fa3592fb517f05e686d8661c578fcb",
+      "archive_sha256": "2fb3cf42e21a8f3c6dec78d07633248fc0c54e77ace0627f8c370bc7776cf287",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/acceptance.json",
+      "archive_path": "12_web_integrated_stress_permuted/acceptance.json",
+      "original_sha256": "3bbda58621e9ce5e10409282f3185724055de5fd14265e60fc655f9ae03144a1",
+      "archive_sha256": "3bbda58621e9ce5e10409282f3185724055de5fd14265e60fc655f9ae03144a1",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/derived_evidence.json",
+      "archive_path": "12_web_integrated_stress_permuted/derived_evidence.json",
+      "original_sha256": "396175cd31a9b5ddc013dcb4171bbc259620c5728b53fbbaf7117651200d5152",
+      "archive_sha256": "396175cd31a9b5ddc013dcb4171bbc259620c5728b53fbbaf7117651200d5152",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/safety_assessment.json",
+      "archive_path": "12_web_integrated_stress_permuted/safety_assessment.json",
+      "original_sha256": "a576525992deea7ea998447ba86b422308d623a95f525f6f0c7925ff92740a27",
+      "archive_sha256": "a576525992deea7ea998447ba86b422308d623a95f525f6f0c7925ff92740a27",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/runtime_manifest.json",
+      "archive_path": "12_web_integrated_stress_permuted/runtime_manifest.json",
+      "original_sha256": "b88ec2826dcc6086fa610cfb76605d7c7718e6db533c35774b9df8986fe269eb",
+      "archive_sha256": "b88ec2826dcc6086fa610cfb76605d7c7718e6db533c35774b9df8986fe269eb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/stress_crate_assessment.json",
+      "archive_path": "12_web_integrated_stress_permuted/stress_crate_assessment.json",
+      "original_sha256": "20f75e4eb7339b2ca476370548d6b7828a170180adac60b585c4f5a9871b8405",
+      "archive_sha256": "20f75e4eb7339b2ca476370548d6b7828a170180adac60b585c4f5a9871b8405",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/classroom_nav_sim_time.yaml",
+      "archive_path": "12_web_integrated_stress_permuted/classroom_nav_sim_time.yaml",
+      "original_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "archive_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/classroom_nodes_sim.yaml",
+      "archive_path": "12_web_integrated_stress_permuted/classroom_nodes_sim.yaml",
+      "original_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "archive_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/ekf_hardware_like_sim.yaml",
+      "archive_path": "12_web_integrated_stress_permuted/ekf_hardware_like_sim.yaml",
+      "original_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "archive_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/memory_observer.summary.json",
+      "archive_path": "12_web_integrated_stress_permuted/memory_observer.summary.json",
+      "original_sha256": "4fc3ad5f4ce67113155b34bead1c1011517618bb301cc8648f4c6bcbdb9a5050",
+      "archive_sha256": "4fc3ad5f4ce67113155b34bead1c1011517618bb301cc8648f4c6bcbdb9a5050",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/actual_spawned_model.sdf",
+      "archive_path": "12_web_integrated_stress_permuted/actual_spawned_model.sdf",
+      "original_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "archive_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/fixture/fixture_manifest.json",
+      "archive_path": "12_web_integrated_stress_permuted/fixture/fixture_manifest.json",
+      "original_sha256": "02f4c596d019f7384024e1c768cc402ec9a0f51ad44a1880c55bbb496af5d749",
+      "archive_sha256": "02f4c596d019f7384024e1c768cc402ec9a0f51ad44a1880c55bbb496af5d749",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/fixture/waffle_pi_fault.sdf",
+      "archive_path": "12_web_integrated_stress_permuted/fixture/waffle_pi_fault.sdf",
+      "original_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "archive_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/fixture/classroom_fault.world",
+      "archive_path": "12_web_integrated_stress_permuted/fixture/classroom_fault.world",
+      "original_sha256": "856e052c4a38b6e472a513210109d040c896938a309093ec5bc271572742b020",
+      "archive_sha256": "856e052c4a38b6e472a513210109d040c896938a309093ec5bc271572742b020",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/safety_timeline.jsonl",
+      "archive_path": "12_web_integrated_stress_permuted/safety_timeline.jsonl.gz",
+      "original_sha256": "c09a9c7f5f96ee28aa4aee56d2df8f678eedae64e2dd943a5ce7f5796751167b",
+      "archive_sha256": "b927d35d880eeca8838599dbf0bdbed473d10dae083850323461ac9cc364a00b",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/memory_observer.jsonl",
+      "archive_path": "12_web_integrated_stress_permuted/memory_observer.jsonl.gz",
+      "original_sha256": "e62d234b6240b6bc14dbb6271a6332d6154a767d0a0c430e13ed0593081f8105",
+      "archive_sha256": "5fe56ecfaf53c67ef5d3e07df57cf2404c20991f19887f535dc84d34f3cb26e9",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/sensor_faults.jsonl",
+      "archive_path": "12_web_integrated_stress_permuted/sensor_faults.jsonl.gz",
+      "original_sha256": "fcbd850689924031cfb7f1ba13ca87a38da025b168352bfa3e7d5208a93df0d6",
+      "archive_sha256": "154b45b870bab309b785daa44196e9991242860d30d16e94941c5e56d68d381e",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/stress_crate_trace.jsonl",
+      "archive_path": "12_web_integrated_stress_permuted/stress_crate_trace.jsonl.gz",
+      "original_sha256": "054c678612c5d7605ae64d7cc28b6c8ba5d8e694710393db6669b61924470d24",
+      "archive_sha256": "3c56b2692c94406bf7964fcb42ba6e755eaabd47a720ccccfa44d479cd50476d",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/gazebo_launch.log",
+      "archive_path": "12_web_integrated_stress_permuted/gazebo_launch.log.gz",
+      "original_sha256": "3ee929afd0cd4a9597f76d87b1780e85993de604d328069dca121e4402307c35",
+      "archive_sha256": "1b299d6c861aedabc7f73ee2903a114d871e71a8cc13d92f618379e4e27e4fd5",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/web_server.log",
+      "archive_path": "12_web_integrated_stress_permuted/web_server.log.gz",
+      "original_sha256": "dea63cbd312eb7aca42d4dbe3e2c8ecc048aa95a2ad71ff172970a3c3a0c7ada",
+      "archive_sha256": "1d063fe841fbd71ff8f377570333c47594ecc251768a14cdad789ef71c71190c",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/sector_2_rear_confirmed.jpg",
+      "archive_path": "12_web_integrated_stress_permuted/sector_2_rear_confirmed.jpg",
+      "original_sha256": "76cb885b4957a183749ad53b4a487a6090b0a5f4a722b12f5c02b8d58eafc331",
+      "archive_sha256": "76cb885b4957a183749ad53b4a487a6090b0a5f4a722b12f5c02b8d58eafc331",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/sector_1_rear_confirmed.jpg",
+      "archive_path": "12_web_integrated_stress_permuted/sector_1_rear_confirmed.jpg",
+      "original_sha256": "a659d468c5b60f77e8c6f86114b1290d49d25ddd528f46f4854f86b864114394",
+      "archive_sha256": "a659d468c5b60f77e8c6f86114b1290d49d25ddd528f46f4854f86b864114394",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold_stress_permuted-20261105/12_web_integrated_stress_permuted/sector_3_rear_confirmed.jpg",
+      "archive_path": "12_web_integrated_stress_permuted/sector_3_rear_confirmed.jpg",
+      "original_sha256": "a4cccd597067dbfe90bd8e4e52f2e03b881a13cbb5616303c695c46de46e2359",
+      "archive_sha256": "a4cccd597067dbfe90bd8e4e52f2e03b881a13cbb5616303c695c46de46e2359",
+      "gzip": false
+    }
+  ]
+}

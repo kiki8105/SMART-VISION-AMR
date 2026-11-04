@@ -126,6 +126,23 @@ def test_hardware_launch_exposes_composition_in_show_args():
     assert 'false uses separate processes' in result.stdout
 
 
+def test_classroom_web_passes_physical_body_radius_to_rotation_gate(tmp_path):
+    scripts = tmp_path/'scripts'
+    scripts.mkdir()
+    wrapper = scripts/'run_classroom_web_16.sh'
+    shutil.copyfile(REPO/'scripts/run_classroom_web_16.sh', wrapper)
+    downstream = scripts/'run_web_mission.sh'
+    downstream.write_text('#!/usr/bin/env bash\nprintf "%s\\n" "$@"\n')
+    downstream.chmod(0o755)
+    settings = tmp_path/'settings.json'
+    settings.write_text('{}')
+    result = subprocess.run(['bash', str(wrapper)], text=True, capture_output=True,
+        check=True, timeout=5,
+        env=dict(os.environ, SMART_VISION_CLASSROOM_CONFIG=str(settings)))
+    arguments = result.stdout.splitlines()
+    assert arguments[arguments.index('--rotation-clearance-radius')+1] == '0.22'
+
+
 def test_ekf_robot_wrapper_selects_independent_mode(tmp_path):
     scripts = tmp_path/'scripts'
     scripts.mkdir()

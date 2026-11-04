@@ -148,7 +148,7 @@ def test_unknown_or_occupied_map_and_raw_memory_remain_hard_blocks():
                                       (18.5, 18.5), 4.4, .4) == set()
 
 
-def test_ros_adapter_uses_fresh_continuous_start_exception_only(prepared):
+def test_ros_adapter_keeps_captured_route_outside_exact_live_footprint(prepared):
     node = prepared
     image = Image.open(MAP).convert("L")
     width, height = image.size
@@ -181,7 +181,13 @@ def test_ros_adapter_uses_fresh_continuous_start_exception_only(prepared):
     assert (path.poses[0].pose.position.x, path.poses[0].pose.position.y) == pytest.approx((.425, -1.075))
     assert path.poses[1].pose.position.x < path.poses[0].pose.position.x
     assert node.planned_cells[0] == CAPTURED[0][0]
-    assert all(cell not in blocked(raw, node.observed) for cell in node.planned_cells[1:])
+    # This historical case used to put the start inside a conservative
+    # radius-plus-half-diagonal mask. The planner now uses exact cell-square
+    # separation, so the start is already physically clear and no exceptional
+    # egress is needed. Smoothing may enter the old extra halo, never the body.
+    live_body = node._live_obstacle_blocked(node.observed)
+    assert all(cell not in live_body for cell in node.planned_cells)
+    assert all(not static.is_static_obstacle(cell) for cell in node.planned_cells)
 
 
 def test_ros_adapter_refuses_stale_pose_exception(prepared):

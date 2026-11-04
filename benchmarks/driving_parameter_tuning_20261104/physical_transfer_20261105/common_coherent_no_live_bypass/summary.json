@@ -1,0 +1,63 @@
+{
+  "stages": [
+    {
+      "stage": "25_web_inventory_sector3_moving_obstacle",
+      "outcome": "FAIL",
+      "reasons": [
+        "web_obstacle_injector_failed",
+        "web_obstacle_bypassed_while_live_unverified",
+        "runner_nonzero_exit"
+      ],
+      "mission_backend_passed": true,
+      "final_state": "HOME_REACHED",
+      "cold_start_proof": {
+        "passed": true,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend",
+        "launch_prior_query": {
+          "service": "/amcl/get_parameters",
+          "parameter": "set_initial_pose",
+          "max_attempts": 3,
+          "per_attempt_timeout_s": 5.0,
+          "attempts": [
+            {
+              "attempt": 1,
+              "timeout_s": 5.0,
+              "elapsed_s": 0.37070261199914967,
+              "outcome": "parameter_observed",
+              "value": false
+            }
+          ],
+          "outcome": "parameter_observed",
+          "attempt_count": 1,
+          "elapsed_s": 3.629472189997614
+        },
+        "before": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 0,
+          "map_tf_messages": 0,
+          "web_pose": null,
+          "observed_seconds": 6.59596127199984
+        },
+        "after": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 3,
+          "map_tf_messages": 1
+        }
+      },
+      "prearm_passed": true,
+      "source_unchanged": true,
+      "actor_moving_steps": 4,
+      "actor_bypassed_while_live": false,
+      "actor_minimum_clearance_m": 0.08271580104938839,
+      "safety_passed": true,
+      "safety_violations": [],
+      "transient": null,
+      "physical_drive": false,
+      "visual_browser_qa": false
+    }
+  ],
+  "passed": false
+}

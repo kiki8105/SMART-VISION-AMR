@@ -1,0 +1,2795 @@
+{
+  "scope": "Logged complete raw-blocker sets vs currently published route; observer geometry is bracketed and internal raw/scan TF details were not captured",
+  "cancellations": [
+    {
+      "wall_time": 1793813463.0290859,
+      "path_t": 22.1223,
+      "path_count": 95,
+      "path_stamp_ns": 7280000000,
+      "pose": [
+        -0.09104136009666101,
+        -0.3843447858641398,
+        -0.81319
+      ],
+      "truth": {
+        "t": 26.9958,
+        "monotonic": 27634.6155,
+        "wall_time": 1793813462.9573,
+        "kind": "truth",
+        "x": -0.04459,
+        "y": -0.37375,
+        "yaw": -0.82256
+      },
+      "blockers": [
+        [
+          37,
+          92
+        ],
+        [
+          38,
+          90
+        ],
+        [
+          38,
+          91
+        ],
+        [
+          38,
+          92
+        ],
+        [
+          38,
+          93
+        ],
+        [
+          38,
+          94
+        ],
+        [
+          38,
+          95
+        ],
+        [
+          39,
+          95
+        ],
+        [
+          40,
+          95
+        ],
+        [
+          41,
+          95
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          33,
+          94
+        ],
+        [
+          33,
+          95
+        ],
+        [
+          33,
+          96
+        ],
+        [
+          34,
+          93
+        ],
+        [
+          34,
+          94
+        ],
+        [
+          35,
+          92
+        ],
+        [
+          35,
+          93
+        ],
+        [
+          36,
+          91
+        ],
+        [
+          36,
+          92
+        ],
+        [
+          37,
+          90
+        ],
+        [
+          37,
+          91
+        ],
+        [
+          38,
+          88
+        ],
+        [
+          38,
+          89
+        ],
+        [
+          38,
+          90
+        ],
+        [
+          39,
+          87
+        ],
+        [
+          39,
+          88
+        ],
+        [
+          39,
+          89
+        ],
+        [
+          40,
+          86
+        ],
+        [
+          40,
+          87
+        ],
+        [
+          40,
+          88
+        ],
+        [
+          41,
+          86
+        ],
+        [
+          41,
+          87
+        ],
+        [
+          42,
+          86
+        ]
+      ],
+      "start": [
+        31,
+        97
+      ],
+      "allowed_edges": [],
+      "selected_first_edge": [
+        [
+          28,
+          101
+        ],
+        [
+          29,
+          100
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 1.3389586399033389,
+      "raster_raw_first_prefix_gap_m": 1.2049999999999998,
+      "observed_source_delta_s": 0.02336883544921875,
+      "memory_source_delta_s": 15.079806804656982,
+      "latest_scan_stamp_ns": 11684000000,
+      "latest_odom_tf_stamp_ns": 11745000000,
+      "scan_ahead_latest_odom_tf_ms": -61.0,
+      "publication_cert_gate_reason": "not_in_inflation",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": false,
+      "logged_blockers_route_intersections": [
+        [
+          33,
+          94
+        ],
+        [
+          33,
+          95
+        ],
+        [
+          33,
+          96
+        ],
+        [
+          34,
+          93
+        ],
+        [
+          34,
+          94
+        ],
+        [
+          35,
+          92
+        ],
+        [
+          35,
+          93
+        ],
+        [
+          36,
+          91
+        ],
+        [
+          36,
+          92
+        ],
+        [
+          37,
+          90
+        ],
+        [
+          37,
+          91
+        ],
+        [
+          38,
+          88
+        ],
+        [
+          38,
+          89
+        ],
+        [
+          38,
+          90
+        ],
+        [
+          39,
+          87
+        ],
+        [
+          39,
+          88
+        ],
+        [
+          39,
+          89
+        ],
+        [
+          40,
+          86
+        ],
+        [
+          40,
+          87
+        ],
+        [
+          40,
+          88
+        ],
+        [
+          41,
+          86
+        ],
+        [
+          41,
+          87
+        ],
+        [
+          42,
+          86
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813465.0705488,
+      "path_t": 27.2016,
+      "path_count": 93,
+      "path_stamp_ns": 11740000000,
+      "pose": [
+        -0.06666203827535282,
+        -0.4065103193408357,
+        -0.9325899999999999
+      ],
+      "truth": {
+        "t": 28.9968,
+        "monotonic": 27636.6164,
+        "wall_time": 1793813464.9583,
+        "kind": "truth",
+        "x": -0.02073,
+        "y": -0.39943,
+        "yaw": -0.92557
+      },
+      "blockers": [
+        [
+          37,
+          90
+        ],
+        [
+          38,
+          89
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          33,
+          86
+        ],
+        [
+          34,
+          85
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [],
+      "selected_first_edge": [
+        [
+          31,
+          97
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.06257558820060591,
+      "raster_raw_first_prefix_gap_m": 0.06257558820060591,
+      "observed_source_delta_s": 0.024641752243041992,
+      "memory_source_delta_s": 0.006633758544921875,
+      "latest_scan_stamp_ns": 13486000000,
+      "latest_odom_tf_stamp_ns": 13445000000,
+      "scan_ahead_latest_odom_tf_ms": 41.0,
+      "publication_cert_gate_reason": "not_in_inflation",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "LOCAL_DETOUR",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": false,
+      "logged_blockers_route_intersections": [
+        [
+          33,
+          86
+        ],
+        [
+          34,
+          85
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813465.9858816,
+      "path_t": 29.2271,
+      "path_count": 93,
+      "path_stamp_ns": 13480000000,
+      "pose": [
+        -0.06756624228273014,
+        -0.4078450294655434,
+        -1.05348
+      ],
+      "truth": {
+        "t": 29.9352,
+        "monotonic": 27637.5549,
+        "wall_time": 1793813465.8967,
+        "kind": "truth",
+        "x": -0.02056,
+        "y": -0.39958,
+        "yaw": -1.05337
+      },
+      "blockers": [
+        [
+          37,
+          89
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          33,
+          85
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          95
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.06299157691264809,
+      "raster_raw_first_prefix_gap_m": 0.06299157691264809,
+      "observed_source_delta_s": 0.02607560157775879,
+      "memory_source_delta_s": 0.921966552734375,
+      "latest_scan_stamp_ns": 14186000000,
+      "latest_odom_tf_stamp_ns": 14246000000,
+      "scan_ahead_latest_odom_tf_ms": -60.0,
+      "publication_cert_gate_reason": "not_in_inflation",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "LOCAL_DETOUR",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": false,
+      "logged_blockers_route_intersections": [
+        [
+          33,
+          85
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813466.5948224,
+      "path_t": 30.1914,
+      "path_count": 94,
+      "path_stamp_ns": 14240000000,
+      "pose": [
+        -0.06754625078518367,
+        -0.4078456125828972,
+        -1.05399
+      ],
+      "truth": {
+        "t": 30.5348,
+        "monotonic": 27638.1545,
+        "wall_time": 1793813466.4963,
+        "kind": "truth",
+        "x": -0.02058,
+        "y": -0.39959,
+        "yaw": -1.05095
+      },
+      "blockers": [
+        [
+          36,
+          93
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          95
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          95
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.03987350979394136,
+      "raster_raw_first_prefix_gap_m": 0.03739075352467511,
+      "observed_source_delta_s": 0.02322530746459961,
+      "memory_source_delta_s": 1.530907392501831,
+      "latest_scan_stamp_ns": 14687000000,
+      "latest_odom_tf_stamp_ns": 14746000000,
+      "scan_ahead_latest_odom_tf_ms": -59.0,
+      "publication_cert_gate_reason": "not_in_inflation",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "LOCAL_DETOUR",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": false,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          95
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813468.027588,
+      "path_t": 32.0101,
+      "path_count": 98,
+      "path_stamp_ns": 15480000000,
+      "pose": [
+        -0.06707029374238355,
+        -0.41213969376446946,
+        -1.06506
+      ],
+      "truth": {
+        "t": 32.0376,
+        "monotonic": 27639.6572,
+        "wall_time": 1793813467.9991,
+        "kind": "truth",
+        "x": -0.02058,
+        "y": -0.39961,
+        "yaw": -1.06387
+      },
+      "blockers": [
+        [
+          36,
+          88
+        ],
+        [
+          36,
+          89
+        ],
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          86
+        ],
+        [
+          31,
+          96
+        ],
+        [
+          32,
+          84
+        ],
+        [
+          32,
+          85
+        ],
+        [
+          33,
+          84
+        ],
+        [
+          34,
+          83
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.014177167625722797,
+      "raster_raw_first_prefix_gap_m": 0.014177167625722797,
+      "observed_source_delta_s": 0.09716081619262695,
+      "memory_source_delta_s": 0.07991480827331543,
+      "latest_scan_stamp_ns": 15793000000,
+      "latest_odom_tf_stamp_ns": 15798000000,
+      "scan_ahead_latest_odom_tf_ms": -5.0,
+      "publication_cert_gate_reason": "not_in_inflation",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": false,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          86
+        ],
+        [
+          31,
+          96
+        ],
+        [
+          32,
+          84
+        ],
+        [
+          32,
+          85
+        ],
+        [
+          33,
+          84
+        ],
+        [
+          34,
+          83
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813469.6827621,
+      "path_t": 32.6394,
+      "path_count": 83,
+      "path_stamp_ns": 16000000000,
+      "pose": [
+        -0.06761555996653182,
+        -0.40833977468762533,
+        -1.1356300000000001
+      ],
+      "truth": {
+        "t": 33.6678,
+        "monotonic": 27641.2874,
+        "wall_time": 1793813469.6293,
+        "kind": "truth",
+        "x": -0.02048,
+        "y": -0.39973,
+        "yaw": -1.1515
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.01613159221896296,
+      "raster_raw_first_prefix_gap_m": 0.01613159221896296,
+      "observed_source_delta_s": 0.03155708312988281,
+      "memory_source_delta_s": 0.01716923713684082,
+      "latest_scan_stamp_ns": 17090000000,
+      "latest_odom_tf_stamp_ns": 17062000000,
+      "scan_ahead_latest_odom_tf_ms": 28.0,
+      "publication_cert_gate_reason": "no_certified_edge",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": true,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813471.95273,
+      "path_t": 35.7555,
+      "path_count": 82,
+      "path_stamp_ns": 18260000000,
+      "pose": [
+        -0.06609210691540147,
+        -0.4030991427364412,
+        -1.23923
+      ],
+      "truth": {
+        "t": 35.9709,
+        "monotonic": 27643.5906,
+        "wall_time": 1793813471.9324,
+        "kind": "truth",
+        "x": -0.02046,
+        "y": -0.39973,
+        "yaw": -1.23921
+      },
+      "blockers": [
+        [
+          37,
+          88
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          35,
+          83
+        ],
+        [
+          36,
+          83
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.04129611657256929,
+      "raster_raw_first_prefix_gap_m": 0.03739075352467511,
+      "observed_source_delta_s": 0.022593975067138672,
+      "memory_source_delta_s": 1.6472668647766113,
+      "latest_scan_stamp_ns": 18709000000,
+      "latest_odom_tf_stamp_ns": 18668000000,
+      "scan_ahead_latest_odom_tf_ms": 41.0,
+      "publication_cert_gate_reason": "remembered_inflation_start",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": true,
+      "logged_blockers_route_intersections": [
+        [
+          35,
+          83
+        ],
+        [
+          36,
+          83
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813472.372074,
+      "path_t": 36.3978,
+      "path_count": 105,
+      "path_stamp_ns": 18700000001,
+      "pose": [
+        -0.06611075534713873,
+        -0.4030486230769635,
+        -1.24055
+      ],
+      "truth": {
+        "t": 36.3334,
+        "monotonic": 27643.953,
+        "wall_time": 1793813472.2949,
+        "kind": "truth",
+        "x": -0.02057,
+        "y": -0.39968,
+        "yaw": -1.24056
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          95
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.016861622184733888,
+      "raster_raw_first_prefix_gap_m": 0.016700058996555495,
+      "observed_source_delta_s": 0.13361787796020508,
+      "memory_source_delta_s": 2.066610813140869,
+      "latest_scan_stamp_ns": 19009000000,
+      "latest_odom_tf_stamp_ns": 18970000000,
+      "scan_ahead_latest_odom_tf_ms": 39.0,
+      "publication_cert_gate_reason": "escape_already_present",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [
+        [
+          27,
+          91
+        ],
+        [
+          27,
+          92
+        ],
+        [
+          27,
+          93
+        ],
+        [
+          27,
+          94
+        ],
+        [
+          27,
+          95
+        ],
+        [
+          28,
+          90
+        ],
+        [
+          28,
+          91
+        ],
+        [
+          28,
+          92
+        ],
+        [
+          28,
+          93
+        ],
+        [
+          28,
+          94
+        ],
+        [
+          28,
+          95
+        ],
+        [
+          28,
+          96
+        ],
+        [
+          28,
+          97
+        ],
+        [
+          29,
+          90
+        ],
+        [
+          29,
+          91
+        ],
+        [
+          29,
+          92
+        ],
+        [
+          29,
+          93
+        ],
+        [
+          29,
+          94
+        ],
+        [
+          29,
+          95
+        ],
+        [
+          29,
+          96
+        ],
+        [
+          29,
+          97
+        ],
+        [
+          30,
+          90
+        ],
+        [
+          30,
+          91
+        ],
+        [
+          30,
+          92
+        ],
+        [
+          30,
+          93
+        ],
+        [
+          30,
+          94
+        ],
+        [
+          30,
+          95
+        ],
+        [
+          30,
+          96
+        ],
+        [
+          30,
+          97
+        ],
+        [
+          30,
+          98
+        ],
+        [
+          31,
+          96
+        ],
+        [
+          31,
+          97
+        ],
+        [
+          31,
+          98
+        ],
+        [
+          32,
+          98
+        ]
+      ],
+      "publication_cert_metrics": false,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": true
+    },
+    {
+      "wall_time": 1793813472.9508984,
+      "path_t": 36.9624,
+      "path_count": 83,
+      "path_stamp_ns": 19260000000,
+      "pose": [
+        -0.06615670425749308,
+        -0.4028973329661259,
+        -1.24266
+      ],
+      "truth": {
+        "t": 36.9487,
+        "monotonic": 27644.5683,
+        "wall_time": 1793813472.9102,
+        "kind": "truth",
+        "x": -0.02082,
+        "y": -0.39952,
+        "yaw": -1.24275
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.01696550116114534,
+      "raster_raw_first_prefix_gap_m": 0.01676034456948508,
+      "observed_source_delta_s": 0.1103813648223877,
+      "memory_source_delta_s": 2.645435333251953,
+      "latest_scan_stamp_ns": 19509000000,
+      "latest_odom_tf_stamp_ns": 19474000000,
+      "scan_ahead_latest_odom_tf_ms": 35.0,
+      "publication_cert_gate_reason": "escape_already_present",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [
+        [
+          28,
+          90
+        ],
+        [
+          28,
+          91
+        ],
+        [
+          28,
+          92
+        ],
+        [
+          28,
+          93
+        ],
+        [
+          29,
+          90
+        ],
+        [
+          29,
+          91
+        ],
+        [
+          29,
+          92
+        ],
+        [
+          29,
+          93
+        ],
+        [
+          29,
+          94
+        ],
+        [
+          29,
+          95
+        ],
+        [
+          30,
+          90
+        ],
+        [
+          30,
+          91
+        ],
+        [
+          30,
+          92
+        ],
+        [
+          30,
+          93
+        ],
+        [
+          30,
+          94
+        ],
+        [
+          30,
+          95
+        ],
+        [
+          30,
+          96
+        ],
+        [
+          31,
+          96
+        ],
+        [
+          31,
+          97
+        ]
+      ],
+      "publication_cert_metrics": false,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": true
+    },
+    {
+      "wall_time": 1793813473.4896815,
+      "path_t": 37.5018,
+      "path_count": 82,
+      "path_stamp_ns": 19760000000,
+      "pose": [
+        -0.06623102911684652,
+        -0.4026852579433578,
+        -1.2445300000000001
+      ],
+      "truth": {
+        "t": 37.5233,
+        "monotonic": 27645.1429,
+        "wall_time": 1793813473.4848,
+        "kind": "truth",
+        "x": -0.02089,
+        "y": -0.39931,
+        "yaw": -1.24485
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.017120258464942778,
+      "raster_raw_first_prefix_gap_m": 0.016841819992247736,
+      "observed_source_delta_s": 0.10432243347167969,
+      "memory_source_delta_s": 3.184218406677246,
+      "latest_scan_stamp_ns": 19909000000,
+      "latest_odom_tf_stamp_ns": 19974000000,
+      "scan_ahead_latest_odom_tf_ms": -65.0,
+      "publication_cert_gate_reason": "escape_already_present",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [
+        [
+          27,
+          91
+        ],
+        [
+          27,
+          92
+        ],
+        [
+          27,
+          93
+        ],
+        [
+          27,
+          94
+        ],
+        [
+          27,
+          95
+        ],
+        [
+          28,
+          90
+        ],
+        [
+          28,
+          91
+        ],
+        [
+          28,
+          92
+        ],
+        [
+          28,
+          93
+        ],
+        [
+          28,
+          94
+        ],
+        [
+          28,
+          95
+        ],
+        [
+          28,
+          96
+        ],
+        [
+          28,
+          97
+        ],
+        [
+          29,
+          90
+        ],
+        [
+          29,
+          91
+        ],
+        [
+          29,
+          92
+        ],
+        [
+          29,
+          93
+        ],
+        [
+          29,
+          94
+        ],
+        [
+          29,
+          95
+        ],
+        [
+          29,
+          96
+        ],
+        [
+          29,
+          97
+        ],
+        [
+          30,
+          90
+        ],
+        [
+          30,
+          91
+        ],
+        [
+          30,
+          92
+        ],
+        [
+          30,
+          93
+        ],
+        [
+          30,
+          94
+        ],
+        [
+          30,
+          95
+        ],
+        [
+          30,
+          96
+        ],
+        [
+          30,
+          97
+        ],
+        [
+          30,
+          98
+        ],
+        [
+          31,
+          96
+        ],
+        [
+          31,
+          97
+        ],
+        [
+          31,
+          98
+        ],
+        [
+          32,
+          98
+        ]
+      ],
+      "publication_cert_metrics": false,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": true
+    },
+    {
+      "wall_time": 1793813474.0894673,
+      "path_t": 38.0751,
+      "path_count": 82,
+      "path_stamp_ns": 20240000000,
+      "pose": [
+        -0.06937693752889948,
+        -0.40801777629340186,
+        -1.25091
+      ],
+      "truth": {
+        "t": 38.0791,
+        "monotonic": 27645.6988,
+        "wall_time": 1793813474.0406,
+        "kind": "truth",
+        "x": -0.02096,
+        "y": -0.39911,
+        "yaw": -1.2469
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.017880159318866606,
+      "raster_raw_first_prefix_gap_m": 0.01717082451262858,
+      "observed_source_delta_s": 0.02950739860534668,
+      "memory_source_delta_s": 0.18336224555969238,
+      "latest_scan_stamp_ns": 20510000000,
+      "latest_odom_tf_stamp_ns": 20474000000,
+      "scan_ahead_latest_odom_tf_ms": 36.0,
+      "publication_cert_gate_reason": "remembered_inflation_start",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": true,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813474.6768332,
+      "path_t": 38.6758,
+      "path_count": 82,
+      "path_stamp_ns": 20740000000,
+      "pose": [
+        -0.06945058673863747,
+        -0.4078153515076048,
+        -1.25242
+      ],
+      "truth": {
+        "t": 38.6533,
+        "monotonic": 27646.273,
+        "wall_time": 1793813474.6148,
+        "kind": "truth",
+        "x": -0.02102,
+        "y": -0.39892,
+        "yaw": -1.24887
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.018026404916762967,
+      "raster_raw_first_prefix_gap_m": 0.01717082451262858,
+      "observed_source_delta_s": 0.07964706420898438,
+      "memory_source_delta_s": 0.7707281112670898,
+      "latest_scan_stamp_ns": 21013000000,
+      "latest_odom_tf_stamp_ns": 20974000000,
+      "scan_ahead_latest_odom_tf_ms": 39.0,
+      "publication_cert_gate_reason": "remembered_inflation_start",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": true,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813475.8179889,
+      "path_t": 39.2253,
+      "path_count": 82,
+      "path_stamp_ns": 21260000000,
+      "pose": [
+        -0.06956884674021113,
+        -0.4074414336395805,
+        -1.25615
+      ],
+      "truth": {
+        "t": 39.7988,
+        "monotonic": 27647.4184,
+        "wall_time": 1793813475.7603,
+        "kind": "truth",
+        "x": -0.02108,
+        "y": -0.39858,
+        "yaw": -1.25546
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.01828043701807025,
+      "raster_raw_first_prefix_gap_m": 0.01717082451262858,
+      "observed_source_delta_s": 0.021558761596679688,
+      "memory_source_delta_s": 1.91188383102417,
+      "latest_scan_stamp_ns": 22016000000,
+      "latest_odom_tf_stamp_ns": 21976000000,
+      "scan_ahead_latest_odom_tf_ms": 40.0,
+      "publication_cert_gate_reason": "remembered_inflation_start",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": true,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813476.185819,
+      "path_t": 40.1842,
+      "path_count": 82,
+      "path_stamp_ns": 22040000001,
+      "pose": [
+        -0.06252734175900146,
+        -0.4098889015132676,
+        -1.27387
+      ],
+      "truth": {
+        "t": 40.1472,
+        "monotonic": 27647.7668,
+        "wall_time": 1793813476.1087,
+        "kind": "truth",
+        "x": -0.02098,
+        "y": -0.39847,
+        "yaw": -1.26406
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.010841679654331499,
+      "raster_raw_first_prefix_gap_m": 0.010841679654331499,
+      "observed_source_delta_s": 0.10213494300842285,
+      "memory_source_delta_s": 2.2797138690948486,
+      "latest_scan_stamp_ns": 22318000000,
+      "latest_odom_tf_stamp_ns": 22277000000,
+      "scan_ahead_latest_odom_tf_ms": 41.0,
+      "publication_cert_gate_reason": "remembered_inflation_start",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": true,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813477.1423361,
+      "path_t": 41.1572,
+      "path_count": 82,
+      "path_stamp_ns": 22920000000,
+      "pose": [
+        -0.06258997374383003,
+        -0.4096765875135492,
+        -1.27191
+      ],
+      "truth": {
+        "t": 41.0601,
+        "monotonic": 27648.6798,
+        "wall_time": 1793813477.0216,
+        "kind": "truth",
+        "x": -0.02121,
+        "y": -0.39827,
+        "yaw": -1.26774
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.010982284557928712,
+      "raster_raw_first_prefix_gap_m": 0.010982284557928712,
+      "observed_source_delta_s": 0.03208112716674805,
+      "memory_source_delta_s": 3.2362310886383057,
+      "latest_scan_stamp_ns": 23119000000,
+      "latest_odom_tf_stamp_ns": 23177000000,
+      "scan_ahead_latest_odom_tf_ms": -58.0,
+      "publication_cert_gate_reason": "escape_already_present",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [
+        [
+          27,
+          91
+        ],
+        [
+          27,
+          92
+        ],
+        [
+          27,
+          93
+        ],
+        [
+          27,
+          94
+        ],
+        [
+          27,
+          95
+        ],
+        [
+          28,
+          90
+        ],
+        [
+          28,
+          91
+        ],
+        [
+          28,
+          92
+        ],
+        [
+          28,
+          93
+        ],
+        [
+          28,
+          94
+        ],
+        [
+          28,
+          95
+        ],
+        [
+          28,
+          96
+        ],
+        [
+          28,
+          97
+        ],
+        [
+          29,
+          90
+        ],
+        [
+          29,
+          91
+        ],
+        [
+          29,
+          92
+        ],
+        [
+          29,
+          93
+        ],
+        [
+          29,
+          94
+        ],
+        [
+          29,
+          95
+        ],
+        [
+          29,
+          96
+        ],
+        [
+          29,
+          97
+        ],
+        [
+          30,
+          90
+        ],
+        [
+          30,
+          91
+        ],
+        [
+          30,
+          92
+        ],
+        [
+          30,
+          93
+        ],
+        [
+          30,
+          94
+        ],
+        [
+          30,
+          95
+        ],
+        [
+          30,
+          96
+        ],
+        [
+          30,
+          97
+        ],
+        [
+          30,
+          98
+        ],
+        [
+          31,
+          96
+        ],
+        [
+          31,
+          97
+        ],
+        [
+          31,
+          98
+        ],
+        [
+          32,
+          98
+        ]
+      ],
+      "publication_cert_metrics": false,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": true
+    },
+    {
+      "wall_time": 1793813477.7122724,
+      "path_t": 41.7189,
+      "path_count": 82,
+      "path_stamp_ns": 23420000000,
+      "pose": [
+        -0.06263505970506808,
+        -0.4095349285706644,
+        -1.27245
+      ],
+      "truth": {
+        "t": 41.6604,
+        "monotonic": 27649.2801,
+        "wall_time": 1793813477.622,
+        "kind": "truth",
+        "x": -0.02126,
+        "y": -0.39811,
+        "yaw": -1.26939
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.011079202362507368,
+      "raster_raw_first_prefix_gap_m": 0.011079202362507368,
+      "observed_source_delta_s": 0.00017833709716796875,
+      "memory_source_delta_s": 3.8061673641204834,
+      "latest_scan_stamp_ns": 23620000000,
+      "latest_odom_tf_stamp_ns": 23628000000,
+      "scan_ahead_latest_odom_tf_ms": -8.0,
+      "publication_cert_gate_reason": "remembered_inflation_start",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": true,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813478.5850735,
+      "path_t": 42.3359,
+      "path_count": 82,
+      "path_stamp_ns": 23900000000,
+      "pose": [
+        -0.0640382765775781,
+        -0.4097739777432082,
+        -1.27161
+      ],
+      "truth": {
+        "t": 42.6032,
+        "monotonic": 27650.2229,
+        "wall_time": 1793813478.5647,
+        "kind": "truth",
+        "x": -0.02133,
+        "y": -0.39787,
+        "yaw": -1.27187
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ],
+        [
+          37,
+          88
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ],
+        [
+          35,
+          83
+        ],
+        [
+          36,
+          83
+        ],
+        [
+          37,
+          83
+        ],
+        [
+          38,
+          83
+        ],
+        [
+          39,
+          83
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.012278106873168187,
+      "raster_raw_first_prefix_gap_m": 0.012278106873168187,
+      "observed_source_delta_s": 0.022319555282592773,
+      "memory_source_delta_s": 4.67896842956543,
+      "latest_scan_stamp_ns": 24322000000,
+      "latest_odom_tf_stamp_ns": 24381000000,
+      "scan_ahead_latest_odom_tf_ms": -59.0,
+      "publication_cert_gate_reason": "remembered_inflation_start",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": true,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ],
+        [
+          35,
+          83
+        ],
+        [
+          36,
+          83
+        ],
+        [
+          37,
+          83
+        ],
+        [
+          38,
+          83
+        ],
+        [
+          39,
+          83
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813479.0607271,
+      "path_t": 42.9089,
+      "path_count": 82,
+      "path_stamp_ns": 24400000001,
+      "pose": [
+        -0.0640649285422921,
+        -0.40967303383414533,
+        -1.27352
+      ],
+      "truth": {
+        "t": 43.0071,
+        "monotonic": 27650.6268,
+        "wall_time": 1793813478.9687,
+        "kind": "truth",
+        "x": -0.02133,
+        "y": -0.39778,
+        "yaw": -1.27408
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.012341891290710172,
+      "raster_raw_first_prefix_gap_m": 0.012341891290710172,
+      "observed_source_delta_s": 0.032546043395996094,
+      "memory_source_delta_s": 5.1546220779418945,
+      "latest_scan_stamp_ns": 24724000000,
+      "latest_odom_tf_stamp_ns": 24734000000,
+      "scan_ahead_latest_odom_tf_ms": -10.0,
+      "publication_cert_gate_reason": "remembered_inflation_start",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": true,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    },
+    {
+      "wall_time": 1793813479.8857005,
+      "path_t": 43.5292,
+      "path_count": 82,
+      "path_stamp_ns": 24860000000,
+      "pose": [
+        -0.06412822692112155,
+        -0.4094708128776706,
+        -1.2737100000000001
+      ],
+      "truth": {
+        "t": 43.8255,
+        "monotonic": 27651.4452,
+        "wall_time": 1793813479.787,
+        "kind": "truth",
+        "x": -0.02141,
+        "y": -0.39759,
+        "yaw": -1.27612
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.012478883525822881,
+      "raster_raw_first_prefix_gap_m": 0.012478883525822881,
+      "observed_source_delta_s": 0.03117537498474121,
+      "memory_source_delta_s": 0.7197444438934326,
+      "latest_scan_stamp_ns": 25424000000,
+      "latest_odom_tf_stamp_ns": 25435000000,
+      "scan_ahead_latest_odom_tf_ms": -11.0,
+      "publication_cert_gate_reason": "escape_already_present",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [
+        [
+          27,
+          91
+        ],
+        [
+          27,
+          92
+        ],
+        [
+          27,
+          93
+        ],
+        [
+          27,
+          94
+        ],
+        [
+          27,
+          95
+        ],
+        [
+          28,
+          90
+        ],
+        [
+          28,
+          91
+        ],
+        [
+          28,
+          92
+        ],
+        [
+          28,
+          93
+        ],
+        [
+          28,
+          94
+        ],
+        [
+          28,
+          95
+        ],
+        [
+          28,
+          96
+        ],
+        [
+          28,
+          97
+        ],
+        [
+          29,
+          90
+        ],
+        [
+          29,
+          91
+        ],
+        [
+          29,
+          92
+        ],
+        [
+          29,
+          93
+        ],
+        [
+          29,
+          94
+        ],
+        [
+          29,
+          95
+        ],
+        [
+          29,
+          96
+        ],
+        [
+          29,
+          97
+        ],
+        [
+          30,
+          90
+        ],
+        [
+          30,
+          91
+        ],
+        [
+          30,
+          92
+        ],
+        [
+          30,
+          93
+        ],
+        [
+          30,
+          94
+        ],
+        [
+          30,
+          95
+        ],
+        [
+          30,
+          96
+        ],
+        [
+          30,
+          97
+        ],
+        [
+          30,
+          98
+        ],
+        [
+          31,
+          96
+        ],
+        [
+          31,
+          97
+        ],
+        [
+          31,
+          98
+        ],
+        [
+          32,
+          98
+        ]
+      ],
+      "publication_cert_metrics": false,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "direct_missing_ownership_branch": true
+    },
+    {
+      "wall_time": 1793813480.4746106,
+      "path_t": 44.2164,
+      "path_count": 82,
+      "path_stamp_ns": 25460000001,
+      "pose": [
+        -0.06493303019202515,
+        -0.40988563779076315,
+        -1.27744
+      ],
+      "truth": {
+        "t": 44.4307,
+        "monotonic": 27652.0503,
+        "wall_time": 1793813480.3922,
+        "kind": "truth",
+        "x": -0.02143,
+        "y": -0.39747,
+        "yaw": -1.2802
+      },
+      "blockers": [
+        [
+          36,
+          94
+        ],
+        [
+          37,
+          88
+        ]
+      ],
+      "remaining_fullroute_intersections": [
+        [
+          31,
+          96
+        ],
+        [
+          35,
+          83
+        ],
+        [
+          36,
+          83
+        ],
+        [
+          37,
+          83
+        ],
+        [
+          38,
+          83
+        ],
+        [
+          39,
+          83
+        ]
+      ],
+      "start": [
+        31,
+        96
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "selected_first_edge": [
+        [
+          31,
+          96
+        ],
+        [
+          30,
+          96
+        ]
+      ],
+      "raster_raw_body_gap_at_pose_m": 0.013059661339974438,
+      "raster_raw_first_prefix_gap_m": 0.013059661339974438,
+      "observed_source_delta_s": 0.031134605407714844,
+      "memory_source_delta_s": 1.308654546737671,
+      "latest_scan_stamp_ns": 25926000000,
+      "latest_odom_tf_stamp_ns": 25938000000,
+      "scan_ahead_latest_odom_tf_ms": -12.0,
+      "publication_cert_gate_reason": "remembered_inflation_start",
+      "publication_primary_allowed_edges": [],
+      "publication_plan_kind": "GLOBAL",
+      "publication_escape_cells": [],
+      "publication_cert_metrics": true,
+      "logged_blockers_route_intersections": [
+        [
+          31,
+          96
+        ],
+        [
+          35,
+          83
+        ],
+        [
+          36,
+          83
+        ],
+        [
+          37,
+          83
+        ],
+        [
+          38,
+          83
+        ],
+        [
+          39,
+          83
+        ]
+      ],
+      "direct_missing_ownership_branch": false
+    }
+  ],
+  "counts": {
+    "total_logged_cancel": 20,
+    "logged_blocker_current_start_only": 12,
+    "direct_missing_ownership_branch": 5,
+    "direct_missing_ownership_branch_82points": 3,
+    "start_only_with_existing_fallback_certificate": 7
+  },
+  "limits": [
+    "Raw blocker logs are complete sets (all below16-cell log truncation). Remaining path at this parked start covers the published suffix.",
+    "Neighbor observer masks can differ from the internal planner callback rawset, so geometry rows are not asserted as exact callback reconstruction.",
+    "A scan stamp ahead of latest independently observed odom TF is a source timing witness, not proof of the particular internal tf2 exception; new diagnostic records that reason separately."
+  ]
+}

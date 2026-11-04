@@ -1,0 +1,44 @@
+[
+  {
+    "time_s": 159.3,
+    "variant": "pathdist64",
+    "same_input_sha256": true,
+    "candidate_validity_and_rejection_names_identical": true,
+    "candidate_count": 798
+  },
+  {
+    "time_s": 161.34,
+    "variant": "pathdist64",
+    "same_input_sha256": true,
+    "candidate_validity_and_rejection_names_identical": true,
+    "candidate_count": 798
+  },
+  {
+    "time_s": 163.44,
+    "variant": "pathdist64",
+    "same_input_sha256": true,
+    "candidate_validity_and_rejection_names_identical": true,
+    "candidate_count": 798
+  },
+  {
+    "time_s": 159.3,
+    "variant": "pathalign64",
+    "same_input_sha256": true,
+    "candidate_validity_and_rejection_names_identical": true,
+    "candidate_count": 798
+  },
+  {
+    "time_s": 161.34,
+    "variant": "pathalign64",
+    "same_input_sha256": true,
+    "candidate_validity_and_rejection_names_identical": true,
+    "candidate_count": 798
+  },
+  {
+    "time_s": 163.44,
+    "variant": "pathalign64",
+    "same_input_sha256": true,
+    "candidate_validity_and_rejection_names_identical": true,
+    "candidate_count": 798
+  }
+]

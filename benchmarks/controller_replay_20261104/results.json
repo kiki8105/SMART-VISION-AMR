@@ -1,0 +1,60 @@
+{
+  "all_passed": true,
+  "cases": [
+    {
+      "case": "straight",
+      "passed": true,
+      "errors": [],
+      "command_count": 5,
+      "evaluation_count": 5,
+      "max_linear": 0.20842105263157892,
+      "max_abs_angular": 0.0
+    },
+    {
+      "case": "corner",
+      "passed": true,
+      "errors": [],
+      "command_count": 5,
+      "evaluation_count": 5,
+      "max_linear": 0.09263157894736841,
+      "max_abs_angular": 0.47435897435897456
+    },
+    {
+      "case": "obstacle",
+      "passed": true,
+      "errors": [],
+      "command_count": 5,
+      "evaluation_count": 5,
+      "max_linear": 0.05789473684210526,
+      "max_abs_angular": 0.0
+    },
+    {
+      "case": "arrival",
+      "passed": true,
+      "errors": [],
+      "command_count": 2,
+      "evaluation_count": 1,
+      "max_linear": 0.0,
+      "max_abs_angular": 0.0
+    },
+    {
+      "case": "incident_original",
+      "passed": true,
+      "errors": [],
+      "command_count": 8,
+      "evaluation_count": 9,
+      "max_linear": 0.0,
+      "max_abs_angular": 0.2727272727272727
+    },
+    {
+      "case": "incident_fixed",
+      "passed": true,
+      "errors": [],
+      "command_count": 7,
+      "evaluation_count": 7,
+      "max_linear": 0.10421052631578946,
+      "max_abs_angular": 0.08974358974358962
+    }
+  ],
+  "scope": "real Nav2 DWB with frozen loopback inputs; not a closed-loop driving pass"
+}

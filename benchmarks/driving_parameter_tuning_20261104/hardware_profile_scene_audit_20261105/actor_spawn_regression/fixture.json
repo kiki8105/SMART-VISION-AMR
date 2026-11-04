@@ -1,0 +1,611 @@
+{
+  "schema_version": 1,
+  "scope": "Historical failed injector input replay only; not a new Gazebo closed-loop result.",
+  "original_trial_outcome": "FAIL",
+  "original_actor_failure": "InvalidObstacleScenario('FIXED_SCENE_PASSED_OR_ROUTE_CHANGED_BEFORE_SPAWN')",
+  "scenario": {
+    "source_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/obstacle_scenario.json",
+    "sha256": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e",
+    "scenario": {
+      "x": 0.44,
+      "y": -0.6,
+      "path_tangent": [
+        0.6954214275160555,
+        -0.7186021417665909
+      ],
+      "movement_side": -1
+    },
+    "actor_positions_by_step": [
+      [
+        0.44,
+        -0.6
+      ],
+      [
+        0.4220349464558352,
+        -0.6173855356879013
+      ],
+      [
+        0.40406989291167045,
+        -0.6347710713758028
+      ],
+      [
+        0.38610483936750567,
+        -0.6521566070637042
+      ],
+      [
+        0.3681397858233409,
+        -0.6695421427516055
+      ]
+    ],
+    "box_size_m": [
+      0.25,
+      0.25,
+      0.5
+    ],
+    "mode": "FIXED_NO_RELOCATION",
+    "copied_path": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json"
+  },
+  "geometry": {
+    "robot_radius": 0.22,
+    "obstacle_inflation_cells": 5,
+    "nodes_params": "/tmp/classroom-transfer-cold_sensor_common-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml"
+  },
+  "candidate": {
+    "x": 0.44,
+    "y": -0.6,
+    "path_tangent": [
+      0.6954214275160555,
+      -0.7186021417665909
+    ]
+  },
+  "candidate_search_events": [
+    {
+      "t": 22.322,
+      "at": 1793812899.9201176,
+      "event": "candidate_search_started",
+      "attempt": 1,
+      "path_sha256": "b98614957975fa4e2ceaa4767d233621ae86332408dfcdf85e17f29ce4609cb4",
+      "robot_xy": [
+        -0.18824216715057526,
+        -0.22050188114896044
+      ],
+      "observed_cells": 11,
+      "remembered_cells": 0
+    },
+    {
+      "t": 26.843,
+      "at": 1793812904.4416587,
+      "event": "candidate_search_finished",
+      "attempt": 1,
+      "duration_s": 0.296,
+      "diagnostics": {
+        "reason": "FIXED_FEASIBLE_BYPASS",
+        "input_status": "VALID",
+        "geometric_candidates": 1,
+        "topology_candidates_tried": 1,
+        "attempts": 1
+      },
+      "candidate_xy": [
+        0.44,
+        -0.6
+      ]
+    },
+    {
+      "t": 27.316,
+      "at": 1793812904.9148045,
+      "event": "injector_failed",
+      "reason": "InvalidObstacleScenario('FIXED_SCENE_PASSED_OR_ROUTE_CHANGED_BEFORE_SPAWN')"
+    }
+  ],
+  "recorded_path": {
+    "t": 22.5028,
+    "monotonic": 27071.5336,
+    "wall_time": 1793812899.8754,
+    "kind": "path",
+    "count": 95,
+    "stamp_ns": 9320000000,
+    "frame_id": "map",
+    "points": [
+      [
+        -0.225,
+        -0.275
+      ],
+      [
+        -0.1906,
+        -0.3094
+      ],
+      [
+        -0.1562,
+        -0.3437
+      ],
+      [
+        -0.1219,
+        -0.3781
+      ],
+      [
+        -0.0875,
+        -0.4125
+      ],
+      [
+        -0.0531,
+        -0.4469
+      ],
+      [
+        -0.0187,
+        -0.4812
+      ],
+      [
+        0.0156,
+        -0.5156
+      ],
+      [
+        0.05,
+        -0.55
+      ],
+      [
+        0.0844,
+        -0.5844
+      ],
+      [
+        0.1163,
+        -0.6162
+      ],
+      [
+        0.1481,
+        -0.6481
+      ],
+      [
+        0.18,
+        -0.68
+      ],
+      [
+        0.2119,
+        -0.7119
+      ],
+      [
+        0.2438,
+        -0.7437
+      ],
+      [
+        0.2719,
+        -0.7719
+      ],
+      [
+        0.3,
+        -0.8
+      ],
+      [
+        0.3281,
+        -0.8281
+      ],
+      [
+        0.3563,
+        -0.8562
+      ],
+      [
+        0.3867,
+        -0.8867
+      ],
+      [
+        0.4172,
+        -0.9172
+      ],
+      [
+        0.4477,
+        -0.9477
+      ],
+      [
+        0.4781,
+        -0.9781
+      ],
+      [
+        0.5109,
+        -1.0109
+      ],
+      [
+        0.5438,
+        -1.0437
+      ],
+      [
+        0.5766,
+        -1.0766
+      ],
+      [
+        0.6094,
+        -1.1094
+      ],
+      [
+        0.6225,
+        -1.1506
+      ],
+      [
+        0.6356,
+        -1.1919
+      ],
+      [
+        0.6488,
+        -1.2331
+      ],
+      [
+        0.6619,
+        -1.2744
+      ],
+      [
+        0.675,
+        -1.3156
+      ],
+      [
+        0.675,
+        -1.3625
+      ],
+      [
+        0.675,
+        -1.4094
+      ],
+      [
+        0.675,
+        -1.4562
+      ],
+      [
+        0.675,
+        -1.5031
+      ],
+      [
+        0.675,
+        -1.55
+      ],
+      [
+        0.675,
+        -1.5969
+      ],
+      [
+        0.675,
+        -1.6412
+      ],
+      [
+        0.675,
+        -1.6856
+      ],
+      [
+        0.675,
+        -1.73
+      ],
+      [
+        0.675,
+        -1.7744
+      ],
+      [
+        0.675,
+        -1.8187
+      ],
+      [
+        0.675,
+        -1.8594
+      ],
+      [
+        0.675,
+        -1.9
+      ],
+      [
+        0.675,
+        -1.9406
+      ],
+      [
+        0.675,
+        -1.9812
+      ],
+      [
+        0.675,
+        -2.0187
+      ],
+      [
+        0.675,
+        -2.0562
+      ],
+      [
+        0.675,
+        -2.0937
+      ],
+      [
+        0.675,
+        -2.1312
+      ],
+      [
+        0.675,
+        -2.1771
+      ],
+      [
+        0.675,
+        -2.2229
+      ],
+      [
+        0.675,
+        -2.2687
+      ],
+      [
+        0.6698,
+        -2.3094
+      ],
+      [
+        0.6646,
+        -2.35
+      ],
+      [
+        0.6594,
+        -2.3906
+      ],
+      [
+        0.649,
+        -2.426
+      ],
+      [
+        0.6385,
+        -2.4615
+      ],
+      [
+        0.6281,
+        -2.4969
+      ],
+      [
+        0.6125,
+        -2.5271
+      ],
+      [
+        0.5969,
+        -2.5573
+      ],
+      [
+        0.5813,
+        -2.5875
+      ],
+      [
+        0.55,
+        -2.625
+      ],
+      [
+        0.5188,
+        -2.6625
+      ],
+      [
+        0.4844,
+        -2.6891
+      ],
+      [
+        0.45,
+        -2.7156
+      ],
+      [
+        0.4125,
+        -2.7312
+      ],
+      [
+        0.375,
+        -2.7469
+      ],
+      [
+        0.3344,
+        -2.7516
+      ],
+      [
+        0.2938,
+        -2.7562
+      ],
+      [
+        0.25,
+        -2.75
+      ],
+      [
+        0.2063,
+        -2.7437
+      ],
+      [
+        0.1656,
+        -2.7312
+      ],
+      [
+        0.125,
+        -2.7187
+      ],
+      [
+        0.0875,
+        -2.7
+      ],
+      [
+        0.05,
+        -2.6812
+      ],
+      [
+        0.0156,
+        -2.6562
+      ],
+      [
+        -0.0187,
+        -2.6312
+      ],
+      [
+        -0.05,
+        -2.6
+      ],
+      [
+        -0.0812,
+        -2.5687
+      ],
+      [
+        -0.1078,
+        -2.5297
+      ],
+      [
+        -0.1344,
+        -2.4906
+      ],
+      [
+        -0.149,
+        -2.4594
+      ],
+      [
+        -0.1635,
+        -2.4281
+      ],
+      [
+        -0.1781,
+        -2.3969
+      ],
+      [
+        -0.1917,
+        -2.35
+      ],
+      [
+        -0.2052,
+        -2.3031
+      ],
+      [
+        -0.2187,
+        -2.2562
+      ],
+      [
+        -0.2281,
+        -2.2094
+      ],
+      [
+        -0.2375,
+        -2.1625
+      ],
+      [
+        -0.2469,
+        -2.1156
+      ],
+      [
+        -0.2562,
+        -2.0687
+      ],
+      [
+        -0.2656,
+        -2.0219
+      ],
+      [
+        -0.275,
+        -1.975
+      ]
+    ]
+  },
+  "truth_preflight_window": [
+    {
+      "t": 26.5559,
+      "monotonic": 27075.5867,
+      "wall_time": 1793812903.9285,
+      "kind": "truth",
+      "x": -0.15576,
+      "y": -0.25851,
+      "yaw": -0.87663
+    },
+    {
+      "t": 26.7126,
+      "monotonic": 27075.7433,
+      "wall_time": 1793812904.0852,
+      "kind": "truth",
+      "x": -0.1454,
+      "y": -0.27097,
+      "yaw": -0.87785
+    },
+    {
+      "t": 26.8813,
+      "monotonic": 27075.9121,
+      "wall_time": 1793812904.2539,
+      "kind": "truth",
+      "x": -0.13364,
+      "y": -0.28512,
+      "yaw": -0.87442
+    },
+    {
+      "t": 27.0714,
+      "monotonic": 27076.1022,
+      "wall_time": 1793812904.444,
+      "kind": "truth",
+      "x": -0.1207,
+      "y": -0.30056,
+      "yaw": -0.87359
+    },
+    {
+      "t": 27.2166,
+      "monotonic": 27076.2474,
+      "wall_time": 1793812904.5892,
+      "kind": "truth",
+      "x": -0.10724,
+      "y": -0.3166,
+      "yaw": -0.87152
+    },
+    {
+      "t": 27.3105,
+      "monotonic": 27076.3412,
+      "wall_time": 1793812904.6831,
+      "kind": "truth",
+      "x": -0.09491,
+      "y": -0.33127,
+      "yaw": -0.87242
+    },
+    {
+      "t": 27.4786,
+      "monotonic": 27076.5094,
+      "wall_time": 1793812904.8512,
+      "kind": "truth",
+      "x": -0.08884,
+      "y": -0.3385,
+      "yaw": -0.87246
+    },
+    {
+      "t": 27.6042,
+      "monotonic": 27076.6349,
+      "wall_time": 1793812904.9768,
+      "kind": "truth",
+      "x": -0.08652,
+      "y": -0.34127,
+      "yaw": -0.87236
+    },
+    {
+      "t": 27.7319,
+      "monotonic": 27076.7627,
+      "wall_time": 1793812905.1045,
+      "kind": "truth",
+      "x": -0.08318,
+      "y": -0.34524,
+      "yaw": -0.87005
+    }
+  ],
+  "actual_before": {
+    "t": 27.2166,
+    "monotonic": 27076.2474,
+    "wall_time": 1793812904.5892,
+    "kind": "truth",
+    "x": -0.10724,
+    "y": -0.3166,
+    "yaw": -0.87152
+  },
+  "actual_after": {
+    "t": 27.4786,
+    "monotonic": 27076.5094,
+    "wall_time": 1793812904.8512,
+    "kind": "truth",
+    "x": -0.08884,
+    "y": -0.3385,
+    "yaw": -0.87246
+  },
+  "expected_goal_stamp": [
+    9,
+    320000000
+  ],
+  "truth_age_for_counterfactual_s": 0.05,
+  "truth_age_note": "Pure predicate replay uses an explicit fresh50ms truth receipt age; original actor did not log the exact queried age. Historical original truth rows are preserved separately.",
+  "path_hash_note": "Injector search hash is from original full-precision path. Timeline rounds coordinates, so a hash recomputed from recorded coordinates is not asserted equal. Only one path publication occurred throughout this preflight; goal/path stamp stayed9:320000000.",
+  "inputs_sha256": {
+    "staged_report.json": "2a1fa866b4aa40723b808e1b3b1ab3dbeb097bda77707d6e17002cb4d6c964f8",
+    "summary.json": "a79d865e6654de535c672df5e423af03ab271a4efbb6ca11ba378341abaa489e",
+    "25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl.gz": "4a3441ae0e7a15c85573b2b480344e93650dd4f1cde98fc2496c4cdeb82c7627",
+    "25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json": "8e26a1abd7146d9b4a71715798153cd7743a269b35ba3eed976efdb2cf569539",
+    "25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e"
+  },
+  "code_sha256": {
+    "before": "66e046248ee8931054c33dafbf2d1775681cdeeba631d41cfad9849f8c78f001",
+    "after": "2ccc7928a94469f6331d379b9a86b19c9b82d6e043b67ed686a56170f8f5b126",
+    "unapplied_patch": "f32e16b7ddbaf61f1e2f07ab483e41160fcbea62fc03d659c07941c1828ceb6a"
+  }
+}

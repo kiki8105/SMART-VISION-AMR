@@ -657,6 +657,57 @@ def test_manual_service_confirmation_requires_post_seed_amcl_and_keeps_estop(mon
     assert conflict.result.reason == 'invalid_or_stale_stamp'
 
 
+def test_stopped_manual_pose_accepts_bounded_amcl_age_only_with_new_scan_map_proof(monkeypatch):
+    node, request = manual_pose_confirmation_fixture(monkeypatch)
+    # AMCL can remain motion-gated while stopped. Its latest posterior is
+    # four seconds old, but the lidar, odometry and map TF are current.
+    node.get_clock = lambda: SimpleNamespace(now=lambda: SimpleNamespace(
+        nanoseconds=14_000_000_000))
+    node.amcl_at = 96.
+    node.scan.header.stamp.sec = node.odom.header.stamp.sec = 13
+    node.scan.header.stamp.nanosec = node.odom.header.stamp.nanosec = 800_000_000
+    node.agreement_stamp = 13_800_000_000
+    node.agreement_at = 99.8
+
+    def lookup(target, source):
+        return SimpleNamespace(
+            header=SimpleNamespace(frame_id=target, stamp=SimpleNamespace(
+                sec=13, nanosec=900_000_000)), child_frame_id=source,
+            transform=SimpleNamespace(translation=SimpleNamespace(x=0., y=0.),
+                                      rotation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
+
+    node._tf = lookup
+    node.agreement_at = 98.
+    rejected = LocalizationHealth.confirm_manual_pose(
+        node, request, SetParametersAtomically.Response())
+    assert not rejected.result.successful and rejected.result.reason == 'scan_map_not_fresh'
+    assert node.core.stop_latched and node.core.acquired
+
+    node.agreement_at = 99.8
+    node.odom.twist.twist.linear.x = .02
+    moving = LocalizationHealth.confirm_manual_pose(
+        node, request, SetParametersAtomically.Response())
+    assert not moving.result.successful and moving.result.reason == 'robot_not_stopped'
+    node.odom.twist.twist.linear.x = 0.
+
+    accepted = LocalizationHealth.confirm_manual_pose(
+        node, request, SetParametersAtomically.Response())
+    assert accepted.result.successful
+    assert not node.core.acquired and node.core.reinitialization_requested
+    assert node.core.stop_latched
+
+
+def test_manual_pose_age_never_exceeds_health_watchdog(monkeypatch):
+    node, request = manual_pose_confirmation_fixture(monkeypatch)
+    node.get_clock = lambda: SimpleNamespace(now=lambda: SimpleNamespace(
+        nanoseconds=18_000_000_000))
+    rejected = LocalizationHealth.confirm_manual_pose(
+        node, request, SetParametersAtomically.Response())
+    assert not rejected.result.successful
+    assert rejected.result.reason == 'invalid_or_stale_stamp'
+    assert node.core.acquired and node.core.stop_latched
+
+
 @pytest.mark.parametrize('change,reason', [
     (lambda node: setattr(node, 'scan_at', 98.), 'sensor_not_fresh'),
     (lambda node: setattr(node, 'map_distance', None), 'sensor_not_fresh'),

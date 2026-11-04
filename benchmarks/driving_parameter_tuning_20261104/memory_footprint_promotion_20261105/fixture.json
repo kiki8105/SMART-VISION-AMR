@@ -1,0 +1,2137 @@
+{
+  "schema_version": 1,
+  "source_trial": "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle",
+  "source_files_sha256": {
+    "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl": "f4a67d704bf66ec1af9dcb1d33a5ffbaf7caa823b7c62fb6c71108023d2a9be0",
+    "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl": "facaae8e55505d4ed75e0705b9d5e7aaa46a5051409b701b38080bb04dc8c09e",
+    "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log": "4a07a7886c115d5bb1d71cd2a8f08905a7c899e40d3f4b14eb4337ac1c7a7b4f",
+    "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json": "61caada874a627e312afb8cf19d595c6f8584a527cc36930f26d4d123356b466",
+    "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+    "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json": "0beb02c4e9b9dbe1aa827018d779dff592e9a2b63953d03cc4ae91db7cdd0b80",
+    "/tmp/classroom-transfer-cold-rates-obstacle-20261105/25_web_inventory_sector3_moving_obstacle/acceptance.json": "1503f8e39d07af1e5f64598433962227202055be03cfa218dc764cb4de345e84"
+  },
+  "scope": "Recorded geometry replay only; no ROS process or Gazebo, no closed-loop success claim",
+  "original_trial_result": {
+    "strict_passed": false,
+    "web_home_complete": true,
+    "cold_start_proof": {
+      "passed": true,
+      "visual_ui_qa": false,
+      "manual_prior_transport": "/set_initial_pose service through web backend",
+      "before": {
+        "amcl_set_initial_pose": false,
+        "initial_pose_messages": 0,
+        "amcl_messages": 0,
+        "map_tf_messages": 0,
+        "web_pose": null,
+        "observed_seconds": 6.283975525999267
+      },
+      "after": {
+        "amcl_set_initial_pose": false,
+        "initial_pose_messages": 0,
+        "amcl_messages": 3,
+        "map_tf_messages": 1
+      }
+    },
+    "actor_passed": false,
+    "bypassed_while_live": false,
+    "moving_steps": 4
+  },
+  "map": {
+    "yaml": "classroom_20261030_cleaned.yaml",
+    "image_sha256": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+    "width": 86,
+    "height": 140,
+    "resolution": 0.05,
+    "origin": [
+      -1.65,
+      -5.25,
+      0
+    ]
+  },
+  "parameters": {
+    "map_topic": "/map",
+    "map_frame": "map",
+    "base_frame": "base_footprint",
+    "occupied_threshold": 65,
+    "obstacle_inflation_cells": 5,
+    "local_detour_enabled": true,
+    "local_detour_trigger_distance": 1.5,
+    "local_detour_max_rejoin_distance": 2.5,
+    "local_detour_max_length": 4.0,
+    "local_detour_max_lateral_distance": 0.9,
+    "local_detour_clearance_margin": 0.0,
+    "local_detour_observation_margin": 0.0,
+    "local_detour_occlusion_extension": 0.2,
+    "local_detour_rejoin_buffer": 0.15,
+    "local_detour_max_expansions": 1500,
+    "local_detour_max_planning_time": 0.06,
+    "local_detour_max_candidates": 10,
+    "local_detour_max_attempts": 3,
+    "mapped_wall_return_tolerance_cells": 2,
+    "robot_radius": 0.22,
+    "start_egress_enabled": true,
+    "start_egress_clearance_margin": 0.0,
+    "start_egress_max_cells": 7,
+    "live_obstacle_layer_required": true,
+    "live_obstacle_timeout": 2.0,
+    "live_route_confirmation_scans": 3,
+    "preferred_clearance": 0.45,
+    "clearance_penalty_gain": 1.5,
+    "reverse_recovery_enabled": true,
+    "reverse_recovery_min_distance": 0.1,
+    "reverse_recovery_max_distance": 0.3,
+    "reverse_recovery_clearance_margin": 0.0,
+    "reverse_recovery_speed": 0.1,
+    "reverse_recovery_max_attempts": 3,
+    "path_smoothing_enabled": true,
+    "path_smoothing_iterations": 2,
+    "path_smoothing_shortcut_distance": 0.8,
+    "path_resample_spacing": 0.05,
+    "failure_memory_enabled": true,
+    "controller_retry_limit": 3,
+    "obstacle_hold_enabled": true,
+    "obstacle_retry_limit": 3,
+    "obstacle_clear_duration": 2.0,
+    "failure_memory_ttl": 120.0,
+    "failure_memory_radius": 0.25,
+    "failure_memory_heading_tolerance": 1.0471975511965976,
+    "failure_memory_max_entries": 64,
+    "failure_memory_penalty": 2.0,
+    "failure_event_max_age": 3.0,
+    "rejoin_progress_distance": 0.35,
+    "rejoin_cross_track_tolerance": 0.2
+  },
+  "start_cell": [
+    34,
+    84
+  ],
+  "goal_cell": [
+    27,
+    65
+  ],
+  "current_pose": [
+    0.053250527206124554,
+    -1.0278866999455527,
+    -0.7027863042521272
+  ],
+  "actual_box_bounds": [
+    0.32705379086809205,
+    0.577053790868092,
+    -0.7942489816441315,
+    -0.5442489816441315
+  ],
+  "observed_cells": [
+    [
+      39,
+      88
+    ],
+    [
+      38,
+      89
+    ],
+    [
+      39,
+      89
+    ],
+    [
+      40,
+      89
+    ],
+    [
+      41,
+      89
+    ],
+    [
+      42,
+      89
+    ],
+    [
+      43,
+      89
+    ],
+    [
+      38,
+      90
+    ],
+    [
+      39,
+      90
+    ],
+    [
+      38,
+      91
+    ],
+    [
+      38,
+      92
+    ],
+    [
+      39,
+      92
+    ],
+    [
+      38,
+      93
+    ]
+  ],
+  "remembered_cells": [
+    [
+      38,
+      89
+    ],
+    [
+      39,
+      89
+    ],
+    [
+      40,
+      89
+    ],
+    [
+      41,
+      89
+    ],
+    [
+      38,
+      90
+    ],
+    [
+      39,
+      90
+    ],
+    [
+      38,
+      91
+    ],
+    [
+      39,
+      91
+    ],
+    [
+      38,
+      92
+    ],
+    [
+      39,
+      92
+    ],
+    [
+      38,
+      93
+    ],
+    [
+      39,
+      93
+    ],
+    [
+      40,
+      93
+    ],
+    [
+      42,
+      94
+    ],
+    [
+      43,
+      94
+    ]
+  ],
+  "observation_provenance": {
+    "kind": "observed",
+    "monotonic_sec": 24424.159969879,
+    "wall_utc": "2026-11-04T16:37:32.501814+00:00",
+    "count": 13,
+    "cells": [
+      7607,
+      7692,
+      7693,
+      7694,
+      7695,
+      7696,
+      7697,
+      7778,
+      7779,
+      7864,
+      7950,
+      7951,
+      8036
+    ],
+    "remembered_count": 15,
+    "sample": 338
+  },
+  "memory_provenance": {
+    "kind": "remembered",
+    "monotonic_sec": 24423.857333598,
+    "wall_utc": "2026-11-04T16:37:32.199177+00:00",
+    "count": 15,
+    "cells": [
+      7692,
+      7693,
+      7694,
+      7695,
+      7778,
+      7779,
+      7864,
+      7865,
+      7950,
+      7951,
+      8036,
+      8037,
+      8038,
+      8126,
+      8127
+    ],
+    "added": [
+      7695
+    ],
+    "removed": [],
+    "observed_count": 13
+  },
+  "reference_world": [
+    [
+      0.025,
+      -1.025
+    ],
+    [
+      0.075,
+      -1.075
+    ],
+    [
+      0.125,
+      -1.075
+    ],
+    [
+      0.175,
+      -1.075
+    ],
+    [
+      0.225,
+      -1.075
+    ],
+    [
+      0.275,
+      -1.125
+    ],
+    [
+      0.325,
+      -1.125
+    ],
+    [
+      0.375,
+      -1.125
+    ],
+    [
+      0.425,
+      -1.125
+    ],
+    [
+      0.475,
+      -1.125
+    ],
+    [
+      0.525,
+      -1.125
+    ],
+    [
+      0.575,
+      -1.125
+    ],
+    [
+      0.625,
+      -1.175
+    ],
+    [
+      0.675,
+      -1.225
+    ],
+    [
+      0.675,
+      -1.275
+    ],
+    [
+      0.675,
+      -1.325
+    ],
+    [
+      0.675,
+      -1.375
+    ],
+    [
+      0.675,
+      -1.425
+    ],
+    [
+      0.675,
+      -1.475
+    ],
+    [
+      0.675,
+      -1.525
+    ],
+    [
+      0.675,
+      -1.575
+    ],
+    [
+      0.675,
+      -1.625
+    ],
+    [
+      0.675,
+      -1.675
+    ],
+    [
+      0.675,
+      -1.725
+    ],
+    [
+      0.675,
+      -1.775
+    ],
+    [
+      0.675,
+      -1.825
+    ],
+    [
+      0.675,
+      -1.875
+    ],
+    [
+      0.675,
+      -1.925
+    ],
+    [
+      0.675,
+      -1.975
+    ],
+    [
+      0.675,
+      -2.025
+    ],
+    [
+      0.675,
+      -2.075
+    ],
+    [
+      0.675,
+      -2.125
+    ],
+    [
+      0.675,
+      -2.175
+    ],
+    [
+      0.675,
+      -2.225
+    ],
+    [
+      0.675,
+      -2.275
+    ],
+    [
+      0.675,
+      -2.325
+    ],
+    [
+      0.675,
+      -2.375
+    ],
+    [
+      0.675,
+      -2.425
+    ],
+    [
+      0.675,
+      -2.475
+    ],
+    [
+      0.625,
+      -2.525
+    ],
+    [
+      0.625,
+      -2.575
+    ],
+    [
+      0.575,
+      -2.625
+    ],
+    [
+      0.525,
+      -2.675
+    ],
+    [
+      0.475,
+      -2.725
+    ],
+    [
+      0.425,
+      -2.775
+    ],
+    [
+      0.375,
+      -2.775
+    ],
+    [
+      0.325,
+      -2.775
+    ],
+    [
+      0.275,
+      -2.775
+    ],
+    [
+      0.225,
+      -2.775
+    ],
+    [
+      0.175,
+      -2.775
+    ],
+    [
+      0.125,
+      -2.775
+    ],
+    [
+      0.075,
+      -2.725
+    ],
+    [
+      0.025,
+      -2.675
+    ],
+    [
+      -0.025,
+      -2.625
+    ],
+    [
+      -0.075,
+      -2.575
+    ],
+    [
+      -0.125,
+      -2.525
+    ],
+    [
+      -0.175,
+      -2.475
+    ],
+    [
+      -0.175,
+      -2.425
+    ],
+    [
+      -0.175,
+      -2.375
+    ],
+    [
+      -0.225,
+      -2.325
+    ],
+    [
+      -0.225,
+      -2.275
+    ],
+    [
+      -0.225,
+      -2.225
+    ],
+    [
+      -0.225,
+      -2.175
+    ],
+    [
+      -0.225,
+      -2.125
+    ],
+    [
+      -0.225,
+      -2.075
+    ],
+    [
+      -0.225,
+      -2.025
+    ],
+    [
+      -0.275,
+      -1.975
+    ]
+  ],
+  "reference_path_stamp_ns": 35360000000,
+  "failure": {
+    "t": 52.3723,
+    "monotonic": 24424.3689,
+    "wall_time": 1793810252.7107,
+    "kind": "planner",
+    "status": "WAIT_REPLAN",
+    "goal": {
+      "x": -0.25,
+      "y": -1.98,
+      "frame_id": "map"
+    },
+    "goal_stamp": {
+      "sec": 7,
+      "nanosec": 980000000
+    },
+    "input_hold": null,
+    "manual_stop": null,
+    "route_failure": null,
+    "local_detour_state": "FAILED",
+    "message": "No safe A* route from (34, 84) to (27, 65); retrying",
+    "details": {
+      "plan_kind": "GLOBAL",
+      "local_attempt_id": 3,
+      "global_plan_count": 13,
+      "failure_class": "obstacle",
+      "recovery_stage": "global_replan",
+      "controller_retry_count": 0,
+      "controller_retry_limit": 3,
+      "failure_edge_fallback": false,
+      "occlusion_fallback": false,
+      "occlusion_fallback_attempted": true,
+      "occlusion_constraint_mode": "SOFT_VIRTUAL",
+      "occlusion_virtual_cells": 36,
+      "occlusion_primary_reason": "no_route_with_hard_virtual_reserve",
+      "occlusion_reused_start_certificate": false,
+      "occlusion_measured_start_certificate": false,
+      "start_certificate_diagnostics": {
+        "start": [
+          34,
+          84
+        ],
+        "helper_called": false,
+        "allowed_edges": [],
+        "enabled": true,
+        "escape_cells_before": [
+          [
+            33,
+            84
+          ],
+          [
+            33,
+            85
+          ],
+          [
+            33,
+            86
+          ],
+          [
+            34,
+            84
+          ],
+          [
+            35,
+            83
+          ],
+          [
+            36,
+            82
+          ],
+          [
+            36,
+            83
+          ],
+          [
+            37,
+            82
+          ],
+          [
+            38,
+            82
+          ],
+          [
+            39,
+            82
+          ],
+          [
+            40,
+            82
+          ]
+        ],
+        "static_start": false,
+        "raw_static_start": false,
+        "raw_observed_start": false,
+        "observed_inflated_start": false,
+        "remembered_inflated_start": true,
+        "measured_remembered_inflated_start": true,
+        "observation_receipt_age_s": 0.17122705799920368,
+        "start_tf_stamp_ns": 35838000000,
+        "start_tf_pose": [
+          0.053250527206124554,
+          -1.0278866999455527
+        ],
+        "fresh_pose": null,
+        "fresh_pose_drift_m": null,
+        "first_failed_reason": "escape_already_present",
+        "neighbor_masks": [
+          {
+            "cell": [
+              33,
+              83
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              33,
+              84
+            ],
+            "static": false,
+            "measured": true,
+            "conservative": true,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              33,
+              85
+            ],
+            "static": false,
+            "measured": true,
+            "conservative": true,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              34,
+              83
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              34,
+              85
+            ],
+            "static": false,
+            "measured": true,
+            "conservative": true,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              35,
+              83
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": true,
+            "virtual_only": true
+          },
+          {
+            "cell": [
+              35,
+              84
+            ],
+            "static": false,
+            "measured": true,
+            "conservative": true,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              35,
+              85
+            ],
+            "static": false,
+            "measured": true,
+            "conservative": true,
+            "virtual_only": false
+          }
+        ]
+      },
+      "global_duration_ms": 92.62269000100787,
+      "motion_pose_diagnostics": {
+        "first_failed_reason": "OK",
+        "node_clock_ns": 35880000000,
+        "checked_monotonic": 24424.344311918,
+        "health_stamp_ns": 35860000000,
+        "health_receipt_age_s": 0.2023682760009251,
+        "health_source_age_s": 0.02,
+        "odom_stamp_ns": 35838000000,
+        "odom_receipt_age_s": 0.20608585599984508,
+        "odom_source_age_s": 0.042,
+        "scan_stamp_ns": 35853000000,
+        "scan_receipt_age_s": 0.21733259400207317,
+        "scan_source_age_s": 0.027,
+        "tf_stamp_ns": 35838000000,
+        "tf_source_age_s": 0.042,
+        "lookup_error": "",
+        "pose": [
+          0.053250527206124554,
+          -1.0278866999455527,
+          -0.7027863042521272
+        ]
+      },
+      "search_duration_ms": 5.824149000545731,
+      "adapter_duration_ms": 89.34802099975059,
+      "expansions": 0,
+      "candidates_examined": 0,
+      "detour_reason": "attempt_budget",
+      "rejoin_progress": null,
+      "occlusion_reserved_cells": 25,
+      "occlusion_extension": 0.2,
+      "rejoin_buffer": 0.15,
+      "observation_reserved_cells": 0,
+      "observation_margin": 0.0,
+      "rejoin_point": {
+        "x": 0.6083333669851223,
+        "y": -1.155208272316183
+      },
+      "reverse_goal_occlusion_fallback": false,
+      "reverse_goal_occlusion_fallback_attempted": false,
+      "reverse_clearance_neutral_egress": false,
+      "reverse_probe_diagnostics": {
+        "trail_count": 25,
+        "trail_frame": "odom_projected",
+        "source_odom_frame": "odom",
+        "source_odom_child_frame": "base_footprint",
+        "source_odom_reset_reason": "explicit_reset",
+        "oldest_at": 24403.891912352,
+        "newest_at": 24424.138226062,
+        "current_pose": [
+          0.053250527206124554,
+          -1.0278866999455527,
+          -0.7027863042521272
+        ],
+        "recent_trail": [
+          [
+            24403.891912352,
+            -0.043141620320001434,
+            -0.39238006166067524,
+            -0.9245501054106091
+          ],
+          [
+            24408.118176843,
+            -0.043018144334495245,
+            -0.42048283281395193,
+            -1.4393442127612481
+          ],
+          [
+            24408.438600722,
+            -0.040136787377413496,
+            -0.44933704419899845,
+            -1.5013290007400373
+          ],
+          [
+            24408.635069914,
+            -0.03863261789298359,
+            -0.47432244018579117,
+            -1.4942783709717256
+          ],
+          [
+            24409.235592245,
+            -0.03690011582468432,
+            -0.5013088224010455,
+            -1.5335203977152696
+          ],
+          [
+            24409.52188826,
+            -0.036333462083759836,
+            -0.5299454472429008,
+            -1.573941076123025
+          ],
+          [
+            24409.746829424,
+            -0.03628057810755071,
+            -0.562772066146046,
+            -1.5732266707996807
+          ],
+          [
+            24409.886813364,
+            -0.03641993865338424,
+            -0.5892650757176772,
+            -1.5779519516088758
+          ],
+          [
+            24410.064816699,
+            -0.036634567135996256,
+            -0.6195571753680893,
+            -1.5755253020993067
+          ],
+          [
+            24410.217619253,
+            -0.03676345367322443,
+            -0.6493038666099461,
+            -1.5734519319049318
+          ],
+          [
+            24410.397138779,
+            -0.03685397871205769,
+            -0.6772301001705939,
+            -1.5713671694952827
+          ],
+          [
+            24410.556487406,
+            -0.03689579746474949,
+            -0.7032161949245777,
+            -1.5693007507925598
+          ],
+          [
+            24410.793331466,
+            -0.036858118531961685,
+            -0.734680733078607,
+            -1.5677277154100813
+          ],
+          [
+            24412.787398659,
+            -0.03683257823232761,
+            -0.7602633062426772,
+            -1.5563419381506018
+          ],
+          [
+            24415.00369648,
+            -0.03596148891613055,
+            -0.7891358602473407,
+            -1.5274280358406478
+          ],
+          [
+            24415.331403236,
+            -0.034462159426157275,
+            -0.8171993011751773,
+            -1.5014508019580926
+          ],
+          [
+            24417.585278321,
+            -0.03205338314328057,
+            -0.8439157911935944,
+            -1.4595694131934085
+          ],
+          [
+            24418.027343152,
+            -0.028395261674728316,
+            -0.8722073384623668,
+            -1.4178600551274556
+          ],
+          [
+            24418.32705022,
+            -0.024029567097719053,
+            -0.8971054710152271,
+            -1.3627718735187224
+          ],
+          [
+            24418.622270379,
+            -0.017841291924175676,
+            -0.9222005750997121,
+            -1.2847903849578204
+          ],
+          [
+            24418.962110935,
+            -0.009278503425395466,
+            -0.9465263801283894,
+            -1.1606613364697003
+          ],
+          [
+            24422.076681021,
+            0.004330498000244892,
+            -0.9715041507136366,
+            -0.9959530593712689
+          ],
+          [
+            24422.450145095,
+            0.020678183677565694,
+            -0.9944438560189646,
+            -0.8939283700828553
+          ],
+          [
+            24422.835844502,
+            0.03989123307551381,
+            -1.0161135399807066,
+            -0.7753759169572181
+          ],
+          [
+            24424.138226062,
+            0.05325052720612456,
+            -1.0278866999455527,
+            -0.7027863042521272
+          ]
+        ],
+        "neutral_enabled": false,
+        "conservative_dynamic_count": 289,
+        "measured_dynamic_count": 253,
+        "virtual_dynamic_count": 36,
+        "candidate": null
+      },
+      "reverse_probe_rejection": "NO_SAFE_EGRESS",
+      "recovery_episode_id": "f16a1316747f440499df9c361f7713c2",
+      "recovery_phase": "GLOBAL",
+      "recovery_wait_reason": "",
+      "sent_at_ns": 35880000000,
+      "path_stamp": {
+        "sec": 35,
+        "nanosec": 580000000
+      }
+    }
+  },
+  "first_memory_geometry": {
+    "7865": {
+      "cell": [
+        39,
+        91
+      ],
+      "center": [
+        0.3250000000000002,
+        -0.6749999999999998
+      ],
+      "first_wall": "2026-11-04T16:37:09.172459+00:00",
+      "monotonic": 24400.830615144,
+      "pose": {
+        "truth": [
+          0.06768,
+          -0.46688,
+          -0.91092
+        ],
+        "estimate": [
+          0.01777734240387231,
+          -0.4584210879932767,
+          -0.9067500000000001
+        ],
+        "ages": [
+          0.033415144000173314,
+          0.07781514400267042,
+          0.03631514399967273
+        ]
+      },
+      "actual_box_bounds": [
+        0.3629838979564216,
+        0.6129838979564216,
+        -0.7594779102683288,
+        -0.5094779102683288
+      ],
+      "pose_projected_box_bounds": [
+        0.31325630563005025,
+        0.5642966289993813,
+        -0.7497850406017414,
+        -0.49874471723241054
+      ],
+      "center_actual_box_distance_m": 0.03798389795642143,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "7951": {
+      "cell": [
+        39,
+        92
+      ],
+      "center": [
+        0.3250000000000002,
+        -0.625
+      ],
+      "first_wall": "2026-11-04T16:37:09.172459+00:00",
+      "monotonic": 24400.830615144,
+      "pose": {
+        "truth": [
+          0.06768,
+          -0.46688,
+          -0.91092
+        ],
+        "estimate": [
+          0.01777734240387231,
+          -0.4584210879932767,
+          -0.9067500000000001
+        ],
+        "ages": [
+          0.033415144000173314,
+          0.07781514400267042,
+          0.03631514399967273
+        ]
+      },
+      "actual_box_bounds": [
+        0.3629838979564216,
+        0.6129838979564216,
+        -0.7594779102683288,
+        -0.5094779102683288
+      ],
+      "pose_projected_box_bounds": [
+        0.31325630563005025,
+        0.5642966289993813,
+        -0.7497850406017414,
+        -0.49874471723241054
+      ],
+      "center_actual_box_distance_m": 0.03798389795642143,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "8037": {
+      "cell": [
+        39,
+        93
+      ],
+      "center": [
+        0.3250000000000002,
+        -0.5750000000000002
+      ],
+      "first_wall": "2026-11-04T16:37:09.172459+00:00",
+      "monotonic": 24400.830615144,
+      "pose": {
+        "truth": [
+          0.06768,
+          -0.46688,
+          -0.91092
+        ],
+        "estimate": [
+          0.01777734240387231,
+          -0.4584210879932767,
+          -0.9067500000000001
+        ],
+        "ages": [
+          0.033415144000173314,
+          0.07781514400267042,
+          0.03631514399967273
+        ]
+      },
+      "actual_box_bounds": [
+        0.3629838979564216,
+        0.6129838979564216,
+        -0.7594779102683288,
+        -0.5094779102683288
+      ],
+      "pose_projected_box_bounds": [
+        0.31325630563005025,
+        0.5642966289993813,
+        -0.7497850406017414,
+        -0.49874471723241054
+      ],
+      "center_actual_box_distance_m": 0.03798389795642143,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "8123": {
+      "cell": [
+        39,
+        94
+      ],
+      "center": [
+        0.3250000000000002,
+        -0.5249999999999995
+      ],
+      "first_wall": "2026-11-04T16:37:09.172459+00:00",
+      "monotonic": 24400.830615144,
+      "pose": {
+        "truth": [
+          0.06768,
+          -0.46688,
+          -0.91092
+        ],
+        "estimate": [
+          0.01777734240387231,
+          -0.4584210879932767,
+          -0.9067500000000001
+        ],
+        "ages": [
+          0.033415144000173314,
+          0.07781514400267042,
+          0.03631514399967273
+        ]
+      },
+      "actual_box_bounds": [
+        0.3629838979564216,
+        0.6129838979564216,
+        -0.7594779102683288,
+        -0.5094779102683288
+      ],
+      "pose_projected_box_bounds": [
+        0.31325630563005025,
+        0.5642966289993813,
+        -0.7497850406017414,
+        -0.49874471723241054
+      ],
+      "center_actual_box_distance_m": 0.03798389795642143,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "8209": {
+      "cell": [
+        39,
+        95
+      ],
+      "center": [
+        0.3250000000000002,
+        -0.47499999999999964
+      ],
+      "first_wall": "2026-11-04T16:37:09.172459+00:00",
+      "monotonic": 24400.830615144,
+      "pose": {
+        "truth": [
+          0.06768,
+          -0.46688,
+          -0.91092
+        ],
+        "estimate": [
+          0.01777734240387231,
+          -0.4584210879932767,
+          -0.9067500000000001
+        ],
+        "ages": [
+          0.033415144000173314,
+          0.07781514400267042,
+          0.03631514399967273
+        ]
+      },
+      "actual_box_bounds": [
+        0.3629838979564216,
+        0.6129838979564216,
+        -0.7594779102683288,
+        -0.5094779102683288
+      ],
+      "pose_projected_box_bounds": [
+        0.31325630563005025,
+        0.5642966289993813,
+        -0.7497850406017414,
+        -0.49874471723241054
+      ],
+      "center_actual_box_distance_m": 0.051298175410386594,
+      "center_pose_projected_box_distance_m": 0.023744717232410895
+    },
+    "8038": {
+      "cell": [
+        40,
+        93
+      ],
+      "center": [
+        0.375,
+        -0.5750000000000002
+      ],
+      "first_wall": "2026-11-04T16:37:09.286643+00:00",
+      "monotonic": 24400.944797883,
+      "pose": {
+        "truth": [
+          0.06981,
+          -0.46964,
+          -0.91758
+        ],
+        "estimate": [
+          0.0199055834761629,
+          -0.4611602101041391,
+          -0.9134000000000001
+        ],
+        "ages": [
+          0.041597882998757996,
+          0.08169788300074288,
+          0.039797883000574075
+        ]
+      },
+      "actual_box_bounds": [
+        0.3629838979564216,
+        0.6129838979564216,
+        -0.7594779102683288,
+        -0.5094779102683288
+      ],
+      "pose_projected_box_bounds": [
+        0.31324344219050393,
+        0.5642862551005768,
+        -0.7497701249693833,
+        -0.49872731205931037
+      ],
+      "center_actual_box_distance_m": 0.0,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "8124": {
+      "cell": [
+        40,
+        94
+      ],
+      "center": [
+        0.375,
+        -0.5249999999999995
+      ],
+      "first_wall": "2026-11-04T16:37:09.540320+00:00",
+      "monotonic": 24401.198475562,
+      "pose": {
+        "truth": [
+          0.07245,
+          -0.4731,
+          -0.9205
+        ],
+        "estimate": [
+          0.021758144950724305,
+          -0.4703971061938278,
+          -0.9176
+        ],
+        "ages": [
+          0.07837556199956452,
+          0.01577556199845276,
+          0.017575562000274658
+        ]
+      },
+      "actual_box_bounds": [
+        0.3629838979564216,
+        0.6129838979564216,
+        -0.7594779102683288,
+        -0.5094779102683288
+      ],
+      "pose_projected_box_bounds": [
+        0.31239631700486925,
+        0.5631202647393981,
+        -0.7559312651207856,
+        -0.5052073173862567
+      ],
+      "center_actual_box_distance_m": 0.0,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "7779": {
+      "cell": [
+        39,
+        90
+      ],
+      "center": [
+        0.3250000000000002,
+        -0.7249999999999996
+      ],
+      "first_wall": "2026-11-04T16:37:10.989125+00:00",
+      "monotonic": 24402.647280874,
+      "pose": {
+        "truth": [
+          0.06924,
+          -0.46853,
+          -0.95645
+        ],
+        "estimate": [
+          0.02430809002013765,
+          -0.474610095829756,
+          -0.94347
+        ],
+        "ages": [
+          0.05768087400065269,
+          0.09488087399950018,
+          0.05198087399912765
+        ]
+      },
+      "actual_box_bounds": [
+        0.3629838979564216,
+        0.6129838979564216,
+        -0.7594779102683288,
+        -0.5094779102683288
+      ],
+      "pose_projected_box_bounds": [
+        0.3185587322300104,
+        0.5717825813566437,
+        -0.7617208081992304,
+        -0.5084969590725971
+      ],
+      "center_actual_box_distance_m": 0.03798389795642143,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "8125": {
+      "cell": [
+        41,
+        94
+      ],
+      "center": [
+        0.42500000000000027,
+        -0.5249999999999995
+      ],
+      "first_wall": "2026-11-04T16:37:13.039693+00:00",
+      "monotonic": 24404.697849058,
+      "pose": {
+        "truth": [
+          -0.00137,
+          -0.36845,
+          -0.95821
+        ],
+        "estimate": [
+          -0.04658903689241809,
+          -0.37359556858282017,
+          -0.9498599999999999
+        ],
+        "ages": [
+          0.01664905800134875,
+          0.05894905799868866,
+          0.014949058000638615
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.2832912092172455,
+        0.535369969697848,
+        -0.7966373996417069,
+        -0.5445586391611044
+      ],
+      "center_actual_box_distance_m": 0.019248981644132024,
+      "center_pose_projected_box_distance_m": 0.019558639161104896
+    },
+    "8127": {
+      "cell": [
+        43,
+        94
+      ],
+      "center": [
+        0.5250000000000004,
+        -0.5249999999999995
+      ],
+      "first_wall": "2026-11-04T16:37:13.612724+00:00",
+      "monotonic": 24405.270879494,
+      "pose": {
+        "truth": [
+          -0.00122,
+          -0.36862,
+          -1.08945
+        ],
+        "estimate": [
+          -0.024545366821805824,
+          -0.37809276383773993,
+          -1.07598
+        ],
+        "ages": [
+          0.0456794940000691,
+          0.09007949400256621,
+          0.03957949400137295
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.30606429419414166,
+        0.5594090125917833,
+        -0.7992614185660947,
+        -0.5459167001684531
+      ],
+      "center_actual_box_distance_m": 0.019248981644132024,
+      "center_pose_projected_box_distance_m": 0.020916700168453595
+    },
+    "8036": {
+      "cell": [
+        38,
+        93
+      ],
+      "center": [
+        0.27500000000000013,
+        -0.5750000000000002
+      ],
+      "first_wall": "2026-11-04T16:37:13.734166+00:00",
+      "monotonic": 24405.392319725,
+      "pose": {
+        "truth": [
+          -0.00118,
+          -0.36868,
+          -1.12458
+        ],
+        "estimate": [
+          -0.021698446441441595,
+          -0.3808356809191966,
+          -1.10535
+        ],
+        "ages": [
+          0.052419725001527695,
+          0.08541972500097472,
+          0.04871972500041011
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.30985064047305266,
+        0.564611621493898,
+        -0.8000144320067495,
+        -0.5452534509859042
+      ],
+      "center_actual_box_distance_m": 0.05205379086809192,
+      "center_pose_projected_box_distance_m": 0.03485064047305253
+    },
+    "7693": {
+      "cell": [
+        39,
+        89
+      ],
+      "center": [
+        0.3250000000000002,
+        -0.7749999999999995
+      ],
+      "first_wall": "2026-11-04T16:37:14.144141+00:00",
+      "monotonic": 24405.802296997,
+      "pose": {
+        "truth": [
+          -0.00107,
+          -0.36889,
+          -1.26401
+        ],
+        "estimate": [
+          -0.022858965778277597,
+          -0.3685486816627842,
+          -1.25039
+        ],
+        "ages": [
+          0.041996996998932445,
+          0.08229699699950288,
+          0.04039699699933408
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.30762270684469917,
+        0.5610044138803836,
+        -0.7893993030738453,
+        -0.5360175960381608
+      ],
+      "center_actual_box_distance_m": 0.002053790868091876,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "7692": {
+      "cell": [
+        38,
+        89
+      ],
+      "center": [
+        0.27500000000000013,
+        -0.7749999999999995
+      ],
+      "first_wall": "2026-11-04T16:37:14.346017+00:00",
+      "monotonic": 24406.004171367,
+      "pose": {
+        "truth": [
+          -0.00096,
+          -0.36894,
+          -1.32824
+        ],
+        "estimate": [
+          -0.03368791474862663,
+          -0.35569612514276755,
+          -1.3163200000000002
+        ],
+        "ages": [
+          0.03597136700045667,
+          0.0704713669983903,
+          0.03697136700066039
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.2963922068216641,
+        0.5493543756628831,
+        -0.7770650600369926,
+        -0.5241028911957737
+      ],
+      "center_actual_box_distance_m": 0.05205379086809192,
+      "center_pose_projected_box_distance_m": 0.021392206821663984
+    },
+    "7950": {
+      "cell": [
+        38,
+        92
+      ],
+      "center": [
+        0.27500000000000013,
+        -0.625
+      ],
+      "first_wall": "2026-11-04T16:37:14.903955+00:00",
+      "monotonic": 24406.562111364,
+      "pose": {
+        "truth": [
+          -0.00098,
+          -0.36891,
+          -1.32872
+        ],
+        "estimate": [
+          -0.03369899083876294,
+          -0.3557458978283219,
+          -1.3229300000000002
+        ],
+        "ages": [
+          0.058311364002292976,
+          0.09831136399952811,
+          0.06021136400158866
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.29534450855726624,
+        0.5467878099687975,
+        -0.7791784449020911,
+        -0.5277351434905597
+      ],
+      "center_actual_box_distance_m": 0.05205379086809192,
+      "center_pose_projected_box_distance_m": 0.020344508557266106
+    },
+    "8126": {
+      "cell": [
+        42,
+        94
+      ],
+      "center": [
+        0.4750000000000001,
+        -0.5249999999999995
+      ],
+      "first_wall": "2026-11-04T16:37:17.507473+00:00",
+      "monotonic": 24409.165629463,
+      "pose": {
+        "truth": [
+          0.00893,
+          -0.48266,
+          -1.55193
+        ],
+        "estimate": [
+          -0.022108801776520127,
+          -0.4930321608796447,
+          -1.53725
+        ],
+        "ages": [
+          0.050629462999495445,
+          0.08782946300198091,
+          0.049429463000706164
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.2968848052642624,
+        0.550527736133808,
+        -0.7999176795230409,
+        -0.5462747486534953
+      ],
+      "center_actual_box_distance_m": 0.019248981644132024,
+      "center_pose_projected_box_distance_m": 0.02127474865349588
+    },
+    "7864": {
+      "cell": [
+        38,
+        91
+      ],
+      "center": [
+        0.27500000000000013,
+        -0.6749999999999998
+      ],
+      "first_wall": "2026-11-04T16:37:17.849809+00:00",
+      "monotonic": 24409.507964609,
+      "pose": {
+        "truth": [
+          0.00855,
+          -0.51348,
+          -1.60547
+        ],
+        "estimate": [
+          -0.024197516895546237,
+          -0.5210824924076498,
+          -1.5912799999999998
+        ],
+        "ages": [
+          0.059464609003043734,
+          0.09556460900057573,
+          0.06046460900324746
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.29471080536729066,
+        0.5482330172265286,
+        -0.797303790132367,
+        -0.5437815782731291
+      ],
+      "center_actual_box_distance_m": 0.05205379086809192,
+      "center_pose_projected_box_distance_m": 0.01971080536729053
+    },
+    "7778": {
+      "cell": [
+        38,
+        90
+      ],
+      "center": [
+        0.27500000000000013,
+        -0.7249999999999996
+      ],
+      "first_wall": "2026-11-04T16:37:20.329808+00:00",
+      "monotonic": 24411.987962312,
+      "pose": {
+        "truth": [
+          0.00088,
+          -0.73796,
+          -1.59817
+        ],
+        "estimate": [
+          -0.041365748239334976,
+          -0.7469926082887961,
+          -1.5918800000000002
+        ],
+        "ages": [
+          0.06926231200122857,
+          0.00876231199799804,
+          0.011362311997800134
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.2835831559927456,
+        0.5351507001274803,
+        -0.8012288568090656,
+        -0.549661312674331
+      ],
+      "center_actual_box_distance_m": 0.05205379086809192,
+      "center_pose_projected_box_distance_m": 0.00858315599274545
+    },
+    "7694": {
+      "cell": [
+        40,
+        89
+      ],
+      "center": [
+        0.375,
+        -0.7749999999999995
+      ],
+      "first_wall": "2026-11-04T16:37:30.030038+00:00",
+      "monotonic": 24421.688194265,
+      "pose": {
+        "truth": [
+          0.0274,
+          -0.95079,
+          -1.07158
+        ],
+        "estimate": [
+          -0.008765231914973316,
+          -0.9621988040115174,
+          -1.02292
+        ],
+        "ages": [
+          0.013494265000190353,
+          0.005294264999974985,
+          0.008494264999171719
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.27075938934120614,
+        0.5326236731499236,
+        -0.7912676777110902,
+        -0.5294033939023726
+      ],
+      "center_actual_box_distance_m": 0.0,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "7695": {
+      "cell": [
+        41,
+        89
+      ],
+      "center": [
+        0.42500000000000027,
+        -0.7749999999999995
+      ],
+      "first_wall": "2026-11-04T16:37:32.199177+00:00",
+      "monotonic": 24423.857333598,
+      "pose": {
+        "truth": [
+          0.07967,
+          -1.0184,
+          -0.74629
+        ],
+        "estimate": [
+          0.05272985905097983,
+          -1.0274281597841224,
+          -0.70687
+        ],
+        "ages": [
+          0.1140335980016971,
+          0.11893359800160397,
+          0.041133597998850746
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.281235272728945,
+        0.5408935036887226,
+        -0.7937019334885806,
+        -0.5340437025288032
+      ],
+      "center_actual_box_distance_m": 0.0,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "7696": {
+      "cell": [
+        42,
+        89
+      ],
+      "center": [
+        0.4750000000000001,
+        -0.7749999999999995
+      ],
+      "first_wall": "2026-11-04T16:37:32.831951+00:00",
+      "monotonic": 24424.490107062,
+      "pose": {
+        "truth": [
+          0.08016,
+          -1.01886,
+          -0.7441
+        ],
+        "estimate": [
+          0.05889844023327997,
+          -1.0320775249119059,
+          -0.70082
+        ],
+        "ages": [
+          0.09060706200034474,
+          0.08420706199831329,
+          0.026207062001049053
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.28502627893928545,
+        0.5456087930735695,
+        -0.7969946121061358,
+        -0.5364120979718517
+      ],
+      "center_actual_box_distance_m": 0.0,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "7697": {
+      "cell": [
+        43,
+        89
+      ],
+      "center": [
+        0.5250000000000004,
+        -0.7749999999999995
+      ],
+      "first_wall": "2026-11-04T16:37:35.389947+00:00",
+      "monotonic": 24427.048103194,
+      "pose": {
+        "truth": [
+          0.08058,
+          -1.0194,
+          -0.75246
+        ],
+        "estimate": [
+          0.05420549474861642,
+          -1.0372806346164751,
+          -0.71821
+        ],
+        "ages": [
+          0.08040319399879081,
+          0.07780319399898872,
+          0.01520319400151493
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.28426399432349037,
+        0.5426782018847943,
+        -0.8038215844715744,
+        -0.5454073769102703
+      ],
+      "center_actual_box_distance_m": 0.0,
+      "center_pose_projected_box_distance_m": 0.0
+    },
+    "7607": {
+      "cell": [
+        39,
+        88
+      ],
+      "center": [
+        0.3250000000000002,
+        -0.8250000000000002
+      ],
+      "first_wall": "2026-11-04T16:37:37.816099+00:00",
+      "monotonic": 24429.4742546,
+      "pose": {
+        "truth": [
+          0.08108,
+          -1.01984,
+          -0.75914
+        ],
+        "estimate": [
+          0.05112499474833289,
+          -1.0368104280239747,
+          -0.71978
+        ],
+        "ages": [
+          0.06905460000052699,
+          0.07035460000042804,
+          0.006554600000526989
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.2781938482206271,
+        0.5378376815129138,
+        -0.801715102179281,
+        -0.5420712688869942
+      ],
+      "center_actual_box_distance_m": 0.03081952606470175,
+      "center_pose_projected_box_distance_m": 0.023284897820719186
+    },
+    "7606": {
+      "cell": [
+        38,
+        88
+      ],
+      "center": [
+        0.27500000000000013,
+        -0.8250000000000002
+      ],
+      "first_wall": "2026-11-04T16:37:39.369906+00:00",
+      "monotonic": 24431.028059848,
+      "pose": {
+        "truth": [
+          0.08133,
+          -1.02006,
+          -0.76241
+        ],
+        "estimate": [
+          0.053105669411899856,
+          -1.036212142688547,
+          -0.7234200000000001
+        ],
+        "ages": [
+          0.12285984799746075,
+          0.12385984799766447,
+          0.041959848000260536
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.28009553534273807,
+        0.5396505623661372,
+        -0.8009944005034163,
+        -0.5414393734800171
+      ],
+      "center_actual_box_distance_m": 0.060458434264062964,
+      "center_pose_projected_box_distance_m": 0.02454044187905913
+    },
+    "7608": {
+      "cell": [
+        40,
+        88
+      ],
+      "center": [
+        0.375,
+        -0.8250000000000002
+      ],
+      "first_wall": "2026-11-04T16:37:47.879994+00:00",
+      "monotonic": 24439.538149623,
+      "pose": {
+        "truth": [
+          0.08199,
+          -1.02063,
+          -0.7711
+        ],
+        "estimate": [
+          0.05171937269181312,
+          -1.0449823862489014,
+          -0.73329
+        ],
+        "ages": [
+          0.08624962300018524,
+          0.08814962299948093,
+          0.02334962299937615
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.27860033833640824,
+        0.5378719080633637,
+        -0.8094995109762055,
+        -0.55022794124925
+      ],
+      "center_actual_box_distance_m": 0.030751018355868687,
+      "center_pose_projected_box_distance_m": 0.015500489023794639
+    },
+    "7609": {
+      "cell": [
+        41,
+        88
+      ],
+      "center": [
+        0.42500000000000027,
+        -0.8250000000000002
+      ],
+      "first_wall": "2026-11-04T16:37:48.749819+00:00",
+      "monotonic": 24440.407974618,
+      "pose": {
+        "truth": [
+          0.082,
+          -1.02063,
+          -0.77121
+        ],
+        "estimate": [
+          0.05171933099193397,
+          -1.044992386161957,
+          -0.73265
+        ],
+        "ages": [
+          0.09017461799885496,
+          0.08517461799783632,
+          0.03297461799957091
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.2782262621460441,
+        0.537678037241341,
+        -0.8093327142296873,
+        -0.5498809391343906
+      ],
+      "center_actual_box_distance_m": 0.030751018355868687,
+      "center_pose_projected_box_distance_m": 0.015667285770312844
+    },
+    "7610": {
+      "cell": [
+        42,
+        88
+      ],
+      "center": [
+        0.4750000000000001,
+        -0.8250000000000002
+      ],
+      "first_wall": "2026-11-04T16:37:53.668683+00:00",
+      "monotonic": 24445.326837035,
+      "pose": {
+        "truth": [
+          0.08203,
+          -1.02066,
+          -0.77137
+        ],
+        "estimate": [
+          0.048986294381244015,
+          -1.0511592142902364,
+          -0.72762
+        ],
+        "ages": [
+          0.04053703500176198,
+          0.034637035001651384,
+          0.041837035001663025
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.2729392936643439,
+        0.5336340851697539,
+        -0.8142484723417127,
+        -0.5535536808363026
+      ],
+      "center_actual_box_distance_m": 0.030751018355868687,
+      "center_pose_projected_box_distance_m": 0.010751527658287463
+    },
+    "7611": {
+      "cell": [
+        43,
+        88
+      ],
+      "center": [
+        0.5250000000000004,
+        -0.8250000000000002
+      ],
+      "first_wall": "2026-11-04T16:38:00.474328+00:00",
+      "monotonic": 24452.132483993,
+      "pose": {
+        "truth": [
+          0.08207,
+          -1.0207,
+          -0.77143
+        ],
+        "estimate": [
+          0.045695994762767915,
+          -1.0509499860221543,
+          -0.72407
+        ],
+        "ages": [
+          0.031183993000013288,
+          0.03508399299971643,
+          0.03808399299668963
+        ]
+      },
+      "actual_box_bounds": [
+        0.32705379086809205,
+        0.577053790868092,
+        -0.7942489816441315,
+        -0.5442489816441315
+      ],
+      "pose_projected_box_bounds": [
+        0.26784880553810925,
+        0.5294040611092108,
+        -0.8131547860711539,
+        -0.5515995305000523
+      ],
+      "center_actual_box_distance_m": 0.030751018355868687,
+      "center_pose_projected_box_distance_m": 0.011845213928846299
+    }
+  },
+  "snapshot_limit": "Observer sample338 matches logged13 observed, memory242, reserved observed239, virtual36, and escape11; same-callback raw scan beams were not recorded, so this replay never claims a new execution certificate."
+}

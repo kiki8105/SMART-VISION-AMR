@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "comparison": "Home to Sector3 approach under geometry-aligned baseline vs fixed parameters on shared current Python",
+  "initial_pose": [
+    -0.188431,
+    -0.220497,
+    -0.027514
+  ],
+  "goal": [
+    -0.25,
+    -1.98,
+    -1.4
+  ],
+  "scope": "Full genuine web/mux/sensor-guard prearm, Sector3 approach only; stopped before marker dwell/Home phases. Not full inventory acceptance.",
+  "common": {
+    "domain": 176,
+    "localhost_only": true,
+    "seed": 4242,
+    "collision_proxy_radius_m": 0.2,
+    "nav2_inflation_radius_m": 0.2,
+    "astar_inflation_cells": 4,
+    "map_resolution_m": 0.05,
+    "memory_session": true,
+    "scan_filter": false,
+    "ekf": "ekf_independent",
+    "camera": "rear only 320x240 5Hz",
+    "battery_volts_simulated": 12.0,
+    "minimum_battery_volts": 10.8
+  },
+  "metric_scope": "~5Hz HTTP samples. Pose/cross-track/map clearance are AMCL estimates and may contain localization corrections. Only initial Gazebo world pose was verified. No midrun truth, contact, original WiFi/Pi/OpenCR or real-wheel-slip equivalence claim.",
+  "variants": {
+    "baseline": {
+      "status": "DIAGNOSTIC_TIMEOUT_OR_HOLD",
+      "passed": false,
+      "prearm_passed": true,
+      "final_stop_acknowledged": true,
+      "duration_s": 99.81369090080261,
+      "first_path_length_m": 3.7718565635955263,
+      "first_path_pose_count": 83,
+      "goal_distance_m": 0.9479604226499752,
+      "tracking_samples": {
+        "estimated_path_progress_end_m": 1.3404443288588632,
+        "maximum_cross_track_m": 0.08115429607191367,
+        "rms_cross_track_m": 0.040166176240182844,
+        "minimum_static_cell_edge_clearance_m": 0.18378321167113448,
+        "maximum_published_linear_mps": 0.22,
+        "maximum_published_angular_rps": 0.29487179487179493,
+        "published_yaw_sign_reversals_over_03rps": 3
+      },
+      "dwb_collision_rejection_reports": 3,
+      "reverse_reject_counts": {
+        "NOT_STOPPED": 2,
+        "NO_SAFE_EGRESS": 14
+      },
+      "evidence_root": "/tmp/classroom-physical-incident-20261104/baseline_home",
+      "controller": {
+        "plugin": "dwb_core::DWBLocalPlanner"
+      },
+      "config_sha256": {
+        "/tmp/classroom-physical-incident-20261104/baseline_home/sim/classroom_nav_sim_time.yaml": "94d42d5919384f3242ef90b1f0b80e3530147922d815e17251d36e92a9cc52f3",
+        "/tmp/classroom-physical-incident-20261104/baseline_home/sim/classroom_nodes_sim.yaml": "78a62df9e643cd6439af745c753f402add3777f8a1ffc6b95f16666cfb5dba5c",
+        "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml": "242dc4549e58950662cc951a8b84e2c1c654b8d0ca8966d921ddaaf5d3399049",
+        "/tmp/classroom-physical-incident-20261104/baseline_geometry_aligned_nav.yaml": "b41b49876463c92fbaa50ae8a7b8115f16b40f5bd5a8d46cac15c6eab89cc379",
+        "/tmp/classroom-physical-incident-20261104/baseline_geometry_aligned_nodes.yaml": "40194d8224d5d9b71dd2e431a129c5a1e97f06e6297496910354fb1816c0bba1",
+        "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/change_memory_speckle.yaml": "65ca37cbd514e76bb85f041add54c1150d882c556f3800440df965df940cf977"
+      },
+      "preferred_clearance_m": 0.18,
+      "first_failure": {
+        "elapsed_s": 12.162278890609741,
+        "pose": {
+          "x": 0.45829122345720996,
+          "y": -1.3126427831393541,
+          "yaw": -1.159932401256347
+        },
+        "navigation": {
+          "status": "FAILED",
+          "planner_status": "WAIT_REPLAN",
+          "message": "Stopped; replan while avoiding failed approach"
+        },
+        "failure_memory": {
+          "state": "WAIT_ALTERNATIVE",
+          "reason": "No safe alternative; goal retained",
+          "count": 1,
+          "active": [
+            {
+              "id": "1",
+              "x": 0.46018960668889,
+              "y": -1.513451320534813,
+              "yaw": -1.5707963267948966,
+              "reason": "controller_aborted",
+              "expires_in": 119.7,
+              "failures": 1
+            }
+          ],
+          "available": true,
+          "last_failure_id": "1",
+          "rejoin_verified": false,
+          "recovery_attempts": 0,
+          "goal_stamp": {
+            "sec": 8,
+            "nanosec": 840000000
+          },
+          "retry_count": 0,
+          "retry_limit": 3,
+          "blocked_obstacle_count": 0,
+          "controller_retry_count": 0,
+          "controller_retry_limit": 3,
+          "clear_wait_seconds": 2.0
+        }
+      }
+    },
+    "fixed": {
+      "status": "APPROACH_SUCCEEDED",
+      "passed": true,
+      "prearm_passed": true,
+      "final_stop_acknowledged": true,
+      "duration_s": 40.16011953353882,
+      "first_path_length_m": 4.00914906688935,
+      "first_path_pose_count": 92,
+      "goal_distance_m": 0.19982309122459121,
+      "tracking_samples": {
+        "estimated_path_progress_end_m": 3.8028003793969063,
+        "maximum_cross_track_m": 0.05667284639802459,
+        "rms_cross_track_m": 0.02019151359706067,
+        "minimum_static_cell_edge_clearance_m": 0.3048667742281201,
+        "maximum_published_linear_mps": 0.2190729652315301,
+        "maximum_published_angular_rps": 0.5,
+        "published_yaw_sign_reversals_over_03rps": 0
+      },
+      "dwb_collision_rejection_reports": 0,
+      "reverse_reject_counts": {},
+      "evidence_root": "/tmp/classroom-physical-incident-20261104/fixed_home",
+      "controller": {
+        "plugin": "smart_vision_amr_dwb::RouteTrackingDWB",
+        "library": "/home/kiki/Team2_workspace/build/smart_vision_amr_dwb/libroute_tracking_dwb.so",
+        "library_sha256": "a98b2365210a38ced0f26106999350da8aaa36227136388314a0d7a1776040cf"
+      },
+      "config_sha256": {
+        "/tmp/classroom-physical-incident-20261104/fixed_home/sim/classroom_nav_sim_time.yaml": "e21dbf151fb693a45d4a965afff12e8d827618877d7cc626817e44ab32cfc7ba",
+        "/tmp/classroom-physical-incident-20261104/fixed_home/sim/classroom_nodes_sim.yaml": "3cb5c67f60cf7f7042540f69e0a2d44102f6a5e81cb05ff4b91e087238054b76",
+        "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml": "242dc4549e58950662cc951a8b84e2c1c654b8d0ca8966d921ddaaf5d3399049",
+        "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml": "6cf24ed22e1f89e786638afaef07225dd098014758067b48c7122f26b2820c11",
+        "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": "3be9e1358df026676d4a9026b7b49a34c512d0b616c66ac7b155e515aad08824",
+        "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/change_memory_speckle.yaml": "65ca37cbd514e76bb85f041add54c1150d882c556f3800440df965df940cf977"
+      },
+      "preferred_clearance_m": 0.45,
+      "first_failure": null
+    }
+  },
+  "recorded_tick_controller_replay": {
+    "scope": "actual Nav2 DWB using frozen captured path/scan/odom/TF; local costmap reconstructed from frozen scan, not original full costmap history; open loop",
+    "evidence_root": "/tmp/dwb-controller-regression",
+    "baseline_linear_mps": 0.0,
+    "baseline_angular_rps": -0.2727272727272727,
+    "fixed_linear_mps": 0.10421052631578946,
+    "fixed_angular_rps": -0.08974358974358962,
+    "regression_all_passed": true
+  },
+  "variant_changes": {
+    "controller": [
+      "dwb_core::DWBLocalPlanner",
+      "smart_vision_amr_dwb::RouteTrackingDWB"
+    ],
+    "prune_distance_m": [
+      0.25,
+      0.4
+    ],
+    "route_horizon_m": [
+      null,
+      0.55
+    ],
+    "route_anchor_search_m": [
+      null,
+      0.85
+    ],
+    "astar_preferred_clearance_m": [
+      0.18,
+      0.45
+    ],
+    "nav_controller_max_linear_mps": [
+      0.24,
+      0.22
+    ],
+    "controller_acceleration_linear_mps2": [
+      2.5,
+      0.2
+    ],
+    "controller_acceleration_angular_rps2": [
+      3.2,
+      0.8
+    ],
+    "follower_curve_preview_m": [
+      0.75,
+      1.0
+    ],
+    "reverse_recovery_mps": [
+      0.04,
+      0.1
+    ],
+    "behavior_server_max_angular_rps": [
+      1.0,
+      0.35
+    ],
+    "common_software_note": "Current Python planner/follower/mux/guard in both. Current common motion mux capped observed baseline linear at .22 despite baseline Nav2 .24. Multiple parameter changes; no single-factor or exact old checkout claim."
+  }
+}

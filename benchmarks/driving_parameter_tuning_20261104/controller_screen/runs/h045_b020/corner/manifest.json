@@ -1,0 +1,12 @@
+{
+  "source_incident": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/benchmarks/driving_parameter_tuning_20261104/controller_screen/inputs/corner.jsonl",
+  "source_time": 1.0,
+  "source_nav_parameters": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/benchmarks/driving_parameter_tuning_20261104/controller_screen/profiles/h045_b020.yaml",
+  "domain": 186,
+  "duration": 2.0,
+  "overrides": [],
+  "output_command_topic": "/replay/controller_cmd_vel",
+  "costmap_source": "reconstructed from a frozen captured scan, not captured costmap history",
+  "static_tf_source": "TurtleBot3 Waffle Pi URDF: footprint->link z=.01; link->scan x=-.064,z=.122",
+  "model": "frozen open-loop inputs; no claim of closed-loop drive success"
+}

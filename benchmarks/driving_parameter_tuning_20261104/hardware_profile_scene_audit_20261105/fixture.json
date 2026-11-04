@@ -1,0 +1,1830 @@
+{
+  "scope": "Offline paired fixed-scene preflight only; future moving-robot truth QA remains required",
+  "map": {
+    "yaml": "classroom_20261030_cleaned.yaml",
+    "image_sha256": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+    "yaml_sha256": "16a419cd5a9c499efb9e5af2f77b6b54c100d3df67c3ec6486b238ca968433b9",
+    "origin": [
+      -1.65,
+      -5.25,
+      0.0
+    ]
+  },
+  "original_scene": {
+    "x": 0.5239140050447512,
+    "y": -0.599706838892526,
+    "path_tangent": [
+      0.6954214275160555,
+      -0.7186021417665909
+    ],
+    "movement_side": -1
+  },
+  "proposed_scene_path": "benchmarks/driving_parameter_tuning_20261104/scenarios/hardware_profiles_common_box.json",
+  "proposed_scene_sha256": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e",
+  "robot_radius_m": 0.22,
+  "astar_static_inflation_cells": 5,
+  "observed_distance_gate_m": 0.35,
+  "cases": {
+    "sensor_rates": {
+      "source_trial": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle",
+      "source_sha256": {
+        "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json": "fe346b13acf95ad2633155c0ee58c3ea462b8a1959cd7dab514ea35fa2b25586",
+        "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl": "7a009e09edc2d0c73dd9e24760e330e20e32c677d22bf1100d239c50aad381be",
+        "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl": "afed4f902028b463456af9525c29786740d59e9c36515ee68af43cf51d9af082",
+        "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json": "30e77245995cf3e52934f4a687dba73930e3d6ad720d2f39294820a2be7dcfb2",
+        "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6"
+      },
+      "actor_search_event": {
+        "t": 21.579,
+        "at": 1793810879.1749327,
+        "event": "candidate_search_started",
+        "attempt": 1,
+        "path_sha256": "b98614957975fa4e2ceaa4767d233621ae86332408dfcdf85e17f29ce4609cb4",
+        "robot_xy": [
+          -0.18826077032263952,
+          -0.2205009261845269
+        ],
+        "observed_cells": 5,
+        "remembered_cells": 0
+      },
+      "observed_snapshot": {
+        "kind": "observed",
+        "monotonic_sec": 25050.755885654,
+        "wall_utc": "2026-11-04T16:47:59.097730+00:00",
+        "count": 5,
+        "cells": [
+          8560,
+          8646,
+          8732,
+          8818,
+          8904
+        ],
+        "remembered_count": 0,
+        "sample": 62
+      },
+      "remembered_snapshot": {
+        "kind": "remembered",
+        "monotonic_sec": 25040.503177394,
+        "wall_utc": "2026-11-04T16:47:48.845023+00:00",
+        "count": 0,
+        "cells": [],
+        "added": [],
+        "removed": [],
+        "observed_count": null
+      },
+      "path": {
+        "t": 21.686,
+        "monotonic": 25050.7786,
+        "wall_time": 1793810879.1204,
+        "kind": "path",
+        "count": 95,
+        "stamp_ns": 7460000000,
+        "frame_id": "map",
+        "points": [
+          [
+            -0.225,
+            -0.275
+          ],
+          [
+            -0.1906,
+            -0.3094
+          ],
+          [
+            -0.1562,
+            -0.3437
+          ],
+          [
+            -0.1219,
+            -0.3781
+          ],
+          [
+            -0.0875,
+            -0.4125
+          ],
+          [
+            -0.0531,
+            -0.4469
+          ],
+          [
+            -0.0187,
+            -0.4812
+          ],
+          [
+            0.0156,
+            -0.5156
+          ],
+          [
+            0.05,
+            -0.55
+          ],
+          [
+            0.0844,
+            -0.5844
+          ],
+          [
+            0.1163,
+            -0.6162
+          ],
+          [
+            0.1481,
+            -0.6481
+          ],
+          [
+            0.18,
+            -0.68
+          ],
+          [
+            0.2119,
+            -0.7119
+          ],
+          [
+            0.2438,
+            -0.7437
+          ],
+          [
+            0.2719,
+            -0.7719
+          ],
+          [
+            0.3,
+            -0.8
+          ],
+          [
+            0.3281,
+            -0.8281
+          ],
+          [
+            0.3563,
+            -0.8562
+          ],
+          [
+            0.3867,
+            -0.8867
+          ],
+          [
+            0.4172,
+            -0.9172
+          ],
+          [
+            0.4477,
+            -0.9477
+          ],
+          [
+            0.4781,
+            -0.9781
+          ],
+          [
+            0.5109,
+            -1.0109
+          ],
+          [
+            0.5438,
+            -1.0437
+          ],
+          [
+            0.5766,
+            -1.0766
+          ],
+          [
+            0.6094,
+            -1.1094
+          ],
+          [
+            0.6225,
+            -1.1506
+          ],
+          [
+            0.6356,
+            -1.1919
+          ],
+          [
+            0.6488,
+            -1.2331
+          ],
+          [
+            0.6619,
+            -1.2744
+          ],
+          [
+            0.675,
+            -1.3156
+          ],
+          [
+            0.675,
+            -1.3625
+          ],
+          [
+            0.675,
+            -1.4094
+          ],
+          [
+            0.675,
+            -1.4562
+          ],
+          [
+            0.675,
+            -1.5031
+          ],
+          [
+            0.675,
+            -1.55
+          ],
+          [
+            0.675,
+            -1.5969
+          ],
+          [
+            0.675,
+            -1.6412
+          ],
+          [
+            0.675,
+            -1.6856
+          ],
+          [
+            0.675,
+            -1.73
+          ],
+          [
+            0.675,
+            -1.7744
+          ],
+          [
+            0.675,
+            -1.8187
+          ],
+          [
+            0.675,
+            -1.8594
+          ],
+          [
+            0.675,
+            -1.9
+          ],
+          [
+            0.675,
+            -1.9406
+          ],
+          [
+            0.675,
+            -1.9812
+          ],
+          [
+            0.675,
+            -2.0187
+          ],
+          [
+            0.675,
+            -2.0562
+          ],
+          [
+            0.675,
+            -2.0937
+          ],
+          [
+            0.675,
+            -2.1312
+          ],
+          [
+            0.675,
+            -2.1771
+          ],
+          [
+            0.675,
+            -2.2229
+          ],
+          [
+            0.675,
+            -2.2687
+          ],
+          [
+            0.6698,
+            -2.3094
+          ],
+          [
+            0.6646,
+            -2.35
+          ],
+          [
+            0.6594,
+            -2.3906
+          ],
+          [
+            0.649,
+            -2.426
+          ],
+          [
+            0.6385,
+            -2.4615
+          ],
+          [
+            0.6281,
+            -2.4969
+          ],
+          [
+            0.6125,
+            -2.5271
+          ],
+          [
+            0.5969,
+            -2.5573
+          ],
+          [
+            0.5813,
+            -2.5875
+          ],
+          [
+            0.55,
+            -2.625
+          ],
+          [
+            0.5188,
+            -2.6625
+          ],
+          [
+            0.4844,
+            -2.6891
+          ],
+          [
+            0.45,
+            -2.7156
+          ],
+          [
+            0.4125,
+            -2.7312
+          ],
+          [
+            0.375,
+            -2.7469
+          ],
+          [
+            0.3344,
+            -2.7516
+          ],
+          [
+            0.2938,
+            -2.7562
+          ],
+          [
+            0.25,
+            -2.75
+          ],
+          [
+            0.2063,
+            -2.7437
+          ],
+          [
+            0.1656,
+            -2.7312
+          ],
+          [
+            0.125,
+            -2.7187
+          ],
+          [
+            0.0875,
+            -2.7
+          ],
+          [
+            0.05,
+            -2.6812
+          ],
+          [
+            0.0156,
+            -2.6562
+          ],
+          [
+            -0.0187,
+            -2.6312
+          ],
+          [
+            -0.05,
+            -2.6
+          ],
+          [
+            -0.0812,
+            -2.5687
+          ],
+          [
+            -0.1078,
+            -2.5297
+          ],
+          [
+            -0.1344,
+            -2.4906
+          ],
+          [
+            -0.149,
+            -2.4594
+          ],
+          [
+            -0.1635,
+            -2.4281
+          ],
+          [
+            -0.1781,
+            -2.3969
+          ],
+          [
+            -0.1917,
+            -2.35
+          ],
+          [
+            -0.2052,
+            -2.3031
+          ],
+          [
+            -0.2187,
+            -2.2562
+          ],
+          [
+            -0.2281,
+            -2.2094
+          ],
+          [
+            -0.2375,
+            -2.1625
+          ],
+          [
+            -0.2469,
+            -2.1156
+          ],
+          [
+            -0.2562,
+            -2.0687
+          ],
+          [
+            -0.2656,
+            -2.0219
+          ],
+          [
+            -0.275,
+            -1.975
+          ]
+        ]
+      },
+      "tf_map_odom": {
+        "t": 21.659,
+        "monotonic": 25050.7516,
+        "wall_time": 1793810879.0935,
+        "kind": "tf_stamp",
+        "source": "forwarded",
+        "parent": "map",
+        "child": "odom",
+        "stamp_ns": 8696000000,
+        "clock_stamp_ns": 7760000000,
+        "x": -0.24306,
+        "y": -0.25754,
+        "yaw": -0.01887
+      },
+      "tf_odom_base": {
+        "t": 21.7107,
+        "monotonic": 25050.8033,
+        "wall_time": 1793810879.1451,
+        "kind": "tf_stamp",
+        "source": "forwarded",
+        "parent": "odom",
+        "child": "base_footprint",
+        "stamp_ns": 7787000000,
+        "clock_stamp_ns": 7800000000,
+        "x": 8e-05,
+        "y": 0.0,
+        "yaw": 0.0002
+      },
+      "truth": {
+        "t": 21.7057,
+        "monotonic": 25050.7983,
+        "wall_time": 1793810879.1402,
+        "kind": "truth",
+        "x": -0.18826,
+        "y": -0.2205,
+        "yaw": -0.02751
+      },
+      "estimated_pose": [
+        -0.24298001424265336,
+        -0.25754150951041266,
+        -0.018670000000000003
+      ],
+      "source_result": {
+        "actor_passed": true,
+        "actor_spawned": true,
+        "actor_input_status": "VALID"
+      }
+    },
+    "wheel_asymmetry": {
+      "source_trial": "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle",
+      "source_sha256": {
+        "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json": "c9f9bf6f52f35f578ff03206f0deb69a21916a086db9ff9c08b1fb6a1176c23a",
+        "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl": "8540ca23c18f275341c2724f26cf01448a1602808379337c743f29c1a882e73f",
+        "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl": "276d44790cac46d8b0f3c88bc7779007026246a44630043f155630c5934be7d8",
+        "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json": "30f461b0451e8b551799c1cf7515b777804aa962380b746f42d0586c7a03bdfd",
+        "/tmp/classroom-transfer-cold_wheel_asymmetry-20261105/25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf": "1aa1fb30300bcc7717d1d6c7d8eb1bd5c0b248b78821860e5d388c4b8084f1b9"
+      },
+      "actor_search_event": {
+        "t": 20.334,
+        "at": 1793812105.9851327,
+        "event": "candidate_search_started",
+        "attempt": 1,
+        "path_sha256": "b98614957975fa4e2ceaa4767d233621ae86332408dfcdf85e17f29ce4609cb4",
+        "robot_xy": [
+          -0.18826163085978742,
+          -0.2205019982076411
+        ],
+        "observed_cells": 5,
+        "remembered_cells": 0
+      },
+      "observed_snapshot": {
+        "kind": "observed",
+        "monotonic_sec": 26277.530128701,
+        "wall_utc": "2026-11-04T17:08:25.871973+00:00",
+        "count": 5,
+        "cells": [
+          8474,
+          8560,
+          8646,
+          8732,
+          8818
+        ],
+        "remembered_count": 0,
+        "sample": 63
+      },
+      "remembered_snapshot": {
+        "kind": "remembered",
+        "monotonic_sec": 26268.342185425,
+        "wall_utc": "2026-11-04T17:08:16.684031+00:00",
+        "count": 0,
+        "cells": [],
+        "added": [],
+        "removed": [],
+        "observed_count": null
+      },
+      "path": {
+        "t": 20.5136,
+        "monotonic": 26277.5835,
+        "wall_time": 1793812105.9253,
+        "kind": "path",
+        "count": 95,
+        "stamp_ns": 7380000000,
+        "frame_id": "map",
+        "points": [
+          [
+            -0.225,
+            -0.275
+          ],
+          [
+            -0.1906,
+            -0.3094
+          ],
+          [
+            -0.1562,
+            -0.3437
+          ],
+          [
+            -0.1219,
+            -0.3781
+          ],
+          [
+            -0.0875,
+            -0.4125
+          ],
+          [
+            -0.0531,
+            -0.4469
+          ],
+          [
+            -0.0187,
+            -0.4812
+          ],
+          [
+            0.0156,
+            -0.5156
+          ],
+          [
+            0.05,
+            -0.55
+          ],
+          [
+            0.0844,
+            -0.5844
+          ],
+          [
+            0.1163,
+            -0.6162
+          ],
+          [
+            0.1481,
+            -0.6481
+          ],
+          [
+            0.18,
+            -0.68
+          ],
+          [
+            0.2119,
+            -0.7119
+          ],
+          [
+            0.2438,
+            -0.7437
+          ],
+          [
+            0.2719,
+            -0.7719
+          ],
+          [
+            0.3,
+            -0.8
+          ],
+          [
+            0.3281,
+            -0.8281
+          ],
+          [
+            0.3563,
+            -0.8562
+          ],
+          [
+            0.3867,
+            -0.8867
+          ],
+          [
+            0.4172,
+            -0.9172
+          ],
+          [
+            0.4477,
+            -0.9477
+          ],
+          [
+            0.4781,
+            -0.9781
+          ],
+          [
+            0.5109,
+            -1.0109
+          ],
+          [
+            0.5438,
+            -1.0437
+          ],
+          [
+            0.5766,
+            -1.0766
+          ],
+          [
+            0.6094,
+            -1.1094
+          ],
+          [
+            0.6225,
+            -1.1506
+          ],
+          [
+            0.6356,
+            -1.1919
+          ],
+          [
+            0.6488,
+            -1.2331
+          ],
+          [
+            0.6619,
+            -1.2744
+          ],
+          [
+            0.675,
+            -1.3156
+          ],
+          [
+            0.675,
+            -1.3625
+          ],
+          [
+            0.675,
+            -1.4094
+          ],
+          [
+            0.675,
+            -1.4562
+          ],
+          [
+            0.675,
+            -1.5031
+          ],
+          [
+            0.675,
+            -1.55
+          ],
+          [
+            0.675,
+            -1.5969
+          ],
+          [
+            0.675,
+            -1.6412
+          ],
+          [
+            0.675,
+            -1.6856
+          ],
+          [
+            0.675,
+            -1.73
+          ],
+          [
+            0.675,
+            -1.7744
+          ],
+          [
+            0.675,
+            -1.8187
+          ],
+          [
+            0.675,
+            -1.8594
+          ],
+          [
+            0.675,
+            -1.9
+          ],
+          [
+            0.675,
+            -1.9406
+          ],
+          [
+            0.675,
+            -1.9812
+          ],
+          [
+            0.675,
+            -2.0187
+          ],
+          [
+            0.675,
+            -2.0562
+          ],
+          [
+            0.675,
+            -2.0937
+          ],
+          [
+            0.675,
+            -2.1312
+          ],
+          [
+            0.675,
+            -2.1771
+          ],
+          [
+            0.675,
+            -2.2229
+          ],
+          [
+            0.675,
+            -2.2687
+          ],
+          [
+            0.6698,
+            -2.3094
+          ],
+          [
+            0.6646,
+            -2.35
+          ],
+          [
+            0.6594,
+            -2.3906
+          ],
+          [
+            0.649,
+            -2.426
+          ],
+          [
+            0.6385,
+            -2.4615
+          ],
+          [
+            0.6281,
+            -2.4969
+          ],
+          [
+            0.6125,
+            -2.5271
+          ],
+          [
+            0.5969,
+            -2.5573
+          ],
+          [
+            0.5813,
+            -2.5875
+          ],
+          [
+            0.55,
+            -2.625
+          ],
+          [
+            0.5188,
+            -2.6625
+          ],
+          [
+            0.4844,
+            -2.6891
+          ],
+          [
+            0.45,
+            -2.7156
+          ],
+          [
+            0.4125,
+            -2.7312
+          ],
+          [
+            0.375,
+            -2.7469
+          ],
+          [
+            0.3344,
+            -2.7516
+          ],
+          [
+            0.2938,
+            -2.7562
+          ],
+          [
+            0.25,
+            -2.75
+          ],
+          [
+            0.2063,
+            -2.7437
+          ],
+          [
+            0.1656,
+            -2.7312
+          ],
+          [
+            0.125,
+            -2.7187
+          ],
+          [
+            0.0875,
+            -2.7
+          ],
+          [
+            0.05,
+            -2.6812
+          ],
+          [
+            0.0156,
+            -2.6562
+          ],
+          [
+            -0.0187,
+            -2.6312
+          ],
+          [
+            -0.05,
+            -2.6
+          ],
+          [
+            -0.0812,
+            -2.5687
+          ],
+          [
+            -0.1078,
+            -2.5297
+          ],
+          [
+            -0.1344,
+            -2.4906
+          ],
+          [
+            -0.149,
+            -2.4594
+          ],
+          [
+            -0.1635,
+            -2.4281
+          ],
+          [
+            -0.1781,
+            -2.3969
+          ],
+          [
+            -0.1917,
+            -2.35
+          ],
+          [
+            -0.2052,
+            -2.3031
+          ],
+          [
+            -0.2187,
+            -2.2562
+          ],
+          [
+            -0.2281,
+            -2.2094
+          ],
+          [
+            -0.2375,
+            -2.1625
+          ],
+          [
+            -0.2469,
+            -2.1156
+          ],
+          [
+            -0.2562,
+            -2.0687
+          ],
+          [
+            -0.2656,
+            -2.0219
+          ],
+          [
+            -0.275,
+            -1.975
+          ]
+        ]
+      },
+      "tf_map_odom": {
+        "t": 20.483,
+        "monotonic": 26277.5528,
+        "wall_time": 1793812105.8946,
+        "kind": "tf_stamp",
+        "source": "forwarded",
+        "parent": "map",
+        "child": "odom",
+        "stamp_ns": 8597000000,
+        "clock_stamp_ns": 7660000000,
+        "x": -0.23161,
+        "y": -0.25396,
+        "yaw": -0.03024
+      },
+      "tf_odom_base": {
+        "t": 20.537,
+        "monotonic": 26277.6068,
+        "wall_time": 1793812105.9487,
+        "kind": "tf_stamp",
+        "source": "forwarded",
+        "parent": "odom",
+        "child": "base_footprint",
+        "stamp_ns": 7682000000,
+        "clock_stamp_ns": 7700000000,
+        "x": 8e-05,
+        "y": 0.0,
+        "yaw": 0.00039
+      },
+      "truth": {
+        "t": 20.533,
+        "monotonic": 26277.6028,
+        "wall_time": 1793812105.9447,
+        "kind": "truth",
+        "x": -0.18826,
+        "y": -0.2205,
+        "yaw": -0.02748
+      },
+      "estimated_pose": [
+        -0.23153003657551666,
+        -0.25396241883130755,
+        -0.029849999999999998
+      ],
+      "source_result": {
+        "actor_passed": false,
+        "actor_spawned": false,
+        "actor_input_status": "INVALID_INPUT"
+      }
+    }
+  },
+  "world_boxes": [
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_00",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.45,
+          1.35,
+          0.0
+        ],
+        [
+          1.6500000000000001,
+          1.4,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_01",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.65,
+          1.2,
+          0.0
+        ],
+        [
+          -0.5499999999999999,
+          1.3499999999999999,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_02",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.5,
+          1.3,
+          0.0
+        ],
+        [
+          -0.35,
+          1.3499999999999999,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_03",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          0.25,
+          1.3,
+          0.0
+        ],
+        [
+          0.35,
+          1.3499999999999999,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_04",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.45,
+          1.3,
+          0.0
+        ],
+        [
+          1.7,
+          1.3499999999999999,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_05",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.5,
+          1.25,
+          0.0
+        ],
+        [
+          -0.44999999999999996,
+          1.2999999999999998,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_06",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.4500000000000002,
+          1.25,
+          0.0
+        ],
+        [
+          1.5,
+          1.2999999999999998,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_07",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.7,
+          1.05,
+          0.0
+        ],
+        [
+          -0.55,
+          1.2,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_08",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.4500000000000002,
+          1.05,
+          0.0
+        ],
+        [
+          1.5,
+          1.2,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_09",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.5,
+          1.1,
+          0.0
+        ],
+        [
+          -0.35,
+          1.15,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_10",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          0.25,
+          1.1,
+          0.0
+        ],
+        [
+          0.30000000000000004,
+          1.15,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_11",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.5,
+          1.05,
+          0.0
+        ],
+        [
+          -0.4,
+          1.0999999999999999,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_12",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          0.25,
+          1.05,
+          0.0
+        ],
+        [
+          0.35,
+          1.0999999999999999,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_13",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.65,
+          0.9999999999999999,
+          0.0
+        ],
+        [
+          -0.6,
+          1.0499999999999998,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_14",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.25,
+          0.9999999999999999,
+          0.0
+        ],
+        [
+          1.5,
+          1.0499999999999998,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_15",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.65,
+          -0.14999999999999997,
+          0.0
+        ],
+        [
+          -0.5499999999999999,
+          1.0,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_16",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.30000000000000004,
+          0.95,
+          0.0
+        ],
+        [
+          1.5,
+          1.0,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_17",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.9000000000000001,
+          0.95,
+          0.0
+        ],
+        [
+          2.0500000000000003,
+          1.0,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_18",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.6500000000000001,
+          0.9,
+          0.0
+        ],
+        [
+          2.0500000000000003,
+          0.9500000000000001,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_19",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.9000000000000001,
+          0.85,
+          0.0
+        ],
+        [
+          2.0500000000000003,
+          0.9,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_20",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.95,
+          -0.45,
+          0.0
+        ],
+        [
+          2.05,
+          0.8500000000000001,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_21",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          0.7000000000000001,
+          0.15,
+          0.0
+        ],
+        [
+          1.5,
+          0.19999999999999998,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_22",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.4500000000000002,
+          0.1,
+          0.0
+        ],
+        [
+          1.5,
+          0.15,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_23",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.65,
+          -0.35,
+          0.0
+        ],
+        [
+          -0.6,
+          -0.15,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_24",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.7000000000000001,
+          -1.4,
+          0.0
+        ],
+        [
+          -0.6,
+          -0.35,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_25",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          0.7999999999999999,
+          -0.4,
+          0.0
+        ],
+        [
+          1.35,
+          -0.35,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_26",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.4,
+          -0.4,
+          0.0
+        ],
+        [
+          1.5,
+          -0.35,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_27",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          0.6499999999999999,
+          -0.45,
+          0.0
+        ],
+        [
+          1.5,
+          -0.39999999999999997,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_28",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          2.0,
+          -0.55,
+          0.0
+        ],
+        [
+          2.05,
+          -0.45,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_29",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.95,
+          -3.25,
+          0.0
+        ],
+        [
+          2.05,
+          -0.5499999999999998,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_30",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.7,
+          -1.45,
+          0.0
+        ],
+        [
+          0.3,
+          -1.4000000000000001,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_31",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.05,
+          -1.85,
+          0.0
+        ],
+        [
+          1.0999999999999999,
+          -1.4,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_32",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.7000000000000001,
+          -1.8,
+          0.0
+        ],
+        [
+          -0.6,
+          -1.45,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_33",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          0.2,
+          -1.5,
+          0.0
+        ],
+        [
+          0.3,
+          -1.4500000000000002,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_34",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          0.25,
+          -2.25,
+          0.0
+        ],
+        [
+          0.30000000000000004,
+          -1.6,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_35",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.7000000000000001,
+          -2.0,
+          0.0
+        ],
+        [
+          -0.65,
+          -1.7999999999999998,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_36",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.05,
+          -1.95,
+          0.0
+        ],
+        [
+          1.1500000000000001,
+          -1.8499999999999999,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_37",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.75,
+          -2.4000000000000004,
+          0.0
+        ],
+        [
+          -0.6499999999999999,
+          -2.0,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_38",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.1,
+          -2.3000000000000003,
+          0.0
+        ],
+        [
+          1.15,
+          -2.1,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_39",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.75,
+          -2.65,
+          0.0
+        ],
+        [
+          -0.7,
+          -2.4,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_40",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.05,
+          -3.15,
+          0.0
+        ],
+        [
+          1.0999999999999999,
+          -2.4,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_41",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.8,
+          -2.8000000000000003,
+          0.0
+        ],
+        [
+          -0.7,
+          -2.65,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_42",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.8,
+          -3.15,
+          0.0
+        ],
+        [
+          -0.75,
+          -2.8000000000000003,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_43",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.85,
+          -3.1999999999999997,
+          0.0
+        ],
+        [
+          -0.7000000000000001,
+          -3.15,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_44",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          1.0,
+          -3.1999999999999997,
+          0.0
+        ],
+        [
+          1.1,
+          -3.15,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_45",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          -0.8,
+          -3.25,
+          0.0
+        ],
+        [
+          0.04999999999999999,
+          -3.2,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "map_occupied_cells",
+      "link": "occupied_46",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          0.09999999999999998,
+          -3.25,
+          0.0
+        ],
+        [
+          1.7999999999999998,
+          -3.2,
+          0.7
+        ]
+      ]
+    },
+    {
+      "model": "inferred_center_object",
+      "link": "body",
+      "collision": "collision",
+      "bounds_xyz": [
+        [
+          0.75,
+          -0.35,
+          0.0
+        ],
+        [
+          1.4,
+          0.15,
+          0.52
+        ]
+      ]
+    }
+  ],
+  "world_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+  "limits": [
+    "Path coordinates were recorded rounded to four decimals, <=0.071 mm planar quantization; actor reports identical original exact path SHA for both runs.",
+    "Observed samples are the last independent samples before candidate search with matching logged counts; raw beam origin per hit was not recorded.",
+    "World box bounds conservatively enclose explicit inline collision boxes only; includes/meshes are not expanded.",
+    "This is not a live spawn or four-move success. Current truth, path ownership, fresh observations and all movement safety barriers must pass again online."
+  ],
+  "goal_xy": [
+    -0.25,
+    -1.98
+  ]
+}

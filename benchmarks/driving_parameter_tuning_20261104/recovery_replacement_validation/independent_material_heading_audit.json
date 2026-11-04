@@ -1,0 +1,402 @@
+{
+  "scope": "Independent read-only audit of the first completed full-web material-heading-fix stage25. Actual stop, Spin output, accepted replacement-route dispatch, live moving-obstacle bypass and endpoint truth are checked separately. No runtime or configuration modification and no ROS/backend/physical action was performed by this audit.",
+  "trial": "/tmp/classroom-material-heading-baseline-20261105/25_web_inventory_sector3_moving_obstacle",
+  "domain": 176,
+  "physical_robot_touched": false,
+  "input_sha256": {
+    "/tmp/classroom-material-heading-baseline-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl": "aa2b4cdc79f31e25dece530b357d5d3ebbb93d1cd37c3d52b1b1152fbddf08fd",
+    "/tmp/classroom-material-heading-baseline-20261105/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl": "d083952b0b6abe56c9abc43e9ab3960401cdc3ef70724b5688c94aa27e2410e7",
+    "/tmp/classroom-material-heading-baseline-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json": "7ea5bd1e94ec5bfc5a1b4e787b103394d93a7399142573b211e143394bfc849c",
+    "/tmp/classroom-material-heading-baseline-20261105/25_web_inventory_sector3_moving_obstacle/derived_evidence.json": "debb3396f8c818df70e06b72bc13ff5f8a12526f4d179d3d8b5705b4342710fd",
+    "/tmp/classroom-material-heading-baseline-20261105/25_web_inventory_sector3_moving_obstacle/acceptance.json": "164f00fd9284f0eaa754935ff7bedc58bcb4104dfee8517fa77754b54ec3b1f2",
+    "/tmp/classroom-material-heading-baseline-20261105/25_web_inventory_sector3_moving_obstacle/safety_assessment.json": "3e8537963cf0d17ef2e2d069e1a2dbd02b20f9fe28afa255f0bf29bc5262aa3f",
+    "/tmp/classroom-material-heading-baseline-20261105/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log": "6ff004cddca31d303b2fd62de3e73614820c0fc8424d032799b69cb0cdc127b4",
+    "/tmp/classroom-material-heading-baseline-20261105/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json": "d5a068ae527ef36e74063572429b8374fb72bf2d30cbf260e1e9b6ddff03c31d",
+    "/tmp/classroom-material-heading-baseline-20261105/staged_report.json": "99d41ccdbc7f70ffc2ed83c06dbd4ddbcba391f9893d7aa8edeb49e702f264cf",
+    "/tmp/classroom-recovery-replaced-v2-20261104/staged_report.json": "017a30118bf297ab3ed64e3d51e790b68c6ccb151c2d8a1a17e6d6cf3fa744b5",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/derived_evidence.json": "20c16091db36c1254bc5a468e62d98666b2a1ed635a1f1d6aa524b021221db80",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json": "21de7ca52d7ec9523a4d7ee4020193ead000de4a16a201ce209accb5a2131733"
+  },
+  "outcome": {
+    "overall_passed": true,
+    "overall_reasons": [],
+    "prearm_passed": true,
+    "route_and_home_passed": true,
+    "completed_ids": [
+      3
+    ],
+    "final_state": "HOME_REACHED",
+    "mission_elapsed_seconds": 114.837823,
+    "actor_passed": true,
+    "moving_steps": 4,
+    "moving_steps_required": 4,
+    "live_bypass_confirmed": true,
+    "observed_cleared": true
+  },
+  "material_heading": {
+    "recorded_heading_phases": [
+      {
+        "t": 19.4537,
+        "monotonic": 20533.1131,
+        "wall_time": 1793806361.4549,
+        "kind": "navigation",
+        "status": "MOVING",
+        "goal": {
+          "x": -0.25,
+          "y": -1.98,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 8,
+          "nanosec": 0
+        },
+        "input_hold": null,
+        "manual_stop": false,
+        "route_failure": null,
+        "local_detour_state": null,
+        "message": "Rotating in place to face the initial A* segment",
+        "details": {
+          "path_stamp": {
+            "sec": 8,
+            "nanosec": 0
+          },
+          "episode_id": null,
+          "stop_stamp": null,
+          "initial_heading_error_rad": -0.7553201263659826,
+          "heading_alignment_kind": "initial",
+          "heading_alignment_phase": "SPIN"
+        }
+      },
+      {
+        "t": 24.3778,
+        "monotonic": 20538.0373,
+        "wall_time": 1793806366.3791,
+        "kind": "navigation",
+        "status": "WAIT_CANCEL",
+        "goal": {
+          "x": -0.25,
+          "y": -1.98,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 8,
+          "nanosec": 0
+        },
+        "input_hold": null,
+        "manual_stop": false,
+        "route_failure": null,
+        "local_detour_state": null,
+        "message": "Waiting for measured stop before changed-route heading alignment",
+        "details": {
+          "path_stamp": {
+            "sec": 12,
+            "nanosec": 680000000
+          },
+          "episode_id": null,
+          "stop_stamp": null,
+          "heading_alignment_phase": "WAIT_STOP",
+          "initial_heading_error_rad": -1.4689421707216095
+        }
+      },
+      {
+        "t": 24.711,
+        "monotonic": 20538.3704,
+        "wall_time": 1793806366.7123,
+        "kind": "navigation",
+        "status": "MOVING",
+        "goal": {
+          "x": -0.25,
+          "y": -1.98,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 8,
+          "nanosec": 0
+        },
+        "input_hold": null,
+        "manual_stop": false,
+        "route_failure": null,
+        "local_detour_state": null,
+        "message": "Rotating in place to face the initial A* segment",
+        "details": {
+          "path_stamp": {
+            "sec": 12,
+            "nanosec": 680000000
+          },
+          "episode_id": null,
+          "stop_stamp": null,
+          "initial_heading_error_rad": -1.4979165511958576,
+          "heading_alignment_kind": "material_replan",
+          "heading_alignment_phase": "SPIN"
+        }
+      },
+      {
+        "t": 28.0209,
+        "monotonic": 20541.6804,
+        "wall_time": 1793806370.0222,
+        "kind": "navigation",
+        "status": "WAIT_CANCEL",
+        "goal": {
+          "x": -0.25,
+          "y": -1.98,
+          "frame_id": "map"
+        },
+        "goal_stamp": {
+          "sec": 8,
+          "nanosec": 0
+        },
+        "input_hold": null,
+        "manual_stop": false,
+        "route_failure": null,
+        "local_detour_state": null,
+        "message": "Waiting for measured stop before changed-route heading alignment",
+        "details": {
+          "path_stamp": {
+            "sec": 15,
+            "nanosec": 700000000
+          },
+          "episode_id": null,
+          "stop_stamp": null,
+          "heading_alignment_phase": "WAIT_STOP",
+          "initial_heading_error_rad": -0.5518754565936195
+        }
+      }
+    ],
+    "owned_follow_path_cancel_terminal5_wall_time": 1793806366.3707473,
+    "material_spin_start_wall_time": 1793806366.7123,
+    "material_spin_requested_yaw_rad": -1.4979165511958576,
+    "material_spin_server_cancel_wall_time": 1793806370.0115423,
+    "actual_command_samples_during_spin": 69,
+    "maximum_actual_linear_mps_during_spin": 0.0,
+    "maximum_actual_angular_rps_during_spin": 0.35,
+    "truth_samples_during_spin": 27,
+    "truth_first": {
+      "t": 24.7665,
+      "monotonic": 20538.426,
+      "wall_time": 1793806366.7678,
+      "kind": "truth",
+      "x": 0.00524,
+      "y": -0.42642,
+      "yaw": -0.84407
+    },
+    "truth_last": {
+      "t": 27.9108,
+      "monotonic": 20541.5702,
+      "wall_time": 1793806369.9121,
+      "kind": "truth",
+      "x": 0.00584,
+      "y": -0.42775,
+      "yaw": -1.68154
+    },
+    "truth_net_translation_m": 0.0014590750494748357,
+    "truth_net_yaw_rad": -0.83747,
+    "next_replacement_follow_path_ack": {
+      "t": 29.0485,
+      "monotonic": 20542.7079,
+      "wall_time": 1793806371.0498,
+      "kind": "navigation",
+      "status": "MOVING",
+      "goal": {
+        "x": -0.25,
+        "y": -1.98,
+        "frame_id": "map"
+      },
+      "goal_stamp": {
+        "sec": 8,
+        "nanosec": 0
+      },
+      "input_hold": null,
+      "manual_stop": false,
+      "route_failure": null,
+      "local_detour_state": null,
+      "message": "Following A* route",
+      "details": {
+        "path_stamp": {
+          "sec": 15,
+          "nanosec": 700000000
+        },
+        "episode_id": null,
+        "stop_stamp": null
+      }
+    },
+    "interpretation": "The new policy caused an actual zero-linear Spin before accepting the changed route. This material Spin was canceled when a newer prefix arrived; the full requested1.498rad rotation was not completed. A fresh stop/recheck preceded the next accepted path. Individual Spin action UUID/result-callback timestamps are not present in this timeline; server cancel and subsequent owned route ACK are preserved rather than inventing a callback time."
+  },
+  "actual_reverse": {
+    "recovery_request_count": 0,
+    "negative_linear_command_samples": 0,
+    "actual_cmd_vel_samples": 2968,
+    "interpretation": "No reverse requested or executed in this successful trial. It does not validate reverse execution."
+  },
+  "obstacle": {
+    "actual_spawn_and_moves": [
+      {
+        "t": 23.641,
+        "at": 1793806365.8330343,
+        "event": "obstacle_spawned",
+        "x": 0.5239140050447512,
+        "y": -0.599706838892526,
+        "path_sha256": "a536db21c7cb7ed35b22bfa250cbc332f23c0c8c3126dc502e699d95236aa900",
+        "robot_xy": [
+          -0.055919461566775255,
+          -0.36044465318086977
+        ]
+      },
+      {
+        "t": 25.195,
+        "at": 1793806367.387638,
+        "event": "obstacle_moved",
+        "step": 1,
+        "x": 0.5059489515005864,
+        "y": -0.6170923745804273,
+        "reason": "ready",
+        "swept_clearance_m": 0.16122824829101265,
+        "required_clearance_m": 0.07617077510002128,
+        "robot_truth_age_s": 0.0553217050000967
+      },
+      {
+        "t": 26.039,
+        "at": 1793806368.2308798,
+        "event": "obstacle_moved",
+        "step": 2,
+        "x": 0.4879838979564216,
+        "y": -0.6344779102683288,
+        "reason": "ready",
+        "swept_clearance_m": 0.14684762485658734,
+        "required_clearance_m": 0.09980005154050015,
+        "robot_truth_age_s": 0.16272750700227334
+      },
+      {
+        "t": 26.862,
+        "at": 1793806369.0543694,
+        "event": "obstacle_moved",
+        "step": 3,
+        "x": 0.47001884441225683,
+        "y": -0.6518634459562301,
+        "reason": "ready",
+        "swept_clearance_m": 0.13359988857694263,
+        "required_clearance_m": 0.0834997844799218,
+        "robot_truth_age_s": 0.08863538399964455
+      },
+      {
+        "t": 27.667,
+        "at": 1793806369.859515,
+        "event": "obstacle_moved",
+        "step": 4,
+        "x": 0.45205379086809205,
+        "y": -0.6692489816441315,
+        "reason": "ready",
+        "swept_clearance_m": 0.12170740268494132,
+        "required_clearance_m": 0.07511380930029554,
+        "robot_truth_age_s": 0.05051731500134338
+      }
+    ],
+    "removed_event": {
+      "t": 42.522,
+      "at": 1793806384.714159,
+      "event": "obstacle_removed",
+      "obstacle_name": "classroom_web_obstacle_06e3157f03"
+    },
+    "actor_minimum_actual_gap_m": 0.11007685365035777,
+    "independent_sampled_truth_gap": {
+      "clearance_m": 0.1100803272749816,
+      "wall_time": 1793806383.4281,
+      "box_step": 4,
+      "truth_xy": [
+        0.27298,
+        -1.11987
+      ],
+      "box_xy": [
+        0.45205379086809205,
+        -0.6692489816441315
+      ]
+    },
+    "method": "Recorded truth center to axis-aligned25cm box minus22cm circular body; only actual completed spawn/move event coordinates are used. Sampled piecewise-stationary cross-check, not unseen continuous-motion extrema or physical-robot certification."
+  },
+  "endpoints": {
+    "sector3_ground_truth": {
+      "passed": true,
+      "event_at": 1793806424.1568313,
+      "goal": [
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "position_tolerance_m": 0.25,
+      "sample_time_delta_s": 0.014,
+      "position_error_m": 0.111,
+      "heading_error_rad": 0.06,
+      "fixture_wall_front_yaw_rad": -1.598311346410207,
+      "fixture_wall_normal_error_rad": 0.139,
+      "truth": [
+        -0.24771,
+        -2.09107,
+        -1.45977
+      ]
+    },
+    "home_ground_truth": {
+      "passed": true,
+      "event_at": 1793806475.7130775,
+      "goal": [
+        -0.188431,
+        -0.220497,
+        -0.027514
+      ],
+      "position_tolerance_m": 0.25,
+      "sample_time_delta_s": 0.029,
+      "position_error_m": 0.198,
+      "heading_error_rad": 0.088,
+      "fixture_wall_front_yaw_rad": null,
+      "fixture_wall_normal_error_rad": null,
+      "truth": [
+        0.00883,
+        -0.23357,
+        0.06072
+      ]
+    },
+    "reported_map_pose_home_distance_m": 0.13479459068851515,
+    "home_independent_settle": {
+      "passed": true,
+      "end_at": 1793806475.7130775,
+      "duration_s": 1.258,
+      "truth_samples": 12,
+      "command_samples": 27,
+      "truth_max_gap_s": 0.109,
+      "command_max_gap_s": 0.071,
+      "max_translation_m": 0.0,
+      "max_heading_rad": 0.0002,
+      "max_command_linear_mps": 0.0,
+      "max_command_angular_rps": 0.0
+    },
+    "interpretation": "Both endpoints meet the existing25cm independent truth gate. Home truth is about19.8cm from target, distinct from the13.5cm map-pose estimate; precision docking is not established."
+  },
+  "same_scene_before_comparison": {
+    "before_trial": "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle",
+    "before_overall_passed": false,
+    "before_actor_passed": false,
+    "before_actor_moves": 2,
+    "before_live_bypass": false,
+    "before_minimum_actual_box_gap_m": 0.057945779968028605,
+    "before_elapsed_seconds": 163.421977,
+    "after_elapsed_seconds": 114.837823,
+    "elapsed_reduction_percent": 29.729,
+    "recorded_source_changed_files": [
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py"
+    ],
+    "only_follower_changed": true,
+    "same_obstacle_scene_sha256": true,
+    "obstacle_scene_sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+    "note": "One run before and one run after, same fixed obstacle coordinates and source hashes differing only in follower. Event timing and dynamic sensor/control execution are not deterministic paired measurements; this supports a concrete scenario improvement, not statistical reliability or universal optimum."
+  },
+  "source_provenance": {
+    "recorded_entries_before": 213,
+    "recorded_entries_after": 213,
+    "recorded_before_equals_after": true,
+    "recorded_mapping_before_sha256": "593f970b8f737ae86a73e9695ba52be04948d2ae09d7b217e575441812d6bfde",
+    "recorded_mapping_after_sha256": "593f970b8f737ae86a73e9695ba52be04948d2ae09d7b217e575441812d6bfde",
+    "follower_sha256": "83fd983723e7ff1fcb58d82ab1bb9e485fe9827ea93fb5bab0f8f192ace8c6ab",
+    "nav_profile_source": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml",
+    "nodes_profile_source": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml",
+    "note": "Complete mapping is anchored by the staged report input hash, not current checkout inference."
+  },
+  "analysis_caution": "Tracking analysis must close prior-route ownership at WAIT_CANCEL and heading WAIT_STOP/SPIN, not treat a canceled old route as still being followed until the next ACK. Exact path-stamp ACK remains mandatory; no current-published-path substitution."
+}

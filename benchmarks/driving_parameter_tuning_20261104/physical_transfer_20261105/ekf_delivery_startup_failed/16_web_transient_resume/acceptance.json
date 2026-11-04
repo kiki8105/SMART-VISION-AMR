@@ -1,0 +1,28 @@
+{
+  "passed": false,
+  "domain": 176,
+  "localhost_only": true,
+  "physical_robot_touched": false,
+  "mission_accepted_via_web": false,
+  "route": [
+    1,
+    2
+  ],
+  "failure": "TimeoutError('Unseeded cold-start did not expose the stopped Home initialization action')",
+  "dwell": {},
+  "dispatch_mode": "manual",
+  "transient_requested": true,
+  "cold_start_requested": true,
+  "ekf_delivery_faults_requested": true,
+  "visual_ui_qa": false,
+  "path_points_per_sector": {
+    "1": 0,
+    "2": 0
+  },
+  "home_path_points": 0,
+  "cold_start_proof": {
+    "passed": false,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "duration_monotonic_sec": 79.914,
+  "domain_id": "176",
+  "observed_samples": 0,
+  "visibility_samples": 0,
+  "goal_count": 0,
+  "confirmed_episodes": 0,
+  "persisted_after_live_disappeared": 0,
+  "carried_into_later_goal": 0,
+  "removed_with_positive_free_evidence": 0,
+  "still_remembered": [],
+  "episodes": []
+}

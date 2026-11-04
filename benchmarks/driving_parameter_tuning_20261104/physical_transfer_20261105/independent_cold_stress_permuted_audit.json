@@ -1,0 +1,481 @@
+{
+  "status": "INDEPENDENT_STRICT_PASS",
+  "scope": "Completed cold sensor-rate permuted 1→3→2→Home fixed-crate Gazebo trial; no source mutation, new drive, physical vehicle or visual-browser QA.",
+  "archive": "cold_stress_permuted",
+  "archive_manifest_sha256": "2adad761c49774c65fffcf0c673252fa08bad308d1c0429dcd1ff43eaf564b07",
+  "archive_verified_file_count": 25,
+  "whole_outcome": "PASS",
+  "whole_reasons": [],
+  "captured_source_before_after_equal": true,
+  "captured_source_count": 214,
+  "captured_source_manifest_sha256": "fa31c9de969f24d75a033dec17c3669c95ab812a5347da1f357be231c47509ff",
+  "captured_critical_source_sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "f73c5fd48383df133b35fad08d4612d1c341fc5715698f6c482096c130f1b009",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py": "aa2c11a5bf12386f8e8983763d07a53e45ce7ee167ca07c77518fdc08f1a976f",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": "0a43f64213c5a49bd0a85bad54fe444b6a50a6885e3c5842a07849237d17c1c0",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/recovery_episode.py": "98cecd86e1438e29f5228ecd637a8456dbc901368fa7b4b51f758761bcc5ec44",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/reverse_recovery.py": "97f3c21f4c77b9eac7452451d52e69bda6cb7c5aae9dac874e02eb1f1819f46d",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/scan_outlier_guard.py": "a659cfd2196b9ba8430d7e66855e65457ea00dee5e9ffc3bc9bfd0ca35dec6ef",
+    "ros2_ws/src/smart_vision_amr_dwb/src/route_tracking_dwb.cpp": "03f14e3b3057be848f1d56fe64a87548551b708dd791d47be47767c726a03484"
+  },
+  "source_coverage_limitation": "This pass belongs only to the captured source manifest. It does not validate subsequent first-edge certificate patches or other later source versions.",
+  "official_parameter_copy_check": {
+    "nav": {
+      "official_source": "ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml",
+      "sha256": "363f9ce5851e7e97359d631419645c87d59fa79e4552d36c73b9d78a2bd8f954",
+      "parsed_differences": [
+        {
+          "path": "/amcl/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/amcl_map_client/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/amcl_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/behavior_server/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/bt_navigator/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/bt_navigator_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/controller_server/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/controller_server_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/global_costmap/global_costmap/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/global_costmap/global_costmap_client/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/global_costmap/global_costmap_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/local_costmap/local_costmap/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/local_costmap/local_costmap_client/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/local_costmap/local_costmap_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/map_saver/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/map_server/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/planner_server/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/planner_server_rclcpp_node/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/recoveries_server/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/robot_state_publisher/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        },
+        {
+          "path": "/velocity_smoother/ros__parameters/use_sim_time",
+          "physical": false,
+          "simulation": true
+        }
+      ]
+    },
+    "nodes": {
+      "official_source": "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml",
+      "sha256": "59f6b427b89c3a60f77b87254a3d5352e31a4fde245a241f9c6fef839ed81a1f",
+      "parsed_differences": []
+    }
+  },
+  "cold_start_proof": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 7.027996756001812
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 2,
+      "map_tf_messages": 1
+    }
+  },
+  "prearm": {
+    "passed": true,
+    "failed_gates": [],
+    "graph": {
+      "map_publishers": [
+        "/map_server"
+      ],
+      "scan_publishers": [
+        "_NODE_NAMESPACE_UNKNOWN_/_NODE_NAME_UNKNOWN_"
+      ],
+      "odom_publishers": [
+        "/ekf_independent"
+      ],
+      "ekf_output_source_publishers": [],
+      "ekf_tf_source_publishers": [],
+      "battery_publishers": [
+        "/classroom_sim_battery"
+      ],
+      "raw_wheel_publishers": [
+        "/wheel_joint_odometry"
+      ],
+      "raw_imu_publishers": [
+        "/turtlebot3_imu"
+      ],
+      "goal_subscribers": [
+        "/flight_recorder",
+        "/astar_planner",
+        "/path_follower",
+        "/classroom_safety_timeline",
+        "/classroom_stress_crate_witness",
+        "/classroom_memory_observer"
+      ],
+      "planner_status_publishers": [
+        "/astar_planner"
+      ],
+      "cancel_service_types": [
+        "std_srvs/srv/Trigger"
+      ],
+      "raw_input_samples": {
+        "/wheel/odom": {
+          "count": 28,
+          "last_receipt_age_s": 0.03847765299724415
+        },
+        "/imu": {
+          "count": 10,
+          "last_receipt_age_s": 0.0031680040010542143
+        }
+      },
+      "guard_battery_minimum_v": 10.8
+    }
+  },
+  "mission": {
+    "dispatch_mode": "manual",
+    "route": [
+      1,
+      3,
+      2
+    ],
+    "completed_ids": [
+      1,
+      3,
+      2
+    ],
+    "final_state": "HOME_REACHED",
+    "elapsed_seconds": 210.1942687034607,
+    "truth_endpoints": {
+      "1": {
+        "passed": true,
+        "event_at": 1793813604.2246253,
+        "goal": [
+          1.2,
+          0.575,
+          3.114078
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.024,
+        "position_error_m": 0.116,
+        "heading_error_rad": 0.178,
+        "fixture_wall_front_yaw_rad": 3.114077653589793,
+        "fixture_wall_normal_error_rad": 0.178,
+        "truth": [
+          1.08368,
+          0.58087,
+          -2.99087
+        ]
+      },
+      "3": {
+        "passed": true,
+        "event_at": 1793813676.9631262,
+        "goal": [
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.025,
+        "position_error_m": 0.099,
+        "heading_error_rad": 0.055,
+        "fixture_wall_front_yaw_rad": -1.598311346410207,
+        "fixture_wall_normal_error_rad": 0.143,
+        "truth": [
+          -0.23653,
+          -2.07827,
+          -1.45526
+        ]
+      },
+      "2": {
+        "passed": true,
+        "event_at": 1793813741.3003924,
+        "goal": [
+          1.525,
+          -2.65,
+          1.543282
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.024,
+        "position_error_m": 0.13,
+        "heading_error_rad": 0.16,
+        "fixture_wall_front_yaw_rad": 1.543281653589793,
+        "fixture_wall_normal_error_rad": 0.16,
+        "truth": [
+          1.57661,
+          -2.53118,
+          1.70291
+        ]
+      },
+      "home": {
+        "passed": true,
+        "event_at": 1793813787.0015662,
+        "goal": [
+          -0.188431,
+          -0.220497,
+          -0.027514
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.033,
+        "position_error_m": 0.103,
+        "heading_error_rad": 0.084,
+        "fixture_wall_front_yaw_rad": null,
+        "fixture_wall_normal_error_rad": null,
+        "truth": [
+          -0.15764,
+          -0.31836,
+          0.0569
+        ]
+      }
+    },
+    "dwell_seconds_by_marker": {
+      "1": 5.13,
+      "3": 5.193,
+      "2": 5.055
+    },
+    "home_stationary": {
+      "passed": true,
+      "end_at": 1793813787.0015662,
+      "duration_s": 1.253,
+      "truth_samples": 12,
+      "command_samples": 32,
+      "truth_max_gap_s": 0.112,
+      "command_max_gap_s": 0.062,
+      "max_translation_m": 0.0,
+      "max_heading_rad": 0.0003,
+      "max_command_linear_mps": 0.0,
+      "max_command_angular_rps": 0.0
+    }
+  },
+  "actual_spawned_model": {
+    "path": "cold_stress_permuted/12_web_integrated_stress_permuted/actual_spawned_model.sdf",
+    "sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+    "body_radius_m": 0.22,
+    "laser_update_rate_hz": 10.0,
+    "imu_update_rate_hz": 20.0,
+    "joint_update_rate_hz": 20.0,
+    "independent_drive_odom_topic": "gazebo/odom_raw",
+    "drive_publish_odom_tf": "false"
+  },
+  "fixed_crate": {
+    "original_passed": true,
+    "independent_reassessment_passed": true,
+    "robot_radius_m": 0.22,
+    "qa_minimum_gap_m": 0.02,
+    "conservative_minimum_truth_gap_m": 0.0761,
+    "crossing_leg_sector": 3,
+    "raw_lidar_crate_hit_samples": 997,
+    "direct_link_fraction": 1.0,
+    "truth_samples": 1882,
+    "route_reaction_kind": "box_clear_initial_route_after_lidar",
+    "interpretation": "The sector3 crossing leg is evaluated here, not a later sector2 path. Box-clear initial route after LiDAR is supported; previously unsafe route replacement is not claimed."
+  },
+  "stopping_safety": {
+    "passed": true,
+    "violations": [],
+    "missing_evidence": [],
+    "wait_replan_intervals": [
+      {
+        "start_t": 82.5837,
+        "duration_s": 0.0146,
+        "last_nonzero_command_after_s": null,
+        "first_zero_command_after_s": null,
+        "max_displacement_m": 0.0,
+        "max_forward_displacement_m": 0.0,
+        "max_heading_change_rad": 0.0,
+        "truth_samples": 0,
+        "entry_speed_mps": 0.0,
+        "entry_command_speed_mps": 0.0,
+        "entry_truth_speed_mps": 0.0,
+        "entry_front_core_min_m": 0.8517996668815613,
+        "entry_front_core_angle_deg": 348.79243542488246,
+        "ground_truth_stopping_distance_bound_m": 0.05,
+        "static_world_swept_clearance_m": 0.0574,
+        "estimated_front_body_clearance_m": 0.7036
+      }
+    ]
+  },
+  "actual_commands": {
+    "samples": 5061,
+    "maximum_linear_mps": 0.22,
+    "moving_yaw_max_rps": 0.34615,
+    "stationary_or_tiny_linear_yaw_max_rps": 0.5,
+    "negative_linear_samples": 0,
+    "recovery_requests": 0,
+    "reverse_scope": "Negative actual commands, if any, are counted separately; no reverse success is inferred from retained goal or Home completion."
+  },
+  "guard_codes_during_mission": {
+    "CLEAR": 1348,
+    "STALE_SCAN": 1,
+    "POSE_UNAVAILABLE": 1
+  },
+  "source_cadence_final": {
+    "final": true,
+    "streams": {
+      "raw_scan": {
+        "topic": "/classroom_fault/raw_scan",
+        "receipt_sample_count": 1973,
+        "source_stamp_hz": 9.984203491433432,
+        "receipt_wall_hz": 8.894321964833978,
+        "source_stamp_intervals": {
+          "sample_count": 1972,
+          "minimum_seconds": 0.092,
+          "p95_seconds": 0.102,
+          "maximum_seconds": 0.109
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 1973,
+          "minimum": -0.02,
+          "maximum": 0.005,
+          "future_stamp_samples": 1789,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "raw_imu": {
+        "topic": "/imu",
+        "receipt_sample_count": 3938,
+        "source_stamp_hz": 19.934480017417986,
+        "receipt_wall_hz": 17.810293449095827,
+        "source_stamp_intervals": {
+          "sample_count": 3937,
+          "minimum_seconds": 0.048,
+          "p95_seconds": 0.051,
+          "maximum_seconds": 0.059
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 3938,
+          "minimum": -0.02,
+          "maximum": 0.004,
+          "future_stamp_samples": 3846,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "wheel_joint_states": {
+        "topic": "/joint_states",
+        "receipt_sample_count": 3951,
+        "source_stamp_hz": 20.0,
+        "receipt_wall_hz": 17.868918800344222,
+        "source_stamp_intervals": {
+          "sample_count": 3950,
+          "minimum_seconds": 0.05,
+          "p95_seconds": 0.05,
+          "maximum_seconds": 0.05
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 3951,
+          "minimum": -0.01,
+          "maximum": 0.0,
+          "future_stamp_samples": 1976,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "ekf_output": {
+        "topic": "/odom",
+        "receipt_sample_count": 3950,
+        "source_stamp_hz": 20.0,
+        "receipt_wall_hz": 17.868351817398683,
+        "source_stamp_intervals": {
+          "sample_count": 3949,
+          "minimum_seconds": 0.02,
+          "p95_seconds": 0.067,
+          "maximum_seconds": 0.08
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 3950,
+          "minimum": -0.019,
+          "maximum": 0.03,
+          "future_stamp_samples": 51,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      }
+    }
+  },
+  "limits": [
+    "Single permuted fixed-crate route pass, not all route permutations/reliability or moving-actor4 proof.",
+    "Sensor-rate/body proxy and source parameters are checked; real battery/OpenCR/DDS transport/physical actuator calibration remain separate.",
+    "No reuse of this pass as a later planner first-edge patch validation."
+  ]
+}

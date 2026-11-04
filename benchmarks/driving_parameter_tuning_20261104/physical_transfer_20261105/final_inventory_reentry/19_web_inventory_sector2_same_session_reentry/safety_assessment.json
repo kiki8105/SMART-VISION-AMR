@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "missing_evidence": [],
+  "violations": [],
+  "counts": {
+    "planner": 17,
+    "path": 4,
+    "scan": 1586,
+    "truth": 1588,
+    "cmd_vel": 4315,
+    "planning_active_front_clear": 7,
+    "planning_route_unverified": 6,
+    "wait_replan_samples": 0,
+    "recovery_exempt_samples": 0
+  },
+  "wait_replan_intervals": [],
+  "static_world_outliers": [],
+  "recovery_transitions": [],
+  "last_planner_change": {
+    "t": 187.0743,
+    "status": "IDLE"
+  },
+  "bounds": {
+    "command_stop_s": 0.25,
+    "ground_truth_stopping_distance_m": 0.05,
+    "ground_truth_stopping_distance_rule": "max(0.05, v*command_stop_s+v^2/(2*decel_limit_mps2))",
+    "max_linear_speed_mps": 0.22,
+    "decel_limit_mps2": 0.4,
+    "truth_entry_bracket_max_s": 0.15,
+    "ground_truth_heading_change_rad": 0.12,
+    "front_laser_to_body_m": 0.132,
+    "front_body_clearance_m": 0.02,
+    "simulation_robot_collision_radius_m": 0.22,
+    "simulation_static_swept_clearance_m": 0.05
+  },
+  "interpretation": "PLANNING with a nonempty prior path and a fresh, clear front scan may move while replanning; this is not a full swept-path proof. WAIT_REPLAN permits bounded deceleration for 0.25 s and speed-dependent ground-truth travel based on the active Nav2 speed/deceleration profile. Navigation RECOVERING is logged separately. No instant command or inertial motion is automatically a failure. Only a known static Gazebo fixture can use the independent collision-geometry witness; it does not certify real-world or moving-obstacle safety.",
+  "static_geometry_witness": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/fixture/classroom_fault.world"
+}

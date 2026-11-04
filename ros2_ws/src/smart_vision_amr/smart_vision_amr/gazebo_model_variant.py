@@ -101,3 +101,25 @@ def add_classroom_dual_cameras(source: Path, destination: Path) -> None:
     ET.SubElement(joint, 'pose').text = '-0.080 0 0.140 0 0 3.141592653589793'
     destination.parent.mkdir(parents=True, exist_ok=True)
     tree.write(destination, encoding='unicode', xml_declaration=False)
+
+
+def configure_physical_rear_camera(source: Path, destination: Path) -> None:
+    """Match the real classroom camera producer: rear-only 320×240 at 5 Hz.
+
+    The dual-camera helper must have added the rear optical pose first. Remove
+    the complete front sensor/plugin, rather than merely hiding its web panel.
+    Original stock assets are never edited by the simulation launch.
+    """
+    tree = ET.parse(source)
+    rear = tree.find(".//sensor[@name='rear_camera'][@type='camera']")
+    if rear is None:
+        raise ValueError('Physical rear camera requires the classroom rear optical pose')
+    for parent in tree.iter():
+        for sensor in list(parent):
+            if sensor.tag == 'sensor' and sensor.get('type') == 'camera' and sensor is not rear:
+                parent.remove(sensor)
+    rear.find('update_rate').text = '5.0'
+    rear.find('camera/image/width').text = '320'
+    rear.find('camera/image/height').text = '240'
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    tree.write(destination, encoding='unicode', xml_declaration=False)

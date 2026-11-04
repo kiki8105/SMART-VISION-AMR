@@ -5,15 +5,32 @@ from unittest.mock import Mock
 
 import pytest
 from geometry_msgs.msg import PoseStamped
-from nav_msgs.msg import OccupancyGrid
+from nav_msgs.msg import OccupancyGrid, Odometry
 from std_msgs.msg import String
 
 from smart_vision_amr.map_utils import occupancy_to_grid
 from smart_vision_amr.reverse_recovery import Breadcrumb
 from test_planner_failure_memory import prepared, refresh
+from test_recovery_episode_policy_independent import evidence
+from math import sin,cos
 
 
-def scenario(node):
+def source_history(node, x, y, *, yaw=0., scale=1., end_at=100.):
+    """Start a clean fixture with real dense source messages ending at100s."""
+    node._clear_breadcrumbs();node.odom_samples.clear();node.latest_odom=None
+    node.latest_odom_child_frame=None
+    # 0.12m/s for2.5s, followed by0.5s of actually measured stillness.
+    for index in range(31):
+        at=end_at-3.+index*.1
+        px=x if index>=25 else x-.3+.012*index
+        evidence(node,at,x=px,y=y,yaw=yaw,orientation_scale=scale)
+    assert node.latest_odom is not None
+    assert node._reverse_start_stopped()
+    assert node._record_breadcrumb()
+    assert node.projected_odom_trail_verified
+
+
+def scenario(node, *, y=.38, yaw=0., scale=1.):
     msg = OccupancyGrid()
     msg.header.frame_id = 'map'
     msg.info.resolution = .1
@@ -30,15 +47,7 @@ def scenario(node):
     # The actual pose is .2999 m from the hit square. With continuous-pose
     # start certification, this baseline may now route behind the hit without
     # invoking the separate reverse action.
-    refresh(node, x=1.3001, y=.38, yaw=0.)
-    node.breadcrumbs = deque((Breadcrumb(97.+i, 1.0001+.10*i, .38, 0.)
-                             for i in range(4)), maxlen=300)
-    node.breadcrumb_odom_anchor = node.latest_odom
-    node.odom_samples = deque((
-        (99.75+i*.05, 99_750_000_000+i*50_000_000,
-         node.latest_odom[2], node.latest_odom[3], node.latest_odom[4], node.latest_odom[5])
-        for i in range(6)), maxlen=100)
-    node.latest_odom_child_frame = 'base_link'
+    source_history(node,1.3001,y,yaw=yaw,scale=scale)
     motion = {'sent_at_ns': node.get_clock().now().nanoseconds,
               'mode': 'auto', 'available': True, 'autonomous_allowed': True,
               'estop_latched': False, 'reset_pending': False}
@@ -53,7 +62,7 @@ def scenario(node):
     return goal
 
 
-def reverse_required_scenario(node):
+def reverse_required_scenario(node, *, yaw=0., scale=1.):
     """A clear rear trail exists, but no certified A* first edge exists.
 
     A diagonal scan hit leaves the *measured pose* clear of the obstacle and
@@ -61,18 +70,9 @@ def reverse_required_scenario(node):
     complete footprint inflation. A 20 cm reverse reaches a free cell from
     which the retained goal is reachable around the hit.
     """
-    goal = scenario(node)
+    goal = scenario(node,y=.4001,yaw=yaw,scale=scale)
     node.params['robot_radius'] = .24
     node.observed = {(15, 6)}
-    refresh(node, x=1.3001, y=.4001, yaw=0.)
-    node.latest_odom_child_frame = 'base_link'
-    node.breadcrumbs = deque((Breadcrumb(97.+i, 1.0001+.10*i, .4001, 0.)
-                             for i in range(4)), maxlen=300)
-    node.breadcrumb_odom_anchor = node.latest_odom
-    node.odom_samples = deque((
-        (99.75+i*.05, 99_750_000_000+i*50_000_000,
-         node.latest_odom[2], node.latest_odom[3], node.latest_odom[4], node.latest_odom[5])
-        for i in range(6)), maxlen=100)
     goal.pose.position.y = .4001
     return goal
 
@@ -83,7 +83,7 @@ def test_live_hit_at_inflated_start_requests_checked_retreat_parallel_to_wall(pr
     source = list(node.map[0].data)
     node.plan_to(goal)
     request = json.loads(node.recovery_pub.publish.call_args.args[0].data)
-    assert request['distance'] == pytest.approx(.20)
+    assert request['distance'] == pytest.approx(.12)
     assert request['start_cell'] == [13, 4]
     assert request['exit_cell'] == [11, 4]
     assert request['blocking_cells'] == [[15, 6]]
@@ -114,24 +114,19 @@ def test_static_inflated_start_requests_checked_wall_parallel_retreat(prepared):
     grid = occupancy_to_grid(msg, 65, 5)
     # Uniform 5-cell inflation covers the current cell because of the
     # diagonal obstacle, although the side-wall clearance stays .28 m.
-    refresh(node, x=1.425, y=.33, yaw=0.)
-    node.latest_odom_child_frame = 'base_link'
-    node.breadcrumbs = deque((Breadcrumb(97.+i, 1.125+.10*i, .33, 0.)
-                              for i in range(4)), maxlen=300)
-    node.breadcrumb_odom_anchor = node.latest_odom
-    node.odom_samples = deque((
-        (99.75+i*.05, 99_750_000_000+i*50_000_000,
-         node.latest_odom[2], node.latest_odom[3], node.latest_odom[4], node.latest_odom[5])
-        for i in range(6)), maxlen=100)
     node.map = msg, grid
     node.raw_static_grid = raw
+    # A second actual trace must advance source time; replaying97..100 again
+    # cannot renew the previous original scans' FIRST receipts.
+    source_history(node,1.425,.33,end_at=103.1)
+    node.last_observation_time=node.clock['steady']
     node.observed.clear()
     assert grid.is_static_obstacle((28, 6))
     assert not raw.is_static_obstacle((28, 6))
     assert node._maybe_request_reverse((28, 6), (51, 7), msg, grid, raw,
                                        set(), set(), {}, True), node.last_reverse_rejection_code
     request = json.loads(node.recovery_pub.publish.call_args.args[0].data)
-    assert request['distance'] == pytest.approx(.10)
+    assert request['distance'] == pytest.approx(.12)
     assert request['exit_cell'] == [26, 6]
     assert request['blocking_cells'] == []
     assert node.last_goal is goal and node.recovery_active
@@ -159,8 +154,8 @@ def test_retreat_never_bypasses_independent_gates_or_collision(prepared, fault):
     if fault == 'stale_observed': node.last_observation_time = 98.
     if fault == 'invalid_radius': node.params['robot_radius'] = float('nan')
     if fault == 'moving':
-        old = node.odom_samples[0]
-        node.odom_samples[0] = (old[0], old[1], old[2]-.01, old[3], old[4], old[5])
+        old = node.odom_samples[-3]
+        node.odom_samples[-3] = (old[0], old[1], old[2]-.01, old[3], old[4], old[5])
     if fault == 'missing_child_frame': node.latest_odom_child_frame = ''
     if fault == 'sparse_odom':
         node.odom_samples = deque([node.odom_samples[0], node.odom_samples[-1]], maxlen=100)
@@ -196,7 +191,12 @@ def static_scenario(node):
     node.observed = set()
     node.remembered = set()
     node.last_observation_time = node.clock['steady']
-    refresh(node, x=.925, y=.925, yaw=0.)
+    # This is a new physical map/pose fixture: send a genuinely newer source
+    # event rather than changing a previously received stamp100 pose/scan.
+    node.clock.update(steady=100.1,ros=100.1)
+    refresh(node, x=.925, y=.925, yaw=0.,scan_frame=node.params['base_frame'])
+    from test_planner_obstacle_hold import visibility
+    node.on_visibility(visibility(node,occupied=node.observed))
     goal = PoseStamped()
     goal.header.frame_id = 'map'
     goal.header.stamp = node.get_clock().now().to_msg()
@@ -234,7 +234,9 @@ def test_static_start_certificate_uses_deployment_radius_without_stock_floor(pre
 
     monkeypatch.setattr(planner_module, 'certified_start_only_edges', capture_radius)
     node.plan_to(goal)
-    assert certified_radii == pytest.approx([.17])
+    # Both initial certification and the fresh pre-publication revalidation
+    # must use the configured physical body, without a hidden stock floor.
+    assert certified_radii == pytest.approx([.17, .17])
 
 
 @pytest.mark.parametrize('fault', ['scan_stale', 'health_denied', 'raw_start', 'raw_hit', 'goal_inflated'])
@@ -253,8 +255,9 @@ def test_static_certificate_preserves_freshness_raw_layers_and_goal_inflation(pr
     node.recovery_pub.publish.assert_not_called()
 
 
-def test_private_start_view_cannot_enable_later_diagonal_across_original_start_corner(prepared):
+def test_private_start_view_cannot_enable_later_diagonal_across_original_start_corner(prepared, monkeypatch):
     from smart_vision_amr.grid import Grid
+    from smart_vision_amr import astar_planner as planner_module
     node = prepared
     goal = static_scenario(node)
     node.map[0].data = [0]*1600
@@ -265,9 +268,14 @@ def test_private_start_view_cannot_enable_later_diagonal_across_original_start_c
     start, east, north = (18, 18), (19, 18), (18, 17)
     # Force the first step east. Clearing S must not then permit E->N across
     # the original inflated S side cell, even though the first E edge is safe.
-    constraints = {(start, (18+dx, 18+dy)) for dx in (-1, 0, 1)
-                   for dy in (-1, 0, 1) if (dx or dy) and (18+dx, 18+dy) != east}
-    node._failure_constraints = Mock(return_value=(constraints, {}))
+    # Execution history is now routing cost only. Restrict the actual
+    # first-edge certificate instead of inventing hard execution-memory edges.
+    measured_certificate = planner_module.certified_start_only_edges
+    def east_only(*args, **kwargs):
+        certified = measured_certificate(*args, **kwargs)
+        assert (start, east) in certified
+        return certified & {(start, east)}
+    monkeypatch.setattr(planner_module, 'certified_start_only_edges', east_only)
     node.plan_to(goal)
     assert node.planned_cells[:2] == [start, east]
     assert node.planned_cells[-1] == north
@@ -374,7 +382,9 @@ def test_chassis_odom_fresh_map_pose_and_breadcrumb_use_same_normalized_yaw(prep
     from nav_msgs.msg import Odometry
     node = prepared
     scenario(node)
+    node.clock.update(steady=100.1,ros=100.1)
     tf = node.tf_buffer.lookup_transform.return_value
+    tf.header.stamp=node.get_clock().now().to_msg()
     tf.transform.rotation.z = scale*sin(.1/2)
     tf.transform.rotation.w = scale*cos(.1/2)
     msg = Odometry()

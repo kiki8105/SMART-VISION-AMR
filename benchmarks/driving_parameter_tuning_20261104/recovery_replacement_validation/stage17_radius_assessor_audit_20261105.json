@@ -1,0 +1,134 @@
+{
+  "scope": "Offline read-only re-evaluation of completed stage17 with the recorded actual SDF enclosing radius. Original FAIL verdict and original evidence remain unchanged; this is not a new driving trial or a physical-robot test.",
+  "stage": "/tmp/classroom-simple-policy-validation-20261105/17_web_hardware_value_parity",
+  "qa_margin_unchanged_m": 0.02,
+  "source_hashes": {
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/scripts/assess_classroom_stress_crate.py": "f8721903f9b39b279c4546b61bbf796134e28dbf8b4937eb05155d5010e012c9",
+    "/tmp/classroom-simple-policy-validation-20261105/17_web_hardware_value_parity/stress_crate_trace.jsonl": "e47121e655fd2d3c27295f4bb7a1e04528452d8ec91166524e9aa20fb1b7052d",
+    "/tmp/classroom-simple-policy-validation-20261105/17_web_hardware_value_parity/acceptance.json": "2fbc33bad6ba86e94b8d76c198ab9e64d488aa4850404d113ba53ce07b5e108b",
+    "/tmp/classroom-simple-policy-validation-20261105/17_web_hardware_value_parity/stress_crate_assessment.json": "a0602069518df207764d02e2cae274b8d970fb076390ac3965f5946075ebed72",
+    "/tmp/classroom-simple-policy-validation-20261105/17_web_hardware_value_parity/runtime_manifest.json": "f2a554b00e4530f768aada0fbbcd8a525751faaec940423f4f3b848cdc22b67d",
+    "/tmp/classroom-simple-policy-validation-20261105/17_web_hardware_value_parity/fixture/waffle_pi_fault.sdf": "1c7af1e8ae0b5ce9d59bec71aa4379c58a38bd81c791167ddf22ece2563a0361"
+  },
+  "recorded_body_radius_m": 0.22,
+  "original_assessment": {
+    "passed": false,
+    "reasons": [
+      "gazebo_body_clearance_below_2cm_or_unproven"
+    ],
+    "checks": {
+      "isolated_observer": true,
+      "sector2_goal_seen": true,
+      "crossing_leg_near_crate": true,
+      "fixed_crate_present_in_live_gazebo": true,
+      "raw_lidar_crate_hit": true,
+      "two_fresh_observed_cells": true,
+      "sector2_path_after_lidar_is_box_clear": true,
+      "unsafe_route_replanned_after_lidar": false,
+      "body_clearance_2cm_entire_mission": false,
+      "truth_sampling_sufficient": true,
+      "gazebo_truth_bypassed_crate": true,
+      "web_full_route_and_home": true
+    },
+    "metrics": {
+      "crate_center": [
+        0.35,
+        -0.6
+      ],
+      "crate_size_m": [
+        0.2,
+        0.2
+      ],
+      "robot_enclosing_radius_m": 0.24,
+      "required_margin_m": 0.02,
+      "crossing_leg_marker_id": 2,
+      "crossing_leg_goal_at": 1793808872.1984,
+      "sector2_goal_at": 1793808872.1984,
+      "crossing_leg_minimum_body_clearance_m": 0.1105,
+      "mission_truth_samples": 1851,
+      "fixed_crate_truth_samples": 1851,
+      "direct_link_fraction": 1.0,
+      "interpolated_link_samples": 0,
+      "max_link_bracket_s": 0.0,
+      "crate_model_present_every_sample": true,
+      "sector2_matching_path_count": 2,
+      "initial_sector2_path_body_clearance_m": 0.0786,
+      "raw_scan_hit_samples": 493,
+      "joint_observed_lidar_samples": 384,
+      "safe_sector2_path_at": 1793808887.0013,
+      "safe_sector2_path_body_clearance_m": 0.0786,
+      "safe_sector2_path_points": 89,
+      "last_unsafe_sector2_path_at": null,
+      "route_reaction_kind": "box_clear_initial_route_after_lidar",
+      "robot_y_at_safe_sector2_path_m": -0.3485,
+      "observed_cells_before_path": 11,
+      "observed_at": 1793808885.0381,
+      "raw_lidar_hit_at": 1793808885.1342,
+      "minimum_truth_body_clearance_m": 0.006,
+      "max_truth_gap_s": 0.2242,
+      "first_truth_after_goal_s": 0.087,
+      "last_truth_after_home_s": 0.7655,
+      "first_y_below_minus_0p90_at": 1793808893.1545
+    }
+  },
+  "offline_actual_radius_assessment": {
+    "passed": true,
+    "reasons": [],
+    "checks": {
+      "isolated_observer": true,
+      "sector2_goal_seen": true,
+      "crossing_leg_near_crate": true,
+      "fixed_crate_present_in_live_gazebo": true,
+      "raw_lidar_crate_hit": true,
+      "two_fresh_observed_cells": true,
+      "sector2_path_after_lidar_is_box_clear": true,
+      "unsafe_route_replanned_after_lidar": false,
+      "body_clearance_2cm_entire_mission": true,
+      "truth_sampling_sufficient": true,
+      "gazebo_truth_bypassed_crate": true,
+      "web_full_route_and_home": true
+    },
+    "metrics": {
+      "crate_center": [
+        0.35,
+        -0.6
+      ],
+      "crate_size_m": [
+        0.2,
+        0.2
+      ],
+      "robot_enclosing_radius_m": 0.22,
+      "required_margin_m": 0.02,
+      "crossing_leg_marker_id": 2,
+      "crossing_leg_goal_at": 1793808872.1984,
+      "sector2_goal_at": 1793808872.1984,
+      "crossing_leg_minimum_body_clearance_m": 0.1305,
+      "mission_truth_samples": 1851,
+      "fixed_crate_truth_samples": 1851,
+      "direct_link_fraction": 1.0,
+      "interpolated_link_samples": 0,
+      "max_link_bracket_s": 0.0,
+      "crate_model_present_every_sample": true,
+      "sector2_matching_path_count": 2,
+      "initial_sector2_path_body_clearance_m": 0.0986,
+      "raw_scan_hit_samples": 493,
+      "joint_observed_lidar_samples": 384,
+      "safe_sector2_path_at": 1793808887.0013,
+      "safe_sector2_path_body_clearance_m": 0.0986,
+      "safe_sector2_path_points": 89,
+      "last_unsafe_sector2_path_at": null,
+      "route_reaction_kind": "box_clear_initial_route_after_lidar",
+      "robot_y_at_safe_sector2_path_m": -0.3485,
+      "observed_cells_before_path": 11,
+      "observed_at": 1793808885.0381,
+      "raw_lidar_hit_at": 1793808885.1342,
+      "minimum_truth_body_clearance_m": 0.026,
+      "max_truth_gap_s": 0.2242,
+      "first_truth_after_goal_s": 0.087,
+      "last_truth_after_home_s": 0.7655,
+      "first_y_below_minus_0p90_at": 1793808893.1545
+    }
+  },
+  "elapsed_analysis_seconds": 0.1419592640013434,
+  "staged_original_verdict": "FAIL; unmapped_stress_crate_bypass_unverified; do not silently replace historical staged_report.json"
+}

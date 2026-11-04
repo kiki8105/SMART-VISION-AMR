@@ -1,0 +1,624 @@
+{
+  "scope": "Frozen necessary-gate counterfactual, not actual breadcrumb replay or a robot/Gazebo drive",
+  "trial": "/tmp/classroom-tuning-fixed-repaired-infl30-20261104/25_web_inventory_sector3_moving_obstacle",
+  "diagnostic_wall_epoch": 1793799587.5028617,
+  "first_reverse_reject_wall_epoch": 1793799587.539447,
+  "source_sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/reverse_recovery.py": "cf5f3ad3f2cd6b1b337277ba979db1c2eb0f2d72000912385ef8546954e1100a",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar.py": "28eb2fdf8d68427206176186ee627c79ffa63137230883f6e9a720b460f568ce",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/map_utils.py": "c6150f71fd276bcd7936025349bb9bc882918eda7e26064254902e030f4a0601",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/grid.py": "ecf939a51c53eb3387f6bd4db262b8b4dbb85ebfa263724e019e77a4ab9f1ba8"
+  },
+  "map": {
+    "image": "ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm",
+    "image_sha256": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+    "width": 86,
+    "height": 140,
+    "resolution": 0.05,
+    "origin": [
+      -1.65,
+      -5.25,
+      0.0
+    ]
+  },
+  "parameters": {
+    "robot_radius": 0.22,
+    "clearance_margin": 0.01,
+    "sample_step": 0.01,
+    "min_distance": 0.1,
+    "max_distance": 0.3,
+    "min_clearance_gain": 0.02,
+    "astar_inflation_cells": 5
+  },
+  "pose": [
+    0.006046177882180426,
+    -0.8890810131876927,
+    -1.5213212994718863
+  ],
+  "start_cell": [
+    33,
+    87
+  ],
+  "goal_cell": [
+    27,
+    65
+  ],
+  "observed_cells": [
+    [
+      38,
+      88
+    ],
+    [
+      38,
+      89
+    ],
+    [
+      38,
+      90
+    ],
+    [
+      38,
+      91
+    ],
+    [
+      38,
+      92
+    ],
+    [
+      38,
+      93
+    ],
+    [
+      42,
+      89
+    ],
+    [
+      46,
+      102
+    ],
+    [
+      46,
+      103
+    ]
+  ],
+  "remembered_cells": [
+    [
+      38,
+      89
+    ],
+    [
+      38,
+      90
+    ],
+    [
+      38,
+      91
+    ],
+    [
+      38,
+      92
+    ],
+    [
+      38,
+      93
+    ],
+    [
+      39,
+      89
+    ],
+    [
+      39,
+      90
+    ],
+    [
+      39,
+      91
+    ],
+    [
+      39,
+      92
+    ],
+    [
+      39,
+      93
+    ],
+    [
+      40,
+      90
+    ],
+    [
+      40,
+      91
+    ],
+    [
+      40,
+      92
+    ],
+    [
+      40,
+      93
+    ],
+    [
+      42,
+      89
+    ]
+  ],
+  "reserved_observed_cells": [
+    [
+      38,
+      84
+    ],
+    [
+      38,
+      85
+    ],
+    [
+      38,
+      86
+    ],
+    [
+      38,
+      87
+    ],
+    [
+      38,
+      88
+    ],
+    [
+      38,
+      89
+    ],
+    [
+      38,
+      90
+    ],
+    [
+      38,
+      91
+    ],
+    [
+      38,
+      92
+    ],
+    [
+      38,
+      93
+    ],
+    [
+      42,
+      89
+    ],
+    [
+      46,
+      102
+    ],
+    [
+      46,
+      103
+    ]
+  ],
+  "reserved_remembered_cells": [
+    [
+      38,
+      85
+    ],
+    [
+      38,
+      86
+    ],
+    [
+      38,
+      87
+    ],
+    [
+      38,
+      88
+    ],
+    [
+      38,
+      89
+    ],
+    [
+      38,
+      90
+    ],
+    [
+      38,
+      91
+    ],
+    [
+      38,
+      92
+    ],
+    [
+      38,
+      93
+    ],
+    [
+      39,
+      89
+    ],
+    [
+      39,
+      90
+    ],
+    [
+      39,
+      91
+    ],
+    [
+      39,
+      92
+    ],
+    [
+      39,
+      93
+    ],
+    [
+      40,
+      90
+    ],
+    [
+      40,
+      91
+    ],
+    [
+      40,
+      92
+    ],
+    [
+      40,
+      93
+    ],
+    [
+      42,
+      89
+    ]
+  ],
+  "reference_world": [
+    [
+      0.025,
+      -0.875
+    ],
+    [
+      0.025,
+      -0.925
+    ],
+    [
+      0.025,
+      -0.975
+    ],
+    [
+      0.025,
+      -1.025
+    ],
+    [
+      0.025,
+      -1.075
+    ],
+    [
+      0.075,
+      -1.075
+    ],
+    [
+      0.125,
+      -1.075
+    ],
+    [
+      0.175,
+      -1.125
+    ],
+    [
+      0.225,
+      -1.125
+    ],
+    [
+      0.275,
+      -1.125
+    ],
+    [
+      0.325,
+      -1.125
+    ],
+    [
+      0.375,
+      -1.125
+    ],
+    [
+      0.425,
+      -1.125
+    ],
+    [
+      0.475,
+      -1.125
+    ],
+    [
+      0.525,
+      -1.125
+    ],
+    [
+      0.575,
+      -1.125
+    ],
+    [
+      0.625,
+      -1.175
+    ],
+    [
+      0.675,
+      -1.225
+    ],
+    [
+      0.675,
+      -1.275
+    ],
+    [
+      0.675,
+      -1.325
+    ],
+    [
+      0.675,
+      -1.375
+    ],
+    [
+      0.675,
+      -1.425
+    ],
+    [
+      0.675,
+      -1.475
+    ],
+    [
+      0.675,
+      -1.525
+    ],
+    [
+      0.675,
+      -1.575
+    ],
+    [
+      0.675,
+      -1.625
+    ],
+    [
+      0.675,
+      -1.675
+    ],
+    [
+      0.675,
+      -1.725
+    ],
+    [
+      0.675,
+      -1.775
+    ],
+    [
+      0.675,
+      -1.825
+    ],
+    [
+      0.675,
+      -1.875
+    ],
+    [
+      0.675,
+      -1.925
+    ],
+    [
+      0.675,
+      -1.975
+    ],
+    [
+      0.675,
+      -2.025
+    ],
+    [
+      0.675,
+      -2.075
+    ],
+    [
+      0.675,
+      -2.125
+    ],
+    [
+      0.675,
+      -2.175
+    ],
+    [
+      0.675,
+      -2.225
+    ],
+    [
+      0.675,
+      -2.275
+    ],
+    [
+      0.675,
+      -2.325
+    ],
+    [
+      0.675,
+      -2.375
+    ],
+    [
+      0.675,
+      -2.425
+    ],
+    [
+      0.675,
+      -2.475
+    ],
+    [
+      0.625,
+      -2.525
+    ],
+    [
+      0.625,
+      -2.575
+    ],
+    [
+      0.575,
+      -2.625
+    ],
+    [
+      0.525,
+      -2.675
+    ],
+    [
+      0.475,
+      -2.725
+    ],
+    [
+      0.425,
+      -2.775
+    ],
+    [
+      0.375,
+      -2.775
+    ],
+    [
+      0.325,
+      -2.775
+    ],
+    [
+      0.275,
+      -2.775
+    ],
+    [
+      0.225,
+      -2.775
+    ],
+    [
+      0.175,
+      -2.775
+    ],
+    [
+      0.125,
+      -2.775
+    ],
+    [
+      0.075,
+      -2.725
+    ],
+    [
+      0.025,
+      -2.675
+    ],
+    [
+      -0.025,
+      -2.625
+    ],
+    [
+      -0.075,
+      -2.575
+    ],
+    [
+      -0.125,
+      -2.525
+    ],
+    [
+      -0.175,
+      -2.475
+    ],
+    [
+      -0.175,
+      -2.425
+    ],
+    [
+      -0.175,
+      -2.375
+    ],
+    [
+      -0.225,
+      -2.325
+    ],
+    [
+      -0.225,
+      -2.275
+    ],
+    [
+      -0.225,
+      -2.225
+    ],
+    [
+      -0.225,
+      -2.175
+    ],
+    [
+      -0.225,
+      -2.125
+    ],
+    [
+      -0.225,
+      -2.075
+    ],
+    [
+      -0.225,
+      -2.025
+    ],
+    [
+      -0.275,
+      -1.975
+    ]
+  ],
+  "snapshot_receipt_ages_s": {
+    "observed": 0.20599675178527832,
+    "remembered": 0.3910856246948242
+  },
+  "raw_counts_from_planner_log": {
+    "observed": 9,
+    "remembered": 15
+  },
+  "inflated_counts_from_planner_log": {
+    "observed": 346,
+    "remembered": 261
+  },
+  "focused_ahead_observed_cells": [],
+  "last_successful_actor_move": {
+    "wall_epoch": 1793799584.3517218,
+    "step": 4,
+    "center": [
+      0.45205379086809205,
+      -0.6692489816441315
+    ],
+    "box_size": [
+      0.25,
+      0.25
+    ],
+    "bounds": [
+      0.32705379086809205,
+      -0.7942489816441315,
+      0.577053790868092,
+      -0.5442489816441315
+    ],
+    "source": "owned actor successful SetEntityState, not a separate full recorded ModelStates pose"
+  },
+  "rear_sector_sample": {
+    "t": 39.5267,
+    "monotonic": 13759.0688,
+    "wall_time": 1793799587.4107,
+    "kind": "scan",
+    "front_min_m": 0.5709360241889954,
+    "front_min_angle_deg": 359.8174836710712,
+    "front_core_min_m": 0.5709360241889954,
+    "front_core_angle_deg": 359.8174836710712,
+    "rear_min_m": 1.2031009197235107,
+    "rear_min_angle_deg": 209.47591667758743,
+    "stamp_ns": 25972000000
+  },
+  "truth_sample": {
+    "t": 39.5505,
+    "monotonic": 13759.0927,
+    "wall_time": 1793799587.4345,
+    "kind": "truth",
+    "x": 0.05144,
+    "y": -0.8688,
+    "yaw": -1.56686
+  },
+  "limitations": [
+    "Exact planner breadcrumb list/anchor and callback receipt ordering were not logged.",
+    "Observer cells are not an atomic planner dump; their raw and reconstructed inflation counts exactly match the log.",
+    "The rear +/-30deg minimum does not cover the entire swept chassis and cannot establish actual reverse clearance alone.",
+    "The assumed straight history is a geometric necessary-gate probe, not reconstructed real history."
+  ]
+}

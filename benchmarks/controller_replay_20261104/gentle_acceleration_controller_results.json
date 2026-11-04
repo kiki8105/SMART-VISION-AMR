@@ -1,0 +1,42 @@
+{
+  "all_passed": true,
+  "cases": [
+    {
+      "case": "straight",
+      "passed": true,
+      "errors": [],
+      "command_count": 5,
+      "evaluation_count": 5,
+      "max_linear": 0.18526315789473682,
+      "max_abs_angular": 0.0
+    },
+    {
+      "case": "corner",
+      "passed": true,
+      "errors": [],
+      "command_count": 5,
+      "evaluation_count": 5,
+      "max_linear": 0.09263157894736841,
+      "max_abs_angular": 0.3205128205128206
+    },
+    {
+      "case": "obstacle",
+      "passed": true,
+      "errors": [],
+      "command_count": 5,
+      "evaluation_count": 5,
+      "max_linear": 0.05789473684210526,
+      "max_abs_angular": 0.0
+    },
+    {
+      "case": "arrival",
+      "passed": true,
+      "errors": [],
+      "command_count": 2,
+      "evaluation_count": 1,
+      "max_linear": 0.0,
+      "max_abs_angular": 0.0
+    }
+  ],
+  "scope": "real Nav2 DWB with frozen loopback inputs; not a closed-loop driving pass"
+}

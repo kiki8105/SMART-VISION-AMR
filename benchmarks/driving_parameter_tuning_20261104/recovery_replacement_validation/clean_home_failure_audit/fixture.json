@@ -1,0 +1,774 @@
+{
+  "schema_version": 1,
+  "scope": "Interrupted actual clean1→2→3→Home Gazebo diagnosis. No final sector/Home acceptance verdict exists. Reproduction compares unchanged static/unknown geometry with hard vs soft directional execution-memory edges; this is not motion permission or a complete controller replay.",
+  "trial": "/tmp/classroom-material-heading-validation-20261105/12_web_integrated_clean",
+  "outcome": "INTERRUPTED_FOR_DIAGNOSIS_FAIL",
+  "home_completed": false,
+  "physical_robot_touched": false,
+  "input_sha256": {
+    "/tmp/classroom-material-heading-validation-20261105/12_web_integrated_clean/safety_timeline.jsonl": "7a6a188ba24d2455fc72e88b19a5c2690366be34533595cc64d9405fdb6e6815",
+    "/tmp/classroom-material-heading-validation-20261105/12_web_integrated_clean/memory_observer.jsonl": "124cd9a1d914ff8bda966298bfc44a5ec5c959fc056f4376f0b3c4dfdf2a81ca",
+    "/tmp/classroom-material-heading-validation-20261105/12_web_integrated_clean/gazebo_launch.log": "05d048d62936278226a55a1e2731945d161081dfc0dbabddf7171014f9a2e354",
+    "/tmp/classroom-material-heading-validation-20261105/12_web_integrated_clean/fixture/classroom_fault.pgm": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+    "/tmp/classroom-material-heading-validation-20261105/12_web_integrated_clean/fixture/classroom_fault.yaml": "86feb1e0281873d1ac46077d64c8faf32a2c7e190c06fc10248e1012c43eda1d",
+    "/tmp/classroom-material-heading-validation-20261105/staged_report.json": "d87818f59fe143dedd661e2b2770dcd78a7d31a0c30b550a98e623e2ba91344f",
+    "/tmp/classroom-material-heading-validation-20261105/diagnostic_stop.json": "c4f22abb5dc59577fb8f503b5b01e336bedffa17ef1a31e113c45266d96b0bd1",
+    "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T153816_696896Z_5d6eb480/events.jsonl.gz": "4cf9653915165060a8651779fbbe556bc1b06906d514dd3e50f8e6e0a833ce3d",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/benchmarks/driving_parameter_tuning_20261104/controller_classification_persistence_20261105/astar_planner_before.py": "08531cb3b3c362dbed2635ea9d0b75e79b407b7aa3f4464eab756a0bb813f92a"
+  },
+  "source_provenance": {
+    "runtime_before_equals_after": true,
+    "recorded_before_count": 213,
+    "snapshot_module_sha256": {
+      "astar.py": "28eb2fdf8d68427206176186ee627c79ffa63137230883f6e9a720b460f568ce",
+      "grid.py": "ecf939a51c53eb3387f6bd4db262b8b4dbb85ebfa263724e019e77a4ab9f1ba8",
+      "failure_memory.py": "4d6544bc625cb1b82eac2eee09bcf280b0e35449dd1c2efd5cca17d6673bdd87",
+      "reverse_recovery.py": "97f3c21f4c77b9eac7452451d52e69bda6cb7c5aae9dac874e02eb1f1819f46d",
+      "map_utils.py": "c6150f71fd276bcd7936025349bb9bc882918eda7e26064254902e030f4a0601"
+    },
+    "planner_before_sha256": "08531cb3b3c362dbed2635ea9d0b75e79b407b7aa3f4464eab756a0bb813f92a",
+    "policy_excerpt_lines": [
+      1692,
+      1743
+    ],
+    "critical_early_return_line": 1695
+  },
+  "map": {
+    "image": "classroom_fault.pgm",
+    "image_sha256": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+    "width": 86,
+    "height": 140,
+    "resolution": 0.05000000074505806,
+    "origin": [
+      -1.65,
+      -5.25,
+      0.0
+    ],
+    "occupied_threshold": 65,
+    "static_inflation_cells": 5,
+    "pixel_mapping": {
+      "0": 100,
+      "205": -1,
+      "254": 0
+    },
+    "unknown_remains_blocked": true
+  },
+  "start": [
+    47,
+    74
+  ],
+  "goal": [
+    29,
+    100
+  ],
+  "captured_failure_memory_event": {
+    "topic": "/smart_vision_amr/failure_memory_status",
+    "message_type": "std_msgs/msg/String",
+    "monotonic_sec": 20868.809292959,
+    "ros_time_ns": 165680000000,
+    "received_wall_time_ns": 1793806697151312535,
+    "data": {
+      "data": {
+        "state": "WAIT_ALTERNATIVE",
+        "reason": "No safe alternative; goal retained",
+        "count": 1,
+        "active": [
+          {
+            "id": 1,
+            "x": 0.7327875933684993,
+            "y": -1.3342610425376988,
+            "approach_heading": 1.5707963267948966,
+            "reason": "controller_aborted",
+            "map_scope": "('map', 86, 140, 0.05000000074505806, -1.65, -5.25, 0.0, 0.0, 0.0, 1.0)",
+            "goal_scope": "('map', -0.188431, -0.220497)",
+            "first_seen": 20868.355272273,
+            "last_seen": 20868.355272273,
+            "age_sec": 0.4479872810006782,
+            "expires_in_sec": 119.55201271899932,
+            "occurrences": 1,
+            "expires_in": 119.55201271899932,
+            "failures": 1
+          }
+        ],
+        "last_failure_id": 1,
+        "rejoin_verified": false,
+        "recovery_attempts": 0,
+        "goal_stamp": {
+          "sec": 143,
+          "nanosec": 680000000
+        },
+        "sent_at_ns": 165680000000,
+        "retry_count": 0,
+        "retry_limit": 3,
+        "blocked_obstacle_count": 0,
+        "clear_wait_seconds": 2.0,
+        "failure_class": "route",
+        "recovery_stage": "global_replan",
+        "controller_retry_count": 0,
+        "controller_retry_limit": 3,
+        "controller_failure_evidence": "raw LiDAR transform unavailable"
+      },
+      "string_encoding": "decoded_json"
+    }
+  },
+  "failure_entry": {
+    "id": 1,
+    "x": 0.7327875933684993,
+    "y": -1.3342610425376988,
+    "approach_heading": 1.5707963267948966,
+    "reason": "controller_aborted",
+    "map_scope": "('map', 86, 140, 0.05000000074505806, -1.65, -5.25, 0.0, 0.0, 0.0, 1.0)",
+    "goal_scope": "('map', -0.188431, -0.220497)",
+    "first_seen": 20868.355272273,
+    "last_seen": 20868.355272273,
+    "age_sec": 0.4479872810006782,
+    "expires_in_sec": 119.55201271899932,
+    "occurrences": 1,
+    "expires_in": 119.55201271899932,
+    "failures": 1
+  },
+  "failure_settings": {
+    "ttl_sec": 120.0,
+    "radius_m": 0.25,
+    "heading_tolerance_rad": 1.0471975511965976,
+    "max_entries": 64,
+    "penalty_cost": 2.0
+  },
+  "fresh_controller_classification_success": {
+    "t": 192.9279,
+    "monotonic": 20870.5476,
+    "wall_time": 1793806698.8895,
+    "kind": "planner",
+    "status": "READY",
+    "goal": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "frame_id": "map"
+    },
+    "goal_stamp": {
+      "sec": 143,
+      "nanosec": 680000000
+    },
+    "input_hold": null,
+    "manual_stop": null,
+    "route_failure": null,
+    "local_detour_state": "NONE",
+    "message": "A* route ready: 30 poses; original grid route",
+    "details": {
+      "plan_kind": "GLOBAL",
+      "local_attempt_id": 0,
+      "global_plan_count": 6,
+      "failure_class": "controller",
+      "recovery_stage": "soft_replan",
+      "controller_retry_count": 1,
+      "controller_retry_limit": 3,
+      "failure_edge_fallback": true,
+      "occlusion_fallback": false,
+      "occlusion_fallback_attempted": false,
+      "occlusion_constraint_mode": "HARD_RESERVE",
+      "occlusion_virtual_cells": 0,
+      "occlusion_primary_reason": "",
+      "occlusion_reused_start_certificate": false,
+      "occlusion_measured_start_certificate": false,
+      "start_certificate_diagnostics": {
+        "start": [
+          47,
+          74
+        ],
+        "helper_called": false,
+        "allowed_edges": [],
+        "enabled": true,
+        "escape_cells_before": [],
+        "static_start": false,
+        "raw_static_start": false,
+        "raw_observed_start": false,
+        "observed_inflated_start": false,
+        "remembered_inflated_start": false,
+        "measured_remembered_inflated_start": false,
+        "observation_receipt_age_s": 0.07017653100047028,
+        "start_tf_stamp_ns": 167158000000,
+        "start_tf_pose": [
+          0.7300455431022594,
+          -1.5385764549209526
+        ],
+        "fresh_pose": null,
+        "fresh_pose_drift_m": null,
+        "first_failed_reason": "not_in_inflation",
+        "neighbor_masks": [
+          {
+            "cell": [
+              46,
+              73
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              46,
+              74
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              46,
+              75
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              47,
+              73
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              47,
+              75
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              48,
+              73
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              48,
+              74
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              48,
+              75
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          }
+        ]
+      },
+      "global_duration_ms": 79.14633499967749,
+      "motion_pose_diagnostics": {
+        "first_failed_reason": "OK",
+        "node_clock_ns": 167160000000,
+        "checked_monotonic": 20870.543910667,
+        "health_stamp_ns": 167080000000,
+        "health_receipt_age_s": 0.16186509899853263,
+        "health_source_age_s": 0.08,
+        "odom_stamp_ns": 167158000000,
+        "odom_receipt_age_s": 0.09683819999918342,
+        "odom_source_age_s": 0.002,
+        "scan_stamp_ns": 167076000000,
+        "scan_receipt_age_s": 0.1753205769964552,
+        "scan_source_age_s": 0.084,
+        "tf_stamp_ns": 167158000000,
+        "tf_source_age_s": 0.002,
+        "lookup_error": "",
+        "pose": [
+          0.7300455431022594,
+          -1.5385764549209526,
+          1.5784221198496147
+        ]
+      },
+      "controller_failure_evidence": "fresh scan matches free space or known mapped walls",
+      "sent_at_ns": 167160000000,
+      "path_stamp": {
+        "sec": 167,
+        "nanosec": 160000000
+      }
+    }
+  },
+  "failed_physical_cycle_global": {
+    "t": 206.3041,
+    "monotonic": 20883.9238,
+    "wall_time": 1793806712.2657,
+    "kind": "planner",
+    "status": "WAIT_REPLAN",
+    "goal": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "frame_id": "map"
+    },
+    "goal_stamp": {
+      "sec": 143,
+      "nanosec": 680000000
+    },
+    "input_hold": null,
+    "manual_stop": null,
+    "route_failure": null,
+    "local_detour_state": "FAILED",
+    "message": "No safe A* route from (47, 74) to (29, 100); retrying",
+    "details": {
+      "plan_kind": "GLOBAL",
+      "local_attempt_id": 2,
+      "global_plan_count": 8,
+      "failure_class": "route",
+      "recovery_stage": "global_replan",
+      "controller_retry_count": 1,
+      "controller_retry_limit": 3,
+      "failure_edge_fallback": false,
+      "occlusion_fallback": false,
+      "occlusion_fallback_attempted": false,
+      "occlusion_constraint_mode": "HARD_RESERVE",
+      "occlusion_virtual_cells": 0,
+      "occlusion_primary_reason": "",
+      "occlusion_reused_start_certificate": false,
+      "occlusion_measured_start_certificate": false,
+      "start_certificate_diagnostics": {
+        "start": [
+          47,
+          74
+        ],
+        "helper_called": false,
+        "allowed_edges": [],
+        "enabled": true,
+        "escape_cells_before": [],
+        "static_start": false,
+        "raw_static_start": false,
+        "raw_observed_start": false,
+        "observed_inflated_start": false,
+        "remembered_inflated_start": false,
+        "measured_remembered_inflated_start": false,
+        "observation_receipt_age_s": 0.37676261799788335,
+        "start_tf_stamp_ns": 178758000000,
+        "start_tf_pose": [
+          0.7381707761431187,
+          -1.541002175252656
+        ],
+        "fresh_pose": null,
+        "fresh_pose_drift_m": null,
+        "first_failed_reason": "not_in_inflation",
+        "neighbor_masks": [
+          {
+            "cell": [
+              46,
+              73
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              46,
+              74
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              46,
+              75
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              47,
+              73
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              47,
+              75
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              48,
+              73
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              48,
+              74
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              48,
+              75
+            ],
+            "static": false,
+            "measured": false,
+            "conservative": false,
+            "virtual_only": false
+          }
+        ]
+      },
+      "global_duration_ms": 123.14251000134391,
+      "motion_pose_diagnostics": {
+        "first_failed_reason": "OK",
+        "node_clock_ns": 178760000000,
+        "checked_monotonic": 20883.904846874,
+        "health_stamp_ns": 178620000000,
+        "health_receipt_age_s": 0.5225147960009053,
+        "health_source_age_s": 0.14,
+        "odom_stamp_ns": 178758000000,
+        "odom_receipt_age_s": 0.37768437699924107,
+        "odom_source_age_s": 0.002,
+        "scan_stamp_ns": 178687000000,
+        "scan_receipt_age_s": 0.45878738700048416,
+        "scan_source_age_s": 0.073,
+        "tf_stamp_ns": 178758000000,
+        "tf_source_age_s": 0.002,
+        "lookup_error": "",
+        "pose": [
+          0.7381707761431187,
+          -1.541002175252656,
+          1.5672942078596706
+        ]
+      },
+      "controller_failure_evidence": "fresh scan matches free space or known mapped walls",
+      "search_duration_ms": 8.865347001119517,
+      "adapter_duration_ms": 84.88797699828865,
+      "expansions": 90,
+      "candidates_examined": 10,
+      "detour_reason": "no_local_route",
+      "rejoin_progress": null,
+      "occlusion_reserved_cells": 0,
+      "occlusion_extension": 0.2,
+      "rejoin_buffer": 0.15,
+      "observation_reserved_cells": 0,
+      "observation_margin": 0.0,
+      "reverse_goal_occlusion_fallback": false,
+      "reverse_goal_occlusion_fallback_attempted": false,
+      "reverse_clearance_neutral_egress": false,
+      "reverse_probe_diagnostics": {
+        "trail_count": 83,
+        "trail_frame": "odom_projected",
+        "source_odom_frame": "odom",
+        "source_odom_child_frame": "base_footprint",
+        "source_odom_reset_reason": "explicit_reset",
+        "oldest_at": 20842.692280541,
+        "newest_at": 20883.527162497,
+        "current_pose": [
+          0.7381707761431187,
+          -1.541002175252656,
+          1.5672942078596706
+        ],
+        "recent_trail": [
+          [
+            20859.04277897,
+            0.6477926122403008,
+            -2.4073459187966075,
+            1.2101279601897217
+          ],
+          [
+            20859.309157708,
+            0.6574772857999915,
+            -2.380061817906382,
+            1.2489268269828058
+          ],
+          [
+            20859.610255012,
+            0.6667157737328602,
+            -2.3505486618958065,
+            1.2884745918323626
+          ],
+          [
+            20859.844602184,
+            0.6734334363528354,
+            -2.326060652071244,
+            1.3180825290016065
+          ],
+          [
+            20860.134231682,
+            0.6799981754509793,
+            -2.299138682835273,
+            1.3460349067737
+          ],
+          [
+            20860.499825061,
+            0.6854145691357736,
+            -2.2740424925515335,
+            1.3704140554626791
+          ],
+          [
+            20860.975491748,
+            0.6903730412244984,
+            -2.2463773026750555,
+            1.4156416770833384
+          ],
+          [
+            20861.241840817,
+            0.6940764433542609,
+            -2.219184605378687,
+            1.452690079913637
+          ],
+          [
+            20861.467940155,
+            0.6976643650716671,
+            -2.1877663521710358,
+            1.463024966235535
+          ],
+          [
+            20861.721374601,
+            0.7013598048384106,
+            -2.152431021327292,
+            1.4714428025106079
+          ],
+          [
+            20861.950231614,
+            0.7038541181228954,
+            -2.1268077295846894,
+            1.4765140698189496
+          ],
+          [
+            20862.132317984,
+            0.7063372239283867,
+            -2.099507873392588,
+            1.4831379038560497
+          ],
+          [
+            20862.306673742,
+            0.7086935079655913,
+            -2.0724637579240244,
+            1.4849904879725075
+          ],
+          [
+            20862.508398806,
+            0.711321448490245,
+            -2.0414995221691683,
+            1.4871386095620487
+          ],
+          [
+            20862.686568563,
+            0.7135340432703003,
+            -2.014775828829828,
+            1.4889080100153258
+          ],
+          [
+            20862.888246265,
+            0.7160115804497142,
+            -1.9841578018976347,
+            1.4910137812397757
+          ],
+          [
+            20863.040187307,
+            0.7181524048373374,
+            -1.9571909978789825,
+            1.491614190026529
+          ],
+          [
+            20863.226236707,
+            0.7207233858866797,
+            -1.9244589720181624,
+            1.4925015018776577
+          ],
+          [
+            20863.391940496,
+            0.722956849883351,
+            -1.8959618702178662,
+            1.4930560712580698
+          ],
+          [
+            20863.574834067,
+            0.7253933779113251,
+            -1.8645124592413442,
+            1.4936735900120537
+          ],
+          [
+            20863.736192882,
+            0.727711022009929,
+            -1.8344346303130346,
+            1.493745077952811
+          ],
+          [
+            20863.906670175,
+            0.7302161245701853,
+            -1.8019360543054468,
+            1.493814778385584
+          ],
+          [
+            20864.077853388,
+            0.7324448846935208,
+            -1.7730223579815485,
+            1.4938072436627001
+          ],
+          [
+            20864.250629461,
+            0.73505494781874,
+            -1.7391178954263693,
+            1.49379538035135
+          ],
+          [
+            20864.680018883,
+            0.7368550548750471,
+            -1.7140121601087068,
+            1.510637714275522
+          ],
+          [
+            20864.994637874,
+            0.738552450105003,
+            -1.6870810355930255,
+            1.50737307973985
+          ],
+          [
+            20865.78458046,
+            0.7398762503534111,
+            -1.6608615748577182,
+            1.5370384563967878
+          ],
+          [
+            20866.445869482,
+            0.7403126489132493,
+            -1.6320582127194412,
+            1.5742706697311863
+          ],
+          [
+            20866.764118858,
+            0.7400267070430463,
+            -1.6063535503464128,
+            1.5917541854836914
+          ],
+          [
+            20866.985036616,
+            0.7393265005557744,
+            -1.580242364719856,
+            1.6012544430010804
+          ],
+          [
+            20867.191731695,
+            0.738440942115946,
+            -1.5540811598461957,
+            1.6082217820390463
+          ],
+          [
+            20883.527162497,
+            0.7381707761431187,
+            -1.541002175252656,
+            1.5672942078596706
+          ]
+        ],
+        "neutral_enabled": false,
+        "conservative_dynamic_count": 0,
+        "measured_dynamic_count": 0,
+        "virtual_dynamic_count": 0,
+        "candidate": null
+      },
+      "reverse_probe_rejection": "NO_SAFE_EGRESS",
+      "recovery_episode_id": "fbc595ab95754ce8a1d284e47ce73822",
+      "recovery_phase": "GLOBAL",
+      "recovery_wait_reason": "",
+      "sent_at_ns": 178760000000,
+      "path_stamp": {
+        "sec": 167,
+        "nanosec": 580000000
+      }
+    }
+  },
+  "observed_snapshot_nearest_failed_global": {
+    "kind": "observed",
+    "monotonic_sec": 20883.831233822,
+    "wall_utc": "2026-11-04T15:38:32.173078+00:00",
+    "count": 0,
+    "cells": [],
+    "remembered_count": 0,
+    "sample": 888
+  },
+  "remembered_snapshot_nearest_failed_global": {
+    "kind": "remembered",
+    "monotonic_sec": 20845.269336844,
+    "wall_utc": "2026-11-04T15:37:53.611179+00:00",
+    "count": 0,
+    "cells": [],
+    "added": [],
+    "removed": [
+      5110
+    ],
+    "observed_count": 1
+  },
+  "selected_actual_log_lines": [
+    "[controller_server-10] [ERROR] [1793806696.681769947] [controller_server]: Controller patience exceeded",
+    "[astar_planner-17] [ERROR] [1793806696.855702109] [astar_planner]: No path from (47, 74) to (29, 100) (static_start=False, raw_static_start=False, remembered_start=False, observed_start=False, raw_observed_start=False, dynamic_escape_cells=0, static_goal=False, remembered_goal=False, observed_goal=False, observed_raw=0, observed_near_map_wall=0, observed_inside_static_inflation=0, observed_effective=0, observed_inflated=0, remembered_raw=0, remembered_inflated=0, failed_edges=276, failed_edge_penalties=740, clearance_penalty_cells=3689, wall_match_tolerance_cells=2, static_reference_cells=27, static_reference_dynamic_hits=0, first_blocked_reference_cells=[])",
+    "[astar_planner-17] [INFO] [1793806698.889508768] [astar_planner]: Published A* path with 30 poses",
+    "[astar_planner-17] [WARN] [1793806699.266085536] [astar_planner]: Fresh observed cells persist on remaining route: cells=[(52, 76)] observed_count=1 path_cells=60",
+    "[controller_server-10] [WARN] [1793806699.325388519] [controller_server]: [follow_path] [ActionServer] Aborting handle.",
+    "[astar_planner-17] [ERROR] [1793806712.264102044] [astar_planner]: No path from (47, 74) to (29, 100) (static_start=False, raw_static_start=False, remembered_start=False, observed_start=False, raw_observed_start=False, dynamic_escape_cells=0, static_goal=False, remembered_goal=False, observed_goal=False, observed_raw=0, observed_near_map_wall=0, observed_inside_static_inflation=0, observed_effective=0, observed_inflated=0, remembered_raw=0, remembered_inflated=0, failed_edges=276, failed_edge_penalties=740, clearance_penalty_cells=3689, wall_match_tolerance_cells=2, static_reference_cells=27, static_reference_dynamic_hits=0, first_blocked_reference_cells=[])"
+  ],
+  "last_recorded_truth": {
+    "t": 238.808,
+    "monotonic": 20916.4277,
+    "wall_time": 1793806744.7696,
+    "kind": "truth",
+    "x": 0.76728,
+    "y": -1.52852,
+    "yaw": 1.55023
+  },
+  "final_confirmation_files_present": [
+    "sector_2_rear_confirmed.jpg",
+    "sector_1_rear_confirmed.jpg",
+    "sector_3_rear_confirmed.jpg"
+  ],
+  "expected_oracle": {
+    "hard_blocked_edges": 276,
+    "soft_cost_edges": 740,
+    "hard_route_cells": 0,
+    "soft_route_cells": 33,
+    "no_failure_memory_route_cells": 27
+  },
+  "interpretation": "A controller abort was first scan-clear classified and successfully soft-replanned. A later one-cell physical-obstacle episode caused the policy phase early return to classify every old controller edge hard again. When observed/memory became0, those276 edges still prevented the otherwise valid27-cell static route. The proposed classification persistence fix belongs to runtime-owner work, not this artifact.",
+  "limits": [
+    "The first DWB abort cause is not established by this oracle.",
+    "Removing hard failure-edge restrictions in an offline planner does not certify local costmap/raw-LiDAR collision clearance or actual reverse motion.",
+    "The actor-free stage was interrupted; rear-confirmed images do not substitute for missing final verifier QA.",
+    "The captured failure-memory event provides exact geometry and scope but not a full controller action history.",
+    "No TTL, static/unknown mask, body radius or collision margin is altered."
+  ]
+}

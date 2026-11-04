@@ -66,9 +66,29 @@ def test_guarded_independent_sim_uses_physical_wheel_limits_and_latched_mux(tmp_
     guarded_mux = next(value for value in parameters(context, mux)
                        if isinstance(value, dict) and 'startup_estop' in value)
     assert guarded_mux == {'allow_legacy_auto_input': False,
+                           'max_linear_velocity': .22,
+                           'scan_guard_robot_radius': .24,
+                           'scan_guard_base_frame': 'base_footprint',
+                           'auto_turn_slowdown_enabled': True,
+                           'auto_turn_start_angular': .08,
+                           'auto_turn_full_angular': .35,
+                           'auto_turn_entry_linear_velocity': .15,
+                           'auto_turn_min_linear_velocity': .10,
+                           'gentle_start_enabled': True,
+                           'gentle_start_linear_acceleration': .20,
+                           'gentle_start_angular_acceleration': .80,
+                           'gentle_start_max_publish_gap': .50,
                            'startup_estop': True,
                            'require_localization_health': True,
                            'allow_topic_reset': False}
+    physical_description = module.generate_launch_description()
+    physical_context = context_for(physical_description, localization_mode='ekf_independent',
+                                   use_ekf_sensor_guard='true', scan_guard_robot_radius='0.22')
+    physical_mux_node = next(node for node in physical_description.entities
+                             if isinstance(node, Node) and node.node_executable == 'motion_mux')
+    physical_mux = next(value for value in parameters(physical_context, physical_mux_node)
+                        if isinstance(value, dict) and 'startup_estop' in value)
+    assert physical_mux['scan_guard_robot_radius'] == .22
 
 
 def test_guard_is_opt_in_and_rejects_incompatible_sim_modes(tmp_path, monkeypatch):

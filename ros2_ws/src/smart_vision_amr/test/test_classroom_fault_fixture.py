@@ -52,3 +52,25 @@ def test_unknown_model_layout_fails_closed(tmp_path):
     with pytest.raises(ValueError, match='sensor plugin'):
         fixture.prepare(model, tmp_path/'world.world', tmp_path/'map.yaml',
                         tmp_path/'out')
+
+
+def test_physical_replay_uses_copied_22cm_collision_instead_of_stock_24cm(tmp_path):
+    import xml.etree.ElementTree as ET
+    robot = ROOT.parent/'turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf'
+    world = ROOT/'ros2_ws/src/smart_vision_amr/worlds/simulation_room.world'
+    map_yaml = ROOT/'ros2_ws/src/smart_vision_amr/maps/simulation_room.yaml'
+    before = robot.read_bytes()
+    manifest = fixture.prepare(robot, world, map_yaml, tmp_path/'physical',
+                               'ekf_independent', physical_footprint=True)
+    assert robot.read_bytes() == before
+    assert manifest['stock_max_collision_radius_m'] > .23699
+    assert manifest['proxy_max_collision_radius_m'] == .22
+    assert all(value <= .22 for value in manifest['proxy_collision_bounds_m'].values())
+    original = ET.parse(robot)
+    copied = ET.parse(tmp_path/'physical/waffle_pi_fault.sdf')
+    assert len(original.findall('.//collision')) == len(copied.findall('.//collision'))
+    assert ET.tostring(original.find('.//inertial')) == ET.tostring(copied.find('.//inertial'))
+    assert len(original.findall('.//sensor')) == len(copied.findall('.//sensor'))
+    base = copied.find("./model/link[@name='base_link']/collision[@name='base_collision']")
+    assert base.findtext('geometry/cylinder/radius') == '0.22'
+    assert base.findtext('pose') == '0 0 0.048 0 0 0'

@@ -1,0 +1,4793 @@
+{
+  "passed": true,
+  "domain": 176,
+  "localhost_only": true,
+  "physical_robot_touched": false,
+  "route": [
+    2
+  ],
+  "dispatch_mode": "inventory",
+  "cycles": [
+    {
+      "passed": true,
+      "domain": 176,
+      "localhost_only": true,
+      "physical_robot_touched": false,
+      "mission_accepted_via_web": true,
+      "route": [
+        2
+      ],
+      "failure": null,
+      "dwell": {
+        "2": {
+          "sample_count": 22,
+          "first_pose": [
+            1.5107260561573064,
+            -2.5560164833093157
+          ],
+          "max_pose_delta_m": 0.00462374840667035,
+          "max_linear_mps": 1.0988420516568973e-05,
+          "max_angular_rps": 0.0008038649469146773,
+          "stale_odom_samples": 0,
+          "alignment_at_dwell": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "observed_dwelling": true,
+          "marker_confirmed": true,
+          "start_event_at": 1793819246.2322323,
+          "end_event_at": 1793819251.4225342,
+          "event_duration_s": 5.19,
+          "next_goal_after_dwell": true
+        }
+      },
+      "dispatch_mode": "inventory",
+      "transient_requested": false,
+      "cold_start_requested": true,
+      "ekf_delivery_faults_requested": false,
+      "visual_ui_qa": false,
+      "path_points_per_sector": {
+        "2": 80
+      },
+      "home_path_points": 80,
+      "cold_start_proof": {
+        "passed": true,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend",
+        "launch_prior_query": {
+          "service": "/amcl/get_parameters",
+          "parameter": "set_initial_pose",
+          "max_attempts": 3,
+          "per_attempt_timeout_s": 5.0,
+          "attempts": [
+            {
+              "attempt": 1,
+              "timeout_s": 5.0,
+              "elapsed_s": 0.2826291390010738,
+              "outcome": "parameter_observed",
+              "value": false
+            }
+          ],
+          "outcome": "parameter_observed",
+          "attempt_count": 1,
+          "elapsed_s": 3.53746619100275
+        },
+        "before": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 0,
+          "map_tf_messages": 0,
+          "web_pose": null,
+          "observed_seconds": 6.976623964001192
+        },
+        "after": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 2,
+          "map_tf_messages": 1
+        }
+      },
+      "manual_initial_pose": {
+        "source": "registered_gazebo_home",
+        "requested": {
+          "x": -0.188431,
+          "y": -0.220497,
+          "yaw": -0.027514
+        },
+        "requested_at": 1793819196.382619,
+        "state": "VERIFIED",
+        "verified_at": 1793819198.2883599,
+        "estop_latched_after_verification": true,
+        "stop_acknowledged_after_verification": true,
+        "result": "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요."
+      },
+      "manual_initial_pose_trace": [
+        {
+          "at": 1793819196.382606,
+          "status": [
+            true,
+            "실제 차량 위치와 방향을 지도 좌표로 입력하세요. 입력 후에도 비상정지를 유지합니다.",
+            true,
+            true
+          ]
+        },
+        {
+          "at": 1793819196.3976672,
+          "status": [
+            "WAITING",
+            "AMCL에 초기 위치를 입력하는 중입니다. 비상정지를 유지합니다.",
+            true,
+            true
+          ]
+        },
+        {
+          "at": 1793819196.6119502,
+          "status": [
+            "WAITING",
+            "AMCL이 초기 위치 입력을 수신했습니다. LiDAR·지도와 새 TF 검증 중입니다.",
+            true,
+            true
+          ]
+        },
+        {
+          "at": 1793819198.2883568,
+          "status": [
+            "VERIFIED",
+            "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.",
+            true,
+            true
+          ]
+        }
+      ],
+      "startup_reset_requested_via_web": true,
+      "startup_reset_attempts": [
+        {
+          "at": 1793819198.3686328,
+          "accepted": true
+        },
+        {
+          "at": 1793819201.4752138,
+          "accepted": true
+        }
+      ],
+      "startup_reset_accepted_at": 1793819198.3686328,
+      "startup_reset_completed": true,
+      "prearm_graph": {
+        "map_publishers": [
+          "/map_server"
+        ],
+        "scan_publishers": [
+          "/classroom_fault_relay"
+        ],
+        "odom_publishers": [
+          "/ekf_independent"
+        ],
+        "ekf_output_source_publishers": [],
+        "ekf_tf_source_publishers": [],
+        "battery_publishers": [
+          "/classroom_sim_battery"
+        ],
+        "raw_wheel_publishers": [
+          "/wheel_joint_odometry"
+        ],
+        "raw_imu_publishers": [
+          "/turtlebot3_imu"
+        ],
+        "goal_subscribers": [
+          "/classroom_safety_timeline",
+          "/classroom_memory_observer",
+          "/flight_recorder",
+          "/astar_planner",
+          "/path_follower"
+        ],
+        "planner_status_publishers": [
+          "/astar_planner"
+        ],
+        "cancel_service_types": [
+          "std_srvs/srv/Trigger"
+        ],
+        "raw_input_samples": {
+          "/wheel/odom": {
+            "count": 11,
+            "last_receipt_age_s": 0.01276338200113969
+          },
+          "/imu": {
+            "count": 2,
+            "last_receipt_age_s": 0.004746076003357302
+          }
+        },
+        "guard_battery_minimum_v": 10.8
+      },
+      "prearm": {
+        "passed": true,
+        "sampled_at": 1793819204.6913602,
+        "checks": {
+          "isolated_ros_domain": {
+            "passed": true,
+            "observed": 176,
+            "requirement": "domain 176, localhost only"
+          },
+          "configured_occupancy_map": {
+            "passed": true,
+            "observed": {
+              "preview": false,
+              "configured_match": true,
+              "version": 3
+            },
+            "requirement": "real /map matching configured YAML"
+          },
+          "single_map_publisher": {
+            "passed": true,
+            "observed": [
+              "/map_server"
+            ],
+            "requirement": "exactly one /map publisher"
+          },
+          "fresh_map_base_tf": {
+            "passed": true,
+            "observed": {
+              "pose_age_s": 0.07,
+              "map_tf_age_s": 0.006,
+              "pose": {
+                "x": -0.23132824990957102,
+                "y": -0.20699686126801342,
+                "yaw": -0.041359292367137236
+              }
+            },
+            "requirement": "current map→base pose and TF younger than 1 s"
+          },
+          "fresh_scan": {
+            "passed": true,
+            "observed": {
+              "web_age_s": 0.07,
+              "health_age_s": 0.20624106700415723,
+              "header_age_s": 0.088,
+              "valid": true,
+              "publishers": [
+                "/classroom_fault_relay"
+              ]
+            },
+            "requirement": "live topic, health receipt/header age ≤0.5 s"
+          },
+          "fresh_odom": {
+            "passed": true,
+            "observed": {
+              "web_age_s": 0.02,
+              "health_age_s": 0.005084071999590378,
+              "header_age_s": 0.006,
+              "valid": true,
+              "publishers": [
+                "/ekf_independent"
+              ]
+            },
+            "requirement": "live topic, health receipt/header age ≤0.5 s"
+          },
+          "amcl_position_uncertainty": {
+            "passed": true,
+            "observed": 0.1884048742436653,
+            "requirement": "≤0.50 m"
+          },
+          "amcl_yaw_uncertainty": {
+            "passed": true,
+            "observed": 0.21583653209886655,
+            "requirement": "<0.5 rad"
+          },
+          "amcl_pose_freshness": {
+            "passed": true,
+            "observed": {
+              "receipt_age_s": 1.409895923003205,
+              "header_age_s": 1.093
+            },
+            "requirement": "AMCL receipt/header ages <8 s, future header ≤0.25 s"
+          },
+          "scan_map_agreement": {
+            "passed": true,
+            "observed": 0.80625,
+            "requirement": "≥0.55 health warning threshold"
+          },
+          "localization_health": {
+            "passed": true,
+            "observed": {
+              "level": "ok",
+              "reasons": [],
+              "stop_latched": false,
+              "autonomous_allowed": true
+            },
+            "requirement": "acquired, level ok or bounded position warning, no health stop latch"
+          },
+          "rear_camera": {
+            "passed": true,
+            "observed": {
+              "age_s": 0.03,
+              "raw_age_s": 0.03
+            },
+            "requirement": "fresh rear raw and processed frames"
+          },
+          "battery_sensor": {
+            "passed": true,
+            "observed": {
+              "power": {
+                "status": "online",
+                "voltage": 12.0,
+                "percentage": 0.75,
+                "age": 0.31,
+                "source": "/battery_state"
+              },
+              "publishers": [
+                "/classroom_sim_battery"
+              ]
+            },
+            "requirement": "live /battery_state ≥10.8 V"
+          },
+          "robot_guard_battery_limit": {
+            "passed": true,
+            "observed": 10.8,
+            "requirement": "live EKF guard parameter minimum_battery_voltage=10.8 V"
+          },
+          "fresh_raw_wheel": {
+            "passed": true,
+            "observed": {
+              "publishers": [
+                "/wheel_joint_odometry"
+              ],
+              "sample": {
+                "count": 11,
+                "last_receipt_age_s": 0.01276338200113969
+              }
+            },
+            "requirement": "two independent raw sensor samples with last receipt <1 s"
+          },
+          "fresh_raw_imu": {
+            "passed": true,
+            "observed": {
+              "publishers": [
+                "/turtlebot3_imu"
+              ],
+              "sample": {
+                "count": 2,
+                "last_receipt_age_s": 0.004746076003357302
+              }
+            },
+            "requirement": "two independent raw sensor samples with last receipt <1 s"
+          },
+          "astar_and_cancel": {
+            "passed": true,
+            "observed": {
+              "goal_subscribers": [
+                "/classroom_safety_timeline",
+                "/classroom_memory_observer",
+                "/flight_recorder",
+                "/astar_planner",
+                "/path_follower"
+              ],
+              "planner_status_publishers": [
+                "/astar_planner"
+              ],
+              "cancel_service_types": [
+                "std_srvs/srv/Trigger"
+              ]
+            },
+            "requirement": "A* and follower goal subscribers, planner status, cancel service"
+          },
+          "mux_stop_ack_and_explicit_reset": {
+            "passed": true,
+            "observed": {
+              "requested": true,
+              "latched": false,
+              "stop_acknowledged": true,
+              "pending": null,
+              "autonomous_allowed": true
+            },
+            "requirement": "explicit web reset, robot-side stopped ACK, autonomous handoff"
+          },
+          "web_departure_readiness": {
+            "passed": true,
+            "observed": {
+              "ready": true,
+              "missing": []
+            },
+            "requirement": "all web departure conditions ready"
+          }
+        },
+        "failed_gates": []
+      },
+      "prearm_trace": [
+        {
+          "sampled_at": 1793819204.6913602,
+          "failed_gates": []
+        }
+      ],
+      "front_camera_enabled": false,
+      "inventory_request": {
+        "marker_id": 2,
+        "item": "Gazebo 전체 운용 검증",
+        "quantity": 1,
+        "note": "",
+        "client_request_id": "classroom-web-2-1793819204694601039",
+        "id": 1,
+        "user_id": 1,
+        "created_at": 1793819204.69605,
+        "updated_at": 1793819204.69605,
+        "status": "PENDING",
+        "trip_id": null,
+        "deletion_pending": false
+      },
+      "marker_targets": {
+        "0": [
+          -0.188431,
+          -0.220497,
+          -0.027514
+        ],
+        "1": [
+          1.2,
+          0.575,
+          3.114078
+        ],
+        "2": [
+          1.525,
+          -2.65,
+          1.543282
+        ],
+        "3": [
+          -0.25,
+          -1.98,
+          -1.4
+        ]
+      },
+      "mission_started_at": 1793819204.744663,
+      "dispatch_load_confirmed": true,
+      "configured_dwell_seconds": 5.0,
+      "home_target": {
+        "x": -0.188431,
+        "y": -0.220497,
+        "yaw": -0.027514
+      },
+      "start_pose": [
+        -0.23132769477926043,
+        -0.20699688424087162
+      ],
+      "home_stationary_verified": true,
+      "home_stationary_duration_s": 1.26,
+      "home_pose_drift_m": 0.0089,
+      "final_state": "HOME_REACHED",
+      "transient_injected_mid_route": false,
+      "final_route": [
+        2
+      ],
+      "completed_ids": [
+        2
+      ],
+      "final_observed_at": 1793819286.9989827,
+      "final_home_distance_m": 0.15185500668586221,
+      "final_speed": [
+        6.729142545649566e-06,
+        -5.615603556803351e-05
+      ],
+      "inventory_completion": {
+        "request_id": 1,
+        "status": "DELIVERED",
+        "service_active": false
+      },
+      "events_observed": 13,
+      "mission_continuity": {
+        "samples": 392,
+        "route_preserved": true,
+        "completed_prefix_valid": true,
+        "states": {
+          "NAVIGATING": 188,
+          "CONFIRMING": 11,
+          "DWELLING": 22,
+          "RETURNING_HOME": 164,
+          "HOME_REACHED": 7
+        },
+        "web_wait_replan_seen": false,
+        "start_event_count": 1,
+        "cancel_event_count": 0,
+        "marker_confirmations": {
+          "2": 1
+        }
+      },
+      "rear_camera_frames": {
+        "2": {
+          "file": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/cycle_1/sector_2_rear_confirmed.jpg",
+          "bytes": 7833,
+          "raw_camera_age_s": 0.13,
+          "unannotated": true,
+          "detected_ids": [
+            2
+          ],
+          "expected_visible": true,
+          "center_error": 0.26249999999999996
+        }
+      },
+      "rear_camera_frame_errors": {},
+      "front_camera_frames": {},
+      "observed_obstacle_overlay_trace": [
+        {
+          "at": 1793819204.7953165,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.01,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819221.495346,
+          "cells": [
+            8068
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.04,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819222.1276731,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.16,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819222.3392477,
+          "cells": [
+            8068
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.0,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819222.7572346,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.1,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819245.5282204,
+          "cells": [
+            3682
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.05,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819245.7352738,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.0,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819255.9156363,
+          "cells": [
+            3854
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.06,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819256.120702,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.09,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819256.752669,
+          "cells": [
+            3940
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.08,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819256.9624465,
+          "cells": [
+            4026
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.06,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819257.1743946,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.08,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819257.3887432,
+          "cells": [
+            4370
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.09,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819257.5960848,
+          "cells": [
+            4456
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.06,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819257.8031547,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.05,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819287.0040803,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.07,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true,
+          "terminal_snapshot": true
+        }
+      ],
+      "marker_alignment_trace": [
+        {
+          "at": 1793819244.0666056,
+          "marker_id": 2,
+          "state": {
+            "state": "SEARCHING",
+            "camera": "rear",
+            "marker_id": 2,
+            "reason": "주행 종료·정지 응답과 오도메트리를 확인합니다.",
+            "frames": 0,
+            "required": 3,
+            "max_seconds": 45.0
+          },
+          "localization_clearance_m": 0.3844894805390457,
+          "localization_available": true,
+          "scan_age_s": 0.03,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.02,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819244.2735014,
+          "marker_id": 2,
+          "state": {
+            "state": "CENTERING",
+            "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.30937499999999996,
+            "center_tolerance": 0.08,
+            "frames": 0,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": null,
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.02571615026492944,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 0.0999849079962587
+          },
+          "localization_clearance_m": 0.389752245663315,
+          "localization_available": true,
+          "scan_age_s": 0.03,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.02,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819244.4832623,
+          "marker_id": 2,
+          "state": {
+            "state": "CENTERING",
+            "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.30937499999999996,
+            "center_tolerance": 0.08,
+            "frames": 0,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": null,
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": -0.1,
+            "rotation_degrees": 0.0610122072817132,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 0.30008578499837313
+          },
+          "localization_clearance_m": 0.3870763995478267,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.01,
+          "rear_camera_age_s": 0.02,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819244.6903193,
+          "marker_id": 2,
+          "state": {
+            "state": "CENTERING",
+            "reason": "목표 마커를 영상 중앙 근처로 짧게 저속 정렬합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.30937499999999996,
+            "center_tolerance": 0.08,
+            "frames": 0,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": null,
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": -0.1,
+            "rotation_degrees": 0.8592176091878392,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 0.5000782110000728,
+            "required": 3
+          },
+          "localization_clearance_m": 0.3887516962617806,
+          "localization_available": true,
+          "scan_age_s": 0.01,
+          "odom_age_s": 0.07,
+          "rear_camera_age_s": 0.23,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819244.897423,
+          "marker_id": 2,
+          "state": {
+            "state": "SETTLING",
+            "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 2,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 1.6990655501284329,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 0.6999454370015883
+          },
+          "localization_clearance_m": 0.3910058310159138,
+          "localization_available": true,
+          "scan_age_s": 0.0,
+          "odom_age_s": 0.0,
+          "rear_camera_age_s": 0.01,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819245.1107075,
+          "marker_id": 2,
+          "state": {
+            "state": "SETTLING",
+            "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 2,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 1.9330452310699557,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 0.900679610997031,
+            "required": 3
+          },
+          "localization_clearance_m": 0.3786588786191314,
+          "localization_available": true,
+          "scan_age_s": 0.01,
+          "odom_age_s": 0.07,
+          "rear_camera_age_s": 0.22,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819245.3197224,
+          "marker_id": 2,
+          "state": {
+            "state": "SETTLING",
+            "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 3,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.047439607365249,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.1007979229980265,
+            "required": 3
+          },
+          "localization_clearance_m": 0.3942632881883173,
+          "localization_available": true,
+          "scan_age_s": 0.07,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.22,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819245.5282373,
+          "marker_id": 2,
+          "state": {
+            "state": "SETTLING",
+            "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 4,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.1374998621476173,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.3999239309996483,
+            "required": 3
+          },
+          "localization_clearance_m": 0.3837676324500318,
+          "localization_available": true,
+          "scan_age_s": 0.07,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.17,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819245.7352903,
+          "marker_id": 2,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 5,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.1552740683064147,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.601988695001637,
+            "required": 3
+          },
+          "localization_clearance_m": 0.3895413019889612,
+          "localization_available": true,
+          "scan_age_s": 0.06,
+          "odom_age_s": 0.0,
+          "rear_camera_age_s": 0.18,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819245.9472451,
+          "marker_id": 2,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 6,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.1613736450625205,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.800074370999937,
+            "required": 3
+          },
+          "localization_clearance_m": 0.3882036062186381,
+          "localization_available": true,
+          "scan_age_s": 0.05,
+          "odom_age_s": 0.04,
+          "rear_camera_age_s": 0.16,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819246.1549063,
+          "marker_id": 2,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.1667441857290943,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.001711591001367,
+            "required": 3
+          },
+          "localization_clearance_m": 0.39329838320641297,
+          "localization_available": true,
+          "scan_age_s": 0.04,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.14,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819246.362485,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.38875940682906956,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.13,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819247.2001143,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3912324566505164,
+          "localization_available": true,
+          "scan_age_s": 0.04,
+          "odom_age_s": 0.03,
+          "rear_camera_age_s": 0.04,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819247.4062214,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3840988719298931,
+          "localization_available": true,
+          "scan_age_s": 0.01,
+          "odom_age_s": 0.01,
+          "rear_camera_age_s": 0.02,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819247.611657,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3814375983655371,
+          "localization_available": true,
+          "scan_age_s": 0.12,
+          "odom_age_s": 0.06,
+          "rear_camera_age_s": 0.23,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819247.8206842,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.39207724543118133,
+          "localization_available": true,
+          "scan_age_s": 0.09,
+          "odom_age_s": 0.04,
+          "rear_camera_age_s": 0.21,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819248.031458,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3817621015882565,
+          "localization_available": true,
+          "scan_age_s": 0.08,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.19,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819248.240604,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.37378663265848466,
+          "localization_available": true,
+          "scan_age_s": 0.07,
+          "odom_age_s": 0.0,
+          "rear_camera_age_s": 0.18,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819248.452107,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.38077633394980115,
+          "localization_available": true,
+          "scan_age_s": 0.04,
+          "odom_age_s": 0.03,
+          "rear_camera_age_s": 0.16,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819248.6583323,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.393273473574407,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.14,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819248.8724544,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3859840185415708,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.01,
+          "rear_camera_age_s": 0.12,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819249.0838966,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3826847406759282,
+          "localization_available": true,
+          "scan_age_s": 0.01,
+          "odom_age_s": 0.06,
+          "rear_camera_age_s": 0.11,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819249.288652,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3917348764932555,
+          "localization_available": true,
+          "scan_age_s": 0.0,
+          "odom_age_s": 0.05,
+          "rear_camera_age_s": 0.11,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819249.4936004,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.38456814843985465,
+          "localization_available": true,
+          "scan_age_s": 0.1,
+          "odom_age_s": 0.05,
+          "rear_camera_age_s": 0.1,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819249.6991947,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3939834647984804,
+          "localization_available": true,
+          "scan_age_s": 0.08,
+          "odom_age_s": 0.04,
+          "rear_camera_age_s": 0.1,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819249.9023855,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.39288317060637,
+          "localization_available": true,
+          "scan_age_s": 0.07,
+          "odom_age_s": 0.03,
+          "rear_camera_age_s": 0.08,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819250.1096218,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.39062995360056496,
+          "localization_available": true,
+          "scan_age_s": 0.06,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.07,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819250.3151882,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3999932580578609,
+          "localization_available": true,
+          "scan_age_s": 0.06,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.07,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819250.5193741,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3854455750669533,
+          "localization_available": true,
+          "scan_age_s": 0.05,
+          "odom_age_s": 0.01,
+          "rear_camera_age_s": 0.06,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819250.7258694,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3947340149626691,
+          "localization_available": true,
+          "scan_age_s": 0.05,
+          "odom_age_s": 0.01,
+          "rear_camera_age_s": 0.06,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819250.9312017,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3890227254314782,
+          "localization_available": true,
+          "scan_age_s": 0.04,
+          "odom_age_s": 0.0,
+          "rear_camera_age_s": 0.05,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819251.1368077,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3838729877976933,
+          "localization_available": true,
+          "scan_age_s": 0.05,
+          "odom_age_s": 0.0,
+          "rear_camera_age_s": 0.06,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819251.3475096,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.26249999999999996,
+            "center_tolerance": 0.08,
+            "frames": 8,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 2.170336559118687,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 2.0999266169965267
+          },
+          "localization_clearance_m": 0.3856452674943173,
+          "localization_available": true,
+          "scan_age_s": 0.05,
+          "odom_age_s": 0.04,
+          "rear_camera_age_s": 0.05,
+          "front_camera_age_s": null
+        }
+      ],
+      "web_route_trace": [
+        {
+          "at": 1793819204.7953246,
+          "state": "NAVIGATING",
+          "marker_id": 2,
+          "path_points": 0,
+          "planner_status": "IDLE"
+        },
+        {
+          "at": 1793819205.0011032,
+          "state": "NAVIGATING",
+          "marker_id": 2,
+          "path_points": 0,
+          "planner_status": "PLANNING"
+        },
+        {
+          "at": 1793819205.2306638,
+          "state": "NAVIGATING",
+          "marker_id": 2,
+          "path_points": 80,
+          "planner_status": "PLANNING"
+        },
+        {
+          "at": 1793819244.0666091,
+          "state": "CONFIRMING",
+          "marker_id": 2,
+          "path_points": 80,
+          "planner_status": "IDLE"
+        },
+        {
+          "at": 1793819246.3624916,
+          "state": "DWELLING",
+          "marker_id": null,
+          "path_points": 0,
+          "planner_status": "IDLE"
+        },
+        {
+          "at": 1793819251.5531998,
+          "state": "RETURNING_HOME",
+          "marker_id": null,
+          "path_points": 0,
+          "planner_status": "IDLE"
+        },
+        {
+          "at": 1793819252.5894978,
+          "state": "RETURNING_HOME",
+          "marker_id": null,
+          "path_points": 80,
+          "planner_status": "PLANNING"
+        },
+        {
+          "at": 1793819283.4297562,
+          "state": "RETURNING_HOME",
+          "marker_id": null,
+          "path_points": 80,
+          "planner_status": "IDLE"
+        },
+        {
+          "at": 1793819285.738451,
+          "state": "HOME_REACHED",
+          "marker_id": null,
+          "path_points": 80,
+          "planner_status": "IDLE"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "passed": true,
+      "domain": 176,
+      "localhost_only": true,
+      "physical_robot_touched": false,
+      "mission_accepted_via_web": true,
+      "route": [
+        2
+      ],
+      "failure": null,
+      "dwell": {
+        "2": {
+          "sample_count": 22,
+          "first_pose": [
+            1.5189426708787077,
+            -2.526474253601401
+          ],
+          "max_pose_delta_m": 0.003976079357928901,
+          "max_linear_mps": 1.0727085375836759e-05,
+          "max_angular_rps": 0.0009227234190686434,
+          "stale_odom_samples": 0,
+          "alignment_at_dwell": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "observed_dwelling": true,
+          "marker_confirmed": true,
+          "start_event_at": 1793819330.9906054,
+          "end_event_at": 1793819336.0214162,
+          "event_duration_s": 5.031,
+          "next_goal_after_dwell": true
+        }
+      },
+      "dispatch_mode": "inventory",
+      "transient_requested": false,
+      "cold_start_requested": false,
+      "ekf_delivery_faults_requested": false,
+      "visual_ui_qa": false,
+      "path_points_per_sector": {
+        "2": 80
+      },
+      "home_path_points": 79,
+      "startup_reset_requested_via_web": true,
+      "startup_reset_attempts": [
+        {
+          "at": 1793819288.1915505,
+          "accepted": true
+        }
+      ],
+      "startup_reset_accepted_at": 1793819288.1915505,
+      "startup_reset_completed": true,
+      "prearm_graph": {
+        "map_publishers": [
+          "/map_server"
+        ],
+        "scan_publishers": [
+          "/classroom_fault_relay"
+        ],
+        "odom_publishers": [
+          "/ekf_independent"
+        ],
+        "ekf_output_source_publishers": [],
+        "ekf_tf_source_publishers": [],
+        "battery_publishers": [
+          "/classroom_sim_battery"
+        ],
+        "raw_wheel_publishers": [
+          "/wheel_joint_odometry"
+        ],
+        "raw_imu_publishers": [
+          "/turtlebot3_imu"
+        ],
+        "goal_subscribers": [
+          "/classroom_safety_timeline",
+          "/classroom_memory_observer",
+          "/flight_recorder",
+          "/astar_planner",
+          "/path_follower"
+        ],
+        "planner_status_publishers": [
+          "/astar_planner"
+        ],
+        "cancel_service_types": [
+          "std_srvs/srv/Trigger"
+        ],
+        "raw_input_samples": {
+          "/wheel/odom": {
+            "count": 2,
+            "last_receipt_age_s": 0.005625193000014406
+          },
+          "/imu": {
+            "count": 2,
+            "last_receipt_age_s": 0.044016417996317614
+          }
+        },
+        "guard_battery_minimum_v": 10.8
+      },
+      "prearm": {
+        "passed": true,
+        "sampled_at": 1793819292.799183,
+        "checks": {
+          "isolated_ros_domain": {
+            "passed": true,
+            "observed": 176,
+            "requirement": "domain 176, localhost only"
+          },
+          "configured_occupancy_map": {
+            "passed": true,
+            "observed": {
+              "preview": false,
+              "configured_match": true,
+              "version": 3
+            },
+            "requirement": "real /map matching configured YAML"
+          },
+          "single_map_publisher": {
+            "passed": true,
+            "observed": [
+              "/map_server"
+            ],
+            "requirement": "exactly one /map publisher"
+          },
+          "fresh_map_base_tf": {
+            "passed": true,
+            "observed": {
+              "pose_age_s": 0.07,
+              "map_tf_age_s": 0.013,
+              "pose": {
+                "x": -0.10694911566298893,
+                "y": -0.360038171919402,
+                "yaw": 0.0777298684121283
+              }
+            },
+            "requirement": "current map→base pose and TF younger than 1 s"
+          },
+          "fresh_scan": {
+            "passed": true,
+            "observed": {
+              "web_age_s": 0.06,
+              "health_age_s": 0.04881910100084497,
+              "header_age_s": 0.01,
+              "valid": true,
+              "publishers": [
+                "/classroom_fault_relay"
+              ]
+            },
+            "requirement": "live topic, health receipt/header age ≤0.5 s"
+          },
+          "fresh_odom": {
+            "passed": true,
+            "observed": {
+              "web_age_s": 0.05,
+              "health_age_s": 0.04128620900155511,
+              "header_age_s": 0.013,
+              "valid": true,
+              "publishers": [
+                "/ekf_independent"
+              ]
+            },
+            "requirement": "live topic, health receipt/header age ≤0.5 s"
+          },
+          "amcl_position_uncertainty": {
+            "passed": true,
+            "observed": 0.226025430445047,
+            "requirement": "≤0.50 m"
+          },
+          "amcl_yaw_uncertainty": {
+            "passed": true,
+            "observed": 0.27494732976855296,
+            "requirement": "<0.5 rad"
+          },
+          "amcl_pose_freshness": {
+            "passed": true,
+            "observed": {
+              "receipt_age_s": 1.704427589000261,
+              "header_age_s": 0.917
+            },
+            "requirement": "AMCL receipt/header ages <8 s, future header ≤0.25 s"
+          },
+          "scan_map_agreement": {
+            "passed": true,
+            "observed": 0.81875,
+            "requirement": "≥0.55 health warning threshold"
+          },
+          "localization_health": {
+            "passed": true,
+            "observed": {
+              "level": "ok",
+              "reasons": [],
+              "stop_latched": false,
+              "autonomous_allowed": true
+            },
+            "requirement": "acquired, level ok or bounded position warning, no health stop latch"
+          },
+          "rear_camera": {
+            "passed": true,
+            "observed": {
+              "age_s": 0.3,
+              "raw_age_s": 0.3
+            },
+            "requirement": "fresh rear raw and processed frames"
+          },
+          "battery_sensor": {
+            "passed": true,
+            "observed": {
+              "power": {
+                "status": "online",
+                "voltage": 12.0,
+                "percentage": 0.75,
+                "age": 0.54,
+                "source": "/battery_state"
+              },
+              "publishers": [
+                "/classroom_sim_battery"
+              ]
+            },
+            "requirement": "live /battery_state ≥10.8 V"
+          },
+          "robot_guard_battery_limit": {
+            "passed": true,
+            "observed": 10.8,
+            "requirement": "live EKF guard parameter minimum_battery_voltage=10.8 V"
+          },
+          "fresh_raw_wheel": {
+            "passed": true,
+            "observed": {
+              "publishers": [
+                "/wheel_joint_odometry"
+              ],
+              "sample": {
+                "count": 2,
+                "last_receipt_age_s": 0.005625193000014406
+              }
+            },
+            "requirement": "two independent raw sensor samples with last receipt <1 s"
+          },
+          "fresh_raw_imu": {
+            "passed": true,
+            "observed": {
+              "publishers": [
+                "/turtlebot3_imu"
+              ],
+              "sample": {
+                "count": 2,
+                "last_receipt_age_s": 0.044016417996317614
+              }
+            },
+            "requirement": "two independent raw sensor samples with last receipt <1 s"
+          },
+          "astar_and_cancel": {
+            "passed": true,
+            "observed": {
+              "goal_subscribers": [
+                "/classroom_safety_timeline",
+                "/classroom_memory_observer",
+                "/flight_recorder",
+                "/astar_planner",
+                "/path_follower"
+              ],
+              "planner_status_publishers": [
+                "/astar_planner"
+              ],
+              "cancel_service_types": [
+                "std_srvs/srv/Trigger"
+              ]
+            },
+            "requirement": "A* and follower goal subscribers, planner status, cancel service"
+          },
+          "mux_stop_ack_and_explicit_reset": {
+            "passed": true,
+            "observed": {
+              "requested": true,
+              "latched": false,
+              "stop_acknowledged": true,
+              "pending": null,
+              "autonomous_allowed": true
+            },
+            "requirement": "explicit web reset, robot-side stopped ACK, autonomous handoff"
+          },
+          "web_departure_readiness": {
+            "passed": true,
+            "observed": {
+              "ready": true,
+              "missing": []
+            },
+            "requirement": "all web departure conditions ready"
+          }
+        },
+        "failed_gates": []
+      },
+      "prearm_trace": [
+        {
+          "sampled_at": 1793819292.799183,
+          "failed_gates": []
+        }
+      ],
+      "front_camera_enabled": false,
+      "inventory_request": {
+        "marker_id": 2,
+        "item": "Gazebo 전체 운용 검증",
+        "quantity": 1,
+        "note": "",
+        "client_request_id": "classroom-web-2-1793819292811436287",
+        "id": 2,
+        "user_id": 1,
+        "created_at": 1793819292.8137736,
+        "updated_at": 1793819292.8137736,
+        "status": "PENDING",
+        "trip_id": null,
+        "deletion_pending": false
+      },
+      "marker_targets": {
+        "0": [
+          -0.188431,
+          -0.220497,
+          -0.027514
+        ],
+        "1": [
+          1.2,
+          0.575,
+          3.114078
+        ],
+        "2": [
+          1.525,
+          -2.65,
+          1.543282
+        ],
+        "3": [
+          -0.25,
+          -1.98,
+          -1.4
+        ]
+      },
+      "mission_started_at": 1793819292.8603806,
+      "dispatch_load_confirmed": true,
+      "configured_dwell_seconds": 5.0,
+      "home_target": {
+        "x": -0.188431,
+        "y": -0.220497,
+        "yaw": -0.027514
+      },
+      "start_pose": [
+        -0.10694250931250554,
+        -0.35616093170845603
+      ],
+      "home_stationary_verified": true,
+      "home_stationary_duration_s": 1.238,
+      "home_pose_drift_m": 0.0116,
+      "final_state": "HOME_REACHED",
+      "transient_injected_mid_route": false,
+      "final_route": [
+        2
+      ],
+      "completed_ids": [
+        2
+      ],
+      "final_observed_at": 1793819373.636915,
+      "final_home_distance_m": 0.16309747468929875,
+      "final_speed": [
+        7.3289794767141395e-06,
+        -0.0005526558297209385
+      ],
+      "inventory_completion": {
+        "request_id": 2,
+        "status": "DELIVERED",
+        "service_active": false
+      },
+      "events_observed": 13,
+      "mission_continuity": {
+        "samples": 385,
+        "route_preserved": true,
+        "completed_prefix_valid": true,
+        "states": {
+          "NAVIGATING": 176,
+          "CONFIRMING": 7,
+          "DWELLING": 22,
+          "RETURNING_HOME": 173,
+          "HOME_REACHED": 7
+        },
+        "web_wait_replan_seen": false,
+        "start_event_count": 1,
+        "cancel_event_count": 0,
+        "marker_confirmations": {
+          "2": 1
+        }
+      },
+      "rear_camera_frames": {
+        "2": {
+          "file": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/cycle_2/sector_2_rear_confirmed.jpg",
+          "bytes": 7774,
+          "raw_camera_age_s": 0.1,
+          "unannotated": true,
+          "detected_ids": [
+            2
+          ],
+          "expected_visible": true,
+          "center_error": 0.2437499999999999
+        }
+      },
+      "rear_camera_frame_errors": {},
+      "front_camera_frames": {},
+      "observed_obstacle_overlay_trace": [
+        {
+          "at": 1793819292.9220765,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.11,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819302.9405427,
+          "cells": [
+            8131
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.08,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819303.1489127,
+          "cells": [
+            8130
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.06,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819303.365234,
+          "cells": [
+            6502,
+            8132
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.04,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819303.574322,
+          "cells": [
+            6502,
+            6588
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.07,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819303.7821267,
+          "cells": [
+            6416,
+            8128
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.05,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819303.9893427,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.03,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819304.4082985,
+          "cells": [
+            8128
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.02,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819304.823124,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.09,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819307.7576785,
+          "cells": [
+            7638,
+            7724
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.08,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819307.967916,
+          "cells": [
+            7724
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.04,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819308.1863377,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.13,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819308.400481,
+          "cells": [
+            8068
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.21,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819308.8197975,
+          "cells": [
+            8068,
+            8154
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.04,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819310.2887716,
+          "cells": [
+            8068,
+            8154,
+            8326
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.05,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819310.494904,
+          "cells": [
+            8068,
+            8129,
+            8154,
+            8326,
+            8412
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.04,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819310.7044504,
+          "cells": [
+            8068,
+            8154,
+            8326,
+            8412
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.04,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819311.3228633,
+          "cells": [
+            8068,
+            8154,
+            8326,
+            8412,
+            8498
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.05,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819311.5329998,
+          "cells": [
+            7982,
+            8068,
+            8154,
+            8326,
+            8412,
+            8498
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.08,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819311.951602,
+          "cells": [
+            8068,
+            8240,
+            8326,
+            8412,
+            8498
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.0,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819312.163767,
+          "cells": [
+            8068,
+            8412
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.11,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819312.3736641,
+          "cells": [
+            8068,
+            8412,
+            8498
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.02,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819312.582739,
+          "cells": [
+            8498
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.03,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819312.7915092,
+          "cells": [
+            7982
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.06,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819312.9971988,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.09,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819327.1479387,
+          "cells": [
+            3682
+          ],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.04,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819327.3565884,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.04,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true
+        },
+        {
+          "at": 1793819373.6414003,
+          "cells": [],
+          "map_version": 3,
+          "observed_map_version": 3,
+          "observed_age": 0.04,
+          "map_preview": false,
+          "configured_match": true,
+          "renderable": true,
+          "terminal_snapshot": true
+        }
+      ],
+      "marker_alignment_trace": [
+        {
+          "at": 1793819329.637081,
+          "marker_id": 2,
+          "state": {
+            "state": "SEARCHING",
+            "reason": "선택한 rear 카메라로 마커 2을 저속 탐색합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": null,
+            "center_tolerance": 0.08,
+            "frames": 0,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": null,
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.0,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 0.0,
+            "required": 3
+          },
+          "localization_clearance_m": 0.40772676591271034,
+          "localization_available": true,
+          "scan_age_s": 0.07,
+          "odom_age_s": 0.03,
+          "rear_camera_age_s": 0.13,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819329.844052,
+          "marker_id": 2,
+          "state": {
+            "state": "SETTLING",
+            "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.24687499999999996,
+            "center_tolerance": 0.08,
+            "frames": 1,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.18541774591997717,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 0.19911099300225032,
+            "required": 3
+          },
+          "localization_clearance_m": 0.4008832411376836,
+          "localization_available": true,
+          "scan_age_s": 0.07,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.14,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819330.0556238,
+          "marker_id": 2,
+          "state": {
+            "state": "SETTLING",
+            "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.24687499999999996,
+            "center_tolerance": 0.08,
+            "frames": 2,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.3368207007889534,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 0.39883343200199306,
+            "required": 3
+          },
+          "localization_clearance_m": 0.3991643370491594,
+          "localization_available": true,
+          "scan_age_s": 0.06,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.13,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819330.2624207,
+          "marker_id": 2,
+          "state": {
+            "state": "SETTLING",
+            "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 3,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.37606570828671865,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 0.5986686230025953,
+            "required": 3
+          },
+          "localization_clearance_m": 0.3969754931858215,
+          "localization_available": true,
+          "scan_age_s": 0.06,
+          "odom_age_s": 0.02,
+          "rear_camera_age_s": 0.12,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819330.4670124,
+          "marker_id": 2,
+          "state": {
+            "state": "SETTLING",
+            "reason": "마커가 영상 중앙 근처에 있습니다. 정지 후 연속 영상을 확인합니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 4,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.38626384536615077,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 0.7988513800009969,
+            "required": 3
+          },
+          "localization_clearance_m": 0.40048098630299933,
+          "localization_available": true,
+          "scan_age_s": 0.05,
+          "odom_age_s": 0.01,
+          "rear_camera_age_s": 0.13,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819330.674295,
+          "marker_id": 2,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 5,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.3935057639202212,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 0.9993421830004081,
+            "required": 3
+          },
+          "localization_clearance_m": 0.39667330623885566,
+          "localization_available": true,
+          "scan_age_s": 0.05,
+          "odom_age_s": 0.0,
+          "rear_camera_age_s": 0.12,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819330.8831563,
+          "marker_id": 2,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 6,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.402406962424038,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.1988110610036529,
+            "required": 3
+          },
+          "localization_clearance_m": 0.4048426090443046,
+          "localization_available": true,
+          "scan_age_s": 0.04,
+          "odom_age_s": 0.06,
+          "rear_camera_age_s": 0.12,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819331.0901332,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.40071488254123283,
+          "localization_available": true,
+          "scan_age_s": 0.03,
+          "odom_age_s": 0.06,
+          "rear_camera_age_s": 0.1,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819331.8790681,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.4015191523663273,
+          "localization_available": true,
+          "scan_age_s": 0.07,
+          "odom_age_s": 0.03,
+          "rear_camera_age_s": 0.04,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819332.0873342,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.4038281249875256,
+          "localization_available": true,
+          "scan_age_s": 0.07,
+          "odom_age_s": 0.03,
+          "rear_camera_age_s": 0.04,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819332.2961695,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.39538921868996535,
+          "localization_available": true,
+          "scan_age_s": 0.07,
+          "odom_age_s": 0.03,
+          "rear_camera_age_s": 0.04,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819332.4997947,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.40120635594985465,
+          "localization_available": true,
+          "scan_age_s": 0.05,
+          "odom_age_s": 0.01,
+          "rear_camera_age_s": 0.01,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819332.7063203,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.40064647088359795,
+          "localization_available": true,
+          "scan_age_s": 0.05,
+          "odom_age_s": 0.0,
+          "rear_camera_age_s": 0.01,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819332.9157014,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.3952645840144928,
+          "localization_available": true,
+          "scan_age_s": 0.04,
+          "odom_age_s": 0.06,
+          "rear_camera_age_s": 0.01,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819333.1230114,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.3944085586035123,
+          "localization_available": true,
+          "scan_age_s": 0.04,
+          "odom_age_s": 0.06,
+          "rear_camera_age_s": 0.22,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819333.3293173,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.4000399958297119,
+          "localization_available": true,
+          "scan_age_s": 0.03,
+          "odom_age_s": 0.05,
+          "rear_camera_age_s": 0.21,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819333.533361,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.4064353224399191,
+          "localization_available": true,
+          "scan_age_s": 0.03,
+          "odom_age_s": 0.05,
+          "rear_camera_age_s": 0.21,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819333.7384756,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.3985912846520762,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.05,
+          "rear_camera_age_s": 0.2,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819333.944952,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.4021759016218272,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.04,
+          "rear_camera_age_s": 0.2,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819334.1505494,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.4058910342766722,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.04,
+          "rear_camera_age_s": 0.19,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819334.3671432,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.38544434908261055,
+          "localization_available": true,
+          "scan_age_s": 0.01,
+          "odom_age_s": 0.03,
+          "rear_camera_age_s": 0.19,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819334.571431,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.3994758058606285,
+          "localization_available": true,
+          "scan_age_s": 0.03,
+          "odom_age_s": 0.05,
+          "rear_camera_age_s": 0.19,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819334.7788675,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.4014168931001721,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.05,
+          "rear_camera_age_s": 0.2,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819334.9831688,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.4045132675900215,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.04,
+          "rear_camera_age_s": 0.2,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819335.1882167,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.405755713183512,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.04,
+          "rear_camera_age_s": 0.2,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819335.3962681,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.39876263560915526,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.04,
+          "rear_camera_age_s": 0.19,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819335.6071963,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.4018710446151929,
+          "localization_available": true,
+          "scan_age_s": 0.02,
+          "odom_age_s": 0.03,
+          "rear_camera_age_s": 0.19,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819335.8164291,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.40023604379214617,
+          "localization_available": true,
+          "scan_age_s": 0.01,
+          "odom_age_s": 0.03,
+          "rear_camera_age_s": 0.19,
+          "front_camera_age_s": null
+        },
+        {
+          "at": 1793819336.020805,
+          "marker_id": null,
+          "state": {
+            "state": "CONFIRMED",
+            "reason": "목표 마커 중앙 근처 정렬·정지 및 연속 영상 확인을 완료했습니다.",
+            "marker_id": 2,
+            "confirmation_mode": "recognized",
+            "camera": "rear",
+            "center_error": 0.2437499999999999,
+            "center_tolerance": 0.08,
+            "frames": 7,
+            "soft_center_tolerance": 0.3,
+            "soft_center_exit_tolerance": 0.36,
+            "soft_center_result": "centered",
+            "soft_center_timeout": 3.0,
+            "soft_center_max_rotation_degrees": 17.188733853924695,
+            "wall_required": false,
+            "wall_reliable": false,
+            "wall_heading_error_rad": null,
+            "wall_angle_tolerance": 0.05,
+            "wall_samples": 0,
+            "wall_required_samples": 3,
+            "wall_reason": "벽 방향 측정을 기다립니다.",
+            "required_frames": 3,
+            "linear": 0.0,
+            "angular": 0.0,
+            "rotation_degrees": 0.40494608777879576,
+            "awaiting_post_clearance_frame": false,
+            "max_seconds": 45.0,
+            "elapsed": 1.2990369100007229
+          },
+          "localization_clearance_m": 0.40450230615606,
+          "localization_available": true,
+          "scan_age_s": 0.01,
+          "odom_age_s": 0.03,
+          "rear_camera_age_s": 0.19,
+          "front_camera_age_s": null
+        }
+      ],
+      "web_route_trace": [
+        {
+          "at": 1793819292.9220915,
+          "state": "NAVIGATING",
+          "marker_id": 2,
+          "path_points": 80,
+          "planner_status": "IDLE"
+        },
+        {
+          "at": 1793819293.1319065,
+          "state": "NAVIGATING",
+          "marker_id": 2,
+          "path_points": 0,
+          "planner_status": "PLANNING"
+        },
+        {
+          "at": 1793819293.3388004,
+          "state": "NAVIGATING",
+          "marker_id": 2,
+          "path_points": 78,
+          "planner_status": "PLANNING"
+        },
+        {
+          "at": 1793819329.6370854,
+          "state": "CONFIRMING",
+          "marker_id": 2,
+          "path_points": 78,
+          "planner_status": "IDLE"
+        },
+        {
+          "at": 1793819331.0901392,
+          "state": "DWELLING",
+          "marker_id": null,
+          "path_points": 0,
+          "planner_status": "IDLE"
+        },
+        {
+          "at": 1793819336.2287314,
+          "state": "RETURNING_HOME",
+          "marker_id": null,
+          "path_points": 0,
+          "planner_status": "IDLE"
+        },
+        {
+          "at": 1793819337.0537844,
+          "state": "RETURNING_HOME",
+          "marker_id": null,
+          "path_points": 0,
+          "planner_status": "PLANNING"
+        },
+        {
+          "at": 1793819337.2632616,
+          "state": "RETURNING_HOME",
+          "marker_id": null,
+          "path_points": 79,
+          "planner_status": "PLANNING"
+        },
+        {
+          "at": 1793819369.4773765,
+          "state": "RETURNING_HOME",
+          "marker_id": null,
+          "path_points": 79,
+          "planner_status": "IDLE"
+        },
+        {
+          "at": 1793819372.399243,
+          "state": "HOME_REACHED",
+          "marker_id": null,
+          "path_points": 79,
+          "planner_status": "IDLE"
+        }
+      ],
+      "reasons": []
+    }
+  ],
+  "reentry": {
+    "trace": [
+      {
+        "at": 1793819287.2914119,
+        "phase": "estop_acknowledged",
+        "mission": "ESTOP",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "manual_pose": "VERIFIED",
+        "manual_pose_result": "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.",
+        "position_std_m": 0.08362479831549159,
+        "yaw_std_rad": 0.09366893687939738,
+        "scan_map_agreement": 0.81875,
+        "localization_level": "ok",
+        "health_stop_latched": false,
+        "autonomous_allowed": true,
+        "readiness_missing": []
+      },
+      {
+        "at": 1793819287.2987778,
+        "phase": "manual_home_pose_available",
+        "mission": "ESTOP",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "manual_pose": "VERIFIED",
+        "manual_pose_result": "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.",
+        "position_std_m": 0.08362479831549159,
+        "yaw_std_rad": 0.09366893687939738,
+        "scan_map_agreement": 0.81875,
+        "localization_level": "ok",
+        "health_stop_latched": false,
+        "autonomous_allowed": true,
+        "readiness_missing": []
+      },
+      {
+        "at": 1793819287.507683,
+        "phase": "manual_home_pose_available",
+        "mission": "ESTOP",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "manual_pose": "VERIFIED",
+        "manual_pose_result": "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.",
+        "position_std_m": 0.08362479831549159,
+        "yaw_std_rad": 0.09366893687939738,
+        "scan_map_agreement": 0.79375,
+        "localization_level": "ok",
+        "health_stop_latched": false,
+        "autonomous_allowed": true,
+        "readiness_missing": []
+      },
+      {
+        "at": 1793819287.524928,
+        "phase": "amcl_and_health_acknowledged",
+        "mission": "ESTOP",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "manual_pose": "WAITING",
+        "manual_pose_result": "AMCL에 초기 위치를 입력하는 중입니다. 비상정지를 유지합니다.",
+        "position_std_m": 0.08362479831549159,
+        "yaw_std_rad": 0.09366893687939738,
+        "scan_map_agreement": 0.79375,
+        "localization_level": "ok",
+        "health_stop_latched": false,
+        "autonomous_allowed": true,
+        "readiness_missing": [
+          "초기 위치 입력 검증 완료"
+        ]
+      },
+      {
+        "at": 1793819287.7336297,
+        "phase": "amcl_and_health_acknowledged",
+        "mission": "ESTOP",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "manual_pose": "WAITING",
+        "manual_pose_result": "새 AMCL 위치·TF 확인 완료. 위치 감시 노드의 재획득 응답을 기다리는 중 · 비상정지 유지.",
+        "position_std_m": 0.08362479831549159,
+        "yaw_std_rad": 0.09366893687939738,
+        "scan_map_agreement": 0.775,
+        "localization_level": "ok",
+        "health_stop_latched": false,
+        "autonomous_allowed": true,
+        "readiness_missing": [
+          "초기 위치 입력 검증 완료"
+        ]
+      },
+      {
+        "at": 1793819287.9404778,
+        "phase": "amcl_and_health_acknowledged",
+        "mission": "ESTOP",
+        "estop_latched": true,
+        "stop_acknowledged": true,
+        "manual_pose": "VERIFIED",
+        "manual_pose_result": "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.",
+        "position_std_m": 0.2408930747137229,
+        "yaw_std_rad": 0.31631008077908324,
+        "scan_map_agreement": 0.8125,
+        "localization_level": "warning",
+        "health_stop_latched": false,
+        "autonomous_allowed": false,
+        "readiness_missing": [
+          "위치 신뢰도: 초기 위치 검증 중"
+        ]
+      }
+    ],
+    "home": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "yaw": -0.027514
+    },
+    "before": {
+      "localization_health": {
+        "level": "ok",
+        "reasons": [],
+        "advisories": [],
+        "metrics": {
+          "map_available": true,
+          "scan_age_seconds": 0.10897762399690691,
+          "odom_age_seconds": 0.0036143000033916906,
+          "scan_header_age_seconds": 0.09,
+          "odom_header_age_seconds": 0.023,
+          "scan_valid": true,
+          "odom_valid": true,
+          "position_std_m": 0.08362479831549159,
+          "yaw_std_rad": 0.09366893687939738,
+          "amcl_age_seconds": 0.9034405850034091,
+          "amcl_update_epoch": 33457.84588602,
+          "amcl_header_age_seconds": 0.79,
+          "moving": false,
+          "pose_jump": false,
+          "scan_map_agreement": 0.81875,
+          "agreement_age_seconds": 0.04919855500338599,
+          "agreement_header_age_seconds": 0.09,
+          "map_tf_age_seconds": 0.023,
+          "odom_tf_valid": true,
+          "odom_tf_age_seconds": 0.023,
+          "map_tf_lookup_error": "",
+          "odom_tf_lookup_error": "",
+          "amcl_update_requests": 11,
+          "amcl_update_responses": 11,
+          "amcl_update_timeouts": 0,
+          "amcl_update_errors": 0,
+          "scan_tf_state": "READY",
+          "scan_tf_error": "",
+          "scan_tf_wait_ms": 59.77906899352092,
+          "scan_tf_drop_count": 12,
+          "scan_tf_pending_count": 0,
+          "amcl_refresh_mode": "stationary",
+          "amcl_refresh_state": "RESPONDED",
+          "amcl_stationary_update_requests": 0,
+          "dynamic_tf_qos": "BEST_EFFORT",
+          "dynamic_tf_received_count": 4049,
+          "dynamic_tf_transform_count": 5670,
+          "dynamic_tf_receive_age_seconds": 0.004228794001392089,
+          "dynamic_tf_receive_interval_seconds": 0.029703792002692353,
+          "dynamic_tf_latest_header_age_seconds": -0.91,
+          "dynamic_tf_map_odom_count": 808,
+          "dynamic_tf_map_odom_header_age_seconds": -0.91,
+          "dynamic_tf_map_odom_receive_age_seconds": 0.06839128900173819,
+          "dynamic_tf_map_odom_receive_interval_seconds": 0.11821519899967825,
+          "dynamic_tf_odom_base_count": 1620,
+          "dynamic_tf_odom_base_header_age_seconds": 0.023,
+          "dynamic_tf_odom_base_receive_age_seconds": 0.004228794001392089,
+          "dynamic_tf_odom_base_receive_interval_seconds": 0.07224883999879239,
+          "odom_last_received_age_seconds": 0.0036143000033916906,
+          "odom_raw_header_age_seconds": 0.023,
+          "odom_rejected_count": 0,
+          "odom_rejection_reason": "",
+          "odom_last_rejection_reason": "",
+          "odom_receive_interval_seconds": 0.06219381700066151,
+          "odom_header_interval_seconds": 0.05,
+          "scan_last_received_age_seconds": 0.10897762399690691,
+          "scan_raw_header_age_seconds": 0.09,
+          "scan_rejected_count": 0,
+          "scan_rejection_reason": "",
+          "scan_last_rejection_reason": "",
+          "scan_receive_interval_seconds": 0.1075782230036566,
+          "scan_header_interval_seconds": 0.099,
+          "amcl_motion_without_update_seconds": 0.0,
+          "amcl_motion_dt_clamped": 0
+        },
+        "stop_latched": false,
+        "autonomous_allowed": true,
+        "allow_localization": true,
+        "reinitialization_requested": true,
+        "stable_seconds": 88.74988141500216,
+        "stamp_ns": 81260000000,
+        "sent_at_ns": 81260000000,
+        "explanations": []
+      },
+      "readiness": {
+        "ready": true,
+        "missing": [],
+        "warnings": [],
+        "map": {
+          "preview": false,
+          "configured_file": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.yaml",
+          "configured_match": true,
+          "received": {
+            "width": 86,
+            "height": 140,
+            "resolution": 0.05000000074505806,
+            "origin": {
+              "x": -1.65,
+              "y": -5.25,
+              "yaw": 0.0
+            },
+            "frame_id": "map"
+          }
+        }
+      },
+      "pose": {
+        "x": -0.12182098172583947,
+        "y": -0.35696419334789364,
+        "yaw": 0.09256304716188495
+      }
+    },
+    "manual_seed_source": "validated_post_home_amcl",
+    "manual_seed": {
+      "x": -0.12182098172583947,
+      "y": -0.35696419334789364,
+      "yaw": 0.09256304716188495
+    },
+    "registered_home_offset_m": 0.15185581778363114,
+    "registered_home_yaw_offset_rad": 0.12007704716188494,
+    "pose_requested_at": 1793819287.5077028,
+    "pose_verified_at": 1793819287.940501,
+    "manual_pose_state": "VERIFIED",
+    "after": {
+      "localization_health": {
+        "level": "warning",
+        "reasons": [
+          "initializing"
+        ],
+        "advisories": [],
+        "metrics": {
+          "map_available": true,
+          "scan_age_seconds": 0.056663905997993425,
+          "odom_age_seconds": 0.02647545999934664,
+          "scan_header_age_seconds": 0.049,
+          "odom_header_age_seconds": 0.033,
+          "scan_valid": true,
+          "odom_valid": true,
+          "position_std_m": 0.2408930747137229,
+          "yaw_std_rad": 0.31631008077908324,
+          "amcl_age_seconds": 0.20729274999757763,
+          "amcl_update_epoch": 33459.291408265,
+          "amcl_header_age_seconds": 0.249,
+          "moving": false,
+          "pose_jump": false,
+          "scan_map_agreement": 0.8125,
+          "agreement_age_seconds": 0.0,
+          "agreement_header_age_seconds": 0.049,
+          "map_tf_age_seconds": 0.033,
+          "odom_tf_valid": true,
+          "odom_tf_age_seconds": 0.033,
+          "map_tf_lookup_error": "",
+          "odom_tf_lookup_error": "",
+          "amcl_update_requests": 11,
+          "amcl_update_responses": 11,
+          "amcl_update_timeouts": 0,
+          "amcl_update_errors": 0,
+          "scan_tf_state": "READY",
+          "scan_tf_error": "",
+          "scan_tf_wait_ms": 56.663905997993425,
+          "scan_tf_drop_count": 12,
+          "scan_tf_pending_count": 0,
+          "amcl_refresh_mode": "stationary",
+          "amcl_refresh_state": "RESPONDED",
+          "amcl_stationary_update_requests": 0,
+          "dynamic_tf_qos": "BEST_EFFORT",
+          "dynamic_tf_received_count": 4082,
+          "dynamic_tf_transform_count": 5716,
+          "dynamic_tf_receive_age_seconds": 0.02431901099771494,
+          "dynamic_tf_receive_interval_seconds": 0.0033163070038426667,
+          "dynamic_tf_latest_header_age_seconds": -0.951,
+          "dynamic_tf_map_odom_count": 815,
+          "dynamic_tf_map_odom_header_age_seconds": -0.951,
+          "dynamic_tf_map_odom_receive_age_seconds": 0.02431901099771494,
+          "dynamic_tf_map_odom_receive_interval_seconds": 0.11157726799865486,
+          "dynamic_tf_odom_base_count": 1633,
+          "dynamic_tf_odom_base_header_age_seconds": 0.033,
+          "dynamic_tf_odom_base_receive_age_seconds": 0.027635318001557607,
+          "dynamic_tf_odom_base_receive_interval_seconds": 0.04876808400149457,
+          "odom_last_received_age_seconds": 0.02647545999934664,
+          "odom_raw_header_age_seconds": 0.033,
+          "odom_rejected_count": 0,
+          "odom_rejection_reason": "",
+          "odom_last_rejection_reason": "",
+          "odom_receive_interval_seconds": 0.04941748500277754,
+          "odom_header_interval_seconds": 0.05,
+          "scan_last_received_age_seconds": 0.056663905997993425,
+          "scan_raw_header_age_seconds": 0.049,
+          "scan_rejected_count": 0,
+          "scan_rejection_reason": "",
+          "scan_last_rejection_reason": "",
+          "scan_receive_interval_seconds": 0.11238455700367922,
+          "scan_header_interval_seconds": 0.1,
+          "amcl_motion_without_update_seconds": 0.0,
+          "amcl_motion_dt_clamped": 0
+        },
+        "stop_latched": false,
+        "autonomous_allowed": false,
+        "allow_localization": true,
+        "reinitialization_requested": true,
+        "stable_seconds": 0.0,
+        "stamp_ns": 81920000000,
+        "sent_at_ns": 81920000000,
+        "explanations": [
+          "초기 위치 검증 중"
+        ]
+      },
+      "readiness": {
+        "ready": false,
+        "missing": [
+          "위치 신뢰도: 초기 위치 검증 중"
+        ],
+        "warnings": [],
+        "map": {
+          "preview": false,
+          "configured_file": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.yaml",
+          "configured_match": true,
+          "received": {
+            "width": 86,
+            "height": 140,
+            "resolution": 0.05000000074505806,
+            "origin": {
+              "x": -1.65,
+              "y": -5.25,
+              "yaw": 0.0
+            },
+            "frame_id": "map"
+          }
+        }
+      },
+      "pose": {
+        "x": -0.12451555361932222,
+        "y": -0.3539686348124266,
+        "yaw": 0.08627126324858231
+      }
+    }
+  },
+  "failure": null,
+  "runtime_identity_initial": {
+    "web": {
+      "pid": 288049,
+      "start_ticks": 3335304
+    },
+    "gazebo_runner": {
+      "pid": 288015,
+      "start_ticks": 3335283
+    }
+  },
+  "cold_start_proof": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "launch_prior_query": {
+      "service": "/amcl/get_parameters",
+      "parameter": "set_initial_pose",
+      "max_attempts": 3,
+      "per_attempt_timeout_s": 5.0,
+      "attempts": [
+        {
+          "attempt": 1,
+          "timeout_s": 5.0,
+          "elapsed_s": 0.2826291390010738,
+          "outcome": "parameter_observed",
+          "value": false
+        }
+      ],
+      "outcome": "parameter_observed",
+      "attempt_count": 1,
+      "elapsed_s": 3.53746619100275
+    },
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 6.976623964001192
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 2,
+      "map_tf_messages": 1
+    }
+  },
+  "runtime_identity_after_first": {
+    "web": {
+      "pid": 288049,
+      "start_ticks": 3335304
+    },
+    "gazebo_runner": {
+      "pid": 288015,
+      "start_ticks": 3335283
+    }
+  },
+  "runtime_identity_after_second": {
+    "web": {
+      "pid": 288049,
+      "start_ticks": 3335304
+    },
+    "gazebo_runner": {
+      "pid": 288015,
+      "start_ticks": 3335283
+    }
+  },
+  "same_runtime": true,
+  "memory_session_observer": {
+    "duration_monotonic_sec": 193.314,
+    "domain_id": "176",
+    "observed_samples": 1562,
+    "visibility_samples": 1562,
+    "goal_count": 4,
+    "confirmed_episodes": 2,
+    "persisted_after_live_disappeared": 2,
+    "carried_into_later_goal": 0,
+    "removed_with_positive_free_evidence": 2,
+    "still_remembered": [],
+    "episodes": [
+      {
+        "cell_index": 8068,
+        "confirmed_at": 33482.016400869,
+        "goal_at_confirmation": [
+          "map",
+          1.525,
+          -2.65,
+          1.543
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 33483.813244037,
+        "later_goals": [],
+        "free_ray_samples": 22,
+        "first_free_ray_at": 33483.82629397,
+        "cleared_at": 33486.370196241,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      },
+      {
+        "cell_index": 8154,
+        "confirmed_at": 33482.63986402,
+        "goal_at_confirmation": [
+          "map",
+          1.525,
+          -2.65,
+          1.543
+        ],
+        "ever_seen_live": true,
+        "out_of_view_at": 33483.413394765,
+        "later_goals": [],
+        "free_ray_samples": 21,
+        "first_free_ray_at": 33483.41906306,
+        "cleared_at": 33485.481855393,
+        "persisted_after_live_disappeared": true,
+        "carried_into_later_goal": false,
+        "removed_with_positive_free_evidence": true
+      }
+    ]
+  },
+  "runtime_command_limits": {
+    "linear_mps": 0.22,
+    "angular_radps": 0.5,
+    "source": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/classroom_nav_sim_time.yaml",
+    "sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef"
+  },
+  "web_truth_xy_tolerance_m": 0.25,
+  "nav2_internal_xy_tolerance_m": 0.15,
+  "web_runtime_manifest": {
+    "domain": 176,
+    "localhost_only": true,
+    "mode": "ekf_independent",
+    "physical_footprint": true,
+    "cold_start": true,
+    "amcl_launch_prior_enabled": false,
+    "ekf_delivery_faults": false,
+    "hardware_profile": "sensor_rates",
+    "fixture_manifest": {
+      "path": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/fixture/fixture_manifest.json",
+      "sha256": "aad8f25a4f479807af0a5f884ed93deaf35e0eb4c670247df37f5fbccfaf18f2"
+    },
+    "fault_streams": [
+      "scan"
+    ],
+    "gazebo_master_uri": "http://127.0.0.1:11576",
+    "config_sha256": {
+      "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/classroom_nav_sim_time.yaml": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/classroom_nodes_sim.yaml": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml": "242dc4549e58950662cc951a8b84e2c1c654b8d0ca8966d921ddaaf5d3399049",
+      "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml": "363f9ce5851e7e97359d631419645c87d59fa79e4552d36c73b9d78a2bd8f954",
+      "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": "59f6b427b89c3a60f77b87254a3d5352e31a4fde245a241f9c6fef839ed81a1f",
+      "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/change_memory_speckle.yaml": "65ca37cbd514e76bb85f041add54c1150d882c556f3800440df965df940cf977"
+    },
+    "nav_profile_source": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml",
+    "nodes_profile_source": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml",
+    "nav_profile_generated": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/classroom_nav_sim_time.yaml",
+    "nodes_profile_generated": "/tmp/classroom-transfer-final_inventory_reentry-20261105/19_web_inventory_sector2_same_session_reentry/classroom_nodes_sim.yaml",
+    "sim_footprint_overrides": {
+      "robot_radius_m": 0.22,
+      "nav2_inflation_radius_m": 0.22,
+      "astar_static_inflation_cells": 5,
+      "astar_preferred_clearance_m": 0.45,
+      "follower_recovery_radius_m": 0.22,
+      "physical_values_preserved": true,
+      "only_use_sim_time_changed": true
+    },
+    "record_incidents": true,
+    "laser_filter_for_change_memory": false,
+    "laser_filter_input_topic": "/scan",
+    "laser_filter_output_topic": "/scan_filtered_for_change",
+    "laser_filter_consumer": "change_memory only; raw /scan retained by Nav2, AMCL and motion_mux",
+    "scan_pair_observer": false,
+    "memory_session": true,
+    "initial_pose": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "yaw": -0.027514
+    },
+    "gazebo_seed": 4242,
+    "simulated_battery": {
+      "topic": "/battery_state",
+      "voltage_v": 12.0,
+      "percentage": 0.75,
+      "rate_hz": 2.0,
+      "guard_minimum_voltage_v": 10.8
+    },
+    "nav_profile_note": "Physical values preserved; use_sim_time only; copied SDF body collision proxy radius 0.22 m.",
+    "nodes_profile_note": "Physical values preserved; use_sim_time only; copied SDF body collision proxy radius 0.22 m.",
+    "sensor_fault_scope": "scan only; independent EKF publishes /odom and odom->base TF directly",
+    "hardware_profile_edits": [
+      {
+        "sdf_path": "./model/link[@name='base_scan']/sensor[@name='hls_lfcd_lds']/update_rate",
+        "before": 5.0,
+        "after": 10.0,
+        "units": "Hz",
+        "effect": "laser_sensor_producer",
+        "changed": true
+      },
+      {
+        "sdf_path": "./model/link[@name='imu_link']/sensor[@name='tb3_imu']/update_rate",
+        "before": 200.0,
+        "after": 20.0,
+        "units": "Hz",
+        "effect": "imu_sensor_producer",
+        "changed": true
+      },
+      {
+        "sdf_path": "./model/plugin[@name='turtlebot3_joint_state']/update_rate",
+        "before": 30.0,
+        "after": 20.0,
+        "units": "Hz",
+        "effect": "wheel_joint_state_producer",
+        "changed": true
+      }
+    ],
+    "hardware_profile_calibration": "stress_envelope_not_physical_calibration",
+    "collision_model": {
+      "copied_centered_cylinder_radius_m": 0.22,
+      "stock_source_unchanged": true
+    },
+    "camera_producer": {
+      "layout": "classroom_rear_physical",
+      "front_enabled": false,
+      "rear_width": 320,
+      "rear_height": 240,
+      "rear_fps": 5.0
+    },
+    "controller": {
+      "plugin": "smart_vision_amr_dwb::RouteTrackingDWB",
+      "library": "/home/kiki/Team2_workspace/build/smart_vision_amr_dwb/libroute_tracking_dwb.so",
+      "library_sha256": "90e835a0f84dc94c9fc67e47afef91bf549331d5195864890c24aa312105c63f"
+    }
+  },
+  "web_world_variant": "replay",
+  "cycle_independent": [
+    {
+      "web_ground_truth_checks": {
+        "2": {
+          "passed": true,
+          "event_at": 1793819246.2322323,
+          "goal": [
+            1.525,
+            -2.65,
+            1.543282
+          ],
+          "position_tolerance_m": 0.25,
+          "sample_time_delta_s": 0.04,
+          "position_error_m": 0.132,
+          "heading_error_rad": 0.211,
+          "fixture_wall_front_yaw_rad": 1.543281653589793,
+          "fixture_wall_normal_error_rad": 0.211,
+          "truth": [
+            1.5452,
+            -2.51984,
+            1.75469
+          ]
+        },
+        "home": {
+          "passed": true,
+          "event_at": 1793819286.9989827,
+          "goal": [
+            -0.188431,
+            -0.220497,
+            -0.027514
+          ],
+          "position_tolerance_m": 0.25,
+          "sample_time_delta_s": 0.017,
+          "position_error_m": 0.152,
+          "heading_error_rad": 0.092,
+          "fixture_wall_front_yaw_rad": null,
+          "fixture_wall_normal_error_rad": null,
+          "truth": [
+            -0.08108,
+            -0.32877,
+            0.06449
+          ]
+        }
+      },
+      "web_independent_dwell_checks": {
+        "2": {
+          "passed": true,
+          "start_event_at": 1793819246.2322323,
+          "end_event_at": 1793819251.4225342,
+          "truth_samples": 47,
+          "command_samples": 121,
+          "truth_max_sample_gap_s": 0.134,
+          "command_max_sample_gap_s": 0.065,
+          "truth_start_delta_s": 0.04,
+          "truth_end_delta_s": 0.082,
+          "gazebo_max_translation_m": 0.0001,
+          "gazebo_max_heading_rad": 0.0,
+          "command_max_linear_mps": 0.0,
+          "command_max_angular_rps": 0.0,
+          "next_ros_goal_at": 1793819252.4232,
+          "next_ros_goal_delay_s": 1.001,
+          "next_target": [
+            -0.188431,
+            -0.220497,
+            -0.027514
+          ],
+          "next_ros_goal_position_error_m": 0.0,
+          "next_ros_goal_heading_error_rad": 0.0
+        }
+      },
+      "home_independent_settle_check": {
+        "passed": true,
+        "end_at": 1793819286.9989827,
+        "duration_s": 1.26,
+        "truth_samples": 10,
+        "command_samples": 29,
+        "truth_max_gap_s": 0.135,
+        "command_max_gap_s": 0.069,
+        "max_translation_m": 0.0,
+        "max_heading_rad": 0.0,
+        "max_command_linear_mps": 0.0,
+        "max_command_angular_rps": 0.0
+      }
+    },
+    {
+      "web_ground_truth_checks": {
+        "2": {
+          "passed": true,
+          "event_at": 1793819330.9906054,
+          "goal": [
+            1.525,
+            -2.65,
+            1.543282
+          ],
+          "position_tolerance_m": 0.25,
+          "sample_time_delta_s": 0.035,
+          "position_error_m": 0.142,
+          "heading_error_rad": 0.219,
+          "fixture_wall_front_yaw_rad": 1.543281653589793,
+          "fixture_wall_normal_error_rad": 0.219,
+          "truth": [
+            1.53364,
+            -2.50844,
+            1.76186
+          ]
+        },
+        "home": {
+          "passed": true,
+          "event_at": 1793819373.636915,
+          "goal": [
+            -0.188431,
+            -0.220497,
+            -0.027514
+          ],
+          "position_tolerance_m": 0.25,
+          "sample_time_delta_s": 0.013,
+          "position_error_m": 0.16,
+          "heading_error_rad": 0.073,
+          "fixture_wall_front_yaw_rad": null,
+          "fixture_wall_normal_error_rad": null,
+          "truth": [
+            -0.07429,
+            -0.33263,
+            0.04558
+          ]
+        }
+      },
+      "web_independent_dwell_checks": {
+        "2": {
+          "passed": true,
+          "start_event_at": 1793819330.9906054,
+          "end_event_at": 1793819336.0214162,
+          "truth_samples": 48,
+          "command_samples": 118,
+          "truth_max_sample_gap_s": 0.118,
+          "command_max_sample_gap_s": 0.067,
+          "truth_start_delta_s": 0.035,
+          "truth_end_delta_s": 0.032,
+          "gazebo_max_translation_m": 0.0001,
+          "gazebo_max_heading_rad": 0.0,
+          "command_max_linear_mps": 0.0,
+          "command_max_angular_rps": 0.0,
+          "next_ros_goal_at": 1793819337.0216,
+          "next_ros_goal_delay_s": 1.0,
+          "next_target": [
+            -0.188431,
+            -0.220497,
+            -0.027514
+          ],
+          "next_ros_goal_position_error_m": 0.0,
+          "next_ros_goal_heading_error_rad": 0.0
+        }
+      },
+      "home_independent_settle_check": {
+        "passed": true,
+        "end_at": 1793819373.636915,
+        "duration_s": 1.238,
+        "truth_samples": 12,
+        "command_samples": 30,
+        "truth_max_gap_s": 0.117,
+        "command_max_gap_s": 0.061,
+        "max_translation_m": 0.0,
+        "max_heading_rad": 0.0001,
+        "max_command_linear_mps": 0.0,
+        "max_command_angular_rps": 0.0
+      }
+    }
+  ]
+}

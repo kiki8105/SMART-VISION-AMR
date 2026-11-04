@@ -20,7 +20,7 @@ from uuid import uuid4
 
 import rclpy
 from geometry_msgs.msg import PoseStamped, Twist
-from nav_msgs.msg import Odometry, Path
+from nav_msgs.msg import OccupancyGrid, Odometry, Path
 from nav2_msgs.msg import SpeedLimit
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
@@ -195,6 +195,7 @@ class FlightRecorder(Node):
             ('max_message_bytes', 512*1024), ('max_incidents', 50),
             ('sensor_sample_period', .2), ('scan_sample_period', .5),
             ('tf_sample_period', .2), ('path_sample_period', 1.),
+            ('costmap_sample_period', .5),
             ('status_sample_period', .2), ('minimum_incident_interval', 10.)):
             self.declare_parameter(name, default)
         value = lambda name: self.get_parameter(name).value
@@ -215,8 +216,13 @@ class FlightRecorder(Node):
         self.status_pub = self.create_publisher(String, '/smart_vision_amr/incident_status', latched)
         self.create_service(Trigger, '/smart_vision_amr/capture_incident', self.capture_service)
         sensors = [('/odom', Odometry), ('/imu', Imu), ('/cmd_vel', Twist),
-                   ('/smart_vision_amr/navigation_cmd_vel', Twist), ('/speed_limit', SpeedLimit)]
+                   ('/smart_vision_amr/navigation_cmd_vel', Twist), ('/speed_limit', SpeedLimit),
+                   ('/local_costmap/costmap', OccupancyGrid)]
         self.periods = {topic: max(.02, float(value('sensor_sample_period'))) for topic, _ in sensors}
+        # Keep the actual occupancy used by DWB for a later isolated replay.
+        # Full critic trajectories are intentionally excluded from this small
+        # ring; the controller publishes a bounded horizon summary instead.
+        self.periods['/local_costmap/costmap'] = max(.2, float(value('costmap_sample_period')))
         self.periods.update({'/scan': max(.02, float(value('scan_sample_period'))),
                             '/tf': max(.02, float(value('tf_sample_period'))),
                             '/tf_static': 0., '/smart_vision_amr/goal': 0.,
@@ -233,6 +239,7 @@ class FlightRecorder(Node):
                       '/smart_vision_amr/scan_projection_status',
                       '/smart_vision_amr/execution_failure',
                       '/smart_vision_amr/failure_memory_status',
+                      '/smart_vision_amr/controller_diagnostics',
                       '/smart_vision_amr/navigation_control'):
             self.periods[topic] = max(.02, float(value('status_sample_period')))
             qos = (QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT,
@@ -251,8 +258,28 @@ class FlightRecorder(Node):
         if (topic.endswith('/execution_failure')
                 and message.get('terminal_confirmed') is True):
             return 'EXECUTION_FAILURE:'+str(message.get('event_id', ''))[:128]
+        if (topic.endswith('/failure_memory_status')
+                and message.get('state') == 'CONTROLLER_HOLD'):
+            return 'CONTROLLER_HOLD:'+str(message.get('reason', ''))[:300]
         status = str(message.get('status', '')).upper()
         level = str(message.get('level', message.get('severity', ''))).upper()
+        stamp = message.get('goal_stamp')
+        active_goal = (isinstance(stamp, dict)
+                       and type(stamp.get('sec')) is int and stamp['sec'] >= 0
+                       and type(stamp.get('nanosec')) is int
+                       and 0 <= stamp['nanosec'] < 1_000_000_000
+                       and stamp['sec']*1_000_000_000+stamp['nanosec'] > 0)
+        if active_goal and topic.endswith(('/planner_status', '/navigation_status',
+                                           '/failure_memory_status')):
+            # A wait is useful evidence even without an execution failure.
+            # Keep one signature per state/goal, not changing reason text or
+            # sensor ages, so normal waiting heartbeats cannot create a storm.
+            goal_key = f"{stamp['sec']}:{stamp['nanosec']}"
+            if (message.get('input_hold') is True or status == 'SENSOR_HOLD'
+                    or message.get('state') == 'SENSOR_HOLD'):
+                return 'INPUT_HOLD:'+goal_key
+            if status == 'WAIT_REPLAN':
+                return 'WAIT_REPLAN:'+goal_key
         if topic.endswith('/motion_status') and message.get('estop_latched') is True:
             return 'ESTOP'
         if topic.endswith('/localization_health') and level in ('CRITICAL', 'STOP', 'FAULT'):

@@ -1,0 +1,63 @@
+{
+  "stages": [
+    {
+      "stage": "25_web_inventory_sector3_moving_obstacle",
+      "outcome": "FAIL",
+      "reasons": [
+        "verifier_failed",
+        "cold_start_without_prior_and_web_initialization_unproven",
+        "web_mission_not_accepted",
+        "web_route_order_mismatch",
+        "sector_route_and_home_not_completed",
+        "prearm:evidence_missing",
+        "web_camera_configuration_unverified",
+        "physical_style_web_startup_reset_unverified",
+        "sector_3_five_second_dwell_unverified",
+        "sector_3_aruco_unverified",
+        "sector_3_rear_camera_center_unverified",
+        "sector_3_excessive_marker_search_rotation",
+        "sector_3_rear_camera_frame_missing",
+        "3_gazebo_truth_unverified",
+        "home_gazebo_truth_unverified",
+        "sector_3_independent_dwell_unverified",
+        "home_independent_settle_unverified",
+        "web_obstacle_injector_failed",
+        "web_obstacle_spawned_unverified",
+        "web_obstacle_truth_seen_unverified",
+        "web_obstacle_removed_unverified",
+        "web_obstacle_observed_while_live_unverified",
+        "web_obstacle_observed_cleared_unverified",
+        "web_obstacle_path_reacted_before_removal_unverified",
+        "web_obstacle_bypassed_while_live_unverified",
+        "web_obstacle_motion_unverified",
+        "web_obstacle_clearance_unverified",
+        "web_red_obstacle_overlay_unverified",
+        "web_red_obstacle_clearance_unverified",
+        "web_initial_pose_verification_unverified",
+        "inventory_pose_reset_prearm_dispatch_order_unverified",
+        "operator_load_confirmation_unverified",
+        "inventory_delivery_completion_unverified",
+        "safety_timeline_failed",
+        "runner_nonzero_exit"
+      ],
+      "mission_backend_passed": false,
+      "final_state": null,
+      "cold_start_proof": {
+        "passed": false,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend"
+      },
+      "prearm_passed": null,
+      "source_unchanged": true,
+      "actor_moving_steps": 0,
+      "actor_bypassed_while_live": false,
+      "actor_minimum_clearance_m": null,
+      "safety_passed": false,
+      "safety_violations": [],
+      "transient": null,
+      "physical_drive": false,
+      "visual_browser_qa": false
+    }
+  ],
+  "passed": false
+}

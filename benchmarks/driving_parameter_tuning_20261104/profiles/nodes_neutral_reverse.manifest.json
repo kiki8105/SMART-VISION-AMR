@@ -1,0 +1,14 @@
+{
+  "source": "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml",
+  "source_sha256": "093e68efc1cb1ed214aaa3c1fcfd9e91aa6f3748d2645072fe021a02ab34ad2c",
+  "candidate": "benchmarks/driving_parameter_tuning_20261104/profiles/nodes_neutral_reverse.yaml",
+  "candidate_sha256": "d5c181720054e40436f28c2ae56a6f640840a04d8488e8719eb2ee7853fae65e",
+  "changed_parameters": [
+    {
+      "parameter": "/astar_planner/ros__parameters/reverse_clearance_neutral_egress_enabled",
+      "baseline": "not specified; core default false",
+      "candidate": true
+    }
+  ],
+  "scope": "one boolean candidate, same physical radius, rear sweep, goal proof, nominal speed and local-first recovery order"
+}

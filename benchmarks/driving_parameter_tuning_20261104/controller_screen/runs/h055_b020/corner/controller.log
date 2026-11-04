@@ -1,0 +1,65 @@
+[INFO] [1793797275.621192905] [controller_server]: 
+	controller_server lifecycle node launched. 
+	Waiting on external lifecycle transitions to activate
+	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[INFO] [1793797275.637400188] [controller_server]: Creating controller server
+[INFO] [1793797275.646019322] [local_costmap.local_costmap]: 
+	local_costmap lifecycle node launched. 
+	Waiting on external lifecycle transitions to activate
+	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[INFO] [1793797275.647457102] [local_costmap.local_costmap]: Creating Costmap
+[INFO] [1793797275.809156798] [controller_server]: Configuring controller interface
+[INFO] [1793797275.809275188] [controller_server]: getting goal checker plugins..
+[INFO] [1793797275.809341120] [controller_server]: Controller frequency set to 10.0000Hz
+[INFO] [1793797275.809384792] [local_costmap.local_costmap]: Configuring
+[INFO] [1793797275.817476862] [local_costmap.local_costmap]: Using plugin "obstacle_layer"
+[INFO] [1793797275.823173855] [local_costmap.local_costmap]: Subscribed to Topics: scan
+[INFO] [1793797275.825805982] [local_costmap.local_costmap]: Initialized plugin "obstacle_layer"
+[INFO] [1793797275.825890518] [local_costmap.local_costmap]: Using plugin "voxel_layer"
+[INFO] [1793797275.826171374] [local_costmap.local_costmap]: Subscribed to Topics: scan
+[INFO] [1793797275.831450272] [local_costmap.local_costmap]: Initialized plugin "voxel_layer"
+[INFO] [1793797275.831504986] [local_costmap.local_costmap]: Using plugin "inflation_layer"
+[INFO] [1793797275.831864209] [local_costmap.local_costmap]: Initialized plugin "inflation_layer"
+[INFO] [1793797275.844304335] [controller_server]: Created progress_checker : progress_checker of type nav2_controller::PoseProgressChecker
+[INFO] [1793797275.846614829] [controller_server]: Created goal checker : general_goal_checker of type nav2_controller::SimpleGoalChecker
+[INFO] [1793797275.846825168] [controller_server]: Controller Server has general_goal_checker  goal checkers available.
+[INFO] [1793797275.856798269] [controller_server]: Created controller : FollowPath of type smart_vision_amr_dwb::RouteTrackingDWB
+[INFO] [1793797275.858003536] [controller_server]: Setting transform_tolerance to 0.200000
+[INFO] [1793797275.865930722] [controller_server]: Using critic "RotateToGoal" (dwb_critics::RotateToGoalCritic)
+[INFO] [1793797275.866093863] [controller_server]: Critic plugin initialized
+[INFO] [1793797275.866164633] [controller_server]: Using critic "Oscillation" (dwb_critics::OscillationCritic)
+[INFO] [1793797275.866279718] [controller_server]: Critic plugin initialized
+[INFO] [1793797275.866326399] [controller_server]: Using critic "BaseObstacle" (dwb_critics::BaseObstacleCritic)
+[INFO] [1793797275.866384659] [controller_server]: Critic plugin initialized
+[INFO] [1793797275.866426998] [controller_server]: Using critic "ObstacleFootprint" (dwb_critics::ObstacleFootprintCritic)
+[INFO] [1793797275.866486515] [controller_server]: Critic plugin initialized
+[INFO] [1793797275.866524039] [controller_server]: Using critic "GoalAlign" (dwb_critics::GoalAlignCritic)
+[INFO] [1793797275.866660879] [controller_server]: Critic plugin initialized
+[INFO] [1793797275.866719878] [controller_server]: Using critic "PathAlign" (dwb_critics::PathAlignCritic)
+[INFO] [1793797275.866816340] [controller_server]: Critic plugin initialized
+[INFO] [1793797275.866900381] [controller_server]: Using critic "PathDist" (dwb_critics::PathDistCritic)
+[INFO] [1793797275.867027185] [controller_server]: Critic plugin initialized
+[INFO] [1793797275.867123405] [controller_server]: Using critic "GoalDist" (dwb_critics::GoalDistCritic)
+[INFO] [1793797275.867306089] [controller_server]: Critic plugin initialized
+[INFO] [1793797275.868678550] [controller_server]: DWB local route horizon: 0.55 m along path; anchor search: 0.85 m
+[INFO] [1793797275.868723526] [controller_server]: Controller Server has FollowPath  controllers available.
+[INFO] [1793797275.882919256] [controller_server]: Activating
+[INFO] [1793797275.882987683] [local_costmap.local_costmap]: Activating
+[INFO] [1793797275.883062642] [local_costmap.local_costmap]: Checking transform
+[INFO] [1793797275.883227819] [local_costmap.local_costmap]: start
+[INFO] [1793797276.084921042] [controller_server]: Creating bond (controller_server) to lifecycle manager.
+[INFO] [1793797277.170686099] [controller_server]: Received a goal, begin computing control effort.
+[INFO] [1793797277.492989538] [local_costmap.local_costmap]: Message Filter dropping message: frame 'base_scan' at time 1793797277.188 for reason 'the timestamp on the message is earlier than all the data in the transform cache'
+[INFO] [1793797279.851773803] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [1793797279.851945335] [controller_server]: Running Nav2 LifecycleNode rcl preshutdown (controller_server)
+[INFO] [1793797279.852033665] [controller_server]: Deactivating
+[WARN] [1793797279.852057398] [controller_server]: [follow_path] [ActionServer] Requested to deactivate server but goal is still executing. Should check if action server is running before deactivating.
+[WARN] [1793797279.871168146] [controller_server]: [follow_path] [ActionServer] Stopping the thread per request.
+[INFO] [1793797279.871235037] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[INFO] [1793797279.871582769] [local_costmap.local_costmap]: Deactivating
+[INFO] [1793797279.883619863] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[INFO] [1793797279.894972774] [controller_server]: Cleaning up
+[INFO] [1793797279.895560172] [local_costmap.local_costmap]: Cleaning up
+[INFO] [1793797279.909464548] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[INFO] [1793797279.918306619] [local_costmap.local_costmap]: Destroying
+[INFO] [1793797279.926596091] [controller_server]: Destroying

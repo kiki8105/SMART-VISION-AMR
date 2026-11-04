@@ -1,0 +1,292 @@
+{
+  "scope": "Independent read-only attribution of completed first cold sensor_rates Stage25. Original overall FAIL is retained; this is not another drive, a causal A/B, or physical-robot verification.",
+  "root_archive": "cold_rates_before_memory_fix",
+  "root_archive_manifest_sha256": "9a5ab92e3ddc015b117fa1c1b4e6fc3e3741c9b5668d31a099bc3e9cee03c14a",
+  "detailed_pose_witness": "../recovery_replacement_validation/independent_cold_sensor_rates_audit_20261105.json",
+  "detailed_pose_witness_sha256": "dfcf15f0fc008fa81adf27ac6eb1f08c6902d9c02259bc41dc61f50af97c04e2",
+  "overall_passed": false,
+  "overall_reasons": [
+    "web_obstacle_injector_failed",
+    "web_obstacle_bypassed_while_live_unverified",
+    "safety_timeline_failed",
+    "runner_nonzero_exit"
+  ],
+  "mission_backend_and_home_passed": true,
+  "mission_elapsed_seconds": 173.99361944198608,
+  "cold_initialization_passed": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 6.283975525999267
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 3,
+      "map_tf_messages": 1
+    }
+  },
+  "source_manifest_before_after_equal": true,
+  "source_manifest_sha256": "153045b577ffe97ed812535c21ec301d6483a518fdf3ae7a041c79859921e381",
+  "actual_trial_source_sha256": {
+    "ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml": "50ad86d4c404a8028f857b29208a5769b38dbc10f449f19a05533a00611826f6",
+    "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": "59f6b427b89c3a60f77b87254a3d5352e31a4fde245a241f9c6fef839ed81a1f",
+    "ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml": "242dc4549e58950662cc951a8b84e2c1c654b8d0ca8966d921ddaaf5d3399049",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "64c7d94e992dea7f550c3c3fbbe98999cf54aa6d589ef2660f0f03cc1245aceb",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py": "aa2c11a5bf12386f8e8983763d07a53e45ce7ee167ca07c77518fdc08f1a976f",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": "0a43f64213c5a49bd0a85bad54fe444b6a50a6885e3c5842a07849237d17c1c0",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/scan_outlier_guard.py": "a659cfd2196b9ba8430d7e66855e65457ea00dee5e9ffc3bc9bfd0ca35dec6ef",
+    "scripts/capture_classroom_source_rates.py": "d4b2153c81f3c5e2d68394432bb121ed6e40c1e5f06e36d51f5776bb7ac69d0e"
+  },
+  "cadence_final": {
+    "final": true,
+    "started_at_wall": 1793810199.6159956,
+    "updated_at_wall": 1793810397.5330856,
+    "streams": {
+      "raw_scan": {
+        "topic": "/classroom_fault/raw_scan",
+        "receipt_sample_count": 1585,
+        "source_stamp_hz": 9.97807846398065,
+        "receipt_wall_hz": 8.621458462882698,
+        "source_stamp_intervals": {
+          "sample_count": 1584,
+          "minimum_seconds": 0.095,
+          "p95_seconds": 0.102,
+          "maximum_seconds": 0.114
+        },
+        "receipt_monotonic_intervals": {
+          "sample_count": 1584,
+          "minimum_seconds": 0.076024823,
+          "p95_seconds": 0.154423356,
+          "maximum_seconds": 0.602757587
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 1585,
+          "minimum": -0.019,
+          "maximum": 0.026,
+          "future_stamp_samples": 1476,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0,
+        "source_first_accepted_stamp_ns": 188000000,
+        "source_last_accepted_stamp_ns": 158936000000,
+        "receipt_first_monotonic_ns": 24383594226240,
+        "receipt_last_monotonic_ns": 24567321841100
+      },
+      "raw_imu": {
+        "topic": "/imu",
+        "receipt_sample_count": 3165,
+        "source_stamp_hz": 19.930959760122963,
+        "receipt_wall_hz": 17.267678785324186,
+        "source_stamp_intervals": {
+          "sample_count": 3164,
+          "minimum_seconds": 0.049,
+          "p95_seconds": 0.051,
+          "maximum_seconds": 0.058
+        },
+        "receipt_monotonic_intervals": {
+          "sample_count": 3164,
+          "minimum_seconds": 0.031734797,
+          "p95_seconds": 0.078306398,
+          "maximum_seconds": 0.220817665
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 3165,
+          "minimum": -0.02,
+          "maximum": 0.01,
+          "future_stamp_samples": 3078,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0,
+        "source_first_accepted_stamp_ns": 238000000,
+        "source_last_accepted_stamp_ns": 158986000000,
+        "receipt_first_monotonic_ns": 24384146848188,
+        "receipt_last_monotonic_ns": 24567379350908
+      },
+      "wheel_joint_states": {
+        "topic": "/joint_states",
+        "receipt_sample_count": 3175,
+        "source_stamp_hz": 20.0,
+        "receipt_wall_hz": 17.32675068340189,
+        "source_stamp_intervals": {
+          "sample_count": 3174,
+          "minimum_seconds": 0.05,
+          "p95_seconds": 0.05,
+          "maximum_seconds": 0.05
+        },
+        "receipt_monotonic_intervals": {
+          "sample_count": 3174,
+          "minimum_seconds": 0.017278647,
+          "p95_seconds": 0.077901899,
+          "maximum_seconds": 0.254335438
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 3175,
+          "minimum": -0.018,
+          "maximum": 0.022,
+          "future_stamp_samples": 3157,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0,
+        "source_first_accepted_stamp_ns": 238000000,
+        "source_last_accepted_stamp_ns": 158938000000,
+        "receipt_first_monotonic_ns": 24384141461926,
+        "receipt_last_monotonic_ns": 24567326414373
+      },
+      "ekf_output": {
+        "topic": "/odom",
+        "receipt_sample_count": 3174,
+        "source_stamp_hz": 20.0,
+        "receipt_wall_hz": 17.326211244477633,
+        "source_stamp_intervals": {
+          "sample_count": 3173,
+          "minimum_seconds": 0.02,
+          "p95_seconds": 0.064,
+          "maximum_seconds": 0.101
+        },
+        "receipt_monotonic_intervals": {
+          "sample_count": 3173,
+          "minimum_seconds": 0.003959756,
+          "p95_seconds": 0.082917447,
+          "maximum_seconds": 0.230282212
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 3174,
+          "minimum": 0.0,
+          "maximum": 0.062,
+          "future_stamp_samples": 0,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0,
+        "source_first_accepted_stamp_ns": 288000000,
+        "source_last_accepted_stamp_ns": 158938000000,
+        "receipt_first_monotonic_ns": 24384216958270,
+        "receipt_last_monotonic_ns": 24567349898024
+      }
+    },
+    "wall_per_source_rate_ratio": {
+      "raw_scan": 0.8640399545869334,
+      "raw_imu": 0.8663746750356017,
+      "wheel_joint_states": 0.8663375341700945,
+      "ekf_output": 0.8663105622238817
+    },
+    "interpretation": "Common wall/source cadence ratio around .866 is simulation slowdown, not measured hardware Wi-Fi or CPU calibration. Raw source stamps can lead the received /clock by <=20ms; those negative ages are retained, not restamped."
+  },
+  "pose_truth_first40seconds": {
+    "nominal_warm_reference": {
+      "configured_SDF_scan_imu_joint_Hz": [
+        5.0,
+        200.0,
+        30.0
+      ],
+      "paired_samples": 360,
+      "xy_error_m": {
+        "median": 0.04081051643270675,
+        "p95": 0.06518434080270794,
+        "maximum": 0.06926349875524196
+      },
+      "heading_error_rad": {
+        "median": 0.03489000000000009,
+        "p95": 0.053169999999999946,
+        "maximum": 0.06320999999999999
+      }
+    },
+    "sensor_rates_cold": {
+      "configured_SDF_scan_imu_joint_Hz": [
+        10.0,
+        20.0,
+        20.0
+      ],
+      "paired_samples": 358,
+      "xy_error_m": {
+        "median": 0.043075171361119775,
+        "p95": 0.06810595676863543,
+        "maximum": 0.0748583844475415
+      },
+      "heading_error_rad": {
+        "median": 0.01609000000000005,
+        "p95": 0.04322999999999999,
+        "maximum": 0.049599999999999866
+      }
+    }
+  },
+  "pose_method_limitations": [
+    "Map<-odom and odom poses are latest prior RECEIPTS bounded by .25s and .10s, not synchronized internal AMCL truth.",
+    "Not active-route XTE; pose-estimate versus Gazebo truth only.",
+    "Nominal reference and cold test change cold initialization and three producer frequencies together and execute different trajectories; differences are not a one-factor causal A/B.",
+    "Nominal 5/200/30 are copied SDF configured values, not measured original IMU/joint source rates."
+  ],
+  "t20_to60_health_ok": {
+    "samples": 160,
+    "all_ok_autonomous_allowed": true
+  },
+  "largest_map_odom_update_m": 0.03060302109269605,
+  "largest_map_odom_update_heading_rad": 0.03908,
+  "single_mux_pose_hold": {
+    "at_observer_t": 24.8481,
+    "mux_metrics": {
+      "scan_age_seconds": 0.65,
+      "pose_age_seconds": 0.322,
+      "lookup_error": "",
+      "pose_source": "stale",
+      "future_lead_seconds": 0.0,
+      "pose_uncertainty_seconds": null
+    },
+    "external_tf_age_seconds": 0.022,
+    "interpretation": "Mux reported an internally stale pose although the separate observer had fresh TF; scheduling/cache processing is plausible. It recovered and is not established as the long WAIT cause."
+  },
+  "actual_reverse": {
+    "negative_samples": 37,
+    "minimum_command_mps": -0.1,
+    "truth_displacement_m": 0.11814220922261438,
+    "truth_heading_change_rad": 1.999999999990898e-05
+  },
+  "reverse_scope": "Actual nonzero negative output and truth motion are proven here; root/controller own detailed cancellation/certificate replay.",
+  "moving_box": {
+    "passed": false,
+    "moving_steps": 4,
+    "bypassed_while_live": false,
+    "minimum_clearance_m": 0.0726869899392801,
+    "observed_cleared": true
+  },
+  "sampled_true_circle22_box25_minimum_gap_m": 0.07268342023717952,
+  "box_gap_method_limitations": "Point-sampled truth with actor step event times; recorded actor minimum is separately retained. This does not certify every unsampled dynamic-box motion.",
+  "safety_violations": [
+    {
+      "kind": "excessive_ground_truth_stopping_rotation",
+      "t": 48.3721,
+      "start_t": 46.9044,
+      "duration_s": 1.4677,
+      "last_nonzero_command_after_s": 0.07309999999999661,
+      "first_zero_command_after_s": 0.11209999999999809,
+      "max_displacement_m": 0.0187,
+      "max_forward_displacement_m": 0.0187,
+      "max_heading_change_rad": 0.1243,
+      "truth_samples": 13,
+      "entry_speed_mps": 0.081,
+      "entry_command_speed_mps": 0.081,
+      "entry_truth_speed_mps": 0.073,
+      "entry_front_core_min_m": 0.5269094109535217,
+      "entry_front_core_angle_deg": 348.79243542488246,
+      "ground_truth_stopping_distance_bound_m": 0.05,
+      "estimated_front_body_clearance_m": 0.3661
+    }
+  ],
+  "conclusions": [
+    "Cold Home initialization actually passed and healthy localized motion followed; long WAIT_REPLAN is not an uninitialized-AMCL failure.",
+    "Observed IMU20Hz did not show gross pose/heading divergence versus the warm reference; individual frequency causation is unproven.",
+    "One mux-internal stale pose guard occurred despite contemporaneous external fresh TF; it recovered and is not proven to cause the long WAIT.",
+    "Actual reverse moved about 11.8cm and maintained heading; live-obstacle bypass still failed and independent stopping-rotation QA failed.",
+    "Source-stamp Hz and wall receipt Hz differ by common simulation slowdown; this is not measured physical Wi-Fi/DDS/CPU calibration."
+  ]
+}

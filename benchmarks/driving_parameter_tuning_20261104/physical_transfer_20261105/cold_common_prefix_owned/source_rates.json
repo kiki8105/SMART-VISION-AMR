@@ -1,0 +1,503 @@
+{
+  "schema": 1,
+  "domain": 176,
+  "localhost_only": true,
+  "read_only": true,
+  "active_publishers": 0,
+  "use_sim_time": true,
+  "ekf_delivery_faults": false,
+  "started_at_wall": 1793814340.308973,
+  "updated_at_wall": 1793814545.943192,
+  "observed_wall_seconds": 205.63422030999936,
+  "final": true,
+  "topics": {
+    "raw_scan": {
+      "topic": "/classroom_fault/raw_scan",
+      "receipt_sample_count": 1664,
+      "receipt_wall_hz": 8.775873097245865,
+      "receipt_monotonic_intervals": {
+        "sample_count": 1663,
+        "minimum_seconds": 0.091666871,
+        "p95_seconds": 0.153593278,
+        "maximum_seconds": 0.231248869
+      },
+      "receipt_first_monotonic_ns": 28524973246355,
+      "receipt_last_monotonic_ns": 28714470061267,
+      "receipt_valid_clock_samples": 1664,
+      "receipt_invalid_clock_samples": 0,
+      "receipt_nonincreasing_clock_samples": 0,
+      "source_stamp_hz": 9.982831690538221,
+      "source_stamp_intervals": {
+        "sample_count": 1663,
+        "minimum_seconds": 0.093,
+        "p95_seconds": 0.102,
+        "maximum_seconds": 0.109
+      },
+      "source_first_accepted_stamp_ns": 103000000,
+      "source_last_accepted_stamp_ns": 166689000000,
+      "source_forward_samples": 1664,
+      "source_duplicate_samples": 0,
+      "source_backward_samples": 0,
+      "source_missing_or_invalid_samples": 0,
+      "source_age_ros_seconds": {
+        "sample_count": 1664,
+        "minimum": -0.019,
+        "maximum": 0.004,
+        "future_stamp_samples": 1447,
+        "clock_unavailable_samples": 0
+      },
+      "witness_first_samples": [
+        {
+          "source_stamp_ns": 103000000,
+          "receipt_monotonic_ns": 28524973246355,
+          "ros_now_ns": 100000000
+        },
+        {
+          "source_stamp_ns": 203000000,
+          "receipt_monotonic_ns": 28525084804794,
+          "ros_now_ns": 200000000
+        },
+        {
+          "source_stamp_ns": 302000000,
+          "receipt_monotonic_ns": 28525190600963,
+          "ros_now_ns": 300000000
+        },
+        {
+          "source_stamp_ns": 405000000,
+          "receipt_monotonic_ns": 28525300108410,
+          "ros_now_ns": 400000000
+        },
+        {
+          "source_stamp_ns": 506000000,
+          "receipt_monotonic_ns": 28525406536023,
+          "ros_now_ns": 500000000
+        },
+        {
+          "source_stamp_ns": 605000000,
+          "receipt_monotonic_ns": 28525505297627,
+          "ros_now_ns": 600000000
+        },
+        {
+          "source_stamp_ns": 704000000,
+          "receipt_monotonic_ns": 28525618523317,
+          "ros_now_ns": 700000000
+        },
+        {
+          "source_stamp_ns": 806000000,
+          "receipt_monotonic_ns": 28525730093828,
+          "ros_now_ns": 800000000
+        }
+      ],
+      "witness_last_samples": [
+        {
+          "source_stamp_ns": 165989000000,
+          "receipt_monotonic_ns": 28713694752520,
+          "ros_now_ns": 165980000000
+        },
+        {
+          "source_stamp_ns": 166089000000,
+          "receipt_monotonic_ns": 28713824813991,
+          "ros_now_ns": 166080000000
+        },
+        {
+          "source_stamp_ns": 166189000000,
+          "receipt_monotonic_ns": 28713927145403,
+          "ros_now_ns": 166180000000
+        },
+        {
+          "source_stamp_ns": 166289000000,
+          "receipt_monotonic_ns": 28714061584740,
+          "ros_now_ns": 166280000000
+        },
+        {
+          "source_stamp_ns": 166388000000,
+          "receipt_monotonic_ns": 28714155121381,
+          "ros_now_ns": 166380000000
+        },
+        {
+          "source_stamp_ns": 166489000000,
+          "receipt_monotonic_ns": 28714257605591,
+          "ros_now_ns": 166480000000
+        },
+        {
+          "source_stamp_ns": 166588000000,
+          "receipt_monotonic_ns": 28714361239999,
+          "ros_now_ns": 166580000000
+        },
+        {
+          "source_stamp_ns": 166689000000,
+          "receipt_monotonic_ns": 28714470061267,
+          "ros_now_ns": 166680000000
+        }
+      ]
+    },
+    "raw_imu": {
+      "topic": "/imu",
+      "receipt_sample_count": 3324,
+      "receipt_wall_hz": 17.52996184454407,
+      "receipt_monotonic_intervals": {
+        "sample_count": 3323,
+        "minimum_seconds": 0.039936997,
+        "p95_seconds": 0.077489595,
+        "maximum_seconds": 0.124338729
+      },
+      "receipt_first_monotonic_ns": 28524914041950,
+      "receipt_last_monotonic_ns": 28714475207540,
+      "receipt_valid_clock_samples": 3324,
+      "receipt_invalid_clock_samples": 0,
+      "receipt_nonincreasing_clock_samples": 0,
+      "source_stamp_hz": 19.94071193682341,
+      "source_stamp_intervals": {
+        "sample_count": 3323,
+        "minimum_seconds": 0.049,
+        "p95_seconds": 0.051,
+        "maximum_seconds": 0.058
+      },
+      "source_first_accepted_stamp_ns": 51000000,
+      "source_last_accepted_stamp_ns": 166695000000,
+      "source_forward_samples": 3324,
+      "source_duplicate_samples": 0,
+      "source_backward_samples": 0,
+      "source_missing_or_invalid_samples": 0,
+      "source_age_ros_seconds": {
+        "sample_count": 3324,
+        "minimum": -0.02,
+        "maximum": 0.003,
+        "future_stamp_samples": 3266,
+        "clock_unavailable_samples": 0
+      },
+      "witness_first_samples": [
+        {
+          "source_stamp_ns": 51000000,
+          "receipt_monotonic_ns": 28524914041950,
+          "ros_now_ns": 40000000
+        },
+        {
+          "source_stamp_ns": 101000000,
+          "receipt_monotonic_ns": 28524968400875,
+          "ros_now_ns": 100000000
+        },
+        {
+          "source_stamp_ns": 151000000,
+          "receipt_monotonic_ns": 28525024229870,
+          "ros_now_ns": 140000000
+        },
+        {
+          "source_stamp_ns": 201000000,
+          "receipt_monotonic_ns": 28525080098260,
+          "ros_now_ns": 200000000
+        },
+        {
+          "source_stamp_ns": 251000000,
+          "receipt_monotonic_ns": 28525131395669,
+          "ros_now_ns": 240000000
+        },
+        {
+          "source_stamp_ns": 301000000,
+          "receipt_monotonic_ns": 28525188725621,
+          "ros_now_ns": 300000000
+        },
+        {
+          "source_stamp_ns": 351000000,
+          "receipt_monotonic_ns": 28525238855284,
+          "ros_now_ns": 340000000
+        },
+        {
+          "source_stamp_ns": 401000000,
+          "receipt_monotonic_ns": 28525295353946,
+          "ros_now_ns": 400000000
+        }
+      ],
+      "witness_last_samples": [
+        {
+          "source_stamp_ns": 166345000000,
+          "receipt_monotonic_ns": 28714114402821,
+          "ros_now_ns": 166340000000
+        },
+        {
+          "source_stamp_ns": 166395000000,
+          "receipt_monotonic_ns": 28714165140100,
+          "ros_now_ns": 166380000000
+        },
+        {
+          "source_stamp_ns": 166445000000,
+          "receipt_monotonic_ns": 28714214315335,
+          "ros_now_ns": 166440000000
+        },
+        {
+          "source_stamp_ns": 166495000000,
+          "receipt_monotonic_ns": 28714263782305,
+          "ros_now_ns": 166480000000
+        },
+        {
+          "source_stamp_ns": 166545000000,
+          "receipt_monotonic_ns": 28714317053587,
+          "ros_now_ns": 166540000000
+        },
+        {
+          "source_stamp_ns": 166595000000,
+          "receipt_monotonic_ns": 28714370506038,
+          "ros_now_ns": 166580000000
+        },
+        {
+          "source_stamp_ns": 166645000000,
+          "receipt_monotonic_ns": 28714422094196,
+          "ros_now_ns": 166640000000
+        },
+        {
+          "source_stamp_ns": 166695000000,
+          "receipt_monotonic_ns": 28714475207540,
+          "ros_now_ns": 166680000000
+        }
+      ]
+    },
+    "wheel_joint_states": {
+      "topic": "/joint_states",
+      "receipt_sample_count": 3334,
+      "receipt_wall_hz": 17.581931476604783,
+      "receipt_monotonic_intervals": {
+        "sample_count": 3333,
+        "minimum_seconds": 0.021876594,
+        "p95_seconds": 0.077713757,
+        "maximum_seconds": 0.129619536
+      },
+      "receipt_first_monotonic_ns": 28524913155781,
+      "receipt_last_monotonic_ns": 28714482771863,
+      "receipt_valid_clock_samples": 3334,
+      "receipt_invalid_clock_samples": 0,
+      "receipt_nonincreasing_clock_samples": 0,
+      "source_stamp_hz": 20.0,
+      "source_stamp_intervals": {
+        "sample_count": 3333,
+        "minimum_seconds": 0.05,
+        "p95_seconds": 0.05,
+        "maximum_seconds": 0.05
+      },
+      "source_first_accepted_stamp_ns": 51000000,
+      "source_last_accepted_stamp_ns": 166701000000,
+      "source_forward_samples": 3334,
+      "source_duplicate_samples": 0,
+      "source_backward_samples": 0,
+      "source_missing_or_invalid_samples": 0,
+      "source_age_ros_seconds": {
+        "sample_count": 3334,
+        "minimum": -0.011,
+        "maximum": 0.009,
+        "future_stamp_samples": 3333,
+        "clock_unavailable_samples": 0
+      },
+      "witness_first_samples": [
+        {
+          "source_stamp_ns": 51000000,
+          "receipt_monotonic_ns": 28524913155781,
+          "ros_now_ns": 40000000
+        },
+        {
+          "source_stamp_ns": 101000000,
+          "receipt_monotonic_ns": 28524968704530,
+          "ros_now_ns": 100000000
+        },
+        {
+          "source_stamp_ns": 151000000,
+          "receipt_monotonic_ns": 28525023561729,
+          "ros_now_ns": 140000000
+        },
+        {
+          "source_stamp_ns": 201000000,
+          "receipt_monotonic_ns": 28525080448750,
+          "ros_now_ns": 200000000
+        },
+        {
+          "source_stamp_ns": 251000000,
+          "receipt_monotonic_ns": 28525131745586,
+          "ros_now_ns": 240000000
+        },
+        {
+          "source_stamp_ns": 301000000,
+          "receipt_monotonic_ns": 28525188068923,
+          "ros_now_ns": 300000000
+        },
+        {
+          "source_stamp_ns": 351000000,
+          "receipt_monotonic_ns": 28525238214126,
+          "ros_now_ns": 340000000
+        },
+        {
+          "source_stamp_ns": 401000000,
+          "receipt_monotonic_ns": 28525295690867,
+          "ros_now_ns": 400000000
+        }
+      ],
+      "witness_last_samples": [
+        {
+          "source_stamp_ns": 166351000000,
+          "receipt_monotonic_ns": 28714119271997,
+          "ros_now_ns": 166340000000
+        },
+        {
+          "source_stamp_ns": 166401000000,
+          "receipt_monotonic_ns": 28714168807684,
+          "ros_now_ns": 166400000000
+        },
+        {
+          "source_stamp_ns": 166451000000,
+          "receipt_monotonic_ns": 28714219346620,
+          "ros_now_ns": 166440000000
+        },
+        {
+          "source_stamp_ns": 166501000000,
+          "receipt_monotonic_ns": 28714272392809,
+          "ros_now_ns": 166500000000
+        },
+        {
+          "source_stamp_ns": 166551000000,
+          "receipt_monotonic_ns": 28714322587110,
+          "ros_now_ns": 166540000000
+        },
+        {
+          "source_stamp_ns": 166601000000,
+          "receipt_monotonic_ns": 28714376544936,
+          "ros_now_ns": 166600000000
+        },
+        {
+          "source_stamp_ns": 166651000000,
+          "receipt_monotonic_ns": 28714428043115,
+          "ros_now_ns": 166640000000
+        },
+        {
+          "source_stamp_ns": 166701000000,
+          "receipt_monotonic_ns": 28714482771863,
+          "ros_now_ns": 166700000000
+        }
+      ]
+    },
+    "ekf_output": {
+      "topic": "/odom",
+      "receipt_sample_count": 3125,
+      "receipt_wall_hz": 16.49423648315125,
+      "receipt_monotonic_intervals": {
+        "sample_count": 3124,
+        "minimum_seconds": 0.029721332,
+        "p95_seconds": 0.106127685,
+        "maximum_seconds": 0.19323048
+      },
+      "receipt_first_monotonic_ns": 28525043578418,
+      "receipt_last_monotonic_ns": 28714443069761,
+      "receipt_valid_clock_samples": 3125,
+      "receipt_invalid_clock_samples": 0,
+      "receipt_nonincreasing_clock_samples": 0,
+      "source_stamp_hz": 18.762762762762762,
+      "source_stamp_intervals": {
+        "sample_count": 3124,
+        "minimum_seconds": 0.007,
+        "p95_seconds": 0.1,
+        "maximum_seconds": 0.105
+      },
+      "source_first_accepted_stamp_ns": 151000000,
+      "source_last_accepted_stamp_ns": 166651000000,
+      "source_forward_samples": 3125,
+      "source_duplicate_samples": 0,
+      "source_backward_samples": 0,
+      "source_missing_or_invalid_samples": 0,
+      "source_age_ros_seconds": {
+        "sample_count": 3125,
+        "minimum": -0.018,
+        "maximum": 0.069,
+        "future_stamp_samples": 110,
+        "clock_unavailable_samples": 0
+      },
+      "witness_first_samples": [
+        {
+          "source_stamp_ns": 151000000,
+          "receipt_monotonic_ns": 28525043578418,
+          "ros_now_ns": 160000000
+        },
+        {
+          "source_stamp_ns": 251000000,
+          "receipt_monotonic_ns": 28525145903180,
+          "ros_now_ns": 260000000
+        },
+        {
+          "source_stamp_ns": 351000000,
+          "receipt_monotonic_ns": 28525254475238,
+          "ros_now_ns": 360000000
+        },
+        {
+          "source_stamp_ns": 451000000,
+          "receipt_monotonic_ns": 28525362880112,
+          "ros_now_ns": 460000000
+        },
+        {
+          "source_stamp_ns": 551000000,
+          "receipt_monotonic_ns": 28525463568449,
+          "ros_now_ns": 560000000
+        },
+        {
+          "source_stamp_ns": 651000000,
+          "receipt_monotonic_ns": 28525567511470,
+          "ros_now_ns": 660000000
+        },
+        {
+          "source_stamp_ns": 751000000,
+          "receipt_monotonic_ns": 28525679284487,
+          "ros_now_ns": 760000000
+        },
+        {
+          "source_stamp_ns": 851000000,
+          "receipt_monotonic_ns": 28525787713888,
+          "ros_now_ns": 860000000
+        }
+      ],
+      "witness_last_samples": [
+        {
+          "source_stamp_ns": 166295000000,
+          "receipt_monotonic_ns": 28714076711898,
+          "ros_now_ns": 166300000000
+        },
+        {
+          "source_stamp_ns": 166351000000,
+          "receipt_monotonic_ns": 28714133118354,
+          "ros_now_ns": 166360000000
+        },
+        {
+          "source_stamp_ns": 166395000000,
+          "receipt_monotonic_ns": 28714171544393,
+          "ros_now_ns": 166400000000
+        },
+        {
+          "source_stamp_ns": 166451000000,
+          "receipt_monotonic_ns": 28714233063635,
+          "ros_now_ns": 166460000000
+        },
+        {
+          "source_stamp_ns": 166495000000,
+          "receipt_monotonic_ns": 28714273672260,
+          "ros_now_ns": 166500000000
+        },
+        {
+          "source_stamp_ns": 166551000000,
+          "receipt_monotonic_ns": 28714337724524,
+          "ros_now_ns": 166560000000
+        },
+        {
+          "source_stamp_ns": 166595000000,
+          "receipt_monotonic_ns": 28714380811078,
+          "ros_now_ns": 166600000000
+        },
+        {
+          "source_stamp_ns": 166651000000,
+          "receipt_monotonic_ns": 28714443069761,
+          "ros_now_ns": 166660000000
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "source_stamp_hz": "(accepted forward stamps - 1) / source ROS-time span; not configuration or receipt rate",
+    "receipt_wall_hz": "(valid monotonic receipt samples - 1) / monotonic wall-time span; includes messages with duplicate/backward/missing source stamps",
+    "p95": "nearest-rank 95th percentile of all measured positive intervals; no configured rate or zero interval is substituted",
+    "age": "actual ROS clock at receipt minus original valid header stamp; includes duplicate/backward messages and preserves negative ages",
+    "clock_reset": "backward stamps are excluded until previous high-water stamp is surpassed; use a new observer per simulation epoch",
+    "limitations": "subscriber receipt cadence can include observer scheduling/DDS delay; source stamps prove timestamp cadence, not sensor accuracy or real-hardware rates"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "source_incident": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T111553_718344Z_80e06852/events.jsonl.gz",
+  "source_timeline": "/tmp/classroom-physical-validation-20261104-integrated-final/12_web_integrated_clean/safety_timeline.jsonl",
+  "freeze_ros_sec": 71.0,
+  "input_receive_age_sec": {
+    "/local_costmap/costmap": 0.4399999999999977,
+    "/scan": 0.35999999999999943,
+    "/odom": 0.14000000000000057,
+    "/speed_limit": 0.0799999999999983
+  },
+  "route_source": "active path points from authoritative stage timeline, coordinates rounded to 4 decimal places; tangent yaw reconstructed; far final yaw unused in cropped local horizon; tail length restored from recorded controller_diagnostics.original_pose_count",
+  "route_point_count": 41,
+  "recorded_pruned_pose_count": 41,
+  "route_stamp_ns": 38760000000,
+  "costmap_source": "captured OccupancyGrid, fed via StaticLayer; preserves lethal100/unknown-1 exactly; intermediate soft costs re-quantized by StaticLayer, not exact byte replay",
+  "tf_source": "latest captured map->odom and odom->base before freeze; same TF source frame as captured costmap",
+  "history_limit": "fresh controller initializes oscillation critic anew; past critic state is not captured",
+  "route_coordinate_rounding_m": 5e-05,
+  "fixture_sha256": "2e4cae9a615dfba3c77c809f308b9760cc4821c0f083b0f3db3626a90f9d3a8f"
+}

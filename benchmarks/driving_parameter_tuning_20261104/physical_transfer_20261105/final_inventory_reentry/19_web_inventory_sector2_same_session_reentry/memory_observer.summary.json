@@ -1,0 +1,52 @@
+{
+  "duration_monotonic_sec": 193.314,
+  "domain_id": "176",
+  "observed_samples": 1562,
+  "visibility_samples": 1562,
+  "goal_count": 4,
+  "confirmed_episodes": 2,
+  "persisted_after_live_disappeared": 2,
+  "carried_into_later_goal": 0,
+  "removed_with_positive_free_evidence": 2,
+  "still_remembered": [],
+  "episodes": [
+    {
+      "cell_index": 8068,
+      "confirmed_at": 33482.016400869,
+      "goal_at_confirmation": [
+        "map",
+        1.525,
+        -2.65,
+        1.543
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 33483.813244037,
+      "later_goals": [],
+      "free_ray_samples": 22,
+      "first_free_ray_at": 33483.82629397,
+      "cleared_at": 33486.370196241,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8154,
+      "confirmed_at": 33482.63986402,
+      "goal_at_confirmation": [
+        "map",
+        1.525,
+        -2.65,
+        1.543
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 33483.413394765,
+      "later_goals": [],
+      "free_ray_samples": 21,
+      "first_free_ray_at": 33483.41906306,
+      "cleared_at": 33485.481855393,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    }
+  ]
+}

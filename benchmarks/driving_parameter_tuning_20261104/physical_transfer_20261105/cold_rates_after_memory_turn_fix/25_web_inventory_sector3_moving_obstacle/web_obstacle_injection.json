@@ -1,0 +1,327 @@
+{
+  "passed": true,
+  "domain": 176,
+  "localhost_only": true,
+  "physical_robot_touched": false,
+  "goal": [
+    -0.25,
+    -1.98
+  ],
+  "geometry": {
+    "robot_radius": 0.22,
+    "obstacle_inflation_cells": 5,
+    "nodes_params": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml"
+  },
+  "goal_owner": "web_mission_server",
+  "goal_published_by_injector": false,
+  "spawned": true,
+  "truth_seen": true,
+  "removed": true,
+  "moving_steps": 4,
+  "observed_while_live": true,
+  "observed_cleared": true,
+  "path_reacted_before_removal": true,
+  "bypassed_while_live": true,
+  "minimum_clearance_m": 0.09658421321233399,
+  "recovery_requests": 0,
+  "events": [
+    {
+      "t": 21.162,
+      "at": 1793810878.7572913,
+      "event": "web_goal_observed",
+      "x": -0.25,
+      "y": -1.98,
+      "stamp": [
+        7,
+        460000000
+      ]
+    },
+    {
+      "t": 21.163,
+      "at": 1793810878.7586029,
+      "event": "injector_waiting_for_current_route",
+      "reason": "navigation_not_moving",
+      "path_age_s": null,
+      "navigation_status": null,
+      "observed_age_s": 0.079
+    },
+    {
+      "t": 21.579,
+      "at": 1793810879.1749327,
+      "event": "candidate_search_started",
+      "attempt": 1,
+      "path_sha256": "b98614957975fa4e2ceaa4767d233621ae86332408dfcdf85e17f29ce4609cb4",
+      "robot_xy": [
+        -0.18826077032263952,
+        -0.2205009261845269
+      ],
+      "observed_cells": 5,
+      "remembered_cells": 0
+    },
+    {
+      "t": 25.783,
+      "at": 1793810883.379023,
+      "event": "candidate_search_finished",
+      "attempt": 1,
+      "duration_s": 0.296,
+      "diagnostics": {
+        "reason": "FIXED_FEASIBLE_BYPASS",
+        "input_status": "VALID",
+        "geometric_candidates": 1,
+        "topology_candidates_tried": 1,
+        "attempts": 1
+      },
+      "candidate_xy": [
+        0.5239140050447512,
+        -0.599706838892526
+      ]
+    },
+    {
+      "t": 26.04,
+      "at": 1793810883.6361363,
+      "event": "current_observed_bypass_proved",
+      "route_cells": 80,
+      "observed_cells": 15
+    },
+    {
+      "t": 26.299,
+      "at": 1793810883.8945637,
+      "event": "obstacle_spawned",
+      "x": 0.5239140050447512,
+      "y": -0.599706838892526,
+      "path_sha256": "b98614957975fa4e2ceaa4767d233621ae86332408dfcdf85e17f29ce4609cb4",
+      "robot_xy": [
+        -0.05052504886116121,
+        -0.36480492080856897
+      ]
+    },
+    {
+      "t": 26.537,
+      "at": 1793810884.1322708,
+      "event": "obstacle_seen_in_lidar_map",
+      "near_cells": 14
+    },
+    {
+      "t": 26.835,
+      "at": 1793810884.4305518,
+      "event": "matching_path_changed_clear_of_box",
+      "previous_sha256": "b98614957975fa4e2ceaa4767d233621ae86332408dfcdf85e17f29ce4609cb4",
+      "new_sha256": "e6043e721b51067bb98319b8d688d6ad4235e4959025188d5fbe20e60f0a96a9",
+      "robot_xy": [
+        0.01739711003274165,
+        -0.4370335780107052
+      ],
+      "conservative_clearance_m": 0.1803
+    },
+    {
+      "t": 27.84,
+      "at": 1793810885.4361925,
+      "event": "obstacle_moved",
+      "step": 1,
+      "x": 0.5059489515005864,
+      "y": -0.6170923745804273,
+      "reason": "ready",
+      "swept_clearance_m": 0.1389772269099517,
+      "required_clearance_m": 0.08721290509971732,
+      "robot_truth_age_s": 0.10551320499871508
+    },
+    {
+      "t": 28.675,
+      "at": 1793810886.2710729,
+      "event": "obstacle_moved",
+      "step": 2,
+      "x": 0.4879838979564216,
+      "y": -0.6344779102683288,
+      "reason": "ready",
+      "swept_clearance_m": 0.1237068744179999,
+      "required_clearance_m": 0.08628393640027207,
+      "robot_truth_age_s": 0.10129062000123668
+    },
+    {
+      "t": 29.511,
+      "at": 1793810887.106507,
+      "event": "obstacle_moved",
+      "step": 3,
+      "x": 0.47001884441225683,
+      "y": -0.6518634459562301,
+      "reason": "ready",
+      "swept_clearance_m": 0.1095829051071113,
+      "required_clearance_m": 0.08029277253960027,
+      "robot_truth_age_s": 0.07405805699818302
+    },
+    {
+      "t": 30.326,
+      "at": 1793810887.92175,
+      "event": "obstacle_moved",
+      "step": 4,
+      "x": 0.45205379086809205,
+      "y": -0.6692489816441315,
+      "reason": "ready",
+      "swept_clearance_m": 0.09689202883525941,
+      "required_clearance_m": 0.06838327186042444,
+      "robot_truth_age_s": 0.019923963001929224
+    },
+    {
+      "t": 39.1,
+      "at": 1793810896.6954284,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 48.594,
+      "at": 1793810906.189965,
+      "event": "obstacle_removed",
+      "obstacle_name": "classroom_web_obstacle_0a20500357"
+    },
+    {
+      "t": 50.659,
+      "at": 1793810908.2550716,
+      "event": "post_remove_observation",
+      "near_count": 0,
+      "owned_remaining": 0,
+      "total_observed": 0,
+      "robot_distance_m": 0.617,
+      "samples": 1
+    }
+  ],
+  "failure": null,
+  "obstacle_scenario": {
+    "source_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/obstacle_scenario.json",
+    "sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+    "scenario": {
+      "x": 0.5239140050447512,
+      "y": -0.599706838892526,
+      "path_tangent": [
+        0.6954214275160555,
+        -0.7186021417665909
+      ],
+      "movement_side": -1
+    },
+    "actor_positions_by_step": [
+      [
+        0.5239140050447512,
+        -0.599706838892526
+      ],
+      [
+        0.5059489515005864,
+        -0.6170923745804273
+      ],
+      [
+        0.4879838979564216,
+        -0.6344779102683288
+      ],
+      [
+        0.47001884441225683,
+        -0.6518634459562301
+      ],
+      [
+        0.45205379086809205,
+        -0.6692489816441315
+      ]
+    ],
+    "box_size_m": [
+      0.25,
+      0.25,
+      0.5
+    ],
+    "mode": "FIXED_NO_RELOCATION",
+    "copied_path": "/tmp/classroom-transfer-cold-rates-memory-turn-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json"
+  },
+  "input_status": "VALID",
+  "candidate": {
+    "x": 0.5239140050447512,
+    "y": -0.599706838892526,
+    "path_tangent": [
+      0.6954214275160555,
+      -0.7186021417665909
+    ],
+    "index": 16,
+    "robot_distance_m": 0.8068395347913363,
+    "static_wall_distance_m": 0.20184372645132564,
+    "approach_along_path_m": -0.76775977996944,
+    "base_path_xy": [
+      0.3000000290572644,
+      -0.7999999336898327
+    ],
+    "lateral_offset_m": 0.3001931726216327,
+    "preflight": {
+      "route_cells_by_step": [
+        82,
+        82,
+        83,
+        84,
+        84
+      ],
+      "movement_side": -1,
+      "initial_centerline_clearance_m": -0.0968,
+      "robot_radius": 0.22,
+      "obstacle_inflation_cells": 5
+    },
+    "robot_radius": 0.22,
+    "initial_path_clearance_m": -0.09681699891742761
+  },
+  "obstacle_name": "classroom_web_obstacle_0a20500357",
+  "first_observed_at": 1793810884.1322708,
+  "observed_indices_live": [
+    7606,
+    7607,
+    7608,
+    7609,
+    7610,
+    7611,
+    7692,
+    7693,
+    7694,
+    7695,
+    7696,
+    7697,
+    7698,
+    7778,
+    7779,
+    7780,
+    7864,
+    7865,
+    7866,
+    7950,
+    7951,
+    7952,
+    8036,
+    8037,
+    8038,
+    8039,
+    8040,
+    8041,
+    8042,
+    8122,
+    8123,
+    8124,
+    8125,
+    8126,
+    8127,
+    8128,
+    8209,
+    8210,
+    8211,
+    8212,
+    8213,
+    8214
+  ],
+  "changed_path_clearance_m": 0.1108,
+  "path_reaction_before_box": true,
+  "path_reaction_at": 1793810884.4305518,
+  "planner_counters_while_live": {
+    "global_plan_count": 2,
+    "local_attempt_id": 3,
+    "plan_kind": "GLOBAL"
+  },
+  "path_observation_temporal_link": true,
+  "observed_clear_latency_s": 2.287,
+  "candidate_diagnostics": {
+    "reason": "FIXED_FEASIBLE_BYPASS",
+    "input_status": "VALID",
+    "geometric_candidates": 1,
+    "topology_candidates_tried": 1,
+    "attempts": 1
+  },
+  "candidate_search_attempts": 1
+}

@@ -1,0 +1,112 @@
+[
+  {
+    "ros_time_s": 155.26,
+    "original_count": 74,
+    "anchor_arc_m": 0.43172,
+    "horizon_goal_map_xy": [
+      0.6720790842184613,
+      -2.115094441602059
+    ],
+    "goal_to_original_path_m": 0.0029209157815387465,
+    "goal_arc_minus_current_projection_m": 0.5524693377527208
+  },
+  {
+    "ros_time_s": 156.26,
+    "original_count": 71,
+    "anchor_arc_m": 0.38824,
+    "horizon_goal_map_xy": [
+      0.6750050610874535,
+      -2.007251392312699
+    ],
+    "goal_to_original_path_m": 5.061087453461788e-06,
+    "goal_arc_minus_current_projection_m": 0.5499914156192922
+  },
+  {
+    "ros_time_s": 157.26,
+    "original_count": 68,
+    "anchor_arc_m": 0.39209,
+    "horizon_goal_map_xy": [
+      0.6740596556909674,
+      -1.8873761130788114
+    ],
+    "goal_to_original_path_m": 0.0009403443090326702,
+    "goal_arc_minus_current_projection_m": 0.5502320567347001
+  },
+  {
+    "ros_time_s": 158.3,
+    "original_count": 64,
+    "anchor_arc_m": 0.3607,
+    "horizon_goal_map_xy": [
+      0.6750013972438315,
+      -1.7672979277007905
+    ],
+    "goal_to_original_path_m": 1.397243831413597e-06,
+    "goal_arc_minus_current_projection_m": 0.5500165065162372
+  },
+  {
+    "ros_time_s": 159.3,
+    "original_count": 61,
+    "anchor_arc_m": 0.35984,
+    "horizon_goal_map_xy": [
+      0.6749945288799886,
+      -1.6371151983940517
+    ],
+    "goal_to_original_path_m": 5.471120011479869e-06,
+    "goal_arc_minus_current_projection_m": 0.550011499503309
+  },
+  {
+    "ros_time_s": 160.3,
+    "original_count": 56,
+    "anchor_arc_m": 0.39306,
+    "horizon_goal_map_xy": [
+      0.6749955648985672,
+      -1.449635516178393
+    ],
+    "goal_to_original_path_m": 4.435101432886945e-06,
+    "goal_arc_minus_current_projection_m": 0.5500042243528969
+  },
+  {
+    "ros_time_s": 161.34,
+    "original_count": 51,
+    "anchor_arc_m": 0.38407,
+    "horizon_goal_map_xy": [
+      0.6661400344880908,
+      -1.25182244569642
+    ],
+    "goal_to_original_path_m": 1.16972229855949e-05,
+    "goal_arc_minus_current_projection_m": 0.5500046400843992
+  },
+  {
+    "ros_time_s": 162.36,
+    "original_count": 48,
+    "anchor_arc_m": 0.36856,
+    "horizon_goal_map_xy": [
+      0.6112850298971937,
+      -1.1471239412222527
+    ],
+    "goal_to_original_path_m": 2.181468157819001e-06,
+    "goal_arc_minus_current_projection_m": 0.5500096856379009
+  },
+  {
+    "ros_time_s": 163.44,
+    "original_count": 47,
+    "anchor_arc_m": 0.35574,
+    "horizon_goal_map_xy": [
+      0.5954930023202868,
+      -1.1169574097582493
+    ],
+    "goal_to_original_path_m": 1.5257416275675158e-05,
+    "goal_arc_minus_current_projection_m": 0.5500042975190356
+  },
+  {
+    "ros_time_s": 164.46,
+    "original_count": 45,
+    "anchor_arc_m": 0.37204,
+    "horizon_goal_map_xy": [
+      0.5327973042477475,
+      -1.0327925896000387
+    ],
+    "goal_to_original_path_m": 3.333759365949638e-06,
+    "goal_arc_minus_current_projection_m": 0.5500108579080538
+  }
+]

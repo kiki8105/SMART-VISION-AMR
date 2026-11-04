@@ -1,0 +1,118 @@
+{
+  "scope": "Independent read-only postmortem; no API request or process started",
+  "classification": "STARTUP_LIFECYCLE_ABORT",
+  "transient_status": "NOT_STARTED",
+  "event_sequence": [
+    {
+      "wall_epoch": 1793811303.7715578,
+      "event": "map_server_configuring_map_loaded"
+    },
+    {
+      "wall_epoch": 1793811303.8595119,
+      "event": "manager_configuring_amcl"
+    },
+    {
+      "wall_epoch": 1793811303.9990668,
+      "event": "manager_configuring_controller_server"
+    },
+    {
+      "wall_epoch": 1793811304.5623891,
+      "event": "controller_get_state_response_transport_timeout"
+    },
+    {
+      "wall_epoch": 1793811306.4619257,
+      "event": "manager_get_state_async_send_request_failed"
+    },
+    {
+      "wall_epoch": 1793811306.4682748,
+      "event": "manager_aborted_bringup"
+    }
+  ],
+  "node_state_evidence": "Map server and AMCL configured; no activation logged before shutdown. Inactive conclusion is inferred from completed configure then manager abort/no activation, not a post-shutdown get_state query.",
+  "manual_initialization_requirements": [
+    "live configured /map, not preview",
+    "AMCL active",
+    "latched ESTOP + stopped ACK",
+    "fresh scan and odom"
+  ],
+  "observed_missing": [
+    "live /map",
+    "AMCL activation",
+    "map->odom TF"
+  ],
+  "unseeded_AMCL_prior": "Expected in cold-start mode, but cannot explain inactive map_server or lifecycle manager abort",
+  "timeline_kind_counts": {
+    "motion": 468,
+    "cmd_vel": 1759,
+    "planner": 1,
+    "health": 275,
+    "scan": 618,
+    "truth": 619,
+    "tf_stamp": 2470,
+    "odom": 716
+  },
+  "tf_edges": {
+    "('raw', 'odom', 'base_footprint')": 1235,
+    "('forwarded', 'odom', 'base_footprint')": 1235
+  },
+  "nonzero_cmd_count": 0,
+  "relay_last_sample": {
+    "counts": {
+      "odom_forwarded": 1235,
+      "odom_received": 1235,
+      "scan_forwarded": 618,
+      "scan_received": 618,
+      "tf_filtered_unowned_edges": 0,
+      "tf_forwarded": 1235,
+      "tf_received": 1235
+    },
+    "event": "sample",
+    "max_delivery_delay_s": {
+      "odom": 0.011,
+      "scan": 0.012,
+      "tf": 0.011
+    },
+    "monotonic": 25547.212041678,
+    "pending": 0,
+    "profile": "clean"
+  },
+  "fault_profile_control_events": [],
+  "verifier": {
+    "passed": false,
+    "domain": 176,
+    "localhost_only": true,
+    "physical_robot_touched": false,
+    "mission_accepted_via_web": false,
+    "route": [
+      1,
+      2
+    ],
+    "failure": "TimeoutError('Unseeded cold-start did not expose the stopped Home initialization action')",
+    "dwell": {},
+    "dispatch_mode": "manual",
+    "transient_requested": true,
+    "cold_start_requested": true,
+    "ekf_delivery_faults_requested": true,
+    "visual_ui_qa": false,
+    "path_points_per_sector": {
+      "1": 0,
+      "2": 0
+    },
+    "home_path_points": 0,
+    "cold_start_proof": {
+      "passed": false,
+      "visual_ui_qa": false,
+      "manual_prior_transport": "/set_initial_pose service through web backend"
+    }
+  },
+  "root_transport_cause_limit": "RMW service response timeout is recorded; CPU starvation, network loss, client destruction or a particular RMW defect are not proven by these logs.",
+  "harness_recommendation": "Verify actual map_server/AMCL active and live map before calling absence of mapTF/AMCL a valid cold unseeded state. Do not require mapTF before the manual prior. Preserve startup-failure classification separately from missing-prior or fault-recovery failure.",
+  "source_files_sha256": {
+    "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/gazebo_launch.log": "8f5e9527c94b17c5cc498fb7302bab29b26fa201bd17203a35a740209e7a6681",
+    "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/acceptance.json": "08799675eb07b8edf30b4f966b6fc69a05220caf56ad1e6b2ef118f9889515f3",
+    "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/safety_timeline.jsonl": "d444e997c3b250b190e660f76925ad44034e7e3015a41823742269687f9fc886",
+    "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/sensor_faults.jsonl": "9ec66eb68298cf9cdfae3e5b673729d12ccf8e62528b3fd05eec26024529d1ce",
+    "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/memory_observer.jsonl": "f5c9688e14d1e8e6ccfba26063343f47dffa4546298da745296deaad2ea00f27",
+    "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/web_server.log": "6e93b907e28935260271037630d075e4e99a2ad4abe55a6da8d5e2e23e36d726"
+  }
+}

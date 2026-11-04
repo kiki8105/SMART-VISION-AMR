@@ -1,0 +1,120 @@
+{
+  "stages": [
+    {
+      "stage": "25_web_inventory_sector3_moving_obstacle",
+      "outcome": "FAIL",
+      "reasons": [
+        "safety_timeline_failed"
+      ],
+      "mission_backend_passed": true,
+      "final_state": "HOME_REACHED",
+      "cold_start_proof": {
+        "passed": true,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend",
+        "before": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 0,
+          "map_tf_messages": 0,
+          "web_pose": null,
+          "observed_seconds": 6.105388945001323
+        },
+        "after": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 3,
+          "map_tf_messages": 1
+        }
+      },
+      "prearm_passed": true,
+      "source_unchanged": true,
+      "actor_moving_steps": 4,
+      "actor_bypassed_while_live": true,
+      "actor_minimum_clearance_m": 0.06063659288474102,
+      "safety_passed": false,
+      "safety_violations": [
+        {
+          "kind": "excessive_ground_truth_stopping_distance",
+          "t": 37.5498,
+          "start_t": 35.8602,
+          "duration_s": 1.6896,
+          "last_nonzero_command_after_s": 0.10050000000000381,
+          "first_zero_command_after_s": 0.12409999999999854,
+          "max_displacement_m": 0.07,
+          "max_forward_displacement_m": 0.07,
+          "max_heading_change_rad": 0.084,
+          "truth_samples": 16,
+          "entry_speed_mps": 0.1081,
+          "entry_command_speed_mps": 0.0897,
+          "entry_truth_speed_mps": 0.1081,
+          "entry_front_core_min_m": 0.8877761960029602,
+          "entry_front_core_angle_deg": 358.8152065577813,
+          "ground_truth_stopping_distance_bound_m": 0.05,
+          "estimated_front_body_clearance_m": 0.6856
+        },
+        {
+          "kind": "excessive_ground_truth_stopping_rotation",
+          "t": 46.2325,
+          "start_t": 44.6172,
+          "duration_s": 1.6153,
+          "last_nonzero_command_after_s": 0.14330000000000354,
+          "first_zero_command_after_s": 0.20889999999999986,
+          "max_displacement_m": 0.0361,
+          "max_forward_displacement_m": 0.036,
+          "max_heading_change_rad": 0.2059,
+          "truth_samples": 15,
+          "entry_speed_mps": 0.0695,
+          "entry_command_speed_mps": 0.0695,
+          "entry_truth_speed_mps": 0.0661,
+          "entry_front_core_min_m": 0.5057830214500427,
+          "entry_front_core_angle_deg": 350.79698965146224,
+          "ground_truth_stopping_distance_bound_m": 0.05,
+          "estimated_front_body_clearance_m": 0.3313
+        },
+        {
+          "kind": "excessive_ground_truth_stopping_distance",
+          "t": 57.9677,
+          "start_t": 56.2292,
+          "duration_s": 1.7385,
+          "last_nonzero_command_after_s": 0.1291000000000011,
+          "first_zero_command_after_s": 0.15080000000000382,
+          "max_displacement_m": 0.0535,
+          "max_forward_displacement_m": 0.0532,
+          "max_heading_change_rad": 0.2389,
+          "truth_samples": 16,
+          "entry_speed_mps": 0.1042,
+          "entry_command_speed_mps": 0.1042,
+          "entry_truth_speed_mps": 0.0806,
+          "entry_front_core_min_m": 0.9581847786903381,
+          "entry_front_core_angle_deg": 5.01138556644946,
+          "ground_truth_stopping_distance_bound_m": 0.05,
+          "estimated_front_body_clearance_m": 0.7693
+        },
+        {
+          "kind": "excessive_ground_truth_stopping_rotation",
+          "t": 57.9677,
+          "start_t": 56.2292,
+          "duration_s": 1.7385,
+          "last_nonzero_command_after_s": 0.1291000000000011,
+          "first_zero_command_after_s": 0.15080000000000382,
+          "max_displacement_m": 0.0535,
+          "max_forward_displacement_m": 0.0532,
+          "max_heading_change_rad": 0.2389,
+          "truth_samples": 16,
+          "entry_speed_mps": 0.1042,
+          "entry_command_speed_mps": 0.1042,
+          "entry_truth_speed_mps": 0.0806,
+          "entry_front_core_min_m": 0.9581847786903381,
+          "entry_front_core_angle_deg": 5.01138556644946,
+          "ground_truth_stopping_distance_bound_m": 0.05,
+          "estimated_front_body_clearance_m": 0.7693
+        }
+      ],
+      "transient": null,
+      "physical_drive": false,
+      "visual_browser_qa": false
+    }
+  ],
+  "passed": false
+}

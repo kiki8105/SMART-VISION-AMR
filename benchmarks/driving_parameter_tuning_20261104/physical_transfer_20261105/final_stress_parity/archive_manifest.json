@@ -1,0 +1,208 @@
+{
+  "root_at_capture": "/tmp/classroom-transfer-final_stress_parity-20261105",
+  "files": [
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/staged_report.json",
+      "archive_path": "staged_report.json",
+      "original_sha256": "e21f5397d305d07c383cecff6cf6733a30913313b651ecce0d9d88003c055c91",
+      "archive_sha256": "e21f5397d305d07c383cecff6cf6733a30913313b651ecce0d9d88003c055c91",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105-source-rates.json",
+      "archive_path": "source_rates.json",
+      "original_sha256": "ebbf6ed34c8a466d65c6c948329857232cac265ccb4f35302fee431c85a8f892",
+      "archive_sha256": "ebbf6ed34c8a466d65c6c948329857232cac265ccb4f35302fee431c85a8f892",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105.log",
+      "archive_path": "runner.log.gz",
+      "original_sha256": "8db7af6323cf7ef2a48d38acd31165a926edac6fc7cc87af3078c1a90b54d982",
+      "archive_sha256": "a91a0aad30932215426ed12ff369bd8fa008edec0823c470eab171dccfdddd9e",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/acceptance.json",
+      "archive_path": "17_web_hardware_value_parity/acceptance.json",
+      "original_sha256": "18dc2dfba323cb73dc1e4ca57f62b31a4cf7874cd46601c58730da82ac8a2d98",
+      "archive_sha256": "18dc2dfba323cb73dc1e4ca57f62b31a4cf7874cd46601c58730da82ac8a2d98",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/derived_evidence.json",
+      "archive_path": "17_web_hardware_value_parity/derived_evidence.json",
+      "original_sha256": "e8b76eeaa114e0fa87cf0c341aa2255ea05e5a05778fa5c37c733d1667c84404",
+      "archive_sha256": "e8b76eeaa114e0fa87cf0c341aa2255ea05e5a05778fa5c37c733d1667c84404",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/safety_assessment.json",
+      "archive_path": "17_web_hardware_value_parity/safety_assessment.json",
+      "original_sha256": "0441ae39b94bd0a2664fafdfb62975f87009798f47461abd41033e636e0c1154",
+      "archive_sha256": "0441ae39b94bd0a2664fafdfb62975f87009798f47461abd41033e636e0c1154",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/runtime_manifest.json",
+      "archive_path": "17_web_hardware_value_parity/runtime_manifest.json",
+      "original_sha256": "013c2c718ff1fd4bb9478e9d54f5f080d306a9fa282b2d27673ce6652e700672",
+      "archive_sha256": "013c2c718ff1fd4bb9478e9d54f5f080d306a9fa282b2d27673ce6652e700672",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/stress_crate_assessment.json",
+      "archive_path": "17_web_hardware_value_parity/stress_crate_assessment.json",
+      "original_sha256": "95a972be9d9bc1531c75bc3cde455ca8f2980faedbd8aa6b5b031eee954d8d20",
+      "archive_sha256": "95a972be9d9bc1531c75bc3cde455ca8f2980faedbd8aa6b5b031eee954d8d20",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/classroom_nav_sim_time.yaml",
+      "archive_path": "17_web_hardware_value_parity/classroom_nav_sim_time.yaml",
+      "original_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "archive_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/classroom_nodes_sim.yaml",
+      "archive_path": "17_web_hardware_value_parity/classroom_nodes_sim.yaml",
+      "original_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "archive_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/ekf_hardware_like_sim.yaml",
+      "archive_path": "17_web_hardware_value_parity/ekf_hardware_like_sim.yaml",
+      "original_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "archive_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/memory_observer.summary.json",
+      "archive_path": "17_web_hardware_value_parity/memory_observer.summary.json",
+      "original_sha256": "fac1770c5860ea3ff25203b6f599d3af5f4408e7605e793d454b565cb97730e0",
+      "archive_sha256": "fac1770c5860ea3ff25203b6f599d3af5f4408e7605e793d454b565cb97730e0",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/actual_spawned_model.sdf",
+      "archive_path": "17_web_hardware_value_parity/actual_spawned_model.sdf",
+      "original_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "archive_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/fixture/fixture_manifest.json",
+      "archive_path": "17_web_hardware_value_parity/fixture/fixture_manifest.json",
+      "original_sha256": "957b1adebbf80f94c475f1c21fcd15cd0d2e3df47b1ff4abb51281d4e17547d4",
+      "archive_sha256": "957b1adebbf80f94c475f1c21fcd15cd0d2e3df47b1ff4abb51281d4e17547d4",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/fixture/waffle_pi_fault.sdf",
+      "archive_path": "17_web_hardware_value_parity/fixture/waffle_pi_fault.sdf",
+      "original_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "archive_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/fixture/classroom_fault.world",
+      "archive_path": "17_web_hardware_value_parity/fixture/classroom_fault.world",
+      "original_sha256": "856e052c4a38b6e472a513210109d040c896938a309093ec5bc271572742b020",
+      "archive_sha256": "856e052c4a38b6e472a513210109d040c896938a309093ec5bc271572742b020",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/safety_timeline.jsonl",
+      "archive_path": "17_web_hardware_value_parity/safety_timeline.jsonl.gz",
+      "original_sha256": "eed8c83dfd8f431cab492ca97c3a1d6dc4b67ea0d50f2fddeb9f843a57b57671",
+      "archive_sha256": "237c323a6cb52d615643b038ef04ef207007beeffa1e0ff55a341d2f9611be5b",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/memory_observer.jsonl",
+      "archive_path": "17_web_hardware_value_parity/memory_observer.jsonl.gz",
+      "original_sha256": "c2ff0bf1fb92fc7645f2a6152017fea18df1a4a57f6e52bd5c20a5a3f70af6c4",
+      "archive_sha256": "f54c2c49b057efe1b713d7176ce297a4da5038682b61420a19f14ed242402106",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/sensor_faults.jsonl",
+      "archive_path": "17_web_hardware_value_parity/sensor_faults.jsonl.gz",
+      "original_sha256": "93273114a52a23d9f39209da5cf831dce79badc5d1a72c66f5389a14efde5762",
+      "archive_sha256": "2c7819524823a8318eaa072c5e296fcd3b1f276df306a7e11b858f39849f4d67",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/stress_crate_trace.jsonl",
+      "archive_path": "17_web_hardware_value_parity/stress_crate_trace.jsonl.gz",
+      "original_sha256": "46c715bfc44226e60d86a7cec7312902ea9bfeba876b7308cb9dc663488ba4ef",
+      "archive_sha256": "846f72252ed45e25a3a17ecfcdec682f8dfbf69e952f7e420017efb05b86acc0",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/gazebo_launch.log",
+      "archive_path": "17_web_hardware_value_parity/gazebo_launch.log.gz",
+      "original_sha256": "38a29f1c770e68b879442a8abd6d26b8a74404e63066903ccb8951d83a816d3e",
+      "archive_sha256": "de1f4400921eb0259e3d7c36b535800f0c011e3ce2e705eea8703f0893e57028",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/web_server.log",
+      "archive_path": "17_web_hardware_value_parity/web_server.log.gz",
+      "original_sha256": "a9e5ce0c2d338a343c8c2db8dd80aa0137a35b1e7c1c3cf88f253e55ac077b59",
+      "archive_sha256": "0663f6fd0055890ca171772ee3204a8cffca66094c7a3f8891a659b068cb34aa",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/sector_2_rear_confirmed.jpg",
+      "archive_path": "17_web_hardware_value_parity/sector_2_rear_confirmed.jpg",
+      "original_sha256": "46eedc0ef9ac9dfd4a4453b7d122d44a7faed73918ade1ef523a72ed46524871",
+      "archive_sha256": "46eedc0ef9ac9dfd4a4453b7d122d44a7faed73918ade1ef523a72ed46524871",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/sector_1_rear_confirmed.jpg",
+      "archive_path": "17_web_hardware_value_parity/sector_1_rear_confirmed.jpg",
+      "original_sha256": "fbaecf4e004f000ff45c60d4f6d1f94c985ed92bc49ed7bc331008209c75b94b",
+      "archive_sha256": "fbaecf4e004f000ff45c60d4f6d1f94c985ed92bc49ed7bc331008209c75b94b",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-final_stress_parity-20261105/17_web_hardware_value_parity/sector_3_rear_confirmed.jpg",
+      "archive_path": "17_web_hardware_value_parity/sector_3_rear_confirmed.jpg",
+      "original_sha256": "affe45e24c6950b2e0f0727acfbeb399fa2bf7d7f5dd9f0e1939eab6a90239cd",
+      "archive_sha256": "affe45e24c6950b2e0f0727acfbeb399fa2bf7d7f5dd9f0e1939eab6a90239cd",
+      "gzip": false
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T190948_174485Z_b1da1d1c/manifest.json",
+      "archive_path": "17_web_hardware_value_parity/incidents/incident_20261104T190948_174485Z_b1da1d1c/manifest.json",
+      "original_sha256": "b2333e3deed80a67878ce6e6a5412ab0fe2b984fa4a5308256edadf350126a6d",
+      "archive_sha256": "b2333e3deed80a67878ce6e6a5412ab0fe2b984fa4a5308256edadf350126a6d",
+      "gzip": false
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T190948_174485Z_b1da1d1c/events.jsonl.gz",
+      "archive_path": "17_web_hardware_value_parity/incidents/incident_20261104T190948_174485Z_b1da1d1c/events.jsonl.gz",
+      "original_sha256": "6a1bfddfe894577cd7bd760621a6670a348bb160ad3cb7bfe9343afd4beccd18",
+      "archive_sha256": "6a1bfddfe894577cd7bd760621a6670a348bb160ad3cb7bfe9343afd4beccd18",
+      "gzip": false
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T191046_764380Z_cd386af0/manifest.json",
+      "archive_path": "17_web_hardware_value_parity/incidents/incident_20261104T191046_764380Z_cd386af0/manifest.json",
+      "original_sha256": "2f567a4273554bf022fd1172790950cb62275a239848d9a1afe85b07d1b3f4a1",
+      "archive_sha256": "2f567a4273554bf022fd1172790950cb62275a239848d9a1afe85b07d1b3f4a1",
+      "gzip": false
+    },
+    {
+      "original_path": "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T191046_764380Z_cd386af0/events.jsonl.gz",
+      "archive_path": "17_web_hardware_value_parity/incidents/incident_20261104T191046_764380Z_cd386af0/events.jsonl.gz",
+      "original_sha256": "436f5891258fa44de5f90eee2a96d6dd884ee4bf235a454bb2833a807f5e4c67",
+      "archive_sha256": "436f5891258fa44de5f90eee2a96d6dd884ee4bf235a454bb2833a807f5e4c67",
+      "gzip": false
+    }
+  ]
+}

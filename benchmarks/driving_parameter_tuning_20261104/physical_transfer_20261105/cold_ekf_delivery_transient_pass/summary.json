@@ -1,0 +1,116 @@
+{
+  "stages": [
+    {
+      "stage": "16_web_transient_resume",
+      "outcome": "PASS",
+      "reasons": [],
+      "mission_backend_passed": true,
+      "final_state": "HOME_REACHED",
+      "cold_start_proof": {
+        "passed": true,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend",
+        "before": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 0,
+          "map_tf_messages": 0,
+          "web_pose": null,
+          "observed_seconds": 6.062882889000321
+        },
+        "after": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 3,
+          "map_tf_messages": 1
+        }
+      },
+      "prearm_passed": true,
+      "source_unchanged": true,
+      "actor_moving_steps": null,
+      "actor_bypassed_while_live": null,
+      "actor_minimum_clearance_m": null,
+      "safety_passed": true,
+      "safety_violations": [],
+      "transient": {
+        "passed": true,
+        "reasons": [],
+        "profile_applied_monotonic": 26117.067709669,
+        "first_sector_goal_count": 1,
+        "fault_delivery": {
+          "scan": {
+            "dropped_transient": 7,
+            "max_delivery_delay_s": 0.36,
+            "increase_over_clean_s": 0.349,
+            "fault_observed": true
+          },
+          "odom": {
+            "dropped_transient": 16,
+            "max_delivery_delay_s": 0.358,
+            "increase_over_clean_s": 0.347,
+            "fault_observed": true
+          },
+          "tf": {
+            "dropped_transient": 16,
+            "max_delivery_delay_s": 0.36,
+            "increase_over_clean_s": 0.348,
+            "fault_observed": true
+          }
+        },
+        "mission_continuity": {
+          "samples": 598,
+          "route_preserved": true,
+          "completed_prefix_valid": true,
+          "states": {
+            "NAVIGATING": 343,
+            "WAIT_REPLAN": 11,
+            "CONFIRMING": 23,
+            "DWELLING": 46,
+            "RETURNING_HOME": 168,
+            "HOME_REACHED": 7
+          },
+          "web_wait_replan_seen": true,
+          "start_event_count": 1,
+          "cancel_event_count": 0,
+          "marker_confirmations": {
+            "1": 1,
+            "2": 1
+          }
+        },
+        "fault_window_samples": {
+          "cmd_vel": 115,
+          "truth": 47,
+          "health": 20,
+          "navigation": 6
+        },
+        "fault_window_command_max": [
+          0.208,
+          0.038
+        ],
+        "fault_window_command_limits": {
+          "linear_mps": 0.22,
+          "angular_radps": 0.5,
+          "source": "/tmp/classroom-transfer-cold-ekf-transient-v3-20261105/16_web_transient_resume/classroom_nav_sim_time.yaml",
+          "sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef"
+        },
+        "health_hold_seen": true,
+        "health_auto_recovered": true,
+        "zero_command_latency_s": 0.002,
+        "late_nonzero_commands_in_hold": 0,
+        "health_hold_truth_drift_m": 0.0,
+        "health_hold_truth_yaw_rad": 0.0002,
+        "follower_cancel_overlap_seen": true,
+        "follower_cancel_statuses": [
+          "WAIT_REPLAN",
+          "WAIT_REPLAN"
+        ],
+        "nav_goal_stamp_count": 1,
+        "post_fault_motion_seen": true,
+        "post_fault_localization_allowed": true
+      },
+      "physical_drive": false,
+      "visual_browser_qa": false
+    }
+  ],
+  "passed": true
+}

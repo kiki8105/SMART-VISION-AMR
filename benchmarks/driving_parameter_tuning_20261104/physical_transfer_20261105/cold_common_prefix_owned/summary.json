@@ -1,0 +1,67 @@
+{
+  "stages": [
+    {
+      "stage": "25_web_inventory_sector3_moving_obstacle",
+      "outcome": "FAIL",
+      "reasons": [
+        "web_obstacle_injector_failed",
+        "web_obstacle_bypassed_while_live_unverified",
+        "web_obstacle_motion_unverified",
+        "safety_timeline_failed",
+        "runner_nonzero_exit"
+      ],
+      "mission_backend_passed": true,
+      "final_state": "HOME_REACHED",
+      "cold_start_proof": {
+        "passed": true,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend",
+        "before": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 0,
+          "map_tf_messages": 0,
+          "web_pose": null,
+          "observed_seconds": 6.430118972002674
+        },
+        "after": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 1,
+          "map_tf_messages": 1
+        }
+      },
+      "prearm_passed": true,
+      "source_unchanged": true,
+      "actor_moving_steps": 1,
+      "actor_bypassed_while_live": false,
+      "actor_minimum_clearance_m": 0.06445738940362936,
+      "safety_passed": false,
+      "safety_violations": [
+        {
+          "kind": "ground_truth_missing_at_wait_replan_entry",
+          "t": 54.3075,
+          "start_t": 53.4507,
+          "duration_s": 0.8568,
+          "last_nonzero_command_after_s": 0.10679999999999978,
+          "first_zero_command_after_s": 0.13330000000000553,
+          "max_displacement_m": 0.0,
+          "max_forward_displacement_m": 0.0,
+          "max_heading_change_rad": 0.0,
+          "truth_samples": 6,
+          "entry_speed_mps": 0.0484,
+          "entry_command_speed_mps": 0.0484,
+          "entry_truth_speed_mps": null,
+          "entry_front_core_min_m": 0.7829670310020447,
+          "entry_front_core_angle_deg": 348.79243542488246,
+          "ground_truth_stopping_distance_bound_m": 0.05,
+          "estimated_front_body_clearance_m": 0.636
+        }
+      ],
+      "transient": null,
+      "physical_drive": false,
+      "visual_browser_qa": false
+    }
+  ],
+  "passed": false
+}

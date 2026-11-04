@@ -1,0 +1,175 @@
+{
+  "scope": "Exact adapter-method AST on recorded map/entry; no ROS node, discovery, Gazebo or motor command.",
+  "actual_trial_outcome": "INTERRUPTED_FOR_DIAGNOSIS_FAIL",
+  "observed": 0,
+  "remembered": 0,
+  "comparison": [
+    {
+      "policy": "archived hard-execution geometry",
+      "hard_edges": 276,
+      "cost_edges": 740,
+      "route_cells": 0
+    },
+    {
+      "policy": "current cost-only adapter",
+      "hard_edges": 0,
+      "cost_edges": 1016,
+      "maximum_cost": 2.0,
+      "route_cells": 33
+    }
+  ],
+  "physical_wall_route_cells": 0,
+  "unknown_cells_preserved": 7508,
+  "first_accepted_event_retry_count": 1,
+  "physical_global_defers_new_charge": true,
+  "three_controlled_event_state": "CONTROLLER_HOLD",
+  "current_route": [
+    [
+      47,
+      74
+    ],
+    [
+      47,
+      75
+    ],
+    [
+      46,
+      76
+    ],
+    [
+      45,
+      77
+    ],
+    [
+      45,
+      78
+    ],
+    [
+      45,
+      79
+    ],
+    [
+      44,
+      80
+    ],
+    [
+      44,
+      81
+    ],
+    [
+      44,
+      82
+    ],
+    [
+      43,
+      82
+    ],
+    [
+      42,
+      82
+    ],
+    [
+      41,
+      82
+    ],
+    [
+      40,
+      82
+    ],
+    [
+      39,
+      82
+    ],
+    [
+      38,
+      82
+    ],
+    [
+      37,
+      83
+    ],
+    [
+      36,
+      84
+    ],
+    [
+      35,
+      85
+    ],
+    [
+      34,
+      86
+    ],
+    [
+      33,
+      87
+    ],
+    [
+      32,
+      88
+    ],
+    [
+      31,
+      89
+    ],
+    [
+      30,
+      90
+    ],
+    [
+      29,
+      91
+    ],
+    [
+      29,
+      92
+    ],
+    [
+      29,
+      93
+    ],
+    [
+      29,
+      94
+    ],
+    [
+      29,
+      95
+    ],
+    [
+      29,
+      96
+    ],
+    [
+      29,
+      97
+    ],
+    [
+      29,
+      98
+    ],
+    [
+      29,
+      99
+    ],
+    [
+      29,
+      100
+    ]
+  ],
+  "adapter_method_sha256": {
+    "_failure_constraints": "142a2770f9e2eb324c7cece8068a907150ff5743f83d68f1daa3fd0d506e9f4d",
+    "_controller_retry_policy": "ac1797c6a468f3366615e8f044cdad4ca4e4122456bd3b806c3e3dd8ce01ae4c"
+  },
+  "sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "64c7d94e992dea7f550c3c3fbbe98999cf54aa6d589ef2660f0f03cc1245aceb",
+    "benchmarks/driving_parameter_tuning_20261104/recovery_replacement_validation/clean_home_failure_audit/fixture.json": "fc01e9037fbe8e75b313fff32cf174ac5d47b8824c086212298865ce859645ed",
+    "benchmarks/driving_parameter_tuning_20261104/recovery_replacement_validation/clean_home_failure_audit/classroom_fault.pgm": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+    "benchmarks/driving_parameter_tuning_20261104/controller_classification_persistence_20261105/replay_adapter_policy.py": "a90b77327a39a907a403d29a8dcb34c341546d36d03505398e739111c0dd3e57"
+  },
+  "limitations": [
+    "Offline path existence is not closed-loop tracking or verified reverse success.",
+    "One recorded execution restriction is replayed; additional retry IDs and the physical phase are controlled test inputs.",
+    "The cost-only adapter does not replace measured occupancy, start-only geometry, follower Spin, current-source freshness or Nav2/raw guard collision checks."
+  ]
+}

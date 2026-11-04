@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""One bounded 1cm connector screen. Artifacts only; never a runtime planner."""
+import argparse,hashlib,heapq,json,math,time
+from pathlib import Path
+import numpy as np
+from scipy.ndimage import distance_transform_edt
+from geometry_tools import load_saved_map,polyline_gap,path_progress
+
+ROOT=Path(__file__).resolve().parents[3]
+NEIGHBORS=((-1,0),(1,0),(0,-1),(0,1),(-1,-1),(1,-1),(-1,1),(1,1))
+
+
+def run():
+    started=time.perf_counter();phase=started;timings={}
+    fixture=ROOT/'benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_v2_geometry_tracking_inputs.json'
+    source=json.loads(fixture.read_text());snapshot=source['snapshot'];diagnostic=snapshot['planner']['details']['start_certificate_diagnostics']
+    pose=tuple(diagnostic['fresh_pose'][:2]);goal=(-.25,-1.98)
+    map_path=ROOT/'ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.yaml'
+    metadata,grid=load_saved_map(map_path);resolution=metadata['resolution'];ox,oy=metadata['origin']['x'],metadata['origin']['y']
+    width,height=metadata['width'],metadata['height'];bounds=(ox,oy,ox+width*resolution,oy+height*resolution)
+    raw={(x,y) for y,x in zip(*np.where((grid<0)|(grid>=65)))}
+    observed={tuple(cell) for cell in snapshot['observed_snapshot_cells']};remembered={tuple(cell) for cell in snapshot['remembered_snapshot_cells']}
+    occupied=raw|observed|remembered
+    lower=np.asarray(sorted(occupied),dtype=float)*resolution+[ox,oy];upper=lower+resolution
+    reference=[tuple(point) for point in source['owned_tracking']['path']['points']]
+    radius=.22;margin=.02;budget_s=.060;max_expansions=1500
+    timings['input_decode_and_raw_geometry_ms']=(time.perf_counter()-phase)*1000;phase=time.perf_counter()
+    report={'schema_version':1,'scope':'One offline connector feasibility query; unadopted, no ROS/Gazebo/drive commands',
+      'fixture':str(fixture.relative_to(ROOT)),'fixture_sha256':hashlib.sha256(fixture.read_bytes()).hexdigest(),
+      'map_image_sha256':hashlib.sha256((ROOT/source['map_pgm']).read_bytes()).hexdigest(),
+      'source_astar_sha256':hashlib.sha256((ROOT/'ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py').read_bytes()).hexdigest(),
+      'original_occupied_square_count':len(occupied),'observed_count':len(observed),'remembered_count':len(remembered),
+      'radius_m':radius,'constructive_proof_margin_m':margin,'spacing_m':resolution/5,'budget_ms':60.,'expansion_limit':max_expansions,
+      'current_pose':pose,'exact_goal':goal,'runtime_adopted':False,'timings_ms':timings,
+      'timing_scope':'Includes input decode, original square preparation, tail validation, local field, all8edge masks, search, canonicalization and full output validation. Python/import startup is separately excluded; no prior field cache.'}
+    def finish(reason,**details):
+        report.update(reason=reason,**details);timings['total_ms']=(time.perf_counter()-started)*1000
+        report['within_budget']=timings['total_ms']<=60. and report.get('expansions',0)<=max_expansions
+        report['feasible_within_budget']=(reason=='CERTIFIED_CONNECTOR' and report['within_budget'])
+        return report
+    progress=path_progress(reference,pose);traveled=0.;selected=None;candidates=[]
+    for index,(a,b) in enumerate(zip(reference,reference[1:]),start=1):
+        traveled+=math.dist(a,b)
+        if traveled<progress+.4:continue
+        if len(candidates)>=3:break
+        tail=reference[index:]+[goal]
+        tail_gap=polyline_gap(tail,lower,upper,radius,bounds)
+        candidates.append({'index':index,'progress_ahead_m':traveled-progress,'xy':b,'full_tail_body_gap_m':tail_gap})
+        if tail_gap>=margin-1e-10:selected=(index,b,tail);break
+    timings['anchor_and_full_retained_tail_validation_ms']=(time.perf_counter()-phase)*1000;phase=time.perf_counter()
+    report['anchor_candidates']=candidates
+    if selected is None:return finish('NO_2CM_RETAINED_TAIL')
+    index,anchor,tail=selected;report['anchor_index']=index;report['anchor']=anchor
+    spacing=resolution/5;half=spacing/2
+    # Planning center window; surrounding original squares are retained with
+    # a .46m pad, larger than both collision and .45m clearance objective.
+    xmin=min(pose[0],anchor[0])-.08;xmax=max(pose[0],anchor[0])+.08
+    ymin=min(pose[1],anchor[1])-.06;ymax=max(pose[1],anchor[1])+.06
+    fx0=math.ceil((xmin-ox)/spacing-.5);fx1=math.floor((xmax-ox)/spacing-.5)
+    fy0=math.ceil((ymin-oy)/spacing-.5);fy1=math.floor((ymax-oy)/spacing-.5)
+    hx0=max(0,math.floor((xmin-.46-ox)/half));hx1=min(width*10,math.ceil((xmax+.46-ox)/half))
+    hy0=max(0,math.floor((ymin-.46-oy)/half));hy1=min(height*10,math.ceil((ymax+.46-oy)/half))
+    bitmap=np.zeros((hy1-hy0+1,hx1-hx0+1),dtype=bool)
+    for x,y in occupied:
+        left,right=max(0,x*10-hx0),min(bitmap.shape[1],x*10+11-hx0)
+        bottom,top=max(0,y*10-hy0),min(bitmap.shape[0],y*10+11-hy0)
+        if left<right and bottom<top:bitmap[bottom:top,left:right]=True
+    bitmap[[0,-1],:]=True;bitmap[:,[0,-1]]=True
+    distance=distance_transform_edt(~bitmap,sampling=half)
+    xs=np.arange(fx0,fx1+1);ys=np.arange(fy0,fy1+1)
+    ix,iy=np.meshgrid(xs*2+1-hx0,ys*2+1-hy0)
+    center_distance=distance[iy,ix]
+    hard=center_distance>=radius+margin-1e-10
+    masks=[]
+    for dx,dy in NEIGHBORS:
+        # Node centers and exact halfway samples lie on the5mm distance
+        # lattice. Quarter edge length is a full between-sample reserve.
+        nx,ny=ix+2*dx,iy+2*dy
+        mid=distance[iy+dy,ix+dx];target=distance[ny,nx]
+        masks.append(hard&(target>=radius+margin-1e-10)&
+                     (np.minimum(np.minimum(center_distance,target),mid)-spacing*math.hypot(dx,dy)/4>=radius+margin-1e-10))
+    edges=np.asarray(masks,dtype=bool);penalty=1.5*np.maximum(0.,(.45-center_distance)/.45)
+    timings['local_distance_field_and_all_edge_preparation_ms']=(time.perf_counter()-phase)*1000;phase=time.perf_counter()
+    def cell(point):
+        # Explicit range rejection, not an out-of-map clamp.
+        p=(round((point[0]-ox)/spacing-.5)-fx0,round((point[1]-oy)/spacing-.5)-fy0)
+        if not 0<=p[0]<len(xs) or not 0<=p[1]<len(ys):raise ValueError('endpoint_outside_local_window')
+        return p
+    def world(p):return (ox+(p[0]+fx0+.5)*spacing,oy+(p[1]+fy0+.5)*spacing)
+    start=cell(pose);end=cell(anchor);queue=[(math.dist(start,end),0.,start)];best={start:0.};came={};expansions=0;found=None
+    if not hard[start[1],start[0]] or not hard[end[1],end[0]]:return finish('BLOCKED_FINE_ENDPOINT')
+    # Reserve8ms inside the same60ms for reconstruction and independent final
+    # proof; it is not an extra planning budget after search.
+    search_deadline=started+budget_s-.008
+    while queue:
+        if time.perf_counter()>search_deadline:return finish('TIME_BUDGET',expansions=expansions)
+        _,cost,current=heapq.heappop(queue)
+        if cost!=best.get(current):continue
+        if expansions>=max_expansions:return finish('EXPANSION_BUDGET',expansions=expansions)
+        expansions+=1
+        if current==end:
+            found=[current]
+            while current in came:current=came[current];found.append(current)
+            found.reverse();break
+        x,y=current
+        for direction,(dx,dy) in enumerate(NEIGHBORS):
+            nx,ny=x+dx,y+dy
+            if not 0<=nx<len(xs) or not 0<=ny<len(ys) or not edges[direction,y,x]:continue
+            neighbor=(nx,ny);tentative=cost+math.hypot(dx,dy)*(1.+float(penalty[ny,nx]))
+            if tentative<best.get(neighbor,math.inf):best[neighbor]=tentative;came[neighbor]=current;heapq.heappush(queue,(tentative+math.dist(neighbor,end),tentative,neighbor))
+    timings['search_ms']=(time.perf_counter()-phase)*1000;phase=time.perf_counter()
+    if found is None:return finish('NO_CONNECTOR',expansions=expansions)
+    points=[pose]+[world(p) for p in found]+tail
+    fold_removed=False
+    if len(points)>2 and np.dot(np.subtract(points[1],points[0]),np.subtract(points[2],points[1]))<0:
+        if polyline_gap([points[0],points[2]],lower,upper,radius,bounds)>=margin-1e-10:
+            del points[1];fold_removed=True
+    canonical=[points[0]]
+    for p in points[1:]:
+        if math.dist(p,canonical[-1])<1e-10:continue
+        if len(canonical)>1:
+            a=np.subtract(canonical[-1],canonical[-2]);b=np.subtract(p,canonical[-1])
+            if abs(a[0]*b[1]-a[1]*b[0])<1e-12 and np.dot(a,b)>0:canonical.pop()
+        canonical.append(p)
+    gap=polyline_gap(canonical,lower,upper,radius,bounds)
+    timings['canonicalization_and_whole_output_validation_ms']=(time.perf_counter()-phase)*1000
+    return finish('CERTIFIED_CONNECTOR' if gap>=margin-1e-10 else 'OUTPUT_BODY_PROOF_FAILED',
+       expansions=expansions,connector_nodes=len(found),whole_path_points=len(canonical),world_points=canonical,
+       whole_path_length_m=sum(math.dist(p,q) for p,q in zip(canonical,canonical[1:])),
+       exact_whole_path_body_gap_m=gap,initial_backward_fold_removed=fold_removed,
+       local_fine_nodes=len(xs)*len(ys),half_grid_field_nodes=bitmap.size)
+
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True);args=parser.parse_args()
+    report=run();report['tool_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    args.output.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+    print(json.dumps({k:v for k,v in report.items() if k!='world_points'},ensure_ascii=False))

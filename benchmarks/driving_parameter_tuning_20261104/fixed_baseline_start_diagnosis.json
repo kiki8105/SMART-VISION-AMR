@@ -1,0 +1,958 @@
+{
+  "source": "/tmp/classroom-tuning-fixed-baseline-20261104/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log",
+  "scope": "Read-only recorded logs, no ROS calls, no behavior/config edits",
+  "first_no_path_diagnostic": {
+    "line": 221,
+    "wall_time": 1793798470.678023,
+    "diagnostic": {
+      "motion_pose": {
+        "checked_monotonic": 12640.321522923,
+        "first_failed_reason": "OK",
+        "health_receipt_age_s": 0.08580975600125385,
+        "health_source_age_s": 0.06,
+        "health_stamp_ns": 16260000000,
+        "lookup_error": "",
+        "node_clock_ns": 16320000000,
+        "odom_receipt_age_s": 0.08630804200038256,
+        "odom_source_age_s": 0.165,
+        "odom_stamp_ns": 16155000000,
+        "pose": [
+          0.05789840908542915,
+          -0.5569634552428514,
+          -1.2673816150474961
+        ],
+        "scan_receipt_age_s": 0.08541022400095244,
+        "scan_source_age_s": 0.133,
+        "scan_stamp_ns": 16187000000,
+        "tf_source_age_s": 0.223,
+        "tf_stamp_ns": 16097000000
+      },
+      "start_certificate": {
+        "allowed_edges": [],
+        "enabled": true,
+        "escape_cells_before": [],
+        "first_failed_reason": "remembered_inflation_start",
+        "fresh_pose": null,
+        "fresh_pose_drift_m": null,
+        "helper_called": false,
+        "measured_remembered_inflated_start": false,
+        "neighbor_masks": [
+          {
+            "cell": [
+              33,
+              92
+            ],
+            "conservative": true,
+            "measured": false,
+            "static": false,
+            "virtual_only": true
+          },
+          {
+            "cell": [
+              33,
+              93
+            ],
+            "conservative": true,
+            "measured": false,
+            "static": false,
+            "virtual_only": true
+          },
+          {
+            "cell": [
+              33,
+              94
+            ],
+            "conservative": true,
+            "measured": false,
+            "static": false,
+            "virtual_only": true
+          },
+          {
+            "cell": [
+              34,
+              92
+            ],
+            "conservative": true,
+            "measured": true,
+            "static": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              34,
+              94
+            ],
+            "conservative": true,
+            "measured": true,
+            "static": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              35,
+              92
+            ],
+            "conservative": true,
+            "measured": true,
+            "static": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              35,
+              93
+            ],
+            "conservative": true,
+            "measured": true,
+            "static": false,
+            "virtual_only": false
+          },
+          {
+            "cell": [
+              35,
+              94
+            ],
+            "conservative": true,
+            "measured": true,
+            "static": false,
+            "virtual_only": false
+          }
+        ],
+        "observation_receipt_age_s": 0.25694705799833173,
+        "observed_inflated_start": true,
+        "raw_observed_start": false,
+        "raw_static_start": false,
+        "remembered_inflated_start": true,
+        "start": [
+          34,
+          93
+        ],
+        "start_tf_pose": [
+          0.0706595982259933,
+          -0.5820050889245145
+        ],
+        "start_tf_stamp_ns": 18193000000,
+        "static_start": false
+      }
+    },
+    "next_no_path": "[astar_planner-17] [ERROR] [1793798470.697031026] [astar_planner]: No path from (34, 93) to (27, 65) (static_start=False, raw_static_start=False, remembered_start=True, observed_start=True, raw_observed_start=False, dynamic_escape_cells=0, static_goal=False, remembered_goal=False, observed_goal=False, observed_raw=23, observed_near_map_wall=0, observed_inside_static_inflation=19, observed_effective=23, observed_inflated=387, remembered_raw=6, remembered_inflated=220, failed_edges=0, failed_edge_penalties=0, clearance_penalty_cells=3803, wall_match_tolerance_cells=2, static_reference_cells=67, static_reference_dynamic_hits=9, first_blocked_reference_cells=[(34, 93), (34, 92), (35, 91), (36, 90), (37, 89), (38, 88), (39, 87), (40, 86)])"
+  },
+  "all_diagnostics": [
+    {
+      "line": 221,
+      "wall_time": 1793798470.678023,
+      "diagnostic": {
+        "motion_pose": {
+          "checked_monotonic": 12640.321522923,
+          "first_failed_reason": "OK",
+          "health_receipt_age_s": 0.08580975600125385,
+          "health_source_age_s": 0.06,
+          "health_stamp_ns": 16260000000,
+          "lookup_error": "",
+          "node_clock_ns": 16320000000,
+          "odom_receipt_age_s": 0.08630804200038256,
+          "odom_source_age_s": 0.165,
+          "odom_stamp_ns": 16155000000,
+          "pose": [
+            0.05789840908542915,
+            -0.5569634552428514,
+            -1.2673816150474961
+          ],
+          "scan_receipt_age_s": 0.08541022400095244,
+          "scan_source_age_s": 0.133,
+          "scan_stamp_ns": 16187000000,
+          "tf_source_age_s": 0.223,
+          "tf_stamp_ns": 16097000000
+        },
+        "start_certificate": {
+          "allowed_edges": [],
+          "enabled": true,
+          "escape_cells_before": [],
+          "first_failed_reason": "remembered_inflation_start",
+          "fresh_pose": null,
+          "fresh_pose_drift_m": null,
+          "helper_called": false,
+          "measured_remembered_inflated_start": false,
+          "neighbor_masks": [
+            {
+              "cell": [
+                33,
+                92
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                93
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                94
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                34,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                34,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                93
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            }
+          ],
+          "observation_receipt_age_s": 0.25694705799833173,
+          "observed_inflated_start": true,
+          "raw_observed_start": false,
+          "raw_static_start": false,
+          "remembered_inflated_start": true,
+          "start": [
+            34,
+            93
+          ],
+          "start_tf_pose": [
+            0.0706595982259933,
+            -0.5820050889245145
+          ],
+          "start_tf_stamp_ns": 18193000000,
+          "static_start": false
+        }
+      },
+      "next_no_path": "[astar_planner-17] [ERROR] [1793798470.697031026] [astar_planner]: No path from (34, 93) to (27, 65) (static_start=False, raw_static_start=False, remembered_start=True, observed_start=True, raw_observed_start=False, dynamic_escape_cells=0, static_goal=False, remembered_goal=False, observed_goal=False, observed_raw=23, observed_near_map_wall=0, observed_inside_static_inflation=19, observed_effective=23, observed_inflated=387, remembered_raw=6, remembered_inflated=220, failed_edges=0, failed_edge_penalties=0, clearance_penalty_cells=3803, wall_match_tolerance_cells=2, static_reference_cells=67, static_reference_dynamic_hits=9, first_blocked_reference_cells=[(34, 93), (34, 92), (35, 91), (36, 90), (37, 89), (38, 88), (39, 87), (40, 86)])"
+    },
+    {
+      "line": 247,
+      "wall_time": 1793798481.33909,
+      "diagnostic": {
+        "motion_pose": {
+          "checked_monotonic": 12650.8866989,
+          "first_failed_reason": "OK",
+          "health_receipt_age_s": 0.21377323600063391,
+          "health_source_age_s": 0.12,
+          "health_stamp_ns": 26140000000,
+          "lookup_error": "",
+          "node_clock_ns": 26260000000,
+          "odom_receipt_age_s": 0.1555661410002358,
+          "odom_source_age_s": 0.062,
+          "odom_stamp_ns": 26198000000,
+          "pose": [
+            0.0670663774315827,
+            -0.5795621749895206,
+            -1.396072276025015
+          ],
+          "scan_receipt_age_s": 0.17552438600068854,
+          "scan_source_age_s": 0.073,
+          "scan_stamp_ns": 26187000000,
+          "tf_source_age_s": 0.062,
+          "tf_stamp_ns": 26198000000
+        },
+        "start_certificate": {
+          "allowed_edges": [],
+          "enabled": true,
+          "escape_cells_before": [],
+          "first_failed_reason": "remembered_inflation_start",
+          "fresh_pose": null,
+          "fresh_pose_drift_m": null,
+          "helper_called": false,
+          "measured_remembered_inflated_start": true,
+          "neighbor_masks": [
+            {
+              "cell": [
+                33,
+                92
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                93
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                94
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                34,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                34,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                93
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            }
+          ],
+          "observation_receipt_age_s": 0.24429020599927753,
+          "observed_inflated_start": true,
+          "raw_observed_start": false,
+          "raw_static_start": false,
+          "remembered_inflated_start": true,
+          "start": [
+            34,
+            93
+          ],
+          "start_tf_pose": [
+            0.06433872004247729,
+            -0.576380548198264
+          ],
+          "start_tf_stamp_ns": 28194000000,
+          "static_start": false
+        }
+      },
+      "next_no_path": "[astar_planner-17] [ERROR] [1793798481.368357749] [astar_planner]: No path from (34, 93) to (27, 65) (static_start=False, raw_static_start=False, remembered_start=True, observed_start=True, raw_observed_start=False, dynamic_escape_cells=0, static_goal=False, remembered_goal=False, observed_goal=False, observed_raw=24, observed_near_map_wall=0, observed_inside_static_inflation=19, observed_effective=24, observed_inflated=381, remembered_raw=8, remembered_inflated=236, failed_edges=0, failed_edge_penalties=0, clearance_penalty_cells=3802, wall_match_tolerance_cells=2, static_reference_cells=67, static_reference_dynamic_hits=9, first_blocked_reference_cells=[(34, 93), (34, 92), (35, 91), (36, 90), (37, 89), (38, 88), (39, 87), (40, 86)])"
+    },
+    {
+      "line": 255,
+      "wall_time": 1793798491.9970992,
+      "diagnostic": {
+        "motion_pose": {
+          "checked_monotonic": 12661.577968421,
+          "first_failed_reason": "OK",
+          "health_receipt_age_s": 0.1503279720000137,
+          "health_source_age_s": 0.04,
+          "health_stamp_ns": 36220000000,
+          "lookup_error": "",
+          "node_clock_ns": 36260000000,
+          "odom_receipt_age_s": 0.1809842149996257,
+          "odom_source_age_s": 0.063,
+          "odom_stamp_ns": 36197000000,
+          "pose": [
+            0.06047316879958478,
+            -0.5703118014270459,
+            -1.4062018075935503
+          ],
+          "scan_receipt_age_s": 0.1949113109985774,
+          "scan_source_age_s": 0.073,
+          "scan_stamp_ns": 36187000000,
+          "tf_source_age_s": 0.063,
+          "tf_stamp_ns": 36197000000
+        },
+        "start_certificate": {
+          "allowed_edges": [],
+          "enabled": true,
+          "escape_cells_before": [],
+          "first_failed_reason": "remembered_inflation_start",
+          "fresh_pose": null,
+          "fresh_pose_drift_m": null,
+          "helper_called": false,
+          "measured_remembered_inflated_start": true,
+          "neighbor_masks": [
+            {
+              "cell": [
+                33,
+                92
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                93
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                94
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                34,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                34,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                93
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            }
+          ],
+          "observation_receipt_age_s": 0.2686545139986265,
+          "observed_inflated_start": true,
+          "raw_observed_start": false,
+          "raw_static_start": false,
+          "remembered_inflated_start": true,
+          "start": [
+            34,
+            93
+          ],
+          "start_tf_pose": [
+            0.06105909443646107,
+            -0.5713522088152239
+          ],
+          "start_tf_stamp_ns": 38196000000,
+          "static_start": false
+        }
+      },
+      "next_no_path": "[astar_planner-17] [ERROR] [1793798492.019268226] [astar_planner]: No path from (34, 93) to (27, 65) (static_start=False, raw_static_start=False, remembered_start=True, observed_start=True, raw_observed_start=False, dynamic_escape_cells=0, static_goal=False, remembered_goal=False, observed_goal=False, observed_raw=24, observed_near_map_wall=0, observed_inside_static_inflation=18, observed_effective=24, observed_inflated=387, remembered_raw=11, remembered_inflated=251, failed_edges=0, failed_edge_penalties=0, clearance_penalty_cells=3797, wall_match_tolerance_cells=2, static_reference_cells=67, static_reference_dynamic_hits=9, first_blocked_reference_cells=[(34, 93), (34, 92), (35, 91), (36, 90), (37, 89), (38, 88), (39, 87), (40, 86)])"
+    },
+    {
+      "line": 267,
+      "wall_time": 1793798502.4457848,
+      "diagnostic": {
+        "motion_pose": {
+          "checked_monotonic": 12672.059475935,
+          "first_failed_reason": "OK",
+          "health_receipt_age_s": 0.13815566999983275,
+          "health_source_age_s": 0.02,
+          "health_stamp_ns": 45480000000,
+          "lookup_error": "",
+          "node_clock_ns": 45500000000,
+          "odom_receipt_age_s": 0.12151930400068522,
+          "odom_source_age_s": 0.006,
+          "odom_stamp_ns": 45494000000,
+          "pose": [
+            0.058444498984292964,
+            -0.5746919238371835,
+            -1.4093969260845536
+          ],
+          "scan_receipt_age_s": 0.24867246100075135,
+          "scan_source_age_s": 0.109,
+          "scan_stamp_ns": 45391000000,
+          "tf_source_age_s": 0.006,
+          "tf_stamp_ns": 45494000000
+        },
+        "start_certificate": {
+          "allowed_edges": [],
+          "enabled": true,
+          "escape_cells_before": [],
+          "first_failed_reason": "remembered_inflation_start",
+          "fresh_pose": null,
+          "fresh_pose_drift_m": null,
+          "helper_called": false,
+          "measured_remembered_inflated_start": true,
+          "neighbor_masks": [
+            {
+              "cell": [
+                33,
+                92
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                93
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                94
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                34,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                34,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                93
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            }
+          ],
+          "observation_receipt_age_s": 0.06707025700052327,
+          "observed_inflated_start": true,
+          "raw_observed_start": false,
+          "raw_static_start": false,
+          "remembered_inflated_start": true,
+          "start": [
+            34,
+            93
+          ],
+          "start_tf_pose": [
+            0.05942620534418075,
+            -0.5758938605209265
+          ],
+          "start_tf_stamp_ns": 47459000000,
+          "static_start": false
+        }
+      },
+      "next_no_path": "[astar_planner-17] [ERROR] [1793798502.469970706] [astar_planner]: No path from (34, 93) to (27, 65) (static_start=False, raw_static_start=False, remembered_start=True, observed_start=True, raw_observed_start=False, dynamic_escape_cells=0, static_goal=False, remembered_goal=False, observed_goal=False, observed_raw=26, observed_near_map_wall=0, observed_inside_static_inflation=19, observed_effective=26, observed_inflated=395, remembered_raw=11, remembered_inflated=251, failed_edges=0, failed_edge_penalties=0, clearance_penalty_cells=3792, wall_match_tolerance_cells=2, static_reference_cells=67, static_reference_dynamic_hits=9, first_blocked_reference_cells=[(34, 93), (34, 92), (35, 91), (36, 90), (37, 89), (38, 88), (39, 87), (40, 86)])"
+    },
+    {
+      "line": 275,
+      "wall_time": 1793798513.1344092,
+      "diagnostic": {
+        "motion_pose": {
+          "checked_monotonic": 12682.696918151,
+          "first_failed_reason": "OK",
+          "health_receipt_age_s": 0.27211291499952495,
+          "health_source_age_s": 0.16,
+          "health_stamp_ns": 55320000000,
+          "lookup_error": "",
+          "node_clock_ns": 55480000000,
+          "odom_receipt_age_s": 0.13831316599862475,
+          "odom_source_age_s": 0.022,
+          "odom_stamp_ns": 55458000000,
+          "pose": [
+            0.05824365821376698,
+            -0.5816028381761061,
+            -1.4128234632449583
+          ],
+          "scan_receipt_age_s": 0.21369169900026463,
+          "scan_source_age_s": 0.087,
+          "scan_stamp_ns": 55393000000,
+          "tf_source_age_s": 0.022,
+          "tf_stamp_ns": 55458000000
+        },
+        "start_certificate": {
+          "allowed_edges": [],
+          "enabled": true,
+          "escape_cells_before": [],
+          "first_failed_reason": "remembered_inflation_start",
+          "fresh_pose": null,
+          "fresh_pose_drift_m": null,
+          "helper_called": false,
+          "measured_remembered_inflated_start": true,
+          "neighbor_masks": [
+            {
+              "cell": [
+                33,
+                92
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                93
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                94
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                34,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                34,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                93
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            }
+          ],
+          "observation_receipt_age_s": 0.06948505199943611,
+          "observed_inflated_start": true,
+          "raw_observed_start": false,
+          "raw_static_start": false,
+          "remembered_inflated_start": true,
+          "start": [
+            34,
+            93
+          ],
+          "start_tf_pose": [
+            0.057008837410567836,
+            -0.578441088394686
+          ],
+          "start_tf_stamp_ns": 57457000000,
+          "static_start": false
+        }
+      },
+      "next_no_path": "[astar_planner-17] [ERROR] [1793798513.151981266] [astar_planner]: No path from (34, 93) to (27, 65) (static_start=False, raw_static_start=False, remembered_start=True, observed_start=True, raw_observed_start=False, dynamic_escape_cells=0, static_goal=False, remembered_goal=False, observed_goal=False, observed_raw=25, observed_near_map_wall=0, observed_inside_static_inflation=19, observed_effective=25, observed_inflated=387, remembered_raw=12, remembered_inflated=256, failed_edges=0, failed_edge_penalties=0, clearance_penalty_cells=3792, wall_match_tolerance_cells=2, static_reference_cells=67, static_reference_dynamic_hits=9, first_blocked_reference_cells=[(34, 93), (34, 92), (35, 91), (36, 90), (37, 89), (38, 88), (39, 87), (40, 86)])"
+    },
+    {
+      "line": 284,
+      "wall_time": 1793798523.8621237,
+      "diagnostic": {
+        "motion_pose": {
+          "checked_monotonic": 12693.483633849,
+          "first_failed_reason": "OK",
+          "health_receipt_age_s": 0.31252412799949525,
+          "health_source_age_s": 0.16,
+          "health_stamp_ns": 65340000000,
+          "lookup_error": "",
+          "node_clock_ns": 65500000000,
+          "odom_receipt_age_s": 0.19487247700089938,
+          "odom_source_age_s": 0.046,
+          "odom_stamp_ns": 65454000000,
+          "pose": [
+            0.05802155189756811,
+            -0.5771836901048182,
+            -1.4109513949777155
+          ],
+          "scan_receipt_age_s": 0.2573099010005535,
+          "scan_source_age_s": 0.108,
+          "scan_stamp_ns": 65392000000,
+          "tf_source_age_s": 0.001,
+          "tf_stamp_ns": 65499000000
+        },
+        "start_certificate": {
+          "allowed_edges": [],
+          "enabled": true,
+          "escape_cells_before": [],
+          "first_failed_reason": "remembered_inflation_start",
+          "fresh_pose": null,
+          "fresh_pose_drift_m": null,
+          "helper_called": false,
+          "measured_remembered_inflated_start": true,
+          "neighbor_masks": [
+            {
+              "cell": [
+                33,
+                92
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                93
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                33,
+                94
+              ],
+              "conservative": true,
+              "measured": false,
+              "static": false,
+              "virtual_only": true
+            },
+            {
+              "cell": [
+                34,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                34,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                92
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                93
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            },
+            {
+              "cell": [
+                35,
+                94
+              ],
+              "conservative": true,
+              "measured": true,
+              "static": false,
+              "virtual_only": false
+            }
+          ],
+          "observation_receipt_age_s": 0.06583634900016477,
+          "observed_inflated_start": true,
+          "raw_observed_start": false,
+          "raw_static_start": false,
+          "remembered_inflated_start": true,
+          "start": [
+            34,
+            93
+          ],
+          "start_tf_pose": [
+            0.058524716241188046,
+            -0.5770258544379439
+          ],
+          "start_tf_stamp_ns": 67458000000,
+          "static_start": false
+        }
+      },
+      "next_no_path": "[astar_planner-17] [ERROR] [1793798523.880614438] [astar_planner]: No path from (34, 93) to (27, 65) (static_start=False, raw_static_start=False, remembered_start=True, observed_start=True, raw_observed_start=False, dynamic_escape_cells=0, static_goal=False, remembered_goal=False, observed_goal=False, observed_raw=25, observed_near_map_wall=0, observed_inside_static_inflation=19, observed_effective=25, observed_inflated=387, remembered_raw=12, remembered_inflated=256, failed_edges=0, failed_edge_penalties=0, clearance_penalty_cells=3792, wall_match_tolerance_cells=2, static_reference_cells=67, static_reference_dynamic_hits=9, first_blocked_reference_cells=[(34, 93), (34, 92), (35, 91), (36, 90), (37, 89), (38, 88), (39, 87), (40, 86)])"
+    }
+  ]
+}

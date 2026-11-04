@@ -1,0 +1,527 @@
+{
+  "duration_monotonic_sec": 92.202,
+  "domain_id": "176",
+  "observed_samples": 526,
+  "visibility_samples": 526,
+  "goal_count": 1,
+  "confirmed_episodes": 27,
+  "persisted_after_live_disappeared": 27,
+  "carried_into_later_goal": 0,
+  "removed_with_positive_free_evidence": 27,
+  "still_remembered": [],
+  "episodes": [
+    {
+      "cell_index": 7778,
+      "confirmed_at": 27636.722030644,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27639.216403377,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27695.563237812,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 7864,
+      "confirmed_at": 27636.722030644,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27639.216403377,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27695.563237812,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 7950,
+      "confirmed_at": 27636.722030644,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27639.216403377,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27695.563237812,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8036,
+      "confirmed_at": 27636.722030644,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27668.518224977,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27695.563237812,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8122,
+      "confirmed_at": 27636.722030644,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27639.216403377,
+      "later_goals": [],
+      "free_ray_samples": 66,
+      "first_free_ray_at": 27639.22123604,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8209,
+      "confirmed_at": 27636.722030644,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27637.318255466,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27637.333506983,
+      "cleared_at": 27639.439462782,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 7777,
+      "confirmed_at": 27638.622293151,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27695.557032009,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27695.563237812,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 7949,
+      "confirmed_at": 27638.622293151,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27695.557032009,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27695.563237812,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8035,
+      "confirmed_at": 27638.622293151,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27695.557032009,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27695.563237812,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8121,
+      "confirmed_at": 27638.622293151,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27640.622030135,
+      "later_goals": [],
+      "free_ray_samples": 53,
+      "first_free_ray_at": 27640.63846741,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 7863,
+      "confirmed_at": 27639.06304322,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27695.557032009,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27695.563237812,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8124,
+      "confirmed_at": 27639.224359078,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27639.588471559,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27639.602764942,
+      "cleared_at": 27641.963459542,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8125,
+      "confirmed_at": 27639.224359078,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27639.912058537,
+      "later_goals": [],
+      "free_ray_samples": 11,
+      "first_free_ray_at": 27639.923806713,
+      "cleared_at": 27641.963459542,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 7691,
+      "confirmed_at": 27639.605811338,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27644.335138102,
+      "later_goals": [],
+      "free_ray_samples": 17,
+      "first_free_ray_at": 27644.34026903,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8034,
+      "confirmed_at": 27641.153056816,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27653.594565887,
+      "later_goals": [],
+      "free_ray_samples": 123,
+      "first_free_ray_at": 27653.600557437,
+      "cleared_at": 27691.333739935,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 7690,
+      "confirmed_at": 27641.323702816,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27644.757632119,
+      "later_goals": [],
+      "free_ray_samples": 54,
+      "first_free_ray_at": 27644.765971069,
+      "cleared_at": 27666.432782045,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 7776,
+      "confirmed_at": 27641.323702816,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27646.940796705,
+      "later_goals": [],
+      "free_ray_samples": 59,
+      "first_free_ray_at": 27646.947737231,
+      "cleared_at": 27667.933821071,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 7862,
+      "confirmed_at": 27641.323702816,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27642.467125787,
+      "later_goals": [],
+      "free_ray_samples": 51,
+      "first_free_ray_at": 27642.46952402,
+      "cleared_at": 27669.881360485,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 7948,
+      "confirmed_at": 27641.323702816,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27655.088374733,
+      "later_goals": [],
+      "free_ray_samples": 48,
+      "first_free_ray_at": 27655.098587755,
+      "cleared_at": 27671.07007384,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8037,
+      "confirmed_at": 27641.323702816,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27668.356100005,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27695.563237812,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8039,
+      "confirmed_at": 27641.323702816,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27645.305252544,
+      "later_goals": [],
+      "free_ray_samples": 19,
+      "first_free_ray_at": 27645.310637103,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8038,
+      "confirmed_at": 27641.521019517,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27668.356100005,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27695.563237812,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8123,
+      "confirmed_at": 27645.564238997,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27647.176287357,
+      "later_goals": [],
+      "free_ray_samples": 58,
+      "first_free_ray_at": 27647.183219976,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8124,
+      "confirmed_at": 27645.564238997,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27647.176287357,
+      "later_goals": [],
+      "free_ray_samples": 19,
+      "first_free_ray_at": 27647.183219976,
+      "cleared_at": 27650.823953608,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8040,
+      "confirmed_at": 27657.012930289,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27663.658709617,
+      "later_goals": [],
+      "free_ray_samples": 13,
+      "first_free_ray_at": 27695.563237812,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8125,
+      "confirmed_at": 27659.525208567,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27660.277715318,
+      "later_goals": [],
+      "free_ray_samples": 18,
+      "first_free_ray_at": 27660.287148892,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    },
+    {
+      "cell_index": 8124,
+      "confirmed_at": 27660.294208374,
+      "goal_at_confirmation": [
+        "map",
+        -0.25,
+        -1.98,
+        -1.4
+      ],
+      "ever_seen_live": true,
+      "out_of_view_at": 27661.519051856,
+      "later_goals": [],
+      "free_ray_samples": 16,
+      "first_free_ray_at": 27661.533038382,
+      "cleared_at": 27697.648110731,
+      "persisted_after_live_disappeared": true,
+      "carried_into_later_goal": false,
+      "removed_with_positive_free_evidence": true
+    }
+  ]
+}

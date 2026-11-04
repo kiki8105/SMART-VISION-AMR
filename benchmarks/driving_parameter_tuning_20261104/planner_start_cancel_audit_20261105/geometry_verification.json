@@ -1,0 +1,110 @@
+{
+  "scope": "Recorded first-edge ownership regression; no physical execution claim",
+  "fixture_sha256": "34b388a1b86d22f5edc8ae54b2be3abfd4f9c58b5d7a72be31de12d8edd1f92f",
+  "limits": [
+    "Independent observer snapshots precede publication; DDS cross-topic arrival inside the planner is not fully recorded.",
+    "Path coordinates rounded to four decimals; source path and exact first edge are recorded.",
+    "Current source-based raw cell geometry can be replayed, but post-startup raw scan ranges/TF-buffer exceptions were not captured, so the transient TF cause remains a hypothesis.",
+    "Publication is bracketed by two actual observer frames (one containing36,94 and the next not). Neither is asserted to be the exact internal planner callback snapshot. Both are replayed separately."
+  ],
+  "frames": {
+    "observed_cells": {
+      "observed_count": 35,
+      "memory_count": 19,
+      "has_36_94": true,
+      "measured_start_blocked": true,
+      "measured_route_intersections": [
+        [
+          31,
+          96
+        ]
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "raw_first_prefix_gap_m": 0.016792338702701387,
+      "whole_recorded_route_raw_gap_m": 0.01717082451262858,
+      "whole_recorded_route_may_need_a_new_suffix": false
+    },
+    "adjacent_observed_cells": {
+      "observed_count": 35,
+      "memory_count": 19,
+      "has_36_94": false,
+      "measured_start_blocked": false,
+      "measured_route_intersections": [
+        [
+          35,
+          83
+        ],
+        [
+          36,
+          83
+        ]
+      ],
+      "allowed_edges": [
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            96
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            30,
+            97
+          ]
+        ],
+        [
+          [
+            31,
+            96
+          ],
+          [
+            31,
+            97
+          ]
+        ]
+      ],
+      "raw_first_prefix_gap_m": 0.03739075352467511,
+      "whole_recorded_route_raw_gap_m": 0.017170824512629024,
+      "whole_recorded_route_may_need_a_new_suffix": true
+    }
+  }
+}

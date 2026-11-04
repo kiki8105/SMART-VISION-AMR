@@ -73,11 +73,32 @@ def test_manual_cancel_during_patch_handoff_clears_patch_and_never_auto_restarts
     follower.client.send_goal_async.assert_not_called()
 
 
-def test_second_unsafe_observation_cancels_pending_patch_before_it_can_start(planner_factory):
+def test_second_obstacle_replaces_pending_patch_but_still_waits_for_terminal(planner_factory):
+    node = planner_factory()
+    follower, handle = active_follower(node)
+    patch(node)
+    first = paths(node)[-1]
+    follower.on_path(first)
+    next_cell = next((int(x/.05), int(y/.05)) for x, y in node.planned_world_points
+                     if .85 < x < 1.35 and abs(y-1.275) > .15)
+    patch(node, {(24, 25), next_cell}, at=100.2)
+    repaired = paths(node)[-1]
+    assert repaired.poses and repaired != first
+    follower.on_path(repaired)
+    handle.cancel_goal_async.assert_called_once_with()
+    assert follower.pending_path is repaired
+    follower.client.send_goal_async.assert_not_called()
+    follower.on_result(result_future())
+    follower.client.send_goal_async.assert_called_once()
+    assert follower.client.send_goal_async.call_args.args[0].path == repaired
+
+
+def test_exhausted_local_budget_cancels_pending_patch_before_it_can_start(planner_factory):
     node = planner_factory()
     follower, _ = active_follower(node)
     patch(node)
     follower.on_path(paths(node)[-1])
+    node.local_detour_attempts = node.params['local_detour_max_attempts']
     next_cell = next((int(x/.05), int(y/.05)) for x, y in node.planned_world_points
                      if .85 < x < 1.35 and abs(y-1.275) > .15)
     patch(node, {(24, 25), next_cell}, at=100.2)

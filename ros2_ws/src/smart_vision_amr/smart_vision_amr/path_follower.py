@@ -8,7 +8,7 @@ import uuid
 
 import rclpy
 from geometry_msgs.msg import PolygonStamped, PoseStamped, Twist
-from nav2_msgs.action import BackUp, FollowPath
+from nav2_msgs.action import BackUp, FollowPath, Spin
 from nav2_msgs.msg import SpeedLimit
 from nav_msgs.msg import OccupancyGrid, Odometry, Path
 from rclpy.action import ActionClient
@@ -22,12 +22,16 @@ from rcl_interfaces.msg import ParameterEvent, ParameterType
 from rcl_interfaces.srv import GetParameters
 import json
 
-from smart_vision_amr.path_geometry import (curvature_speed_limit, path_length, path_progress,
-                                           paths_are_equivalent, point_at_progress, upcoming_curvature)
+from smart_vision_amr.path_geometry import (anticipatory_curve_speed_limit, curvature_speed_limit, path_length, path_progress,
+                                           paths_are_equivalent, paths_share_remaining_geometry,
+                                           point_at_progress, upcoming_curvature)
 from smart_vision_amr.execution_progress import ExecutionProgress, ProgressSample
 
 
 class PathFollower(Node):
+    INITIAL_ALIGNMENT_TOTAL_START_LIMIT = 2
+    REPLAN_ALIGNMENT_TOTAL_START_LIMIT = 6
+    REPLAN_ALIGNMENT_PATH_START_LIMIT = 2
     RECOVERY_REQUEST_BUFFER_SECONDS = 3.0
     BACKUP_CANCEL_RETRY_SECONDS = 0.5
     BACKUP_CANCEL_SAFETY_ESTOP_SECONDS = 1.0
@@ -75,6 +79,7 @@ class PathFollower(Node):
                               ("follow_cancel_timeout", 3.0),
                               ("follow_cancel_retry_period", 0.5),
                               ("curve_speed_limit_enabled", True),
+                              ("curve_linear_limit_preserves_angular_speed", False),
                               ("curve_speed_limit_topic", "/speed_limit"),
                               ("curve_preview_distance", 0.75),
                               ("curve_base_frame", "base_footprint"),
@@ -83,8 +88,15 @@ class PathFollower(Node):
                               ("curve_alignment_angle", 0.65),
                               ("curve_goal_heading_distance", 0.30),
                               ("curve_max_linear_velocity", 0.25),
+                              ("curve_min_linear_speed_limit", 0.12),
                               ("curve_max_angular_velocity", 0.35),
-                              ("curve_max_lateral_acceleration", 0.10)):
+                              ("curve_max_lateral_acceleration", 0.10),
+                              ("curve_braking_deceleration", 0.10),
+                              ("curve_braking_margin", 0.15),
+                              ("initial_heading_alignment_enabled", True),
+                              ("initial_heading_alignment_threshold", 0.55),
+                              ("initial_heading_alignment_prune_distance", 0.40),
+                              ("initial_heading_alignment_timeout", 12.0)):
             self.declare_parameter(name, default)
         for name, default in (("execution_failure_enabled", True),
                               ("execution_progress_window", 6.0),
@@ -110,11 +122,18 @@ class PathFollower(Node):
         self.resume_goal_tolerance = self.get_parameter("resume_goal_tolerance").value
         self.client = ActionClient(self, FollowPath, self.get_parameter("action_name").value)
         self.backup_client = ActionClient(self, BackUp, "/backup")
+        self.spin_client = ActionClient(self, Spin, "/spin")
+        self.initial_alignment = None
+        self.initial_alignment_total_starts = 0
+        self._route_alignment_reference = None
+        self._pending_replan_alignment = None
+        self.replan_alignment_total_starts = 0
+        self.replan_alignment_routes = []
         # These are hard bounds on the planner's requested reverse maneuver.
         for name, default in (("recovery_min_distance", 0.10),
                               ("recovery_max_distance", 0.35),
                               ("recovery_min_speed", 0.03),
-                              ("recovery_max_speed", 0.07),
+                              ("recovery_max_speed", 0.12),
                               ("recovery_robot_radius", 0.22),
                               ("recovery_rear_margin", 0.05),
                               ("recovery_sensor_timeout", 1.0),
@@ -176,6 +195,7 @@ class PathFollower(Node):
         self.pending_recovery_cancel = None
         self.recovery_seq = 0
         self.backup_goal = None
+        self.backup_action_context = None
         self.backup_goal_request_pending = False
         self.backup_cancel_when_accepted = False
         self.backup_cancel_requested = False
@@ -248,6 +268,7 @@ class PathFollower(Node):
         self.pending_path = None
         self.latest_path_key = None
         self.active_path = None
+        self._cancel_initial_alignment()
         self._abort_recovery()
         if self.goal_request_pending:
             self.cancel_when_accepted = True
@@ -257,7 +278,8 @@ class PathFollower(Node):
         # The web joystick must wait for the actual action result, not merely
         # the acceptance of a cancellation request, before handing over motion.
         response.success = (self.active_goal is None and not self.goal_request_pending
-                            and self.backup_goal is None and not self.backup_goal_request_pending)
+                            and self.backup_goal is None and not self.backup_goal_request_pending
+                            and self.initial_alignment is None)
         response.message = ("Navigation suspended until a new goal" if response.success
                             else "Waiting for the previous navigation action to finish")
         return response
@@ -271,6 +293,11 @@ class PathFollower(Node):
                                 context={"goal": None, "goal_stamp": None})
             return
         self.goal_generation += 1
+        self._cancel_initial_alignment()
+        self.initial_alignment_total_starts = 0
+        self._route_alignment_reference = None
+        self.replan_alignment_total_starts = 0
+        self.replan_alignment_routes = []
         self._reset_execution_progress(clear_pending=True)
         self._abort_recovery()
         self.requested_goal = goal
@@ -281,6 +308,14 @@ class PathFollower(Node):
         self.path_invalidated = False
         self.recovery_cancel_path_cutoff_ns = None
         canceled = self.pending_recovery_cancel
+        pending_recovery = getattr(self, "pending_recovery_request", None)
+        if (canceled is not None and pending_recovery is not None
+                and canceled["goal_stamp_ns"] == stamp_ns
+                and pending_recovery["goal_stamp_ns"] == stamp_ns
+                and not self._same_recovery_episode(canceled, pending_recovery["payload"])):
+            # A late cancel for an earlier same-goal episode must not discard
+            # the independently owned buffered request for the new episode.
+            self.pending_recovery_cancel = canceled = None
         if canceled is not None:
             if canceled["goal_stamp_ns"] < stamp_ns:
                 self.pending_recovery_cancel = None
@@ -290,7 +325,7 @@ class PathFollower(Node):
                 self.recovery_cancel_path_cutoff_ns = canceled["path_cutoff_ns"]
                 self.publish_status(
                     "RECOVERY_FAILED", "Reverse request canceled before goal arrived",
-                    context=self._goal_context(),
+                    context=self._recovery_context(canceled),
                 )
         # A same-coordinate explicit goal is a fresh attempt, even after an abort.
         self.latest_path_key = None
@@ -309,7 +344,8 @@ class PathFollower(Node):
                     if time.monotonic() - pending_recovery["received_at"] <= self.RECOVERY_REQUEST_BUFFER_SECONDS:
                         self._accept_recovery_request(pending_recovery["payload"])
                     else:
-                        self.publish_status("RECOVERY_FAILED", "Reverse request expired before goal arrived")
+                        self.publish_status("RECOVERY_FAILED", "Reverse request expired before goal arrived",
+                                            context=self._recovery_context(pending_recovery["payload"]))
         # DDS does not order callbacks across /goal and /path. The planner may
         # publish a new goal's path before this subscriber sees the goal itself.
         candidates = list(reversed(self.suspended_paths))
@@ -349,14 +385,28 @@ class PathFollower(Node):
         if (path.poses and input_cutoff is not None
                 and path.header.stamp.sec*1_000_000_000+path.header.stamp.nanosec <= input_cutoff):
             return
-        if (getattr(self, 'pending_execution_failure', None) is not None
-                or getattr(self, 'execution_discarded_reason', None) is not None) and path.poses:
+        if getattr(self, 'pending_execution_failure', None) is not None and path.poses:
             # The failed FollowPath still owns motion until its terminal result.
             # No intermediate copy of the old path may bypass that barrier.
+            # A discarded diagnosis is only result attribution: fresh routes
+            # still queue behind the existing action's cancellation barrier.
             return
         if self.require_goal_match and not self._path_matches_goal(path):
             self.suspended_paths.append(path)
             return
+        if path.poses:
+            owned_recovery = ((self.recovery_request or {}).get("context")
+                              or (getattr(self, "backup_action_context", None)
+                                  if self.backup_goal is not None or self.backup_goal_request_pending else None))
+            if (owned_recovery is not None
+                    and self._valid_episode_id(owned_recovery.get("episode_id"))
+                    and self._context_is_current(owned_recovery)):
+                # The episode coordinator alone advances reverse -> global.
+                # A same-goal delayed route, even one stamped +1 ns beyond
+                # /clock, cannot take this request/action's motion ownership.
+                # Explicit new goals increment generation and cancel through
+                # on_goal; critical input/manual/map cancellation is unchanged.
+                return
         cutoff = getattr(self, 'execution_replan_cutoff_ns', None)
         if path.poses and cutoff is not None:
             stamp_ns = path.header.stamp.sec*1_000_000_000+path.header.stamp.nanosec
@@ -398,6 +448,43 @@ class PathFollower(Node):
             return
         if self.recovery_request is not None and not path.poses:
             return
+        waiting_alignment = getattr(self, '_pending_replan_alignment', None)
+        if waiting_alignment is not None:
+            if not path.poses:
+                self._pending_replan_alignment = None
+                self.pending_path = None
+                self.latest_path_key = None
+                self.path_invalidated = True
+                self.publish_status('WAIT_REPLAN', 'Planner has no safe route; heading setup discarded',
+                                    context=waiting_alignment['context'])
+            else:
+                # This queue owns no action. Keep the original post-terminal
+                # stop boundary while replacing only its exact route/context.
+                waiting_alignment['path'] = path
+                waiting_alignment['context'] = self._goal_context(path)
+                self.pending_path = path
+                self.latest_path_key = self._path_key(path)
+                self._try_pending_replan_alignment()
+            return
+        if self.initial_alignment is not None:
+            if path.poses:
+                key = self._path_key(path)
+                if key != self.latest_path_key:
+                    self.pending_path = path
+                    self.latest_path_key = key
+                    equivalent = (paths_share_remaining_geometry(
+                        self._points(self.initial_alignment['path']), self._points(path))
+                        if self.initial_alignment.get('kind') == 'material_replan' else
+                        paths_are_equivalent(self._points(self.initial_alignment['path']), self._points(path)))
+                    if not equivalent:
+                        self._cancel_initial_alignment()
+            else:
+                self.pending_path = None
+                self.latest_path_key = None
+                self.path_invalidated = True
+                self._cancel_initial_alignment()
+                self.publish_status('WAIT_REPLAN', 'Planner has no safe route; stopping heading alignment')
+            return
         if not path.poses:
             if not self.path_invalidated:
                 self.get_logger().warning("Planner has no safe path; stopping while retaining the goal")
@@ -414,20 +501,55 @@ class PathFollower(Node):
         self.path_invalidated = False
         key = self._path_key(path)
         if key == self.latest_path_key:
+            if self.pending_path is not None:
+                self.pending_path = path
+            elif (self.goal_request_pending or self.active_goal is not None):
+                context = self.active_context or self.request_context
+                if (self.active_path is not None
+                        and paths_share_remaining_geometry(self._points(self.active_path), self._points(path))):
+                    if self.cancel_requested or self.cancel_when_accepted:
+                        self.pending_path = path
+                    else:
+                        self._ack_equivalent_path_alias(path, context)
             return
         self.latest_path_key = key
         if self.goal_request_pending or self.active_goal is not None:
             reference = self.pending_path or self.active_path
             reference_context = self.active_context or self.request_context
             same_goal = reference_context is None or self._context_is_current(reference_context)
-            if same_goal and reference is not None and paths_are_equivalent(
+            if same_goal and reference is not None and paths_share_remaining_geometry(
                     self._points(reference), self._points(path)):
                 self.get_logger().debug("Keeping active FollowPath goal; update only advances along the same route")
+                if self.pending_path is not None or self.cancel_requested or self.cancel_when_accepted:
+                    # A cancellation already in flight still owns its stop
+                    # barrier. Update the queued route, never its old action.
+                    self.pending_path = path
+                else:
+                    self._ack_equivalent_path_alias(path, reference_context)
                 return
             self.pending_path = path
             self._cancel_active_goal()
             return
         self._send_path(path)
+
+    def _ack_equivalent_path_alias(self, path, context):
+        """Bind an accepted equivalent route to the same running action.
+
+        Async response/feedback/result closures share this owned dict. A new
+        route stamp changes only its accepted alias, never goal generation,
+        action geometry, cancellation ownership or recovery identity.
+        """
+        if context is None or not self._context_is_current(context):
+            return
+        stamp = {"sec": path.header.stamp.sec, "nanosec": path.header.stamp.nanosec}
+        previous = context.get("path_stamp") or {}
+        incoming_ns = stamp["sec"] * 1_000_000_000 + stamp["nanosec"]
+        previous_ns = previous.get("sec", 0) * 1_000_000_000 + previous.get("nanosec", 0)
+        if incoming_ns <= previous_ns:
+            return
+        context["path_stamp"] = stamp
+        self.publish_status("MOVING", "Accepted equivalent remaining route without restarting FollowPath",
+                            context=context, route_alias_accepted=True)
 
     @staticmethod
     def _path_key(path):
@@ -471,7 +593,12 @@ class PathFollower(Node):
 
     def _send_path(self, path):
         if (self.navigation_suspended or self.recovery_request is not None
-                or self.backup_goal_request_pending or self.backup_goal is not None):
+                or self.backup_goal_request_pending or self.backup_goal is not None
+                or self.initial_alignment is not None):
+            return
+        if self.active_goal is not None or self.goal_request_pending:
+            self.pending_path = path
+            self._cancel_active_goal()
             return
         if getattr(self, 'navigation_inputs_required', False):
             issue = self._navigation_input_error()
@@ -486,6 +613,415 @@ class PathFollower(Node):
                 return
             self.navigation_input_fault = None
             self.navigation_input_cutoff_ns = None
+        reference = getattr(self, '_route_alignment_reference', None)
+        initial_setup = reference is None or reference['generation'] != self.goal_generation
+        if self.get_parameter('initial_heading_alignment_enabled').value:
+            error = self._initial_heading_error(path)
+            if error is None:
+                if getattr(self, 'navigation_inputs_required', False):
+                    self._hold_navigation_inputs('Fresh map pose unavailable for route heading',
+                                                 self._goal_context(path), force_status=True)
+                    return
+            elif abs(error) > float(self.get_parameter('initial_heading_alignment_threshold').value):
+                if not initial_setup:
+                    material = self._material_replan_prefix(path)
+                    if material is None:
+                        self._hold_navigation_inputs('Fresh map pose unavailable for changed-route prefix',
+                                                     self._goal_context(path), force_status=True)
+                        return
+                    if material:
+                        self._pending_replan_alignment = {
+                            'path': path, 'context': self._goal_context(path),
+                            'requested_ns': self.get_clock().now().nanoseconds,
+                            'requested_at': time.monotonic()}
+                        self.pending_path = path
+                        self.publish_status('WAIT_CANCEL',
+                            'Waiting for measured stop before changed-route heading alignment',
+                            context=self._goal_context(path), heading_alignment_phase='WAIT_STOP',
+                            initial_heading_error_rad=error)
+                        self._try_pending_replan_alignment()
+                        return
+                    self._dispatch_follow_path(path)
+                    return
+                if self.initial_alignment_total_starts >= self.INITIAL_ALIGNMENT_TOTAL_START_LIMIT:
+                    # Physical Spin starts are never refunded by route churn.
+                    # Only a new explicit goal renews this bounded budget.
+                    self.navigation_suspended = True
+                    self.path_invalidated = True
+                    self.pending_path = None
+                    self.latest_path_key = None
+                    self.publish_status('CONTROLLER_HOLD',
+                                        'Initial heading start budget exhausted; explicit mission resume required',
+                                        context=self._goal_context(path),
+                                        initial_alignment_starts=self.initial_alignment_total_starts,
+                                        initial_alignment_start_limit=self.INITIAL_ALIGNMENT_TOTAL_START_LIMIT)
+                    return
+                self._start_initial_alignment(path, error)
+                return
+        self._dispatch_follow_path(path)
+
+    def _material_replan_prefix(self, path):
+        """A changed near-term route, not an alias, suffix advance or distant edit."""
+        reference = getattr(self, '_route_alignment_reference', None)
+        if reference is None or reference['generation'] != self.goal_generation:
+            return False
+        points = self._points(path)
+        if paths_share_remaining_geometry(reference['points'], points):
+            return False
+        try:
+            pose = self._heading_alignment_pose(path)
+            if pose is None:
+                return None
+            def prefix(route):
+                progress = path_progress(route, pose[:2])
+                length = min(.40, max(0., path_length(route)-progress))
+                count = max(1, int(length/.02)+1)
+                return [point_at_progress(route, progress+length*i/count)
+                        for i in range(count+1)]
+            return not paths_are_equivalent(prefix(reference['points']), prefix(points),
+                                            tolerance=.03, start_tolerance=.03)
+        except (TransformException, ValueError, TypeError):
+            return None
+
+    def _replan_alignment_route(self, path):
+        routes = getattr(self, 'replan_alignment_routes', None)
+        if routes is None:
+            routes = self.replan_alignment_routes = []
+        points = tuple(self._points(path))
+        for record in routes:
+            if paths_share_remaining_geometry(record['points'], points):
+                return record
+        record = {'points': points, 'starts': 0}
+        routes.append(record)
+        return record
+
+    def _replan_alignment_stopped(self, not_before_ns, not_before_receipt):
+        """Dense source-stamped odometry after FollowPath terminal, never a zero command."""
+        if not self._source_is_fresh(self.latest_odom, self.latest_odom_at):
+            return False
+        history = tuple(getattr(self, 'navigation_odom_history', ()))
+        if len(history) < 4:
+            return False
+        latest = history[-1]
+        source_age = (self.get_clock().now().nanoseconds-latest[0])*1e-9
+        receipt_age = time.monotonic()-self.latest_odom_at
+        if (not 0 <= receipt_age < .20 or not -.25 <= source_age < .20
+                or latest[0]-not_before_ns < 200_000_000):
+            return False
+        receipts = dict(getattr(self, 'navigation_odom_receipts', ()))
+        window = [v for v in history if 0 <= latest[0]-v[0] <= 500_000_000
+                  and v[0] >= not_before_ns
+                  and receipts.get(v[0], float('-inf')) >= not_before_receipt]
+        if (len(window) < 4 or latest[0]-window[0][0] < 200_000_000
+                or any(v[1:3] != latest[1:3] for v in window)):
+            return False
+        received = [receipts.get(v[0]) for v in window]
+        if (any(at is None or at < not_before_receipt for at in received)
+                or received[-1]-received[0] < .20-1e-9
+                or not 0 <= time.monotonic()-received[-1] < .20
+                or any(not 0 < b-a <= .18+1e-9 for a, b in zip(received, received[1:]))):
+            return False
+        if any(not 0 < b[0]-a[0] <= 180_000_000 for a, b in zip(window, window[1:])):
+            return False
+        twist = self.latest_odom.twist.twist
+        if (not all(isfinite(v) for v in (twist.linear.x, twist.angular.z))
+                or abs(twist.linear.x) >= .025 or abs(twist.angular.z) >= .06):
+            return False
+        return all(hypot(v[3]-latest[3], v[4]-latest[4]) <= .002
+                   and abs(atan2(sin(v[5]-latest[5]), cos(v[5]-latest[5]))) <= .005
+                   for v in window)
+
+    def _try_pending_replan_alignment(self):
+        state = getattr(self, '_pending_replan_alignment', None)
+        if state is None:
+            return
+        if (self.navigation_suspended or not self._context_is_current(state['context'])
+                or self.recovery_request is not None):
+            self._pending_replan_alignment = None
+            return
+        if (self.active_goal is not None or self.goal_request_pending
+                or self.backup_goal is not None or self.backup_goal_request_pending
+                or self.initial_alignment is not None):
+            return
+        if not self._alignment_motion_ready():
+            return
+        issue = self._navigation_input_error() if getattr(self, 'navigation_inputs_required', False) else None
+        if issue is not None:
+            self._hold_navigation_inputs(issue, state['context'], force_status=True)
+            return
+        if not self._replan_alignment_stopped(state['requested_ns'], state['requested_at']):
+            return
+        path = state['path']
+        error = self._initial_heading_error(path)
+        if error is None:
+            self._hold_navigation_inputs('Fresh map pose unavailable for changed-route heading',
+                                         state['context'], force_status=True)
+            return
+        material = self._material_replan_prefix(path)
+        if material is None:
+            self._hold_navigation_inputs('Fresh map pose unavailable for changed-route prefix',
+                                         state['context'], force_status=True)
+            return
+        self._pending_replan_alignment = None
+        self.pending_path = None
+        if (not material
+                or abs(error) <= float(self.get_parameter('initial_heading_alignment_threshold').value)):
+            self._dispatch_follow_path(path)
+            return
+        route = self._replan_alignment_route(path)
+        total = getattr(self, 'replan_alignment_total_starts', 0)
+        if (route['starts'] >= self.REPLAN_ALIGNMENT_PATH_START_LIMIT
+                or total >= self.REPLAN_ALIGNMENT_TOTAL_START_LIMIT):
+            self.navigation_suspended = True
+            self.path_invalidated = True
+            self.latest_path_key = None
+            self.publish_status('CONTROLLER_HOLD',
+                'Changed-route heading budget exhausted; explicit mission resume required',
+                context=state['context'], heading_alignment_phase='HOLD',
+                replan_alignment_starts=total,
+                replan_alignment_start_limit=self.REPLAN_ALIGNMENT_TOTAL_START_LIMIT,
+                route_alignment_starts=route['starts'],
+                route_alignment_start_limit=self.REPLAN_ALIGNMENT_PATH_START_LIMIT)
+            return
+        self._start_initial_alignment(path, error, kind='material_replan')
+
+    def _heading_alignment_pose(self, path):
+        transform = self.tf_buffer.lookup_transform(
+            path.header.frame_id or 'map', self.get_parameter('curve_base_frame').value,
+            rclpy.time.Time())
+        stamp = transform.header.stamp
+        age = (self.get_clock().now().nanoseconds
+               - stamp.sec*1_000_000_000-stamp.nanosec)/1e9
+        if not -.25 <= age < .75:
+            return None
+        p, q = transform.transform.translation, transform.transform.rotation
+        if (not all(isfinite(value) for value in (p.x, p.y, q.x, q.y, q.z, q.w))
+                or not .8 <= q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w <= 1.2):
+            return None
+        return p.x, p.y, atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))
+
+    def _initial_heading_error(self, path):
+        points = self._points(path)
+        if len(points) < 2 or path_length(points) < .2:
+            return 0.
+        try:
+            pose = self._heading_alignment_pose(path)
+            if pose is None:
+                return None
+            x, y, yaw = pose
+            progress = path_progress(points, (x, y))
+            projected = point_at_progress(points, progress)
+            cross_track = hypot(x-projected[0], y-projected[1])
+            # The physical DWB config accepts up to 0.40 m for path pruning.
+            # A robot slightly off the path can still use its collision-checked
+            # FollowPath action, but an in-place Spin about that offset may
+            # face the wrong first segment and strand a valid replan.
+            prune_distance = float(self.get_parameter(
+                'initial_heading_alignment_prune_distance').value)
+            if not isfinite(prune_distance) or prune_distance < .25:
+                return None
+            if cross_track > prune_distance:
+                return None
+            if cross_track > .25:
+                return 0.
+            target = point_at_progress(points, min(path_length(points), progress+.15))
+            if hypot(target[0]-x, target[1]-y) < .05:
+                return 0.
+            heading = atan2(target[1]-y, target[0]-x)
+            return atan2(sin(heading-yaw), cos(heading-yaw))
+        except (TransformException, ValueError):
+            return None
+
+    def _start_initial_alignment(self, path, error, *, kind='initial'):
+        client = getattr(self, 'spin_client', None)
+        if client is None or not client.wait_for_server(timeout_sec=.2):
+            self.latest_path_key = None
+            self.publish_status('WAIT_REPLAN', 'Nav2 collision-checked Spin action unavailable',
+                                context=self._goal_context(path))
+            return
+        goal = Spin.Goal()
+        goal.target_yaw = float(error)
+        # Under localization warnings the mux may cap yaw to .25 rad/s.
+        # Budget the requested angle at that bounded rate, including settling.
+        allowance = min(20., max(float(self.get_parameter(
+            'initial_heading_alignment_timeout').value), abs(error)/.25+4.))
+        goal.time_allowance.sec = max(1, int(allowance+.999))
+        state = {'path': path, 'context': self._goal_context(path), 'handle': None,
+                 'requested_at': time.monotonic(), 'cancel_at': None, 'last_cancel_at': None,
+                 'cancel': False,
+                 'time_allowance': goal.time_allowance.sec, 'watchdog_fault': None,
+                 'kind': kind}
+        self.initial_alignment = state
+        self.pending_path = path
+        if kind == 'initial':
+            self.initial_alignment_total_starts += 1
+        else:
+            self._replan_alignment_route(path)['starts'] += 1
+            self.replan_alignment_total_starts = getattr(self, 'replan_alignment_total_starts', 0)+1
+        try:
+            future = client.send_goal_async(goal)
+            future.add_done_callback(lambda result, sent=state:
+                                     self._on_initial_alignment_response(result, sent))
+        except Exception as exc:
+            # An action transport error does not prove the rotation was rejected.
+            self._hold_unconfirmed_initial_alignment(state, f'Spin acceptance unconfirmed: {exc}')
+            return
+        self.publish_status('MOVING', 'Rotating in place to face the initial A* segment',
+                            context=state['context'], initial_heading_error_rad=error,
+                            heading_alignment_kind=kind, heading_alignment_phase='SPIN')
+
+    def _on_initial_alignment_response(self, future, state):
+        if state is not self.initial_alignment:
+            return
+        try:
+            handle = future.result()
+        except Exception as exc:
+            self._hold_unconfirmed_initial_alignment(state, f'Spin acceptance unconfirmed: {exc}')
+            return
+        if not handle.accepted:
+            self.initial_alignment = None
+            had_safety_stop = self.follow_estop_sent
+            self._clear_confirmed_initial_alignment_watch(state)
+            if self.navigation_suspended or had_safety_stop:
+                return
+            if state['cancel'] and self.pending_path is not None:
+                if self._alignment_motion_ready():
+                    self._send_pending_path()
+                    return
+            self.pending_path = None
+            self.latest_path_key = None
+            self.publish_status('WAIT_REPLAN', 'Nav2 rejected collision-checked heading turn',
+                                context=state['context'])
+            return
+        state['handle'] = handle
+        if state['cancel'] or self.navigation_suspended or not self._context_is_current(state['context']):
+            self._cancel_initial_alignment()
+        try:
+            handle.get_result_async().add_done_callback(
+                lambda result, sent=state: self._on_initial_alignment_result(result, sent))
+        except Exception as exc:
+            self._hold_unconfirmed_initial_alignment(state, f'Spin result unconfirmed: {exc}')
+
+    def _on_initial_alignment_result(self, future, state):
+        if state is not self.initial_alignment:
+            return
+        from action_msgs.msg import GoalStatus
+        try:
+            result = future.result()
+            if result.status not in (GoalStatus.STATUS_SUCCEEDED, GoalStatus.STATUS_CANCELED,
+                                     GoalStatus.STATUS_ABORTED):
+                raise ValueError(f'nonterminal Spin status {result.status}')
+        except Exception as exc:
+            self._hold_unconfirmed_initial_alignment(state, f'Spin result unconfirmed: {exc}')
+            return
+        self.initial_alignment = None
+        had_safety_stop = self.follow_estop_sent
+        self._clear_confirmed_initial_alignment_watch(state)
+        if self.navigation_suspended or had_safety_stop:
+            return
+        if state['cancel'] or not self._context_is_current(state['context']):
+            if self._alignment_motion_ready():
+                self._send_pending_path()
+            else:
+                self.pending_path = None
+                self.latest_path_key = None
+                self.publish_status('WAIT_REPLAN', 'Heading turn stopped; waiting for auto control',
+                                    context=state['context'])
+            self._try_start_recovery()
+            return
+        path, self.pending_path = self.pending_path, None
+        if result.status != GoalStatus.STATUS_SUCCEEDED or path is None:
+            self.latest_path_key = None
+            self.publish_status('WAIT_REPLAN', 'Collision-checked heading turn did not complete',
+                                context=state['context'])
+            return
+        issue = self._navigation_input_error() if getattr(self, 'navigation_inputs_required', False) else None
+        if issue is not None:
+            self._hold_navigation_inputs(issue, state['context'], force_status=True)
+            return
+        if state.get('kind') == 'material_replan' and not self._alignment_motion_ready():
+            self.latest_path_key = None
+            self.publish_status('WAIT_REPLAN', 'Heading turn stopped; waiting for auto control',
+                                context=state['context'], route_failure=False, input_hold=True)
+            return
+        error = self._initial_heading_error(path)
+        if error is None or abs(error) > float(
+                self.get_parameter('initial_heading_alignment_threshold').value):
+            self.latest_path_key = None
+            self.publish_status('WAIT_REPLAN', 'Heading turn ended without alignment; replan from current pose',
+                                context=state['context'])
+            return
+        self._dispatch_follow_path(path)
+
+    def _hold_unconfirmed_initial_alignment(self, state, reason):
+        # Keep the safety watchdog attributable to this exact Spin. A terminal
+        # callback may release its resend duty, never another action's fault.
+        previous = state.get('watchdog_fault')
+        state['watchdog_fault'] = reason
+        if self.follow_watchdog_fault is None or self.follow_watchdog_fault == previous:
+            self.follow_watchdog_fault = reason
+        self._send_follow_safety_estop()
+
+    def _clear_confirmed_initial_alignment_watch(self, state):
+        owned_fault = state.get('watchdog_fault')
+        if (owned_fault is not None and self.follow_watchdog_fault == owned_fault
+                and self.active_goal is None and not self.goal_request_pending):
+            # Terminal action/rejection proves the Spin stopped. Leave the
+            # navigation suspension and the robot's E-stop latch untouched;
+            # the operator must still reset and dispatch a fresh goal.
+            self._clear_follow_watch()
+
+    def _alignment_motion_ready(self):
+        motion = self.motion_status or {}
+        received = self.motion_status_at
+        return (received is not None and 0 <= time.monotonic()-received < 1.
+                and motion.get('mode') == 'auto'
+                and motion.get('available') is True
+                and motion.get('autonomous_allowed') is True
+                and motion.get('estop_latched') is not True
+                and motion.get('reset_pending') is not True)
+
+    def _cancel_initial_alignment(self):
+        waiting = getattr(self, '_pending_replan_alignment', None)
+        if waiting is not None and self.pending_path is waiting['path']:
+            self.pending_path = None
+            self.latest_path_key = None
+        self._pending_replan_alignment = None
+        state = self.initial_alignment
+        if state is None:
+            return
+        if not state['cancel']:
+            state['cancel'] = True
+            state['cancel_at'] = time.monotonic()
+        handle = state['handle']
+        if handle is not None and (state['last_cancel_at'] is None
+                                   or time.monotonic()-state['last_cancel_at'] >= .5):
+            state['last_cancel_at'] = time.monotonic()
+            try:
+                handle.cancel_goal_async()
+            except Exception as exc:
+                self.get_logger().error(f'Spin cancel request failed: {exc}')
+
+    def _monitor_initial_alignment(self):
+        self._try_pending_replan_alignment()
+        state = self.initial_alignment
+        if state is None:
+            return
+        now = time.monotonic()
+        if (state['handle'] is None and not state['cancel']
+                and now-state['requested_at'] > max(.5, float(
+                    self.get_parameter('follow_request_timeout').value))):
+            self._hold_unconfirmed_initial_alignment(state, 'Spin goal acceptance timed out')
+            return
+        if not state['cancel'] and now-state['requested_at'] > state['time_allowance']+3.:
+            self._cancel_initial_alignment()
+        if state['cancel']:
+            self._cancel_initial_alignment()
+            if now-state['cancel_at'] > max(.5, float(
+                    self.get_parameter('follow_cancel_timeout').value)) and not self.follow_estop_sent:
+                self._hold_unconfirmed_initial_alignment(state, 'Spin cancellation/result timed out')
+
+    def _dispatch_follow_path(self, path):
         if not self.client.wait_for_server(timeout_sec=2.0):
             self.get_logger().error("Nav2 FollowPath action is unavailable")
             self.latest_path_key = None
@@ -516,6 +1052,11 @@ class PathFollower(Node):
             # Send errors do not prove the server never accepted the request.
             self._hold_unconfirmed_follow(f"FollowPath acceptance is unconfirmed: {exc}")
             return
+        self._route_alignment_reference = {
+            'generation': self.goal_generation, 'points': tuple(self._points(path)),
+            'path_stamp_ns': path.header.stamp.sec*1_000_000_000+path.header.stamp.nanosec}
+        # Initial setup and materially different near-term detours have
+        # independent bounded budgets; equivalent route progress never spins.
         self._publish_curve_limit()
         self.get_logger().info(f"Sent path with {len(path.poses)} poses to Nav2")
 
@@ -617,6 +1158,7 @@ class PathFollower(Node):
         failure_detection_enabled = bool(self.get_parameter('execution_failure_enabled').value)
         if not failure_detection_enabled:
             self._discard_execution_diagnosis('Execution failure detection disabled')
+        self._discard_scan_guard_execution()
         failure_event = None
         pending_failure = getattr(self, 'pending_execution_failure', None)
         discarded_reason = getattr(self, 'execution_discarded_reason', None)
@@ -680,7 +1222,8 @@ class PathFollower(Node):
             self.latest_path_key = None
         if (self.pending_path is None and self.recovery_request is None
                 and not self.navigation_suspended
-                and not self.path_invalidated and self._context_is_current(context)):
+                and not self.path_invalidated and self._context_is_current(context)
+                and (discarded_reason is None or status == 'SUCCEEDED')):
             self.publish_status(status, detail, context=context)
         self.active_goal = None
         self.active_context = None
@@ -716,6 +1259,7 @@ class PathFollower(Node):
     def _send_pending_path(self):
         if (self.navigation_suspended or self.pending_path is None
                 or self.active_goal is not None or self.goal_request_pending
+                or self.initial_alignment is not None
                 or self.recovery_request is not None
                 or self.backup_goal_request_pending or self.backup_goal is not None):
             return
@@ -765,6 +1309,7 @@ class PathFollower(Node):
 
     def _monitor_follow_path(self):
         self._watch_navigation_inputs()
+        self._monitor_initial_alignment()
         now = time.monotonic()
         self._update_controller_speed(now)
         requested = self.follow_requested_at
@@ -825,6 +1370,21 @@ class PathFollower(Node):
             self.pending_path = None
             self.latest_path_key = None
             self.path_invalidated = True
+
+    def _discard_scan_guard_execution(self):
+        """A final-mux safety veto is not failed execution of DWB's command."""
+        motion = getattr(self, 'motion_status', None) or {}
+        if motion.get('scan_guard_hold') is not True:
+            return
+        reason = 'LiDAR safety guard interrupted execution'
+        detail = motion.get('scan_guard_reason')
+        if isinstance(detail, str) and detail:
+            reason += ': '+detail[:160]
+        self._discard_execution_diagnosis(reason)
+        # Even a spontaneous ABORT without a pending diagnosis must use the
+        # existing sensor-hold retry route, rather than charge a controller
+        # failure using intent cached just before this physical output veto.
+        self.execution_discarded_reason = reason
 
     def _select_execution_reference(self, path):
         detector = getattr(self, 'execution_progress', None)
@@ -904,6 +1464,7 @@ class PathFollower(Node):
                 or not -.25e9 <= ros_ns-motion_stamp < timeout*1e9
                 or motion.get('mode') != 'auto' or motion.get('available') is not True
                 or motion.get('estop_latched') is True or motion.get('reset_pending') is True
+                or motion.get('scan_guard_hold') is True
                 or motion.get('autonomous_allowed') is not True):
             return None
         command = getattr(self, 'latest_navigation_command', None)
@@ -991,6 +1552,7 @@ class PathFollower(Node):
         return {'schema_version': 1, 'event_id': uuid.uuid4().hex,
                 'created_at_ns': observation['ros_ns'], 'detected_at_ns': observation['ros_ns'],
                 'goal': context.get('goal'), 'goal_stamp': context.get('goal_stamp'),
+                'path_stamp': context.get('path_stamp'),
                 'pose': observation['pose'], 'segment': observation['segment'],
                 'reason': reason, 'path_fingerprint': fingerprint, 'evidence': evidence,
                 'terminal_confirmed': False}
@@ -1094,10 +1656,11 @@ class PathFollower(Node):
             except (TransformException, ValueError):
                 pass
         self.follow_path_progress = progress
-        if alignment or final_heading:
-            # DWB scales angular limits together with linear speed. Restore its
-            # configured limits for in-place path/final-yaw alignment; Nav2's
-            # collision checking and the final mux still own all actual motion.
+        if ((alignment or final_heading)
+                and not self.get_parameter('curve_linear_limit_preserves_angular_speed').value):
+            # Stock DWB scales angular limits with a linear cap. Our physical
+            # RouteTrackingDWB preserves yaw authority, so keep its bend cap
+            # during heading corrections instead of restoring full linear speed.
             self._publish_speed_limit(0.)
             return
         # Humble FollowPath feedback can report distance_to_goal=0 throughout
@@ -1112,6 +1675,20 @@ class PathFollower(Node):
                 float(self.get_parameter("curve_max_linear_velocity").value),
                 float(self.get_parameter("curve_max_angular_velocity").value),
                 float(self.get_parameter("curve_max_lateral_acceleration").value))
+            minimum = float(self.get_parameter('curve_min_linear_speed_limit').value)
+            maximum = float(self.get_parameter('curve_max_linear_velocity').value)
+            if not isfinite(minimum) or not 0 < minimum <= maximum:
+                raise ValueError('curve minimum speed limit must be within the configured speed range')
+            speed = max(minimum, speed)
+            if progress is not None:
+                speed = anticipatory_curve_speed_limit(
+                    points, progress, horizon, maximum,
+                    float(self.get_parameter('curve_max_angular_velocity').value),
+                    float(self.get_parameter('curve_max_lateral_acceleration').value),
+                    minimum_speed=minimum,
+                    deceleration=float(self.get_parameter('curve_braking_deceleration').value),
+                    braking_margin=float(self.get_parameter('curve_braking_margin').value),
+                    minimum_chord=max(.05, float(self.get_parameter('curve_minimum_chord').value)))
         except ValueError as exc:
             self.get_logger().error(f"Invalid curve speed configuration: {exc}")
             self._hold_unconfirmed_follow("Invalid curve speed limit configuration")
@@ -1190,6 +1767,9 @@ class PathFollower(Node):
         if history is None:
             history = self.navigation_odom_history = deque(maxlen=256)
             self.navigation_odom_epoch = 0
+        receipts = getattr(self, 'navigation_odom_receipts', None)
+        if receipts is None:
+            receipts = self.navigation_odom_receipts = deque(maxlen=256)
         try:
             sample = self._navigation_odom_sample(message)
             if history:
@@ -1203,14 +1783,18 @@ class PathFollower(Node):
                     return  # Repeated source data cannot extend the history.
                 if not continuous:
                     history.clear()
+                    receipts.clear()
                     self.navigation_odom_epoch += 1
             history.append(sample)
+            receipts.append((sample[0], self.latest_odom_at))
             while history and sample[0]-history[0][0] > 3_000_000_000:
                 history.popleft()
         except (ValueError, AttributeError, TypeError):
             history.clear()
+            receipts.clear()
             self.navigation_odom_epoch += 1
         self._promote_navigation_footprint()
+        self._try_pending_replan_alignment()
 
     def on_footprint(self, message):
         received_at = time.monotonic()
@@ -1528,6 +2112,7 @@ class PathFollower(Node):
         self.path_invalidated = True
         self.latest_path_key = None
         self.pending_path = None
+        self._cancel_initial_alignment()
         self._cancel_active_goal()
         if changed or force_status:
             # Each rejected planner retry must re-arm its retained-goal loop;
@@ -1539,7 +2124,8 @@ class PathFollower(Node):
         if (not getattr(self, 'navigation_inputs_required', False) or self.navigation_suspended
                 or self.recovery_request is not None or self.backup_goal is not None
                 or self.backup_goal_request_pending
-                or (self.active_goal is None and not self.goal_request_pending)):
+                or (self.active_goal is None and not self.goal_request_pending
+                    and self.initial_alignment is None)):
             return
         issue = self._navigation_input_error(
             scan_odom_timeout=getattr(self, 'navigation_sensor_continuity_timeout', 1.0))
@@ -1556,10 +2142,16 @@ class PathFollower(Node):
             return
         self.motion_status = status
         self.motion_status_at = time.monotonic()
+        self._discard_scan_guard_execution()
         if (status.get('mode') != 'auto' or status.get('available') is not True
                 or status.get('autonomous_allowed') is not True
                 or status.get('estop_latched') is True or status.get('reset_pending') is True):
             self._discard_execution_diagnosis('Manual, hold, safety stop or unavailable motion output')
+            self._cancel_initial_alignment()
+            if status.get('estop_latched') is True:
+                self.pending_path = None
+                self.latest_path_key = None
+                self.path_invalidated = True
         if (self.recovery_request is not None
                 and (status.get("mode") != "auto"
                      or status.get("available") is not True
@@ -1573,6 +2165,8 @@ class PathFollower(Node):
         except (TypeError, ValueError):
             return
         if not isinstance(payload, dict):
+            return
+        if ('episode_id' in payload and not self._valid_episode_id(payload['episode_id'])):
             return
         goal_id = payload.get("goal_id")
         try:
@@ -1593,12 +2187,23 @@ class PathFollower(Node):
             # cannot be relied upon to overtake the BackUp action request.
             if requested_stamp_ns < current_stamp_ns or self.navigation_suspended:
                 return
+            owned = ((self.recovery_request or {}).get("context")
+                     or (getattr(self, "backup_action_context", None)
+                         if self.backup_goal is not None or self.backup_goal_request_pending else None))
+            pending = getattr(self, "pending_recovery_request", None)
+            if (requested_stamp_ns == current_stamp_ns and owned is not None
+                    and not self._same_recovery_episode(payload, owned)):
+                return
+            if (pending is not None and pending["goal_stamp_ns"] == requested_stamp_ns
+                    and not self._same_recovery_episode(payload, pending["payload"])):
+                return
             stamp = self.get_clock().now().to_msg()
             cutoff_ns = stamp.sec * 1_000_000_000 + stamp.nanosec
             self.pending_recovery_cancel = {
                 "goal_stamp_ns": requested_stamp_ns,
                 "received_at": time.monotonic(),
                 "path_cutoff_ns": cutoff_ns,
+                "episode_id": payload.get("episode_id"),
             }
             if requested_stamp_ns > current_stamp_ns:
                 pending = self.pending_recovery_request
@@ -1612,25 +2217,30 @@ class PathFollower(Node):
             self.active_path = None
             self.path_invalidated = True
             self.recovery_cancel_path_cutoff_ns = cutoff_ns
+            context = ((self.recovery_request or {}).get("context")
+                       or self._recovery_context(payload))
             self._abort_recovery(safety_fault=True)
+            self._cancel_initial_alignment()
             if self.goal_request_pending:
                 self.cancel_when_accepted = True
             self._cancel_active_goal()
             self.publish_status(
                 "RECOVERY_FAILED",
                 str(payload.get("reason", "Planner canceled reverse recovery"))[:160],
-                context=self._goal_context(),
+                context=context,
             )
             return
         canceled = self.pending_recovery_cancel
         if (canceled is not None
                 and canceled["goal_stamp_ns"] == requested_stamp_ns
+                and self._same_recovery_episode(canceled, payload)
                 and time.monotonic() - canceled["received_at"]
                 <= self.RECOVERY_REQUEST_BUFFER_SECONDS):
             # Drop delayed same-goal requests from the invalidated map. A
             # newer planner attempt can retry after this short DDS window.
             if requested_stamp_ns == current_stamp_ns:
-                self.publish_status("RECOVERY_FAILED", "Reverse request was canceled by map change")
+                self.publish_status("RECOVERY_FAILED", "Reverse request was canceled by map change",
+                                    context=self._recovery_context(payload))
             return
         if requested_stamp_ns > current_stamp_ns:
             # The planner can publish a no-path recovery request before this
@@ -1653,7 +2263,9 @@ class PathFollower(Node):
 
     def _accept_recovery_request(self, payload):
         """Validate a request only after its exact stamped goal is current."""
-        context = self._goal_context()
+        if ('episode_id' in payload and not self._valid_episode_id(payload['episode_id'])):
+            return
+        context = self._recovery_context(payload)
         stamp = context.get("goal_stamp") or {}
         expected_id = f'{stamp.get("sec", 0)}:{stamp.get("nanosec", 0)}'
         if (self.requested_goal is None or expected_id == "0:0"
@@ -1675,7 +2287,7 @@ class PathFollower(Node):
                 or not max(0.10, self.get_parameter("recovery_min_distance").value)
                 <= distance <= min(0.35, self.get_parameter("recovery_max_distance").value)
                 or not max(0.03, self.get_parameter("recovery_min_speed").value)
-                <= speed <= min(0.07, self.get_parameter("recovery_max_speed").value)):
+                <= speed <= min(0.12, self.get_parameter("recovery_max_speed").value)):
             self.publish_status("RECOVERY_FAILED", "Reverse distance or speed is outside safety bounds",
                                 context=context)
             return
@@ -1700,9 +2312,13 @@ class PathFollower(Node):
             "certified_start": certificate,
             "certified_odom_epoch": getattr(self, 'navigation_odom_epoch', 0),
         }
+        # This owned identity survives clearing recovery_request while a
+        # BackUp acceptance/cancel/result is still in flight.
+        self.backup_action_context = context
         self.pending_path = None
         self.latest_path_key = None
         self.path_invalidated = True
+        self._cancel_initial_alignment()
         if self.goal_request_pending:
             self.cancel_when_accepted = True
         self._cancel_active_goal()
@@ -1813,6 +2429,8 @@ class PathFollower(Node):
 
     def _abort_recovery(self, *, safety_fault=False):
         """Invalidate callbacks from an old maneuver and cancel its Nav2 action."""
+        if self.recovery_request is not None:
+            self.backup_action_context = self.recovery_request["context"]
         self.recovery_seq += 1
         self.recovery_request = None
         if self.backup_goal_request_pending or self.backup_goal is not None:
@@ -1871,12 +2489,23 @@ class PathFollower(Node):
     def _notify_backup_stopped_after_cancel(self, detail):
         # A route produced while BackUp was still in flight starts at an
         # unconfirmed pose. Its planner must run again after stop confirmation.
+        discarded = self.pending_path
+        discarded_context = (self._goal_context(discarded)
+                             if discarded is not None and discarded.poses
+                             and self._path_matches_goal(discarded) else None)
         self.pending_path = None
         self.latest_path_key = None
         self.path_invalidated = True
         if not self.navigation_suspended and self.requested_goal is not None:
             self.publish_status("RECOVERY_STOPPED", detail,
-                                context=self._goal_context())
+                                context=(getattr(self, "backup_action_context", None)
+                                         or self._goal_context()))
+            if discarded_context is not None:
+                # The old BackUp terminal remains owned by its old episode.
+                # Separately ask for a fresh start for the actual newer route
+                # discarded at this barrier, without relabeling that terminal.
+                self.publish_status("WAIT_REPLAN", "Pending route discarded at confirmed BackUp stop; refresh start pose",
+                                    context=discarded_context, route_failure=False, input_hold=True)
 
     def _monitor_backup_cancellation(self):
         since = self.backup_cancel_pending_since
@@ -1928,7 +2557,8 @@ class PathFollower(Node):
 
     def _hold_unconfirmed_backup(self, reason, *, request_unresolved=False):
         """Fail closed when an action future cannot prove BackUp has stopped."""
-        context = self._goal_context()
+        context = (getattr(self, "backup_action_context", None)
+                   or self._goal_context())
         if request_unresolved:
             # The server may have accepted the request despite losing its
             # response. Do not dispatch any later FollowPath without proof.
@@ -2031,6 +2661,7 @@ class PathFollower(Node):
         if request is None or self.navigation_suspended:
             return
         if (self.active_goal is not None or self.goal_request_pending
+                or self.initial_alignment is not None
                 or self.backup_goal is not None or self.backup_goal_request_pending):
             return
         if not self._context_is_current(request["context"]):
@@ -2202,17 +2833,40 @@ class PathFollower(Node):
                                "frame_id": goal.header.frame_id or "map"}
             payload["goal_stamp"] = {"sec": goal.header.stamp.sec,
                                      "nanosec": goal.header.stamp.nanosec}
+        if path is not None:
+            payload["path_stamp"] = {"sec": path.header.stamp.sec,
+                                     "nanosec": path.header.stamp.nanosec}
         return payload
+
+    @staticmethod
+    def _valid_episode_id(value):
+        return isinstance(value, str) and 1 <= len(value) <= 128
+
+    @staticmethod
+    def _same_recovery_episode(first, second):
+        # The ID is optional for pre-episode external clients. All current
+        # planner requests include it, so different nonempty IDs never match.
+        left, right = first.get("episode_id"), second.get("episode_id")
+        return left is None or right is None or left == right
+
+    def _recovery_context(self, payload):
+        context = self._goal_context()
+        episode_id = payload.get("episode_id")
+        if self._valid_episode_id(episode_id):
+            context["episode_id"] = episode_id
+        return context
 
     def _context_is_current(self, context):
         return context.get("generation") == self.goal_generation
 
     def publish_status(self, status, message_text, context=None, manual_stop=False, **metrics):
-        context = context or self._goal_context()
+        context = self._goal_context() if context is None else context
         message = String()
         message.data = json.dumps({"status": status, "message": message_text,
                                    "goal": context.get("goal"),
                                    "goal_stamp": context.get("goal_stamp"),
+                                   "path_stamp": context.get("path_stamp"),
+                                   "episode_id": context.get("episode_id"),
                                    "manual_stop": manual_stop,
                                    "stop_stamp": ({"sec": self.stop_stamp_ns // 1_000_000_000,
                                                    "nanosec": self.stop_stamp_ns % 1_000_000_000}

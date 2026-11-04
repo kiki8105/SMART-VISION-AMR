@@ -1,0 +1,36 @@
+{
+  "source_report_path": "/tmp/classroom-simple-policy-validation-20261105/staged_report.json",
+  "status": "STOPPED_ON_STAGE17_ORIGINAL_ASSESSOR_FAIL",
+  "physical_drive": false,
+  "stages": [
+    {
+      "stage": "12_web_integrated_clean",
+      "outcome": "PASS",
+      "reasons": [],
+      "runner_passed": true,
+      "source_unchanged": true
+    },
+    {
+      "stage": "25_web_inventory_sector3_moving_obstacle",
+      "outcome": "PASS",
+      "reasons": [],
+      "runner_passed": true,
+      "source_unchanged": true
+    },
+    {
+      "stage": "17_web_hardware_value_parity",
+      "outcome": "FAIL",
+      "reasons": [
+        "unmapped_stress_crate_bypass_unverified"
+      ],
+      "runner_passed": true,
+      "source_unchanged": true
+    }
+  ],
+  "not_run": [
+    "12_web_integrated_stress_permuted",
+    "19_web_inventory_sector2_same_session_reentry"
+  ],
+  "reassessment": "../recovery_replacement_validation/stage17_reassessed_actual_radius_20261105.json",
+  "original_fail_retained": true
+}

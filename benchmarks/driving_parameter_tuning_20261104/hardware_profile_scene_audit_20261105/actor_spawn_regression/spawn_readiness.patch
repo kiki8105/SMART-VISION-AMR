@@ -1,0 +1,273 @@
+--- a/scripts/inject_classroom_web_obstacle.py
++++ b/scripts/inject_classroom_web_obstacle.py
+@@ -113,7 +113,10 @@
+ 
+ 
+ def candidate_still_ahead(candidate, robot_xy, current_path, robot_radius=.24):
+-    """Require fresh ahead geometry and a genuine >1 cm old-route obstruction."""
++    """Initial selection: .60--1.00 m ahead and >1 cm route obstruction.
++
++    Final spawn uses spawn_placement_readiness with current physical clearance.
++    """
+     if candidate is None or robot_xy is None or not current_path:
+         return False
+     center = (candidate['x'], candidate['y'])
+@@ -146,6 +149,47 @@
+         'reason': 'ready' if clearance >= required else 'robot_near_box_sweep',
+         'swept_clearance_m': clearance, 'required_clearance_m': required,
+         'robot_truth_age_s': robot_age_s}
++
++
++
++def spawn_placement_readiness(candidate, robot_xy, current_path, robot_age_s,
++                              robot_radius=.24, *, route_reason,
++                              current_goal_stamp, expected_goal_stamp):
++    """Revalidate a selected box with physical spawn clearance, not search range.
++
++    The .60--1.00 m range belongs to initial candidate selection. A robot may
++    safely enter that range during callback refresh; the fixed box stays put.
++    Reuse the owned-movement sweep gate with a stationary box, preserving its
++    2 cm margin, reaction distance, truth-age bound and selected body radius.
++    """
++    if route_reason is not None:
++        return False, {'reason': route_reason}
++    if expected_goal_stamp is None or current_goal_stamp != expected_goal_stamp:
++        return False, {'reason': 'goal_rearmed_during_preflight'}
++    if candidate is None or robot_xy is None or not current_path:
++        return False, {'reason': 'spawn_geometry_unavailable'}
++    center = (candidate['x'], candidate['y'])
++    ready, metrics = movement_step_readiness(
++        center, center, robot_xy, robot_age_s, robot_radius=robot_radius)
++    if not ready:
++        return False, metrics
++    tangent = candidate['path_tangent']
++    along = sum((robot_xy[index]-center[index])*tangent[index] for index in (0, 1))
++    distance = math.hypot(robot_xy[0]-center[0], robot_xy[1]-center[1])
++    route_clearance = path_clearance_from_box(current_path, center, robot_radius)
++    metrics.update(robot_distance_m=distance, approach_along_path_m=along,
++                   initial_selection_distance_window=.60 <= distance <= 1.00,
++                   current_path_clearance_m=route_clearance)
++    if not all(math.isfinite(value) for value in (along, distance, route_clearance)):
++        metrics['reason'] = 'invalid_spawn_geometry'
++        return False, metrics
++    if along > -.25:
++        metrics['reason'] = 'candidate_actually_passed_or_not_ahead'
++        return False, metrics
++    if route_clearance >= -.01:
++        metrics['reason'] = 'current_route_no_longer_blocked'
++        return False, metrics
++    return True, metrics
+ 
+ 
+ def departed_home(robot_xy, goal_start_xy, threshold_m=.10):
+@@ -749,7 +793,9 @@
+     def reject_candidate(reason, **values):
+         emit('candidate_rejected', reason=reason, **values)
+         if scenario is not None and reason in {
+-                'passed_or_route_changed', 'observed_cell_overlaps_box',
++                'passed_or_route_changed', 'candidate_actually_passed_or_not_ahead',
++                'current_route_no_longer_blocked', 'robot_near_box_sweep',
++                'invalid_spawn_geometry', 'observed_cell_overlaps_box',
+                 'current_obstacle_bypass_closed', 'new_observation_blocks_bypass',
+                 'new_observed_cell_overlaps_box', 'new_memory_or_observation_blocks_bypass'}:
+             raise InvalidObstacleScenario(reason)
+@@ -1119,11 +1165,13 @@
+                      robot_age_s=(round(time.monotonic()-node.robot_at, 3)
+                                   if node.robot_at is not None else None))
+                 continue
+-            if not candidate_still_ahead(candidate, node.robot, node.path, geometry['robot_radius']):
+-                diagnostics['stale_or_passed_candidates'] = (
+-                    diagnostics.get('stale_or_passed_candidates', 0)+1)
+-                reject_candidate(reason='passed_or_route_changed',
+-                     robot_xy=node.robot)
++            placement_ready, placement_metrics = spawn_placement_readiness(
++                candidate, node.robot, node.path, time.monotonic()-node.robot_at,
++                geometry['robot_radius'], route_reason=route_reason,
++                current_goal_stamp=node.goal_stamp, expected_goal_stamp=searched_goal_stamp)
++            if not placement_ready:
++                reject_candidate(reason=placement_metrics['reason'],
++                                 spawn_readiness=placement_metrics)
+                 continue
+             if box_overlapping_obstacle_indices(
+                     node.observed, node.grid,
+@@ -1153,15 +1201,14 @@
+                 node.navigation_at, node.path, node.path_at, node.observed_at,
+                 time.monotonic(), (args.goal_x, args.goal_y),
+                 node.navigation_goal_stamp, node.goal_stamp)
+-            if (route_reason is not None or node.robot_at is None or
+-                    time.monotonic()-node.robot_at > .35 or
+-                    not candidate_still_ahead(candidate, node.robot, node.path, geometry['robot_radius'])):
+-                if (scenario is not None and route_reason is None and node.robot_at is not None and
+-                        time.monotonic()-node.robot_at <= .35 and
+-                        not candidate_still_ahead(candidate, node.robot, node.path, geometry['robot_radius'])):
+-                    raise InvalidObstacleScenario('FIXED_SCENE_PASSED_OR_ROUTE_CHANGED_BEFORE_SPAWN')
+-                emit('candidate_rejected', reason='state_changed_after_final_preflight',
+-                     route_reason=route_reason)
++            placement_ready, placement_metrics = spawn_placement_readiness(
++                candidate, node.robot, node.path,
++                time.monotonic()-node.robot_at if node.robot_at is not None else None,
++                geometry['robot_radius'], route_reason=route_reason,
++                current_goal_stamp=node.goal_stamp, expected_goal_stamp=searched_goal_stamp)
++            if not placement_ready:
++                reject_candidate(reason=placement_metrics['reason'],
++                                 spawn_readiness=placement_metrics)
+                 continue
+             if not newly_observed_route_clear(
+                     current_bypass, node.observed-observed_snapshot, node.grid.info, geometry['robot_radius']):
+@@ -1194,9 +1241,26 @@
+                 continue
+             if not running or not rclpy.ok():
+                 break
++            # A refreshed memory bypass proof may itself take time. Recheck
++            # every existing route lease immediately before service dispatch.
++            route_reason = route_readiness(
++                node.goal_active, node.navigation_status, node.navigation_goal_xy,
++                node.navigation_at, node.path, node.path_at, node.observed_at,
++                time.monotonic(), (args.goal_x, args.goal_y),
++                node.navigation_goal_stamp, node.goal_stamp)
++            placement_ready, placement_metrics = spawn_placement_readiness(
++                candidate, node.robot, node.path,
++                time.monotonic()-node.robot_at if node.robot_at is not None else None,
++                geometry['robot_radius'], route_reason=route_reason,
++                current_goal_stamp=node.goal_stamp, expected_goal_stamp=searched_goal_stamp)
++            if not placement_ready:
++                reject_candidate(reason=placement_metrics['reason'],
++                                 spawn_readiness=placement_metrics)
++                continue
+             emit('current_observed_bypass_proved',
+                  route_cells=len(current_bypass),
+-                 observed_cells=len(node.observed))
++                 observed_cells=len(node.observed),
++                 spawn_readiness=placement_metrics)
+             node.candidate = (candidate['x'], candidate['y'])
+             node.tangent = tuple(candidate['path_tangent'])
+             node.before_observed = set(node.observed)
+--- /dev/null
++++ b/ros2_ws/src/smart_vision_amr/test/test_classroom_actor_spawn_readiness.py
+@@ -0,0 +1,126 @@
++"""Selected fixed scenes use fresh physical clearance at spawn, not search range."""
++from pathlib import Path
++import math
++import sys
++
++import pytest
++
++ROOT = Path(__file__).resolve().parents[4]
++sys.path.insert(0, str(ROOT / 'scripts'))
++import inject_classroom_web_obstacle as injector
++
++
++CANDIDATE = {'x': .44, 'y': -.60,
++             'path_tangent': [.6954214275160555, -.7186021417665909]}
++# The unchanged recorded route crossed the box's expanded physical footprint.
++RECORDED_PATH = [(-.225, -.275), (-.0875, -.4125), (.05, -.55),
++                 (.18, -.68), (.30, -.80), (.4477, -.9477)]
++
++
++def ready(candidate, robot, path, age=.05, **context):
++    values = dict(route_reason=None, current_goal_stamp=(9, 320000000),
++                  expected_goal_stamp=(9, 320000000))
++    values.update(context)
++    return injector.spawn_placement_readiness(
++        candidate, robot, path, age, .22, **values)
++
++
++def test_recorded_point_616_to_590_keeps_same_safe_fixed_scene():
++    before, after = (-.10724, -.31660), (-.08884, -.33850)
++    assert injector.candidate_still_ahead(CANDIDATE, before, RECORDED_PATH, .22)
++    assert not injector.candidate_still_ahead(CANDIDATE, after, RECORDED_PATH, .22)
++    assert math.isclose(math.dist(before, (.44, -.6)), .616269, abs_tol=1e-6)
++    assert math.isclose(math.dist(after, (.44, -.6)), .589961, abs_tol=1e-6)
++    for robot, initial_range in ((before, True), (after, False)):
++        accepted, metrics = ready(CANDIDATE, robot, RECORDED_PATH)
++        assert accepted
++        assert metrics['initial_selection_distance_window'] is initial_range
++        assert metrics['swept_clearance_m'] >= metrics['required_clearance_m']
++        assert metrics['current_path_clearance_m'] < -.01
++        assert metrics['approach_along_path_m'] <= -.25
++    assert (CANDIDATE['x'], CANDIDATE['y']) == (.44, -.60)
++
++
++def test_initial_selection_range_is_unchanged():
++    candidate = {'x': 0., 'y': 0., 'path_tangent': [1., 0.]}
++    path = [(-2., 0.), (2., 0.)]
++    assert injector.candidate_still_ahead(candidate, (-.60, 0.), path, .22)
++    assert injector.candidate_still_ahead(candidate, (-1., 0.), path, .22)
++    assert not injector.candidate_still_ahead(candidate, (-.59, 0.), path, .22)
++    assert not injector.candidate_still_ahead(candidate, (-1.01, 0.), path, .22)
++
++
++def test_actual_overlap_and_reaction_margin_still_reject_spawn():
++    candidate = {'x': 0., 'y': 0., 'path_tangent': [1., 0.]}
++    path = [(-1., 0.), (1., 0.)]
++    for robot in ((-.30, 0.), (-.40, 0.)):
++        accepted, metrics = ready(candidate, robot, path)
++        assert not accepted
++        assert metrics['reason'] == 'robot_near_box_sweep'
++        assert metrics['swept_clearance_m'] < metrics['required_clearance_m']
++    # The second pose is physically outside the body but lacks reaction room.
++    assert injector.path_clearance_from_box([(-.40, 0.)], (0., 0.), .22) > .02
++
++
++def test_truth_age_distance_is_not_ignored():
++    candidate = {'x': 0., 'y': 0., 'path_tangent': [1., 0.]}
++    path = [(-1., 0.), (1., 0.)]
++    assert ready(candidate, (-.45, 0.), path, .10)[0]
++    accepted, metrics = ready(candidate, (-.45, 0.), path, .20)
++    assert not accepted
++    assert math.isclose(metrics['required_clearance_m'], .02 + .22 * (.20 + .20))
++
++
++@pytest.mark.parametrize('age', [None, -.001, .20001, float('nan')])
++def test_unavailable_or_stale_truth_rejects_spawn(age):
++    accepted, metrics = ready(CANDIDATE, (-.10724, -.31660), RECORDED_PATH, age)
++    assert not accepted
++    assert metrics['reason'] == 'truth_unavailable_or_stale'
++
++
++def test_actually_passed_scene_rejects_even_if_body_clear():
++    candidate = {'x': 0., 'y': 0., 'path_tangent': [1., 0.]}
++    accepted, metrics = ready(candidate, (.6, 0.), [(-1., 0.), (1., 0.)])
++    assert not accepted
++    assert metrics['reason'] == 'candidate_actually_passed_or_not_ahead'
++
++
++def test_latest_path_must_still_really_be_blocked():
++    candidate = {'x': 0., 'y': 0., 'path_tangent': [1., 0.]}
++    accepted, metrics = ready(candidate, (-.7, 0.), [(-1., .6), (1., .6)])
++    assert not accepted
++    assert metrics['reason'] == 'current_route_no_longer_blocked'
++    # A half-centimeter contact does not meet the retained >1cm obstruction.
++    accepted, metrics = ready(candidate, (-.7, 0.), [(-1., .34), (1., .34)])
++    assert not accepted
++    assert metrics['reason'] == 'current_route_no_longer_blocked'
++
++
++@pytest.mark.parametrize('reason', ['navigation_not_moving', 'path_missing_or_stale',
++                                    'observations_stale', 'goal_inactive'])
++def test_existing_route_freshness_and_moving_checks_remain_required(reason):
++    assert not ready(CANDIDATE, (-.10724, -.31660), RECORDED_PATH,
++                     route_reason=reason)[0]
++
++
++def test_same_coordinates_with_new_goal_generation_cannot_reuse_old_proof():
++    accepted, metrics = ready(CANDIDATE, (-.10724, -.31660), RECORDED_PATH,
++                              current_goal_stamp=(10, 0))
++    assert not accepted
++    assert metrics['reason'] == 'goal_rearmed_during_preflight'
++
++
++def test_route_lease_is_rechecked_after_expensive_bypass_search():
++    def route_reason(now):
++        return injector.route_readiness(
++            True, 'MOVING', (-.25, -1.98), 10., RECORDED_PATH, 10., 10.,
++            now, (-.25, -1.98), (9, 320000000), (9, 320000000))
++    assert route_reason(10.1) is None
++    # Truth may be freshly received, but an old MOVING heartbeat cannot
++    # authorize a spawn after the synchronous memory-bypass proof took time.
++    reason = route_reason(12.01)
++    assert reason == 'navigation_status_stale'
++    accepted, metrics = ready(CANDIDATE, (-.08884, -.33850), RECORDED_PATH,
++                              age=.01, route_reason=reason)
++    assert not accepted
++    assert metrics['reason'] == 'navigation_status_stale'

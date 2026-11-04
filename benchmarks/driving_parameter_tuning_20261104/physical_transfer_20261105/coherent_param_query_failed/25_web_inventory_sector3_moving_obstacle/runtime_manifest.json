@@ -1,0 +1,105 @@
+{
+  "domain": 176,
+  "localhost_only": true,
+  "mode": "ekf_independent",
+  "physical_footprint": true,
+  "cold_start": true,
+  "amcl_launch_prior_enabled": false,
+  "ekf_delivery_faults": false,
+  "hardware_profile": "sensor_rates",
+  "fixture_manifest": {
+    "path": "/tmp/classroom-transfer-final_common_coherent-20261105/25_web_inventory_sector3_moving_obstacle/fixture/fixture_manifest.json",
+    "sha256": "435e440aa487e735437446e133633286bef92a3799fde4f89f6e50141ca1585d"
+  },
+  "fault_streams": [
+    "scan"
+  ],
+  "gazebo_master_uri": "http://127.0.0.1:11576",
+  "config_sha256": {
+    "/tmp/classroom-transfer-final_common_coherent-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+    "/tmp/classroom-transfer-final_common_coherent-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml": "242dc4549e58950662cc951a8b84e2c1c654b8d0ca8966d921ddaaf5d3399049",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml": "363f9ce5851e7e97359d631419645c87d59fa79e4552d36c73b9d78a2bd8f954",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": "59f6b427b89c3a60f77b87254a3d5352e31a4fde245a241f9c6fef839ed81a1f",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/change_memory_speckle.yaml": "65ca37cbd514e76bb85f041add54c1150d882c556f3800440df965df940cf977"
+  },
+  "nav_profile_source": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml",
+  "nodes_profile_source": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml",
+  "nav_profile_generated": "/tmp/classroom-transfer-final_common_coherent-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nav_sim_time.yaml",
+  "nodes_profile_generated": "/tmp/classroom-transfer-final_common_coherent-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml",
+  "sim_footprint_overrides": {
+    "robot_radius_m": 0.22,
+    "nav2_inflation_radius_m": 0.22,
+    "astar_static_inflation_cells": 5,
+    "astar_preferred_clearance_m": 0.45,
+    "follower_recovery_radius_m": 0.22,
+    "physical_values_preserved": true,
+    "only_use_sim_time_changed": true
+  },
+  "record_incidents": true,
+  "laser_filter_for_change_memory": false,
+  "laser_filter_input_topic": "/scan",
+  "laser_filter_output_topic": "/scan_filtered_for_change",
+  "laser_filter_consumer": "change_memory only; raw /scan retained by Nav2, AMCL and motion_mux",
+  "scan_pair_observer": false,
+  "memory_session": true,
+  "initial_pose": {
+    "x": -0.188431,
+    "y": -0.220497,
+    "yaw": -0.027514
+  },
+  "gazebo_seed": 4242,
+  "simulated_battery": {
+    "topic": "/battery_state",
+    "voltage_v": 12.0,
+    "percentage": 0.75,
+    "rate_hz": 2.0,
+    "guard_minimum_voltage_v": 10.8
+  },
+  "nav_profile_note": "Physical values preserved; use_sim_time only; copied SDF body collision proxy radius 0.22 m.",
+  "nodes_profile_note": "Physical values preserved; use_sim_time only; copied SDF body collision proxy radius 0.22 m.",
+  "sensor_fault_scope": "scan only; independent EKF publishes /odom and odom->base TF directly",
+  "hardware_profile_edits": [
+    {
+      "sdf_path": "./model/link[@name='base_scan']/sensor[@name='hls_lfcd_lds']/update_rate",
+      "before": 5.0,
+      "after": 10.0,
+      "units": "Hz",
+      "effect": "laser_sensor_producer",
+      "changed": true
+    },
+    {
+      "sdf_path": "./model/link[@name='imu_link']/sensor[@name='tb3_imu']/update_rate",
+      "before": 200.0,
+      "after": 20.0,
+      "units": "Hz",
+      "effect": "imu_sensor_producer",
+      "changed": true
+    },
+    {
+      "sdf_path": "./model/plugin[@name='turtlebot3_joint_state']/update_rate",
+      "before": 30.0,
+      "after": 20.0,
+      "units": "Hz",
+      "effect": "wheel_joint_state_producer",
+      "changed": true
+    }
+  ],
+  "hardware_profile_calibration": "stress_envelope_not_physical_calibration",
+  "collision_model": {
+    "copied_centered_cylinder_radius_m": 0.22,
+    "stock_source_unchanged": true
+  },
+  "camera_producer": {
+    "layout": "classroom_rear_physical",
+    "front_enabled": false,
+    "rear_width": 320,
+    "rear_height": 240,
+    "rear_fps": 5.0
+  },
+  "controller": {
+    "plugin": "smart_vision_amr_dwb::RouteTrackingDWB",
+    "library": "/home/kiki/Team2_workspace/build/smart_vision_amr_dwb/libroute_tracking_dwb.so",
+    "library_sha256": "90e835a0f84dc94c9fc67e47afef91bf549331d5195864890c24aa312105c63f"
+  }
+}

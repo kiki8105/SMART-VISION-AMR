@@ -1,0 +1,209 @@
+{
+  "scope": "Independent recorded-topic/source audit plus controlled callback regression; no claim that a new Gazebo trial or physical robot passes.",
+  "historical_result": {
+    "passed": false,
+    "operator_aborted": true,
+    "original_outcome": "FAIL",
+    "safety_gate_passed": true,
+    "physical_robot_touched": false
+  },
+  "inputs": {
+    "archive": "final_wheel_common_coherent_aborted",
+    "archived_timeline_sha256": "a429346354ab58d1f2d37e9c8cea20ff053c493dff5698adb3ca91d1042bb43f",
+    "original_source_sha256": "0a43f64213c5a49bd0a85bad54fe444b6a50a6885e3c5842a07849237d17c1c0",
+    "fixed_source_sha256": "3112079a158913796379bdd7048e02cae9413dc20f09945f49441ea4e5e62dc1",
+    "recorded_fixture": "ros2_ws/src/smart_vision_amr/test/fixtures/guard_veto_handoff_20261105.json",
+    "recorded_fixture_sha256": "5bcf321a170a2fb8bcdd56ec4002b9514a67daf0bc4ab558a5195aff6ab49ab6"
+  },
+  "events": [
+    {
+      "event": "old_route_published",
+      "t": 21.3532,
+      "monotonic": 31960.8972,
+      "wall_time": 1793817789.2391,
+      "kind": "path",
+      "count": 94,
+      "stamp_ns": 7700000000
+    },
+    {
+      "event": "raw_guard_veto",
+      "t": 26.634,
+      "monotonic": 31966.1781,
+      "wall_time": 1793817794.5199,
+      "kind": "motion",
+      "mode": "auto",
+      "available": true,
+      "autonomous_allowed": true,
+      "estop_latched": false,
+      "scan_guard_hold": true,
+      "scan_guard_code": "SWEPT_INTERSECTION",
+      "scan_guard_reason": "LiDAR return intersects requested chassis sweep",
+      "output_linear": 0.0,
+      "output_angular": 0.0
+    },
+    {
+      "event": "raw_guard_clear",
+      "t": 26.8593,
+      "monotonic": 31966.4033,
+      "wall_time": 1793817794.7452,
+      "kind": "motion",
+      "mode": "auto",
+      "available": true,
+      "autonomous_allowed": true,
+      "estop_latched": false,
+      "scan_guard_hold": false,
+      "scan_guard_code": "CLEAR",
+      "scan_guard_reason": "",
+      "output_linear": 0.0,
+      "output_angular": -0.10442315126039398
+    },
+    {
+      "event": "local_route_published",
+      "t": 26.9116,
+      "monotonic": 31966.4556,
+      "wall_time": 1793817794.7974,
+      "kind": "path",
+      "count": 93,
+      "stamp_ns": 12520000000
+    },
+    {
+      "event": "local_ready",
+      "t": 26.913,
+      "monotonic": 31966.457,
+      "wall_time": 1793817794.7988,
+      "kind": "planner",
+      "status": "READY",
+      "message": "Local detour active; original forward suffix retained",
+      "goal_stamp": {
+        "sec": 7,
+        "nanosec": 700000000
+      },
+      "route_failure": null,
+      "details": {
+        "path_stamp": {
+          "sec": 12,
+          "nanosec": 520000000
+        },
+        "episode_id": null,
+        "execution_failure_id": null,
+        "execution_failure_reason": null,
+        "recovery_phase": "FOLLOW",
+        "recovery_episode_id": "9256a7b8c3ca420c9dca1e098467548a"
+      }
+    },
+    {
+      "event": "old_route_watchdog",
+      "t": 33.0584,
+      "monotonic": 31972.6024,
+      "wall_time": 1793817800.9443,
+      "kind": "navigation",
+      "status": "WAIT_CANCEL",
+      "message": "No execution progress; awaiting confirmed stop before replanning",
+      "goal_stamp": {
+        "sec": 7,
+        "nanosec": 700000000
+      },
+      "route_failure": null,
+      "details": {
+        "path_stamp": {
+          "sec": 7,
+          "nanosec": 700000000
+        },
+        "episode_id": null,
+        "execution_failure_id": null,
+        "execution_failure_reason": "execution_no_progress",
+        "recovery_phase": null,
+        "recovery_episode_id": null
+      }
+    },
+    {
+      "event": "old_route_failed",
+      "t": 33.1163,
+      "monotonic": 31972.6603,
+      "wall_time": 1793817801.0021,
+      "kind": "navigation",
+      "status": "FAILED",
+      "message": "Stopped; replan while avoiding failed approach",
+      "goal_stamp": {
+        "sec": 7,
+        "nanosec": 700000000
+      },
+      "route_failure": true,
+      "details": {
+        "path_stamp": {
+          "sec": 7,
+          "nanosec": 700000000
+        },
+        "episode_id": null,
+        "execution_failure_id": "1aba328320d146848b654b76cb87e810",
+        "execution_failure_reason": "execution_no_progress",
+        "recovery_phase": null,
+        "recovery_episode_id": null
+      }
+    }
+  ],
+  "observed_ownership": {
+    "published_path_count": 2,
+    "published_path_stamps_ns": [
+      7700000000,
+      12520000000
+    ],
+    "navigation_reported_path_stamps_ns": [
+      7700000000
+    ],
+    "replacement_ack_observed": false,
+    "first_local_planner_episode_phase": "FOLLOW",
+    "first_local_planner_episode_id": "9256a7b8c3ca420c9dca1e098467548a",
+    "first_local_health": {
+      "t": 26.9134,
+      "monotonic": 31966.4575,
+      "wall_time": 1793817794.7993,
+      "kind": "health",
+      "level": "ok",
+      "reasons": [],
+      "autonomous_allowed": true,
+      "stop_latched": false
+    }
+  },
+  "cause": {
+    "confirmed": "A transient raw guard hold unconditionally set execution_discarded_reason. The old on_path used that attribution string as an admission barrier after the guard cleared; the new 93-point local route was discarded before cancellation/queueing. Old 94-point route eventually failed under its own 7.7 s stamp, while planner owned replacement 12.52 s.",
+    "not_cause": "No evidence that coordinator non-FOLLOW phase rejected this actual failure; recorded phase was FOLLOW.",
+    "independent_edge": "If a pending execution diagnosis is discarded during cancellation, generic attribution must also permit a fresh route to queue, or the same orphan can recur."
+  },
+  "change": {
+    "runtime_files": [
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py"
+    ],
+    "rule": "Only a still-pending execution diagnosis rejects intermediate nonempty paths. Discarded generic reason remains result attribution, while ordinary goal/stamp checks and active/request/cancel/terminal/fresh-stop/Spin ownership control queueing and dispatch.",
+    "unchanged": [
+      "actual pending diagnosis barrier",
+      "goal match and stamp cutoffs",
+      "actual terminal required after cancel ACK",
+      "material replan fresh stationary odometry and Spin",
+      "raw guard and collision checks",
+      "execution failure budget and path stamp ownership"
+    ]
+  },
+  "validation": {
+    "focused_passed": 220,
+    "new_cases": 6,
+    "new_test": "ros2_ws/src/smart_vision_amr/test/test_guard_veto_path_handoff.py",
+    "recorded_test": "94 old / 93 local exact path geometry and guard packets; controlled fresh sensor, terminal, stop and Spin callbacks.",
+    "scenarios": [
+      "recorded guard HOLD then CLEAR queues exact local12.52 route",
+      "cancel acknowledgment alone never dispatches or starts Spin",
+      "post-terminal fresh stop and owned Spin precede exact replacement dispatch",
+      "pending diagnosis cancel then guard discard allows fresh B to queue",
+      "still-pending diagnosis rejects intermediate route",
+      "stale execution/input cutoffs reject route",
+      "wrong goal route rejected"
+    ],
+    "independent_read_review": "radius20_consistency confirmed no additional critical finding at fixed hash",
+    "diff_check": "PASS"
+  },
+  "limits": [
+    "Fresh full-web seven-case matrix remains required; this audit does not turn historical FAIL into PASS.",
+    "Recorded raw guard veto was legitimate; this change does not weaken collision rejection.",
+    "Current occupied-square/quantization geometry limits remain unresolved and are not changed."
+  ]
+}

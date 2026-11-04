@@ -26,6 +26,40 @@ class MotionMuxTest(unittest.TestCase):
         self.now += .5
         self.assertEqual(self.mux.output(), (0.0, 0.0))
 
+    def test_physical_turn_slowdown_preserves_yaw_and_straight_speed(self):
+        mux = MotionMuxCore(clock=lambda: self.now, max_linear_velocity=.22,
+                            max_angular_velocity=1.0,
+                            auto_turn_slowdown_enabled=True,
+                            auto_turn_start_angular=.08,
+                            auto_turn_full_angular=.35,
+                            auto_turn_entry_linear_velocity=.15,
+                            auto_turn_min_linear_velocity=.10)
+        mux.receive_auto(.24, 0.)
+        self.assertEqual(mux.output(), (.22, 0.))
+        mux.receive_auto(.24, .12)
+        linear, angular = mux.output()
+        self.assertLessEqual(linear, .15)
+        self.assertGreater(linear, .10)
+        self.assertEqual(angular, .12)
+        mux.receive_auto(.24, -.5)
+        self.assertAlmostEqual(mux.output()[0], .10)
+        self.assertEqual(mux.output()[1], -.5)
+        # Recovery reverse and operator joystick remain outside this policy.
+        mux.receive_auto(-.04, .5)
+        self.assertEqual(mux.output(), (-.04, .5))
+        mux.receive_control({'source_id': 'web', 'seq': 1, 'mode': 'manual',
+                             'sent_at_ns': 20_000_000_000,
+                             'linear': .24, 'angular': .5}, ros_now_ns=20_000_000_000)
+        self.assertEqual(mux.output(), (.22, .5))
+
+    def test_physical_turn_slowdown_rejects_invalid_limits(self):
+        with self.assertRaises(ValueError):
+            MotionMuxCore(auto_turn_slowdown_enabled=True,
+                          auto_turn_start_angular=.5, auto_turn_full_angular=.35)
+        with self.assertRaises(ValueError):
+            MotionMuxCore(auto_turn_slowdown_enabled=True,
+                          auto_turn_min_linear_velocity=.3)
+
     def test_manual_always_wins_over_concurrent_auto_commands(self):
         self.mux.receive_auto(.2, 0.0)
         self.assertTrue(self.control('manual', linear=-.1, angular=.3))

@@ -138,6 +138,8 @@ def select_reverse_egress(
     blocking_cells: set[Cell] | None = None,
     current_pose: tuple[float, float, float] | None = None,
     allow_parallel_static_egress: bool = False,
+    clearance_neutral_egress_enabled: bool = False,
+    verified_command_corridor: bool = False,
 ) -> ReverseCandidate | None:
     """Return the nearest safe straight retreat, or ``None``.
 
@@ -170,6 +172,26 @@ def select_reverse_egress(
     enable ``allow_parallel_static_egress`` only for that situation. The
     selected endpoint must leave all inflation, retain the existing complete
     physical sweep clearance, and have a route to the retained goal.
+
+    ``clearance_neutral_egress_enabled`` additionally permits small clearance
+    decreases along a physically clear inflation escape. It applies only
+    without a focused physical blocker and with an inflated/raw-free start.
+    It waives the monotonic/gain preference, never the complete history and
+    commanded-axis footprint checks, inflation-free endpoint, or goal oracle.
+    The caller must independently authorize the fresh, stopped recovery.
+
+    ``verified_command_corridor`` is available only to a caller that verified
+    the odometry source/frame/continuity and projected its retained trace with
+    one current paired transform. Historical headings need not equal today's
+    heading: past positions must still remain within the existing narrow
+    chassis-axis corridor. The complete raw trace and actual commanded straight
+    chord are both checked, with unchanged footprint margins, endpoint and
+    retained-goal requirements. Stationary duplicate positions do not erase an
+    otherwise valid positional trace. The adapter proves continuity on every
+    source sample, so gaps between sparse retained *spatial* anchors do not
+    reapply ``max_sample_gap``; their original timestamps and history-age bound
+    remain unchanged. This flag never establishes source or stop evidence by
+    itself.
     """
 
     settings = (now, robot_radius, clearance_margin, min_distance, max_distance,
@@ -185,7 +207,9 @@ def select_reverse_egress(
             or raw_grid.width != inflated_grid.width
             or raw_grid.height != inflated_grid.height
             or len(history) < 2
-            or type(allow_parallel_static_egress) is not bool):
+            or type(allow_parallel_static_egress) is not bool
+            or type(clearance_neutral_egress_enabled) is not bool
+            or type(verified_command_corridor) is not bool):
         return None
 
     latest = history[-1]
@@ -226,12 +250,21 @@ def select_reverse_egress(
                                   _cell(geometry, current_x, current_y))
                               and not raw_grid.is_static_obstacle(
                                   _cell(geometry, current_x, current_y)))
+    clearance_neutral_egress = (clearance_neutral_egress_enabled and not focused
+                                and inflated_grid.is_static_obstacle(
+                                    _cell(geometry, current_x, current_y))
+                                and not raw_grid.is_static_obstacle(
+                                    _cell(geometry, current_x, current_y)))
     travel_bound = max(hypot(max_distance, max_lateral_error),
                        hypot(latest.x-current_x, latest.y-current_y))
     occupied = _nearby_sweep_obstacles(geometry, occupied, current_x, current_y,
                                       start_clearance, travel_bound)
 
     backward_x, backward_y = -cos(current_yaw), -sin(current_yaw)
+    if (verified_command_corridor
+            and abs((latest.x-current_x)*backward_y
+                    -(latest.y-current_y)*backward_x) > max_lateral_error):
+        return None
     start_progress_clearance = (_obstacle_clearance(geometry, focused, current_x, current_y)
                                 if focused else start_clearance)
     previous, previous_clearance = latest, start_clearance
@@ -243,13 +276,20 @@ def select_reverse_egress(
                 or not isfinite(breadcrumb.yaw)
                 or breadcrumb.stamp >= previous.stamp
                 or latest.stamp - breadcrumb.stamp > max_history_age
-                or previous.stamp - breadcrumb.stamp > max_sample_gap):
+                or (not verified_command_corridor
+                    and previous.stamp - breadcrumb.stamp > max_sample_gap)):
             break
         segment = hypot(previous.x - breadcrumb.x, previous.y - breadcrumb.y)
-        if segment > max_pose_jump or segment <= 1e-6:
+        if segment > max_pose_jump:
+            break
+        if segment <= 1e-6:
+            if verified_command_corridor:
+                previous = breadcrumb
+                used += 1
+                continue
             break
         heading_error = (breadcrumb.yaw - current_yaw + pi) % (2.0 * pi) - pi
-        if abs(heading_error) > max_heading_change:
+        if not verified_command_corridor and abs(heading_error) > max_heading_change:
             break
         dx, dy = breadcrumb.x - current_x, breadcrumb.y - current_y
         backward_distance = dx * backward_x + dy * backward_y
@@ -269,7 +309,8 @@ def select_reverse_egress(
             progress_clearance = (_obstacle_clearance(geometry, focused, x, y)
                                   if focused else clearance)
             if (clearance + 1e-9 < required
-                    or progress_clearance + 1e-9 < previous_progress_clearance):
+                    or (not clearance_neutral_egress
+                        and progress_clearance + 1e-9 < previous_progress_clearance)):
                 return None
             previous_clearance = clearance
             previous_progress_clearance = progress_clearance
@@ -285,7 +326,7 @@ def select_reverse_egress(
         cell = _cell(geometry, target_x, target_y)
         gain = previous_progress_clearance - start_progress_clearance
         if (backward_distance < min_distance - 1e-9
-                or (not parallel_static_egress
+                or (not parallel_static_egress and not clearance_neutral_egress
                     and gain < min_clearance_gain - 1e-9)
                 or inflated_grid.is_static_obstacle(cell)):
             continue
@@ -299,10 +340,11 @@ def select_reverse_egress(
             progress_clearance = (_obstacle_clearance(geometry, focused, x, y)
                                   if focused else clearance)
             if (clearance + 1e-9 < required
-                    or progress_clearance + 1e-9 < straight_progress):
+                    or (not clearance_neutral_egress
+                        and progress_clearance + 1e-9 < straight_progress)):
                 return None
             straight_clearance, straight_progress = clearance, progress_clearance
-        if (not parallel_static_egress
+        if (not parallel_static_egress and not clearance_neutral_egress
                 and straight_progress - start_progress_clearance
                     < min_clearance_gain - 1e-9):
             continue

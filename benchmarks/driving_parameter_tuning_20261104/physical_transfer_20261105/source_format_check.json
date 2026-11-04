@@ -1,0 +1,42 @@
+{
+  "source_ast_unchanged": true,
+  "format_only_after_suite": [
+    {
+      "file": "ros2_ws/src/smart_vision_amr/test/recovery_test_evidence.py",
+      "ast_unchanged": true,
+      "format_only": "remove extra blank lines at EOF"
+    },
+    {
+      "file": "ros2_ws/src/smart_vision_amr/test/test_active_start_certificate_independent.py",
+      "ast_unchanged": true,
+      "format_only": "remove extra blank lines at EOF"
+    },
+    {
+      "file": "ros2_ws/src/smart_vision_amr/test/test_follower_episode_context.py",
+      "ast_unchanged": true,
+      "format_only": "remove extra blank lines at EOF"
+    },
+    {
+      "file": "ros2_ws/src/smart_vision_amr/test/test_recovery_episode_policy_independent.py",
+      "ast_unchanged": true,
+      "format_only": "remove extra blank lines at EOF"
+    },
+    {
+      "file": "ros2_ws/src/smart_vision_amr/test/test_reverse_occlusion_oracle.py",
+      "ast_unchanged": true,
+      "format_only": "remove extra blank lines at EOF"
+    },
+    {
+      "file": "ros2_ws/src/smart_vision_amr/test/test_verified_reverse_corridor.py",
+      "ast_unchanged": true,
+      "format_only": "remove extra blank lines at EOF"
+    }
+  ],
+  "immutable_raw_log_csv_sdf_whitespace_preserved": true,
+  "source_and_docs_whitespace_passed": true,
+  "native_evidence_whitespace_issues_preserved": {
+    ".log": 101,
+    ".csv": 29,
+    ".sdf": 920
+  }
+}

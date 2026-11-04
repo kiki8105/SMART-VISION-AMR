@@ -1,0 +1,388 @@
+{
+  "passed": false,
+  "domain": 176,
+  "localhost_only": true,
+  "physical_robot_touched": false,
+  "goal": [
+    -0.25,
+    -1.98
+  ],
+  "geometry": {
+    "robot_radius": 0.22,
+    "obstacle_inflation_cells": 5,
+    "nodes_params": "/tmp/classroom-transfer-final_common_coherent_v2-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml"
+  },
+  "goal_owner": "web_mission_server",
+  "goal_published_by_injector": false,
+  "spawned": true,
+  "truth_seen": true,
+  "removed": true,
+  "moving_steps": 4,
+  "observed_while_live": true,
+  "observed_cleared": true,
+  "path_reacted_before_removal": true,
+  "bypassed_while_live": false,
+  "minimum_clearance_m": 0.08271580104938839,
+  "recovery_requests": 1,
+  "events": [
+    {
+      "t": 21.37,
+      "at": 1793816431.0696793,
+      "event": "web_goal_observed",
+      "x": -0.25,
+      "y": -1.98,
+      "stamp": [
+        7,
+        820000000
+      ]
+    },
+    {
+      "t": 21.37,
+      "at": 1793816431.0698595,
+      "event": "injector_waiting_for_current_route",
+      "reason": "navigation_not_moving",
+      "path_age_s": null,
+      "navigation_status": null,
+      "observed_age_s": 0.048
+    },
+    {
+      "t": 21.808,
+      "at": 1793816431.507953,
+      "event": "candidate_search_started",
+      "attempt": 1,
+      "path_sha256": "a536db21c7cb7ed35b22bfa250cbc332f23c0c8c3126dc502e699d95236aa900",
+      "robot_xy": [
+        -0.18825952012860464,
+        -0.22050092178415237
+      ],
+      "observed_cells": 6,
+      "remembered_cells": 0
+    },
+    {
+      "t": 26.236,
+      "at": 1793816435.9364946,
+      "event": "candidate_search_finished",
+      "attempt": 1,
+      "duration_s": 0.346,
+      "diagnostics": {
+        "reason": "FIXED_FEASIBLE_BYPASS",
+        "input_status": "VALID",
+        "geometric_candidates": 1,
+        "topology_candidates_tried": 1,
+        "attempts": 1
+      },
+      "candidate_xy": [
+        0.44,
+        -0.6
+      ]
+    },
+    {
+      "t": 26.594,
+      "at": 1793816436.294183,
+      "event": "current_observed_bypass_proved",
+      "route_cells": 81,
+      "observed_cells": 13,
+      "spawn_readiness": {
+        "reason": "ready",
+        "swept_clearance_m": 0.21154709204712555,
+        "required_clearance_m": 0.0732473295200034,
+        "robot_truth_age_s": 0.042033316000015475,
+        "robot_distance_m": 0.5964700355248682,
+        "approach_along_path_m": -0.5648657348816154,
+        "initial_selection_distance_window": false,
+        "current_path_clearance_m": -0.15676882344496748
+      }
+    },
+    {
+      "t": 26.716,
+      "at": 1793816436.4163766,
+      "event": "obstacle_spawned",
+      "x": 0.44,
+      "y": -0.6,
+      "path_sha256": "a536db21c7cb7ed35b22bfa250cbc332f23c0c8c3126dc502e699d95236aa900",
+      "robot_xy": [
+        -0.076052145035842,
+        -0.3431808853027454
+      ]
+    },
+    {
+      "t": 27.495,
+      "at": 1793816437.1952815,
+      "event": "obstacle_seen_in_lidar_map",
+      "near_cells": 10
+    },
+    {
+      "t": 27.638,
+      "at": 1793816437.3376973,
+      "event": "matching_path_changed_clear_of_box",
+      "previous_sha256": "a536db21c7cb7ed35b22bfa250cbc332f23c0c8c3126dc502e699d95236aa900",
+      "new_sha256": "81636a97b7bf9979f97a1e3c73f01849c54a354641b8854b975663e89454397e",
+      "robot_xy": [
+        0.009026910823588792,
+        -0.436806934614361
+      ],
+      "conservative_clearance_m": 0.12
+    },
+    {
+      "t": 27.722,
+      "at": 1793816437.4224737,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 28.512,
+      "at": 1793816438.212225,
+      "event": "recovery_request",
+      "data": "{\"goal_id\": \"7:820000000\", \"episode_id\": \"3a81cf38ada149aeaf20c19f6d97d15c\", \"source_path_stamp\": {\"sec\": 12, \"nanosec\": 900000000}, \"distance\": 0.10293434115367642, \"speed\": 0.1, \"reason\": \"Local repair unavailable; verified recent retreat before global replanning\", \"recovery_trigger\": \"blocked_active_route\", \"start_cell\": [32, 95], \"exit_cell\": [30, 97], \"blocking_cells\": [[37, 94]], \"certified_start\": {\"frame_id\": \"odom\", \"child_frame_id\": \"base_footprint\", \"stamp_ns\": 13699000000, \"x\": 0.203"
+    },
+    {
+      "t": 28.67,
+      "at": 1793816438.3703136,
+      "event": "obstacle_move_deferred",
+      "step": 1,
+      "target_xy": [
+        0.4220349464558352,
+        -0.6173855356879013
+      ],
+      "robot_xy": [
+        0.011831608669184888,
+        -0.4400846141090502
+      ],
+      "reason": "robot_near_box_sweep",
+      "swept_clearance_m": 0.0699591872706283,
+      "required_clearance_m": 0.08716019486010192,
+      "robot_truth_age_s": 0.10527361300046323
+    },
+    {
+      "t": 28.883,
+      "at": 1793816438.5832176,
+      "event": "obstacle_moved",
+      "step": 1,
+      "x": 0.4220349464558352,
+      "y": -0.6173855356879013,
+      "reason": "ready",
+      "swept_clearance_m": 0.07695337939202626,
+      "required_clearance_m": 0.06402461250012857,
+      "robot_truth_age_s": 0.00011187500058440492
+    },
+    {
+      "t": 29.698,
+      "at": 1793816439.3980958,
+      "event": "obstacle_moved",
+      "step": 2,
+      "x": 0.40406989291167045,
+      "y": -0.6347710713758028,
+      "reason": "ready",
+      "swept_clearance_m": 0.12036485571678854,
+      "required_clearance_m": 0.08126625318042352,
+      "robot_truth_age_s": 0.07848296900192508
+    },
+    {
+      "t": 30.531,
+      "at": 1793816440.231557,
+      "event": "obstacle_moved",
+      "step": 3,
+      "x": 0.38610483936750567,
+      "y": -0.6521566070637042,
+      "reason": "ready",
+      "swept_clearance_m": 0.15452533133210702,
+      "required_clearance_m": 0.07458029258034367,
+      "robot_truth_age_s": 0.04809223900156212
+    },
+    {
+      "t": 31.339,
+      "at": 1793816441.0386698,
+      "event": "obstacle_moved",
+      "step": 4,
+      "x": 0.3681397858233409,
+      "y": -0.6695421427516055,
+      "reason": "ready",
+      "swept_clearance_m": 0.14806177457485817,
+      "required_clearance_m": 0.08468797170024482,
+      "robot_truth_age_s": 0.0940362350011128
+    },
+    {
+      "t": 31.918,
+      "at": 1793816441.6182637,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 33.39,
+      "at": 1793816443.0905151,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 47.483,
+      "at": 1793816457.1828723,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 87.141,
+      "at": 1793816496.841127,
+      "event": "obstacle_removed",
+      "obstacle_name": "classroom_web_obstacle_9c542a83f5"
+    },
+    {
+      "t": 89.24,
+      "at": 1793816498.940355,
+      "event": "post_remove_observation",
+      "near_count": 0,
+      "owned_remaining": 0,
+      "total_observed": 1,
+      "robot_distance_m": 0.559,
+      "samples": 1
+    }
+  ],
+  "failure": null,
+  "obstacle_scenario": {
+    "source_path": "/tmp/classroom-transfer-final_common_coherent_v2-20261105/obstacle_scenario.json",
+    "sha256": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e",
+    "scenario": {
+      "x": 0.44,
+      "y": -0.6,
+      "path_tangent": [
+        0.6954214275160555,
+        -0.7186021417665909
+      ],
+      "movement_side": -1
+    },
+    "actor_positions_by_step": [
+      [
+        0.44,
+        -0.6
+      ],
+      [
+        0.4220349464558352,
+        -0.6173855356879013
+      ],
+      [
+        0.40406989291167045,
+        -0.6347710713758028
+      ],
+      [
+        0.38610483936750567,
+        -0.6521566070637042
+      ],
+      [
+        0.3681397858233409,
+        -0.6695421427516055
+      ]
+    ],
+    "box_size_m": [
+      0.25,
+      0.25,
+      0.5
+    ],
+    "mode": "FIXED_NO_RELOCATION",
+    "copied_path": "/tmp/classroom-transfer-final_common_coherent_v2-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json"
+  },
+  "input_status": "VALID",
+  "candidate": {
+    "x": 0.44,
+    "y": -0.6,
+    "path_tangent": [
+      0.6954214275160555,
+      -0.7186021417665909
+    ],
+    "index": 15,
+    "robot_distance_m": 0.733981999097323,
+    "static_wall_distance_m": 0.25465670560068654,
+    "approach_along_path_m": -0.7096139827427413,
+    "base_path_xy": [
+      0.2750000286847354,
+      -0.7749999333173037
+    ],
+    "lateral_offset_m": 0.24026803622130904,
+    "preflight": {
+      "route_cells_by_step": [
+        83,
+        84,
+        85,
+        85,
+        86
+      ],
+      "movement_side": -1,
+      "initial_centerline_clearance_m": -0.1568,
+      "robot_radius": 0.22,
+      "obstacle_inflation_cells": 5
+    },
+    "robot_radius": 0.22,
+    "initial_path_clearance_m": -0.15676882344496748
+  },
+  "obstacle_name": "classroom_web_obstacle_9c542a83f5",
+  "first_observed_at": 1793816437.1952815,
+  "observed_indices_live": [
+    7519,
+    7520,
+    7521,
+    7522,
+    7523,
+    7604,
+    7605,
+    7606,
+    7607,
+    7608,
+    7609,
+    7610,
+    7690,
+    7691,
+    7692,
+    7693,
+    7694,
+    7695,
+    7696,
+    7776,
+    7777,
+    7778,
+    7779,
+    7862,
+    7863,
+    7864,
+    7948,
+    7949,
+    7950,
+    8034,
+    8035,
+    8036,
+    8037,
+    8038,
+    8039,
+    8040,
+    8120,
+    8121,
+    8122,
+    8123,
+    8124,
+    8125,
+    8126,
+    8207,
+    8208,
+    8209,
+    8210,
+    8211,
+    8212,
+    8213
+  ],
+  "changed_path_clearance_m": 0.1084,
+  "path_reaction_before_box": true,
+  "path_reaction_at": 1793816437.3376973,
+  "planner_counters_while_live": {
+    "global_plan_count": 6,
+    "local_attempt_id": 3,
+    "plan_kind": "GLOBAL"
+  },
+  "deferred_movement_checks": 2,
+  "path_observation_temporal_link": true,
+  "observed_clear_latency_s": 2.298,
+  "candidate_diagnostics": {
+    "reason": "FIXED_FEASIBLE_BYPASS",
+    "input_status": "VALID",
+    "geometric_candidates": 1,
+    "topology_candidates_tried": 1,
+    "attempts": 1
+  },
+  "candidate_search_attempts": 1
+}

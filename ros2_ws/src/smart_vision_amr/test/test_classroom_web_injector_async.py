@@ -1,5 +1,6 @@
 import threading
 import time
+import math
 from pathlib import Path
 import sys
 from types import SimpleNamespace
@@ -19,6 +20,102 @@ from inject_classroom_web_obstacle import (
     select_feasible_web_obstacle,
 )
 from smart_vision_amr.map_utils import cell_to_world, world_to_cell
+
+
+def test_exact_square_geometry_rejects_prior_off_path_physical_candidate():
+    # The failed staged actor put the box 43.6 cm from the centerline. An
+    # enclosing box-circle and stale 24 cm body radius incorrectly counted it
+    # as a blocker; the selected physical 20 cm body has 11 cm clear space.
+    path = [(.658, -.3), (.658, -1.8)]
+    center = (1.0936, -1.1613)
+    assert math.isclose(injector.path_clearance_from_box(path, center, .20), .1106)
+    candidate = {'x': center[0], 'y': center[1], 'path_tangent': [0., -1.]}
+    assert not candidate_still_ahead(candidate, (.658, -.5), path, .20)
+
+
+def test_box_must_overlap_selected_body_route_by_more_than_one_centimeter():
+    path = [(-1., 0.), (1., 0.)]
+    candidate = {'x': 0., 'y': .32, 'path_tangent': [1., 0.]}
+    assert math.isclose(injector.path_clearance_from_box(path, (0., .32), .20), -.005)
+    assert not candidate_still_ahead(candidate, (-.7, 0.), path, .20)
+    candidate['y'] = .31
+    assert candidate_still_ahead(candidate, (-.7, 0.), path, .20)
+    # A simulated larger body legitimately needs another geometric decision.
+    candidate['y'] = .35
+    assert not candidate_still_ahead(candidate, (-.7, 0.), path, .20)
+    assert candidate_still_ahead(candidate, (-.7, 0.), path, .24)
+
+
+def test_segment_square_distance_checks_between_samples_and_square_corners():
+    assert injector.segment_box_distance((-1., -1.), (1., 1.), (0., 0.)) == 0.
+    assert math.isclose(injector.segment_box_distance((.3, .3), (.3, .3), (.5, .5)),
+                        math.sqrt(2)*.075)
+    assert math.isclose(injector.segment_box_distance((0., 0.), (1., 0.), (.5, .45)), .325)
+
+
+def test_owned_box_move_cannot_reproduce_recorded_fourth_step_near_robot():
+    # Captured stage 25 step four teleported the box toward a stationary robot
+    # and reduced its actual clearance from 3.25 cm to 1.45 cm.
+    before = (.47001884441225683, -.6518634459562301)
+    after = (.45205379086809205, -.6692489816441315)
+    robot = (.11255, -.60512)
+    ready, evidence = injector.movement_step_readiness(before, after, robot, .05,
+                                                       robot_radius=.20)
+    assert not ready
+    assert evidence['reason'] == 'robot_near_box_sweep'
+    assert evidence['swept_clearance_m'] < .02
+    assert evidence['required_clearance_m'] > .064
+    # Waiting for the same real robot to pass permits this exact owned step;
+    # no goal/velocity injection or weaker QA threshold is necessary.
+    ready, evidence = injector.movement_step_readiness(before, after, (.2, -1.4), .05,
+                                                       robot_radius=.20)
+    assert ready
+    assert evidence['swept_clearance_m'] >= evidence['required_clearance_m']
+
+
+def test_owned_box_move_checks_entire_sweep_and_fresh_truth():
+    # Clear endpoints do not license a swept box crossing the robot.
+    ready, evidence = injector.movement_step_readiness((-.5, 0.), (.5, 0.), (0., 0.),
+                                                       0., robot_radius=.20)
+    assert not ready
+    assert evidence['swept_clearance_m'] == -.20
+    assert not injector.movement_step_readiness((1., 0.), (1.025, 0.), (0., 0.),
+                                                .21, robot_radius=.20)[0]
+    assert not injector.movement_step_readiness(None, (1.025, 0.), (0., 0.),
+                                                .01, robot_radius=.20)[0]
+    assert injector.movement_step_readiness((1., 0.), (1.025, 0.), (0., 0.),
+                                            .01, robot_radius=.20)[0]
+
+
+def test_geometry_comes_from_generated_nodes_yaml_and_explicit_override(tmp_path):
+    import pytest
+    yaml = tmp_path/'nodes.yaml'
+    yaml.write_text('/astar_planner:\n  ros__parameters:\n    robot_radius: 0.20\n    obstacle_inflation_cells: 4\n')
+    assert injector.geometry_parameters(yaml) == {'robot_radius': .20, 'obstacle_inflation_cells': 4}
+    assert injector.geometry_parameters(yaml, .24, 5) == {'robot_radius': .24, 'obstacle_inflation_cells': 5}
+    with pytest.raises(ValueError):
+        injector.geometry_parameters(yaml, 0., 4)
+    with pytest.raises(ValueError):
+        injector.geometry_parameters(yaml, .20, -1)
+
+
+def test_physical_candidate_selection_proves_actual_obstruction_and_all_moved_bypasses():
+    width = height = 80
+    info = SimpleNamespace(width=width, height=height, resolution=.05,
+        origin=SimpleNamespace(position=SimpleNamespace(x=0., y=0.),
+                               orientation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
+    grid = SimpleNamespace(info=info, data=[0]*(width*height))
+    path = [(.5+.05*index, 2.) for index in range(45)]
+    candidate = select_feasible_web_obstacle(path, (.5, 2.), (2.7, 2.), grid,
+        world_to_cell, cell_to_world, robot_radius=.20, obstacle_inflation_cells=4)
+    assert candidate is not None
+    assert candidate['robot_radius'] == .20
+    assert candidate['initial_path_clearance_m'] < -.01
+    assert len(candidate['preflight']['route_cells_by_step']) == 5
+    assert candidate['preflight']['obstacle_inflation_cells'] == 4
+    assert current_observed_bypass_route(grid, (.5, 2.), (2.7, 2.),
+        (candidate['x'], candidate['y']), (), world_to_cell, cell_to_world,
+        robot_radius=.20, obstacle_inflation_cells=4)
 
 
 def classroom_grid():
@@ -157,18 +254,22 @@ def test_candidate_reserves_one_cell_lidar_overshoot_seen_in_sector_three_trial(
         diagnostics=diagnostics)
     assert candidate is not None
     assert diagnostics['reason'] == 'FEASIBLE_BYPASS'
-    assert abs(candidate['x'] - (-.157842686)) < .002
-    assert abs(candidate['y'] - (-.957842645)) < .002
-    old_cell = world_to_cell(info, *optimistic)
-    new_cell = world_to_cell(info, candidate['x'], candidate['y'])
-    shifted_hits = [
-        (y+new_cell[1]-old_cell[1])*info.width+x+new_cell[0]-old_cell[0]
-        for y in (89, 90) for x in range(27, 34)]
-    for start_cell in ((32, 99), (32, 98)):
-        assert current_observed_bypass_route(
-            grid, cell_to_world(info, start_cell), goal,
-            (candidate['x'], candidate['y']), shifted_hits,
-            world_to_cell, cell_to_world) is not None
+    # Selection now requires actual body/square overlap and can choose another
+    # corridor. The scan overshoot must be proved for that selected box, not
+    # translated from an unrelated historical wall/beam arrangement.
+    assert candidate['initial_path_clearance_m'] < -.01
+    assert len(candidate['preflight']['route_cells_by_step']) == 5
+    center = (candidate['x'], candidate['y'])
+    raw = occupancy_to_grid(grid, 65, 0)
+    projected = injector.projected_lidar_box_cells(raw, info, center,
+                                                  world_to_cell, cell_to_world)
+    geometric = injector.box_cells_on_raw_map(raw, info, center,
+                                             world_to_cell, cell_to_world)
+    assert projected > geometric
+    projected_indices = [y*info.width+x for x, y in projected]
+    assert current_observed_bypass_route(
+        grid, robot, goal, center, projected_indices,
+        world_to_cell, cell_to_world) is not None
 
 
 def test_candidate_search_skips_snapshot_observed_closed_box(monkeypatch):
@@ -208,6 +309,118 @@ def test_spawn_ahead_bound_remains_sixty_centimeters():
     assert candidate_still_ahead(candidate, (-.601, 0.), path)
 
 
+def test_spawn_overlap_gate_allows_nearby_wall_only_with_current_bypass_proof():
+    info = SimpleNamespace(width=80, height=80, resolution=.05,
+        origin=SimpleNamespace(position=SimpleNamespace(x=0., y=0.),
+                               orientation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
+    grid = SimpleNamespace(info=info, data=[0]*(info.width*info.height))
+    box = (1.3, 2.2)
+    nearby_wall = {48*info.width+26}  # Square y=[2.40, 2.45], outside box.
+    # A return within the evidence association radius is not a physical box
+    # overlap. The same observed cells still participate in the global proof.
+    assert injector.near_obstacle_indices(
+        nearby_wall, (), grid, box, cell_to_world)
+    assert not injector.box_overlapping_obstacle_indices(
+        nearby_wall, grid, box, cell_to_world)
+    assert current_observed_bypass_route(
+        grid, (.5, 2.), (3.5, 2.), box, nearby_wall,
+        world_to_cell, cell_to_world,
+        robot_radius=.22, obstacle_inflation_cells=5)
+    barrier = {y*info.width+20 for y in range(info.height)}
+    assert current_observed_bypass_route(
+        grid, (.5, 2.), (3.5, 2.), box, nearby_wall | barrier,
+        world_to_cell, cell_to_world,
+        robot_radius=.22, obstacle_inflation_cells=5) is None
+
+
+def test_spawn_overlap_uses_full_cells_not_just_centers_and_rejects_touching():
+    info = SimpleNamespace(width=80, height=80, resolution=.05,
+        origin=SimpleNamespace(position=SimpleNamespace(x=0., y=0.),
+                               orientation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
+    grid = SimpleNamespace(info=info)
+    index = 40*info.width+43  # Cell x=[2.15, 2.20], center outside both boxes.
+    assert injector.box_overlapping_obstacle_indices(
+        (index,), grid, (2.035, 2.025), cell_to_world) == [index]
+    assert injector.box_overlapping_obstacle_indices(
+        (index,), grid, (2.025, 2.025), cell_to_world) == [index]
+    assert injector.box_overlapping_obstacle_indices(
+        (index,), grid, (2.024, 2.025), cell_to_world) == []
+
+
+def test_spawn_overlap_handles_rotated_cell_corners_without_aabb_false_positive():
+    yaw = math.pi/4.
+    orientation = SimpleNamespace(x=0., y=0., z=math.sin(yaw/2.), w=math.cos(yaw/2.))
+
+    def rotated_grid(center):
+        return SimpleNamespace(info=SimpleNamespace(width=1, height=1, resolution=.1,
+            origin=SimpleNamespace(position=SimpleNamespace(
+                x=center[0], y=center[1]-.1/math.sqrt(2.)), orientation=orientation)))
+
+    # Both world-axis bounding boxes overlap, but the rotated cell diamond
+    # misses the physical box corner. Moving it 1 cm closer truly intersects.
+    assert injector.near_obstacle_indices(
+        (0,), (), rotated_grid((.17, .17)), (0., 0.), cell_to_world) == [0]
+    assert injector.box_overlapping_obstacle_indices(
+        (0,), rotated_grid((.17, .17)), (0., 0.), cell_to_world) == []
+    assert injector.box_overlapping_obstacle_indices(
+        (0,), rotated_grid((.16, .16)), (0., 0.), cell_to_world) == [0]
+
+
+def test_callback_refresh_ends_on_both_post_check_streams_before_budget():
+    now = [10.]
+    observer = SimpleNamespace(robot_at=10., observed_at=10.)
+    callbacks = []
+
+    def spin_once(node, *, timeout_sec):
+        now[0] += timeout_sec
+        callbacks.append(now[0])
+        node.robot_at = now[0]
+        if now[0] >= 10.02-1e-10:
+            node.observed_at = now[0]
+
+    assert injector.refresh_placement_callbacks(
+        observer, 10., .30, spin_once=spin_once, clock=lambda: now[0])
+    assert len(callbacks) == 2
+    assert math.isclose(now[0]-10., .02, abs_tol=1e-10)
+
+
+def test_callback_refresh_missing_stream_expires_and_respects_interruption():
+    now = [10.]
+    observer = SimpleNamespace(robot_at=9.9, observed_at=9.9)
+
+    def spin_once(node, *, timeout_sec):
+        now[0] += timeout_sec
+        node.robot_at = now[0]
+
+    assert not injector.refresh_placement_callbacks(
+        observer, 10., .15, spin_once=spin_once, clock=lambda: now[0])
+    assert math.isclose(now[0], 10.15, abs_tol=1e-10)
+    assert observer.observed_at == 9.9  # A timeout never invents fresh data.
+    started = now[0]
+    assert not injector.refresh_placement_callbacks(
+        observer, started, .30, spin_once=spin_once, clock=lambda: now[0],
+        active=lambda: now[0] < started+.02-1e-10)
+    assert now[0]-started < .03
+
+
+def test_event_refresh_preserves_short_spawn_window_without_relaxing_ahead_gate():
+    now = [10.]
+    observer = SimpleNamespace(robot_at=9.99, observed_at=9.99)
+    candidate = {'x': 0., 'y': 0., 'path_tangent': [1., 0.]}
+    path = [(-1., 0.), (1., 0.)]
+
+    def spin_once(node, *, timeout_sec):
+        now[0] += timeout_sec
+        node.robot_at = node.observed_at = now[0]
+
+    for budget in (.30, .15):
+        assert injector.refresh_placement_callbacks(
+            observer, now[0], budget, spin_once=spin_once, clock=lambda: now[0])
+    current_robot = (-.665+.22*(now[0]-10.), 0.)
+    assert candidate_still_ahead(candidate, current_robot, path, .22)
+    assert not candidate_still_ahead(candidate, (-.665+.22*.45, 0.), path, .22)
+
+
 def test_candidate_search_keeps_ros_thread_free_and_uses_snapshot():
     entered = threading.Event()
     release = threading.Event()
@@ -217,18 +430,21 @@ def test_candidate_search_keeps_ros_thread_free_and_uses_snapshot():
     seen = {}
 
     def slow_selector(path, robot, goal, grid, world_to_cell,
-                      cell_to_world, observed, diagnostics, *, remembered_indices):
+                      cell_to_world, observed, diagnostics, *, remembered_indices,
+                      robot_radius, obstacle_inflation_cells):
         entered.set()
         assert release.wait(2.)
         seen.update(path=path, robot=robot, goal=goal,
-                    observed=observed, remembered=remembered_indices, grid=grid)
+                    observed=observed, remembered=remembered_indices, grid=grid,
+                    robot_radius=robot_radius, inflation=obstacle_inflation_cells)
         diagnostics['reason'] = 'FEASIBLE_BYPASS'
         return {'x': .7, 'y': .1}
 
     started = time.monotonic()
     job = CandidateSearch(original_path, (0., 0.), (1., 0.), 'grid',
                           original_observed, selector=slow_selector,
-                          remembered_indices=original_remembered)
+                          remembered_indices=original_remembered,
+                          robot_radius=.20, obstacle_inflation_cells=4)
     assert time.monotonic() - started < .2
     assert entered.wait(1.)
     # Simulated ROS callbacks can continue changing the live route while the
@@ -247,7 +463,8 @@ def test_candidate_search_keeps_ros_thread_free_and_uses_snapshot():
     assert job.candidate == {'x': .7, 'y': .1}
     assert seen == {'path': ((0., 0.), (1., 0.)),
                     'robot': (0., 0.), 'goal': (1., 0.),
-                    'observed': (13,), 'remembered': (17,), 'grid': 'grid'}
+                    'observed': (13,), 'remembered': (17,), 'grid': 'grid',
+                    'robot_radius': .20, 'inflation': 4}
     assert job.diagnostics['reason'] == 'FEASIBLE_BYPASS'
 
 
@@ -260,3 +477,101 @@ def test_candidate_search_reports_worker_failure_without_hanging():
     assert job.done.wait(2.)
     assert job.candidate is None
     assert job.error == "ValueError('bad map')"
+
+
+def test_fixed_scenario_preserves_exact_center_direction_and_all_five_poses(tmp_path):
+    import json
+    source = ROOT/'benchmarks/driving_parameter_tuning_20261104/scenarios/baseline_sector3_box.json'
+    result = injector.obstacle_scenario_manifest(source)
+    assert result['mode'] == 'FIXED_NO_RELOCATION'
+    assert result['scenario'] == json.loads(source.read_text())
+    positions = result['actor_positions_by_step']
+    assert len(positions) == 5
+    assert positions[0] == [.5239140050447512, -.599706838892526]
+    assert math.isclose(math.hypot(positions[-1][0]-positions[0][0],
+                                  positions[-1][1]-positions[0][1]), .10)
+    assert positions[-1][0] < positions[0][0] and positions[-1][1] < positions[0][1]
+    assert len(result['sha256']) == 64
+
+
+def test_fixed_scenario_rejects_invalid_coordinates_tangent_and_side(tmp_path):
+    import json
+    import pytest
+    original = {'x': 1., 'y': 2., 'path_tangent': [1., 0.], 'movement_side': -1}
+    for changes in ({'x': float('nan')}, {'y': float('inf')}, {'x': True},
+                    {'path_tangent': [0., 0.]}, {'path_tangent': [2., 0.]},
+                    {'path_tangent': [True, 0.]}, {'path_tangent': [1.]},
+                    {'movement_side': 0}, {'movement_side': True}, {'extra': 1}):
+        source = tmp_path/'scene.json'
+        source.write_text(json.dumps(dict(original, **changes)))
+        with pytest.raises(ValueError):
+            injector.obstacle_scenario_manifest(source)
+
+
+def fixed_scene_context():
+    info = SimpleNamespace(width=80, height=80, resolution=.05,
+        origin=SimpleNamespace(position=SimpleNamespace(x=0., y=0.),
+                               orientation=SimpleNamespace(x=0., y=0., z=0., w=1.)))
+    return (SimpleNamespace(info=info, data=[0]*6400),
+            [(.5+.05*index, 2.) for index in range(45)],
+            {'x': 1.35, 'y': 2.20, 'path_tangent': [1., 0.], 'movement_side': -1})
+
+
+def test_fixed_scene_reuses_full_geometry_and_does_not_choose_opposite_side(monkeypatch):
+    grid, path, scene = fixed_scene_context()
+    calls = []
+    original = injector.preflight_box_route
+    def preflight(*args, **kwargs):
+        calls.append((args[3], args[7], kwargs))
+        return original(*args, **kwargs)
+    monkeypatch.setattr(injector, 'preflight_box_route', preflight)
+    candidate = injector.select_fixed_web_obstacle(path, (.5, 2.), (2.7, 2.), grid,
+        world_to_cell, cell_to_world, scenario=scene, robot_radius=.22,
+        obstacle_inflation_cells=5)
+    assert candidate is not None
+    assert (candidate['x'], candidate['y']) == (scene['x'], scene['y'])
+    assert candidate['path_tangent'] == scene['path_tangent']
+    assert candidate['preflight']['movement_side'] == -1
+    assert len(candidate['preflight']['route_cells_by_step']) == 5
+    assert candidate['preflight']['robot_radius'] == .22
+    assert candidate['preflight']['obstacle_inflation_cells'] == 5
+    assert calls[0][1] == ([1., 0.], -1)
+    assert calls[0][2]['require_path_obstruction'] is True
+    # A rejected fixed direction cannot silently select the opposite side.
+    calls.clear()
+    def reject(*args, **kwargs):
+        calls.append(args[7])
+        return None
+    monkeypatch.setattr(injector, 'preflight_box_route', reject)
+    diagnostics = {}
+    assert injector.select_fixed_web_obstacle(path, (.5, 2.), (2.7, 2.), grid,
+        world_to_cell, cell_to_world, diagnostics=diagnostics, scenario=scene,
+        robot_radius=.22, obstacle_inflation_cells=5) is None
+    assert calls == [([1., 0.], -1)]
+    assert diagnostics['reason'] == 'FIXED_SCENE_MOVED_BYPASS_UNPROVED'
+    assert diagnostics['input_status'] == 'INVALID_INPUT'
+
+
+def test_fixed_scene_does_not_relocate_when_new_route_avoids_box(monkeypatch):
+    grid, path, scene = fixed_scene_context()
+    diagnostics = {}
+    monkeypatch.setattr(injector, 'select_feasible_web_obstacle',
+                        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError('adaptive relocation')))
+    assert injector.select_fixed_web_obstacle([(x, 1.5) for x, _ in path], (.5, 1.5),
+        (2.7, 1.5), grid, world_to_cell, cell_to_world, diagnostics=diagnostics,
+        scenario=scene, robot_radius=.22, obstacle_inflation_cells=5) is None
+    assert diagnostics['reason'] == 'FIXED_SCENE_DOES_NOT_BLOCK_CURRENT_PATH'
+    assert diagnostics['input_status'] == 'INVALID_INPUT'
+
+
+def test_fixed_scene_keeps_observed_memory_and_initial_ahead_gates(monkeypatch):
+    grid, path, scene = fixed_scene_context()
+    for robot, observed, memory, expected in (
+            ((.80, 2.), (), (), 'FIXED_SCENE_NOT_AHEAD_OR_OUT_OF_RANGE'),
+            ((.5, 2.), (44*80+27,), (), 'FIXED_SCENE_TOO_CLOSE_TO_OBSERVED_CELL'),
+            ((.5, 2.), (), (40*80+10,), 'FIXED_SCENE_CURRENT_BYPASS_CLOSED')):
+        diagnostics = {}
+        assert injector.select_fixed_web_obstacle(path, robot, (2.7, 2.), grid,
+            world_to_cell, cell_to_world, observed, diagnostics, scenario=scene,
+            remembered_indices=memory, robot_radius=.22, obstacle_inflation_cells=5) is None
+        assert diagnostics['reason'] == expected

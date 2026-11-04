@@ -1,0 +1,30 @@
+{
+  "scope": "Offline arithmetic and exact-stamp ownership witness verification; not a controller replay or new whole-system pass.",
+  "requires_ros": false,
+  "original_inputs_required": true,
+  "snapshot_follower_sha256": "1b551fabf3b1c02aea64a4a9c9d012c69bc3bccfcaa995be90a5e88f99edcca4",
+  "cases": {
+    "v2": {
+      "verified_truth_witnesses": 31,
+      "verified_heading_witnesses": 6,
+      "exact_stamp_owned_intervals": 4,
+      "first_local_heading_error_deg": -47.4977683005655,
+      "last_local_truth_cross_track_max_m": 0.07985356879939684,
+      "last_local_estimated_cross_track_max_m": 0.07156187934904933,
+      "last_local_final_projection_body_box_gap_m": 0.11863889795642166,
+      "last_local_final_actual_body_box_gap_m": 0.062173897956421614,
+      "whole_system_outcome": "FAIL"
+    },
+    "local025": {
+      "verified_truth_witnesses": 38,
+      "verified_heading_witnesses": 6,
+      "exact_stamp_owned_intervals": 4,
+      "first_local_heading_error_deg": -75.49194024943381,
+      "last_local_truth_cross_track_max_m": 0.14537,
+      "last_local_estimated_cross_track_max_m": 0.1119633324730937,
+      "last_local_final_projection_body_box_gap_m": 0.1859489515005864,
+      "last_local_final_actual_body_box_gap_m": 0.04057895150058641,
+      "whole_system_outcome": "FAIL"
+    }
+  }
+}

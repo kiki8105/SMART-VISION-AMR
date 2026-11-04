@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "generated_by": "smart_vision_amr.flight_recorder",
+  "format": "sampled ROS messages as gzip JSONL; not rosbag",
+  "trigger": {
+    "reason": "/smart_vision_amr/motion_status ESTOP",
+    "monotonic_sec": 33156.881049296,
+    "ros_time_ns": 0,
+    "wall_time_ns": 1793818985222931104
+  },
+  "triggers": [
+    {
+      "reason": "/smart_vision_amr/motion_status ESTOP",
+      "monotonic_sec": 33156.881049296,
+      "ros_time_ns": 0,
+      "wall_time_ns": 1793818985222931104
+    }
+  ],
+  "configured_pre_seconds": 30.0,
+  "configured_post_seconds": 5.0,
+  "actual_pre_seconds": 0.08609612199506955,
+  "actual_post_seconds": 4.985623576001672,
+  "finished_early": false,
+  "sample_count": 88,
+  "uncompressed_bytes": 128101,
+  "capture_overflow_samples": 0,
+  "oversize_messages_during_capture": 0,
+  "prebuffer_oversize_messages_total": 0,
+  "nonfinite_numeric_encoding": "NaN / Infinity / -Infinity strings",
+  "sensitive_fields": "redacted recursively; no HTTP credentials/config captured",
+  "sample_period_seconds": {
+    "/odom": 0.2,
+    "/imu": 0.2,
+    "/cmd_vel": 0.2,
+    "/smart_vision_amr/navigation_cmd_vel": 0.2,
+    "/speed_limit": 0.2,
+    "/local_costmap/costmap": 0.5,
+    "/scan": 0.5,
+    "/tf": 0.2,
+    "/tf_static": 0.0,
+    "/smart_vision_amr/goal": 0.0,
+    "/smart_vision_amr/path": 1.0,
+    "/smart_vision_amr/planner_status": 0.2,
+    "/smart_vision_amr/navigation_status": 0.2,
+    "/smart_vision_amr/motion_status": 0.2,
+    "/smart_vision_amr/localization_health": 0.2,
+    "/smart_vision_amr/scan_projection_status": 0.2,
+    "/smart_vision_amr/execution_failure": 0.2,
+    "/smart_vision_amr/failure_memory_status": 0.2,
+    "/smart_vision_amr/controller_diagnostics": 0.2,
+    "/smart_vision_amr/navigation_control": 0.2
+  },
+  "ros_domain_id": "176",
+  "last_observed_static_transforms": {
+    "received_monotonic_sec": 33158.086444098,
+    "received_ros_time_ns": 0,
+    "message": {
+      "transforms": [
+        {
+          "header": {
+            "stamp": {
+              "sec": 0,
+              "nanosec": 0
+            },
+            "frame_id": "base_footprint"
+          },
+          "child_frame_id": "base_link",
+          "transform": {
+            "translation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.01
+            },
+            "rotation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        {
+          "header": {
+            "stamp": {
+              "sec": 0,
+              "nanosec": 0
+            },
+            "frame_id": "base_link"
+          },
+          "child_frame_id": "camera_link",
+          "transform": {
+            "translation": {
+              "x": 0.073,
+              "y": -0.011,
+              "z": 0.084
+            },
+            "rotation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        {
+          "header": {
+            "stamp": {
+              "sec": 0,
+              "nanosec": 0
+            },
+            "frame_id": "camera_link"
+          },
+          "child_frame_id": "camera_rgb_frame",
+          "transform": {
+            "translation": {
+              "x": 0.003,
+              "y": 0.011,
+              "z": 0.009
+            },
+            "rotation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        {
+          "header": {
+            "stamp": {
+              "sec": 0,
+              "nanosec": 0
+            },
+            "frame_id": "camera_rgb_frame"
+          },
+          "child_frame_id": "camera_rgb_optical_frame",
+          "transform": {
+            "translation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "rotation": {
+              "x": -0.49999984146591747,
+              "y": 0.49960183664463353,
+              "z": -0.49999984146591747,
+              "w": 0.5003981633553666
+            }
+          }
+        },
+        {
+          "header": {
+            "stamp": {
+              "sec": 0,
+              "nanosec": 0
+            },
+            "frame_id": "base_link"
+          },
+          "child_frame_id": "caster_back_left_link",
+          "transform": {
+            "translation": {
+              "x": -0.177,
+              "y": 0.064,
+              "z": -0.004
+            },
+            "rotation": {
+              "x": -0.706825181105366,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 0.7073882691671998
+            }
+          }
+        },
+        {
+          "header": {
+            "stamp": {
+              "sec": 0,
+              "nanosec": 0
+            },
+            "frame_id": "base_link"
+          },
+          "child_frame_id": "caster_back_right_link",
+          "transform": {
+            "translation": {
+              "x": -0.177,
+              "y": -0.064,
+              "z": -0.004
+            },
+            "rotation": {
+              "x": -0.706825181105366,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 0.7073882691671998
+            }
+          }
+        },
+        {
+          "header": {
+            "stamp": {
+              "sec": 0,
+              "nanosec": 0
+            },
+            "frame_id": "base_link"
+          },
+          "child_frame_id": "imu_link",
+          "transform": {
+            "translation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.068
+            },
+            "rotation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        {
+          "header": {
+            "stamp": {
+              "sec": 0,
+              "nanosec": 0
+            },
+            "frame_id": "base_link"
+          },
+          "child_frame_id": "base_scan",
+          "transform": {
+            "translation": {
+              "x": -0.064,
+              "y": 0.0,
+              "z": 0.122
+            },
+            "rotation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        }
+      ]
+    }
+  }
+}

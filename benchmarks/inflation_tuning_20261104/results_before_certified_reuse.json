@@ -1,0 +1,393 @@
+{
+  "schema": 1,
+  "single_trial_per_profile": true,
+  "limitation": "One run per value compares these scenarios, not statistically proven reliability.",
+  "trials": [
+    {
+      "label": "022",
+      "directory": "/tmp/classroom-inflation-final-20261104-022/25_web_inventory_sector3_moving_obstacle",
+      "overall_passed": false,
+      "overall_reasons": [
+        "web_obstacle_injector_failed",
+        "web_obstacle_bypassed_while_live_unverified",
+        "web_obstacle_motion_unverified",
+        "runner_nonzero_exit"
+      ],
+      "overall_outcome": "FAIL",
+      "overall_unavailable_reason": null,
+      "overall_report": "/tmp/classroom-inflation-final-20261104-022/staged_report.json",
+      "suite_passed": false,
+      "completed_route_and_home": true,
+      "prearm_passed": true,
+      "runner_passed": true,
+      "derived_passed": true,
+      "actor_passed": false,
+      "final_state": "HOME_REACHED",
+      "failure": null,
+      "mission_elapsed_seconds": 163.326,
+      "goal_dispatch_count": 2,
+      "published_nonempty_path_count": 4,
+      "published_empty_path_count": 1,
+      "local_attempt_count": 4,
+      "global_plan_count": 63,
+      "initial_spin_start_count": 1,
+      "large_yaw_reversals": {
+        "count": 1,
+        "qualified_turn_episodes": 10,
+        "definition": "actual /cmd_vel |yaw| >=0.15 rad/s, integrated >=0.10 rad; opposite turn starts within 2 s"
+      },
+      "reverse_motion_episodes": 0,
+      "recovery_request_count": 0,
+      "navigation_status": {
+        "available": true,
+        "samples": 92,
+        "sample_counts": {
+          "WAIT_REPLAN": 1,
+          "CONTROLLER_HOLD": 0,
+          "MOVING": 88,
+          "SUCCEEDED": 2,
+          "CANCELED": 1
+        },
+        "sampled_seconds": {
+          "WAIT_REPLAN": 0.5,
+          "CONTROLLER_HOLD": 0.0,
+          "MOVING": 41.168,
+          "SUCCEEDED": 0.5,
+          "CANCELED": 0.5
+        },
+        "sampled_covered_seconds": 42.668,
+        "unmeasured_seconds": 120.658,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time"
+      },
+      "actual_command_state": {
+        "available": true,
+        "samples": 3626,
+        "sample_counts": {
+          "STOPPED": 1551,
+          "TURNING_IN_PLACE": 467,
+          "TRANSLATING": 1608
+        },
+        "sampled_seconds": {
+          "STOPPED": 71.7,
+          "TURNING_IN_PLACE": 21.202,
+          "TRANSLATING": 70.349
+        },
+        "sampled_covered_seconds": 163.251,
+        "unmeasured_seconds": 0.075,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time",
+        "thresholds": {
+          "linear_m_per_s": 0.005,
+          "angular_rad_per_s": 0.01
+        },
+        "interpretation": "zero actual output is not proof of a scan-guard hold; compare navigation_status and guard separately"
+      },
+      "guard": {
+        "available": true,
+        "samples": 1016,
+        "code_samples": {
+          "CLEAR": 1016
+        },
+        "held_code_transitions": {},
+        "hold_episode_count": 0,
+        "ramp_reason_samples": {
+          "stop": 449,
+          "owner_changed": 1,
+          "acceleration_limited": 194,
+          "tracking": 364,
+          "small_heading_slew": 7,
+          "yaw_direction_changed": 1
+        },
+        "robot_radius_m": [
+          0.22
+        ],
+        "horizon_seconds": [
+          0.5
+        ],
+        "minimum_body_clearance_m": 0.022552227826829384,
+        "minimum_swept_clearance_m": 0.021258067233255226,
+        "maximum_scan_age_seconds": 0.265,
+        "maximum_pose_age_seconds": 0.084,
+        "sampled_hold_seconds": 0.0,
+        "duration_note": "sampled intervals capped at 0.3 s; long missing intervals are not inferred"
+      },
+      "tracking_error": {
+        "max_m": null,
+        "rms_m": null,
+        "reason": "published replacement paths can precede FollowPath cancellation/acceptance; active action path is not uniquely correlated in this timeline"
+      },
+      "minimum_actual_box_clearance_m": 0.07744243973976819,
+      "box_clearance_radius_m": 0.22,
+      "actor_moving_steps": 3,
+      "actor_local_bypass_confirmed": false,
+      "footprint": {
+        "robot_radius_m": 0.22,
+        "nav2_inflation_radius_m": 0.22,
+        "astar_static_inflation_cells": 5,
+        "astar_preferred_clearance_m": 0.45,
+        "follower_recovery_radius_m": 0.22,
+        "physical_values_preserved": true,
+        "only_use_sim_time_changed": true
+      },
+      "timeline": "/tmp/classroom-inflation-final-20261104-022/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+      "guard_log": null
+    },
+    {
+      "label": "030",
+      "directory": "/tmp/classroom-inflation-final-20261104-030/25_web_inventory_sector3_moving_obstacle",
+      "overall_passed": false,
+      "overall_reasons": [
+        "web_obstacle_injector_failed",
+        "web_obstacle_bypassed_while_live_unverified",
+        "web_obstacle_motion_unverified",
+        "runner_nonzero_exit"
+      ],
+      "overall_outcome": "FAIL",
+      "overall_unavailable_reason": null,
+      "overall_report": "/tmp/classroom-inflation-final-20261104-030/staged_report.json",
+      "suite_passed": false,
+      "completed_route_and_home": true,
+      "prearm_passed": true,
+      "runner_passed": true,
+      "derived_passed": true,
+      "actor_passed": false,
+      "final_state": "HOME_REACHED",
+      "failure": null,
+      "mission_elapsed_seconds": 162.567,
+      "goal_dispatch_count": 2,
+      "published_nonempty_path_count": 7,
+      "published_empty_path_count": 2,
+      "local_attempt_count": 6,
+      "global_plan_count": 61,
+      "initial_spin_start_count": 1,
+      "large_yaw_reversals": {
+        "count": 1,
+        "qualified_turn_episodes": 11,
+        "definition": "actual /cmd_vel |yaw| >=0.15 rad/s, integrated >=0.10 rad; opposite turn starts within 2 s"
+      },
+      "reverse_motion_episodes": 0,
+      "recovery_request_count": 0,
+      "navigation_status": {
+        "available": true,
+        "samples": 97,
+        "sample_counts": {
+          "WAIT_REPLAN": 2,
+          "CONTROLLER_HOLD": 0,
+          "MOVING": 92,
+          "SUCCEEDED": 2,
+          "CANCELED": 1
+        },
+        "sampled_seconds": {
+          "WAIT_REPLAN": 1.0,
+          "CONTROLLER_HOLD": 0.0,
+          "MOVING": 42.585,
+          "SUCCEEDED": 0.5,
+          "CANCELED": 0.5
+        },
+        "sampled_covered_seconds": 44.585,
+        "unmeasured_seconds": 117.982,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time"
+      },
+      "actual_command_state": {
+        "available": true,
+        "samples": 3816,
+        "sample_counts": {
+          "STOPPED": 1613,
+          "TURNING_IN_PLACE": 506,
+          "TRANSLATING": 1697
+        },
+        "sampled_seconds": {
+          "STOPPED": 68.822,
+          "TURNING_IN_PLACE": 21.561,
+          "TRANSLATING": 72.116
+        },
+        "sampled_covered_seconds": 162.499,
+        "unmeasured_seconds": 0.067,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time",
+        "thresholds": {
+          "linear_m_per_s": 0.005,
+          "angular_rad_per_s": 0.01
+        },
+        "interpretation": "zero actual output is not proof of a scan-guard hold; compare navigation_status and guard separately"
+      },
+      "guard": {
+        "available": true,
+        "samples": 1010,
+        "code_samples": {
+          "CLEAR": 1010
+        },
+        "held_code_transitions": {},
+        "hold_episode_count": 0,
+        "ramp_reason_samples": {
+          "stop": 432,
+          "acceleration_limited": 186,
+          "tracking": 390,
+          "small_heading_slew": 2
+        },
+        "robot_radius_m": [
+          0.22
+        ],
+        "horizon_seconds": [
+          0.5
+        ],
+        "minimum_body_clearance_m": 0.03441216252701879,
+        "minimum_swept_clearance_m": 0.03441216252701879,
+        "maximum_scan_age_seconds": 0.263,
+        "maximum_pose_age_seconds": 0.084,
+        "sampled_hold_seconds": 0.0,
+        "duration_note": "sampled intervals capped at 0.3 s; long missing intervals are not inferred"
+      },
+      "tracking_error": {
+        "max_m": null,
+        "rms_m": null,
+        "reason": "published replacement paths can precede FollowPath cancellation/acceptance; active action path is not uniquely correlated in this timeline"
+      },
+      "minimum_actual_box_clearance_m": 0.06620870457698377,
+      "box_clearance_radius_m": 0.22,
+      "actor_moving_steps": 3,
+      "actor_local_bypass_confirmed": false,
+      "footprint": {
+        "robot_radius_m": 0.22,
+        "nav2_inflation_radius_m": 0.3,
+        "astar_static_inflation_cells": 5,
+        "astar_preferred_clearance_m": 0.45,
+        "follower_recovery_radius_m": 0.22,
+        "physical_values_preserved": true,
+        "only_use_sim_time_changed": true
+      },
+      "timeline": "/tmp/classroom-inflation-final-20261104-030/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+      "guard_log": null
+    },
+    {
+      "label": "040",
+      "directory": "/tmp/classroom-inflation-final-20261104-040/25_web_inventory_sector3_moving_obstacle",
+      "overall_passed": false,
+      "overall_reasons": [
+        "web_obstacle_injector_failed",
+        "web_obstacle_bypassed_while_live_unverified",
+        "web_obstacle_motion_unverified",
+        "runner_nonzero_exit"
+      ],
+      "overall_outcome": "FAIL",
+      "overall_unavailable_reason": null,
+      "overall_report": "/tmp/classroom-inflation-final-20261104-040/staged_report.json",
+      "suite_passed": false,
+      "completed_route_and_home": true,
+      "prearm_passed": true,
+      "runner_passed": true,
+      "derived_passed": true,
+      "actor_passed": false,
+      "final_state": "HOME_REACHED",
+      "failure": null,
+      "mission_elapsed_seconds": 162.228,
+      "goal_dispatch_count": 2,
+      "published_nonempty_path_count": 5,
+      "published_empty_path_count": 1,
+      "local_attempt_count": 6,
+      "global_plan_count": 61,
+      "initial_spin_start_count": 1,
+      "large_yaw_reversals": {
+        "count": 0,
+        "qualified_turn_episodes": 9,
+        "definition": "actual /cmd_vel |yaw| >=0.15 rad/s, integrated >=0.10 rad; opposite turn starts within 2 s"
+      },
+      "reverse_motion_episodes": 0,
+      "recovery_request_count": 0,
+      "navigation_status": {
+        "available": true,
+        "samples": 93,
+        "sample_counts": {
+          "WAIT_REPLAN": 1,
+          "CONTROLLER_HOLD": 0,
+          "MOVING": 89,
+          "SUCCEEDED": 2,
+          "CANCELED": 1
+        },
+        "sampled_seconds": {
+          "WAIT_REPLAN": 0.5,
+          "CONTROLLER_HOLD": 0.0,
+          "MOVING": 42.007,
+          "SUCCEEDED": 0.5,
+          "CANCELED": 0.5
+        },
+        "sampled_covered_seconds": 43.507,
+        "unmeasured_seconds": 118.721,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time"
+      },
+      "actual_command_state": {
+        "available": true,
+        "samples": 3793,
+        "sample_counts": {
+          "STOPPED": 1601,
+          "TURNING_IN_PLACE": 483,
+          "TRANSLATING": 1709
+        },
+        "sampled_seconds": {
+          "STOPPED": 69.999,
+          "TURNING_IN_PLACE": 20.689,
+          "TRANSLATING": 71.446
+        },
+        "sampled_covered_seconds": 162.134,
+        "unmeasured_seconds": 0.094,
+        "interval_cap_seconds": 0.5,
+        "duration_note": "mission-window samples only; each interval to the next sample is capped at 0.5 s; no carry-in or duration after the final sample is inferred; sparse event streams undercount actual dwell time",
+        "thresholds": {
+          "linear_m_per_s": 0.005,
+          "angular_rad_per_s": 0.01
+        },
+        "interpretation": "zero actual output is not proof of a scan-guard hold; compare navigation_status and guard separately"
+      },
+      "guard": {
+        "available": true,
+        "samples": 1018,
+        "code_samples": {
+          "CLEAR": 1018
+        },
+        "held_code_transitions": {},
+        "hold_episode_count": 0,
+        "ramp_reason_samples": {
+          "stop": 452,
+          "acceleration_limited": 187,
+          "tracking": 373,
+          "small_heading_slew": 6
+        },
+        "robot_radius_m": [
+          0.22
+        ],
+        "horizon_seconds": [
+          0.5
+        ],
+        "minimum_body_clearance_m": 0.03468718466754421,
+        "minimum_swept_clearance_m": 0.03468718466754421,
+        "maximum_scan_age_seconds": 0.262,
+        "maximum_pose_age_seconds": 0.067,
+        "sampled_hold_seconds": 0.0,
+        "duration_note": "sampled intervals capped at 0.3 s; long missing intervals are not inferred"
+      },
+      "tracking_error": {
+        "max_m": null,
+        "rms_m": null,
+        "reason": "published replacement paths can precede FollowPath cancellation/acceptance; active action path is not uniquely correlated in this timeline"
+      },
+      "minimum_actual_box_clearance_m": 0.06463527012089756,
+      "box_clearance_radius_m": 0.22,
+      "actor_moving_steps": 1,
+      "actor_local_bypass_confirmed": false,
+      "footprint": {
+        "robot_radius_m": 0.22,
+        "nav2_inflation_radius_m": 0.4,
+        "astar_static_inflation_cells": 5,
+        "astar_preferred_clearance_m": 0.45,
+        "follower_recovery_radius_m": 0.22,
+        "physical_values_preserved": true,
+        "only_use_sim_time_changed": true
+      },
+      "timeline": "/tmp/classroom-inflation-final-20261104-040/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+      "guard_log": null
+    }
+  ]
+}

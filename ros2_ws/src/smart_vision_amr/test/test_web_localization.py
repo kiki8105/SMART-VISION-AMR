@@ -894,6 +894,32 @@ class LocalizationBridgeTests(unittest.TestCase):
         self.node.on_failure_memory(SimpleNamespace(data=json.dumps(payload)))
         self.assertFalse(self.app.state()['failure_memory']['available'])
 
+    def test_controller_hold_pauses_retained_route_until_explicit_resume(self):
+        self.app.mission.state = 'NAVIGATING'
+        self.app.mission.goal_stamp = (8, 9)
+        route = list(self.app.mission.route)
+        stamp = self.node.get_clock().now().nanoseconds
+        payload = {'state': 'CONTROLLER_HOLD', 'goal_stamp': {'sec': 8, 'nanosec': 9},
+                   'sent_at_ns': stamp, 'active': [], 'failure_class': 'controller',
+                   'recovery_stage': 'await_operator', 'controller_retry_count': 3,
+                   'controller_retry_limit': 3}
+        self.node.on_failure_memory(SimpleNamespace(data=json.dumps(payload)))
+        self.assertEqual(self.app.mission.state, 'PAUSED')
+        self.assertEqual(self.app.mission.route, route)
+        self.assertEqual([command[0] for command in self.app.mission.drain_commands()], ['cancel', 'stop'])
+        self.assertEqual(self.app.state()['operation']['phase'], 'controller_hold')
+        self.assertFalse(self.controls.messages)
+        self.assertFalse(self.goals.messages)
+        # Explicit resume sends a new goal. The previous goal's late hold
+        # cannot pause or cancel it after the new goal stamp is assigned.
+        self.app.mission.resume()
+        self.app.mission.goal_dispatched((9, 0))
+        payload['sent_at_ns'] = self.node.get_clock().now().nanoseconds
+        self.node.on_failure_memory(SimpleNamespace(data=json.dumps(payload)))
+        self.assertEqual(self.app.mission.state, 'NAVIGATING')
+        self.assertEqual(self.app.mission.route, route)
+        self.assertFalse(self.app.state()['failure_memory']['available'])
+
     def refresh(self):
         ready_application(self.app, self.now)
         # Most bridge tests model a responsive, active AMCL. The dedicated

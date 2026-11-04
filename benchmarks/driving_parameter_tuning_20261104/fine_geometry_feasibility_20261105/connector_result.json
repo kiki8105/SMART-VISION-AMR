@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "scope": "One offline connector feasibility query; unadopted, no ROS/Gazebo/drive commands",
+  "fixture": "benchmarks/driving_parameter_tuning_20261104/physical_transfer_20261105/common_coherent_v2_geometry_tracking_inputs.json",
+  "fixture_sha256": "22dc9ecbf089dd747ceb6598289e399e978013a3a698908d920304ce58e4ebe5",
+  "map_image_sha256": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+  "source_astar_sha256": "ee656f4e5eae08003e2db253bdd5e67cb1cf697fb64005bd8e9fd4ed4be300a6",
+  "original_occupied_square_count": 8137,
+  "observed_count": 11,
+  "remembered_count": 23,
+  "radius_m": 0.22,
+  "constructive_proof_margin_m": 0.02,
+  "spacing_m": 0.01,
+  "budget_ms": 60.0,
+  "expansion_limit": 1500,
+  "current_pose": [
+    0.17983426709884415,
+    -1.155173578011551
+  ],
+  "exact_goal": [
+    -0.25,
+    -1.98
+  ],
+  "runtime_adopted": false,
+  "timings_ms": {
+    "input_decode_and_raw_geometry_ms": 26.839335001568543,
+    "anchor_and_full_retained_tail_validation_ms": 17.752945997926872,
+    "local_distance_field_and_all_edge_preparation_ms": 24.092422998364782,
+    "total_ms": 68.7074230008875
+  },
+  "timing_scope": "Includes input decode, original square preparation, tail validation, local field, all8edge masks, search, canonicalization and full output validation. Python/import startup is separately excluded; no prior field cache.",
+  "anchor_candidates": [
+    {
+      "index": 36,
+      "progress_ahead_m": 0.4405919932076139,
+      "xy": [
+        0.59,
+        -1.17
+      ],
+      "full_tail_body_gap_m": 0.10499999999999984
+    }
+  ],
+  "anchor_index": 36,
+  "anchor": [
+    0.59,
+    -1.17
+  ],
+  "reason": "TIME_BUDGET",
+  "expansions": 0,
+  "within_budget": false,
+  "feasible_within_budget": false,
+  "tool_sha256": "069da3bffc5e5868f0d62bb3402087b49e736f9eaa7e04542480f398478bec3d",
+  "offline_environment": {
+    "python": "3.10.12",
+    "numpy": "1.26.4",
+    "scipy": "1.8.0",
+    "pillow": "9.0.1",
+    "pyyaml": "5.4.1",
+    "numpy_scipy_warning": "This environment emitted SciPy compatibility warning (NumPy1.26.4 vs advertised<1.25); computation completed. No library changes made."
+  }
+}

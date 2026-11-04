@@ -1,0 +1,382 @@
+{
+  "scope": "Read-only offline cell/frame correspondence; no runtime edits or collision-gate waiver. Straight reverse samples below are counterfactual geometry, not actual robot motion. Actual negative cmd_vel samples were0.",
+  "trial": "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle",
+  "input_sha256": {
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl": "82ccfc5a059860c8e349be47421815aab3902b1c49d19cc4ae0d173dcc8d33f5",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/memory_observer.jsonl": "23e95a3aad371005279930dfcb25a691a94a9273c814d3fc0a2e2add5a2270e8",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.yaml": "86feb1e0281873d1ac46077d64c8faf32a2c7e190c06fc10248e1012c43eda1d",
+    "/tmp/classroom-recovery-replaced-v2-20261104/25_web_inventory_sector3_moving_obstacle/fixture/classroom_fault.pgm": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761",
+    "/tmp/backup_costmap_audit_20261105.json": "1766cd2a68a3d5156d442b8f6647fc56f16f7a41b1c1f79809b46da62f796338",
+    "/home/kiki/.ros/smart_vision_amr/incidents/incident_20261104T150235_511168Z_4186aadf/events.jsonl.gz": "b60be410f05df24f85c8a75aa33f2b9c1e2b47871e34703f161bc78dd4da3df5"
+  },
+  "local_costmap": {
+    "stamp_ns": 16660000000,
+    "received_wall_time": 1793804555.28287,
+    "lethal_cell": [
+      34,
+      31
+    ],
+    "full_odom_square": [
+      [
+        0.500000025,
+        -0.349999977
+      ],
+      [
+        0.550000026,
+        -0.349999977
+      ],
+      [
+        0.550000026,
+        -0.299999977
+      ],
+      [
+        0.500000025,
+        -0.299999977
+      ]
+    ],
+    "body_radius_m": 0.22
+  },
+  "transforms": {
+    "selector_certified_source_pair": {
+      "frame_id": "odom",
+      "child_frame_id": "base_footprint",
+      "stamp_ns": 16699000000,
+      "x": 0.29084074445665253,
+      "y": -0.4155951702479593,
+      "yaw": -1.300235377672459,
+      "certified_at_ns": 16699000000,
+      "max_position_drift_m": 0.003,
+      "max_yaw_drift_rad": 0.01,
+      "sweep_reserve_m": 0.01,
+      "map_frame": "map",
+      "map_base_frame": "base_footprint",
+      "map_x": 0.06432681896421932,
+      "map_y": -0.6641056855539677,
+      "map_yaw": -1.3217198512122357,
+      "map_stamp_ns": 16699000000
+    },
+    "effective_map_from_odom_from_cert_pair": [
+      -0.21751864800582632,
+      -0.24235834778173343,
+      -0.021484473539776783
+    ],
+    "latest_received_map_odom": {
+      "t": 29.5195,
+      "monotonic": 18727.0818,
+      "wall_time": 1793804555.4237,
+      "kind": "tf_stamp",
+      "source": "forwarded",
+      "parent": "map",
+      "child": "odom",
+      "stamp_ns": 17794000000,
+      "clock_stamp_ns": 16800000000,
+      "x": -0.22249,
+      "y": -0.23791,
+      "yaw": -0.02494
+    },
+    "odom_for_truth_pair": {
+      "t": 29.5878,
+      "monotonic": 18727.1502,
+      "wall_time": 1793804555.492,
+      "kind": "odom",
+      "stamp_ns": 16859000000,
+      "clock_stamp_ns": 16860000000,
+      "frame_id": "odom",
+      "child_frame_id": "base_footprint",
+      "x": 0.29085,
+      "y": -0.41561,
+      "yaw": -1.29984,
+      "linear_x": -0.00084,
+      "angular_z": 0.00273
+    },
+    "nearest_truth_for_world_pair": {
+      "t": 29.6381,
+      "monotonic": 18727.2005,
+      "wall_time": 1793804555.5423,
+      "kind": "truth",
+      "x": 0.08492,
+      "y": -0.64978,
+      "yaw": -1.36391
+    },
+    "truth_pair_receipt_delta_seconds": 0.050299882888793945,
+    "derived_world_from_odom": [
+      -0.17872332114752676,
+      -0.21640072752114453,
+      -0.06406999999999985
+    ],
+    "note": "Map transform derived from the actual paired map/odom certificate avoids assuming latest forward-stamped AMCL transform was used. World transform is inferred from a stopped robot and nearest independently logged truth,50ms receipt separation,5-decimal timeline quantization."
+  },
+  "map_projection": {
+    "full_polygon": [
+      [
+        0.2748469990015213,
+        -0.6030189618596185
+      ],
+      [
+        0.32483546088007353,
+        -0.6040931029195038
+      ],
+      [
+        0.32590960191847607,
+        -0.5541046420407207
+      ],
+      [
+        0.27592114003992385,
+        -0.5530305009808354
+      ]
+    ],
+    "overlapping_observed_cells": [
+      [
+        39,
+        92
+      ],
+      [
+        39,
+        93
+      ]
+    ],
+    "observed_snapshot": {
+      "kind": "observed",
+      "monotonic_sec": 18726.997944954,
+      "wall_utc": "2026-11-04T15:02:35.339790+00:00",
+      "count": 26,
+      "cells": [
+        7693,
+        7694,
+        7779,
+        7780,
+        7865,
+        7866,
+        7951,
+        7952,
+        8037,
+        8038,
+        8123,
+        8124,
+        8560,
+        8561,
+        8646,
+        8647,
+        8732,
+        8733,
+        8818,
+        8819,
+        8904,
+        8905,
+        8990,
+        8991,
+        9076,
+        9077
+      ],
+      "remembered_count": 5,
+      "sample": 77
+    },
+    "remembered_snapshot": {
+      "kind": "remembered",
+      "monotonic_sec": 18727.009604685,
+      "wall_utc": "2026-11-04T15:02:35.351450+00:00",
+      "count": 6,
+      "cells": [
+        7780,
+        7866,
+        7952,
+        8038,
+        8123,
+        8124
+      ],
+      "added": [
+        8123
+      ],
+      "removed": [],
+      "observed_count": 26
+    },
+    "nearest_remembered_square": {
+      "distance_m": 0.0035470834272935507,
+      "cell": [
+        39,
+        94
+      ]
+    },
+    "nearest_static_occupied": {
+      "distance_m": 0.3404002976248223,
+      "cell": [
+        46,
+        96
+      ],
+      "pixel": 0
+    },
+    "nearest_unknown": {
+      "distance_m": 0.2931950252219758,
+      "cell": [
+        45,
+        96
+      ],
+      "pixel": 205
+    },
+    "global_map_geometry": {
+      "width": 86,
+      "height": 140,
+      "resolution": 0.05,
+      "origin": [
+        -1.65,
+        -5.25
+      ]
+    },
+    "global_observed_cell39_93_square": [
+      [
+        0.30000000000000027,
+        -0.5999999999999996
+      ],
+      [
+        0.35000000000000026,
+        -0.5999999999999996
+      ],
+      [
+        0.35000000000000026,
+        -0.5499999999999996
+      ],
+      [
+        0.30000000000000027,
+        -0.5499999999999996
+      ]
+    ],
+    "local_polygon_left_of_global39_93_m": 0.02515300099847867
+  },
+  "truth_projection": {
+    "full_polygon": [
+      [
+        0.29784165387339556,
+        -0.5976956704240224
+      ],
+      [
+        0.34773906584974235,
+        -0.6008969792286728
+      ],
+      [
+        0.35094037459036664,
+        -0.5509995682502742
+      ],
+      [
+        0.30104296261401986,
+        -0.5477982594456238
+      ]
+    ],
+    "actual_box_square": [
+      [
+        0.3629838979564216,
+        -0.7594779102683288
+      ],
+      [
+        0.6129838979564216,
+        -0.7594779102683288
+      ],
+      [
+        0.6129838979564216,
+        -0.5094779102683288
+      ],
+      [
+        0.3629838979564216,
+        -0.5094779102683288
+      ]
+    ],
+    "full_polygon_to_actual_box_distance_m": 0.012043523366054965,
+    "interpretation": "The local occupied whole-cell square extends about12mm outside the true box into physically free space. Raw point provenance is being analyzed separately; this alone does not prove a phantom raw return."
+  },
+  "counterfactual_straight_reverse": [
+    {
+      "straight_reverse_distance_m": 0,
+      "odom_center": [
+        0.29084074445665253,
+        -0.4155951702479593
+      ],
+      "map_center": [
+        0.06432681896421932,
+        -0.6641056855539677
+      ],
+      "world_counterfactual_center": [
+        0.08491171293929184,
+        -0.6497646080783179
+      ],
+      "local_lethal_full_square_body_gap_m": -0.0007961359495507747,
+      "global_observed_full_square_body_gap_m": 0.015673181035780942,
+      "nearest_global_observed_cell": [
+        39,
+        91
+      ],
+      "truth_box_body_gap_m": 0.05807218501712977
+    },
+    {
+      "straight_reverse_distance_m": 0.007,
+      "odom_center": [
+        0.288969840308717,
+        -0.4088498223941242
+      ],
+      "map_center": [
+        0.06260125568704078,
+        -0.657321702109379
+      ],
+      "world_counterfactual_center": [
+        0.08347652629673785,
+        -0.6429133133611835
+      ],
+      "local_lethal_full_square_body_gap_m": -0.0009177251493190097,
+      "global_observed_full_square_body_gap_m": 0.017398744312959485,
+      "nearest_global_observed_cell": [
+        39,
+        91
+      ],
+      "truth_box_body_gap_m": 0.059507371659683755
+    },
+    {
+      "straight_reverse_distance_m": 0.01,
+      "odom_center": [
+        0.28816802424531607,
+        -0.40595895902819484
+      ],
+      "map_center": [
+        0.06186172856825006,
+        -0.6544142806331267
+      ],
+      "world_counterfactual_center": [
+        0.08286144630707198,
+        -0.6399770441966972
+      ],
+      "local_lethal_full_square_body_gap_m": -0.0009013824476196419,
+      "global_observed_full_square_body_gap_m": 0.018138271431750203,
+      "nearest_global_observed_cell": [
+        39,
+        91
+      ],
+      "truth_box_body_gap_m": 0.06012245164934962
+    },
+    {
+      "straight_reverse_distance_m": 0.1078810202767848,
+      "odom_center": [
+        0.2620071661253162,
+        -0.31163874044888074
+      ],
+      "map_center": [
+        0.03773317226505274,
+        -0.5595538204763901
+      ],
+      "world_counterfactual_center": [
+        0.06279322732695888,
+        -0.5441753703209733
+      ],
+      "local_lethal_full_square_body_gap_m": 0.017992858874683743,
+      "global_observed_full_square_body_gap_m": 0.042266827734947526,
+      "nearest_global_observed_cell": [
+        39,
+        93
+      ],
+      "truth_box_body_gap_m": 0.0801906706294627
+    }
+  ],
+  "conclusion": "Local and global grids represent observed obstacle geometry using different lattice origins and frame orientation. Global whole-cell distances can exceed22cm while the corresponding local lethal square intersects the22cm body. The recorded first BackUp failure is therefore geometrically compatible with the global certificate without action ownership failure. Do not waive local collision checking or reduce body size on this basis.",
+  "limitations": [
+    "The exact raw laser endpoint that marked this lethal local cell is not identified by this geometry audit.",
+    "Costmap event precedes behavior collision warning by218ms; independent installed-C++ audit found the same rejection on nearby pre/post snapshots.",
+    "Nearest actual truth is50ms after paired odometry while robot is stopped; receipt pairing is not a new TF authority.",
+    "Counterfactual samples do not certify every swept point, verified trail, current authority, or physical reverse execution."
+  ]
+}

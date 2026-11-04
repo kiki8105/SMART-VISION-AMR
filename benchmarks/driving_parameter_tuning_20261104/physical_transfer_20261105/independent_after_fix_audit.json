@@ -1,0 +1,416 @@
+{
+  "status": "INDEPENDENT_STRICT_PASS",
+  "scope": "Read-only verification of completed fixed-scene cold sensor-rate Gazebo stage25; no physical robot, no visual-browser QA, no new trial.",
+  "archive": "cold_rates_after_memory_turn_fix",
+  "previous_fail_archive": "cold_rates_before_memory_fix",
+  "archive_files_verified_sha256": 24,
+  "archive_manifest_sha256": "3e56816e31e920c595fdc2a1e91c003dc761127c3d0cdb95b298aaac844b4bd0",
+  "staged_report_sha256": "939ebffede603a8a770c736c1c5330ecb8be9a55253f21ac14dfef018a7c82fd",
+  "source_count": 214,
+  "source_before_after_equal": true,
+  "source_manifest_sha256": "37210fdff14c5b65e87552b22e2ed1ad233556a78ee66bfa7dcc35d7b943b9d0",
+  "changed_sources_vs_first_fail": {
+    "ros2_ws/src/smart_vision_amr/launch/simulation.launch.py": {
+      "before_sha256": "8f469103bc96eeab61bd97c7ea62523e8cf3d63ea3356e9f4d19c0a12e6088c3",
+      "after_sha256": "48f941bf2eb335f59e34428ec607f07a8b1b1e4523023e5479e9f8c2f92713c9"
+    },
+    "ros2_ws/src/smart_vision_amr_dwb/include/smart_vision_amr_dwb/route_tracking_dwb.hpp": {
+      "before_sha256": "874a02af98e7a8ca834cf6d0eb92f7b98ddfc9a7400291558b14ddc3638e369b",
+      "after_sha256": "f74e32003bb46d5c690d59b31c3fd9247b4d15a09cf888ef9f8831712be96f96"
+    },
+    "ros2_ws/src/smart_vision_amr_dwb/src/route_tracking_dwb.cpp": {
+      "before_sha256": "1615123fea6fd4002d90b93e5a233b557db9637a56e1b7eaa557881a41eca981",
+      "after_sha256": "03f14e3b3057be848f1d56fe64a87548551b708dd791d47be47767c726a03484"
+    },
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": {
+      "before_sha256": "64c7d94e992dea7f550c3c3fbbe98999cf54aa6d589ef2660f0f03cc1245aceb",
+      "after_sha256": "f73c5fd48383df133b35fad08d4612d1c341fc5715698f6c482096c130f1b009"
+    },
+    "ros2_ws/src/smart_vision_amr/config/curve_tuning_waffle_pi.yaml": {
+      "before_sha256": "f30e806ab8cd308f0bd8fe262c7ffca4ff2300e766a58a9f6982087dc3be86d1",
+      "after_sha256": "f3539842c131967e5789e53a34d301284c390e5157a1e1d4f06c125af361a1a3"
+    },
+    "ros2_ws/src/smart_vision_amr_dwb/include/smart_vision_amr_dwb/command_envelope.hpp": {
+      "before_sha256": "3e6f44bb335dfaaf330d49bb6f518e3c7e71239877c670ac3900659564d6e65b",
+      "after_sha256": "1a9724d4a92371f5dde2391a371bb445ee0ea7a36b4038223a32808e0be45877"
+    },
+    "scripts/run_classroom_fault_sim.sh": {
+      "before_sha256": "9a727ac545453a7a4677e363a018af158e72ee5f77e5885c36f5b73a3cbd773e",
+      "after_sha256": "43f1ac871dff348148087a64f62b7857284f6e30f398f068b11b6aa189d03cbb"
+    },
+    "ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml": {
+      "before_sha256": "50ad86d4c404a8028f857b29208a5769b38dbc10f449f19a05533a00611826f6",
+      "after_sha256": "363f9ce5851e7e97359d631419645c87d59fa79e4552d36c73b9d78a2bd8f954"
+    }
+  },
+  "comparison_limitation": "Same fixed actor scene and cold/sensor-rate mode, but memory geometry and translating yaw policy changed together. One failed versus one passed scenario is not individual causal attribution, repeated reliability, universal optimum or physical-drive proof.",
+  "before_after": {
+    "before": {
+      "overall_passed": false,
+      "mission_seconds": 173.99361944198608,
+      "home_passed": true,
+      "live_bypass": false,
+      "moving_steps": 4,
+      "actor_min_gap_m": 0.0726869899392801,
+      "stopping_rotation_rad": 0.1243
+    },
+    "after": {
+      "overall_passed": true,
+      "mission_seconds": 119.16969704627991,
+      "home_passed": true,
+      "live_bypass": true,
+      "moving_steps": 4,
+      "actor_min_gap_m": 0.09658421321233399,
+      "stopping_rotation_rad": 0.0773
+    }
+  },
+  "cold_start_proof": {
+    "passed": true,
+    "visual_ui_qa": false,
+    "manual_prior_transport": "/set_initial_pose service through web backend",
+    "before": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 0,
+      "map_tf_messages": 0,
+      "web_pose": null,
+      "observed_seconds": 6.280556435001927
+    },
+    "after": {
+      "amcl_set_initial_pose": false,
+      "initial_pose_messages": 0,
+      "amcl_messages": 3,
+      "map_tf_messages": 1
+    }
+  },
+  "inventory_prearm_order_wall_time": {
+    "inventory_request_created": 1793810860.071219,
+    "manual_pose_requested": 1793810870.7472465,
+    "manual_pose_verified": 1793810872.197617,
+    "prearm_passed": 1793810878.6064327,
+    "mission_started": 1793810878.6159294
+  },
+  "manual_pose_estop_unchanged": {
+    "latched_after_verification": true,
+    "stop_acknowledged": true
+  },
+  "prearm_all_checks_passed": true,
+  "prearm_graph": {
+    "map_publishers": [
+      "/map_server"
+    ],
+    "scan_publishers": [
+      "/classroom_fault_relay"
+    ],
+    "odom_publishers": [
+      "/ekf_independent"
+    ],
+    "ekf_output_source_publishers": [],
+    "ekf_tf_source_publishers": [],
+    "battery_publishers": [
+      "/classroom_sim_battery"
+    ],
+    "raw_wheel_publishers": [
+      "/wheel_joint_odometry"
+    ],
+    "raw_imu_publishers": [
+      "/turtlebot3_imu"
+    ],
+    "goal_subscribers": [
+      "/flight_recorder",
+      "/astar_planner",
+      "/path_follower",
+      "/classroom_safety_timeline",
+      "/classroom_memory_observer",
+      "/classroom_web_obstacle_injector"
+    ],
+    "planner_status_publishers": [
+      "/astar_planner"
+    ],
+    "cancel_service_types": [
+      "std_srvs/srv/Trigger"
+    ],
+    "raw_input_samples": {
+      "/wheel/odom": {
+        "count": 2,
+        "last_receipt_age_s": 0.012826518999645486
+      },
+      "/imu": {
+        "count": 2,
+        "last_receipt_age_s": 0.004601282998919487
+      }
+    },
+    "guard_battery_minimum_v": 10.8
+  },
+  "actual_spawned_model": {
+    "archive_path": "cold_rates_after_memory_turn_fix/25_web_inventory_sector3_moving_obstacle/actual_spawned_model.sdf",
+    "sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+    "body_radius_m": 0.22,
+    "body_pose": "0 0 0.048 0 0 0",
+    "scan_source_rate_hz": 10.0,
+    "imu_source_rate_hz": 20.0,
+    "joint_source_rate_hz": 20.0,
+    "drive_odom_topic": "gazebo/odom_raw",
+    "drive_remappings": [
+      "odom:=/gazebo/odom_raw"
+    ],
+    "drive_publish_odom_tf": "false",
+    "drive_wheel_diameter": 0.066,
+    "drive_wheel_separation": 0.287
+  },
+  "source_cadence_final": {
+    "final": true,
+    "streams": {
+      "raw_scan": {
+        "topic": "/classroom_fault/raw_scan",
+        "receipt_sample_count": 1143,
+        "source_stamp_hz": 9.989066258473649,
+        "receipt_wall_hz": 8.889773922259135,
+        "source_stamp_intervals": {
+          "sample_count": 1142,
+          "minimum_seconds": 0.097,
+          "p95_seconds": 0.102,
+          "maximum_seconds": 0.11
+        },
+        "receipt_monotonic_intervals": {
+          "sample_count": 1142,
+          "minimum_seconds": 0.096050337,
+          "p95_seconds": 0.132507464,
+          "maximum_seconds": 0.625720826
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 1143,
+          "minimum": -0.019,
+          "maximum": 0.006,
+          "future_stamp_samples": 1063,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "raw_imu": {
+        "topic": "/imu",
+        "receipt_sample_count": 2279,
+        "source_stamp_hz": 19.928613920285546,
+        "receipt_wall_hz": 17.806456394183623,
+        "source_stamp_intervals": {
+          "sample_count": 2278,
+          "minimum_seconds": 0.049,
+          "p95_seconds": 0.051,
+          "maximum_seconds": 0.099
+        },
+        "receipt_monotonic_intervals": {
+          "sample_count": 2278,
+          "minimum_seconds": 0.037648194,
+          "p95_seconds": 0.068362383,
+          "maximum_seconds": 0.161173829
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 2279,
+          "minimum": -0.02,
+          "maximum": 0.004,
+          "future_stamp_samples": 2232,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "wheel_joint_states": {
+        "topic": "/joint_states",
+        "receipt_sample_count": 2287,
+        "source_stamp_hz": 20.0,
+        "receipt_wall_hz": 17.870540425002908,
+        "source_stamp_intervals": {
+          "sample_count": 2286,
+          "minimum_seconds": 0.05,
+          "p95_seconds": 0.05,
+          "maximum_seconds": 0.05
+        },
+        "receipt_monotonic_intervals": {
+          "sample_count": 2286,
+          "minimum_seconds": 0.040399804,
+          "p95_seconds": 0.066580584,
+          "maximum_seconds": 0.175163963
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 2287,
+          "minimum": -0.017,
+          "maximum": 0.003,
+          "future_stamp_samples": 2286,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      },
+      "ekf_output": {
+        "topic": "/odom",
+        "receipt_sample_count": 2285,
+        "source_stamp_hz": 19.989847538027973,
+        "receipt_wall_hz": 17.86101674471651,
+        "source_stamp_intervals": {
+          "sample_count": 2284,
+          "minimum_seconds": 0.028,
+          "p95_seconds": 0.069,
+          "maximum_seconds": 0.1
+        },
+        "receipt_monotonic_intervals": {
+          "sample_count": 2284,
+          "minimum_seconds": 0.030381696,
+          "p95_seconds": 0.074521834,
+          "maximum_seconds": 0.19153699
+        },
+        "source_age_ros_seconds": {
+          "sample_count": 2285,
+          "minimum": 0.001,
+          "maximum": 0.023,
+          "future_stamp_samples": 0,
+          "clock_unavailable_samples": 0
+        },
+        "source_duplicate_samples": 0,
+        "source_backward_samples": 0
+      }
+    },
+    "no_duplicate_or_backward_stamps": true,
+    "wall_to_source_rate_ratio": {
+      "raw_scan": 0.8899504410352677,
+      "raw_imu": 0.8935120357797811,
+      "wheel_joint_states": 0.8935270212501454,
+      "ekf_output": 0.8935044007083269
+    }
+  },
+  "actor": {
+    "same_fixed_scene_sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+    "all_four_moves": true,
+    "live_bypass": true,
+    "actor_minimum_gap_m": 0.09658421321233399,
+    "qa_margin_m": 0.02,
+    "independent_point_sample_minimum_gap_m": 0.09658305498027994,
+    "independent_point_gap_witness": {
+      "truth": {
+        "t": 31.0281,
+        "monotonic": 25060.1207,
+        "wall_time": 1793810888.4625,
+        "kind": "truth",
+        "x": 0.0258,
+        "y": -0.44693,
+        "yaw": -1.69238
+      },
+      "box_step": {
+        "t": 30.326,
+        "at": 1793810887.92175,
+        "event": "obstacle_moved",
+        "step": 4,
+        "x": 0.45205379086809205,
+        "y": -0.6692489816441315,
+        "reason": "ready",
+        "swept_clearance_m": 0.09689202883525941,
+        "required_clearance_m": 0.06838327186042444,
+        "robot_truth_age_s": 0.019923963001929224
+      }
+    },
+    "independent_live_bypass_witness": {
+      "truth": {
+        "t": 48.4512,
+        "monotonic": 25077.5438,
+        "wall_time": 1793810905.8856,
+        "kind": "truth",
+        "x": 0.34748,
+        "y": -1.12388,
+        "yaw": -0.22065
+      },
+      "signed_progress_m": 0.2539759685777993,
+      "distance_from_initial_box_center_m": 0.5530700326012369,
+      "before_removal_seconds": 0.3043649196624756
+    },
+    "point_witness_limitation": "Truth point samples and actor step timestamps only; complete unsampled motion assurance remains the original actor/safety acceptance evidence.",
+    "observed_cleared": true,
+    "clear_latency_seconds": 2.287
+  },
+  "command_caps_actual": {
+    "actual_samples": 2924,
+    "moving_definition": "abs(actual cmd_vel linear) > .01 m/s",
+    "maximum_linear_mps": 0.22,
+    "moving_maximum_yaw_rps": 0.34615,
+    "stationary_or_tiny_linear_maximum_yaw_rps": 0.5,
+    "DWB_navigation_moving_maximum_yaw_rps": 0.34615,
+    "interpretation": "Moving command yaw <=.35 verified; pure-yaw remains .50 allowed. This is command evidence, not a blanket instantaneous truth-yaw cap during inertia."
+  },
+  "safety": {
+    "passed": true,
+    "violations": [],
+    "wait_replan_intervals": [
+      {
+        "start_t": 39.2618,
+        "duration_s": 1.1485,
+        "last_nonzero_command_after_s": 0.08910000000000196,
+        "first_zero_command_after_s": 0.14159999999999684,
+        "max_displacement_m": 0.0197,
+        "max_forward_displacement_m": 0.0197,
+        "max_heading_change_rad": 0.0773,
+        "truth_samples": 10,
+        "entry_speed_mps": 0.0926,
+        "entry_command_speed_mps": 0.0926,
+        "entry_truth_speed_mps": 0.0808,
+        "entry_front_core_min_m": 0.6503914594650269,
+        "entry_front_core_angle_deg": 348.79243542488246,
+        "ground_truth_stopping_distance_bound_m": 0.05,
+        "estimated_front_body_clearance_m": 0.4863
+      }
+    ]
+  },
+  "actual_reverse": {
+    "negative_actual_cmd_samples": 0,
+    "recovery_requests": 0,
+    "conclusion": "No reverse executed in this PASS. The prior FAIL separately proves an actual roughly 11.8cm reverse; this trial does not repeat that proof."
+  },
+  "home": {
+    "truth": {
+      "passed": true,
+      "event_at": 1793810997.7856264,
+      "goal": [
+        -0.188431,
+        -0.220497,
+        -0.027514
+      ],
+      "position_tolerance_m": 0.25,
+      "sample_time_delta_s": 0.048,
+      "position_error_m": 0.218,
+      "heading_error_rad": 0.099,
+      "fixture_wall_front_yaw_rad": null,
+      "fixture_wall_normal_error_rad": null,
+      "truth": [
+        0.02935,
+        -0.21087,
+        0.07129
+      ]
+    },
+    "independent_settle": {
+      "passed": true,
+      "end_at": 1793810997.7856264,
+      "duration_s": 1.268,
+      "truth_samples": 10,
+      "command_samples": 29,
+      "truth_max_gap_s": 0.162,
+      "command_max_gap_s": 0.074,
+      "max_translation_m": 0.0,
+      "max_heading_rad": 0.0002,
+      "max_command_linear_mps": 0.0,
+      "max_command_angular_rps": 0.0
+    },
+    "requested_position_tolerance_m": 0.25,
+    "precision_limitation": "Home truth error .218m is within the accepted .25m tolerance, not centimetre docking accuracy."
+  },
+  "inventory_final": {
+    "request_id": 1,
+    "status": "DELIVERED",
+    "service_active": false
+  },
+  "guard_during_mission": {
+    "CLEAR": 781
+  },
+  "remaining_realism_gaps": [
+    "This trial faults scan only; ekf_delivery_faults=false, actual Wi-Fi/DDS/clock-offset/OpenCR failures remain untested here.",
+    "Source cadence is measured against simulation ROS time and wall receipt time separately; physical hardware calibration is not established.",
+    "Only one after-fix fixed-scene success; repeat, route permutations, communication faults and physical driving require their own evidence."
+  ]
+}

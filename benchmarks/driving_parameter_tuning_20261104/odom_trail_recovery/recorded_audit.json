@@ -1,0 +1,326 @@
+{
+  "input": "/tmp/classroom-policy-replaced-baseline-20261104/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl",
+  "scope": "Recorded odometry projection only; not raw collision/goal reachability proof",
+  "odom_count": 3294,
+  "map_odom_count": 1504,
+  "probes": [
+    {
+      "probe_t": 29.7587,
+      "recorded_trail_count": 1,
+      "recorded_trail": [
+        [
+          16893.028439015,
+          0.04438271524312479,
+          -0.5719973528891527,
+          -1.3349390978285731
+        ]
+      ],
+      "current_map_pose": [
+        0.04614115240409669,
+        -0.5673257807928197,
+        -1.3354582551534067
+      ],
+      "current_odom": {
+        "t": 29.6925,
+        "monotonic": 16892.9874,
+        "wall_time": 1793802721.3293,
+        "kind": "odom",
+        "stamp_ns": 16754000000,
+        "clock_stamp_ns": 16760000000,
+        "frame_id": "odom",
+        "child_frame_id": "base_footprint",
+        "x": 0.27041,
+        "y": -0.32019,
+        "yaw": -1.32883,
+        "linear_x": -0.00048,
+        "angular_z": 0.00226
+      },
+      "current_frame_transform": [
+        -0.2221406220752769,
+        -0.24535048099142426,
+        -0.006628255153406704
+      ],
+      "good_axis_candidates_count": 0,
+      "nearest_good_axis_candidate": null,
+      "nearest_10cm_odom_pose": {
+        "t": 26.462,
+        "age_s": 3.296699999998964,
+        "backward_m": 0.1015019711209905,
+        "lateral_m": 0.020011867942638505,
+        "yaw_delta_rad": 0.38797000000000015,
+        "odom": [
+          0.22666,
+          -0.22644,
+          -0.94086
+        ],
+        "map_current_projection": [
+          0.003013507822293727,
+          -0.4732878561409769,
+          -0.9474882551534067
+        ]
+      },
+      "map_to_odom_corrections_last5s": [
+        {
+          "t": 27.3652,
+          "source_s": 15.795,
+          "shift_m": 0.00879923292111305,
+          "yaw_shift_rad": 0.0037400000000000766
+        }
+      ]
+    },
+    {
+      "probe_t": 36.7796,
+      "recorded_trail_count": 3,
+      "recorded_trail": [
+        [
+          16898.474433509,
+          0.13397314391479992,
+          -0.9779689118339558,
+          -0.9998210963086297
+        ],
+        [
+          16898.734767628,
+          0.14293074827813512,
+          -1.0107864773038764,
+          -0.9141345559053736
+        ],
+        [
+          16900.047279605,
+          0.16098518418792868,
+          -1.0318127737354041,
+          -0.802308983569612
+        ]
+      ],
+      "current_map_pose": [
+        0.16098518418792868,
+        -1.0318127737354041,
+        -0.802308983569612
+      ],
+      "current_odom": {
+        "t": 36.6974,
+        "monotonic": 16899.9924,
+        "wall_time": 1793802728.3342,
+        "kind": "odom",
+        "stamp_ns": 23154000000,
+        "clock_stamp_ns": 23160000000,
+        "frame_id": "odom",
+        "child_frame_id": "base_footprint",
+        "x": 0.40507,
+        "y": -0.77126,
+        "yaw": -0.77139,
+        "linear_x": -0.00082,
+        "angular_z": 0.00509
+      },
+      "current_frame_transform": [
+        -0.22004843514852174,
+        -0.24839904304429306,
+        -0.03091898356961198
+      ],
+      "good_axis_candidates_count": 0,
+      "nearest_good_axis_candidate": null,
+      "nearest_10cm_odom_pose": {
+        "t": 34.5403,
+        "age_s": 2.239399999998568,
+        "backward_m": 0.09904035155963481,
+        "lateral_m": 0.019158801187546544,
+        "yaw_delta_rad": -0.3732800000000003,
+        "odom": [
+          0.34742,
+          -0.68848,
+          -1.14467
+        ],
+        "map_current_projection": [
+          0.10592180389537387,
+          -0.9472901433293557,
+          -1.175588983569612
+        ]
+      },
+      "map_to_odom_corrections_last5s": [
+        {
+          "t": 35.7295,
+          "source_s": 23.198,
+          "shift_m": 0.012442608247469678,
+          "yaw_shift_rad": 0.005479999999999929
+        },
+        {
+          "t": 35.2319,
+          "source_s": 22.797,
+          "shift_m": 0.00930041396928114,
+          "yaw_shift_rad": 0.00904999999999978
+        },
+        {
+          "t": 35.5044,
+          "source_s": 22.997,
+          "shift_m": 0.009025674490031175,
+          "yaw_shift_rad": 0.0017100000000001003
+        },
+        {
+          "t": 34.4409,
+          "source_s": 21.998,
+          "shift_m": 0.008517423319290854,
+          "yaw_shift_rad": -0.006930000000000103
+        }
+      ]
+    },
+    {
+      "probe_t": 37.3748,
+      "recorded_trail_count": 3,
+      "recorded_trail": [
+        [
+          16898.474433509,
+          0.13397314391479992,
+          -0.9779689118339558,
+          -0.9998210963086297
+        ],
+        [
+          16898.734767628,
+          0.14293074827813512,
+          -1.0107864773038764,
+          -0.9141345559053736
+        ],
+        [
+          16900.650275119,
+          0.16098518418792868,
+          -1.0318127737354041,
+          -0.802308983569612
+        ]
+      ],
+      "current_map_pose": [
+        0.16060465017548411,
+        -1.037061104951898,
+        -0.795763068989946
+      ],
+      "current_odom": {
+        "t": 37.3402,
+        "monotonic": 16900.6352,
+        "wall_time": 1793802728.977,
+        "kind": "odom",
+        "stamp_ns": 23759000000,
+        "clock_stamp_ns": 23760000000,
+        "frame_id": "odom",
+        "child_frame_id": "base_footprint",
+        "x": 0.40611,
+        "y": -0.77228,
+        "yaw": -0.76753,
+        "linear_x": -0.00043,
+        "angular_z": 0.01395
+      },
+      "current_frame_transform": [
+        -0.22354256620620258,
+        -0.25362467061519867,
+        -0.02823306898994593
+      ],
+      "good_axis_candidates_count": 0,
+      "nearest_good_axis_candidate": null,
+      "nearest_10cm_odom_pose": {
+        "t": 34.5403,
+        "age_s": 2.834599999998318,
+        "backward_m": 0.10042232106513425,
+        "lateral_m": 0.019552839484102906,
+        "yaw_delta_rad": -0.3771399999999998,
+        "odom": [
+          0.34742,
+          -0.68848,
+          -1.14467
+        ],
+        "map_current_projection": [
+          0.10430365658023584,
+          -0.95163772278877,
+          -1.172903068989946
+        ]
+      },
+      "map_to_odom_corrections_last5s": [
+        {
+          "t": 35.7295,
+          "source_s": 23.198,
+          "shift_m": 0.012442608247469678,
+          "yaw_shift_rad": 0.005479999999999929
+        },
+        {
+          "t": 35.2319,
+          "source_s": 22.797,
+          "shift_m": 0.00930041396928114,
+          "yaw_shift_rad": 0.00904999999999978
+        },
+        {
+          "t": 35.5044,
+          "source_s": 22.997,
+          "shift_m": 0.009025674490031175,
+          "yaw_shift_rad": 0.0017100000000001003
+        },
+        {
+          "t": 34.4409,
+          "source_s": 21.998,
+          "shift_m": 0.008517423319290854,
+          "yaw_shift_rad": -0.006930000000000103
+        }
+      ]
+    },
+    {
+      "probe_t": 87.8559,
+      "recorded_trail_count": 1,
+      "recorded_trail": [
+        [
+          16951.136501743,
+          0.1522859440099877,
+          -1.0479011757612624,
+          -0.8101346431335743
+        ]
+      ],
+      "current_map_pose": [
+        0.1522859440099877,
+        -1.0479011757612624,
+        -0.8101346431335743
+      ],
+      "current_odom": {
+        "t": 87.8078,
+        "monotonic": 16951.1027,
+        "wall_time": 1793802779.4446,
+        "kind": "odom",
+        "stamp_ns": 70596000000,
+        "clock_stamp_ns": 70600000000,
+        "frame_id": "odom",
+        "child_frame_id": "base_footprint",
+        "x": 0.40636,
+        "y": -0.77253,
+        "yaw": -0.76497,
+        "linear_x": 1e-05,
+        "angular_z": -0.0001
+      },
+      "current_frame_transform": [
+        -0.2187804898154213,
+        -0.2578120971200668,
+        -0.04516464313357427
+      ],
+      "good_axis_candidates_count": 0,
+      "nearest_good_axis_candidate": null,
+      "nearest_10cm_odom_pose": {
+        "t": 34.5403,
+        "age_s": 53.315599999998085,
+        "backward_m": 0.10072541640954746,
+        "lateral_m": 0.019817078218629457,
+        "yaw_delta_rad": -0.37970000000000015,
+        "odom": [
+          0.34742,
+          -0.68848,
+          -1.14467
+        ],
+        "map_current_projection": [
+          0.09720084583894105,
+          -0.9612757865298935,
+          -1.1898346431335742
+        ]
+      },
+      "map_to_odom_corrections_last5s": []
+    }
+  ],
+  "stationary_map_correction_counterproof": {
+    "from_t": 36.7796,
+    "to_t": 87.8559,
+    "map_pose_displacement_m": 0.018289709112480235,
+    "odom_displacement_m": 0.0018102486017120133,
+    "map_minus_odom_motion_error_m": 0.017816074197625265,
+    "existing_reject_error_threshold_m": 0.015362049720342403,
+    "limitation": "Anchor was not separately recorded; this shows actual paired stationary map drift exceeds the old acceptance bound, not exact callback reset instant."
+  }
+}

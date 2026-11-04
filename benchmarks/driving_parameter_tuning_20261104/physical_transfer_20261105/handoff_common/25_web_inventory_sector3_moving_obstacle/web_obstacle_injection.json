@@ -1,0 +1,370 @@
+{
+  "passed": false,
+  "domain": 176,
+  "localhost_only": true,
+  "physical_robot_touched": false,
+  "goal": [
+    -0.25,
+    -1.98
+  ],
+  "geometry": {
+    "robot_radius": 0.22,
+    "obstacle_inflation_cells": 5,
+    "nodes_params": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/classroom_nodes_sim.yaml"
+  },
+  "goal_owner": "web_mission_server",
+  "goal_published_by_injector": false,
+  "spawned": true,
+  "truth_seen": true,
+  "removed": true,
+  "moving_steps": 4,
+  "observed_while_live": true,
+  "observed_cleared": true,
+  "path_reacted_before_removal": true,
+  "bypassed_while_live": false,
+  "minimum_clearance_m": 0.06545791665857295,
+  "recovery_requests": 0,
+  "events": [
+    {
+      "t": 21.054,
+      "at": 1793818801.7701712,
+      "event": "web_goal_observed",
+      "x": -0.25,
+      "y": -1.98,
+      "stamp": [
+        7,
+        700000000
+      ]
+    },
+    {
+      "t": 21.054,
+      "at": 1793818801.7704256,
+      "event": "injector_waiting_for_current_route",
+      "reason": "navigation_not_moving",
+      "path_age_s": null,
+      "navigation_status": null,
+      "observed_age_s": 0.136
+    },
+    {
+      "t": 21.497,
+      "at": 1793818802.2139452,
+      "event": "candidate_search_started",
+      "attempt": 1,
+      "path_sha256": "a536db21c7cb7ed35b22bfa250cbc332f23c0c8c3126dc502e699d95236aa900",
+      "robot_xy": [
+        -0.18825755418834236,
+        -0.22050100099815778
+      ],
+      "observed_cells": 8,
+      "remembered_cells": 0
+    },
+    {
+      "t": 25.757,
+      "at": 1793818806.473119,
+      "event": "candidate_search_finished",
+      "attempt": 1,
+      "duration_s": 0.358,
+      "diagnostics": {
+        "reason": "FIXED_FEASIBLE_BYPASS",
+        "input_status": "VALID",
+        "geometric_candidates": 1,
+        "topology_candidates_tried": 1,
+        "attempts": 1
+      },
+      "candidate_xy": [
+        0.44,
+        -0.6
+      ]
+    },
+    {
+      "t": 26.013,
+      "at": 1793818806.729428,
+      "event": "current_observed_bypass_proved",
+      "route_cells": 81,
+      "observed_cells": 15,
+      "spawn_readiness": {
+        "reason": "ready",
+        "swept_clearance_m": 0.20036564234905438,
+        "required_clearance_m": 0.06451155037945137,
+        "robot_truth_age_s": 0.0023252289975062013,
+        "robot_distance_m": 0.5842510593653981,
+        "approach_along_path_m": -0.5509535409633982,
+        "initial_selection_distance_window": false,
+        "current_path_clearance_m": -0.15676882344496748
+      }
+    },
+    {
+      "t": 26.223,
+      "at": 1793818806.9397159,
+      "event": "obstacle_spawned",
+      "x": 0.44,
+      "y": -0.6,
+      "path_sha256": "a536db21c7cb7ed35b22bfa250cbc332f23c0c8c3126dc502e699d95236aa900",
+      "robot_xy": [
+        -0.06988929504369693,
+        -0.35419595930678743
+      ]
+    },
+    {
+      "t": 26.532,
+      "at": 1793818807.2487924,
+      "event": "obstacle_seen_in_lidar_map",
+      "near_cells": 10
+    },
+    {
+      "t": 26.678,
+      "at": 1793818807.3949156,
+      "event": "matching_path_changed_clear_of_box",
+      "previous_sha256": "a536db21c7cb7ed35b22bfa250cbc332f23c0c8c3126dc502e699d95236aa900",
+      "new_sha256": "ff7b3fe9ce26b0234ba66d56f939d304049c43cee5ebd4fccd4160bbd66f6b73",
+      "robot_xy": [
+        -0.017898149270121195,
+        -0.4142501926223747
+      ],
+      "conservative_clearance_m": 0.157
+    },
+    {
+      "t": 27.723,
+      "at": 1793818808.4391284,
+      "event": "obstacle_moved",
+      "step": 1,
+      "x": 0.4220349464558352,
+      "y": -0.6173855356879013,
+      "reason": "ready",
+      "swept_clearance_m": 0.09943477531565112,
+      "required_clearance_m": 0.07511995038038004,
+      "robot_truth_age_s": 0.05054522900172742
+    },
+    {
+      "t": 28.577,
+      "at": 1793818809.2937593,
+      "event": "obstacle_moved",
+      "step": 2,
+      "x": 0.40406989291167045,
+      "y": -0.6347710713758028,
+      "reason": "ready",
+      "swept_clearance_m": 0.08629162893342981,
+      "required_clearance_m": 0.07532673322033952,
+      "robot_truth_age_s": 0.05148515100154327
+    },
+    {
+      "t": 29.31,
+      "at": 1793818810.0269299,
+      "event": "matching_path_invalidated",
+      "reason": "empty_path"
+    },
+    {
+      "t": 29.405,
+      "at": 1793818810.1216338,
+      "event": "obstacle_move_deferred",
+      "step": 3,
+      "target_xy": [
+        0.38610483936750567,
+        -0.6521566070637042
+      ],
+      "robot_xy": [
+        -0.013374805384815098,
+        -0.41968480772026595
+      ],
+      "reason": "robot_near_box_sweep",
+      "swept_clearance_m": 0.07476984757175634,
+      "required_clearance_m": 0.07512391984032002,
+      "robot_truth_age_s": 0.05056327200145461
+    },
+    {
+      "t": 30.429,
+      "at": 1793818811.145604,
+      "event": "obstacle_moved",
+      "step": 3,
+      "x": 0.38610483936750567,
+      "y": -0.6521566070637042,
+      "reason": "ready",
+      "swept_clearance_m": 0.07479649591049867,
+      "required_clearance_m": 0.07092193171969847,
+      "robot_truth_age_s": 0.03146332599862944
+    },
+    {
+      "t": 31.231,
+      "at": 1793818811.9475415,
+      "event": "obstacle_move_deferred",
+      "step": 4,
+      "target_xy": [
+        0.3681397858233409,
+        -0.6695421427516055
+      ],
+      "robot_xy": [
+        -0.013444286703542942,
+        -0.4195598777982728
+      ],
+      "reason": "robot_near_box_sweep",
+      "swept_clearance_m": 0.06540489278802888,
+      "required_clearance_m": 0.08758364800020355,
+      "robot_truth_age_s": 0.10719840000092518
+    },
+    {
+      "t": 31.361,
+      "at": 1793818812.0771081,
+      "event": "obstacle_moved",
+      "step": 4,
+      "x": 0.3681397858233409,
+      "y": -0.6695421427516055,
+      "reason": "ready",
+      "swept_clearance_m": 0.0654474483815509,
+      "required_clearance_m": 0.06402063688065392,
+      "robot_truth_age_s": 9.380400297231972e-05
+    },
+    {
+      "t": 86.495,
+      "at": 1793818867.2116778,
+      "event": "obstacle_removed",
+      "obstacle_name": "classroom_web_obstacle_5a94844d4a"
+    },
+    {
+      "t": 88.518,
+      "at": 1793818869.2348073,
+      "event": "post_remove_observation",
+      "near_count": 0,
+      "owned_remaining": 0,
+      "total_observed": 12,
+      "robot_distance_m": 0.488,
+      "samples": 1
+    }
+  ],
+  "failure": null,
+  "obstacle_scenario": {
+    "source_path": "/tmp/classroom-transfer-handoff_common-20261105/obstacle_scenario.json",
+    "sha256": "b54c29018768664d3d9789bf4287efa5b8bb13e637987a2a19edd1fcadf7040e",
+    "scenario": {
+      "x": 0.44,
+      "y": -0.6,
+      "path_tangent": [
+        0.6954214275160555,
+        -0.7186021417665909
+      ],
+      "movement_side": -1
+    },
+    "actor_positions_by_step": [
+      [
+        0.44,
+        -0.6
+      ],
+      [
+        0.4220349464558352,
+        -0.6173855356879013
+      ],
+      [
+        0.40406989291167045,
+        -0.6347710713758028
+      ],
+      [
+        0.38610483936750567,
+        -0.6521566070637042
+      ],
+      [
+        0.3681397858233409,
+        -0.6695421427516055
+      ]
+    ],
+    "box_size_m": [
+      0.25,
+      0.25,
+      0.5
+    ],
+    "mode": "FIXED_NO_RELOCATION",
+    "copied_path": "/tmp/classroom-transfer-handoff_common-20261105/25_web_inventory_sector3_moving_obstacle/obstacle_scenario.json"
+  },
+  "input_status": "VALID",
+  "candidate": {
+    "x": 0.44,
+    "y": -0.6,
+    "path_tangent": [
+      0.6954214275160555,
+      -0.7186021417665909
+    ],
+    "index": 15,
+    "robot_distance_m": 0.7339802753740172,
+    "static_wall_distance_m": 0.25465670560068654,
+    "approach_along_path_m": -0.7096125586624038,
+    "base_path_xy": [
+      0.2750000286847354,
+      -0.7749999333173037
+    ],
+    "lateral_offset_m": 0.24026803622130904,
+    "preflight": {
+      "route_cells_by_step": [
+        83,
+        84,
+        85,
+        85,
+        86
+      ],
+      "movement_side": -1,
+      "initial_centerline_clearance_m": -0.1568,
+      "robot_radius": 0.22,
+      "obstacle_inflation_cells": 5
+    },
+    "robot_radius": 0.22,
+    "initial_path_clearance_m": -0.15676882344496748
+  },
+  "obstacle_name": "classroom_web_obstacle_5a94844d4a",
+  "first_observed_at": 1793818807.2487924,
+  "observed_indices_live": [
+    7605,
+    7691,
+    7776,
+    7777,
+    7778,
+    7862,
+    7863,
+    7864,
+    7948,
+    7949,
+    7950,
+    8034,
+    8035,
+    8036,
+    8037,
+    8038,
+    8120,
+    8121,
+    8122,
+    8123,
+    8124,
+    8125,
+    8126,
+    8127,
+    8207,
+    8208,
+    8209,
+    8210,
+    8211,
+    8212,
+    8213,
+    8293,
+    8294,
+    8295,
+    8296,
+    8297,
+    8298,
+    8299
+  ],
+  "changed_path_clearance_m": 0.157,
+  "path_reaction_before_box": true,
+  "path_reaction_at": 1793818807.3949156,
+  "planner_counters_while_live": {
+    "global_plan_count": 3,
+    "local_attempt_id": 2,
+    "plan_kind": "GLOBAL"
+  },
+  "deferred_movement_checks": 10,
+  "path_observation_temporal_link": true,
+  "observed_clear_latency_s": 2.235,
+  "candidate_diagnostics": {
+    "reason": "FIXED_FEASIBLE_BYPASS",
+    "input_status": "VALID",
+    "geometric_candidates": 1,
+    "topology_candidates_tried": 1,
+    "attempts": 1
+  },
+  "candidate_search_attempts": 1
+}

@@ -5,14 +5,22 @@ TurtleBot3 Waffle Pi가 저장 지도에서 A* 경로를 만들고 Nav2로 이�
 
 **처음 사용하는 팀원:** [클론·설치부터 터미널별 실행까지 최종 매뉴얼](docs/TEAM_QUICKSTART.md)을 순서대로 따라 하세요.
 
+[실차 경로 이탈 재현·보완 결과](docs/DRIVING_REPRODUCTION_20261104.md)와
+[간단한 주행 정책](docs/NAVIGATION_POLICY.md)을 먼저 확인하세요.
+가제보와 실차의 차이는 [실차 실패를 반영한 시험](docs/GAZEBO_PHYSICAL_TRANSFER.md)에 정리합니다.
+이동 장애물·섹터 순서 변경의 실패가 남아 있으며, 수정본 실차 재시험은 아직 하지 않았습니다.
+세부 원인과 예외 분기는 [주행 문제 해결 트리](docs/NAVIGATION_FAILURE_TREE.md)에 정리했습니다.
+
 [초기 위치 확인·후방 아루코 도착 판정](docs/STARTUP_AND_ALIGNMENT.md)에
 변경 동작과 섹터별 도착 자세를 정리했습니다.
 [국소 우회와 원래 경로 합류](docs/LOCAL_DETOUR.md)는 가까운 장애물을 피한 뒤
 앞쪽 경로로 돌아가는 동작과 전체 재계획·후진 복구 조건을 설명합니다.
 
-경로를 따라가지 못하면 목표를 유지하고 실패한 접근 방향을 잠시 피해서 재계획합니다.
-장애물 때문에 기본 3회 실패하면 웹에 대기 안내를 표시하고, 제거가 2초간 확인되면 재개합니다.
-후진·재진입 조건과 조절값은 [실패 접근 재계획 안내](docs/FAILURE_REPLANNING.md)에 있습니다.
+장애물 복구는 **국소 우회 → 검증 후진 → 전체 재계획** 순서입니다.
+안전 경로가 없으면 목표를 유지하고 기다리며, 관련 공간이 실제로 열렸을 때 다시 시도합니다.
+장애물 근거가 없는 추종 실패는 별도로 제한 재시도합니다. 현재 기준은
+[주행 정책](docs/NAVIGATION_POLICY.md), 이전 설계 배경은
+[실패 접근 재계획 안내](docs/FAILURE_REPLANNING.md)에 있습니다.
 벽 근처 장애물 판별·차체 탈출 여유·Nav2 입력 확인의 변경 내용은
 [팀원 주행 개선 통합 안내](docs/TEAM_NAVIGATION_INTEGRATION.md)에 정리했습니다.
 
@@ -81,13 +89,15 @@ Sector 1→2 경로의 우회를 시험합니다. 수동 재현 스크립트는 
 위 두 명령은 **각각 별도로 실행**하세요. 이 월드에서 마커 0~3의 후방 영상 검출을
 확인했습니다. 웹이 소유한 1→2→3→Home 통합 임무는 기본 월드와, 고정 상자를
 라이다로 관측해 재계획·우회한 가혹 월드에서 각각 한 차례 전체 합격했습니다.
+위 결과는 초기 위치를 사전 제공한 기존 센서 설정의 시험입니다. 초기 위치 없는 시작·
+실차 센서 주기·구동 오차 시험은 [별도 결과](docs/GAZEBO_PHYSICAL_TRANSFER.md)를 확인하세요.
 이는 반복 성공률이나 실차 출발 보증은 아닙니다. 지도만으로는 실제 벽 높이·
 마커 부착 위치·센서 지연을 알 수 없습니다. 새 Ubuntu PC의 클론·설치·빌드·
 관제·전체 시험 명령은 [단계별 검증 안내](docs/classroom_staged_validation.md),
 월드 재현 방법과 한계는 [강의실 재현 시험 안내](docs/classroom_replay_simulation.md),
 단계별 결과는 [검증 기록](docs/classroom_staged_validation.md)에 있습니다.
 
-웹 배송 임무부터 A*·Nav2 추종, ArUco 중앙 확인, 섹터별 5초 대기, Home 복귀까지
+웹 운용자 경로부터 A*·Nav2 추종, ArUco 중앙 확인, 섹터별 5초 대기, Home 복귀까지
 **같은 제어 흐름**으로 시험하려면 아래 격리된 단계별 하네스를 실행합니다. 도메인 176에서
 각 단계의 임무 소유 웹이 임시 포트 8792로 열렸다가 종료됩니다. 관제용 8791은
 [읽기 전용 프록시](docs/classroom_staged_validation.md#터미널-1-읽기-전용-웹-관제)를
@@ -100,6 +110,9 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 /usr/bin/python3 scripts/run_classroom_staged_validation.py \
   --run 03_web_sector3_clean --output /tmp/classroom-web-sector3-$(date +%Y%m%d-%H%M%S)
 ```
+
+위 예제는 운용자 경로 시험입니다. 재고 요청·적재 확인까지 포함하려면
+[실차 조건 재현 안내](docs/GAZEBO_PHYSICAL_TRANSFER.md)의 Stage 25 또는 반복 출발 Stage 19를 사용합니다.
 
 시뮬레이션 합격은 실차 배터리·OpenCR·무선망·카메라 상태의 합격을 대신하지 않습니다.
 

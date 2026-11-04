@@ -22,7 +22,14 @@ from verify_classroom_web_disconnect import client, pair, request, xy
 DWELL_SECONDS = 5.
 
 
-def graph_prearm():
+def _ekf_output_relay_graph_ready(graph):
+    """Require the same exact owners during discovery and final prearm."""
+    return (graph.get('odom_publishers') == ['/classroom_fault_relay']
+            and graph.get('ekf_output_source_publishers') == ['/ekf_independent']
+            and graph.get('ekf_tf_source_publishers') == ['/ekf_independent'])
+
+
+def graph_prearm(*, ekf_delivery_faults=False):
     """Read ROS graph and the guard's live battery limit, not launch text."""
     import rclpy
     from rcl_interfaces.srv import GetParameters
@@ -65,6 +72,8 @@ def graph_prearm():
                 'map_publishers': publishers('/map'),
                 'scan_publishers': publishers('/scan'),
                 'odom_publishers': publishers('/odom'),
+                'ekf_output_source_publishers': publishers('/classroom_fault/raw_odom'),
+                'ekf_tf_source_publishers': publishers('/classroom_fault/raw_tf'),
                 'battery_publishers': publishers('/battery_state'),
                 'raw_wheel_publishers': publishers('/wheel/odom'),
                 'raw_imu_publishers': publishers('/imu'),
@@ -80,7 +89,9 @@ def graph_prearm():
                         set(result['goal_subscribers'])) and
                     result['planner_status_publishers'] and
                     result['cancel_service_types'] and
-                    result['battery_publishers']) or time.monotonic() >= deadline:
+                    result['battery_publishers'] and
+                    (not ekf_delivery_faults or
+                     _ekf_output_relay_graph_ready(result))) or time.monotonic() >= deadline:
                 break
             rclpy.spin_once(node, timeout_sec=.25)
         result['raw_input_samples'] = {
@@ -103,7 +114,7 @@ def graph_prearm():
         rclpy.shutdown()
 
 
-def evaluate_prearm(state, graph, reset_requested):
+def evaluate_prearm(state, graph, reset_requested, *, ekf_delivery_faults=False):
     """Keep each physical departure gate and its measured value reviewable."""
     checks = {}
 
@@ -133,6 +144,12 @@ def evaluate_prearm(state, graph, reset_requested):
         'real /map matching configured YAML')
     add('single_map_publisher', graph.get('map_publishers'),
         len(graph.get('map_publishers') or []) == 1, 'exactly one /map publisher')
+    if ekf_delivery_faults:
+        add('actual_ekf_output_relay_graph',
+            {key: graph.get(key) for key in ('odom_publishers',
+              'ekf_output_source_publishers', 'ekf_tf_source_publishers')},
+            _ekf_output_relay_graph_ready(graph),
+            'one actual EKF source and one output relay; no direct /odom bypass')
     add('fresh_map_base_tf',
         {'pose_age_s': robot.get('pose_age'), 'map_tf_age_s': metrics.get('map_tf_age_seconds'),
          'pose': robot.get('pose')},
@@ -316,6 +333,146 @@ def verify_initial_home_pose(browser, base, result, timeout=55.):
         time.sleep(.2)
     result['manual_initial_pose_trace'] = trace
     raise TimeoutError('Web AMCL initial pose was not verified: '+str(trace[-3:]))
+
+
+def cold_start_unseeded(state, telemetry):
+    """No launch prior or previous localization may precede the Home action."""
+    return (telemetry.get('amcl_set_initial_pose') is False
+            and all(telemetry.get(key) == 0 for key in
+                    ('initial_pose_messages', 'amcl_messages', 'map_tf_messages'))
+            and (state.get('robot') or {}).get('pose') is None
+            and (state.get('safety') or {}).get('latched') is True
+            and (state.get('safety') or {}).get('stop_acknowledged') is True)
+
+
+def _read_amcl_launch_prior(node, deadline, proof):
+    """Retry only the read-only parameter transport within the cold-start budget."""
+    import rclpy
+    from rcl_interfaces.srv import GetParameters
+    from rcl_interfaces.msg import ParameterType
+
+    started = time.monotonic()
+    query = {'service': '/amcl/get_parameters', 'parameter': 'set_initial_pose',
+             'max_attempts': 3, 'per_attempt_timeout_s': 5., 'attempts': []}
+    proof['launch_prior_query'] = query
+
+    def finish(outcome):
+        query.update(outcome=outcome, attempt_count=len(query['attempts']),
+                     elapsed_s=time.monotonic()-started)
+
+    parameters = node.create_client(GetParameters, '/amcl/get_parameters')
+    remaining = deadline-time.monotonic()
+    if remaining <= 0 or not parameters.wait_for_service(timeout_sec=min(10., remaining)):
+        finish('service_unavailable')
+        raise RuntimeError('Actual AMCL parameter service unavailable for cold-start proof')
+    for number in range(1, 4):
+        remaining = deadline-time.monotonic()
+        if remaining <= 0:
+            break
+        attempt_started = time.monotonic()
+        attempt = {'attempt': number, 'timeout_s': min(5., remaining)}
+        query['attempts'].append(attempt)
+        future = None
+        try:
+            future = parameters.call_async(GetParameters.Request(names=['set_initial_pose']))
+            rclpy.spin_until_future_complete(node, future, timeout_sec=attempt['timeout_s'])
+            if not future.done():
+                # A late reply to this timed-out read cannot become the next
+                # attempt's evidence or leave an unbounded pending request.
+                parameters.remove_pending_request(future)
+                attempt['outcome'] = 'response_timeout'
+                continue
+            error = future.exception()
+            if error is not None:
+                attempt.update(outcome='transport_error', error=str(error)[:240])
+                continue
+            values = future.result().values
+        except RuntimeError as exc:
+            if future is not None and not future.done():
+                parameters.remove_pending_request(future)
+            attempt.update(outcome='transport_error', error=str(exc)[:240])
+            continue
+        finally:
+            attempt['elapsed_s'] = time.monotonic()-attempt_started
+        if len(values) != 1 or values[0].type != ParameterType.PARAMETER_BOOL:
+            attempt['outcome'] = 'invalid_parameter_response'
+            finish('invalid_parameter_response')
+            raise RuntimeError('Actual AMCL launch-prior parameter response was not boolean')
+        value = values[0].bool_value
+        attempt.update(outcome='parameter_observed', value=value)
+        finish('parameter_observed')
+        return value
+    finish('deadline_exhausted' if time.monotonic() >= deadline else 'attempts_exhausted')
+    raise RuntimeError('Actual AMCL launch-prior parameter not observed after bounded read retries')
+
+
+def verify_cold_start_home_pose(browser, base, result, timeout=75.):
+    """Observe real AMCL before/after the backend's SetInitialPose service.
+
+    The manual API uses /set_initial_pose, not a fabricated /initialpose
+    publisher. Counts are evidence only; the backend's actual verification,
+    actual AMCL output and actual map TF must all follow the manual request.
+    """
+    import rclpy
+    from geometry_msgs.msg import PoseWithCovarianceStamped
+    from rclpy.node import Node
+    from tf2_msgs.msg import TFMessage
+
+    rclpy.init()
+    node = Node('classroom_cold_start_observer')
+    sample = {'amcl_set_initial_pose': None, 'initial_pose_messages': 0,
+              'amcl_messages': 0, 'map_tf_messages': 0}
+
+    def pose_callback(key):
+        def receive(_message):
+            sample[key] += 1
+        return receive
+
+    def tf_callback(message):
+        sample['map_tf_messages'] += sum(
+            transform.header.frame_id == 'map' for transform in message.transforms)
+
+    node.create_subscription(PoseWithCovarianceStamped, '/initialpose',
+                             pose_callback('initial_pose_messages'), 10)
+    node.create_subscription(PoseWithCovarianceStamped, '/amcl_pose',
+                             pose_callback('amcl_messages'), 10)
+    from rclpy.qos import qos_profile_sensor_data
+    node.create_subscription(TFMessage, '/tf', tf_callback, qos_profile_sensor_data)
+    deadline = time.monotonic()+timeout
+    proof = {'passed': False, 'visual_ui_qa': False,
+             'manual_prior_transport': '/set_initial_pose service through web backend'}
+    result['cold_start_proof'] = proof
+    try:
+        sample['amcl_set_initial_pose'] = _read_amcl_launch_prior(node, deadline, proof)
+        observed_since = time.monotonic()
+        while time.monotonic() < deadline:
+            rclpy.spin_once(node, timeout_sec=.1)
+            state = request(browser, base, '/api/state')
+            if sample['amcl_set_initial_pose'] is not False or any(
+                    sample[key] for key in ('initial_pose_messages', 'amcl_messages', 'map_tf_messages')):
+                proof['before'] = dict(sample)
+                raise RuntimeError('Cold-start already had a localization prior or map TF')
+            if (time.monotonic()-observed_since >= .5 and
+                    cold_start_unseeded(state, sample) and
+                    ((state.get('localization') or {}).get('manual_pose') or {}).get('available') is True):
+                break
+        else:
+            raise TimeoutError('Unseeded cold-start did not expose the stopped Home initialization action')
+        proof['before'] = {**sample, 'web_pose': (state.get('robot') or {}).get('pose'),
+                           'observed_seconds': time.monotonic()-observed_since}
+        verify_initial_home_pose(browser, base, result,
+                                 timeout=max(1., deadline-time.monotonic()))
+        while time.monotonic() < deadline and not (
+                sample['amcl_messages'] > 0 and sample['map_tf_messages'] > 0):
+            rclpy.spin_once(node, timeout_sec=.1)
+        proof['after'] = dict(sample)
+        proof['passed'] = (sample['amcl_messages'] > 0 and sample['map_tf_messages'] > 0
+                           and result['manual_initial_pose'].get('state') == 'VERIFIED')
+        if not proof['passed']:
+            raise RuntimeError('Manual prior produced no actual AMCL/map TF observations')
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 def assess_dwell(result):
@@ -505,6 +662,10 @@ def main():
                         help='require manager request, web AMCL initial pose and ESTOP reset in operator order')
     parser.add_argument('--inject-transient', action='store_true',
                         help='Inject an isolated 0.3–0.4 s relay fault after actual route motion begins')
+    parser.add_argument('--cold-start', action='store_true',
+                        help='Prove no launch-time AMCL prior before stopped backend Home initialization')
+    parser.add_argument('--ekf-delivery-faults', action='store_true',
+                        help='Require actual EKF source/output relay graph at pre-arm')
     args = parser.parse_args()
     route = [int(item) for item in args.route.split(',')]
     if args.inventory_before_prearm and (args.dispatch_mode != 'inventory' or route != [3]):
@@ -517,6 +678,9 @@ def main():
               'route': route, 'failure': None, 'dwell': {},
               'dispatch_mode': args.dispatch_mode,
               'transient_requested': args.inject_transient,
+              'cold_start_requested': args.cold_start,
+              'ekf_delivery_faults_requested': args.ekf_delivery_faults,
+              'visual_ui_qa': False,
               'path_points_per_sector': {str(i): 0 for i in route},
               'home_path_points': 0}
     try:
@@ -539,6 +703,9 @@ def main():
                 'operator': web_page_available(browser, base, '/')}
             result['inventory_request'] = submit_inventory_request(manager, base, 3)
             result['inventory_request_created_at'] = result['inventory_request']['created_at']
+        if args.cold_start:
+            verify_cold_start_home_pose(browser, base, result)
+        elif args.inventory_before_prearm:
             verify_initial_home_pose(browser, base, result)
         # The parity-mode mux/guard starts latched, just like the physical
         # robot. The guard itself enforces two seconds of continuous healthy
@@ -589,13 +756,14 @@ def main():
             (attempt['at'] for attempt in reset_attempts if attempt['accepted']), None)
         result['startup_reset_completed'] = reset_requested and (
             (state.get('safety') or {}).get('latched') is False)
-        graph = graph_prearm()
+        graph = graph_prearm(ekf_delivery_faults=args.ekf_delivery_faults)
         result['prearm_graph'] = graph
         prearm_trace = []
         prearm_deadline = min(readiness_deadline, time.monotonic()+15.)
         while True:
             state = request(browser, base, '/api/state')
-            prearm = evaluate_prearm(state, graph, reset_requested)
+            prearm = evaluate_prearm(state, graph, reset_requested,
+                                     ekf_delivery_faults=args.ekf_delivery_faults)
             previous = prearm_trace[-1] if prearm_trace else None
             if previous is None or previous['failed_gates'] != prearm['failed_gates']:
                 prearm_trace.append({'sampled_at': prearm['sampled_at'],

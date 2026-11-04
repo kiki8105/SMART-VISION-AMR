@@ -198,25 +198,7 @@ def test_actual_planner_request_interoperates_with_exact_follower_handover(prepa
     """Also runs with the staged older adapter and staged follower module loaded."""
     from test_planner_start_reverse_evidence import reverse_required_scenario
     planner = prepared
-    goal = reverse_required_scenario(planner)
-    if scale != 1.:
-        from smart_vision_amr.reverse_recovery import Breadcrumb
-        from nav_msgs.msg import Odometry
-        measured = Odometry()
-        measured.header.frame_id, measured.child_frame_id = 'odom', 'base_link'
-        measured.header.stamp.sec = 100
-        measured.pose.pose.position.x, measured.pose.pose.position.y = 1.3001, .4001
-        measured.pose.pose.orientation.z, measured.pose.pose.orientation.w = scale*sin(yaw/2), scale*cos(yaw/2)
-        planner.on_odom(measured)
-        transform = planner.tf_buffer.lookup_transform.return_value
-        transform.transform.rotation.z, transform.transform.rotation.w = scale*sin(yaw/2), scale*cos(yaw/2)
-        planner.breadcrumbs = type(planner.breadcrumbs)(
-            (Breadcrumb(point.stamp, point.x, point.y, yaw) for point in planner.breadcrumbs), maxlen=300)
-        planner.breadcrumb_odom_anchor = planner.latest_odom
-        planner.odom_samples = type(planner.odom_samples)(
-            ((99.75+i*.05, 99_750_000_000+i*50_000_000,
-              planner.latest_odom[2], planner.latest_odom[3], yaw, planner.latest_odom[5])
-             for i in range(6)), maxlen=100)
+    goal = reverse_required_scenario(planner,yaw=yaw,scale=scale)
     planner.plan_to(goal)
     message = planner.recovery_pub.publish.call_args.args[0]
     payload = json.loads(message.data)

@@ -1,0 +1,145 @@
+{
+  "classification": "OPERATOR_ABORT_AFTER_PERSISTENT_AUTONOMY_STALL",
+  "at": 1793818164.5021582,
+  "reason": "Obstacle already removed; navigation FAILED remained while planner READY and robot stationary for several minutes. Not a timeout-only pass or autonomous completion.",
+  "mission": {
+    "state": "WAIT_REPLAN",
+    "route": [
+      3
+    ],
+    "pending_route": null,
+    "current_index": 0,
+    "current_marker_id": 3,
+    "completed_ids": [],
+    "reason": "목표를 유지하고 정지 상태에서 경로 재계획을 기다립니다.",
+    "sector_dwell_seconds": 5.0,
+    "dwell_marker_id": null,
+    "dwell_remaining_seconds": null,
+    "can_resume": false,
+    "estop_latched": false,
+    "home": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "yaw": -0.027514
+    },
+    "returning_home": false,
+    "auto_return_home": true,
+    "auto_returning_home": false,
+    "can_return_home": true
+  },
+  "navigation": {
+    "status": "FAILED",
+    "planner_status": "READY",
+    "message": "Stopped; replan while avoiding failed approach"
+  },
+  "safety": {
+    "mode": "auto",
+    "available": true,
+    "reason": "Navigation control",
+    "source_id": "VG-0WxDj9rkp3guG7-6ePaWL",
+    "estop_latched": false,
+    "scan_guard_hold": false,
+    "scan_guard_reason": "",
+    "scan_guard_code": "CLEAR",
+    "scan_guard_support": "",
+    "scan_guard_metrics": {
+      "scan_age_seconds": 0.086,
+      "pose_age_seconds": 0.022,
+      "lookup_error": "",
+      "pose_source": "latest",
+      "future_lead_seconds": 0.0,
+      "pose_uncertainty_seconds": 0.022,
+      "robot_radius_m": 0.22,
+      "horizon_seconds": 0.5,
+      "minimum_body_clearance_m": 0.38581472187261273,
+      "minimum_swept_clearance_m": 0.38581472187261273,
+      "collision_count": 0,
+      "inside_count": 0,
+      "collision_indices": [],
+      "longitudinal_uncertainty_m": 0.00484,
+      "lateral_uncertainty_m": 5.323999999999999e-05,
+      "pending_scan": false
+    },
+    "control_seq": 4,
+    "allow_localization": true,
+    "auto_source_id": "nav:21dd65482ade49e1abd7415f802e07f4",
+    "auto_rejected_reason": "",
+    "control_rejected_reason": "",
+    "control_received": 13,
+    "control_accepted": 13,
+    "control_rejected": 0,
+    "auto_received": 116,
+    "auto_accepted": 116,
+    "auto_rejected": 0,
+    "control_by_origin": {
+      "topic": {
+        "received": 11,
+        "accepted": 11,
+        "rejected": 0
+      },
+      "service": {
+        "received": 2,
+        "accepted": 2,
+        "rejected": 0
+      }
+    },
+    "auto_by_origin": {
+      "topic": {
+        "received": 116,
+        "accepted": 116,
+        "rejected": 0
+      }
+    },
+    "last_control": {
+      "source_id": "VG-0WxDj9rkp3guG7-6ePaWL",
+      "seq": 4,
+      "mode": "auto",
+      "accepted": true,
+      "reason": "",
+      "origin": "topic",
+      "received_at_monotonic_ns": 31960443135002
+    },
+    "last_control_rejection": null,
+    "last_auto": {
+      "source_id": "nav:21dd65482ade49e1abd7415f802e07f4",
+      "seq": 119,
+      "mode": null,
+      "accepted": true,
+      "reason": "",
+      "origin": "topic",
+      "received_at_monotonic_ns": 31972660522835
+    },
+    "last_auto_rejection": null,
+    "output_owner": "auto",
+    "localization_speed_factor": 1.0,
+    "autonomous_allowed": true,
+    "localization_reason": "",
+    "output_linear": 0.0,
+    "output_angular": 0.0,
+    "requested_linear": 0.0,
+    "requested_angular": 0.0,
+    "command_ramp": {
+      "enabled": true,
+      "limited": false,
+      "reason": "stop",
+      "linear_acceleration": 0.2,
+      "angular_acceleration": 0.8,
+      "max_acceleration_step": 0.1,
+      "target_linear": 0.0,
+      "target_angular": 0.0,
+      "output_linear": 0.0,
+      "output_angular": 0.0
+    },
+    "status_seq": 2520,
+    "sent_at_ns": 349760000000,
+    "mux_instance_id": "mux-service:17112ae669f246728993b33248730a9f",
+    "output_publishers": 1,
+    "stop_acknowledged": true,
+    "reset_pending": false,
+    "latched": false,
+    "pending": null,
+    "result": "Emergency reset acknowledged; motion remains held. Explicit resume required."
+  },
+  "physical_robot_touched": false,
+  "domain": 176
+}

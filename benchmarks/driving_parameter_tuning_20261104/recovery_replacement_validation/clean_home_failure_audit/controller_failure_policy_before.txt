@@ -1,0 +1,52 @@
+def _controller_failure_policy(self, map_msg, grid, failure_edges, failure_costs):
+        """Prefer another approach without inventing an obstacle from a DWB abort."""
+        episode=self.recovery_coordinator.current
+        if episode is not None and episode.phase is not RecoveryPhase.FOLLOW:
+            return False, failure_costs
+        if not failure_edges:
+            return False, failure_costs
+        map_scope, goal_scope = self._memory_scopes()
+        entries = self.failure_memory.snapshot(
+            now=time.monotonic(), map_scope=map_scope, goal_scope=goal_scope)["entries"]
+        clear, reason = self._execution_entries_scan_clear(map_msg, grid, entries)
+        if not clear:
+            physical = ("obstacle near failed approach" in reason
+                        or "raw LiDAR hit" in reason)
+            # A raw mismatch is provisional evidence, not an independently
+            # registered obstacle episode. Keep its accepted event pending so a
+            # later scan-clear retry cannot erase it from the controller budget.
+            unclassified_controller = reason.startswith("failure is not a classified")
+            self.plan_metrics.update(controller_failure_evidence=reason,
+                failure_class=("obstacle" if physical else
+                               "controller" if unclassified_controller else "execution"),
+                recovery_stage=("hard_replan" if physical else
+                                "evidence_required"))
+            return False, failure_costs
+        # Execution-memory TTL/release may reduce entry occurrences. The retry
+        # budget belongs to accepted event IDs in this explicit attempt and
+        # must never shrink merely because spatial memory expires.
+        self.controller_retry_events.update(self.controller_pending_retry_events)
+        self.controller_pending_retry_events.clear()
+        attempts = len(self.controller_retry_events)
+        limit = max(1, int(self.get_parameter("controller_retry_limit").value))
+        self.plan_metrics.update(failure_class="controller", recovery_stage="soft_replan",
+            controller_retry_count=attempts, controller_retry_limit=limit,
+            controller_failure_evidence=reason)
+        if attempts >= limit:
+            self.failure_state = "CONTROLLER_HOLD"
+            self.failure_reason = (
+                "Controller retries exhausted without a confirmed obstacle; "
+                "goal retained, operator restart required")
+            self.plan_metrics.update(recovery_stage="await_operator")
+            self._invalidate_path(self.failure_reason)
+            self.waiting_for_replan = False
+            self.publish_status("CONTROLLER_HOLD", self.failure_reason)
+            return False, failure_costs
+        # A controller stall is a weak routing preference, not obstacle proof.
+        # Keep the configured bounded cost; the separate retry latch prevents
+        # endlessly repeating it without forcing an unrelated large detour.
+        penalty = float(self.get_parameter("failure_memory_penalty").value)
+        costs = dict(failure_costs)
+        for edge in failure_edges:
+            costs[edge] = max(costs.get(edge, 0.0), penalty)
+        return True, costs

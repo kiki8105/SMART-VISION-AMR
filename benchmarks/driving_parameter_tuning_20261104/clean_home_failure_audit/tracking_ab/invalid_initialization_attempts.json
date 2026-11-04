@@ -1,0 +1,38 @@
+[
+  {
+    "directory": "t159.30_baseline",
+    "outcome": "INVALID_INITIALIZATION",
+    "reason": "Incorrect repo-local overlay lacks RouteTrackingDWB discovery; lifecycle configurefailed beforeanycommand/evaluation",
+    "controller_log_sha256": "aa81931d3a2483dec91cdf0e2a00bb099fc4c8aa7910a936fd5dd6ceb99363a5"
+  },
+  {
+    "directory": "t161.34_baseline",
+    "outcome": "INVALID_INITIALIZATION",
+    "reason": "Incorrect repo-local overlay lacks RouteTrackingDWB discovery; lifecycle configurefailed beforeanycommand/evaluation",
+    "controller_log_sha256": "246e3d9546c87826b4c1978629964c5fb70e0a57158b71bd4ad0b13f0d20dd2c"
+  },
+  {
+    "directory": "t163.44_baseline",
+    "outcome": "INVALID_INITIALIZATION",
+    "reason": "Incorrect repo-local overlay lacks RouteTrackingDWB discovery; lifecycle configurefailed beforeanycommand/evaluation",
+    "controller_log_sha256": "812d5444954d4f5c0bb834e4d31e1284e05b6d56d82d9690d3308f16338d8842"
+  },
+  {
+    "directory": "t159.30_pathdist64",
+    "outcome": "INVALID_INITIALIZATION",
+    "reason": "Incorrect repo-local overlay lacks RouteTrackingDWB discovery; lifecycle configurefailed beforeanycommand/evaluation",
+    "controller_log_sha256": "32e83377fb84be3a1f25b675f7c1930c4e9b341d8b1f92a13fb3ee5b0f71d811"
+  },
+  {
+    "directory": "t161.34_pathdist64",
+    "outcome": "INVALID_INITIALIZATION",
+    "reason": "Incorrect repo-local overlay lacks RouteTrackingDWB discovery; lifecycle configurefailed beforeanycommand/evaluation",
+    "controller_log_sha256": "c63a7cb35d9623e11f97cb43c606a89d5834a0b6c97e3b48f89f0cb62abde985"
+  },
+  {
+    "directory": "t163.44_pathdist64",
+    "outcome": "INVALID_INITIALIZATION",
+    "reason": "Incorrect repo-local overlay lacks RouteTrackingDWB discovery; lifecycle configurefailed beforeanycommand/evaluation",
+    "controller_log_sha256": "cb80efd1bade183bf705fab0c5bfa811cb7063eea6dc6c9de58281ff6a7bf7f7"
+  }
+]

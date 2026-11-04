@@ -17,7 +17,8 @@ from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node, SetParameter
 from launch_ros.parameter_descriptions import ParameterValue
 from smart_vision_amr.gazebo_model_variant import (
-    add_classroom_dual_cameras, make_independent_ekf_model, set_camera_update_rate,
+    add_classroom_dual_cameras, configure_physical_rear_camera,
+    make_independent_ekf_model, set_camera_update_rate,
 )
 
 
@@ -36,6 +37,11 @@ def _validate_localization_mode(context):
     if (guarded == 'true' and
             LaunchConfiguration('use_motion_mux').perform(context).lower() != 'true'):
         raise ValueError('use_ekf_sensor_guard requires use_motion_mux:=true')
+    delivery = LaunchConfiguration('ekf_delivery_faults').perform(context).lower()
+    if delivery not in ('true', 'false'):
+        raise ValueError('ekf_delivery_faults must be true or false')
+    if delivery == 'true' and mode != 'ekf_independent':
+        raise ValueError('ekf_delivery_faults requires localization_mode:=ekf_independent')
     return []
 
 
@@ -62,8 +68,8 @@ def _nav2_dynamic_tf_group(node):
 def _spawn_robot(context, default_source_model):
     mode = LaunchConfiguration('localization_mode').perform(context)
     camera_layout = LaunchConfiguration('camera_layout').perform(context)
-    if camera_layout not in ('default', 'classroom_dual'):
-        raise ValueError(f'camera_layout must be default or classroom_dual; got {camera_layout!r}')
+    if camera_layout not in ('default', 'classroom_dual', 'classroom_rear_physical'):
+        raise ValueError(f'unsupported camera_layout: {camera_layout!r}')
     override = LaunchConfiguration('robot_model_file').perform(context)
     source_model = Path(override) if override else default_source_model
     if not source_model.is_file():
@@ -74,11 +80,19 @@ def _spawn_robot(context, default_source_model):
     try:
         rate = float(LaunchConfiguration('camera_update_rate', default='8.0').perform(context))
         set_camera_update_rate(source_model, model, rate)
-        if camera_layout == 'classroom_dual':
+        if camera_layout in ('classroom_dual', 'classroom_rear_physical'):
             add_classroom_dual_cameras(model, model)
+        if camera_layout == 'classroom_rear_physical':
+            configure_physical_rear_camera(model, model)
         if mode == 'ekf_independent':
             # Only this mode moves Gazebo odom away from the EKF's output.
             make_independent_ekf_model(model, model)
+        snapshot = LaunchConfiguration('robot_model_snapshot_file', default='').perform(context)
+        if snapshot:
+            # Preserve exactly what spawn_entity loads, after all transforms.
+            # A new evidence directory is required; never replace old evidence.
+            with Path(snapshot).open('xb') as archive:
+                archive.write(model.read_bytes())
     except Exception:
         shutil.rmtree(temporary_dir, ignore_errors=True)
         raise
@@ -107,6 +121,10 @@ def generate_launch_description():
     sim = {'use_sim_time': True}
     nodes = LaunchConfiguration('nodes_params_file')
     floating = lambda name: ParameterValue(LaunchConfiguration(name), value_type=float)
+    def ekf_delivery_value(direct, relayed):
+        return PythonExpression([repr(relayed), " if '",
+                                 LaunchConfiguration('ekf_delivery_faults'),
+                                 "'.lower() == 'true' else ", repr(direct)])
     filtered_change_scan = ParameterValue(PythonExpression([
         "'/scan_filtered_for_change' if '",
         LaunchConfiguration('laser_filter_for_change_memory'),
@@ -140,13 +158,19 @@ def generate_launch_description():
                               description='AMCL start yaw in the saved map frame'),
         DeclareLaunchArgument('set_initial_pose', default_value='true',
                               description='Seed AMCL at launch; false waits for the confirmed Home initialization action'),
+        DeclareLaunchArgument('ekf_delivery_faults', default_value='false',
+                              description='Isolated simulation: relay actual EKF odom/TF output delivery; raw inputs and EKF CPU unchanged'),
         DeclareLaunchArgument('gui', default_value='true'),
         DeclareLaunchArgument('camera_update_rate', default_value='8.0',
                               description='Simulated camera FPS; lowers preview/transport load without changing geometry'),
         DeclareLaunchArgument('robot_model_file', default_value='',
                               description='Optional SDF override for isolated simulation fault injection'),
+        DeclareLaunchArgument('robot_model_snapshot_file', default_value='',
+                              description='Optional new file preserving the exact spawned SDF'),
+        DeclareLaunchArgument('scan_guard_robot_radius', default_value='0.24',
+                              description='Actual copied model swept radius; physical-footprint replay passes 0.22'),
         DeclareLaunchArgument('camera_layout', default_value='default',
-                              description='default or classroom_dual (front and rear ROS image topics)'),
+                              description='default, classroom_dual or classroom_rear_physical (rear320x240/5Hz)'),
         DeclareLaunchArgument('use_rviz', default_value='true'),
         DeclareLaunchArgument('nav2_dynamic_tf_best_effort', default_value='true',
                               description='Nav2 dynamic TF: best effort, depth 20; false restores installed defaults'),
@@ -188,7 +212,8 @@ def generate_launch_description():
              arguments=['--x', '-0.080', '--y', '0', '--z', '0.140',
                         '--roll', '0', '--pitch', '0', '--yaw', '3.141592653589793',
                         '--frame-id', 'base_link', '--child-frame-id', 'rear_camera_link'],
-             condition=LaunchConfigurationEquals('camera_layout', 'classroom_dual')),
+             condition=IfCondition(PythonExpression(["'", LaunchConfiguration('camera_layout'),
+                       "' in ('classroom_dual', 'classroom_rear_physical')"]))),
         Node(package='robot_localization', executable='ekf_node', name='ekf_overlay',
              parameters=[str(own / 'config/ekf_overlay.yaml'), sim], output='screen',
              condition=LaunchConfigurationEquals('localization_mode', 'ekf_overlay')),
@@ -198,11 +223,15 @@ def generate_launch_description():
              condition=LaunchConfigurationEquals('localization_mode', 'ekf_independent')),
         Node(package='robot_localization', executable='ekf_node', name='ekf_independent',
              parameters=[LaunchConfiguration('ekf_params_file'), sim], output='screen',
-             remappings=[('odometry/filtered', '/odom')],
+             # This remap belongs only to the independent EKF process. AMCL's
+             # map TF, robot_state_publisher and /tf_static retain their graph.
+             remappings=[('odometry/filtered', ekf_delivery_value('/odom', '/classroom_fault/raw_odom')),
+                         ('/tf', ekf_delivery_value('/tf', '/classroom_fault/raw_tf'))],
              condition=LaunchConfigurationEquals('localization_mode', 'ekf_independent')),
         Node(package='smart_vision_amr', executable='ekf_sensor_guard', name='ekf_sensor_guard',
              parameters=[str(own / 'config/ekf_hardware.yaml'), sim,
-                         {'expected_ekf_odom_publisher': 'ekf_independent',
+                         {'expected_ekf_odom_publisher': ParameterValue(
+                              ekf_delivery_value('ekf_independent', 'classroom_fault_relay'), value_type=str),
                           'expected_raw_wheel_odom_topic': '/gazebo/odom_raw',
                           'minimum_battery_voltage': floating('minimum_battery_voltage')}], output='screen',
              condition=IfCondition(LaunchConfiguration('use_ekf_sensor_guard'))),
@@ -229,6 +258,18 @@ def generate_launch_description():
              remappings=[('cmd_vel', '/smart_vision_amr/navigation_cmd_vel')])),
         Node(package='smart_vision_amr', executable='motion_mux', name='motion_mux',
              parameters=[sim, {'allow_legacy_auto_input': False,
+                               'max_linear_velocity': 0.22,
+                               'scan_guard_robot_radius': floating('scan_guard_robot_radius'),
+                               'scan_guard_base_frame': 'base_footprint',
+                               'auto_turn_slowdown_enabled': True,
+                               'auto_turn_start_angular': 0.08,
+                               'auto_turn_full_angular': 0.35,
+                               'auto_turn_entry_linear_velocity': 0.15,
+                               'auto_turn_min_linear_velocity': 0.10,
+                               'gentle_start_enabled': True,
+                               'gentle_start_linear_acceleration': 0.20,
+                               'gentle_start_angular_acceleration': 0.80,
+                               'gentle_start_max_publish_gap': 0.50,
                                'startup_estop': ParameterValue(
                                    LaunchConfiguration('use_ekf_sensor_guard'), value_type=bool),
                                'require_localization_health': ParameterValue(

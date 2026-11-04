@@ -1,0 +1,144 @@
+{
+  "stages": [
+    {
+      "stage": "16_web_transient_resume",
+      "outcome": "PASS",
+      "reasons": [],
+      "mission_backend_passed": true,
+      "final_state": "HOME_REACHED",
+      "cold_start_proof": {
+        "passed": true,
+        "visual_ui_qa": false,
+        "manual_prior_transport": "/set_initial_pose service through web backend",
+        "launch_prior_query": {
+          "service": "/amcl/get_parameters",
+          "parameter": "set_initial_pose",
+          "max_attempts": 3,
+          "per_attempt_timeout_s": 5.0,
+          "attempts": [
+            {
+              "attempt": 1,
+              "timeout_s": 5.0,
+              "elapsed_s": 0.22513980800431455,
+              "outcome": "parameter_observed",
+              "value": false
+            }
+          ],
+          "outcome": "parameter_observed",
+          "attempt_count": 1,
+          "elapsed_s": 3.7342294170011883
+        },
+        "before": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 0,
+          "map_tf_messages": 0,
+          "web_pose": null,
+          "observed_seconds": 5.002074848001939
+        },
+        "after": {
+          "amcl_set_initial_pose": false,
+          "initial_pose_messages": 0,
+          "amcl_messages": 2,
+          "map_tf_messages": 1
+        }
+      },
+      "prearm_passed": true,
+      "source_unchanged": true,
+      "actor_moving_steps": null,
+      "actor_bypassed_while_live": null,
+      "actor_minimum_clearance_m": null,
+      "safety_passed": true,
+      "safety_violations": [],
+      "incident_capture_count": 2,
+      "operator_aborted_after_stall": false,
+      "incident_selection": {
+        "method": "serial domain-176 trigger wall-time membership",
+        "observer_wall_time_window": [
+          1793820534.0318,
+          1793820683.0406
+        ],
+        "sampling_is_not_rosbag": true
+      },
+      "transient": {
+        "passed": true,
+        "reasons": [],
+        "profile_applied_monotonic": 34726.918441674,
+        "first_sector_goal_count": 1,
+        "fault_delivery": {
+          "scan": {
+            "dropped_transient": 7,
+            "max_delivery_delay_s": 0.36,
+            "increase_over_clean_s": 0.349,
+            "fault_observed": true
+          },
+          "odom": {
+            "dropped_transient": 16,
+            "max_delivery_delay_s": 0.361,
+            "increase_over_clean_s": 0.349,
+            "fault_observed": true
+          },
+          "tf": {
+            "dropped_transient": 16,
+            "max_delivery_delay_s": 0.358,
+            "increase_over_clean_s": 0.346,
+            "fault_observed": true
+          }
+        },
+        "mission_continuity": {
+          "samples": 633,
+          "route_preserved": true,
+          "completed_prefix_valid": true,
+          "states": {
+            "NAVIGATING": 378,
+            "WAIT_REPLAN": 11,
+            "CONFIRMING": 26,
+            "DWELLING": 46,
+            "RETURNING_HOME": 165,
+            "HOME_REACHED": 7
+          },
+          "web_wait_replan_seen": true,
+          "start_event_count": 1,
+          "cancel_event_count": 0,
+          "marker_confirmations": {
+            "1": 1,
+            "2": 1
+          }
+        },
+        "fault_window_samples": {
+          "cmd_vel": 122,
+          "truth": 46,
+          "health": 20,
+          "navigation": 6
+        },
+        "fault_window_command_max": [
+          0.197,
+          0.092
+        ],
+        "fault_window_command_limits": {
+          "linear_mps": 0.22,
+          "angular_radps": 0.5,
+          "source": "/tmp/classroom-transfer-final_ekf_delivery_discovery_fixed-20261105/16_web_transient_resume/classroom_nav_sim_time.yaml",
+          "sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef"
+        },
+        "health_hold_seen": true,
+        "health_auto_recovered": true,
+        "zero_command_latency_s": 0.005,
+        "late_nonzero_commands_in_hold": 0,
+        "health_hold_truth_drift_m": 0.0,
+        "health_hold_truth_yaw_rad": 0.0001,
+        "follower_cancel_overlap_seen": true,
+        "follower_cancel_statuses": [
+          "WAIT_REPLAN",
+          "WAIT_REPLAN"
+        ],
+        "nav_goal_stamp_count": 1,
+        "post_fault_motion_seen": true,
+        "post_fault_localization_allowed": true
+      },
+      "physical_drive": false,
+      "visual_browser_qa": false
+    }
+  ],
+  "passed": true
+}

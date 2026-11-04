@@ -23,6 +23,7 @@ class LocalDetourResult:
     reason: str
     search_duration_ms: float
     rejoin_progress: float | None = None
+    candidates_examined: int = 0
 
 
 def plan_local_detour(grid, start, reference_points, blocked=None, *, resolution=.05,
@@ -41,10 +42,11 @@ def plan_local_detour(grid, start, reference_points, blocked=None, *, resolution
     clock = clock or time.perf_counter
     began = clock()
     expansions = 0
+    candidates_examined = 0
 
     def result(reason, points=None, prefix=None, index=None, progress=None):
         return LocalDetourResult(points, prefix or [], index, expansions, reason,
-                                 max(0., (clock()-began)*1000.), progress)
+                                 max(0., (clock()-began)*1000.), progress, candidates_examined)
 
     limits = (resolution, max_rejoin_distance, max_detour_length,
               max_lateral_distance, max_seconds, min_rejoin_distance)
@@ -185,6 +187,7 @@ def plan_local_detour(grid, start, reference_points, blocked=None, *, resolution
                       for i in range(max_candidates)] if max_candidates > 1 else [candidates[-1]]
     anchors = {}
     for index in candidates:
+        candidates_examined += 1
         cell = (floor(points[index][0]), floor(points[index][1]))
         if not occupied(cell) and segment_safe((cell[0]+.5, cell[1]+.5), points[index]):
             anchors.setdefault(cell, index)

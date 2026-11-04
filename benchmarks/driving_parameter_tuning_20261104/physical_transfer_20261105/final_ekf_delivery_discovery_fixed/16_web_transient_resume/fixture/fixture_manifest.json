@@ -1,0 +1,75 @@
+{
+  "mode": "ekf_independent",
+  "source": {
+    "/home/kiki/Team2_workspace/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf": "6dc0dcf0dae0393ffa7c2ffe518ff3002cb1aea6fdbf98458c84e18dca44ea3a",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/worlds/classroom_20261030_replay.world": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.yaml": "16a419cd5a9c499efb9e5af2f77b6b54c100d3df67c3ec6486b238ca968433b9",
+    "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/maps/classroom_20261030_cleaned.pgm": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761"
+  },
+  "fixture": {
+    "/tmp/classroom-transfer-final_ekf_delivery_discovery_fixed-20261105/16_web_transient_resume/fixture/waffle_pi_fault.sdf": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+    "/tmp/classroom-transfer-final_ekf_delivery_discovery_fixed-20261105/16_web_transient_resume/fixture/classroom_fault.world": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+    "/tmp/classroom-transfer-final_ekf_delivery_discovery_fixed-20261105/16_web_transient_resume/fixture/classroom_fault.yaml": "86feb1e0281873d1ac46077d64c8faf32a2c7e190c06fc10248e1012c43eda1d",
+    "/tmp/classroom-transfer-final_ekf_delivery_discovery_fixed-20261105/16_web_transient_resume/fixture/classroom_fault.pgm": "e4e25d36d84854eb327982984ba0ee2ede53ee3563b6b31177624a42035ad761"
+  },
+  "edits": [
+    "copied laser output -> /classroom_fault/raw_scan",
+    "hardware laser_sensor_producer: 5.0 -> 10.0 Hz",
+    "hardware imu_sensor_producer: 200.0 -> 20.0 Hz",
+    "hardware wheel_joint_state_producer: 30.0 -> 20.0 Hz",
+    "copied base collision -> centered cylinder radius 0.22 m, height 0.089 m"
+  ],
+  "real_sensor_stamps_preserved": true,
+  "world_geometry_unchanged": true,
+  "source_map_unchanged": true,
+  "physical_footprint_proxy": true,
+  "hardware_profile": "sensor_rates",
+  "hardware_profile_edits": [
+    {
+      "sdf_path": "./model/link[@name='base_scan']/sensor[@name='hls_lfcd_lds']/update_rate",
+      "before": 5.0,
+      "after": 10.0,
+      "units": "Hz",
+      "effect": "laser_sensor_producer",
+      "changed": true
+    },
+    {
+      "sdf_path": "./model/link[@name='imu_link']/sensor[@name='tb3_imu']/update_rate",
+      "before": 200.0,
+      "after": 20.0,
+      "units": "Hz",
+      "effect": "imu_sensor_producer",
+      "changed": true
+    },
+    {
+      "sdf_path": "./model/plugin[@name='turtlebot3_joint_state']/update_rate",
+      "before": 30.0,
+      "after": 20.0,
+      "units": "Hz",
+      "effect": "wheel_joint_state_producer",
+      "changed": true
+    }
+  ],
+  "hardware_profile_calibration": "stress_envelope_not_physical_calibration",
+  "odometry_pipeline_unchanged": true,
+  "nominal_drive_kinematics_unchanged": true,
+  "stock_collision_bounds_m": {
+    "base_link/base_collision": 0.23699894514533182,
+    "base_scan/lidar_sensor_collision": 0.1028,
+    "wheel_left_link/wheel_left_collision": 0.18599999714638651,
+    "wheel_right_link/wheel_right_collision": 0.18599999714638651,
+    "caster_back_right_link/collision": 0.1932153022471871,
+    "caster_back_left_link/collision": 0.1932153022471871
+  },
+  "proxy_collision_bounds_m": {
+    "base_link/base_collision": 0.22,
+    "base_scan/lidar_sensor_collision": 0.1028,
+    "wheel_left_link/wheel_left_collision": 0.18599999714638651,
+    "wheel_right_link/wheel_right_collision": 0.18599999714638651,
+    "caster_back_right_link/collision": 0.1932153022471871,
+    "caster_back_left_link/collision": 0.1932153022471871
+  },
+  "stock_max_collision_radius_m": 0.23699894514533182,
+  "proxy_max_collision_radius_m": 0.22,
+  "footprint_parity_limit": "circular collision surrogate; stock mass, wheelbase, sensors and visuals retained"
+}

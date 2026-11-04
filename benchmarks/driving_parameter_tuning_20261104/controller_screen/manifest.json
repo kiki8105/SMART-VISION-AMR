@@ -1,0 +1,23 @@
+{
+  "scope": "Actual Nav2 controller with identical frozen scan/TF/odom/path inputs; NOT a closed-loop or physical driving pass.",
+  "costmap_limitation": "Costmap rebuilt from each frozen scan by the original replay script; not captured costmap history.",
+  "domain": 186,
+  "localhost_only": true,
+  "output_topic": "/replay/controller_cmd_vel",
+  "duration_seconds": 2.0,
+  "base_profile": "benchmarks/inflation_tuning_20261104/profiles/nav_inflation_030.yaml",
+  "base_profile_sha256": "7e28ad5ea91b9f991a9905205cd0e72bb4c2e43bee686763bd780fb3718f94a3",
+  "replay_script": "scripts/replay_incident_controller.py",
+  "replay_script_sha256": "da86053f916a47984fc910941a4ef66a18c8d7042431b7e018691d648ed92584",
+  "plugin_binary_sha256": "a98b2365210a38ced0f26106999350da8aaa36227136388314a0d7a1776040cf",
+  "git_head": "ad9aa3a30c9f714d211f61d0a45b82b0ee89d361",
+  "working_tree": "Uncommitted runtime improvements present; authoritative settings frozen by parent before screen.",
+  "input_sha256": {
+    "folded_physical_incident": "0a4c416af2e33c7bc085f936bde7856b4f9b296484554feca6d8b4157c025f22",
+    "corner": "11bd33f724ba983dc6ac0dad91180edfd2503b38063b633862753caaf9e905aa"
+  },
+  "diagnostic_augmentation": "Original evaluation summarizer additionally counts ALL valid candidate velocity-envelope violations and pure-yaw candidates; no controller behavior changed.",
+  "executed_screen_driver_sha256": "d022fb6490e4910f0118e50aa34f92e06ed81dfcc9f6d09843451c8be02e06c7",
+  "reproduction_driver_sha256": "eaaf3ecd10bf46527ced74194ed5c93c4622319f4838bbf2bf6db5236893c485",
+  "post_run_driver_changes": "Portable plugin lookup and --output-root option plus additional derived diagnostic fields; controller/replay behavior and evaluation callback unchanged."
+}

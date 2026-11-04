@@ -58,12 +58,17 @@ def wait_state(browser, base, predicate, timeout, label, trace):
     raise TimeoutError(f'{label} timed out: '+str(trace[-3:]))
 
 
-def run_dwell(base, output, timeout, dispatch_mode):
+def run_dwell(base, output, timeout, dispatch_mode, *, cold_start=False,
+              ekf_delivery_faults=False):
     command = [sys.executable, str(Path(__file__).with_name(
         'verify_classroom_web_dwell.py')), '--url', base,
         '--route', '2', '--dispatch-mode', dispatch_mode,
         '--mission-timeout', str(timeout),
         '--output', str(output)]
+    if cold_start:
+        command.append('--cold-start')
+    if ekf_delivery_faults:
+        command.append('--ekf-delivery-faults')
     done = subprocess.run(command, check=False, timeout=timeout+160,
                           env={**os.environ, 'ROS_DOMAIN_ID': '176',
                                'ROS_LOCALHOST_ONLY': '1'})
@@ -84,6 +89,8 @@ def main():
     parser.add_argument('--runner-pid', type=int, required=True)
     parser.add_argument('--mission-timeout', type=float, default=750.)
     parser.add_argument('--dispatch-mode', choices=('manual', 'inventory'), default='manual')
+    parser.add_argument('--cold-start', action='store_true')
+    parser.add_argument('--ekf-delivery-faults', action='store_true')
     args = parser.parse_args()
     if (os.environ.get('ROS_DOMAIN_ID') != '176' or
             os.environ.get('ROS_LOCALHOST_ONLY') != '1' or
@@ -99,8 +106,12 @@ def main():
                       'gazebo_runner': process_identity(args.runner_pid)}
         result['runtime_identity_initial'] = identities
         first_path = args.output.parent/'cycle_1'/'acceptance.json'
-        first = run_dwell(base, first_path, args.mission_timeout, args.dispatch_mode)
+        realism = ({'ekf_delivery_faults': True} if args.ekf_delivery_faults else {})
+        first = run_dwell(base, first_path, args.mission_timeout, args.dispatch_mode,
+                          **{**realism, **({'cold_start': True} if args.cold_start else {})})
         result['cycles'].append(first)
+        if args.cold_start:
+            result['cold_start_proof'] = first.get('cold_start_proof')
         result['runtime_identity_after_first'] = {
             key: process_identity(value['pid']) for key, value in identities.items()}
         browser = client()
@@ -162,7 +173,8 @@ def main():
         # The second verifier performs its own explicit web ESTOP reset and
         # checks the corresponding robot-side acknowledgment before departure.
         second_path = args.output.parent/'cycle_2'/'acceptance.json'
-        second = run_dwell(base, second_path, args.mission_timeout, args.dispatch_mode)
+        second = run_dwell(base, second_path, args.mission_timeout, args.dispatch_mode,
+                           **realism)
         result['cycles'].append(second)
         result['runtime_identity_after_second'] = {
             key: process_identity(value['pid']) for key, value in identities.items()}

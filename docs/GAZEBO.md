@@ -1,5 +1,9 @@
 # Team2 Gazebo 주행 검증
 
+현재 교실 지도·실차 파라미터·재고 요청·pre-arm을 포함한 시험은
+[실차 조건 재현 안내](GAZEBO_PHYSICAL_TRANSFER.md)를 사용하세요.
+아래 미로 튜닝 예제는 별도 지도·프로필의 기존 시험입니다.
+
 Ubuntu 22.04 / ROS 2 Humble / Gazebo Classic 11용입니다. Gazebo Waffle Pi가 `/scan`, `/odom`, TF를 제공하고 기존 코드가 `/smart_vision_amr/goal` → A* → `/smart_vision_amr/path` → Nav2 `/follow_path` → `/cmd_vel` 순서로 주행합니다. AMCL과 controller만 실행하므로 목표는 RViz의 전용 2D Goal Pose 또는 위 goal 토픽으로 지정합니다.
 
 ## 미로 코너 튜닝과 기본값 저장

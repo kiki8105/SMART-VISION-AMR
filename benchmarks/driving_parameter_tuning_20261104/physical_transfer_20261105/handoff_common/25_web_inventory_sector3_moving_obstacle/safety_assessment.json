@@ -1,0 +1,90 @@
+{
+  "passed": true,
+  "missing_evidence": [],
+  "violations": [],
+  "counts": {
+    "planner": 40,
+    "path": 6,
+    "scan": 1577,
+    "truth": 1578,
+    "cmd_vel": 4188,
+    "planning_active_front_clear": 5,
+    "planning_route_unverified": 20,
+    "wait_replan_samples": 1372,
+    "recovery_exempt_samples": 0
+  },
+  "wait_replan_intervals": [
+    {
+      "start_t": 29.5862,
+      "duration_s": 1.2234,
+      "last_nonzero_command_after_s": 0.020999999999997243,
+      "first_zero_command_after_s": 0.06099999999999994,
+      "max_displacement_m": 0.0003,
+      "max_forward_displacement_m": 0.0,
+      "max_heading_change_rad": 0.0501,
+      "truth_samples": 9,
+      "entry_speed_mps": 0.0004,
+      "entry_command_speed_mps": 0.0,
+      "entry_truth_speed_mps": 0.0004,
+      "entry_front_core_min_m": 1.0384527444839478,
+      "entry_front_core_angle_deg": 348.79243542488246,
+      "ground_truth_stopping_distance_bound_m": 0.05,
+      "estimated_front_body_clearance_m": 0.8866
+    },
+    {
+      "start_t": 30.9792,
+      "duration_s": 6.959,
+      "last_nonzero_command_after_s": null,
+      "first_zero_command_after_s": 0.0071000000000012164,
+      "max_displacement_m": 0.0005,
+      "max_forward_displacement_m": 0.0,
+      "max_heading_change_rad": 0.0052,
+      "truth_samples": 63,
+      "entry_speed_mps": 0.0002,
+      "entry_command_speed_mps": 0.0,
+      "entry_truth_speed_mps": 0.0002,
+      "entry_front_core_min_m": 1.0302002429962158,
+      "entry_front_core_angle_deg": 349.79471253817235,
+      "ground_truth_stopping_distance_bound_m": 0.05,
+      "estimated_front_body_clearance_m": 0.8819
+    },
+    {
+      "start_t": 38.022,
+      "duration_s": 51.694,
+      "last_nonzero_command_after_s": null,
+      "first_zero_command_after_s": 0.0005999999999986017,
+      "max_displacement_m": 0.0004,
+      "max_forward_displacement_m": 0.0,
+      "max_heading_change_rad": 0.0062,
+      "truth_samples": 466,
+      "entry_speed_mps": 0.0,
+      "entry_command_speed_mps": 0.0,
+      "entry_truth_speed_mps": 0.0,
+      "entry_front_core_min_m": 1.0311508178710938,
+      "entry_front_core_angle_deg": 355.8083752179117,
+      "ground_truth_stopping_distance_bound_m": 0.05,
+      "estimated_front_body_clearance_m": 0.8964
+    }
+  ],
+  "static_world_outliers": [],
+  "recovery_transitions": [],
+  "last_planner_change": {
+    "t": 186.405,
+    "status": "IDLE"
+  },
+  "bounds": {
+    "command_stop_s": 0.25,
+    "ground_truth_stopping_distance_m": 0.05,
+    "ground_truth_stopping_distance_rule": "max(0.05, v*command_stop_s+v^2/(2*decel_limit_mps2))",
+    "max_linear_speed_mps": 0.22,
+    "decel_limit_mps2": 0.4,
+    "truth_entry_bracket_max_s": 0.15,
+    "ground_truth_heading_change_rad": 0.12,
+    "front_laser_to_body_m": 0.132,
+    "front_body_clearance_m": 0.02,
+    "simulation_robot_collision_radius_m": 0.22,
+    "simulation_static_swept_clearance_m": 0.05
+  },
+  "interpretation": "PLANNING with a nonempty prior path and a fresh, clear front scan may move while replanning; this is not a full swept-path proof. WAIT_REPLAN permits bounded deceleration for 0.25 s and speed-dependent ground-truth travel based on the active Nav2 speed/deceleration profile. Navigation RECOVERING is logged separately. No instant command or inertial motion is automatically a failure. Only a known static Gazebo fixture can use the independent collision-geometry witness; it does not certify real-world or moving-obstacle safety.",
+  "static_geometry_witness": null
+}

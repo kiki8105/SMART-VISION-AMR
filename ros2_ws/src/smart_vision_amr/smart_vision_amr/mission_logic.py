@@ -3,6 +3,8 @@ from copy import deepcopy
 from math import atan2, cos, hypot, isfinite, sin
 import time
 
+from smart_vision_amr.operation_status import CONTROLLER_HOLD_MESSAGE, CONTROLLER_HOLD_ACTION
+
 ACTIVE_STATES = frozenset({'NAVIGATING', 'RETURNING_HOME', 'WAIT_REPLAN', 'CONFIRMING', 'DWELLING'})
 MAX_OBSERVED_DWELL_GAP_SECONDS = .35  # The ROS bridge checks stopped sensors at 10 Hz.
 START_STATES = frozenset({'IDLE', 'COMPLETED', 'HOME_REACHED', 'CANCELED', 'ERROR'})
@@ -264,12 +266,13 @@ class MarkerMission:
         if self.state in {'NAVIGATING', 'RETURNING_HOME'}:
             self.goal_stamp = stamp_key(stamp)
 
-    def pause(self):
+    def pause(self, reason=None):
         if self.state not in ACTIVE_STATES:
             raise MissionError('진행 중인 임무만 일시정지할 수 있습니다.')
         if self.state == 'DWELLING':
             self.dwell_last_tick = None
-        self.state, self.reason = 'PAUSED', '사용자가 일시정지했습니다. 재개 버튼으로만 다시 출발합니다.'
+        self.state = 'PAUSED'
+        self.reason = str(reason) if reason else '사용자가 일시정지했습니다. 재개 버튼으로만 다시 출발합니다.'
         self.goal_stamp = None
         self.commands = [('cancel', None), ('stop', None)]
         self.event(self.reason)
@@ -336,7 +339,12 @@ class MarkerMission:
         if stamp_key(payload.get('goal_stamp')) != self.goal_stamp:
             return False
         status = str(payload.get('status', '')).upper()
-        if status == 'SUCCEEDED':
+        if status == 'CONTROLLER_HOLD':
+            # The exact dispatch stamp was checked above. A late hold from a
+            # previous sector cannot suspend its successor or complete a route.
+            self.home_navigation_succeeded = False
+            self.pause(CONTROLLER_HOLD_MESSAGE+'. '+CONTROLLER_HOLD_ACTION)
+        elif status == 'SUCCEEDED':
             if self.returning_home:
                 self.home_navigation_succeeded = True
                 self.state = 'RETURNING_HOME'

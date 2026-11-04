@@ -517,17 +517,19 @@
   }
   function renderFailureMemory(){
     const f=snapshot.failure_memory,m=currentMission(),panel=$('#failure-memory');
-    const phases={AVOIDING:'실패 접근 회피 · 재계획',WAIT_ALTERNATIVE:'목표 유지 · 대체 경로 대기',RECOVERING:'안전 후진 중',REJOINING:'새 경로 진입 확인 중',SENSOR_HOLD:'센서 회복 대기',OBSTACLE_HOLD:'장애물 해소 대기'};
+    const phases={AVOIDING:'실패 접근 회피 · 재계획',WAIT_ALTERNATIVE:'목표 유지 · 대체 경로 대기',WAIT_REVERSE:'정지 확인 · 후진 준비',RECOVERING:'안전 후진 중',REJOINING:'새 경로 진입 확인 중',SENSOR_HOLD:'센서 회복 대기',OBSTACLE_HOLD:'장애물 해소 대기',CONTROLLER_HOLD:'경로 추종 확인 대기'};
+    const recoveryPhases={LOCAL:'국소 우회 경로 확인 중',STOP_PROOF:'정지 확인 · 후진 준비',REVERSE_VERDICT:'후방 경로 확인 중',REVERSING:'후진 중 · 재진입 공간 확보',GLOBAL:'전체 경로 재계획 중',WAIT_OBSTACLE:'장애물 해소 대기'};
+    const recoveryLabel=['SENSOR_HOLD','CONTROLLER_HOLD'].includes(f?.state)?'':recoveryPhases[f?.recovery_phase]||'';
     const valid=!!f&&f.available===true&&['NAVIGATING','RETURNING_HOME','WAIT_REPLAN','PAUSED','ESTOP'].includes(m.state);
     const records=valid&&Array.isArray(f.active)?f.active:[];
-    panel.hidden=!valid||(!phases[f.state]&&!records.length);
+    panel.hidden=!valid||(!phases[f.state]&&!recoveryLabel&&!records.length);
     if(panel.hidden)return;
     const held=m.estop_latched||snapshot.safety?.latched;
     const manual=snapshot.manual?.active||['ACQUIRING','ACTIVE','RELEASING','WAIT_REPLAN'].includes(snapshot.manual?.state);
-    $('#failure-memory-phase').textContent=held?'비상정지 · 실패 접근 기억 유지':manual?'수동 조종 우선 · 실패 접근 기억 유지':m.state==='PAUSED'?'일시정지 · 실패 접근 기억 유지':phases[f.state]||'실패 접근 기억 유지';
-    const retry=Number.isInteger(f.retry_count)&&Number.isInteger(f.retry_limit)&&f.retry_limit>0?` · 재시도 ${f.retry_count}/${f.retry_limit}회`:'';
+    $('#failure-memory-phase').textContent=held?'비상정지 · 실패 접근 기억 유지':manual?'수동 조종 우선 · 실패 접근 기억 유지':m.state==='PAUSED'?'일시정지 · 실패 접근 기억 유지':recoveryLabel||phases[f.state]||'실패 접근 기억 유지';
+    const retry=!f.recovery_phase&&Number.isInteger(f.retry_count)&&Number.isInteger(f.retry_limit)&&f.retry_limit>0?` · 재시도 ${f.retry_count}/${f.retry_limit}회`:'';
     $('#failure-memory-count').textContent=`회피 기억 ${records.length}건${retry}`;
-    $('#failure-memory-reason').textContent=f.state==='OBSTACLE_HOLD'?'장애물이 있어 경로 주행을 잠시 멈춥니다. 장애물을 치우면 경로를 재개합니다.':failureReason(f.reason)||'같은 실패 구간·진입 방향의 반복을 줄입니다.';
+    $('#failure-memory-reason').textContent=f.state==='OBSTACLE_HOLD'||f.recovery_phase==='WAIT_OBSTACLE'?'장애물이 있어 경로 주행을 잠시 멈춥니다. 장애물을 치우면 경로를 재개합니다.':failureReason(f.reason)||'같은 실패 구간·진입 방향의 반복을 줄입니다.';
     const list=$('#failure-memory-records');list.replaceChildren();
     records.slice(0,100).forEach(item=>{const li=document.createElement('li');const ttl=typeof item.expires_in==='number'&&Number.isFinite(item.expires_in)?`${Math.max(0,Math.ceil(item.expires_in))}초 후 재평가`:'유지 시간 확인 중';const position=Number.isFinite(item.x)&&Number.isFinite(item.y)?`(${item.x.toFixed(2)}, ${item.y.toFixed(2)}) · `:'';li.textContent=`${position}${failureReason(item.reason)||'실패 접근'} · ${ttl}`;list.append(li);});
     if(!records.length){const li=document.createElement('li');li.textContent=f.state==='SENSOR_HOLD'?'센서 단절은 경로 실패로 기록하지 않습니다.':f.state==='OBSTACLE_HOLD'?'현재 목표를 유지하고 실제 장애물 해소를 기다립니다.':'현재 남아 있는 실패 접근 제한은 없습니다.';list.append(li);}

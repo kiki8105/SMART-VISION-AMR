@@ -1,0 +1,777 @@
+{
+  "scope": "actual Nav2 DWB frozen input comparison, not closed-loop completion",
+  "parameters_varied": [
+    "FollowPath.ObstacleFootprint.scale"
+  ],
+  "physical_radius_m": 0.2,
+  "footprint_padding_m": 0.0,
+  "cases": [
+    {
+      "case": "recorded69",
+      "variants": [
+        {
+          "scale": 0.5,
+          "evaluation": {
+            "best": {
+              "velocity": {
+                "x": 0.023157894736842106,
+                "y": 0.0,
+                "theta": -0.24358974358974342
+              },
+              "total": 13.200000762939453,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 0.0,
+                  "scale": 0.02500000037252903
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 11.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 11.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": 1.9004408208061336,
+                "y": -0.9560806872249763,
+                "theta": -1.3116119401801185
+              }
+            },
+            "best_forward": {
+              "velocity": {
+                "x": 0.12736842105263158,
+                "y": 0.0,
+                "theta": -0.19230769230769215
+              },
+              "total": 14.875,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 251.0,
+                  "scale": 0.02500000037252903
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 6.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 1.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 7.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": 1.9900615341281285,
+                "y": -1.1068092863133472,
+                "theta": -1.220641719887766
+              }
+            },
+            "valid_count": 454,
+            "forward_valid_count": 271,
+            "invalid_by_critic": {
+              "CommandEnvelope": 344
+            },
+            "trajectory_count": 798
+          },
+          "rejected_velocity_critic_sha256": "90899b0719d73d3a62f0365311c085e3e55c1174fe35062a0b8c89b85fb63f9d",
+          "lethal_cells_preserved": true,
+          "unknown_cells_preserved": true
+        },
+        {
+          "scale": 0.02,
+          "evaluation": {
+            "best": {
+              "velocity": {
+                "x": 0.12736842105263158,
+                "y": 0.0,
+                "theta": -0.19230769230769215
+              },
+              "total": 8.85099983215332,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 251.0,
+                  "scale": 0.0010000000474974513
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 6.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 1.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 7.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": 1.9900615341281285,
+                "y": -1.1068092863133472,
+                "theta": -1.220641719887766
+              }
+            },
+            "best_forward": {
+              "velocity": {
+                "x": 0.12736842105263158,
+                "y": 0.0,
+                "theta": -0.19230769230769215
+              },
+              "total": 8.85099983215332,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 251.0,
+                  "scale": 0.0010000000474974513
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 6.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 1.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 7.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": 1.9900615341281285,
+                "y": -1.1068092863133472,
+                "theta": -1.220641719887766
+              }
+            },
+            "valid_count": 454,
+            "forward_valid_count": 271,
+            "invalid_by_critic": {
+              "CommandEnvelope": 344
+            },
+            "trajectory_count": 798
+          },
+          "rejected_velocity_critic_sha256": "90899b0719d73d3a62f0365311c085e3e55c1174fe35062a0b8c89b85fb63f9d",
+          "lethal_cells_preserved": true,
+          "unknown_cells_preserved": true
+        }
+      ]
+    },
+    {
+      "case": "recorded71",
+      "variants": [
+        {
+          "scale": 0.5,
+          "evaluation": {
+            "best": {
+              "velocity": {
+                "x": 0.011578947368421053,
+                "y": 0.0,
+                "theta": -0.24358974358974342
+              },
+              "total": 15.0,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 0.0,
+                  "scale": 0.02500000037252903
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 13.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 12.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": 1.901943021573839,
+                "y": -0.9520528309290399,
+                "theta": -1.347132838962685
+              }
+            },
+            "best_forward": {
+              "velocity": {
+                "x": 0.10421052631578946,
+                "y": 0.0,
+                "theta": -0.3205128205128204
+              },
+              "total": 15.875000953674316,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 251.0,
+                  "scale": 0.02500000037252903
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 8.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 8.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": 1.9610865115162612,
+                "y": -1.1005000203514734,
+                "theta": -1.4774256791618012
+              }
+            },
+            "valid_count": 454,
+            "forward_valid_count": 271,
+            "invalid_by_critic": {
+              "CommandEnvelope": 344
+            },
+            "trajectory_count": 798
+          },
+          "rejected_velocity_critic_sha256": "90899b0719d73d3a62f0365311c085e3e55c1174fe35062a0b8c89b85fb63f9d",
+          "lethal_cells_preserved": true,
+          "unknown_cells_preserved": true
+        },
+        {
+          "scale": 0.02,
+          "evaluation": {
+            "best": {
+              "velocity": {
+                "x": 0.10421052631578946,
+                "y": 0.0,
+                "theta": -0.3205128205128204
+              },
+              "total": 9.85099983215332,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 251.0,
+                  "scale": 0.0010000000474974513
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 8.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 8.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": 1.9610865115162612,
+                "y": -1.1005000203514734,
+                "theta": -1.4774256791618012
+              }
+            },
+            "best_forward": {
+              "velocity": {
+                "x": 0.10421052631578946,
+                "y": 0.0,
+                "theta": -0.3205128205128204
+              },
+              "total": 9.85099983215332,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 251.0,
+                  "scale": 0.0010000000474974513
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 8.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 8.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": 1.9610865115162612,
+                "y": -1.1005000203514734,
+                "theta": -1.4774256791618012
+              }
+            },
+            "valid_count": 454,
+            "forward_valid_count": 271,
+            "invalid_by_critic": {
+              "CommandEnvelope": 344
+            },
+            "trajectory_count": 798
+          },
+          "rejected_velocity_critic_sha256": "90899b0719d73d3a62f0365311c085e3e55c1174fe35062a0b8c89b85fb63f9d",
+          "lethal_cells_preserved": true,
+          "unknown_cells_preserved": true
+        }
+      ]
+    },
+    {
+      "case": "near_box",
+      "variants": [
+        {
+          "scale": 0.5,
+          "evaluation": {
+            "best": {
+              "velocity": {
+                "x": 0.03473684210526316,
+                "y": 0.0,
+                "theta": 0.1410256410256411
+              },
+              "total": 10.800000190734863,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 0.0,
+                  "scale": 0.02500000037252903
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 9.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 9.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": -0.008846040709335179,
+                "y": 0.06844490163176929,
+                "theta": 1.851565557564126
+              }
+            },
+            "best_forward": {
+              "velocity": {
+                "x": 0.18526315789473682,
+                "y": 0.0,
+                "theta": 0.0
+              },
+              "total": 11.075000762939453,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 251.0,
+                  "scale": 0.02500000037252903
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 4.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 4.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": 8.68467475757881e-17,
+                "y": 0.306578947368421,
+                "theta": 1.5707963267948963
+              }
+            },
+            "valid_count": 452,
+            "forward_valid_count": 269,
+            "invalid_by_critic": {
+              "CommandEnvelope": 344,
+              "ObstacleFootprint": 2
+            },
+            "trajectory_count": 798
+          },
+          "rejected_velocity_critic_sha256": "b28d0e13341b129bda0604c30b970ba3700a680f16153ce6f5b44c9df52490bc",
+          "lethal_cells_preserved": true,
+          "unknown_cells_preserved": true
+        },
+        {
+          "scale": 0.02,
+          "evaluation": {
+            "best": {
+              "velocity": {
+                "x": 0.18526315789473682,
+                "y": 0.0,
+                "theta": 0.0
+              },
+              "total": 5.051000118255615,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 251.0,
+                  "scale": 0.0010000000474974513
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 4.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 4.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": 8.68467475757881e-17,
+                "y": 0.306578947368421,
+                "theta": 1.5707963267948963
+              }
+            },
+            "best_forward": {
+              "velocity": {
+                "x": 0.18526315789473682,
+                "y": 0.0,
+                "theta": 0.0
+              },
+              "total": 5.051000118255615,
+              "scores": [
+                {
+                  "name": "RotateToGoal",
+                  "raw_score": 0.0,
+                  "scale": 32.0
+                },
+                {
+                  "name": "Oscillation",
+                  "raw_score": 0.0,
+                  "scale": 1.0
+                },
+                {
+                  "name": "BaseObstacle",
+                  "raw_score": 0.0,
+                  "scale": 0.019999999552965164
+                },
+                {
+                  "name": "ObstacleFootprint",
+                  "raw_score": 251.0,
+                  "scale": 0.0010000000474974513
+                },
+                {
+                  "name": "GoalAlign",
+                  "raw_score": 4.0,
+                  "scale": 0.6000000238418579
+                },
+                {
+                  "name": "PathAlign",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "PathDist",
+                  "raw_score": 0.0,
+                  "scale": 0.800000011920929
+                },
+                {
+                  "name": "GoalDist",
+                  "raw_score": 4.0,
+                  "scale": 0.6000000238418579
+                }
+              ],
+              "end_pose": {
+                "x": 8.68467475757881e-17,
+                "y": 0.306578947368421,
+                "theta": 1.5707963267948963
+              }
+            },
+            "valid_count": 452,
+            "forward_valid_count": 269,
+            "invalid_by_critic": {
+              "CommandEnvelope": 344,
+              "ObstacleFootprint": 2
+            },
+            "trajectory_count": 798
+          },
+          "rejected_velocity_critic_sha256": "b28d0e13341b129bda0604c30b970ba3700a680f16153ce6f5b44c9df52490bc",
+          "lethal_cells_preserved": true,
+          "unknown_cells_preserved": true
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Captured published OccupancyGrid has 0..100 values; StaticLayer preserves lethal100 and unknown-1, but re-quantizes intermediate soft costs.",
+    "Path points restored from authoritative safety timeline, rounded to 0.1mm, and trimmed by recorded DWB pruned pose count; orientation reconstructed from tangent.",
+    "Controller history, including previous Oscillation critic state, is not captured and is initialized anew.",
+    "The near-box fixture proves identical collision-candidate rejection, not a closed-loop 2cm clearance pass."
+  ]
+}

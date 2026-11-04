@@ -1,0 +1,251 @@
+........................................................................ [  2%]
+........................................................................ [  4%]
+........................................................................ [  7%]
+........................................................................ [  9%]
+........................................................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 27%]
+........................................................................ [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 42%]
+........................................................................ [ 44%]
+........................................................................ [ 47%]
+........................................................................ [ 49%]
+........................................................................ [ 52%]
+........................................................................ [ 54%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+................................................................F....... [ 62%]
+........................................................................ [ 64%]
+........................................................................ [ 67%]
+.........................F.............................................. [ 69%]
+..F................................................F.......F............ [ 72%]
+.....F......F........F.................................................. [ 74%]
+........................................................................ [ 77%]
+........................................................................ [ 79%]
+........................................................................ [ 82%]
+........................................................................ [ 84%]
+........................................................................ [ 87%]
+........................................................................ [ 89%]
+........................................................................ [ 92%]
+........................................................................ [ 94%]
+........................................................................ [ 97%]
+........................................................................ [ 99%]
+......                                                                   [100%]
+=================================== FAILURES ===================================
+_ test_real_later_confirmed_memory_deletion_wakes_failed_start_not_original_cell _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77f2877bd7e0>
+
+    def test_real_later_confirmed_memory_deletion_wakes_failed_start_not_original_cell(monkeypatch):
+        fixture=Path(__file__).resolve().parents[4]/'benchmarks/driving_parameter_tuning_20261104/start_egress_audit/fixture.json'
+        record=json.loads(fixture.read_text())
+        node,_=load_incident()
+        monkeypatch.setattr('smart_vision_amr.astar_planner.time.monotonic',lambda:node.clock['steady'])
+        pose=record['pose'];evidence(node,100.,x=pose[0],y=pose[1],yaw=pose[2])
+        node.last_goal.pose.position.x,node.last_goal.pose.position.y=(-.25,-1.98)
+        node.local_reference_points=[tuple(p) for p in record['reference_path_record']['points']]
+        node.local_reference_key=node._local_route_key()
+        node.observed={tuple(c) for c in record['observed_cells']}
+        node.remembered={tuple(c) for c in record['planner_remembered_cells']}
+        coordinator=node.recovery_coordinator
+        coordinator.begin('blocked-start',node._local_route_key(),{(39,88)},node.observed,node.remembered)
+        coordinator.local_result(False);coordinator.stop_proved();coordinator.reverse_verdict(False)
+        assert (39,88) not in node.remembered
+        assert node._wait_after_recovery_cycle(relevant_cells={tuple(record['start_cell'])})
+        assert {(39,89),(40,88),(40,89),(41,89)}<=coordinator.current.relevant_remembered
+        old=coordinator.current
+        node.on_memory(hits(node,set()))
+        assert not node.remembered and coordinator.current is not old
+>       assert coordinator.current.phase is RecoveryPhase.FOLLOW
+E       AssertionError: assert <RecoveryPhase.LOCAL: 'LOCAL'> is <RecoveryPhase.FOLLOW: 'FOLLOW'>
+E        +  where <RecoveryPhase.LOCAL: 'LOCAL'> = RecoveryEpisode(episode_id='7d914e6408a4458f8383494b8e3f1448', scope=(('map', 86, 140, 0.05, 0, 0, -1.65, -5.25, 0.0, ...embered=frozenset(), wait_reason='', path_stamp_ns=None, positive_free_consumed=False, relevant_remembered=frozenset()).phase
+E        +    where RecoveryEpisode(episode_id='7d914e6408a4458f8383494b8e3f1448', scope=(('map', 86, 140, 0.05, 0, 0, -1.65, -5.25, 0.0, ...embered=frozenset(), wait_reason='', path_stamp_ns=None, positive_free_consumed=False, relevant_remembered=frozenset()) = <smart_vision_amr.recovery_episode.RecoveryCoordinator object at 0x77f2842e83a0>.current
+E        +  and   <RecoveryPhase.FOLLOW: 'FOLLOW'> = RecoveryPhase.FOLLOW
+
+ros2_ws/src/smart_vision_amr/test/test_odometry_trail_adapter.py:104: AssertionError
+_ test_fresh_same_goal_is_explicit_operator_restart_and_new_target_also_restarts _
+
+prepared = <test_planner_failure_memory.FailureHarness object at 0x77f28471b5b0>
+
+    def test_fresh_same_goal_is_explicit_operator_restart_and_new_target_also_restarts(prepared):
+        node = prepared
+        arm(node)
+        same = copy.deepcopy(node.last_goal)
+        same.header.stamp.sec = 101
+        ready(node, 101.)
+        node.on_goal(same)
+        assert not node.obstacle_hold.holding and node.obstacle_hold.attempts == 0
+>       assert path_points(node)
+E       assert []
+E        +  where [] = path_points(<test_planner_failure_memory.FailureHarness object at 0x77f28471b5b0>)
+
+ros2_ws/src/smart_vision_amr/test/test_planner_obstacle_hold.py:591: AssertionError
+__ test_certificate_instrumentation_preserves_success_and_exact_existing_edge __
+
+certificate_scene = <test_planner_failure_memory.FailureHarness object at 0x77f287ebc130>
+
+    def test_certificate_instrumentation_preserves_success_and_exact_existing_edge(certificate_scene):
+        value = certificate_scene
+        value.plan_to(value.last_goal)
+        diagnostic = value.plan_metrics['start_certificate_diagnostics']
+        assert diagnostic['first_failed_reason'] == 'CERTIFIED'
+        assert diagnostic['helper_called']
+        assert diagnostic['allowed_edges'] == [[[33,91],[32,91]]]
+        assert diagnostic['motion_pose']['first_failed_reason'] == 'OK'
+>       assert value.planned_world_points
+E       assert []
+E        +  where [] = <test_planner_failure_memory.FailureHarness object at 0x77f287ebc130>.planned_world_points
+
+ros2_ws/src/smart_vision_amr/test/test_planner_pose_diagnostics.py:133: AssertionError
+__ test_cleared_memory_retries_retained_goal_when_obstacle_blocked_all_routes __
+
+prepared = <test_planner_failure_memory.FailureHarness object at 0x77f284344e20>
+
+    def test_cleared_memory_retries_retained_goal_when_obstacle_blocked_all_routes(prepared):
+        node = prepared
+        goal = node.last_goal
+        width, height = node.map[0].info.width, node.map[0].info.height
+        barrier = Int32MultiArray(data=[y * width + 15 for y in range(height)])
+        node.on_memory(barrier)
+        stationary_evidence(node, 102.1, x=.55, y=1.55)
+        node.retry_transform()
+        assert node.waiting_for_replan
+        assert node.planned_cells == []
+    
+        stationary_evidence(node, 104.2, x=.55, y=1.55)
+        node.on_memory(Int32MultiArray(data=[]))
+        assert node.remembered == set()
+        assert node.last_goal is goal
+>       assert node.planned_cells
+E       assert []
+E        +  where [] = <test_planner_failure_memory.FailureHarness object at 0x77f284344e20>.planned_cells
+
+ros2_ws/src/smart_vision_amr/test/test_planner_remaining_route.py:175: AssertionError
+______ test_static_inflated_start_requests_checked_wall_parallel_retreat _______
+
+prepared = <test_planner_failure_memory.FailureHarness object at 0x77f287f660b0>
+
+    def test_static_inflated_start_requests_checked_wall_parallel_retreat(prepared):
+        node = prepared
+        goal = scenario(node)
+        msg = node.map[0]
+        msg.info.resolution = .05
+        msg.info.width, msg.info.height = 80, 40
+        msg.data = [100 if y == 0 or (x, y) == (33, 10) else 0
+                    for y in range(40) for x in range(80)]
+        raw = occupancy_to_grid(msg, 65, 0)
+        grid = occupancy_to_grid(msg, 65, 5)
+        # Uniform 5-cell inflation covers the current cell because of the
+        # diagonal obstacle, although the side-wall clearance stays .28 m.
+        node.map = msg, grid
+        node.raw_static_grid = raw
+        source_history(node,1.425,.33)
+        node.observed.clear()
+        assert grid.is_static_obstacle((28, 6))
+        assert not raw.is_static_obstacle((28, 6))
+>       assert node._maybe_request_reverse((28, 6), (51, 7), msg, grid, raw,
+                                           set(), set(), {}, True), node.last_reverse_rejection_code
+E       AssertionError: POSE_UNREADY
+E       assert False
+E        +  where False = <bound method AStarPlannerNode._maybe_request_reverse of <test_planner_failure_memory.FailureHarness object at 0x77f287f660b0>>((28, 6), (51, 7), nav_msgs.msg.OccupancyGrid(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=0, nanosec=0), frame_id='m..., 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), Grid(rows=((True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True...alse, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False))), Grid(rows=((True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True...alse, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False))), set(), set(), {}, True)
+E        +    where <bound method AStarPlannerNode._maybe_request_reverse of <test_planner_failure_memory.FailureHarness object at 0x77f287f660b0>> = <test_planner_failure_memory.FailureHarness object at 0x77f287f660b0>._maybe_request_reverse
+E        +    and   set() = set()
+E        +    and   set() = set()
+
+ros2_ws/src/smart_vision_amr/test/test_planner_start_reverse_evidence.py:123: AssertionError
+_ test_static_quantization_uses_private_single_cell_view_with_full_inflation_tail _
+
+prepared = <test_planner_failure_memory.FailureHarness object at 0x77f288117fd0>
+
+    def test_static_quantization_uses_private_single_cell_view_with_full_inflation_tail(prepared):
+        node = prepared
+        goal = static_scenario(node)
+        source = list(node.map[0].data)
+        original_grid = node.map[1]
+        node.plan_to(goal)
+>       assert node.planned_cells[:2] == [(18, 18), (17, 18)]
+E       assert [] == [(18, 18), (17, 18)]
+E         Right contains 2 more items, first extra item: (18, 18)
+E         Full diff:
+E         - [(18, 18), (17, 18)]
+E         + []
+
+ros2_ws/src/smart_vision_amr/test/test_planner_start_reverse_evidence.py:208: AssertionError
+_ test_private_start_view_cannot_enable_later_diagonal_across_original_start_corner _
+
+prepared = <test_planner_failure_memory.FailureHarness object at 0x77f284347fd0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77f284346e60>
+
+    def test_private_start_view_cannot_enable_later_diagonal_across_original_start_corner(prepared, monkeypatch):
+        from smart_vision_amr.grid import Grid
+        from smart_vision_amr import astar_planner as planner_module
+        node = prepared
+        goal = static_scenario(node)
+        node.map[0].data = [0]*1600
+        node.raw_static_grid = Grid(tuple(tuple(False for x in range(40)) for y in range(40)))
+        original = Grid(tuple(tuple((x, y) == (18, 18) for x in range(40)) for y in range(40)))
+        node.map = node.map[0], original
+        goal.pose.position.x, goal.pose.position.y = .925, .875
+        start, east, north = (18, 18), (19, 18), (18, 17)
+        # Force the first step east. Clearing S must not then permit E->N across
+        # the original inflated S side cell, even though the first E edge is safe.
+        # Execution history is now routing cost only. Restrict the actual
+        # first-edge certificate instead of inventing hard execution-memory edges.
+        measured_certificate = planner_module.certified_start_only_edges
+        def east_only(*args, **kwargs):
+            certified = measured_certificate(*args, **kwargs)
+            assert (start, east) in certified
+            return certified & {(start, east)}
+        monkeypatch.setattr(planner_module, 'certified_start_only_edges', east_only)
+        node.plan_to(goal)
+>       assert node.planned_cells[:2] == [start, east]
+E       assert [] == [(18, 18), (19, 18)]
+E         Right contains 2 more items, first extra item: (18, 18)
+E         Full diff:
+E         - [(18, 18), (19, 18)]
+E         + []
+
+ros2_ws/src/smart_vision_amr/test/test_planner_start_reverse_evidence.py:272: AssertionError
+___ test_actual_five_cell_static_inflation_corner_has_full_stock_radius_exit ___
+
+prepared = <test_planner_failure_memory.FailureHarness object at 0x77f2842ebc70>
+
+    def test_actual_five_cell_static_inflation_corner_has_full_stock_radius_exit(prepared):
+        node = prepared
+        goal = static_scenario(node)
+        msg = node.map[0]
+        msg.data = [100 if (x, y) == (23, 23) else 0
+                    for y in range(40) for x in range(40)]
+        node.map = msg, occupancy_to_grid(msg, 65, 5)
+        node.raw_static_grid = occupancy_to_grid(msg, 65, 0)
+        node.params['obstacle_inflation_cells'] = 5
+        node.map_signature = (65, 5, 0)
+        original = node.map[1]
+        assert original.is_static_obstacle((18, 18))
+        node.plan_to(goal)
+>       assert node.planned_cells[:2] == [(18, 18), (17, 18)]
+E       assert [] == [(18, 18), (17, 18)]
+E         Right contains 2 more items, first extra item: (18, 18)
+E         Full diff:
+E         - [(18, 18), (17, 18)]
+E         + []
+
+ros2_ws/src/smart_vision_amr/test/test_planner_start_reverse_evidence.py:365: AssertionError
+=========================== short test summary info ============================
+FAILED ros2_ws/src/smart_vision_amr/test/test_odometry_trail_adapter.py::test_real_later_confirmed_memory_deletion_wakes_failed_start_not_original_cell
+FAILED ros2_ws/src/smart_vision_amr/test/test_planner_obstacle_hold.py::test_fresh_same_goal_is_explicit_operator_restart_and_new_target_also_restarts
+FAILED ros2_ws/src/smart_vision_amr/test/test_planner_pose_diagnostics.py::test_certificate_instrumentation_preserves_success_and_exact_existing_edge
+FAILED ros2_ws/src/smart_vision_amr/test/test_planner_remaining_route.py::test_cleared_memory_retries_retained_goal_when_obstacle_blocked_all_routes
+FAILED ros2_ws/src/smart_vision_amr/test/test_planner_start_reverse_evidence.py::test_static_inflated_start_requests_checked_wall_parallel_retreat
+FAILED ros2_ws/src/smart_vision_amr/test/test_planner_start_reverse_evidence.py::test_static_quantization_uses_private_single_cell_view_with_full_inflation_tail
+FAILED ros2_ws/src/smart_vision_amr/test/test_planner_start_reverse_evidence.py::test_private_start_view_cannot_enable_later_diagonal_across_original_start_corner
+FAILED ros2_ws/src/smart_vision_amr/test/test_planner_start_reverse_evidence.py::test_actual_five_cell_static_inflation_corner_has_full_stock_radius_exit
+8 failed, 2878 passed in 158.18s (0:02:38)

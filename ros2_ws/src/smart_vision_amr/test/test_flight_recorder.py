@@ -139,6 +139,80 @@ def test_execution_failure_capture_waits_for_confirmed_terminal_result():
     assert FlightRecorder.trigger_signature(topic, event) == 'EXECUTION_FAILURE:unique-execution'
     assert FlightRecorder.trigger_signature('/smart_vision_amr/failure_memory_status',
         {'state': 'REJOINING', 'count': 1}) is None
+    assert FlightRecorder.trigger_signature('/smart_vision_amr/failure_memory_status',
+        {'state': 'CONTROLLER_HOLD', 'reason': 'Controller retries exhausted'}) == (
+            'CONTROLLER_HOLD:Controller retries exhausted')
+
+
+@pytest.mark.parametrize('topic,payload,prefix', [
+    ('planner_status', {'status': 'WAIT_REPLAN'}, 'WAIT_REPLAN:'),
+    ('navigation_status', {'status': 'WAIT_REPLAN', 'input_hold': True}, 'INPUT_HOLD:'),
+    ('planner_status', {'status': 'SENSOR_HOLD'}, 'INPUT_HOLD:'),
+    ('failure_memory_status', {'state': 'SENSOR_HOLD'}, 'INPUT_HOLD:'),
+])
+def test_active_goal_wait_and_input_hold_capture_use_stable_goal_signature(topic, payload, prefix):
+    name = '/smart_vision_amr/'+topic
+    goal = {'sec': 7, 'nanosec': 820_000_000}
+    packet = {**payload, 'goal_stamp': goal, 'message': 'first reason'}
+    assert FlightRecorder.trigger_signature(name, packet) == prefix+'7:820000000'
+    assert FlightRecorder.trigger_signature(name, {
+        **packet, 'message': 'changing age and reason', 'scan_age_s': .2}) == prefix+'7:820000000'
+    assert FlightRecorder.trigger_signature(name, {**packet, 'goal_stamp': None}) is None
+
+
+@pytest.mark.parametrize('stamp', [None, {}, {'sec': 0, 'nanosec': 0},
+    {'sec': True, 'nanosec': 1}, {'sec': -1, 'nanosec': 1},
+    {'sec': 1, 'nanosec': -1}, {'sec': 1, 'nanosec': 1_000_000_000},
+    {'sec': 1, 'nanosec': 1.0}])
+def test_boot_or_malformed_goal_wait_is_not_a_capture_trigger(stamp):
+    for packet in ({'status': 'WAIT_REPLAN'}, {'status': 'WAIT_REPLAN', 'input_hold': True},
+                   {'state': 'SENSOR_HOLD'}):
+        assert FlightRecorder.trigger_signature('/smart_vision_amr/planner_status',
+            {**packet, 'goal_stamp': stamp}) is None
+
+
+def test_wait_transition_dedup_and_existing_cooldown_do_not_capture_heartbeats():
+    from types import SimpleNamespace
+    from unittest.mock import patch
+    from std_msgs.msg import String
+
+    class Harness(FlightRecorder):
+        def __init__(self):
+            self.periods = {'/smart_vision_amr/planner_status': .5}
+            self.sampled_at, self.trigger_signatures = {}, {}
+            self.buffer = IncidentBuffer(post_seconds=5.)
+            self.last_trigger = float('-inf')
+            self.static_transform_snapshot = None
+            self.notices = []
+        def get_clock(self):
+            return SimpleNamespace(now=lambda: SimpleNamespace(nanoseconds=10_000_000_000))
+        def get_parameter(self, name):
+            assert name == 'minimum_incident_interval'
+            return SimpleNamespace(value=10.)
+        def publish_status(self, *args):
+            self.notices.append(args)
+
+    node = Harness(); topic = '/smart_vision_amr/planner_status'
+    def send(at, status='WAIT_REPLAN', **values):
+        message = String(data=json.dumps({'status': status,
+            'goal_stamp': {'sec': 7, 'nanosec': 820_000_000}, **values}))
+        with patch('smart_vision_amr.flight_recorder.time.monotonic', return_value=at):
+            node.receive(topic, message)
+    send(10.)
+    assert node.buffer.capture['deadline'] == 15.
+    send(10.1, message='reason changed')
+    send(11., message='another heartbeat')
+    assert len(node.buffer.capture['triggers']) == 1
+    assert node.buffer.finish(now=15.) is not None
+    send(16., 'READY')
+    send(17.)  # Real transition remains inside the unchanged 10 s cooldown.
+    assert node.buffer.capture is None and node.last_trigger == 10.
+    send(20., message='same wait after cooldown is not a new transition')
+    assert node.buffer.capture is None
+    send(20.1, 'READY')
+    send(21.)
+    assert node.last_trigger == 21. and node.buffer.capture['deadline'] == 26.
+    assert len(node.notices) == 2
 
 
 def test_invalid_bounds_are_rejected():
@@ -181,3 +255,36 @@ def test_sensor_throttle_skips_expensive_conversion_but_keeps_distinct_tf_publis
     frames = [json.loads(sample.line)['data']['transforms'][0]['child_frame_id']
               for sample in node.buffer.samples]
     assert frames == ['wheel_left_link', 'base_footprint', 'odom']
+
+
+def test_costmap_replay_input_is_preserved_and_throttled_before_conversion():
+    from types import SimpleNamespace
+    from unittest.mock import patch
+    from nav_msgs.msg import OccupancyGrid
+
+    class Harness(FlightRecorder):
+        def __init__(self):
+            self.periods = {'/local_costmap/costmap': .5}
+            self.sampled_at, self.trigger_signatures = {}, {}
+            self.buffer = IncidentBuffer()
+            self.last_trigger = float('-inf')
+        def get_clock(self):
+            return SimpleNamespace(now=lambda: SimpleNamespace(nanoseconds=1_000_000_000))
+        def get_parameter(self, name):
+            return SimpleNamespace(value=10.)
+
+    node = Harness()
+    message = OccupancyGrid()
+    message.header.frame_id = 'odom'
+    message.info.width = message.info.height = 2
+    message.info.resolution = .05
+    message.data = [0, 100, -1, 99]
+    with patch('smart_vision_amr.flight_recorder.time.monotonic', return_value=10.):
+        node.receive('/local_costmap/costmap', message)
+        with patch('smart_vision_amr.flight_recorder.message_to_ordereddict',
+                   side_effect=AssertionError('Throttled costmap must not be serialized')):
+            node.receive('/local_costmap/costmap', message)
+    data = json.loads(node.buffer.samples[0].line)['data']
+    assert data['header']['frame_id'] == 'odom'
+    assert data['info']['width'] == data['info']['height'] == 2
+    assert data['data'] == [0, 100, -1, 99]

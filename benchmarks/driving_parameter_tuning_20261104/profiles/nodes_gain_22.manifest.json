@@ -1,0 +1,20 @@
+{
+  "scope": "One-factor benchmark candidate; official runtime/config unchanged",
+  "base": "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml",
+  "base_sha256": "6540d2aaebb81395673a6ff5eb90782e95da13d06e91ee93ccfa4ef7f33e5a11",
+  "candidate": "benchmarks/driving_parameter_tuning_20261104/profiles/nodes_gain_22.yaml",
+  "candidate_sha256": "80835602a88159b986ccfe412e1852459149d0b9e0bead3039b0edb50c7da3c4",
+  "changes": {
+    "/astar_planner.ros__parameters.clearance_penalty_gain": {
+      "from": 1.5,
+      "to": 2.2
+    }
+  },
+  "unchanged": {
+    "preferred_clearance_m": 0.45,
+    "curve_braking_margin_m": 0.15,
+    "robot_radius_m": 0.22,
+    "obstacle_inflation_cells": 5
+  },
+  "closed_loop_status": "NOT_TESTED"
+}

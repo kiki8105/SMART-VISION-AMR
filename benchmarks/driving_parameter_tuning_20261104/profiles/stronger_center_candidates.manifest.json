@@ -1,0 +1,37 @@
+{
+  "scope": "Offline stronger center-cost candidates only; no runtime adoption",
+  "base": "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml",
+  "base_sha256": "e9943a92aabf22cc3e1b0824a8d5d94d5a9942994ace63502a6bd3c48041c37f",
+  "profiles": [
+    {
+      "path": "benchmarks/driving_parameter_tuning_20261104/profiles/nodes_gain_30.yaml",
+      "sha256": "1ad088028c4df8251dae8951c6231d74d97d8047849c6145d3c84b5a28c07092",
+      "only_change": {
+        "/astar_planner.ros__parameters.clearance_penalty_gain": {
+          "from": 1.5,
+          "to": 3.0
+        }
+      }
+    },
+    {
+      "path": "benchmarks/driving_parameter_tuning_20261104/profiles/nodes_gain_40.yaml",
+      "sha256": "1f32e4ce582de44350688edbeee40adce0881461cadfd990e3f0db11ac5ae03d",
+      "only_change": {
+        "/astar_planner.ros__parameters.clearance_penalty_gain": {
+          "from": 1.5,
+          "to": 4.0
+        }
+      }
+    },
+    {
+      "path": "benchmarks/driving_parameter_tuning_20261104/profiles/nodes_gain_60.yaml",
+      "sha256": "343430b79516a1bf0f5fdb649d7afea9a3b9443941d3ec80d48632a4294c16b1",
+      "only_change": {
+        "/astar_planner.ros__parameters.clearance_penalty_gain": {
+          "from": 1.5,
+          "to": 6.0
+        }
+      }
+    }
+  ]
+}

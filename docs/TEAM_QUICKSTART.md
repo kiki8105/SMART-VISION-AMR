@@ -7,15 +7,14 @@ PC 계정이 달라도 `~`는 각자의 홈 폴더입니다. 명령 앞에 프�
 [매일 실행](#매일-터미널-123)로 이동합니다. 더 자세한 명령·검증 결과는
 [운용 참고 문서](TEAM_OPERATIONS_REFERENCE.md)에 있습니다.
 기존 사용자는 [PC와 로봇 코드를 모두 갱신](#업데이트종료)해야 합니다.
+[최신 주행 재현·시험 결과](DRIVING_REPRODUCTION_20261104.md)와
+[간단한 주행 정책](NAVIGATION_POLICY.md)을 함께 참고하세요.
 
-**차체 크기 설정:** 이 문서의 실차 실행은 사용자가 제자리 회전에서 확인한 최대
-돌출 반경 **0.17 m**를 사용합니다. A*·경로 추종·Nav2 설정이 이 값을 공유하며,
-5 cm 지도에서 A* 정적 장애물 팽창은 4셀, Nav2 비용 팽창은 0.18 m입니다.
-기본 Gazebo Waffle Pi 모델의 외곽은 약 0.237 m이므로 시뮬레이션 스크립트는
-별도 임시 설정으로 반경 **0.24 m**, A* 5셀, Nav2 비용 팽창 0.26 m를 사용합니다.
-시뮬레이션 설정은 실차 YAML을 덮어쓰지 않으며, 속도 등 나머지 주행 설정은
-실차 프로필에서 가져옵니다. 두 모델의 크기가 다른 이유와 검증 범위는
-[Home 복귀 정지 분석](PHYSICAL_HOME_STALL_2026-11-04.md)에 적었습니다.
+현재 실차 설정은 **차체 반경 22cm**, **직선 속도 상한 0.22m/s**, **후방 카메라만 사용**입니다.
+반경 22cm는 지름 44cm 차체 모델을 뜻합니다.
+파라미터를 직접 변경할 필요 없이 아래 실행 스크립트를 사용합니다.
+Gazebo 재현에는 [별도 시험 명령](DRIVING_REPRODUCTION_20261104.md)을 사용합니다.
+[실차 전달성 시험](GAZEBO_PHYSICAL_TRANSFER.md)은 초기 위치·센서 주기·지연의 차이를 구분합니다.
 
 ## 처음 한 번: PC 설치
 
@@ -36,8 +35,9 @@ cd SMART-VISION-AMR
 ./scripts/check_classroom_deployment.sh
 ```
 
-`setup_pc_runtime.sh`는 실차 PC에 필요한 ROS/Python 의존성을 설치하고 이 저장소의
-`smart_vision_amr`만 빌드합니다. Gazebo 설치나 시뮬레이션 소스 다운로드는 필요 없습니다.
+`setup_pc_runtime.sh`는 실차 PC에 필요한 의존성을 설치하고 이 저장소의
+`smart_vision_amr`와 PC용 `smart_vision_amr_dwb` 경로 추종 플러그인을 빌드합니다.
+Gazebo 설치나 시뮬레이션 소스 다운로드는 필요 없습니다.
 의존성이 모두 설치되어 있다면 `./scripts/setup_pc_runtime.sh --no-install`로 빌드합니다.
 설치·점검 스크립트는 로봇이나 주행 노드를 시작하지 않습니다.
 전체 작업공간을 지운 뒤 Gazebo도 다시 쓰려면 [Gazebo 설치 안내](GAZEBO.md)에
@@ -151,6 +151,13 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 5. 재고 요청자가 `/inventory`에서 섹터를 접수하고, 운용자가 적재를 확인한 뒤
    임무를 시작합니다. 초기 위치 지정·비상정지 해제만으로 자동 출발하지 않습니다.
 
+주행 중 새 우회 경로의 방향이 크게 바뀌면 잠시 정지하고 방향을 맞춘 뒤 이어갑니다.
+같은 경로의 단순 갱신마다 선회하는 동작과 구분합니다. 장애물 복구 순서는
+**국소 우회 → 검증 후진 → 전체 재계획**이며, 장애물을 치운 뒤 유효한 빈 공간·기억 해제가
+확인되면 보존한 임무를 재개합니다.
+실제 장애물 기억은 경로를 막지만, 단순 추종 실패 기록은 같은 접근을 덜 선호하는
+비용으로만 사용합니다. 추종 실패 기록만으로 통로를 폐쇄하지 않습니다.
+
 로봇을 들어 옮기거나 전원을 다시 켰다면 이전 AMCL 추정을 그대로 사용하지 마세요.
 웹의 `HOME_REACHED`는 허용 오차 내 도착 표시이며 실제 등록 좌표에 놓였다는 증거가
 아닙니다. 상세한 재출발·자세 초기화 절차는 [운용 참고 문서](TEAM_OPERATIONS_REFERENCE.md)에 있습니다.
@@ -162,31 +169,59 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 | 홈 확인란이 회색 | 웹 연결·등록 홈 좌표를 확인하고, 진행 중인 임무·조이스틱·위치 확인을 종료 |
 | 확인란은 되지만 적용 버튼이 회색 | 실제 정지·비상정지·로봇 `motion_mux` 정지 응답, 도메인 16, 일치하는 `/map`, 최신 `/scan`·`/odom`, 활성 AMCL |
 | `최신 map→base TF 대기` | AMCL 초기 위치 적용 여부와 AMCL·센서·PC/로봇 시각 |
+| `Failed to bring up ... Aborting bringup` | Nav2 활성화 실패. 초기 좌표 입력만으로 해결되지 않음. 웹 비상정지 유지→터미널 2만 `Ctrl+C`→주행 스크립트 재실행→활성화 로그 확인 |
 | `설정 지도와 다른 /map` | 10/27 지도나 SLAM 중복 실행. 10/30 주행·웹을 한 번씩 실행 |
 | 위치·방향 추정 오차 큼 | 실제 위치·지도·LiDAR 일치와 새 AMCL 추정 확인. 비상정지 기준 완화 금지 |
 
 웹의 **출발 준비**에 나온 실제 차단 이유를 확인하세요. 읽기 전용 ROS·웹 진단 명령은
 [운용 참고 문서](TEAM_OPERATIONS_REFERENCE.md)에 있습니다.
+`/map`이 실제로 없거나 AMCL이 활성화되지 않았다면 초기 위치 적용 버튼은 대기합니다.
+브링업만 켜는 것으로는 부족하며 터미널 2의 주행 런치도 정상 활성화되어야 합니다.
+이때 지도·초기 위치 검사를 지우거나 비상정지를 강제로 해제하지 않습니다.
 
 ## 업데이트·종료
+
+먼저 PC 웹·주행·로봇 브링업을 모두 `Ctrl+C`로 종료합니다.
 
 **로컬 PC**, 주행을 종료한 상태에서:
 
 ```bash
 cd ~/Team2_workspace/src/SMART-VISION-AMR
-git pull --ff-only
-./scripts/setup_pc_runtime.sh --no-install
+git pull --ff-only &&
+./scripts/setup_pc_runtime.sh --no-install &&
+./scripts/check_classroom_deployment.sh
 ```
 
 **SSH 접속한 로봇**, 브링업을 종료한 상태에서:
 
 ```bash
 cd ~/SMART-VISION-AMR
-git pull --ff-only
-./scripts/setup_robot_runtime.sh --no-install
+git pull --ff-only &&
+./scripts/setup_robot_runtime.sh --no-install &&
+./scripts/check_classroom_deployment.sh --robot
 ```
 
 PC 주행·웹과 로봇 브링업을 종료한 상태에서 각각 갱신합니다. 의존성 추가 안내가
 있으면 `--no-install`을 빼고 설치합니다. 다시 실행해야 새 코드가 적용됩니다.
+**이번 변경은 `git pull`만으로 적용되지 않습니다.** PC에서 위 재빌드를 완료해야
+새 DWB 플러그인을 사용할 수 있습니다. 로봇도 갱신·재빌드해야 선회 속도 제한과
+위치 감시 변경이 반영됩니다. 로봇은 Python 런타임만 빌드하며 PC 제어 플러그인은
+필요하지 않습니다. 웹을 재시작하면 실차 22cm 회전 검사도 적용됩니다.
+PC 빌드에서 `2 packages finished`와 배포 점검 통과를 확인한 뒤 매일 실행 순서로 돌아갑니다.
 종료할 때는 웹에서 정지한 뒤 터미널 **3 → 2 → 1** 순서로 `Ctrl+C`를 누릅니다.
 상시 웹 서비스·새 SLAM 지도 적용 절차는 [운용 참고 문서](TEAM_OPERATIONS_REFERENCE.md)에 있습니다.
+
+## 현재 시험 범위
+
+실차 설정을 사용한 격리 Gazebo 시험이며 **수정본 실차 재시험은 아직 하지 않았습니다.**
+
+| 시험 | 결과 |
+|---|---|
+| 같은 세션 재고 Sector 2 왕복 두 번 | 통과 |
+| 악조건 1→2→3→Home | 통과 |
+| EKF 출력·라이다 전달 지연 후 같은 목표 재개 | 통과 |
+| 악조건 1→3→2→Home | Sector 3 접근 정체 후 중도 정지 |
+| 이동 장애물·바퀴 비대칭·느린 구동 응답 | 실패 사례 남음 |
+
+설치·실행 절차가 준비됐다는 것과 실차 완주 보장은 다릅니다.
+원본 실패·실제 위치·구동 지연 및 추가 검토는 [실차 전달성 시험](GAZEBO_PHYSICAL_TRANSFER.md)에 정리합니다.

@@ -1,0 +1,196 @@
+{
+  "scope": "Independent read-only completed actual Gazebo baseline12 audit under frozen simplified policy. Operational web route selection is manual-route mode, not inventory-request dispatch. No node/action/service/backend mutation or physical-robot operation performed by this audit.",
+  "trial": "/tmp/classroom-simple-policy-baseline-20261105/12_web_integrated_clean",
+  "domain": 176,
+  "physical_robot_touched": false,
+  "input_sha256": {
+    "/tmp/classroom-simple-policy-baseline-20261105/staged_report.json": "840e1c3e8c3a3b2c06ff269a743db397514943710291c65dbf68a8422720c755",
+    "/tmp/classroom-simple-policy-baseline-20261105/12_web_integrated_clean/derived_evidence.json": "6168815d10617af8c14b4722e313149876960979aad2ea17b4c4a873200cc059",
+    "/tmp/classroom-simple-policy-baseline-20261105/12_web_integrated_clean/acceptance.json": "66f98f72a4cab0d7d7198997b2ab4232034f0519ba7b4f780d8686b2b4e917b2",
+    "/tmp/classroom-simple-policy-baseline-20261105/12_web_integrated_clean/safety_assessment.json": "86711c8c51acf17d9f0ae9d804bb0a055c5e2abc6c219170766970a7355f1217",
+    "/tmp/classroom-simple-policy-baseline-20261105/12_web_integrated_clean/safety_timeline.jsonl": "0938480dbdb5352806b825552bbdb0f722ea035c9a36ce96046f4bec47b17155",
+    "/tmp/classroom-simple-policy-baseline-20261105/12_web_integrated_clean/runtime_manifest.json": "73cbdd0dd6875d20f878113a639b82e7baf253ca91e165bdf98d32b8fa0a7473",
+    "/tmp/classroom-simple-policy-baseline-20261105/12_web_integrated_clean/gazebo_launch.log": "b0052a54277563da21c346c1e04274dddc57cbd2b75aafdb9e6b30a5b1e32730"
+  },
+  "outcome": {
+    "overall_passed": true,
+    "reasons": [],
+    "prearm_passed": true,
+    "route_and_home_passed": true,
+    "safety_assessment_passed": true,
+    "dispatch_mode": "manual",
+    "route": [
+      1,
+      2,
+      3
+    ],
+    "completed_ids": [
+      1,
+      2,
+      3
+    ],
+    "final_state": "HOME_REACHED",
+    "mission_elapsed_seconds": 191.324523
+  },
+  "truth": {
+    "endpoint_checks": {
+      "1": {
+        "passed": true,
+        "event_at": 1793808248.6584988,
+        "goal": [
+          1.2,
+          0.575,
+          3.114078
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.001,
+        "position_error_m": 0.116,
+        "heading_error_rad": 0.151,
+        "fixture_wall_front_yaw_rad": 3.114077653589793,
+        "fixture_wall_normal_error_rad": 0.151,
+        "truth": [
+          1.08715,
+          0.6038,
+          -3.01841
+        ]
+      },
+      "2": {
+        "passed": true,
+        "event_at": 1793808302.9014556,
+        "goal": [
+          1.525,
+          -2.65,
+          1.543282
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.004,
+        "position_error_m": 0.134,
+        "heading_error_rad": 0.226,
+        "fixture_wall_front_yaw_rad": 1.543281653589793,
+        "fixture_wall_normal_error_rad": 0.226,
+        "truth": [
+          1.54089,
+          -2.51738,
+          1.76883
+        ]
+      },
+      "3": {
+        "passed": true,
+        "event_at": 1793808363.6406388,
+        "goal": [
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.009,
+        "position_error_m": 0.117,
+        "heading_error_rad": 0.098,
+        "fixture_wall_front_yaw_rad": -1.598311346410207,
+        "fixture_wall_normal_error_rad": 0.101,
+        "truth": [
+          -0.26356,
+          -2.09671,
+          -1.49765
+        ]
+      },
+      "home": {
+        "passed": true,
+        "event_at": 1793808413.4419801,
+        "goal": [
+          -0.188431,
+          -0.220497,
+          -0.027514
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.019,
+        "position_error_m": 0.18,
+        "heading_error_rad": 0.091,
+        "fixture_wall_front_yaw_rad": null,
+        "fixture_wall_normal_error_rad": null,
+        "truth": [
+          -0.00935,
+          -0.23454,
+          0.06389
+        ]
+      }
+    },
+    "reported_map_pose_home_distance_m": 0.13967270440944102,
+    "home_independent_settle": {
+      "passed": true,
+      "end_at": 1793808413.4419801,
+      "duration_s": 1.275,
+      "truth_samples": 12,
+      "command_samples": 28,
+      "truth_max_gap_s": 0.115,
+      "command_max_gap_s": 0.057,
+      "max_translation_m": 0.0,
+      "max_heading_rad": 0.0,
+      "max_command_linear_mps": 0.0,
+      "max_command_angular_rps": 0.0
+    },
+    "last_recorded_truth": {
+      "t": 213.5566,
+      "monotonic": 22585.8359,
+      "wall_time": 1793808414.1777,
+      "kind": "truth",
+      "x": -0.00934,
+      "y": -0.23454,
+      "yaw": 0.06389
+    },
+    "interpretation": "Home truth about18.0cm meets existing25cm gate; map-pose estimate about14.0cm is distinct. This is not centimeter docking or real-robot validation."
+  },
+  "actual_output": {
+    "cmd_samples_total": 4549,
+    "negative_linear_samples": 0,
+    "recovery_requests": 0,
+    "maximum_linear_mps": 0.22,
+    "maximum_abs_angular_rps": 0.5,
+    "samples_abs_yaw_above_point35": 459,
+    "interpretation": "No reverse requested or executed. Actual pure-turn commands reached the unchanged native DWB max_vel_theta0.50rad/s. The0.35rad/s curve setting limits curve linear speed/Spin profile; it is not a global pure-yaw hard cap."
+  },
+  "raw_guard": {
+    "motion_samples_total": 1275,
+    "all_code_counts": {
+      "WAIT_SCAN": 18,
+      "CLEAR": 1257
+    },
+    "mission_samples": 1182,
+    "mission_code_counts": {
+      "CLEAR": 1182
+    },
+    "mission_hold_samples": 0,
+    "interpretation": "WAIT_SCAN samples occurred before mission start; no raw-guard hold was observed during this completed mission. No claim about missing between-sample intervals."
+  },
+  "source_provenance": {
+    "before_count": 213,
+    "after_count": 213,
+    "before_equals_after": true,
+    "matches_final_readonly_review": {
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": true,
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": true,
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": true,
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py": true,
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/scan_outlier_guard.py": true,
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/recovery_episode.py": true,
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/reverse_recovery.py": true,
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/command_ramp.py": true,
+      "ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml": true,
+      "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": true,
+      "ros2_ws/src/smart_vision_amr_dwb/src/route_tracking_dwb.cpp": true
+    },
+    "critical_runtime_sha256": {
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "64c7d94e992dea7f550c3c3fbbe98999cf54aa6d589ef2660f0f03cc1245aceb",
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": "0a43f64213c5a49bd0a85bad54fe444b6a50a6885e3c5842a07849237d17c1c0",
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": "2d8724b452c9e8c414ba094b74d351b8f86d07386e827c4b493566db798cc38d"
+    },
+    "official_nav": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml",
+    "official_nodes": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml"
+  },
+  "limits": [
+    "One completed ordinary clean baseline; inventory moving-obstacle and same-session restart stages are separate pending tests.",
+    "No actual reverse action/output occurred, so reverse success is unverified.",
+    "Endpoint/settle QA remains the original recorded acceptance criteria; no thresholds changed.",
+    "Actual controller/guard source hashes are fixed by the completed staged report; old planner-source passes are not relabeled."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "status": "INTERRUPTED_FOR_DIAGNOSIS",
+  "passed": false,
+  "home_completed": false,
+  "reason": "Home return stalled after sectors 1/2/3; no observed or remembered obstacle, but 276 directional failure edges hard-blocked a static 27-cell route. Root interrupted only verifier PID182563, runner cleaned owned simulator stack.",
+  "not_a_sector_acceptance_verdict": "Final verifier output is incomplete due diagnostic interrupt; rear-confirmed images exist, but do not relabel unverified terminal fields as passed.",
+  "physical_robot_driven": false
+}

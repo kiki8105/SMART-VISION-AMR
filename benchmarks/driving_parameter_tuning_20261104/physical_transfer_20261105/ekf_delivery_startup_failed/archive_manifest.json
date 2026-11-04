@@ -1,0 +1,145 @@
+{
+  "root_at_capture": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105",
+  "files": [
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/staged_report.json",
+      "archive_path": "staged_report.json",
+      "original_sha256": "cd80f8a7a13d5cd6a96808497f602fdac05117c2ef56ec295787709ff22da045",
+      "archive_sha256": "cd80f8a7a13d5cd6a96808497f602fdac05117c2ef56ec295787709ff22da045",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105-source-rates.json",
+      "archive_path": "source_rates.json",
+      "original_sha256": "8f59fc32a855e88e9c086ee0aea01742784874243ef68864503741973af90058",
+      "archive_sha256": "8f59fc32a855e88e9c086ee0aea01742784874243ef68864503741973af90058",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105.log",
+      "archive_path": "runner.log.gz",
+      "original_sha256": "d2783d5ff39a083dce1c574ee4f9cc893485d6b47f415d33ecfde15e8825e201",
+      "archive_sha256": "a3d2a3b31a034d482b9ff9b7feec0a91f618aa1742a8565b2663a07dfe52eab8",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/acceptance.json",
+      "archive_path": "16_web_transient_resume/acceptance.json",
+      "original_sha256": "08799675eb07b8edf30b4f966b6fc69a05220caf56ad1e6b2ef118f9889515f3",
+      "archive_sha256": "08799675eb07b8edf30b4f966b6fc69a05220caf56ad1e6b2ef118f9889515f3",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/derived_evidence.json",
+      "archive_path": "16_web_transient_resume/derived_evidence.json",
+      "original_sha256": "b238aa8f60ca12031fb372c5e15e0863b2f86a891ec2b499a02ffe437f76bc1a",
+      "archive_sha256": "b238aa8f60ca12031fb372c5e15e0863b2f86a891ec2b499a02ffe437f76bc1a",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/safety_assessment.json",
+      "archive_path": "16_web_transient_resume/safety_assessment.json",
+      "original_sha256": "4085b7839090fabc53ca750f0d2d60133826b7c8368068de6dd6bfa11834b9eb",
+      "archive_sha256": "4085b7839090fabc53ca750f0d2d60133826b7c8368068de6dd6bfa11834b9eb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/runtime_manifest.json",
+      "archive_path": "16_web_transient_resume/runtime_manifest.json",
+      "original_sha256": "6c2b32ededce7492c44ea5de2a627f1398d04ba68638c2eb5d35604e292a2d04",
+      "archive_sha256": "6c2b32ededce7492c44ea5de2a627f1398d04ba68638c2eb5d35604e292a2d04",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/classroom_nav_sim_time.yaml",
+      "archive_path": "16_web_transient_resume/classroom_nav_sim_time.yaml",
+      "original_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "archive_sha256": "dd953fe460dd58e9b4f3295bd08797364eb299c567656a67042592f43cb43fef",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/classroom_nodes_sim.yaml",
+      "archive_path": "16_web_transient_resume/classroom_nodes_sim.yaml",
+      "original_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "archive_sha256": "3b013984319a75153067f9fcc126aad839bd62567b93c360b4f0f9a3e049c4cc",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/ekf_hardware_like_sim.yaml",
+      "archive_path": "16_web_transient_resume/ekf_hardware_like_sim.yaml",
+      "original_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "archive_sha256": "5bb0186af07a50f6cbe6d07e9c44250d452848ef8997f988751ac8769339c4bb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/memory_observer.summary.json",
+      "archive_path": "16_web_transient_resume/memory_observer.summary.json",
+      "original_sha256": "c4d48d994c2ae47923de6aca5057e83873d3c728a4202e8772a3c3db91ecc527",
+      "archive_sha256": "c4d48d994c2ae47923de6aca5057e83873d3c728a4202e8772a3c3db91ecc527",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/actual_spawned_model.sdf",
+      "archive_path": "16_web_transient_resume/actual_spawned_model.sdf",
+      "original_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "archive_sha256": "35413f02e1731c8a6a4becdfe9e2a23e2d71c9116c4761acb98826f4486556e6",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/fixture/fixture_manifest.json",
+      "archive_path": "16_web_transient_resume/fixture/fixture_manifest.json",
+      "original_sha256": "7d6cad51d3148bb7171f4dcb48284ac1d0296a80bf54635e23a9f45e733812bd",
+      "archive_sha256": "7d6cad51d3148bb7171f4dcb48284ac1d0296a80bf54635e23a9f45e733812bd",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/fixture/waffle_pi_fault.sdf",
+      "archive_path": "16_web_transient_resume/fixture/waffle_pi_fault.sdf",
+      "original_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "archive_sha256": "e73705be429282b56ba1ac4a44e718491b78d182af3149e0f3030c2fa55064e9",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/fixture/classroom_fault.world",
+      "archive_path": "16_web_transient_resume/fixture/classroom_fault.world",
+      "original_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "archive_sha256": "16158df1235535eaa7343c2ea41cbf1328615800462eb243a030405b5bc74c68",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/safety_timeline.jsonl",
+      "archive_path": "16_web_transient_resume/safety_timeline.jsonl.gz",
+      "original_sha256": "d444e997c3b250b190e660f76925ad44034e7e3015a41823742269687f9fc886",
+      "archive_sha256": "df26c6d1126eafd5f40f2ff242d41246dae07f58b584e7fe46c3d237316e91fd",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/memory_observer.jsonl",
+      "archive_path": "16_web_transient_resume/memory_observer.jsonl.gz",
+      "original_sha256": "f5c9688e14d1e8e6ccfba26063343f47dffa4546298da745296deaad2ea00f27",
+      "archive_sha256": "3dad9d923ab348daaedce239e586ed6f63480b9937c38cf7c6f251719c524876",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/sensor_faults.jsonl",
+      "archive_path": "16_web_transient_resume/sensor_faults.jsonl.gz",
+      "original_sha256": "9ec66eb68298cf9cdfae3e5b673729d12ccf8e62528b3fd05eec26024529d1ce",
+      "archive_sha256": "845b23dadab1233e19d72fc85113fc77975e9b76cc7cdf4115687371c97637b5",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/gazebo_launch.log",
+      "archive_path": "16_web_transient_resume/gazebo_launch.log.gz",
+      "original_sha256": "8f5e9527c94b17c5cc498fb7302bab29b26fa201bd17203a35a740209e7a6681",
+      "archive_sha256": "840b4ec0844e36a5703ecdfc8789038fff92d0b91d58371b328032be071845fc",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/classroom-transfer-cold-ekf-transient-v2-20261105/16_web_transient_resume/web_server.log",
+      "archive_path": "16_web_transient_resume/web_server.log.gz",
+      "original_sha256": "6e93b907e28935260271037630d075e4e99a2ad4abe55a6da8d5e2e23e36d726",
+      "archive_sha256": "12277f6742337aa6b3d8776384202c9240f9e77f64af89e3ce1d242a8491a28a",
+      "gzip": true
+    }
+  ]
+}

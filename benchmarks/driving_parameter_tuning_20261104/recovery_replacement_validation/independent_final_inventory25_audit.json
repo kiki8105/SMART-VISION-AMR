@@ -1,0 +1,149 @@
+{
+  "scope": "Independent read-only audit of completed final-source stage25 while later matrix stages continue. Full inventory-before-prearm flow is distinguished from manual-route baseline12. No runtime/backend/ROS operation or source change.",
+  "trial": "/tmp/classroom-simple-policy-validation-20261105/25_web_inventory_sector3_moving_obstacle",
+  "input_sha256": {
+    "/tmp/classroom-simple-policy-validation-20261105/25_web_inventory_sector3_moving_obstacle/derived_evidence.json": "a46f97cecf98f415fd5675f04bc131b8e11b311ab5cecd5eee713009cecaa781",
+    "/tmp/classroom-simple-policy-validation-20261105/25_web_inventory_sector3_moving_obstacle/acceptance.json": "42b29079e580cdfb0defecbdd61ca83d959808cc6309b09c0a6b57adcb99eb17",
+    "/tmp/classroom-simple-policy-validation-20261105/25_web_inventory_sector3_moving_obstacle/web_obstacle_injection.json": "ef1594394c25fb6ad041810ed39b23febffa82c80161f51f449d7590ab0e74f7",
+    "/tmp/classroom-simple-policy-validation-20261105/25_web_inventory_sector3_moving_obstacle/safety_timeline.jsonl": "de2861367b5e7656a4ab0d440012b009566c38ae0e59019242f38752c28986f1",
+    "/tmp/classroom-simple-policy-validation-20261105/25_web_inventory_sector3_moving_obstacle/runtime_manifest.json": "9589b18389e0f6b7544672ca069d19e3375dc0c48352a731b20eb42dad4f2fce",
+    "/tmp/classroom-simple-policy-validation-20261105/25_web_inventory_sector3_moving_obstacle/safety_assessment.json": "912987add7fce6aec38c38d67ec0196690f43b6858b26366754a98c0566df72d",
+    "/tmp/classroom-simple-policy-validation-20261105/25_web_inventory_sector3_moving_obstacle/gazebo_launch.log": "0825cfdb342ff031f84f0fe1939c6435c22e11cc93317e8a12ae2a20343adbba"
+  },
+  "outcome": {
+    "overall_passed": true,
+    "stage_reasons": [],
+    "derived_passed": true,
+    "prearm_passed": true,
+    "actor_passed": true,
+    "dispatch_mode": "inventory",
+    "route": [
+      3
+    ],
+    "completed_ids": [
+      3
+    ],
+    "final_state": "HOME_REACHED",
+    "mission_elapsed_seconds": 118.735965
+  },
+  "inventory_flow": {
+    "request_created_at": 1793808675.8956974,
+    "manual_pose_requested_at": 1793808685.1518393,
+    "manual_pose_verified_at": 1793808686.8367913,
+    "estop_latched_after_pose_verification": true,
+    "prearm_passed_at": 1793808694.5932417,
+    "mission_started_at": 1793808694.5975237,
+    "request_precedes_pose_and_prearm": true,
+    "completion": {
+      "request_id": 1,
+      "status": "DELIVERED",
+      "service_active": false
+    }
+  },
+  "moving_obstacle": {
+    "fixed_scene_sha256": "a57b9ab553ab04c02e4af9559531d22d3d3d0208b65ab98b5d92258cc28ec75e",
+    "input_status": "VALID",
+    "spawned": true,
+    "moving_steps": 4,
+    "required_steps": 4,
+    "live_bypass_confirmed": true,
+    "observed_cleared": true,
+    "actor_minimum_actual_gap_m": 0.08135441215510067,
+    "independent_sampled_piecewise_box_gap": {
+      "gap_m": 0.08135242986175664,
+      "truth_wall_time": 1793808704.1111,
+      "box_step": 4
+    },
+    "independent_gap_method": "Recorded truth center to completed axis-aligned25cm box positions minus22cm body; not unseen continuous-motion interpolation."
+  },
+  "actual_motion": {
+    "cmd_vel_samples": 3196,
+    "negative_linear_samples": 0,
+    "reverse_request_count": 0,
+    "maximum_linear_mps": 0.22,
+    "maximum_abs_angular_rps": 0.5,
+    "mission_motion_samples": 725,
+    "mission_guard_codes": {
+      "CLEAR": 725
+    },
+    "interpretation": "No actual reverse was requested or executed. Native pure-yaw0.50rad/s and curve/Spin regulation remain distinct."
+  },
+  "truth": {
+    "endpoints": {
+      "3": {
+        "passed": true,
+        "event_at": 1793808762.2891953,
+        "goal": [
+          -0.25,
+          -1.98,
+          -1.4
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.05,
+        "position_error_m": 0.088,
+        "heading_error_rad": 0.064,
+        "fixture_wall_front_yaw_rad": -1.598311346410207,
+        "fixture_wall_normal_error_rad": 0.134,
+        "truth": [
+          -0.24133,
+          -2.06729,
+          -1.46418
+        ]
+      },
+      "home": {
+        "passed": true,
+        "event_at": 1793808813.3334887,
+        "goal": [
+          -0.188431,
+          -0.220497,
+          -0.027514
+        ],
+        "position_tolerance_m": 0.25,
+        "sample_time_delta_s": 0.033,
+        "position_error_m": 0.187,
+        "heading_error_rad": 0.075,
+        "fixture_wall_front_yaw_rad": null,
+        "fixture_wall_normal_error_rad": null,
+        "truth": [
+          -0.00279,
+          -0.20078,
+          0.04724
+        ]
+      }
+    },
+    "reported_map_pose_home_distance_m": 0.12566699237611806,
+    "home_independent_settle": {
+      "passed": true,
+      "end_at": 1793808813.3334887,
+      "duration_s": 1.24,
+      "truth_samples": 12,
+      "command_samples": 33,
+      "truth_max_gap_s": 0.11,
+      "command_max_gap_s": 0.055,
+      "max_translation_m": 0.0,
+      "max_heading_rad": 0.0002,
+      "max_command_linear_mps": 0.0,
+      "max_command_angular_rps": 0.0
+    }
+  },
+  "source_provenance": {
+    "recorded_entries_before": 213,
+    "recorded_entries_after": 213,
+    "recorded_before_equals_after": true,
+    "before_mapping_sha256": "0b324f6c2fbfbdde2c70497366e789745779cc6b052b5197ff6fb19a50e2976d",
+    "after_mapping_sha256": "0b324f6c2fbfbdde2c70497366e789745779cc6b052b5197ff6fb19a50e2976d",
+    "stage_entry_sha256_at_read": "4d5f78487000ac0e715443a90b1718f19b73e03b03a2aac53afd87c0abe16ca2",
+    "stage_report": "/tmp/classroom-simple-policy-validation-20261105/staged_report.json",
+    "stage_report_note": "The parent report continues accumulating later stages. This digest anchors the completed stage entry, not the subsequently changing whole report file.",
+    "critical_runtime_sha256": {
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/astar_planner.py": "64c7d94e992dea7f550c3c3fbbe98999cf54aa6d589ef2660f0f03cc1245aceb",
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/path_follower.py": "0a43f64213c5a49bd0a85bad54fe444b6a50a6885e3c5842a07849237d17c1c0",
+      "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": "2d8724b452c9e8c414ba094b74d351b8f86d07386e827c4b493566db798cc38d"
+    }
+  },
+  "limits": [
+    "One final-source same-scene inventory moving-obstacle trial; later same-session restart stage and real-robot retest are separate.",
+    "Endpoint acceptance uses original25cm truth bound; Home error about18.7cm is not centimeter docking.",
+    "No reverse-success or statistical reliability claim."
+  ]
+}

@@ -19,6 +19,7 @@ from smart_vision_amr.web_mission_server import (DEFAULT_MARKERS, MissionApplica
 def stopped_application(tmp_path):
     app = MissionApplication(DEFAULT_MARKERS, 218, False, Path(tmp_path)/'settings.json',
                              access_mode='domain')
+    app.rotation_clearance_radius = .20  # physical launcher profile
     metadata = {'width': 80, 'height': 80, 'resolution': .05, 'frame_id': 'map',
                 'origin': {'x': 0., 'y': 0., 'yaw': 0.}}
     data = np.zeros((80, 80), dtype=np.int16)
@@ -151,9 +152,8 @@ def test_manual_pose_can_use_nonhome_free_position_and_does_not_change_home(tmp_
 @pytest.mark.parametrize('cell_value', [-1, 100])
 def test_unknown_or_occupied_neighbor_inside_footprint_is_rejected(tmp_path, cell_value):
     app = stopped_application(tmp_path)
-    # Robot center is free at (row 40, column 10); cell 15 begins 22.5 cm
-    # from it, inside the 22 cm body radius plus 3.5 cm half-cell margin.
-    app._display_map_data[40, 15] = cell_value
+    # Cell 14 begins 17.5 cm from the center, inside the configured 20 cm body.
+    app._display_map_data[40, 14] = cell_value
     with pytest.raises(MissionError, match='차체'):
         submit(app)
     assert app.manual_pose_request is None
@@ -162,12 +162,19 @@ def test_unknown_or_occupied_neighbor_inside_footprint_is_rejected(tmp_path, cel
 def test_footprint_boundary_is_rejected_but_distant_unknown_is_allowed(tmp_path):
     app = stopped_application(tmp_path)
     with pytest.raises(MissionError, match='지도 밖'):
-        submit(app, x=.24)
-    # This unknown cell starts 27.5 cm from the center, beyond the protected
-    # 25.5 cm radius. It should not reject a genuinely open position.
-    app._display_map_data[40, 16] = -1
+        submit(app, x=.19)
+    # The full cell starts 22.5 cm away, outside the configured 20 cm body.
+    app._display_map_data[40, 15] = -1
     submit(app)
     assert app.manual_pose_request is not None
+
+
+def test_manual_pose_geometry_uses_selected_body_without_double_grid_margin(tmp_path):
+    app = stopped_application(tmp_path)
+    app._display_map_data[40, 15] = 100  # rectangle starts 22.5 cm away
+    assert app.manual_pose_geometry_error({'x': .525, 'y': 2.025}) == ''
+    app.rotation_clearance_radius = .24  # stock Gazebo footprint cannot fit
+    assert '차체' in app.manual_pose_geometry_error({'x': .525, 'y': 2.025})
 
 
 @pytest.mark.parametrize('change', [
@@ -221,7 +228,8 @@ def test_http_initial_pose_contract_and_explicit_confirmation(tmp_path):
 
 @pytest.mark.parametrize('health_rejection', [
     'amcl_not_seen_yet', 'amcl_not_fresh', 'tf_not_fresh',
-    'sensor_not_fresh', 'sensor_stamp_not_fresh', 'robot_not_stopped',
+    'sensor_not_fresh', 'sensor_stamp_not_fresh', 'scan_map_not_fresh',
+    'robot_not_stopped', 'invalid_or_stale_stamp',
 ])
 def test_ros_dispatch_waits_for_amcl_and_new_tf(tmp_path, health_rejection):
     rclpy = pytest.importorskip('rclpy')
@@ -301,6 +309,10 @@ def test_ros_dispatch_waits_for_amcl_and_new_tf(tmp_path, health_rejection):
         node.tick_manual_pose(time.monotonic())
         assert app.manual_pose_state == 'WAITING'  # A definite pre-acquisition rejection is retryable.
         assert app.mission.estop_latched and app.localization_invalidated
+        if health_rejection == 'invalid_or_stale_stamp':
+            node.manual_pose_health_last_at -= .6
+            node.tick_manual_pose(time.monotonic())
+            assert len(health_service.requests) == 1  # Never replay a stale posterior.
         node.manual_pose_verified_amcl_stamp_ns += 1
         app.manual_pose_amcl_at = time.monotonic()
         node.manual_pose_health_last_at -= .6
