@@ -185,8 +185,9 @@ def evaluate_prearm(state, graph, reset_requested):
                         'raw_age_s': robot.get('raw_camera_age')},
         fresh(robot.get('camera_age'), 2.) and fresh(robot.get('raw_camera_age'), 2.),
         'fresh rear raw and processed frames')
-    add('front_camera', robot.get('front_camera_age'),
-        fresh(robot.get('front_camera_age'), 2.), 'fresh front frame')
+    if robot.get('front_camera_enabled') is True:
+        add('front_camera', robot.get('front_camera_age'),
+            fresh(robot.get('front_camera_age'), 2.), 'fresh front frame when enabled')
     voltage = power.get('voltage')
     add('battery_sensor', {'power': power, 'publishers': graph.get('battery_publishers')},
         bool(graph.get('battery_publishers')) and power.get('status') == 'online' and
@@ -604,6 +605,8 @@ def main():
             time.sleep(.2)
         result['prearm'] = prearm
         result['prearm_trace'] = prearm_trace
+        result['front_camera_enabled'] = (state.get('robot') or {}).get(
+            'front_camera_enabled')
         if not prearm['passed']:
             raise RuntimeError('Physical-style prearm failed: '+', '.join(
                 prearm['failed_gates']))
@@ -775,7 +778,8 @@ def main():
             elif phase == 'RETURNING_HOME':
                 result['home_path_points'] = max(result['home_path_points'], path_points)
                 seen_next[str(route[-1])] = True
-            if (phase in {'NAVIGATING', 'CONFIRMING', 'DWELLING'} and marker in route
+            if (result['front_camera_enabled'] is True and
+                    phase in {'NAVIGATING', 'CONFIRMING', 'DWELLING'} and marker in route
                     and str(marker) not in front_frames):
                 camera_age = (latest.get('robot') or {}).get('front_camera_age')
                 if isinstance(camera_age, (int, float)) and camera_age < .8:

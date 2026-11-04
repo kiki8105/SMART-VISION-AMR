@@ -309,6 +309,8 @@ def assess(stage: Stage, evidence: dict) -> dict:
             if prearm.get('passed') is not True:
                 reasons.extend('prearm:'+gate for gate in
                                (prearm.get('failed_gates') or ['evidence_missing']))
+            if type(evidence.get('front_camera_enabled')) is not bool:
+                reasons.append('web_camera_configuration_unverified')
             if evidence.get('startup_reset_requested_via_web') is not True or evidence.get(
                     'startup_reset_completed') is not True:
                 reasons.append('physical_style_web_startup_reset_unverified')
@@ -355,12 +357,13 @@ def assess(stage: Stage, evidence: dict) -> dict:
                         not isinstance(frame.get('center_error'), (int, float)) or
                         abs(frame['center_error']) > .36):
                     reasons.append(f'sector_{marker_id}_rear_camera_frame_missing')
-                front = (evidence.get('front_camera_frames') or {}).get(str(marker_id)) or {}
-                if (front.get('bytes', 0) < 100 or
-                        not isinstance(front.get('camera_age_s'), (int, float)) or
-                        front['camera_age_s'] >= .8 or
-                        front.get('width', 0) < 100 or front.get('height', 0) < 100):
-                    reasons.append(f'sector_{marker_id}_fresh_front_camera_unverified')
+                if evidence.get('front_camera_enabled') is True:
+                    front = (evidence.get('front_camera_frames') or {}).get(str(marker_id)) or {}
+                    if (front.get('bytes', 0) < 100 or
+                            not isinstance(front.get('camera_age_s'), (int, float)) or
+                            front['camera_age_s'] >= .8 or
+                            front.get('width', 0) < 100 or front.get('height', 0) < 100):
+                        reasons.append(f'sector_{marker_id}_fresh_front_camera_unverified')
         checks = evidence.get('web_ground_truth_checks', {})
         for target in (*map(str, expected), 'home'):
             if checks.get(target, {}).get('passed') is not True:

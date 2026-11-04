@@ -42,13 +42,13 @@ def web_evidence(stage):
                                'start_event_count': 1, 'cancel_event_count': 0,
                                'marker_confirmations': {str(i): 1 for i in route}},
         'web_runtime_manifest': {'mode': 'ekf_independent', 'record_incidents': True},
+        'front_camera_enabled': False,
         'web_world_variant': 'stress' if '--stress' in stage.options else 'replay',
         'stress_crate_assessment': {'passed': True},
         'rear_camera_frames': {str(i): {'bytes': 1200, 'expected_visible': True,
                                       'center_error': .12, 'unannotated': True,
                                       'raw_camera_age_s': .1} for i in route},
-        'front_camera_frames': {str(i): {'bytes': 1200, 'camera_age_s': .1,
-                                       'width': 640, 'height': 480} for i in route},
+        'front_camera_frames': {},
         'dwell': {str(i): {'event_duration_s': 5.1, 'marker_confirmed': True,
                           'alignment_at_dwell': {'state': 'CONFIRMED',
                             'soft_center_result': 'centered', 'center_error': .12,
@@ -189,7 +189,7 @@ def test_permuted_stress_route_keeps_requested_order_in_web_and_assessor():
     assert 'web_route_order_mismatch' in staged.assess(stage, evidence)['reasons']
 
 
-def test_web_clean_requires_ekf_reset_marker_center_and_camera_frame():
+def test_web_clean_requires_ekf_reset_marker_center_and_rear_camera_frame():
     stage = staged.BY_KEY['12_web_integrated_clean']
     evidence = web_evidence(stage)
     assert staged.assess(stage, evidence)['passed']
@@ -197,15 +197,29 @@ def test_web_clean_requires_ekf_reset_marker_center_and_camera_frame():
     evidence['web_runtime_manifest']['mode'] = 'baseline'
     evidence['dwell']['3']['alignment_at_dwell']['center_error'] = .6
     evidence['rear_camera_frames']['2']['bytes'] = 0
-    evidence['front_camera_frames']['1']['camera_age_s'] = 2.
     evidence['dwell']['2']['alignment_at_dwell']['rotation_degrees'] = 168.
     reasons = staged.assess(stage, evidence)['reasons']
     assert 'physical_style_web_startup_reset_unverified' in reasons
     assert 'independent_ekf_runtime_unverified' in reasons
     assert 'sector_3_rear_camera_center_unverified' in reasons
     assert 'sector_2_rear_camera_frame_missing' in reasons
-    assert 'sector_1_fresh_front_camera_unverified' in reasons
     assert 'sector_2_excessive_marker_search_rotation' in reasons
+
+
+def test_front_camera_is_optional_but_checked_when_enabled():
+    stage = staged.BY_KEY['12_web_integrated_clean']
+    evidence = web_evidence(stage)
+    assert staged.assess(stage, evidence)['passed']
+    evidence['front_camera_enabled'] = True
+    reasons = staged.assess(stage, evidence)['reasons']
+    assert 'sector_1_fresh_front_camera_unverified' in reasons
+    evidence['front_camera_frames'] = {
+        str(marker_id): {'bytes': 1200, 'camera_age_s': .1,
+                         'width': 640, 'height': 480}
+        for marker_id in (1, 2, 3)}
+    assert staged.assess(stage, evidence)['passed']
+    del evidence['front_camera_enabled']
+    assert 'web_camera_configuration_unverified' in staged.assess(stage, evidence)['reasons']
 
 
 def test_web_clean_rejects_missing_individual_prearm_gate():
@@ -242,7 +256,8 @@ def test_physical_style_prearm_records_battery_scan_and_amcl_failures(monkeypatc
         'health': {'ready': True, 'missing': [], 'map': {'configured_match': True}},
         'robot': {'pose': {'x': 0., 'y': 0., 'yaw': 0.}, 'pose_age': .1,
                   'scan_age': .1, 'odom_age': .1, 'camera_age': .1,
-                  'raw_camera_age': .1, 'front_camera_age': .1,
+                  'raw_camera_age': .1, 'front_camera_age': None,
+                  'front_camera_enabled': False,
                   'power': {'status': 'online', 'voltage': 12., 'age': .1}},
         'localization_health': {
             'level': 'ok', 'stop_latched': False, 'autonomous_allowed': True,
@@ -268,6 +283,12 @@ def test_physical_style_prearm_records_battery_scan_and_amcl_failures(monkeypatc
         'cancel_service_types': ['std_srvs/srv/Trigger'],
     }
     assert evaluate_prearm(state, graph, True)['passed']
+    state['robot']['front_camera_enabled'] = True
+    assert 'front_camera' in evaluate_prearm(state, graph, True)['failed_gates']
+    state['robot']['front_camera_age'] = .1
+    assert evaluate_prearm(state, graph, True)['passed']
+    state['robot']['front_camera_enabled'] = False
+    state['robot']['front_camera_age'] = None
     state['localization_health'].update(level='warning', reasons=['position_std_m_elevated'])
     state['localization_health']['metrics']['position_std_m'] = .446
     assert evaluate_prearm(state, graph, True)['passed']

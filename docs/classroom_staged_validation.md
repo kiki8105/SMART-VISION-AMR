@@ -16,6 +16,48 @@ cd SMART-VISION-AMR
 
 기존 클론을 업데이트할 때에는 임의로 로컬 변경을 버리지 말고 `git status`를 확인한 다음 최신 커밋을 가져온다. `setup_sim.sh`의 빌드가 통과하면 아래 두 터미널을 연다. **실차용 `run_classroom_navigation_16.sh`나 로봇 SSH 브링업은 이 시뮬레이션에 필요하지 않다.**
 
+## 직접 웹에서 재고 요청·출발 시험하기
+
+아래는 **자동 검증기와 별도로** 사용자가 웹을 직접 조작하는 방법이다. 실제 운용과
+같이 독립 EKF, 센서 감시, 시작 비상정지, 모의 배터리 12V 및 10.8V 출발 기준을
+켠다. 장애물 기억은 이 실행이 살아 있는 동안 유지한다. 도메인은 **176**이고
+실차 도메인 16과 격리된다. 자동 검증기나 도메인 76의 다른 가제보를 함께 실행하지
+않는다.
+
+**터미널 1 · 헤드리스 가제보와 주행 노드**
+
+```bash
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+./scripts/run_classroom_fault_sim.sh \
+  --mode ekf_independent --memory-session --record-incidents \
+  --no-verifier --lifetime 3600 \
+  --nav-params-source ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml \
+  --output "/tmp/classroom-manual-$(date +%Y%m%d-%H%M%S)"
+```
+
+**터미널 2 · 재고 요청과 운용 웹**
+
+```bash
+cd ~/Team2_workspace/src/SMART-VISION-AMR
+SMART_VISION_CLASSROOM_SIM_DOMAIN=176 \
+SMART_VISION_CLASSROOM_SIM_PORT=8792 \
+SMART_VISION_CLASSROOM_SIM_FRONT_CAMERA_TOPIC='' \
+SMART_VISION_CLASSROOM_SIM_CONFIG="/tmp/classroom-web-$(date +%Y%m%d-%H%M%S).json" \
+  ./scripts/run_classroom_replay_web.sh \
+    --require-battery-health --minimum-battery-voltage 10.8
+```
+
+같은 PC에서 `http://127.0.0.1:8792/`와
+`http://127.0.0.1:8792/inventory`를 연다. 두 웹 화면 모두 접속 도메인에 **176**을
+입력한다. 재고 화면에서 관리자로 요청을 접수하고, 운용 화면의 출발 준비 항목을
+확인한다. Home의 AMCL 초기 자세는 Gazebo 런치가 설정하므로 위치가 정상일 때는
+중복 지정하지 않는다. 위치·TF가 없을 때에만 실제 가상 로봇의 Home 자세를
+확인하고 초기 위치를 다시 지정한다. 출발 준비가 통과하면 **비상정지 해제**를
+명시적으로 누르고, 물품 적재 확인 후 **적재 완료 · 출발**을 누른다. 섹터 마커
+확인과 5초 대기 뒤 모든 요청을 마치면 Home으로 복귀한다. 웹에는 후방 영상만
+보인다. 시험 종료는 터미널 2, 터미널 1 순서로 `Ctrl+C`를 누른다. 이 수동 시험은
+자동 검증기의 실측 합부 판정을 생성하지 않는다.
+
 ## 터미널 1: 읽기 전용 웹 관제
 
 ```bash
@@ -24,6 +66,11 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 ```
 
 PC/휴대폰에서 `http://<시험 PC의 hostname -I 주소>:8791/`을 연다. 같은 PC라면 `http://127.0.0.1:8791/`도 된다. 이 프록시는 ROS 노드나 명령 발행자가 없고 임무·조종 요청을 차단한다. 전체 시스템 `web_` 단계가 진행될 때만 해당 단계의 단일 임무 웹(로컬 8792)을 읽기 전용으로 보여주며, 구간 사이에는 대기 화면을 표시한다. **8792는 단계마다 자동으로 열리고 종료되므로 상시 접속 주소가 아니다.** 도메인 입력 창이 나오면 **176**을 넣는다. 별도 `run_classroom_replay_web.sh`를 8791에 실행하면 두 번째 임무 소유자가 생겨 `web_` 시험이 시작을 거부한다.
+
+시험 웹도 실차와 같이 후방 영상만 기본 표시한다. 전방 카메라 ROS 토픽은
+Gazebo에 남지만 웹은 구독하지 않으며, pre-arm과 섹터 도착 증거는 후방
+영상·후방 ArUco 검출로 판정한다. 전방 토픽을 명시적으로 활성화한 별도
+시험에서만 전방 프레임을 추가로 검사한다.
 
 주행 계층 진단 단계의 자동 검증기는 ROS 목표를 직접 발행하므로 이 프록시에 웹 임무 상태가 나타나지 않을 수 있다. 관제 화면에서 지도·경로·카메라가 보이는 것과 **웹 배송 기능 합격**은 구별한다. 시험이 끝나면 Gazebo 토픽이 끊기므로 경로·영상이 사라지는 것은 정상이다.
 

@@ -30,16 +30,25 @@ def test_replay_web_settings_default_tracks_simulation_domain():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text('fixture', encoding='utf-8')
 
-        def command(domain, *, config=None):
+        def command(domain, *, config=None, front_topic=None):
             env = dict(os.environ, HOME=str(root / 'home'), SMART_VISION_CLASSROOM_SIM_DOMAIN=str(domain))
             env.pop('SMART_VISION_CLASSROOM_SIM_CONFIG', None)
+            env.pop('SMART_VISION_CLASSROOM_SIM_FRONT_CAMERA_TOPIC', None)
             if config is not None:
                 env['SMART_VISION_CLASSROOM_SIM_CONFIG'] = config
+            if front_topic is not None:
+                env['SMART_VISION_CLASSROOM_SIM_FRONT_CAMERA_TOPIC'] = front_topic
             result = subprocess.run(['bash', str(launcher)], env=env, capture_output=True,
                                     text=True, check=True)
-            args = result.stdout.splitlines()
-            return args[args.index('--config-file') + 1]
+            return result.stdout.splitlines()
 
-        assert command(76).endswith('/classroom-sim-76-20261030.json')
-        assert command(176).endswith('/classroom-sim-176-20261030.json')
-        assert command(176, config='/tmp/my-test-config.json') == '/tmp/my-test-config.json'
+        def value(args, option):
+            return args[args.index(option) + 1]
+
+        assert value(command(76), '--config-file').endswith('/classroom-sim-76-20261030.json')
+        assert value(command(176), '--config-file').endswith('/classroom-sim-176-20261030.json')
+        assert value(command(176, config='/tmp/my-test-config.json'),
+                     '--config-file') == '/tmp/my-test-config.json'
+        assert value(command(176), '--front-camera-topic') == ''
+        assert value(command(176, front_topic='/camera/front/image_raw/compressed'),
+                     '--front-camera-topic') == '/camera/front/image_raw/compressed'

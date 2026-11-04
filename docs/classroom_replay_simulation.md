@@ -18,6 +18,12 @@ cd ~/Team2_workspace/src/SMART-VISION-AMR
 ./scripts/run_classroom_replay_web.sh
 ```
 
+웹 운용 화면은 실차와 동일하게 **후방 카메라만 기본 표시**한다. Gazebo의
+`/camera/front/image_raw` 토픽 자체는 시뮬레이터에 남아 있지만 웹에서는
+기본으로 구독하지 않는다. 전방 보조 화면이 필요한 별도 시험에서만
+`SMART_VISION_CLASSROOM_SIM_FRONT_CAMERA_TOPIC=/camera/front/image_raw/compressed`
+환경변수를 지정해 웹을 실행한다. 섹터 도착 확인은 언제나 후방 ArUco 영상으로 한다.
+
 평면도·원본 지도에서 현재 라이다가 발견한 **지도상 빈 셀의 새 장애물**은 빨간
 셀로, 실제 활성 국소 우회경로는 주황 점선으로 보인다. 현재 관측이 비거나 2초
 넘게 갱신되지 않으면 빨간 셀이 사라진다. 지도·경로·로봇의 표시 기울기만

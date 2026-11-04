@@ -10,6 +10,7 @@ markers_file=$repo_dir/ros2_ws/src/smart_vision_amr/config/aruco_classroom_marke
 floorplan_file=$repo_dir/ros2_ws/src/smart_vision_amr/config/classroom_floorplan_20261030.yaml
 http_port=${SMART_VISION_CLASSROOM_SIM_PORT:-8791}
 sim_domain=${SMART_VISION_CLASSROOM_SIM_DOMAIN:-76}
+front_camera_topic=${SMART_VISION_CLASSROOM_SIM_FRONT_CAMERA_TOPIC:-}
 
 if [[ "${1:-}" == --help || "${1:-}" == -h ]]; then
   cat <<'EOF'
@@ -18,10 +19,11 @@ Usage: scripts/run_classroom_replay_web.sh [WEB_SERVER_OPTIONS ...]
 Run after scripts/run_classroom_replay_sim.sh in another terminal.
 Connects only to the configured local simulation ROS domain (default 76),
 serves the matching classroom map,
-markers, front/rear camera, live obstacle pixels, and active detour route.
+markers, rear camera, live obstacle pixels, and active detour route.
 Default browser URL: http://127.0.0.1:8791/
 Set SMART_VISION_CLASSROOM_SIM_PORT to change the HTTP port.
 Set SMART_VISION_CLASSROOM_SIM_DOMAIN=176 for run_classroom_fault_sim.sh.
+Set SMART_VISION_CLASSROOM_SIM_FRONT_CAMERA_TOPIC to enable an optional front feed.
 EOF
   exit 0
 fi
@@ -47,5 +49,5 @@ exec "$script_dir/run_web_mission.sh" \
   --config-file "$settings_file" --access-mode domain \
   --require-localization-health --marker-confirmation-mode recognized \
   --camera-topic /camera/image_raw/compressed --camera-rotation 0 \
-  --front-camera-topic /camera/front/image_raw/compressed \
+  --front-camera-topic "$front_camera_topic" \
   --front-camera-rotation 0 "$@"
