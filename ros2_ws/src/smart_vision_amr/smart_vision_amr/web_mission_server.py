@@ -1832,8 +1832,13 @@ def create_ros_bridge(app, options, context):
             self.create_subscription(PoseWithCovarianceStamped, '/initialpose', self.on_initial_pose, 10)
             self.map_sub = self.create_subscription(OccupancyGrid, '/map', self.on_map, durable)
             self.create_subscription(ROSPath, '/smart_vision_amr/path', self.on_path, 10)
-            self.create_subscription(Int32MultiArray, '/smart_vision_amr/observed_obstacles',
-                                     self.on_observed_obstacles, 10)
+            # Warehouse display may use a wider measured overlay than the
+            # planner's deliberately local obstacle layer. This is UI input
+            # only; goals, memory and collision consumers keep their topics.
+            self.observed_obstacle_sub = self.create_subscription(
+                Int32MultiArray, getattr(options, 'observed_obstacles_topic',
+                                         '/smart_vision_amr/observed_obstacles'),
+                self.on_observed_obstacles, 10)
             self.memory_sub = self.create_subscription(
                 Int32MultiArray, '/smart_vision_amr/remembered_cells',
                 self.on_remembered_obstacles, durable)
@@ -4062,6 +4067,8 @@ def build_parser():
                         help='Rotate the front preview and ArUco detection (degrees)')
     parser.add_argument('--battery-topic', default='/battery_state',
                         help='sensor_msgs/BatteryState topic used for the vehicle voltage indicator')
+    parser.add_argument('--observed-obstacles-topic', default='/smart_vision_amr/observed_obstacles',
+                        help='Display-only measured obstacle cells; does not select the planner input')
     parser.add_argument('--base-frame', default='base_footprint')
     parser.add_argument('--rotation-clearance-radius', type=float, default=.30,
                         help='Total swept body radius in metres for localization, marker search and Home yaw trim; classroom launchers select their physical or Gazebo radius')

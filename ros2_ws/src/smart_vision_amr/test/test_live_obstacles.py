@@ -20,6 +20,7 @@ class ScanHarness(ChangeMemoryNode):
                        'odom_frame': 'odom',
                        'occupied_threshold': 65, 'mapped_wall_range_tolerance_m': .05,
                        'live_obstacle_max_range_m': 0.,
+                       'display_obstacle_max_range_m': 0.,
                        'confirm_observations': 5,
                        'clear_observations': 5, 'confirm_min_duration_sec': 2.,
                        'clear_min_duration_sec': 2., 'min_observation_interval_sec': .25,

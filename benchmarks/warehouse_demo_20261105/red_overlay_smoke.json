@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "domain": 178,
+  "physical_robot_used": false,
+  "robot_motion_command_sent": false,
+  "mission_started": false,
+  "home_initial_pose_verified": true,
+  "actual_gazebo_box_spawned_and_removed": true,
+  "box_x": 3.4,
+  "box_y": -0.8,
+  "live_display_cells": 13,
+  "display_range_m": 3.5,
+  "planner_range_m": 1.0,
+  "all_test_cells_cleared": true,
+  "estop_retained": true,
+  "note": "Actual sensor/TF projection and web rendering smoke; no autonomous avoidance mission.",
+  "web_url": "http://127.0.0.1:8793/?presentation=1",
+  "browser_plan_overlay_confirmed": true,
+  "browser_raw_overlay_confirmed": true,
+  "browser_overlay_layers_after_removal": 0,
+  "minimum_live_pixel_screen_size": 3,
+  "layer_order": "above route, sector cards, vehicle badge and vehicle icon",
+  "baseline_commit": "52f03ef",
+  "source_sha256": {
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/change_memory.py": "0190adbf79c94ba5a75b7515d1e35736705f64b78faee955dc43850c6fae4367",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/web_mission_server.py": "6fb0908365f13fbca1839d678a149d806bcb2a8e573dfbaa9cdddb78781592e7",
+    "ros2_ws/src/smart_vision_amr/web/app.js": "0bb8223422ad2d3850e0cc10d1097f773844d4113412cb4d353208d64bc407d9",
+    "scripts/run_classroom_fault_sim.sh": "e1727f74a1ea6539c0f99cd2733d158da430497ac7905ba3d313b2049a9f425d",
+    "scripts/run_warehouse_web.sh": "97ab231ac3c0243f743c0549cb8b35c10864abbad22cfbfe72abbb9b196728ea"
+  }
+}

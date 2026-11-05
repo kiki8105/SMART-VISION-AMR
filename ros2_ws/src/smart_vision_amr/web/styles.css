@@ -112,5 +112,6 @@
 .map-area.warehouse-map-mode{height:clamp(340px,42vw,480px);min-height:340px;flex:none}
 .warehouse-map-mode .map-location-name{font-size:10px}
 .warehouse-map-mode .map-location-number{font-size:9px}
+.warehouse-map-mode .map-live-obstacles{fill:#f02632;stroke:#b91c27}
 @media(max-width:950px){.prearm-checks{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:650px){.prearm-overview{margin:0 12px 13px;padding:14px}.prearm-heading{align-items:flex-start;flex-wrap:wrap}.prearm-heading button{min-height:44px}.prearm-checks{grid-template-columns:1fr 1fr}.initial-pose-panel{margin:0 12px 13px;padding:14px}.initial-pose-heading{flex-wrap:wrap}.initial-pose-home-shortcut button{width:100%}.initial-pose-fields{grid-template-columns:1fr;gap:9px}.initial-pose-actions{display:grid;grid-template-columns:1fr}.initial-pose-actions button{min-height:44px}}

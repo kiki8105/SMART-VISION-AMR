@@ -13,7 +13,9 @@ import pytest
 import yaml
 
 from smart_vision_amr.mission_logic import MissionError
-from smart_vision_amr.web_mission_server import MissionApplication, load_markers
+from smart_vision_amr.web_mission_server import (
+    MissionApplication, build_parser, create_ros_bridge, load_markers,
+)
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -23,6 +25,31 @@ def warehouse_markers():
     return [{'id': i, 'name': '홈' if i == 0 else f'Sector {i}',
              'x': 2.8 if i == 0 else 3.+i*.2, 'y': 1.,
              'yaw': -math.pi/2, 'camera': 'rear'} for i in range(11)]
+
+
+@pytest.mark.parametrize('topic', [None, '/smart_vision_amr/display_obstacles'])
+def test_display_topic_selection_keeps_default_planning_observer(tmp_path, topic):
+    rclpy = pytest.importorskip('rclpy')
+    from rclpy.context import Context
+    from rclpy.signals import SignalHandlerOptions
+    options = build_parser().parse_args(
+        [] if topic is None else ['--observed-obstacles-topic', topic])
+    app = MissionApplication(warehouse_markers(), 222, True, tmp_path/'topic.json')
+    context = Context()
+    rclpy.init(args=[], context=context, domain_id=222,
+               signal_handler_options=SignalHandlerOptions.NO)
+    node = None
+    try:
+        node = create_ros_bridge(app, options, context)
+        assert node.observed_obstacle_sub.topic_name == (
+            topic or '/smart_vision_amr/observed_obstacles')
+        assert node.memory_sub.topic_name == '/smart_vision_amr/remembered_cells'
+        assert app.mission.state == 'IDLE'
+        assert not app.mission.commands
+    finally:
+        if node is not None:
+            node.destroy_node()
+        context.shutdown()
 
 
 def test_ten_sectors_request_prearm_dispatch_and_marker_zero_home(tmp_path):
@@ -157,6 +184,7 @@ def test_warehouse_launcher_has_isolated_domain_map_home_and_rear_camera(tmp_pat
     assert value('--camera-rotation') == '0'
     assert value('--rotation-clearance-radius') == '0.22'
     assert value('--sector-dwell-seconds') == '5'
+    assert value('--observed-obstacles-topic') == '/smart_vision_amr/display_obstacles'
     assert '--require-localization-health' in args
     env['SMART_VISION_WAREHOUSE_DOMAIN'] = '16'
     blocked = subprocess.run(['bash', str(launcher)], env=env, capture_output=True, text=True)

@@ -74,6 +74,9 @@ class ChangeMemoryNode(Node):
         # 0 disables the cap. Only obstacle hits are range-limited; free-ray
         # evidence still traverses to the actual return or scan.range_max.
         self.declare_parameter("live_obstacle_max_range_m", 0.0)
+        # Optional UI-only layer. Zero disables it; it never feeds A*, the
+        # persistent memory, visibility proof or any motor collision guard.
+        self.declare_parameter("display_obstacle_max_range_m", 0.0)
         self.declare_parameter("confirm_observations", 5)
         self.declare_parameter("clear_observations", 5)
         self.declare_parameter("confirm_min_duration_sec", 2.0)
@@ -99,6 +102,7 @@ class ChangeMemoryNode(Node):
         self.map = None
         self.memory = None
         self.live_obstacles = {}
+        self.display_obstacles = {}
         self.near_scan_guard = NearScanOutlierGuard()
         self.last_scan_stamp_ns = None
         self.last_map_to_odom = None
@@ -116,6 +120,8 @@ class ChangeMemoryNode(Node):
         self.overlay_pub = self.create_publisher(Int32MultiArray, "/smart_vision_amr/remembered_cells", latched)
         self.observation_pub = self.create_publisher(
             Int32MultiArray, "/smart_vision_amr/observed_obstacles", 10)
+        self.display_observation_pub = self.create_publisher(
+            Int32MultiArray, "/smart_vision_amr/display_obstacles", 10)
         self.visibility_pub = self.create_publisher(
             OccupancyGrid, "/smart_vision_amr/observed_visibility", qos_profile_sensor_data)
         self.projection_status_pub = self.create_publisher(
@@ -165,6 +171,7 @@ class ChangeMemoryNode(Node):
         self.wall_echo_grid = wall_echo_reference_grid(
             msg, self.get_parameter("occupied_threshold").value)
         self.live_obstacles.clear()
+        getattr(self, "display_obstacles", {}).clear()
         if hasattr(self, "near_scan_guard"):
             self.near_scan_guard.reset()
         self.last_scan_stamp_ns = None
@@ -213,6 +220,7 @@ class ChangeMemoryNode(Node):
     def _discard_relocated_memory(self, reason):
         """Discard cells projected with an obsolete map localization solution."""
         self.live_obstacles.clear()
+        getattr(self, "display_obstacles", {}).clear()
         if hasattr(self, "near_scan_guard"):
             self.near_scan_guard.reset()
         self.pending_scans.clear()
@@ -427,8 +435,10 @@ class ChangeMemoryNode(Node):
         yaw = self._yaw(tf.transform.rotation)
         occupied_cells, free_cells, uncertain_cells = set(), set(), set()
         unmatched_hits = []
+        display_hits, display_occupied = [], set()
         wall_band_candidates = {}
         wall_band_samples = {}
+        display_wall_candidates, display_wall_samples = {}, {}
         invalid_angles = []
         valid_beams = 0
         # Hold even a multi-beam near-minimum cluster as unknown until a
@@ -444,6 +454,8 @@ class ChangeMemoryNode(Node):
         wall_tolerance = max(0., wall_tolerance) if math.isfinite(wall_tolerance) else 0.
         obstacle_range = float(self.get_parameter("live_obstacle_max_range_m").value)
         obstacle_range = obstacle_range if math.isfinite(obstacle_range) and obstacle_range > 0. else math.inf
+        display_range = float(self.get_parameter("display_obstacle_max_range_m").value)
+        display_range = display_range if math.isfinite(display_range) and display_range > 0. else 0.
         for index, distance in enumerate(scan.ranges):
             angle = yaw + scan.angle_min + index * scan.angle_increment
             if index in outliers.unconfirmed:
@@ -469,7 +481,7 @@ class ChangeMemoryNode(Node):
             for cell in ray[:-1] if valid_hit else ray:
                 if cell in base_free_cells:
                     free_cells.add(cell)
-            if valid_hit and distance <= obstacle_range and self.raw_static_grid.contains(end_cell):
+            if valid_hit and distance <= max(obstacle_range, display_range) and self.raw_static_grid.contains(end_cell):
                 wall_distance = first_static_obstacle_distance(
                     info, self.raw_static_grid, tf.transform.translation.x,
                     tf.transform.translation.y, angle, scan.range_max)
@@ -477,8 +489,16 @@ class ChangeMemoryNode(Node):
                 # Unknown cells are not evidence of a mapped wall.
                 wall_echo = (wall_distance is not None
                              and abs(wall_distance-distance) <= wall_tolerance)
+                # Separate beam groups prevent an added distant UI return
+                # from changing the planner's existing near-wall classifier.
+                layers = []
+                if distance <= obstacle_range:
+                    layers.append((wall_band_samples, wall_band_candidates, unmatched_hits))
+                if distance <= display_range:
+                    layers.append((display_wall_samples, display_wall_candidates, display_hits))
                 if wall_echo:
-                    wall_band_samples[index] = endpoint
+                    for samples, candidates, hits in layers:
+                        samples[index] = endpoint
                 elif (wall_distance is not None
                         and wall_tolerance < wall_distance-distance <= 0.10
                         and distance_to_known_wall_area(
@@ -488,25 +508,29 @@ class ChangeMemoryNode(Node):
                     # adjacent beams trace an extended mapped wall. A short
                     # near-wall return remains a live obstacle. Nav2 receives
                     # the original LaserScan regardless of this classification.
-                    wall_band_samples[index] = endpoint
-                    wall_band_candidates[index] = (endpoint, end_cell)
+                    for samples, candidates, hits in layers:
+                        samples[index] = endpoint
+                        candidates[index] = (endpoint, end_cell)
                 else:
-                    unmatched_hits.append((endpoint, end_cell))
+                    for samples, candidates, hits in layers:
+                        hits.append((endpoint, end_cell))
         if not valid_beams:
             return True
         wall_band = wall_aligned_echo_indices(wall_band_samples)
         unmatched_hits.extend(hit for index, hit in wall_band_candidates.items()
                               if index not in wall_band)
-        for endpoint, end_cell in unmatched_hits:
-            # The SLAM map has a narrow unknown fringe on mapped walls. Do not
-            # inflate a return on that fringe a second time into a corridor.
-            # Match only the measured endpoint, never an earlier unknown cell
-            # crossed by the ray. Unattached unknown frontiers stay observable.
-            # Raw /scan remains in Nav2's costmap for immediate collision safety.
-            if distance_to_known_wall_area(
-                    info, self.wall_echo_grid, *endpoint, wall_tolerance) is not None:
-                continue
-            occupied_cells.add(end_cell)
+        if display_range:
+            display_band = wall_aligned_echo_indices(display_wall_samples)
+            display_hits.extend(hit for index, hit in display_wall_candidates.items()
+                                if index not in display_band)
+        for hits, cells in ((unmatched_hits, occupied_cells), (display_hits, display_occupied)):
+            for endpoint, end_cell in hits:
+                # Use the same original wall/fringe classifier in both layers.
+                # Display cells never enter planner visibility or memory.
+                if distance_to_known_wall_area(
+                        info, self.wall_echo_grid, *endpoint, wall_tolerance) is not None:
+                    continue
+                cells.add(end_cell)
         self.last_scan_stamp_ns = stamp_ns
         self.projection_valid += 1
         free_cells.difference_update(occupied_cells)
@@ -528,6 +552,20 @@ class ChangeMemoryNode(Node):
                                and (now-seen < ttl or self.cell_in_unknown_sector(
                                    cell, info, sensor_xy, invalid_angles, scan.angle_increment))}
         self.live_obstacles.update((cell, now) for cell in occupied_cells)
+        if display_range:
+            display_free = free_cells-display_occupied
+            self.display_obstacles = {
+                cell: seen for cell, seen in getattr(self, "display_obstacles", {}).items()
+                if self.raw_static_grid.contains(cell) and cell not in display_free
+                and math.dist(cell_to_world(info, cell), sensor_xy) <= display_range+cell_radius
+                and (now-seen < ttl or self.cell_in_unknown_sector(
+                    cell, info, sensor_xy, invalid_angles, scan.angle_increment))}
+            self.display_obstacles.update((cell, now) for cell in display_occupied)
+            display = Int32MultiArray()
+            display.data = sorted(y*self.memory.width+x for x, y in self.display_obstacles)
+            self.display_observation_pub.publish(display)
+        else:
+            getattr(self, "display_obstacles", {}).clear()
         # A missing hit/TTL expiry is not removal evidence. Publish exactly
         # which cells this measurement's valid rays traversed, with its stamp.
         if hasattr(self, "visibility_pub"):

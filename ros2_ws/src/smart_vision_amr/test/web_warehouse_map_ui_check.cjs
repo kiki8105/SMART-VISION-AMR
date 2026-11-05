@@ -34,10 +34,27 @@ const canvas=$('#map-svg'),before=JSON.stringify(snapshot);
 for(const raw of [false,true]){
   sandbox.showRawMap=raw;sandbox.draw();
   assert.equal($('#map-area').classList.contains('warehouse-map-mode'),true);
-  const artwork=canvas.children[0],memory=canvas.children[1],live=canvas.children[2];
+  const artwork=canvas.children[0],memory=canvas.children.find(node=>node.children.some(child=>child.attrs.class==='map-remembered-obstacles')),
+    live=canvas.children.find(node=>node.children.some(child=>child.attrs.class==='map-live-obstacles'));
   assert.match(artwork.attrs.transform,/rotate\(-90 100 305\)$/);
   assert.equal(memory.attrs.transform,artwork.attrs.transform,'memory and map share one transform');
   assert.equal(live.attrs.transform,artwork.attrs.transform,'live pixels and map share one transform');
+  const scale=Number(artwork.attrs.transform.match(/scale\(([^)]+)\)/)[1]),
+    pixel=live.children[0].attrs.d.match(/^M([^ ]+) ([^h]+)h([^v]+)v/),
+    rememberedPixel=memory.children[0].attrs.d.match(/h([^v]+)v/);
+  assert.ok(Number(pixel[3])*scale>=3-1e-8,'observed cells cover at least three screen pixels');
+  assert.ok(Number(rememberedPixel[1])*scale>=2-1e-8,'remembered cells remain distinguishable');
+  assert.ok(Math.abs(Number(pixel[1])+Number(pixel[3])/2-.5)<1e-8&&
+    Math.abs(Number(pixel[2])+Number(pixel[3])/2-603.5)<1e-8,
+    'visibility expansion stays centred on the original observed cell');
+  const routeIndex=canvas.children.findIndex(node=>node.attrs['aria-label']==='계획 경로');
+  assert.ok(canvas.children.indexOf(memory)>routeIndex&&canvas.children.indexOf(live)>routeIndex,
+    'the route outline cannot hide warehouse obstacle pixels');
+  const opaqueSymbolIndices=canvas.children.flatMap((node,index)=>
+    node.attrs['aria-label']==='현재 차량'||node.attrs['aria-label']==='현재 차량 위치'||
+    String(node.attrs.class||'').startsWith('map-location')?[index]:[]);
+  assert.ok(opaqueSymbolIndices.every(index=>index<canvas.children.indexOf(memory)&&index<canvas.children.indexOf(live)),
+    'opaque vehicle badges, vehicle icons and sector cards cannot hide observed pixels');
   const cards=descendants(canvas,'rect').filter(node=>node.attrs.class==='map-location-card');
   assert.equal(cards.length,11);assert.ok(cards.every(card=>card.attrs.height===24&&card.attrs.width<=108));
   assert.ok(cards.slice(1).every(card=>card.attrs.width===48),'ten sector labels are compact');
@@ -61,6 +78,15 @@ for(const raw of [false,true]){
   assert.match(heading.attrs.transform,/rotate\(-90\)$/,'actual sector yaw is rotated only for display');
 }
 assert.equal(JSON.stringify(snapshot),before,'rendering never changes world, mission, paths or target yaw');
+snapshot.observed_obstacles.age=2.1;sandbox.draw();
+assert.equal(descendants(canvas,'path').some(node=>node.attrs.class==='map-live-obstacles'),false,
+  'stale observations disappear rather than being replaced by fabricated obstacles');
+snapshot.observed_obstacles.age=.1;snapshot.observed_obstacles.cells=[];sandbox.draw();
+assert.equal(descendants(canvas,'path').some(node=>node.attrs.class==='map-live-obstacles'),false,
+  'an empty sensor message removes its live pixels');
+assert.ok(descendants(canvas,'path').some(node=>node.attrs.class==='map-remembered-obstacles'),
+  'confirmed memory remains independently visible');
+snapshot.observed_obstacles.cells=[1200];
 sandbox.mapLayout=null;sandbox.draw();
 assert.match(canvas.children[0].attrs.transform,/rotate\(-90 100 305\)$/,
   'raw fallback remains landscape while the floorplan loads');

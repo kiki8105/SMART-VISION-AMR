@@ -700,10 +700,13 @@
     return{x:Math.min(...xs),y:Math.min(...ys),width:Math.max(...xs)-Math.min(...xs),
            height:Math.max(...ys)-Math.min(...ys)};
   }
-  function obstacleCellPath(indices,map){
+  function obstacleCellPath(indices,map,displayCellSize=1){
     if(!Array.isArray(indices))return'';
+    // Enlarge only the rendered square around its original cell centre. The
+    // sensor indices, remembered cells and navigation grid remain unchanged.
+    const size=Number.isFinite(displayCellSize)?Math.max(1,displayCellSize):1,offset=(size-1)/2;
     return indices.filter(index=>Number.isInteger(index)&&index>=0&&index<map.width*map.height)
-      .map(index=>`M${index%map.width} ${map.height-1-Math.floor(index/map.width)}h1v1h-1Z`).join('');
+      .map(index=>`M${index%map.width-offset} ${map.height-1-Math.floor(index/map.width)-offset}h${size}v${size}h${-size}Z`).join('');
   }
   function samePathStamp(left,right){
     const valid=stamp=>stamp&&Number.isInteger(stamp.sec)&&stamp.sec>=0
@@ -785,15 +788,16 @@
     }else{const raw=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`});raw.append(svg('image',{x:0,y:0,width:map.width,height:map.height,href:map.raw_available?`/api/map/raw.png?v=${encodeURIComponent(map.version)}`:mapImageUrl,preserveAspectRatio:'none',style:'image-rendering:pixelated'}));canvas.append(raw);}
     const origin=map.origin||{},yaw=Number(origin.yaw)||0,c=Math.cos(yaw),s=Math.sin(yaw),res=map.resolution;
     const xy=point=>{const dx=point.x-(origin.x||0),dy=point.y-(origin.y||0),[px,py]=rotateMapPoint((c*dx+s*dy)/res,map.height-(-s*dx+c*dy)/res,map,displayRotation);return[left+px*scale,top+py*scale];};
+    const foregroundObstacles=[];
     const remembered=snapshot.remembered_obstacles||{},visibleRemembered=!map.preview&&map.configured_match!==false&&remembered.map_version===map.version&&Array.isArray(remembered.cells)?remembered.cells:[];
-    const rememberedPath=obstacleCellPath(visibleRemembered,map);
-    if(rememberedPath){const layer=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`,'aria-label':`기억한 장애물 ${visibleRemembered.length}셀`});layer.append(svg('path',{d:rememberedPath,class:'map-remembered-obstacles','shape-rendering':'crispEdges'}));canvas.append(layer);}
+    const rememberedPath=obstacleCellPath(visibleRemembered,map,warehouse?2/scale:1);
+    if(rememberedPath){const layer=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`,'aria-label':`기억한 장애물 ${visibleRemembered.length}셀`});layer.append(svg('path',{d:rememberedPath,class:'map-remembered-obstacles','shape-rendering':'crispEdges'}));if(warehouse)foregroundObstacles.push(layer);else canvas.append(layer);}
     $('#map-remembered-obstacle-legend').hidden=!rememberedPath;
     // A presently observed return is drawn over its remembered counterpart.
     // Once outside LiDAR view, only the confirmed memory remains on the map.
     const observed=snapshot.observed_obstacles||{},visibleObstacles=!map.preview&&map.configured_match!==false&&observed.map_version===map.version&&Number.isFinite(observed.age)&&observed.age<2.0?observed.cells:[];
-    const obstaclePath=obstacleCellPath(visibleObstacles,map);
-    if(obstaclePath){const layer=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`,'aria-label':`새 장애물 ${visibleObstacles.length}셀`});layer.append(svg('path',{d:obstaclePath,class:'map-live-obstacles','shape-rendering':'crispEdges'}));canvas.append(layer);}
+    const obstaclePath=obstacleCellPath(visibleObstacles,map,warehouse?3/scale:1);
+    if(obstaclePath){const layer=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`,'aria-label':`새 장애물 ${visibleObstacles.length}셀`});layer.append(svg('path',{d:obstaclePath,class:'map-live-obstacles','shape-rendering':'crispEdges'}));if(warehouse)foregroundObstacles.push(layer);else canvas.append(layer);}
     $('#map-obstacle-legend').hidden=!obstaclePath;
     const publishedPath=Array.isArray(snapshot.path)?snapshot.path:[],waiting=currentMission().state==='WAIT_REPLAN'||['WAIT_REPLAN','PLANNING'].includes(snapshot.navigation?.planner_status);
     const missionActive=['NAVIGATING','MOVING','RETURNING_HOME','WAIT_REPLAN'].includes(currentMission().state);
@@ -855,6 +859,9 @@
       badge.append(svg('text',{x:labelX+21,y:labelY+13,'text-anchor':'middle',fill:'#ffffff','font-size':10,'font-weight':700},'차량'));
       canvas.append(badge);
     }
+    // Observations must remain visible even under a vehicle badge or sector card.
+    // This changes only SVG paint order, never the actual sensor/grid data.
+    if(warehouse)canvas.append(...foregroundObstacles);
     const pixelsPerMetre=scale/res,scaleMetres=[0.1,0.2,0.5,1,2,5,10].filter(value=>value*pixelsPerMetre<=90).pop()||0.1,scalePixels=scaleMetres*pixelsPerMetre,scaleGroup=svg('g',{transform:`translate(24,${height-23})`,class:'map-scale'});
     scaleGroup.append(svg('path',{d:`M 0 -4 V 0 H ${scalePixels} V -4`,fill:'none',stroke:'currentColor','stroke-width':1.5}));scaleGroup.append(svg('text',{x:scalePixels/2,y:-9,'text-anchor':'middle','font-size':10},`${scaleMetres} m`));canvas.append(scaleGroup);
   }

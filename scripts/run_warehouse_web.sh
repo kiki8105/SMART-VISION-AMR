@@ -39,6 +39,7 @@ exec "$script_dir/run_web_mission.sh" \
   -- --map-file "$map_file" --raw-map-file "$map_file" --floorplan-file "$floorplan_file" \
   --config-file "$settings_file" --access-mode domain \
   --require-localization-health --marker-confirmation-mode recognized \
+  --observed-obstacles-topic /smart_vision_amr/display_obstacles \
   --camera-topic /camera/image_raw/compressed --camera-rotation 0 \
   --front-camera-topic '' --rotation-clearance-radius 0.22 \
   --sector-dwell-seconds 5 "$@"

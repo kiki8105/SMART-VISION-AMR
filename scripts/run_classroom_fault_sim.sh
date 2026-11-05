@@ -256,6 +256,19 @@ NODES_PARAMS=$OUTPUT/classroom_nodes_sim.yaml
 /usr/bin/python3 "$REPO/scripts/build_classroom_replay_nav_profile.py" \
   --source "$NAV_PARAMS_SOURCE" --nodes-source "$NODES_PARAMS_SOURCE" \
   --nodes-destination "$NODES_PARAMS" "${FOOTPRINT_ARGS[@]}" "$NAV_PARAMS"
+if [[ "$DOMAIN" == 178 ]]; then
+  # The warehouse canvas spans 30 m: show actual LiDAR additions within the
+  # sensor's 3.5 m range without widening the planner's 1 m live layer.
+  /usr/bin/python3 - "$NODES_PARAMS" <<'PY'
+from pathlib import Path
+import sys
+import yaml
+path = Path(sys.argv[1])
+document = yaml.safe_load(path.read_text())
+document['/change_memory']['ros__parameters']['display_obstacle_max_range_m'] = 3.5
+path.write_text(yaml.safe_dump(document, sort_keys=False))
+PY
+fi
 /usr/bin/python3 - "$OUTPUT/runtime_manifest.json" "$MODE" "$NAV_PARAMS" "$NODES_PARAMS" \
   "$REPO/ros2_ws/src/smart_vision_amr/config/ekf_hardware.yaml" "$NAV_PARAMS_SOURCE" \
   "$NODES_PARAMS_SOURCE" \
