@@ -120,7 +120,7 @@ assert.ok(descendants(canvas,'polyline').some(el=>el.attrs['aria-label']==='국�
 assert.ok(descendants(canvas,'g').some(el=>el.attrs['aria-label']==='현재 모의 주행 목표'),
   'direct ROS simulation goal is visible even without a matching configured marker');
 snapshot.markers=[{id:1,name:'Sector 1',x:1.2,y:1.3,yaw:0,camera:'rear'},
-                  {id:3,name:'Sector 3',x:2.5,y:1.5,yaw:-1.4,camera:'rear'}];
+                  {id:3,name:'Sector 3',x:2.5,y:1.5,yaw:-1.4,camera:'rear',screen_heading_deg:90}];
 for(const rawMode of [false,true]){
   sandbox.showRawMap=rawMode;
   sandbox.draw();

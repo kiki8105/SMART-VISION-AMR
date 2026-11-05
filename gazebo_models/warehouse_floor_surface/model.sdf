@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.6">
+  <model name="warehouse_floor_surface">
+    <static>true</static>
+    <link name="floor">
+      <visual name="labels">
+        <geometry>
+          <mesh>
+            <uri>model://warehouse_floor_surface/meshes/floor.obj</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://warehouse_floor_surface/materials/scripts</uri>
+            <uri>model://warehouse_floor_surface/materials/textures</uri>
+            <name>SmartVision/WarehouseFloor</name>
+          </script>
+        </material>
+        <cast_shadows>false</cast_shadows>
+      </visual>
+    </link>
+  </model>
+</sdf>

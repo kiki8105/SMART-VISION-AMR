@@ -1,0 +1,2 @@
+material SmartVision/WarehouseFloor
+{ technique { pass { lighting off texture_unit { texture warehouse_floor.png filtering bilinear } } } }

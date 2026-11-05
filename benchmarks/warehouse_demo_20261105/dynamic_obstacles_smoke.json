@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "domain": 178,
+  "localhost_only": true,
+  "routes": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/config/warehouse_dynamic_routes.yaml",
+  "routes_sha256": "0c05a4806fbfa127fa35a8ccaba10f5f2473aab38b70a5e3086d1909b54725ec",
+  "status": "RUNNING",
+  "fault": null,
+  "sim_time": 236.38,
+  "pose_updates": {
+    "warehouse_cart_1": 2209,
+    "warehouse_cart_2": 2263,
+    "warehouse_pedestrian_1": 2111
+  },
+  "translated_distance_m": {
+    "warehouse_cart_1": 22.092000000000365,
+    "warehouse_cart_2": 20.145999999999376,
+    "warehouse_pedestrian_1": 17.783999999999853
+  },
+  "yielded_updates": {
+    "warehouse_cart_1": 0,
+    "warehouse_cart_2": 0,
+    "warehouse_pedestrian_1": 0
+  },
+  "owned_models": [
+    "warehouse_cart_1",
+    "warehouse_cart_2",
+    "warehouse_pedestrian_1"
+  ],
+  "minimum_proposed_robot_circle_gap_m": 6.623169509919735,
+  "minimum_observed_robot_circle_gap_m": 6.623158651545412,
+  "robot_commands_published": 0,
+  "inflight_models": [
+    "warehouse_cart_1",
+    "warehouse_cart_2",
+    "warehouse_pedestrian_1"
+  ],
+  "events": [
+    {
+      "wall_time": 1793847048.0882046,
+      "sim_time": 235.9,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_cart_1",
+      "x": 2.253600000000062,
+      "y": -6.25,
+      "yaw": 3.141592653589793
+    },
+    {
+      "wall_time": 1793847048.088434,
+      "sim_time": 235.9,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_cart_2",
+      "x": 3.4,
+      "y": -10.607999999999999,
+      "yaw": -1.5707963267948966
+    },
+    {
+      "wall_time": 1793847048.0887194,
+      "sim_time": 235.9,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_pedestrian_1",
+      "x": 1.6459999999999932,
+      "y": -21.25,
+      "yaw": 0.0
+    },
+    {
+      "wall_time": 1793847048.1884172,
+      "sim_time": 236.0,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_cart_1",
+      "x": 2.241600000000063,
+      "y": -6.25,
+      "yaw": 3.141592653589793
+    },
+    {
+      "wall_time": 1793847048.1887236,
+      "sim_time": 236.0,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_cart_2",
+      "x": 3.4,
+      "y": -10.617999999999999,
+      "yaw": -1.5707963267948966
+    },
+    {
+      "wall_time": 1793847048.1889958,
+      "sim_time": 236.0,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_pedestrian_1",
+      "x": 1.6559999999999926,
+      "y": -21.25,
+      "yaw": 0.0
+    },
+    {
+      "wall_time": 1793847048.287845,
+      "sim_time": 236.1,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_cart_1",
+      "x": 2.229600000000064,
+      "y": -6.25,
+      "yaw": 3.141592653589793
+    },
+    {
+      "wall_time": 1793847048.2880945,
+      "sim_time": 236.1,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_cart_2",
+      "x": 3.4,
+      "y": -10.627999999999998,
+      "yaw": -1.5707963267948966
+    },
+    {
+      "wall_time": 1793847048.288357,
+      "sim_time": 236.1,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_pedestrian_1",
+      "x": 1.665999999999992,
+      "y": -21.25,
+      "yaw": 0.0
+    },
+    {
+      "wall_time": 1793847048.3889518,
+      "sim_time": 236.2,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_cart_1",
+      "x": 2.217600000000065,
+      "y": -6.25,
+      "yaw": 3.141592653589793
+    },
+    {
+      "wall_time": 1793847048.389202,
+      "sim_time": 236.2,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_cart_2",
+      "x": 3.4,
+      "y": -10.637999999999998,
+      "yaw": -1.5707963267948966
+    },
+    {
+      "wall_time": 1793847048.3919992,
+      "sim_time": 236.2,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_pedestrian_1",
+      "x": 1.6759999999999913,
+      "y": -21.25,
+      "yaw": 0.0
+    },
+    {
+      "wall_time": 1793847048.4882596,
+      "sim_time": 236.28,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_cart_1",
+      "x": 2.2080000000000632,
+      "y": -6.25,
+      "yaw": 3.141592653589793
+    },
+    {
+      "wall_time": 1793847048.4943058,
+      "sim_time": 236.3,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_cart_2",
+      "x": 3.4,
+      "y": -10.645999999999999,
+      "yaw": -1.5707963267948966
+    },
+    {
+      "wall_time": 1793847048.494591,
+      "sim_time": 236.3,
+      "event": "POSE_APPLIED",
+      "model": "warehouse_pedestrian_1",
+      "x": 1.6839999999999926,
+      "y": -21.25,
+      "yaw": 0.0
+    }
+  ],
+  "event_history_bounded": 10000,
+  "events_note": "Only the latest 15 events retained in this repository snapshot; counts remain from the running actor report.",
+  "source_report_path": "/tmp/warehouse-smoke-20261105-b/dynamic_obstacles.json",
+  "source_report_sha256": "79fe6c0c93df90685b135b3b4ce3c5cc4ef8677896a72c763b5f2e1c6ef9eac6"
+}

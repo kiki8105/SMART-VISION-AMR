@@ -1,0 +1,389 @@
+{
+  "passed": true,
+  "kind": "static_geometry_and_ideal_pixel_checks_only",
+  "resolution": 0.05,
+  "map_width": 200,
+  "map_height": 610,
+  "static_rectangles": 15,
+  "sector_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "home_id": 0,
+  "connected_goal_cells": 11,
+  "reachable_four_connected_cells": 79376,
+  "static_inflation_cells": 5,
+  "robot_radius_m": 0.22,
+  "dynamic_actors_omitted_from_static_map": true,
+  "marker_dictionary": "DICT_4X4_50",
+  "marker_length_m": 0.15,
+  "camera_projection_checks": [
+    {
+      "id": 0,
+      "camera_xy": [
+        2.8,
+        1.08
+      ],
+      "marker_distance_m": 1.2719999999999998,
+      "black_edge_pixels": 31.27770867157505,
+      "ideal_pixel_detection": [
+        0
+      ]
+    },
+    {
+      "id": 1,
+      "camera_xy": [
+        1.6199999999999999,
+        -2.5
+      ],
+      "marker_distance_m": 0.8219999999999998,
+      "black_edge_pixels": 48.40054188594095,
+      "ideal_pixel_detection": [
+        1
+      ]
+    },
+    {
+      "id": 2,
+      "camera_xy": [
+        1.6199999999999999,
+        -5.0
+      ],
+      "marker_distance_m": 0.8219999999999998,
+      "black_edge_pixels": 48.40054188594095,
+      "ideal_pixel_detection": [
+        2
+      ]
+    },
+    {
+      "id": 3,
+      "camera_xy": [
+        1.6199999999999999,
+        -7.5
+      ],
+      "marker_distance_m": 0.8219999999999998,
+      "black_edge_pixels": 48.40054188594095,
+      "ideal_pixel_detection": [
+        3
+      ]
+    },
+    {
+      "id": 4,
+      "camera_xy": [
+        1.6199999999999999,
+        -10.0
+      ],
+      "marker_distance_m": 0.8219999999999998,
+      "black_edge_pixels": 48.40054188594095,
+      "ideal_pixel_detection": [
+        4
+      ]
+    },
+    {
+      "id": 5,
+      "camera_xy": [
+        1.6199999999999999,
+        -12.5
+      ],
+      "marker_distance_m": 0.8219999999999998,
+      "black_edge_pixels": 48.40054188594095,
+      "ideal_pixel_detection": [
+        5
+      ]
+    },
+    {
+      "id": 6,
+      "camera_xy": [
+        1.6199999999999999,
+        -15.0
+      ],
+      "marker_distance_m": 0.8219999999999998,
+      "black_edge_pixels": 48.40054188594095,
+      "ideal_pixel_detection": [
+        6
+      ]
+    },
+    {
+      "id": 7,
+      "camera_xy": [
+        1.6199999999999999,
+        -17.5
+      ],
+      "marker_distance_m": 0.8219999999999998,
+      "black_edge_pixels": 48.40054188594095,
+      "ideal_pixel_detection": [
+        7
+      ]
+    },
+    {
+      "id": 8,
+      "camera_xy": [
+        1.6199999999999999,
+        -20.0
+      ],
+      "marker_distance_m": 0.8219999999999998,
+      "black_edge_pixels": 48.40054188594095,
+      "ideal_pixel_detection": [
+        8
+      ]
+    },
+    {
+      "id": 9,
+      "camera_xy": [
+        1.6199999999999999,
+        -22.5
+      ],
+      "marker_distance_m": 0.8219999999999998,
+      "black_edge_pixels": 48.40054188594095,
+      "ideal_pixel_detection": [
+        9
+      ]
+    },
+    {
+      "id": 10,
+      "camera_xy": [
+        1.6199999999999999,
+        -25.0
+      ],
+      "marker_distance_m": 0.8219999999999998,
+      "black_edge_pixels": 48.40054188594095,
+      "ideal_pixel_detection": [
+        10
+      ]
+    }
+  ],
+  "actor_full_segment_clearance": [
+    {
+      "model_name": "warehouse_cart_1",
+      "minimum_static_gap_m": 0.5683981132056602
+    },
+    {
+      "model_name": "warehouse_cart_2",
+      "minimum_static_gap_m": 1.0749999999999997
+    },
+    {
+      "model_name": "warehouse_pedestrian_1",
+      "minimum_static_gap_m": 0.8430145812734655
+    }
+  ],
+  "marker_static_line_of_sight_verified": true,
+  "closed_loop_navigation_tested": false,
+  "gazebo_rendered_camera_tested": false,
+  "limits": [
+    "PGM is generated from static geometry, not SLAM.",
+    "Actor movement requires the separate Gazebo state-service runner.",
+    "Ideal texture downsampling does not replace rendered rear-camera detection or closed-loop arrival tests."
+  ],
+  "generated_file_sha256": {
+    "ros2_ws/src/smart_vision_amr/worlds/warehouse_logistics.world": "25287d31925e6b2078c8e522fcf2ce84d1c6ec38f6a44231228f266a11f9ce66",
+    "ros2_ws/src/smart_vision_amr/maps/warehouse_logistics.pgm": "6fe5f7746ec5cf6b17f14988d8544663d7eaeb7c004c8e18e6f6e3bbe595d005",
+    "ros2_ws/src/smart_vision_amr/maps/warehouse_logistics.yaml": "c8590637f270f189f53a900e980c122d8ff018ff86df246f9436c44d99975f50",
+    "ros2_ws/src/smart_vision_amr/config/aruco_warehouse_markers.yaml": "b72f19317cfc7bb6cde60ec00e3dc6ffae52c83bb6e21492f29d3e6a48a1ae2d",
+    "ros2_ws/src/smart_vision_amr/config/warehouse_dynamic_routes.yaml": "0c05a4806fbfa127fa35a8ccaba10f5f2473aab38b70a5e3086d1909b54725ec",
+    "ros2_ws/src/smart_vision_amr/config/warehouse_floorplan.yaml": "6e3fa8c5297c353caaff4ea2e43a548e9a5dd010a22bffb9545f8bf6ffef6746"
+  },
+  "generator_sha256": "d6efe4724fe6ef97da31cdd5e609896889ee36a1534cafc3532f69eed8f2877c",
+  "model_asset_sha256": {
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_0/marker.json": "c236be8974387bd1a11725781a3be5d2406b06ddf4b57b92282d6d689ebf7b57",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_0/materials/scripts/marker.material": "23fd546ff3d0fa7222de675111f417e8e56d63d6cf4ca2eae0d97850cb6df09b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_0/materials/textures/smart_vision_warehouse_aruco_4x4_50_id_0.png": "ee50e6f4167f64d9805dda50191d10c5ec688e2ea86a1f67a8165faf64500212",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_0/meshes/marker.obj": "a77d8d8d5a067fcf0aef1c95b75fbd9444aef203d3f810a8a6f1d68ae703120b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_0/model.config": "a355d2c81dd9b8a8d13c0aced724b0ae1b61663474d143e304c2b4b74a816ac7",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_0/model.sdf": "23abe0c9079be2d95726245bd2c88071953c814bc116d9b8d7befe1585f7b29c",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_1/marker.json": "5e0c713ccb38f98d9cc90c406e5ac922fbfadf11afc3d7070191c9af002e3b10",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_1/materials/scripts/marker.material": "0c7051c355d0a9d229821e50befeaffbcd36f461a31ff37c381fe78ce6ed74be",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_1/materials/textures/smart_vision_warehouse_aruco_4x4_50_id_1.png": "9971eabd565ef6176d670b8892ba4e6efb4c8b7d7c13b569de1b3a6886fa68dc",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_1/meshes/marker.obj": "a77d8d8d5a067fcf0aef1c95b75fbd9444aef203d3f810a8a6f1d68ae703120b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_1/model.config": "db5573a3586841ba0fd4fad38894a04c289a98deed68cfa15ae4df944101a795",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_1/model.sdf": "38c15aa71ada26de20b15bdf3f08283b6b1dd17cda1367e5f6e85c5d18f019d2",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_10/marker.json": "545c97569a7a00ed4aaaab7acc020c5f4b09ce6200bd6cf8610b458164e32660",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_10/materials/scripts/marker.material": "f06dbe19c25633132b5e73e72fa1361954d3cec013b3be66d682efa7ecbb86de",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_10/materials/textures/smart_vision_warehouse_aruco_4x4_50_id_10.png": "34e62f50e759c7cdfe7eaf255c511230429c37e3397a56d4389d14b42dee7e75",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_10/meshes/marker.obj": "a77d8d8d5a067fcf0aef1c95b75fbd9444aef203d3f810a8a6f1d68ae703120b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_10/model.config": "ab72a95fff79eaade8b6ada796862aed513a42bcc3c9eb07ec9a1ba8a22d480e",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_10/model.sdf": "05f69638efeff84a45d4fb62ba1990f984e981f985c2d28b8d70fb3aca78144c",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_2/marker.json": "cbe0cb44c0d3fc55c1c7e84a70c375b8ee254c0adb212d65ff2a76e4a168d42e",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_2/materials/scripts/marker.material": "969c149da90a7d08588b08c84a9e7dd44872b1435a9230d15c1d6c7cc1a0b7f3",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_2/materials/textures/smart_vision_warehouse_aruco_4x4_50_id_2.png": "8b815e1c468da1cac6231cb7d05f2b421b1d01492c11bc37861f6c125b5c69a9",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_2/meshes/marker.obj": "a77d8d8d5a067fcf0aef1c95b75fbd9444aef203d3f810a8a6f1d68ae703120b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_2/model.config": "16d2a3d421268629f5f1d811d3911048e8fd00fd758f109ef1d817026fbfce20",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_2/model.sdf": "a28e962fd1848c8ef28137a2f57ab039b73abd72005f077b68abf16e69cbf19b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_3/marker.json": "d6d2b9a4bb47dcb7bb3721c74af9f86b1facfe09839c06934dd92e0ac4292815",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_3/materials/scripts/marker.material": "8d0f17c46164473bb3cf7fe23674819df10f63212df9ed2aaf7e7e2f3a02cf99",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_3/materials/textures/smart_vision_warehouse_aruco_4x4_50_id_3.png": "9721d57368ad36bdf079fa6e13773078bc3da7db2af97322c47a2fcb3699edf8",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_3/meshes/marker.obj": "a77d8d8d5a067fcf0aef1c95b75fbd9444aef203d3f810a8a6f1d68ae703120b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_3/model.config": "3eadd0ab2df2a0bc940204704b44ef09aa9b8f0ee0053cee999daa774b831492",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_3/model.sdf": "d0b0e30349600819b2711ac6ffabc58ae0a66e66aef355ac32cdf43122689f3f",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_4/marker.json": "9d04e4c44a0f3c3fcb7a92f69b51aa530a7d5274e5816c95073e032f9c97db71",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_4/materials/scripts/marker.material": "59a0be78b3d40be463a7eede1a6f9423899dfc0588bf360ec46f8dc298383d54",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_4/materials/textures/smart_vision_warehouse_aruco_4x4_50_id_4.png": "f3284718b5ed525cf6f33d6a338d47547118a1d28684dea105af5ec8f7a03786",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_4/meshes/marker.obj": "a77d8d8d5a067fcf0aef1c95b75fbd9444aef203d3f810a8a6f1d68ae703120b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_4/model.config": "53be79c73d201d88929629354bfce00ae20c1e79dd0d66e7015846c871faac01",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_4/model.sdf": "ba06d89b1be956f7d0b898ac17ae63373f899609701941d277890e9dd83870f5",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_5/marker.json": "eb456b9355599c51c76ff9aab7e2b1a0276fe538dc9af8ef22ccccb8f2038034",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_5/materials/scripts/marker.material": "f76b284bd079f739774432ba341efb3b40288bb68e42a2cd44a09f838142dc66",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_5/materials/textures/smart_vision_warehouse_aruco_4x4_50_id_5.png": "d0c4094372f730561794a31f50a61d7927bdd7905c40cf634e897f3fe870a94f",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_5/meshes/marker.obj": "a77d8d8d5a067fcf0aef1c95b75fbd9444aef203d3f810a8a6f1d68ae703120b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_5/model.config": "ddf1f757d7368d93a6f81a24ee998e51621f70da61a4135f2cb9bfdc41178373",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_5/model.sdf": "e462c25d26cef016e8c65db741cb50fc66a5453236524ac1beb5f3f698251a02",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_6/marker.json": "6b6f18dc5f0329909e138fdb62612fb85ac2f50e3271780002262269466b2532",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_6/materials/scripts/marker.material": "3d573d34f6798e719f509d643482849858361f5ffe5fd5d33d1b4b7d03e35de2",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_6/materials/textures/smart_vision_warehouse_aruco_4x4_50_id_6.png": "6307bfaae5b34bdb088d53872b20c658cba4e483c2eb29cbc5c53b8d9f58dd7c",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_6/meshes/marker.obj": "a77d8d8d5a067fcf0aef1c95b75fbd9444aef203d3f810a8a6f1d68ae703120b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_6/model.config": "901c7406f8d69eaa3bfbed084458bb9697ab0b815ba5ce922265dcd5822e5ccb",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_6/model.sdf": "1e04e41d6be0830e65aa9262ecaca7aa6b77d089c91248b55b4d509db91d2184",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_7/marker.json": "52dd35b6a7926555d58966c701a4d88f5f6444ef8d730ceb204ed66c2f8c2b64",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_7/materials/scripts/marker.material": "ba5087cdd08fe73057b129b818f3588e2c89582f554f9af1e22c9bfa26dbaafc",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_7/materials/textures/smart_vision_warehouse_aruco_4x4_50_id_7.png": "6ef49d267ca062a867ec6651699b7dd8c81547d7a5a8503d0130174bf96c8cc6",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_7/meshes/marker.obj": "a77d8d8d5a067fcf0aef1c95b75fbd9444aef203d3f810a8a6f1d68ae703120b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_7/model.config": "1e2a29a627be5d8910446b6c9e0ef2ac6a2c0bf86463d80a3ad0cba306a68ef0",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_7/model.sdf": "21fc96fe7f4d821bffd92b6c3c0c3be8403625325c04e5259644a0146017aee0",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_8/marker.json": "881af993d1f8b02463bf4a5d9e320551c00785522257d366312dd8e9ca535541",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_8/materials/scripts/marker.material": "a6cae64ffb4cc1547aec5bdd13757e56606a025f159d667f844de0553023afa6",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_8/materials/textures/smart_vision_warehouse_aruco_4x4_50_id_8.png": "19105556a9723bd321a2e626f45f048d02dd9c2eb9a3daaca27bb0ae4c2d31ad",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_8/meshes/marker.obj": "a77d8d8d5a067fcf0aef1c95b75fbd9444aef203d3f810a8a6f1d68ae703120b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_8/model.config": "126a15c093cbe426a0a6b62ee370a3a5fa44ed2b1f2f1a56fe9c3318090bd1de",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_8/model.sdf": "9fee0f41aa0f1b7a9f7d325f49b881dbdb66847b29ff77bd0c7751c8ae659eee",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_9/marker.json": "ca9dd980062b129d7fa24e544d31033cbb4d07cf3d97e4aa010b734e582322bd",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_9/materials/scripts/marker.material": "a5f787ba59277f25826a101296f1b1e5d4fcbaf87631c2753553063b13e40f7d",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_9/materials/textures/smart_vision_warehouse_aruco_4x4_50_id_9.png": "d89aebbc4a91d7fd645ec5c058505694605036706af2a68fd6f87e76aafac22e",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_9/meshes/marker.obj": "a77d8d8d5a067fcf0aef1c95b75fbd9444aef203d3f810a8a6f1d68ae703120b",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_9/model.config": "3301eb6fc8112f0195e116a4a957edcc72ff2a19e0917bf3555dbaafaec2b21a",
+    "gazebo_models/smart_vision_warehouse_aruco_4x4_50_id_9/model.sdf": "2d70cca8f24e630d3653f840dc7dff62b2c3548ec898bf336d81206db7df4233",
+    "gazebo_models/warehouse_floor_surface/materials/scripts/floor.material": "c83cc47047a327496c240219f6d60f6ad4fa35f16699bb606f90631fc441fb95",
+    "gazebo_models/warehouse_floor_surface/materials/textures/warehouse_floor.png": "716ef29294da572ce47c8bd25be3d8ebdf0ae2a1c3cb2b56694a1a89b7b89ea4",
+    "gazebo_models/warehouse_floor_surface/meshes/floor.obj": "744d417e7f3f4bcf8d7df495ed2f289e817f36d4a6b4ba4905c9bd3e9d8d231a",
+    "gazebo_models/warehouse_floor_surface/model.config": "03590e5b92a8cb1289e04c128c8753ea5ed36718515ba9457f10bbdb88d5fa5a",
+    "gazebo_models/warehouse_floor_surface/model.sdf": "d7994b25855c6093c83f5da6efb8e1e074c76fb7c1eecbd84068a3e8ae907f6a"
+  },
+  "marker_world_poses": [
+    {
+      "id": 0,
+      "pose": [
+        2.8,
+        2.352,
+        0.15,
+        0.0,
+        0.0,
+        1.5707963267948966
+      ]
+    },
+    {
+      "id": 1,
+      "pose": [
+        0.798,
+        -2.5,
+        0.15,
+        0.0,
+        0.0,
+        3.141592653589793
+      ]
+    },
+    {
+      "id": 2,
+      "pose": [
+        0.798,
+        -5.0,
+        0.15,
+        0.0,
+        0.0,
+        3.141592653589793
+      ]
+    },
+    {
+      "id": 3,
+      "pose": [
+        0.798,
+        -7.5,
+        0.15,
+        0.0,
+        0.0,
+        3.141592653589793
+      ]
+    },
+    {
+      "id": 4,
+      "pose": [
+        0.798,
+        -10.0,
+        0.15,
+        0.0,
+        0.0,
+        3.141592653589793
+      ]
+    },
+    {
+      "id": 5,
+      "pose": [
+        0.798,
+        -12.5,
+        0.15,
+        0.0,
+        0.0,
+        3.141592653589793
+      ]
+    },
+    {
+      "id": 6,
+      "pose": [
+        0.798,
+        -15.0,
+        0.15,
+        0.0,
+        0.0,
+        3.141592653589793
+      ]
+    },
+    {
+      "id": 7,
+      "pose": [
+        0.798,
+        -17.5,
+        0.15,
+        0.0,
+        0.0,
+        3.141592653589793
+      ]
+    },
+    {
+      "id": 8,
+      "pose": [
+        0.798,
+        -20.0,
+        0.15,
+        0.0,
+        0.0,
+        3.141592653589793
+      ]
+    },
+    {
+      "id": 9,
+      "pose": [
+        0.798,
+        -22.5,
+        0.15,
+        0.0,
+        0.0,
+        3.141592653589793
+      ]
+    },
+    {
+      "id": 10,
+      "pose": [
+        0.798,
+        -25.0,
+        0.15,
+        0.0,
+        0.0,
+        3.141592653589793
+      ]
+    }
+  ]
+}

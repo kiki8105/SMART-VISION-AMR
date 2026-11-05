@@ -1,0 +1,67 @@
+markers:
+- id: 0
+  name: HOME
+  x: 2.8
+  y: 1.0
+  yaw: -1.5707963267948966
+  camera: rear
+- id: 1
+  name: Sector 1
+  x: 1.7
+  y: -2.5
+  yaw: 0.0
+  camera: rear
+- id: 2
+  name: Sector 2
+  x: 1.7
+  y: -5.0
+  yaw: 0.0
+  camera: rear
+- id: 3
+  name: Sector 3
+  x: 1.7
+  y: -7.5
+  yaw: 0.0
+  camera: rear
+- id: 4
+  name: Sector 4
+  x: 1.7
+  y: -10.0
+  yaw: 0.0
+  camera: rear
+- id: 5
+  name: Sector 5
+  x: 1.7
+  y: -12.5
+  yaw: 0.0
+  camera: rear
+- id: 6
+  name: Sector 6
+  x: 1.7
+  y: -15.0
+  yaw: 0.0
+  camera: rear
+- id: 7
+  name: Sector 7
+  x: 1.7
+  y: -17.5
+  yaw: 0.0
+  camera: rear
+- id: 8
+  name: Sector 8
+  x: 1.7
+  y: -20.0
+  yaw: 0.0
+  camera: rear
+- id: 9
+  name: Sector 9
+  x: 1.7
+  y: -22.5
+  yaw: 0.0
+  camera: rear
+- id: 10
+  name: Sector 10
+  x: 1.7
+  y: -25.0
+  yaw: 0.0
+  camera: rear

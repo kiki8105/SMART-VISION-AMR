@@ -1,0 +1,552 @@
+{
+  "connection": {
+    "domain_id": 178,
+    "connected": true,
+    "access_mode": "domain",
+    "use_sim_time": true,
+    "error": "",
+    "reconnecting": false,
+    "lan_urls": [
+      "http://192.168.0.110:8793"
+    ]
+  },
+  "mission": {
+    "state": "IDLE",
+    "route": [
+      2,
+      3
+    ],
+    "pending_route": null,
+    "current_index": 0,
+    "current_marker_id": 2,
+    "completed_ids": [],
+    "reason": "경유 순서를 확인한 뒤 임무를 시작하세요.",
+    "sector_dwell_seconds": 5.0,
+    "dwell_marker_id": null,
+    "dwell_remaining_seconds": null,
+    "can_resume": false,
+    "estop_latched": false,
+    "home": {
+      "x": 2.8,
+      "y": 1.0,
+      "yaw": -1.5707963267948966
+    },
+    "returning_home": false,
+    "auto_return_home": false,
+    "auto_returning_home": false,
+    "can_return_home": true
+  },
+  "manual": {
+    "state": "IDLE",
+    "active": false,
+    "owner": false,
+    "available": false,
+    "reason": "비상정지를 먼저 해제하세요.",
+    "linear": 0.0,
+    "angular": 0.0,
+    "expires_in": 0.0,
+    "limits": {
+      "max_linear": 0.12,
+      "max_angular": 0.6
+    }
+  },
+  "localization": {
+    "state": "IDLE",
+    "active": false,
+    "reason": "비상정지를 먼저 해제하세요.",
+    "angular": 0.0,
+    "rotation_degrees": 0.0,
+    "progress": 0.0,
+    "elapsed": 0.0,
+    "estimate": null,
+    "good_estimates": 0,
+    "quality_ok": false,
+    "home_target": null,
+    "home_yaw_tolerance": null,
+    "available": false,
+    "clearance": 1.3608745122631474,
+    "scan_match": null,
+    "rotation_clearance_radius": 0.22,
+    "startup_home_available": false,
+    "startup_home_reason": "비상정지를 먼저 해제하세요.",
+    "control": {
+      "state": "IDLE",
+      "reason": ""
+    },
+    "home_seed_available": false,
+    "home_seed_reason": "차량의 비상정지 확인 응답이 필요합니다.",
+    "home_seed_pending": false,
+    "home_seed_result": "",
+    "home_seed_match": 0.99375,
+    "home_prior_evidence": null,
+    "manual_pose": {
+      "available": true,
+      "reason": "실제 차량 위치와 방향을 지도 좌표로 입력하세요. 입력 후에도 비상정지를 유지합니다.",
+      "pending": false,
+      "result": "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요.",
+      "requested_pose": {
+        "x": 2.8,
+        "y": 1.0,
+        "yaw_deg": -90.0
+      },
+      "scan_match": 0.99375,
+      "state": "VERIFIED",
+      "verified": true
+    },
+    "mode": "local",
+    "mode_label": "현재 위치 보정",
+    "use_existing_pose": true,
+    "rotated_degrees": 0.0,
+    "angular_velocity": 0.0,
+    "position_std": null,
+    "yaw_std_degrees": null
+  },
+  "delivery": {
+    "requests": [],
+    "active_trip": null,
+    "deferred_history_ids": [],
+    "homepoint": {
+      "x": 2.8,
+      "y": 1.0,
+      "yaw": -1.5707963267948966
+    },
+    "home_ready": true,
+    "registered_homepoint": {
+      "x": 2.8,
+      "y": 1.0,
+      "yaw": -1.5707963267948966
+    },
+    "homepoint_custom": false,
+    "homepoint_valid": true,
+    "homepoint_error": "",
+    "dispatch_ready": false,
+    "dispatch_missing": [
+      "접수된 대기 요청"
+    ],
+    "active": false,
+    "accepting_updates": false,
+    "pending_count": 0,
+    "operator_id": 0,
+    "error": "",
+    "inventory_urls": [
+      "http://192.168.0.110:8793/inventory"
+    ]
+  },
+  "markers": [
+    {
+      "id": 0,
+      "name": "HOME",
+      "camera": "rear",
+      "x": 2.8,
+      "y": 1.0,
+      "yaw": -1.5707963267948966
+    },
+    {
+      "id": 1,
+      "name": "Sector 1",
+      "camera": "rear",
+      "x": 1.7,
+      "y": -2.5,
+      "yaw": 0.0
+    },
+    {
+      "id": 2,
+      "name": "Sector 2",
+      "camera": "rear",
+      "x": 1.7,
+      "y": -5.0,
+      "yaw": 0.0
+    },
+    {
+      "id": 3,
+      "name": "Sector 3",
+      "camera": "rear",
+      "x": 1.7,
+      "y": -7.5,
+      "yaw": 0.0
+    },
+    {
+      "id": 4,
+      "name": "Sector 4",
+      "camera": "rear",
+      "x": 1.7,
+      "y": -10.0,
+      "yaw": 0.0
+    },
+    {
+      "id": 5,
+      "name": "Sector 5",
+      "camera": "rear",
+      "x": 1.7,
+      "y": -12.5,
+      "yaw": 0.0
+    },
+    {
+      "id": 6,
+      "name": "Sector 6",
+      "camera": "rear",
+      "x": 1.7,
+      "y": -15.0,
+      "yaw": 0.0
+    },
+    {
+      "id": 7,
+      "name": "Sector 7",
+      "camera": "rear",
+      "x": 1.7,
+      "y": -17.5,
+      "yaw": 0.0
+    },
+    {
+      "id": 8,
+      "name": "Sector 8",
+      "camera": "rear",
+      "x": 1.7,
+      "y": -20.0,
+      "yaw": 0.0
+    },
+    {
+      "id": 9,
+      "name": "Sector 9",
+      "camera": "rear",
+      "x": 1.7,
+      "y": -22.5,
+      "yaw": 0.0
+    },
+    {
+      "id": 10,
+      "name": "Sector 10",
+      "camera": "rear",
+      "x": 1.7,
+      "y": -25.0,
+      "yaw": 0.0
+    }
+  ],
+  "robot": {
+    "pose": {
+      "x": 2.8511988185441064,
+      "y": 1.0130345855005258,
+      "yaw": -1.5660691163210128
+    },
+    "pose_age": 0.08,
+    "speed": {
+      "linear": 0.00012383867750640054,
+      "angular": 0.00014682455898518484
+    },
+    "scan_age": 0.1,
+    "camera_age": 0.21,
+    "raw_camera_age": 0.21,
+    "front_camera_age": null,
+    "front_camera_enabled": false,
+    "odom_age": 0.02,
+    "power": {
+      "status": "online",
+      "voltage": 12.0,
+      "percentage": 0.75,
+      "age": 0.26,
+      "source": "/battery_state"
+    }
+  },
+  "map": {
+    "width": 200,
+    "height": 610,
+    "resolution": 0.05000000074505806,
+    "origin": {
+      "x": -5.0,
+      "y": -27.5,
+      "yaw": 0.0
+    },
+    "frame_id": "map",
+    "version": 3,
+    "preview": false,
+    "source": "ros",
+    "configured_match": true,
+    "raw_available": true
+  },
+  "map_version": 3,
+  "path": [],
+  "path_stamp": null,
+  "observed_obstacles": {
+    "map_version": 3,
+    "cells": [],
+    "age": 0.13
+  },
+  "remembered_obstacles": {
+    "map_version": 3,
+    "cells": []
+  },
+  "detection": {
+    "ids": [
+      0
+    ],
+    "front_ids": [],
+    "expected_camera": "rear",
+    "expected_id": 2,
+    "confirmations": 0,
+    "required": 3,
+    "confirmed": false
+  },
+  "marker_alignment": {
+    "state": "IDLE",
+    "reason": "섹터 도착 후 표식을 탐색합니다."
+  },
+  "navigation": {
+    "status": "IDLE",
+    "planner_status": "IDLE",
+    "message": ""
+  },
+  "health": {
+    "ready": true,
+    "missing": [],
+    "warnings": [],
+    "map": {
+      "preview": false,
+      "configured_file": "/home/kiki/Team2_workspace/src/SMART-VISION-AMR/ros2_ws/src/smart_vision_amr/maps/warehouse_logistics.yaml",
+      "configured_match": true,
+      "received": {
+        "width": 200,
+        "height": 610,
+        "resolution": 0.05000000074505806,
+        "origin": {
+          "x": -5.0,
+          "y": -27.5,
+          "yaw": 0.0
+        },
+        "frame_id": "map"
+      }
+    }
+  },
+  "events": [
+    {
+      "at": 1793846688.289995,
+      "level": "info",
+      "message": "ROS 도메인 178에 연결했습니다."
+    },
+    {
+      "at": 1793846833.2504451,
+      "level": "info",
+      "message": "운용자가 지도 초기 위치 x=2.80, y=1.00, 방향=-90.0°를 지정했습니다. 정지 상태에서 입력합니다."
+    },
+    {
+      "at": 1793846834.6910677,
+      "level": "info",
+      "message": "AMCL 위치·새 map→base TF·위치 감시 재획득 확인 완료 · 비상정지 유지. 출발 조건을 확인하세요."
+    }
+  ],
+  "revision": 3,
+  "safety": {
+    "mode": "estop",
+    "available": true,
+    "reason": "EKF wheel, IMU, or LiDAR input lost",
+    "source_id": null,
+    "estop_latched": true,
+    "scan_guard_hold": true,
+    "scan_guard_reason": "Waiting for raw LiDAR and verified laser mounting TF",
+    "scan_guard_code": "WAIT_SCAN",
+    "scan_guard_support": "",
+    "scan_guard_metrics": {},
+    "control_seq": -1,
+    "allow_localization": true,
+    "auto_source_id": null,
+    "auto_rejected_reason": "",
+    "control_rejected_reason": "",
+    "control_received": 137,
+    "control_accepted": 137,
+    "control_rejected": 0,
+    "auto_received": 0,
+    "auto_accepted": 0,
+    "auto_rejected": 0,
+    "control_by_origin": {
+      "topic": {
+        "received": 137,
+        "accepted": 137,
+        "rejected": 0
+      }
+    },
+    "auto_by_origin": {},
+    "last_control": {
+      "source_id": "ekf_sensor_safety",
+      "seq": 59938370238413,
+      "mode": "estop",
+      "accepted": true,
+      "reason": "",
+      "origin": "topic",
+      "received_at_monotonic_ns": 59938377954223
+    },
+    "last_control_rejection": null,
+    "last_auto": null,
+    "last_auto_rejection": null,
+    "output_owner": "estop",
+    "localization_speed_factor": 1.0,
+    "autonomous_allowed": true,
+    "localization_reason": "",
+    "output_linear": 0.0,
+    "output_angular": 0.0,
+    "requested_linear": 0.0,
+    "requested_angular": 0.0,
+    "command_ramp": {
+      "enabled": true,
+      "limited": false,
+      "reason": "stop",
+      "linear_acceleration": 0.15,
+      "angular_acceleration": 0.8,
+      "max_acceleration_step": 0.1,
+      "target_linear": 0.0,
+      "target_angular": 0.0,
+      "output_linear": 0.0,
+      "output_angular": 0.0
+    },
+    "status_seq": 936,
+    "sent_at_ns": 137160000000,
+    "mux_instance_id": "mux-service:7ab13583d0f343d6bb677062df2a7104",
+    "output_publishers": 1,
+    "stop_acknowledged": true,
+    "reset_pending": false,
+    "latched": true,
+    "pending": null,
+    "result": ""
+  },
+  "localization_health": {
+    "level": "ok",
+    "reasons": [],
+    "advisories": [],
+    "metrics": {
+      "map_available": true,
+      "scan_age_seconds": 0.07579274500312749,
+      "odom_age_seconds": 0.004445550999662373,
+      "scan_header_age_seconds": 0.068,
+      "odom_header_age_seconds": 0.01,
+      "scan_valid": true,
+      "odom_valid": true,
+      "position_std_m": 0.0318647888694828,
+      "yaw_std_rad": 0.022466798026677944,
+      "amcl_age_seconds": 0.6643675130035263,
+      "amcl_update_epoch": 59938.49988402,
+      "amcl_header_age_seconds": 0.568,
+      "moving": false,
+      "pose_jump": false,
+      "scan_map_agreement": 0.99375,
+      "agreement_age_seconds": 0.0,
+      "agreement_header_age_seconds": 0.068,
+      "map_tf_age_seconds": 0.01,
+      "odom_tf_valid": true,
+      "odom_tf_age_seconds": 0.01,
+      "map_tf_lookup_error": "",
+      "odom_tf_lookup_error": "",
+      "amcl_update_requests": 67,
+      "amcl_update_responses": 67,
+      "amcl_update_timeouts": 0,
+      "amcl_update_errors": 0,
+      "scan_tf_state": "READY",
+      "scan_tf_error": "",
+      "scan_tf_wait_ms": 75.7927450031275,
+      "scan_tf_drop_count": 310,
+      "scan_tf_pending_count": 0,
+      "amcl_refresh_mode": "stationary",
+      "amcl_refresh_state": "RESPONDED",
+      "amcl_stationary_update_requests": 0,
+      "dynamic_tf_qos": "BEST_EFFORT",
+      "dynamic_tf_received_count": 6543,
+      "dynamic_tf_transform_count": 9281,
+      "dynamic_tf_receive_age_seconds": 0.004856409002968576,
+      "dynamic_tf_receive_interval_seconds": 0.012231950997374952,
+      "dynamic_tf_latest_header_age_seconds": -0.932,
+      "dynamic_tf_map_odom_count": 1068,
+      "dynamic_tf_map_odom_header_age_seconds": -0.932,
+      "dynamic_tf_map_odom_receive_age_seconds": 0.04446156899939524,
+      "dynamic_tf_map_odom_receive_interval_seconds": 0.098530932002177,
+      "dynamic_tf_odom_base_count": 2737,
+      "dynamic_tf_odom_base_header_age_seconds": 0.01,
+      "dynamic_tf_odom_base_receive_age_seconds": 0.004856409002968576,
+      "dynamic_tf_odom_base_receive_interval_seconds": 0.037998703999619465,
+      "odom_last_received_age_seconds": 0.004445550999662373,
+      "odom_raw_header_age_seconds": 0.01,
+      "odom_rejected_count": 0,
+      "odom_rejection_reason": "",
+      "odom_last_rejection_reason": "",
+      "odom_receive_interval_seconds": 0.03793023800244555,
+      "odom_header_interval_seconds": 0.05,
+      "scan_last_received_age_seconds": 0.07579274500312749,
+      "scan_raw_header_age_seconds": 0.068,
+      "scan_rejected_count": 0,
+      "scan_rejection_reason": "",
+      "scan_last_rejection_reason": "",
+      "scan_receive_interval_seconds": 0.09411682700010715,
+      "scan_header_interval_seconds": 0.1,
+      "amcl_motion_without_update_seconds": 0.0,
+      "amcl_motion_dt_clamped": 0
+    },
+    "stop_latched": false,
+    "autonomous_allowed": true,
+    "allow_localization": true,
+    "reinitialization_requested": true,
+    "stable_seconds": 110.00138647499989,
+    "stamp_ns": 137100000000,
+    "sent_at_ns": 137100000000,
+    "explanations": []
+  },
+  "failure_memory": {
+    "state": "CLEAR",
+    "count": 0,
+    "active": [],
+    "available": false
+  },
+  "local_detour": {
+    "available": false,
+    "state": "NONE"
+  },
+  "observed_route": {
+    "monitoring": false,
+    "stale": false,
+    "reason": "",
+    "phase": null,
+    "active": false,
+    "goal_stamp": null,
+    "goal": null,
+    "plan_kind": null,
+    "path_stamp": null
+  },
+  "operation": {
+    "phase": "estopped",
+    "label": "비상정지",
+    "level": "critical",
+    "detail": "정지 명령 0 발행 응답 확인 · 실제 정지는 차량에서 확인하세요.",
+    "next_action": {
+      "title": "정지 유지",
+      "detail": "정지 명령 0 발행 응답 확인 · 실제 정지는 차량에서 확인하세요.",
+      "action": "원인과 주변을 확인한 뒤 비상정지를 해제하고 임무를 별도로 재개하세요.",
+      "target": "safety",
+      "conditions": []
+    },
+    "mode": "auto",
+    "control_owner": "estop",
+    "control_source": null,
+    "stop_acknowledged": true
+  },
+  "route_preview": [
+    {
+      "id": 2,
+      "name": "Sector 2",
+      "order": 1,
+      "current": false,
+      "completed": false,
+      "home": false
+    },
+    {
+      "id": 3,
+      "name": "Sector 3",
+      "order": 2,
+      "current": false,
+      "completed": false,
+      "home": false
+    },
+    {
+      "id": 0,
+      "name": "홈 복귀",
+      "order": 3,
+      "current": false,
+      "completed": false,
+      "home": true
+    }
+  ]
+}

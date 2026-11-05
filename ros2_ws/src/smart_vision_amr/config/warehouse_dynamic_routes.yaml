@@ -1,0 +1,142 @@
+frame_id: world
+robot_model_name: waffle_pi
+robot_radius_m: 0.22
+robot_clearance_m: 0.15
+update_rate_hz: 10.0
+fixed_obstacles:
+- name: warehouse_wall_west
+  x_min: -5.0
+  x_max: -4.85
+  y_min: -27.5
+  y_max: 3.0
+  height: 2.8
+- name: warehouse_wall_east
+  x_min: 4.85
+  x_max: 5.0
+  y_min: -27.5
+  y_max: 3.0
+  height: 2.8
+- name: warehouse_wall_south
+  x_min: -4.85
+  x_max: 4.85
+  y_min: -27.5
+  y_max: -27.35
+  height: 2.8
+- name: warehouse_wall_north
+  x_min: -4.85
+  x_max: 4.85
+  y_min: 2.85
+  y_max: 3.0
+  height: 2.8
+- name: warehouse_home_dock
+  x_min: 2.45
+  x_max: 3.15
+  y_min: 2.35
+  y_max: 2.85
+  height: 1.1
+- name: warehouse_rack_01
+  x_min: -4.0
+  x_max: 0.8
+  y_min: -2.95
+  y_max: -2.05
+  height: 2.4
+- name: warehouse_rack_02
+  x_min: -4.0
+  x_max: 0.8
+  y_min: -5.45
+  y_max: -4.55
+  height: 2.4
+- name: warehouse_rack_03
+  x_min: -4.0
+  x_max: 0.8
+  y_min: -7.95
+  y_max: -7.05
+  height: 2.4
+- name: warehouse_rack_04
+  x_min: -4.0
+  x_max: 0.8
+  y_min: -10.45
+  y_max: -9.55
+  height: 2.4
+- name: warehouse_rack_05
+  x_min: -4.0
+  x_max: 0.8
+  y_min: -12.95
+  y_max: -12.05
+  height: 2.4
+- name: warehouse_rack_06
+  x_min: -4.0
+  x_max: 0.8
+  y_min: -15.45
+  y_max: -14.55
+  height: 2.4
+- name: warehouse_rack_07
+  x_min: -4.0
+  x_max: 0.8
+  y_min: -17.95
+  y_max: -17.05
+  height: 2.4
+- name: warehouse_rack_08
+  x_min: -4.0
+  x_max: 0.8
+  y_min: -20.45
+  y_max: -19.55
+  height: 2.4
+- name: warehouse_rack_09
+  x_min: -4.0
+  x_max: 0.8
+  y_min: -22.95
+  y_max: -22.05
+  height: 2.4
+- name: warehouse_rack_10
+  x_min: -4.0
+  x_max: 0.8
+  y_min: -25.45
+  y_max: -24.55
+  height: 2.4
+actors:
+- model_name: warehouse_cart_1
+  collision_radius_m: 0.375
+  speed_mps: 0.12
+  dwell_seconds: 2.0
+  loop: ping_pong
+  max_step_m: 0.03
+  waypoints:
+  - x: 1.3
+    y: -6.25
+    z: 0.0
+    yaw: 0.0
+  - x: 3.6
+    y: -6.25
+    z: 0.0
+    yaw: 0.0
+- model_name: warehouse_cart_2
+  collision_radius_m: 0.375
+  speed_mps: 0.1
+  dwell_seconds: 2.5
+  loop: ping_pong
+  max_step_m: 0.03
+  waypoints:
+  - x: 3.4
+    y: -10.5
+    z: 0.0
+    yaw: 1.5707963267948966
+  - x: 3.4
+    y: -15.5
+    z: 0.0
+    yaw: 1.5707963267948966
+- model_name: warehouse_pedestrian_1
+  collision_radius_m: 0.22
+  speed_mps: 0.1
+  dwell_seconds: 3.0
+  loop: ping_pong
+  max_step_m: 0.025
+  waypoints:
+  - x: 1.5
+    y: -21.25
+    z: 0.0
+    yaw: 0.0
+  - x: 3.7
+    y: -21.25
+    z: 0.0
+    yaw: 0.0

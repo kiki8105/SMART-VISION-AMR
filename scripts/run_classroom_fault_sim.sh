@@ -49,6 +49,7 @@ HARDWARE_PROFILE=nominal
 usage() {
   cat <<'EOF'
 Usage: run_classroom_fault_sim.sh [--mode baseline|ekf_independent]
+       [--domain 176|178]  # 178 is reserved for externally controlled warehouse simulation
        [--profile clean|jitter|outages|mixed] [--obstacle none|moving]
        [--world WORLD] [--stress] [--map MAP] [--goal-x X] [--goal-y Y]
        [--goal-yaw RADIANS] [--timeout SECONDS] [--allow-safe-hold]
@@ -119,10 +120,10 @@ while (($#)); do
       MISSION_ROUTE=true
       SINGLE_GOAL=("$2" "$3" "$4" "$5")
       shift 5;;
-    --mode|--profile|--obstacle|--world|--map|--goal-x|--goal-y|--goal-yaw|--initial-x|--initial-y|--initial-yaw|--timeout|--obstacle-hold-timeout|--output|--nav-params-source|--nodes-params-source|--master-port|--lifetime|--laser-filter-prefix|--gazebo-seed|--hardware-profile)
+    --domain|--mode|--profile|--obstacle|--world|--map|--goal-x|--goal-y|--goal-yaw|--initial-x|--initial-y|--initial-yaw|--timeout|--obstacle-hold-timeout|--output|--nav-params-source|--nodes-params-source|--master-port|--lifetime|--laser-filter-prefix|--gazebo-seed|--hardware-profile)
       if (($# < 2)); then usage >&2; exit 2; fi
       case "$1" in
-        --mode) MODE=$2;; --profile) PROFILE=$2;; --obstacle) OBSTACLE=$2;;
+        --domain) DOMAIN=$2;; --mode) MODE=$2;; --profile) PROFILE=$2;; --obstacle) OBSTACLE=$2;;
         --world) WORLD=$2;; --map) MAP=$2;; --goal-x) GOAL_X=$2;;
         --goal-y) GOAL_Y=$2;; --goal-yaw) GOAL_YAW=$2;;
         --initial-x) INITIAL_X=$2;; --initial-y) INITIAL_Y=$2;;
@@ -142,6 +143,11 @@ while (($#)); do
     *) printf 'Unknown argument: %s\n' "$1" >&2; usage >&2; exit 2;;
   esac
 done
+case "$DOMAIN" in 176|178) ;; *) printf 'Use isolated simulation domain 176 or 178.\n' >&2; exit 2;; esac
+if [[ "$DOMAIN" == 178 && "$NO_VERIFIER" != true ]]; then
+  printf 'Warehouse domain 178 requires --no-verifier; goals belong to its web operator.\n' >&2
+  exit 2
+fi
 case "$MODE" in baseline|ekf_independent) ;; *) usage >&2; exit 2;; esac
 case "$PROFILE" in clean|jitter|outages|mixed) ;; *) usage >&2; exit 2;; esac
 case "$OBSTACLE" in none|moving) ;; *) usage >&2; exit 2;; esac
@@ -257,17 +263,17 @@ NODES_PARAMS=$OUTPUT/classroom_nodes_sim.yaml
   "$MASTER" "$RECORD_INCIDENTS" "$LASER_FILTER_FOR_CHANGE_MEMORY" "$GAZEBO_SEED" \
   "$MEASURE_SCAN_FILTER" "$MEMORY_SESSION" \
   "$INITIAL_X" "$INITIAL_Y" "$INITIAL_YAW" "$PHYSICAL_FOOTPRINT" \
-  "$COLD_START" "$EKF_DELIVERY_FAULTS" "$HARDWARE_PROFILE" "$FIXTURE/fixture_manifest.json" <<'PY'
+  "$COLD_START" "$EKF_DELIVERY_FAULTS" "$HARDWARE_PROFILE" "$FIXTURE/fixture_manifest.json" "$DOMAIN" <<'PY'
 import hashlib, json, sys
 from pathlib import Path
 (_, manifest_path, mode, nav_generated, nodes_generated, ekf_source,
  nav_source, nodes_source, filter_source, master, record_incidents,
  laser_filter, gazebo_seed, measure_scan_filter, memory_session,
  initial_x, initial_y, initial_yaw, physical_footprint, cold_start,
- ekf_delivery_faults, hardware_profile, fixture_manifest) = sys.argv
+ ekf_delivery_faults, hardware_profile, fixture_manifest, domain) = sys.argv
 files = [Path(path) for path in (nav_generated, nodes_generated, ekf_source,
                                 nav_source, nodes_source, filter_source)]
-payload = {'domain': 176, 'localhost_only': True, 'mode': mode,
+payload = {'domain': int(domain), 'localhost_only': True, 'mode': mode,
            'physical_footprint': physical_footprint == 'true',
            'cold_start': cold_start == 'true',
            'amcl_launch_prior_enabled': cold_start != 'true',
@@ -409,9 +415,11 @@ mkdir -p -- "$ROS_LOG_DIR"
 # This is a captured *offline* replay of 33 real scan cells, not a synthetic
 # claim that Gazebo reproduced those exact returns. It guards the regression
 # which previously blocked the current (32,53) footprint diagonally.
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /usr/bin/python3 -m pytest -q \
-  "$REPO/ros2_ws/src/smart_vision_amr/test/test_live_obstacle_circular_inflation.py" \
-  >"$OUTPUT/captured_33_hit_replay.log" 2>&1
+if [[ "$DOMAIN" == 176 ]]; then
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /usr/bin/python3 -m pytest -q \
+    "$REPO/ros2_ws/src/smart_vision_amr/test/test_live_obstacle_circular_inflation.py" \
+    >"$OUTPUT/captured_33_hit_replay.log" 2>&1
+fi
 
 # If the dedicated Gazebo master is already owned, do not join another trial.
 /usr/bin/python3 - "$MASTER_PORT" <<'PY'
@@ -482,7 +490,7 @@ PY
              "use_ekf_sensor_guard:=true"
              "minimum_battery_voltage:=10.8")
   setsid /usr/bin/python3 "$REPO/scripts/classroom_sim_battery.py" \
-    --voltage 12.0 --rate 2.0 --ros-args -p use_sim_time:=true \
+    --domain "$DOMAIN" --voltage 12.0 --rate 2.0 --ros-args -p use_sim_time:=true \
     >"$OUTPUT/sim_battery.log" 2>&1 &
   BATTERY_PID=$!
   setsid ros2 run smart_vision_amr imu_ekf_conditioner --ros-args \
@@ -536,6 +544,7 @@ setsid ros2 launch smart_vision_amr simulation.launch.py \
   "gui:=false" "use_rviz:=false" "record_incidents:=$RECORD_INCIDENTS" \
   "${EKF_ARGS[@]}" >"$OUTPUT/gazebo_launch.log" 2>&1 &
 LAUNCH_PID=$!
+printf '%s\n' "$LAUNCH_PID" >"$OUTPUT/owned_launch.pid"
 
 if [[ "$NO_VERIFIER" == true ]]; then
   printf 'Headless Gazebo readying in isolated ROS domain %s for up to %ss; external web test owns goals.\n' "$DOMAIN" "$LIFETIME"

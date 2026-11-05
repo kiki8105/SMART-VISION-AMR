@@ -28,13 +28,23 @@ class SimBattery(Node):
         self.publisher.publish(message)
 
 
+def require_simulation_environment(domain, environment):
+    if (domain not in (176, 178)
+            or environment.get('ROS_DOMAIN_ID') != str(domain)
+            or environment.get('ROS_LOCALHOST_ONLY') != '1'):
+        raise ValueError('simulated battery requires matching simulation domain 176 or 178, localhost only')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--voltage', type=float, default=12.0)
     parser.add_argument('--rate', type=float, default=2.0)
+    parser.add_argument('--domain', type=int, default=176)
     args, ros_args = parser.parse_known_args()
-    if os.environ.get('ROS_DOMAIN_ID') != '176' or os.environ.get('ROS_LOCALHOST_ONLY') != '1':
-        parser.error('simulated battery is restricted to ROS domain 176, localhost only')
+    try:
+        require_simulation_environment(args.domain, os.environ)
+    except ValueError as exc:
+        parser.error(str(exc))
     if not math.isfinite(args.voltage) or args.voltage <= 0:
         parser.error('--voltage must be finite and positive')
     if not math.isfinite(args.rate) or args.rate <= 0:

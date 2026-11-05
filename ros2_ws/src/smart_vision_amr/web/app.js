@@ -135,6 +135,63 @@
     renderDispatchReadiness({paired,localizing,manualBusy});
     renderStartupRecovery();
     renderInitialPose();
+    renderWarehousePresentation();
+  }
+  function warehousePresentationEnabled(data,search){
+    if(Number(data?.connection?.domain_id)!==178||data?.connection?.use_sim_time!==true)return false;
+    return new URLSearchParams(search).get('presentation')==='1';
+  }
+  function warehousePresentationManual(data,search){
+    if(!warehousePresentationEnabled(data,search))return false;
+    const manual=data?.manual||{},mission=data?.mission||{},safety=data?.safety||{};
+    const active=manual.active===true||['ACQUIRING','ACTIVE','RELEASING','WAIT_REPLAN'].includes(manual.state);
+    // This changes only a healthy simulation's filming labels. Never replace
+    // sensor/stop/fault notices, raw events, authorization or mission state.
+    return active&&data?.health?.ready===true&&!mission.estop_latched
+      &&!['ERROR','ESTOP'].includes(mission.state)&&!safety.latched&&!safety.estop_latched
+      &&!safety.pending&&!data?.localization?.active
+      &&data?.localization_health?.level!=='critical'
+      &&data?.operation?.level!=='critical'
+      &&!['STALE_SCAN','POSE_UNAVAILABLE','TF_UNAVAILABLE','INVALID_SCAN',
+        'BRAKING_FEEDBACK_UNAVAILABLE','CONTROL_DEADLINE'].includes(safety.scan_guard_code)
+      &&!['SENSOR_HOLD','CONTROLLER_HOLD'].includes(data?.failure_memory?.state);
+  }
+  function renderWarehousePresentation(){
+    const search=typeof window==='undefined'?'':(window.location?.search||''),enabled=warehousePresentationEnabled(snapshot,search);
+    const panel=$('.joystick-panel');if(panel)panel.hidden=enabled;
+    if(!warehousePresentationManual(snapshot,search))return;
+    const mission=currentMission(),marker=mission.current_marker_id;
+    const text=(selector,value)=>{const target=$(selector);if(target)target.textContent=value;};
+    text('#state-pill','경로 주행 중');
+    text('#mission-title','경로 주행 중'+(mission.returning_home?' · 홈':marker!=null?' · '+markerLabel(marker):''));
+    text('#mission-reason','현재 목표·방문 순서·완료 기록을 유지합니다.');
+    if(snapshot.operation?.phase==='manual'){
+      text('#operation-phase','경로 주행 중');
+      text('#operation-detail','현재 목표와 방문 순서를 유지합니다.');
+      text('#operation-action-title','주행 상태');
+      text('#operation-action','경로·차량 위치와 다음 방문 지점을 확인하세요.');
+    }
+    const replaceKnown=(selector,pattern,value)=>{const target=$(selector);if(target&&pattern.test(target.textContent))target.textContent=value;};
+    replaceKnown('#failure-memory-phase',/^수동 조종 우선/,'경로 주행 중 · 실패 접근 기억 유지');
+    if(snapshot.marker_alignment?.state!=='FAILED'){
+      replaceKnown('#marker-alignment-phase',/^수동 조종 우선/,'표식 확인 대기');
+      replaceKnown('#marker-alignment-detail',/^조이스틱이 우선합니다/,'목표 표식 확인 단계를 유지합니다.');
+    }
+    replaceKnown('#startup-stop-state',/^조이스틱 우선$/,'주행 중');
+    replaceKnown('#startup-stop-detail',/^조이스틱을 놓고/,'주행 종료 후 제어권과 정지 상태를 확인하세요.');
+    const blockers=$('#dispatch-blockers');
+    if(blockers)for(const item of blockers.children){
+      if(/^조이스틱을 놓고 자동주행 연결/.test(item.textContent))item.textContent='현재 주행을 마친 뒤 다음 출발 준비를 확인하세요.';
+    }
+    // The disabled state and every action handler still use the real state.
+    replaceKnown('#start-mission span',/^수동 임무 /,mission.state==='PAUSED'?'임무 재개':'임무 시작');
+    const editor=$('#route-editor');
+    if(editor)for(const row of editor.children){
+      if(row.classList?.contains('current')){
+        const detail=row.querySelector('.route-copy small');
+        if(detail&&['일시정지','임무 재개 준비','수동 우선'].includes(detail.textContent))detail.textContent='경로 주행 중';
+      }
+    }
   }
   function initialPoseValues(){
     const values=['#initial-pose-x','#initial-pose-y','#initial-pose-yaw'].map(selector=>String($(selector).value||'').trim());
@@ -603,7 +660,7 @@
       if(!initialized||!dirty){draft=[...(data.mission?.pending_route??data.mission?.route??[])];initialized=true;}
       const nextMapVersion=data.map?.version??data.map_version;
       if(data.map&&mapVersion!==nextMapVersion){clearLastPath();mapVersion=nextMapVersion;mapImageUrl=`/api/map.png?v=${encodeURIComponent(mapVersion)}`;loadMapLayout(data.map,mapVersion);}
-      renderMarkerButtons();renderEditor();renderDelivery();renderStatus();renderOperation();renderControls();renderPrearmOverview();drawMap();
+      renderMarkerButtons();renderEditor();renderDelivery();renderStatus();renderOperation();renderControls();renderPrearmOverview();drawMap();renderWarehousePresentation();
     } catch(error){disconnected=true;VehiclePower.render($('#vehicle-power'),snapshot?.robot?.power,true);$('#connection-dot').classList.remove('online');$('#connection-banner').hidden=false;$('#connection-banner').textContent=error.message;$('#state-pill').textContent='웹 연결 확인 필요';renderControls();renderPrearmOverview();}
     finally{pollRunning=false;}
   }
@@ -683,19 +740,26 @@
       &&Math.hypot(meta.x-goal.x,meta.y-goal.y)<.05&&lastPath.length);
   }
   function markerScreenHeadingDegrees(marker,mapYaw,displayRotationDeg){
-    // Sector 3's icon is simplified for the drawing; its ROS/map yaw is untouched.
-    return Number(marker.id)===3?90:-(marker.yaw-mapYaw)*180/Math.PI+displayRotationDeg;
+    // An explicit map-specific display override never changes the ROS goal yaw.
+    return Number.isFinite(marker.screen_heading_deg)?marker.screen_heading_deg:-(marker.yaw-mapYaw)*180/Math.PI+displayRotationDeg;
+  }
+  function warehouseMapDisplay(data){
+    return Number(data?.connection?.domain_id)===178&&data?.connection?.use_sim_time===true;
   }
   function drawMap(){
     const area=$('#map-area'),canvas=$('#map-svg'),map=snapshot?.map;canvas.replaceChildren();$('#map-empty').hidden=!!map;
+    const warehouse=warehouseMapDisplay(snapshot);
+    area.classList.toggle('warehouse-map-mode',warehouse);
     $('#map-view-plan').setAttribute('aria-pressed',String(!showRawMap));$('#map-view-raw').setAttribute('aria-pressed',String(showRawMap));
     $('#map-view-plan').disabled=!map;$('#map-view-raw').disabled=!map;$('#map-view-state').hidden=!map;
     if(!map||!map.width||!map.height)return;
     const width=area.clientWidth,height=area.clientHeight,pad=width<450?42:52;
     const layoutReady=mapLayout&&mapLayout.width===map.width&&mapLayout.height===map.height&&String(mapLayout.version)===String(mapVersion),useLayout=layoutReady&&!showRawMap,architectural=useLayout&&mapLayout.style==='architectural';
-    const displayRotationDeg=layoutReady&&Number.isFinite(mapLayout.display_rotation_deg)&&Math.abs(mapLayout.display_rotation_deg)<=45?mapLayout.display_rotation_deg:0;
+    // Warehouse display is landscape; the world, ROS coordinates and target yaw stay unchanged.
+    // Use this rotation for raw artwork and every overlay, including before a layout is ready.
+    const displayRotationDeg=warehouse?-90:layoutReady&&Number.isFinite(mapLayout.display_rotation_deg)&&Math.abs(mapLayout.display_rotation_deg)<=45?mapLayout.display_rotation_deg:0;
     const displayRotation=displayRotationDeg*Math.PI/180;
-    const bounds=useLayout?layoutBounds(mapLayout,map,displayRotation):rotatedMapBounds(map,displayRotation),sidePad=useLayout?Math.min(96,Math.max(32,width*.17)):pad,topPad=useLayout?48:pad,bottomPad=useLayout?42:pad;
+    const bounds=useLayout?layoutBounds(mapLayout,map,displayRotation):rotatedMapBounds(map,displayRotation),sidePad=warehouse?24:useLayout?Math.min(96,Math.max(32,width*.17)):pad,topPad=warehouse?48:useLayout?48:pad,bottomPad=warehouse?32:useLayout?42:pad;
     if(width<=2*sidePad||height<=topPad+bottomPad)return;
     const scale=Math.min((width-2*sidePad)/bounds.width,(height-topPad-bottomPad)/bounds.height),left=(width-bounds.width*scale)/2-bounds.x*scale,top=topPad+(height-topPad-bottomPad-bounds.height*scale)/2-bounds.y*scale;
     canvas.setAttribute('viewBox',`0 0 ${width} ${height}`);
@@ -703,7 +767,7 @@
     area.classList.toggle('architectural-mode',!!architectural);
     $('#map-view-plan').textContent=layoutReady&&mapLayout.style==='architectural'?'평면도':'도면';
     $('#map-view-raw').textContent=map.raw_available?'SLAM 원본':'원본';
-    const sector3=(snapshot.markers||[]).find(marker=>Number(marker.id)===3&&Number.isFinite(marker.yaw));
+    const sector3=(snapshot.markers||[]).find(marker=>Number(marker.id)===3&&Number.isFinite(marker.yaw)&&marker.screen_heading_deg===90);
     const sector3Yaw=sector3?(Math.atan2(Math.sin(sector3.yaw),Math.cos(sector3.yaw))*180/Math.PI).toFixed(0):null;
     $('#map-view-state').textContent=(showRawMap?(map.raw_available?'SLAM 원본 지도':'원본 점유 지도'):useLayout?(mapLayout.label||(architectural?'강의실 평면도':'정리된 도면')):mapLayoutLoading?'도면 준비 중':'원본 지도')+(snapshot.observed_route?.stale?' · 모의 주행 종료/연결 대기':snapshot.observed_route?.monitoring?' · 모의 주행 관제':'');
     $('#map-view-state').title='표시 방식만 변경됩니다. 실제 지도 좌표와 주행 데이터는 동일합니다.'+(sector3?' Sector 3 화살표는 화면에서 수직 아래로 단순화했습니다. 실제 주행 목표의 차체 전방 yaw는 '+sector3Yaw+'°입니다.':'');
@@ -712,7 +776,7 @@
     $('#map-localization-state').hidden=!map.preview&&map.configured_match!==false;
     $('#map-localization-state').textContent=map.configured_match===false?'지도 연결 확인 필요':'저장 지도 · 위치 추정 대기';
     if(useLayout){
-      const floor=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`,'aria-label':architectural?'실제 지도 좌표에 맞춘 강의실 평면도':'원본 지도의 벽과 자유 공간을 표시한 도면'});
+      const floor=svg('g',{transform:`translate(${left},${top}) scale(${scale}) rotate(${displayRotationDeg} ${map.width/2} ${map.height/2})`,'aria-label':warehouse?'실제 지도 좌표에 맞춘 물류 창고 평면도':architectural?'실제 지도 좌표에 맞춘 강의실 평면도':'원본 지도의 벽과 자유 공간을 표시한 도면'});
       floor.append(svg('path',{d:polygonPath(mapLayout.free_paths),class:'floorplan-floor','fill-rule':'evenodd'}));
       // Architectural wall widths come from the drawing geometry, without a second outline.
       floor.append(svg('path',{d:polygonPath(mapLayout.occupied_paths),class:'floorplan-wall','fill-rule':architectural?'nonzero':'evenodd'}));
@@ -751,28 +815,29 @@
     const externalMarker=externalGoal?markers.find(marker=>Math.hypot(marker.x-externalGoal.x,marker.y-externalGoal.y)<.15):null;
     const observationHeadings=markers.filter(marker=>Number.isFinite(marker.yaw)).map(marker=>{const[x,y]=xy(marker),angle=markerScreenHeadingDegrees(marker,yaw,displayRotationDeg)*Math.PI/180;return{x,y,dx:Math.cos(angle),dy:Math.sin(angle)};});
     const labelPosition=(x,y,w)=>{
-      const h=32,preferLeft=x<width/2,candidates=preferLeft?[[x-w-16,y-h/2],[x+16,y-h/2],[x-w/2,y-48],[x-w/2,y+16]]:[[x+16,y-h/2],[x-w-16,y-h/2],[x-w/2,y-48],[x-w/2,y+16]];
+      const h=warehouse?24:32,gap=warehouse?10:16,preferLeft=x<width/2,candidates=preferLeft?[[x-w-gap,y-h/2],[x+gap,y-h/2],[x-w/2,y-h-gap],[x-w/2,y+gap]]:[[x+gap,y-h/2],[x-w-gap,y-h/2],[x-w/2,y-h-gap],[x-w/2,y+gap]];
       const choices=candidates.map(([cx,cy],index)=>{const box={x:Math.max(12,Math.min(width-w-12,cx)),y:Math.max(42,Math.min(height-h-36,cy)),w,h};const overlap=cards.reduce((sum,other)=>sum+Math.max(0,Math.min(box.x+w+5,other.x+other.w)-Math.max(box.x-5,other.x))*Math.max(0,Math.min(box.y+h+5,other.y+other.h)-Math.max(box.y-5,other.y)),0),coveredPins=markers.map(xy).filter(([px,py])=>px>box.x-9&&px<box.x+w+9&&py>box.y-9&&py<box.y+h+9).length,coveredHeadings=observationHeadings.reduce((count,heading)=>count+[13,19,25].filter(distance=>{const px=heading.x+heading.dx*distance,py=heading.y+heading.dy*distance;return px>box.x-5&&px<box.x+w+5&&py>box.y-5&&py<box.y+h+5;}).length,0);return{...box,cost:overlap*100+coveredPins*1000+coveredHeadings*1000+Math.abs(box.x-cx)+Math.abs(box.y-cy)+index*5};});
       choices.sort((a,b)=>a.cost-b.cost);cards.push(choices[0]);return choices[0];
     };
     const drawLocation=(point,label,id,isHome=false)=>{
       const[x,y]=xy(point);if(![x,y].every(Number.isFinite))return;
-      const ordered=id!=null&&draft.includes(Number(id)),current=id!=null&&((currentMission().current_marker_id!=null&&!currentMission().returning_home&&Number(currentMission().current_marker_id)===Number(id)&&!terminal.has(currentMission().state))||(externalMarker&&Number(externalMarker.id)===Number(id))),group=svg('g',{class:`map-location${isHome?' home':''}${current?' current':''}`}),labelWidth=Math.max(76,Math.min(154,40+Array.from(label).reduce((sum,char)=>sum+(/[\u3131-\uD79D]/.test(char)?12:7),0))),box=labelPosition(x,y,labelWidth);
+      const displayLabel=warehouse?label.replace(/^Sector\s+/i,'S'):label;
+      const ordered=id!=null&&draft.includes(Number(id)),current=id!=null&&((currentMission().current_marker_id!=null&&!currentMission().returning_home&&Number(currentMission().current_marker_id)===Number(id)&&!terminal.has(currentMission().state))||(externalMarker&&Number(externalMarker.id)===Number(id))),group=svg('g',{class:`map-location${isHome?' home':''}${current?' current':''}`}),labelWidth=warehouse?Math.max(48,Math.min(108,30+Array.from(displayLabel).reduce((sum,char)=>sum+(/[\u3131-\uD79D]/.test(char)?10:6),0))):Math.max(76,Math.min(154,40+Array.from(label).reduce((sum,char)=>sum+(/[\u3131-\uD79D]/.test(char)?12:7),0))),box=labelPosition(x,y,labelWidth);
       const hasHeading=Number.isFinite(point.yaw),heading=hasHeading?point.yaw-yaw:0,headingDirection=['오른쪽','오른쪽 위','위쪽','왼쪽 위','왼쪽','왼쪽 아래','아래쪽','오른쪽 아래'][((Math.round(heading/(Math.PI/4))%8)+8)%8],headingDegrees=hasHeading?Math.atan2(Math.sin(point.yaw),Math.cos(point.yaw))*180/Math.PI:0;
-      const cameraRole=point.camera==='front'?'전방':'후방',simplifiedHeading=Number(id)===3&&hasHeading;
+      const cameraRole=point.camera==='front'?'전방':'후방',simplifiedHeading=point.screen_heading_deg===90&&hasHeading;
       const directionDescription=simplifiedHeading?`화면 화살표 ↓는 표시용 · 실제 차체 전방 yaw ${headingDegrees.toFixed(0)}° · ${cameraRole} 카메라는 실제 차체 전방의 ${cameraRole==='front'?'같은':'반대'} 방향을 봅니다`:`차체 전방 ${headingDirection} · yaw ${headingDegrees.toFixed(0)}° · ${cameraRole} 카메라는 화살표 ${cameraRole==='front'?'방향':'반대 방향'}을 봅니다`;
       group.append(svg('title',{},`${label}${id==null?'':` · ArUco ID ${id}`}${externalMarker&&Number(externalMarker.id)===Number(id)?' · 현재 모의 주행 목표':''} · x ${Number(point.x).toFixed(2)}, y ${Number(point.y).toFixed(2)} m${hasHeading?` · ${directionDescription}`:''}${ordered?' · 방문 순서 '+draft.flatMap((entry,index)=>entry===Number(id)?[index+1]:[]).join(', '):''}`));
       const endX=Math.max(box.x+8,Math.min(box.x+box.w-8,x)),endY=Math.max(box.y+8,Math.min(box.y+box.h-8,y));
       group.append(svg('line',{x1:x,y1:y,x2:endX,y2:endY,class:'map-location-leader'}));
-      // Only Sector 3's drawn arrow is vertical; navigation still uses point.yaw.
+      // Only configured presentation overrides change the drawn arrow.
       if(hasHeading)group.append(svg('path',{d:'M 13 0 H 25 M 20 -4 L 25 0 L 20 4',transform:`translate(${x},${y}) rotate(${markerScreenHeadingDegrees({...point,id},yaw,displayRotationDeg)})`,class:'map-location-heading'}));
       group.append(svg('circle',{cx:x,cy:y,r:6,class:'map-location-point'}));
       if(externalMarker&&Number(externalMarker.id)===Number(id))group.append(svg('circle',{cx:x,cy:y,r:15,fill:'none',stroke:'#c95322','stroke-width':3,'stroke-dasharray':'4 2','aria-label':'현재 모의 주행 목표'}));
       if(isHome)group.append(svg('circle',{cx:x,cy:y,r:10,class:'map-home-ring'}));
-      group.append(svg('rect',{x:box.x,y:box.y,width:box.w,height:box.h,rx:9,class:'map-location-card',...(externalMarker&&Number(externalMarker.id)===Number(id)?{stroke:'#c95322','stroke-width':2}:{})}));
-      group.append(svg('rect',{x:box.x+6,y:box.y+6,width:20,height:20,rx:5,class:'map-location-number-bg'}));
-      group.append(svg('text',{x:box.x+16,y:box.y+21,'text-anchor':'middle',class:'map-location-number'},id==null?'H':String(id)));
-      group.append(svg('text',{x:box.x+33,y:box.y+21,class:'map-location-name'},label));canvas.append(group);
+      group.append(svg('rect',{x:box.x,y:box.y,width:box.w,height:box.h,rx:warehouse?6:9,class:'map-location-card',...(externalMarker&&Number(externalMarker.id)===Number(id)?{stroke:'#c95322','stroke-width':2}:{})}));
+      group.append(svg('rect',{x:box.x+(warehouse?4:6),y:box.y+(warehouse?4:6),width:warehouse?16:20,height:warehouse?16:20,rx:warehouse?4:5,class:'map-location-number-bg'}));
+      group.append(svg('text',{x:box.x+(warehouse?12:16),y:box.y+(warehouse?16:21),'text-anchor':'middle',class:'map-location-number'},id==null?'H':String(id)));
+      group.append(svg('text',{x:box.x+(warehouse?25:33),y:box.y+(warehouse?16:21),class:'map-location-name'},displayLabel));canvas.append(group);
     };
     markers.forEach(marker=>drawLocation(marker,markerLabel(marker.id),marker.id,!!home&&Math.hypot(home.x-marker.x,home.y-marker.y)<0.08));
     if(home&&!markers.some(marker=>Math.hypot(home.x-marker.x,home.y-marker.y)<0.08))drawLocation(home,'홈 · 대기',null,true);

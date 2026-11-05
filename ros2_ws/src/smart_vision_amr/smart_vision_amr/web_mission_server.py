@@ -98,6 +98,13 @@ def load_markers(path=None):
             marker[key] = float(item[key])
             if not math.isfinite(marker[key]):
                 raise ValueError('finite marker observation poses required')
+        # A presentation-only override belongs to the configured marker, not
+        # its numeric ID: warehouse Sector 3 must retain its own real heading.
+        if 'screen_heading_deg' in item:
+            heading = item['screen_heading_deg']
+            if type(heading) not in (int, float) or not math.isfinite(heading):
+                raise ValueError('finite marker screen heading required')
+            marker['screen_heading_deg'] = float(heading)
         markers.append(marker)
     return markers
 
