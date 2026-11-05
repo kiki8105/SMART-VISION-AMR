@@ -53,7 +53,7 @@ PC·로봇의 기존 주행·웹·브링업을 먼저 종료합니다. **PC와 �
 
 ```bash
 cd ~/Team2_workspace/src/SMART-VISION-AMR
-git pull --ff-only &&
+git pull --ff-only origin main &&
 ./scripts/setup_pc_runtime.sh --no-install
 ```
 
@@ -63,16 +63,16 @@ git pull --ff-only &&
 
 `192.168.0.187`은 기존 로봇 주소입니다. 변경됐다면 로봇에서 `hostname -I`로 확인합니다.
 
-**현재 실차의 기존 배포 경로는 아래와 같습니다.** 11월 4일 인수인계와 로컬 배포
-기록에서 확인한 경로이며, `~/SMART-VISION-AMR` 신규 클론 예시와 다릅니다.
+**11월 5일 실제 SSH에서 `~/turtlebot16` 내용을 읽어 확인한 실행 경로입니다.**
+이전 인수인계의 `*-fresh-20261102` 폴더도 남아 있지만 현재 스크립트는 아래 경로를 사용합니다.
 
-| 용도 | 기존 실차 경로 |
+| 용도 | 실제 사용 경로 |
 |---|---|
-| 로봇 소스 | `/home/robot/SMART-VISION-AMR-fresh-20261102` |
-| 로봇 런타임 | `/home/robot/smart_vision_runtime_ws_fresh_20261102` |
+| 로봇 소스 | `/home/robot/SMART-VISION-AMR` |
+| 로봇 런타임 | `/home/robot/smart_vision_runtime_ws_live` |
 
-**매번 사용하는 실행 명령은 기존 `~/turtlebot16`입니다.** 저장소 경로와 런타임
-환경변수는 이 파일 안에서 지정하며, 매번 긴 명령을 입력하지 않습니다.
+**기존 `~/turtlebot16`은 수정·재생성하지 않습니다.** 이 스크립트가 후방 카메라와
+런타임 경로를 이미 지정합니다. 실행은 다음 두 단계입니다.
 
 ```bash
 ssh robot@192.168.0.187
@@ -85,51 +85,29 @@ cd ~
 ./turtlebot16
 ```
 
-### 처음 한 번: 기존 로봇 경로로 turtlebot16 지정
+기존 소스의 미커밋 수정은 백업·stash로 보존한 뒤 GitHub 코드로 갱신했습니다.
+현재 실행 경로의 런타임 재빌드를 완료했고, 설치된 모듈이 최신 소스 파일을 읽는지
+확인했습니다. 기존 `turtlebot16`의 내용과 SHA256은 변경하지 않았습니다.
+보존 위치는 로봇의 `~/smart_vision_backups/before-github-4912835-20261105-092802`입니다.
+실행 파일의 원본 SHA256은
+`2ca2e70df0acad9eade5e99fcbd74f4f85d9ecb0dcfb545eea18bb3e674e393c`입니다.
+코드 갱신·빌드와 실제 브링업·주행 시험은 구분합니다. 이 설치 작업은 주행 시험을 하지 않습니다.
 
-아래는 로봇 SSH에서 한 번만 실행하는 **실행 파일 설정**입니다. 먼저 기존 브링업을
-종료합니다. 기존 파일을 백업한 뒤 기록된 소스·런타임 경로를 지정합니다.
-로봇의 현재 `turtlebot16` 내용을 이번 문서 수정 때 원격으로 조회한 것은 아닙니다.
+다른 로봇은 기존 파일이 참조하는 경로를 먼저 확인합니다. 위 경로가 없는 장치에서
+파일을 임의로 재생성하지 않습니다. 새 설치는 [팀원 퀵스타트](TEAM_QUICKSTART.md)를 따릅니다.
 
-```bash
-if [ -e "$HOME/turtlebot16" ]; then
-  cp -a "$HOME/turtlebot16" "$HOME/turtlebot16.before-$(date +%Y%m%d-%H%M%S)"
-fi
-cat > ~/turtlebot16 <<'SH'
-#!/usr/bin/env bash
-set -e
-export SMART_VISION_RUNTIME_WORKSPACE="$HOME/smart_vision_runtime_ws_fresh_20261102"
-export ENABLE_FRONT_CAMERA=false
-exec "$HOME/SMART-VISION-AMR-fresh-20261102/scripts/robot_bringup_camera_16_ekf.sh" "$@"
-SH
-chmod +x ~/turtlebot16
-```
-
-설정 후에도 실행은 `cd ~` → `./turtlebot16`입니다. 이 파일이 브링업·후방 카메라와
-로봇 측 독립 EKF/제어 런타임을 시작합니다. LDS-02 장치라면
-`LDS_MODEL=LDS-02 ./turtlebot16`을 사용합니다.
-
-**실행 파일 경로 수정과 최신 코드 배포는 별개입니다.** GitHub 푸시만으로 로봇의
-기존 소스가 갱신되지 않습니다. 기존 실차 수정 확인·최신 코드 반영·해당 런타임 재빌드가
-필요하며, 이번 문서 수정에서는 로봇 업데이트·실행을 하지 않았습니다. 상태 확인 없이
-기존 폴더에 `git pull`이나 덮어쓰기를 하지 않습니다.
-새 로봇에 표준 경로로 클론하는 절차는 [팀원 퀵스타트](TEAM_QUICKSTART.md)에 있습니다.
-
-## 터미널 2: 로컬 PC 센서 검사·주행 런치
+## 터미널 2: 로컬 PC 최신 코드·빌드·주행 런치
 
 ```bash
-cd ~/Team2_workspace/src/SMART-VISION-AMR
-source /opt/ros/humble/setup.bash
-export ROS_DOMAIN_ID=16 ROS_LOCALHOST_ONLY=0
-source ./scripts/dds_env.bash ""
-/usr/bin/python3 scripts/soak_robot_opencr_16.py --duration 180 \
-  --json-out "$HOME/smart_vision_logs/opencr_soak_after_reboot.json" &&
+cd ~/Team2_workspace/src/SMART-VISION-AMR &&
+git pull --ff-only origin main &&
+./scripts/setup_pc_runtime.sh --no-install &&
 ./scripts/check_classroom_deployment.sh --live &&
 TURTLEBOT3_TUNING_PARAMS_FILE="$PWD/ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml" \
   ./scripts/run_classroom_navigation_16.sh
 ```
 
-3분 검사·배포 점검이 성공하면 **이 명령이 주행 런치를 자동 실행**합니다.
+코드 수신·빌드·점검이 성공하면 주행 런치가 실행됩니다.
 `nav_classroom_16`을 추가로 켜지 않습니다. 실패하면 다음 명령은 실행되지 않습니다.
 
 ## 터미널 3: 로컬 PC 웹
