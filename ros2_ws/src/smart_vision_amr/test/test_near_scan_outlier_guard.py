@@ -230,6 +230,13 @@ class _MuxHarness(MotionMuxNode):
     def _scan_guard_pose(self, stamp_ns=0):
         return (0., 0., 0.), stamp_ns or self._ros_now
 
+    def on_scan_guard(self, message):
+        # Geometry fixtures exercise a complete scan -> next output timer
+        # cycle. Scheduling regressions below call the production admission
+        # callback directly so they also verify the intervening state.
+        super().on_scan_guard(message)
+        self.publish_output(refresh_ownership=False)
+
 
 def test_mux_stops_first_ghost_and_releases_only_on_fresh_clear_scan():
     node = _MuxHarness()

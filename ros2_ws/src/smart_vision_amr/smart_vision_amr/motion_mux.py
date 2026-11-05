@@ -12,6 +12,8 @@ import time
 import uuid
 from contextlib import contextmanager, nullcontext
 
+import numpy as np
+
 from smart_vision_amr.runtime_timing import (
     MUX_METRICS, RuntimeTiming, guard_timing_report, timed_call,
 )
@@ -667,7 +669,9 @@ class MotionMuxNode(Node):
             .025, self.advance_reset, clock=self.steady_clock,
             callback_group=self.safety_group)
         self.reset_timer.cancel()
-        self.create_timer(.05, self.publish_output, clock=self.steady_clock,
+        # The separate status group refreshes graph ownership. A graph lookup
+        # must not delay the output group and its latest command/scan inputs.
+        self.create_timer(.05, lambda: self.publish_output(refresh_ownership=False), clock=self.steady_clock,
                           callback_group=self.output_group)
         self.create_timer(.1, self.publish_status, clock=self.steady_clock,
                           callback_group=self.status_group)
@@ -932,8 +936,10 @@ class MotionMuxNode(Node):
         fault = ('INVALID_SCAN' if not decision.accepted else
                  'TF_UNAVAILABLE' if extrinsic is None else '')
         points = scan_points_in_base(scan, extrinsic) if not fault else ()
-        token = (self._latch_urgent_zero() if self.core.mode == 'auto' and
-                 any(math.hypot(x, y) <= self._scan_guard_radius for _, x, y in points) else None)
+        inside = frozenset(index for index, x, y in points
+                           if math.hypot(x, y) <= self._scan_guard_radius)
+        token = (self._latch_urgent_zero() if self.core.mode == 'auto'
+                 and (fault or inside) else None)
         with self._state_guard():
             if getattr(self, '_closing', False):
                 self._finish_urgent_zero(token)
@@ -949,9 +955,26 @@ class MotionMuxNode(Node):
                 # Keep a previous validated scan alive while waiting for the
                 # interpolation, rather than injecting a zero at every scan.
                 self._scan_guard_pending = sample
-                self._validate_pending_scan_locked()
+            # Admission never repeats the complete stopping-envelope proof.
+            # The 20 Hz output timer validates this newest evidence before its
+            # next nonzero output. Keep a prior hold until that proof succeeds.
+            self._guard_proof = None
+            self._scan_guard_checks = None
+            if fault or inside:
+                self.core.scan_guard_hold = True
+                self.core.scan_guard_code = fault or 'BODY_INTERSECTION'
+                self.core.scan_guard_support = (
+                    'unconfirmed' if inside & decision.unconfirmed else
+                    'confirmed' if inside & decision.confirmed else 'raw' if inside else '')
+                self.core.scan_guard_reason = (
+                    'Invalid raw LiDAR scan; measured clearance is unverified' if fault == 'INVALID_SCAN' else
+                    'LiDAR mounting TF unavailable; chassis sweep is unverified' if fault else
+                    'Raw LiDAR return intersects current chassis')
+                self.core.scan_guard_metrics = {'collision_indices': sorted(inside)[:8],
+                    'inside_count': len(inside), 'pending_scan': self._scan_guard_pending is not None}
+                if self.core.mode == 'auto':
+                    self._publish_output_locked(urgent_zero=True)
             self._finish_urgent_zero(token)
-            self._publish_output_locked()
 
     def on_braking_odom(self, message):
         """Keep original source/receipt times; duplicates cannot renew speed evidence."""
@@ -1045,7 +1068,10 @@ class MotionMuxNode(Node):
                 twists = {requested, getattr(self, 'last_published_output', (0., 0.))}
                 if extra_twist is not None:
                     twists.add(extra_twist)
-                points = rebase_scan_points(sample['points'], sample['scan_pose'], latest_pose[0])
+                # Prepare one immutable cloud per proof, rather than converting
+                # every beam again for each candidate and final emitted curve.
+                points = np.asarray(rebase_scan_points(
+                    sample['points'], sample['scan_pose'], latest_pose[0]), dtype=float).reshape((-1, 3))
                 # The full scan age is compensated exactly above. Bound only
                 # the much shorter motion since the latest available pose:
                 # longitudinal speed, lateral turning drift and heading error.
@@ -1073,12 +1099,13 @@ class MotionMuxNode(Node):
                         'longitudinal_uncertainty': self.core.max_linear_velocity*pending_dt,
                         'lateral_uncertainty': .5*self.core.max_linear_velocity*self.core.max_angular_velocity*pending_dt*pending_dt,
                         'yaw_uncertainty': self.core.max_angular_velocity*pending_dt}
-                    checks.append((pending['points'], pending['decision'], pending_bounds))
+                    pending_points = np.asarray(pending['points'], dtype=float).reshape((-1, 3))
+                    checks.append((pending_points, pending['decision'], pending_bounds))
                     # One union and the containing uncertainty intervals mean
                     # the chosen common v/w scale is checked against BOTH
                     # clouds. Taking the minimum of two independently selected
                     # scales would be unsafe for non-monotone curved sweeps.
-                    brake_points = points+pending['points']
+                    brake_points = np.concatenate((points, pending_points), axis=0)
                     brake_uncertainty = {name: max(uncertainty[name], pending_bounds[name])
                                          for name in uncertainty}
                     metrics.update(braking_pending_scan=True,
@@ -1637,7 +1664,11 @@ class MotionMuxNode(Node):
             if timing is not None:
                 timing.gap('status_gap', .1)
             if refresh_ownership:
-                self.check_output_ownership(nonblocking=not force)
+                # Ownership refresh has its own callback group. Waiting here
+                # briefly for the output snapshot cannot block command input;
+                # skipping instead can phase-lock the 10 Hz status timer with
+                # the 20 Hz output timer and starve every ownership refresh.
+                self.check_output_ownership()
             with self._try_state_guard(blocking=force) as acquired:
                 if not acquired:
                     return False

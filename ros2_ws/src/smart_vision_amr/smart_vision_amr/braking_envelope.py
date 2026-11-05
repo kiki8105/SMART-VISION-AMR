@@ -10,6 +10,11 @@ from functools import lru_cache
 from math import cos, isfinite, pi, sin
 import numpy as np
 
+try:
+    from ._geometry_native import clearances as _native_clearances
+except ImportError:
+    _native_clearances = None
+
 
 @dataclass(frozen=True)
 class BrakeDecision:
@@ -47,6 +52,15 @@ def _clearances(points, distance, angle, radius, longitudinal, lateral, yaw):
     Vectorization keeps 360-beam brake candidate searches out of the Python
     per-point loop; it changes neither the point set nor collision threshold.
     """
+    if _native_clearances is not None:
+        cloud = np.ascontiguousarray(points, dtype=np.float64)
+        return np.frombuffer(_native_clearances(cloud, distance, angle, radius,
+                             longitudinal, lateral, yaw), dtype=np.float64)
+    return _clearances_numpy(points, distance, angle, radius, longitudinal, lateral, yaw)
+
+
+def _clearances_numpy(points, distance, angle, radius, longitudinal, lateral, yaw):
+    """Portable reference retained when the optional native module is absent."""
     x, y = points[:, 1], points[:, 2]
     lo, hi = x-longitudinal, x+longitudinal
     gap = np.maximum(np.maximum(lo, -hi), 0.)
@@ -86,6 +100,36 @@ def _trig_interval(low, high, *, cosine):
     contains_max = np.ceil((low-peak)/(2*pi)) <= np.floor((high-peak)/(2*pi))
     contains_min = np.ceil((low-peak-pi)/(2*pi)) <= np.floor((high-peak-pi)/(2*pi))
     return np.where(contains_min, -1., minimum), np.where(contains_max, 1., maximum)
+
+
+def _box_clearances(points, boxes, radius):
+    """Exact nearest distance and hits, with a conservative broad phase.
+
+    Distance to the union's enclosing box is a lower bound for every time
+    box. An exact seed gives an upper bound for the global nearest distance.
+    Keep every possible hit and every point that could improve that seed;
+    all excluded raw points are proved farther away, not treated as absent.
+    """
+    if not len(points):
+        return frozenset(), float('inf')
+    selected = points
+    if len(points) >= 32:
+        x, y = points[:, 1], points[:, 2]
+        dx = np.maximum(np.maximum(np.min(boxes[0])-x, x-np.max(boxes[1])), 0.)
+        dy = np.maximum(np.maximum(np.min(boxes[2])-y, y-np.max(boxes[3])), 0.)
+        lower_squared = dx*dx+dy*dy
+        seed = int(np.argmin(lower_squared))
+        dx = np.maximum(np.maximum(boxes[0]-x[seed], x[seed]-boxes[1]), 0.)
+        dy = np.maximum(np.maximum(boxes[2]-y[seed], y[seed]-boxes[3]), 0.)
+        best_squared = float(np.min(dx*dx+dy*dy))
+        cutoff = np.nextafter(max(best_squared, (radius+1.e-9)**2), np.inf)
+        selected = points[lower_squared <= cutoff]
+    x, y = selected[:, 1, None], selected[:, 2, None]
+    dx = np.maximum(np.maximum(boxes[0]-x, x-boxes[1]), 0.)
+    dy = np.maximum(np.maximum(boxes[2]-y, y-boxes[3]), 0.)
+    clearance = np.sqrt(dx*dx+dy*dy)-radius
+    hits = frozenset(int(v) for v in selected[np.any(clearance <= 1.e-9, axis=1), 0])
+    return hits, float(np.min(clearance))
 
 
 class BrakingEnvelope:
@@ -228,15 +272,7 @@ class BrakingEnvelope:
             for i, bound in enumerate((xlo[-1]+min(0., *dx), xhi[-1]+max(0., *dx),
                                        ylo[-1]+min(0., *dy), yhi[-1]+max(0., *dy))):
                 boxes[i] = np.r_[boxes[i], bound]
-        if len(points):
-            x, y = points[:, 1, None], points[:, 2, None]
-            dx = np.maximum(np.maximum(boxes[0]-x, x-boxes[1]), 0.)
-            dy = np.maximum(np.maximum(boxes[2]-y, y-boxes[3]), 0.)
-            clearance = np.sqrt(dx*dx+dy*dy)-radius
-            hits = frozenset(int(v) for v in points[np.any(clearance <= 1.e-9, axis=1), 0])
-            minimum = float(np.min(clearance))
-        else:
-            hits, minimum = frozenset(), float('inf')
+        hits, minimum = _box_clearances(points, boxes, radius)
         travel = float(np.max(np.hypot(np.maximum(np.abs(xlo), np.abs(xhi)),
                                       np.maximum(np.abs(ylo), np.abs(yhi)))))
         if has_translation:
@@ -254,14 +290,22 @@ class BrakingEnvelope:
         # This cache contains geometry results only, never sensor freshness or
         # permission. The mux still validates original source/receipt on every
         # publish. Its repeated before/after-ramp check often uses one cloud.
+        # The output proof already owns a prepared array. Converting it back
+        # to hundreds of Python tuples just to build a one-use cache key is
+        # more expensive than the geometry. Keep the array for this proof;
+        # original scan/feedback age checks remain the mux's responsibility.
+        if isinstance(points, np.ndarray):
+            return self._limit_prepared(_cloud(points), linear, angular, radius, uncertainty)
         key = tuple(tuple(row) for row in points)
         return self._limit_cached(key, linear, angular, radius,
                                   tuple(sorted(uncertainty.items())))
 
     @lru_cache(maxsize=32)
     def _limit_cached(self, points, linear, angular, radius, uncertainty_items):
-        points = _cloud(points)
-        uncertainty = dict(uncertainty_items)
+        return self._limit_prepared(_cloud(points), linear, angular, radius,
+                                    dict(uncertainty_items))
+
+    def _limit_prepared(self, points, linear, angular, radius, uncertainty):
         full = self.check(points, linear, angular, radius=radius, **uncertainty)
         if not full.collision:
             return 1., full

@@ -55,7 +55,7 @@ fi
 
 if "$INSTALL_DEPS"; then
   sudo apt update
-  sudo apt install -y python3-colcon-common-extensions python3-setuptools \
+  sudo apt install -y build-essential python3-dev python3-colcon-common-extensions python3-setuptools \
     python3-yaml python3-numpy python3-opencv v4l-utils \
     ros-humble-launch-ros ros-humble-rclpy ros-humble-robot-localization \
     ros-humble-tf2-ros ros-humble-geometry-msgs ros-humble-nav-msgs \

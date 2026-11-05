@@ -1,0 +1,36 @@
+digraph Current {
+  graph [rankdir=LR, bgcolor="white", pad="0.28", nodesep="0.38", ranksep="0.55", splines=polyline, fontname="Noto Sans CJK KR", label="현재 시스템  |  2026-11-05 적용 작업본", labelloc=t, fontsize=22];
+  node [shape=box, style="rounded,filled", fillcolor="#F5F6F7", color="#59636D", fontname="Noto Sans CJK KR", fontsize=13, margin="0.18,0.13"];
+  edge [color="#59636D", arrowsize=0.7, fontname="Noto Sans CJK KR", fontsize=10];
+  subgraph cluster_pc {
+    label="운용 PC"; fontsize=16; color="#B8C1C7"; style=rounded;
+    web [label="재고 요청 · 웹 임무\n출발 준비 · ArUco 도착 확인"];
+    loc [label="저장 지도 + AMCL\nmap→odom→base 위치"];
+    plan [label="A* + 관측 장애물\n세션 장애물 기억 ON"];
+    follow [label="RouteTrackingDWB\n경로 순서 유지 · 선회 감속", color="#136B76", fillcolor="#EAF4F5", penwidth=1.5];
+    recovery [label="국소 우회 우선\n검증 후진·재진입 → 전체 재계획", color="#136B76", fillcolor="#EAF4F5", penwidth=1.5];
+    web -> plan -> follow;
+    loc -> plan; loc -> follow;
+    follow -> recovery [style=dashed, label="진행 차단"];
+    recovery -> plan [style=dashed];
+  }
+  subgraph cluster_robot {
+    label="로봇 / Raspberry Pi"; fontsize=16; color="#B8C1C7"; style=rounded;
+    sensors [label="라이다 → scan\n바퀴·IMU → 독립 EKF → odom·TF"];
+    health [label="위치 상태 감시"];
+    camera [label="후방 카메라\n압축 영상 발행"];
+    mux [label="motion_mux · 최종 출력\n20Hz 검사 / 중복 계산 제거\n기하 계산 가속 / 가감속·제동 제한\n긴급정지 즉시 반영", color="#136B76", fillcolor="#EAF4F5", penwidth=1.5];
+    manual [label="조이스틱 수동 우선\n명시적 제어권 인계"];
+    motor [label="OpenCR · 모터"];
+    sensors -> mux;
+    sensors -> health;
+    health -> mux;
+    manual -> mux;
+    mux -> motor;
+  }
+  sensors -> loc [label="scan / odom·TF", constraint=false];
+  loc -> health [label="지도상 위치", constraint=false];
+  sensors -> plan [label="실시간 관측", constraint=false];
+  camera -> web [label="표식·도착 확인", constraint=false];
+  follow -> mux [label="시각·순서를 가진 명령"];
+}

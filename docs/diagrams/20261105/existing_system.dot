@@ -1,0 +1,25 @@
+digraph Existing {
+  graph [rankdir=LR, bgcolor="white", pad="0.28", nodesep="0.36", ranksep="0.52", splines=polyline, fontname="Noto Sans CJK KR", label="기존 시스템  |  2026-11-04 기능 구성", labelloc=t, fontsize=22];
+  node [shape=box, style="rounded,filled", fillcolor="#F4F5F6", color="#59636D", fontname="Noto Sans CJK KR", fontsize=13, margin="0.18,0.13"];
+  edge [color="#59636D", arrowsize=0.7, fontname="Noto Sans CJK KR", fontsize=10];
+  web [label="재고 요청 · 웹 임무\n섹터 → 표식 확인 → 대기 → Home"];
+  obs [label="저장 지도 · 실시간 라이다\n장애물 기억（구현됨）"];
+  pose [label="바퀴 선속도 + IMU 회전속도 → EKF\n지도 + scan + odom·TF → AMCL 위치"];
+  plan [label="A* 경로 생성"];
+  follow [label="path_follower → Nav2\n경로 추종 · 목표 정렬"];
+  recovery [label="국소 우회 · 제한 후진 · 재계획\n실패 경로 기억"];
+  guard [label="motion_mux\n입력·위치·라이다 검사\nAND NOT 비상정지"];
+  manual [label="조이스틱\n수동 우선"];
+  motor [label="OpenCR · 모터"];
+  camera [label="후방 카메라\nArUco 도착 확인"];
+  web -> plan -> follow -> guard -> motor;
+  obs -> plan; pose -> plan [label="현재 위치"];
+  pose -> follow; pose -> guard;
+  manual -> guard [label="제어권 선택"];
+  camera -> web [label="도착 피드백"];
+  follow -> recovery [style=dashed, label="차단·정체"];
+  recovery -> plan [style=dashed, label="복구"];
+  {rank=same; web; obs; camera; pose}
+  {rank=same; follow; recovery}
+  {rank=same; guard; manual}
+}

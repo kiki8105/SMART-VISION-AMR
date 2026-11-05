@@ -1,0 +1,95 @@
+{
+  "report_date": "2026-11-05",
+  "timezone": "Asia/Seoul",
+  "kind": "Curated/transcribed report evidence; not raw pytest logs or a new physical acceptance test",
+  "comparison_scope": {
+    "historical_field_date": "2026-11-04",
+    "computation_comparison_date": "2026-11-05",
+    "note": "The numerical before/after values are SAME-DAY synthetic input tests on the Pi; not paired November4/5 field measurements."
+  },
+  "calculation_profile": {
+    "input": "360 synthetic points; two point clouds; six raw sweep calls plus requested/measured/final braking",
+    "iterations": 30,
+    "instrumentation": "cProfile enabled",
+    "before_representation": "Python tuples",
+    "after_representation": "Prepared NumPy arrays and native clearances; broad-phase feedback geometry",
+    "host_load": "Whole-system load and operating state were not fully controlled between collections",
+    "stages": [
+      {
+        "stage": "requested_velocity_braking",
+        "before_median_ms": 4.2712435,
+        "after_median_ms": 1.01715,
+        "reduction_percent": 76.1861
+      },
+      {
+        "stage": "measured_velocity_braking",
+        "before_median_ms": 14.771424,
+        "after_median_ms": 3.6672095,
+        "reduction_percent": 75.1736
+      },
+      {
+        "stage": "six_raw_sweeps",
+        "before_median_ms": 10.1113485,
+        "after_median_ms": 1.8920345,
+        "reduction_percent": 81.288
+      },
+      {
+        "stage": "final_output_braking",
+        "before_median_ms": 4.0152545,
+        "after_median_ms": 1.0045305,
+        "reduction_percent": 74.9821
+      }
+    ],
+    "single_raw_call_derived_ms": 0.3153390833333333,
+    "derived_value_note": "six-call stage median divided by6, not independently measured single-call median",
+    "overall_guard_latency_ms": null,
+    "overall_ROS_1ms_achieved": false,
+    "sum_of_stage_medians_is_NOT_overall_latency": true
+  },
+  "earlier_vectorization_stage": {
+    "six_sweeps_before_median_ms": 17.07546199997978,
+    "six_sweeps_after_median_ms": 5.251952499975232,
+    "note": "Separate earlier benchmark; do not mix its timing conditions with the later stage profile"
+  },
+  "pre_fix_field_witness": {
+    "mode": "auto",
+    "code": "CONTROL_DEADLINE",
+    "guard_compute_ms": 68.69389700000283,
+    "guard_budget_ms": 50,
+    "collision_count": 0,
+    "minimum_body_clearance_m": 0.30663450646764,
+    "sent_at_ns": 1793839520856579125
+  },
+  "test_execution_records": [
+    {
+      "suite": "Targeted scheduling, mux, braking and DDS delivery",
+      "passed": 185,
+      "seconds": 11.96,
+      "result_source": "Tool execution result transcribed; no separate raw pytest log retained",
+      "full_final_source_hash_pinned_at_execution": false
+    },
+    {
+      "suite": "Native geometry parity and input validation",
+      "passed": 75,
+      "seconds": 0.33,
+      "result_source": "Tool execution result transcribed; no separate raw pytest log retained",
+      "full_final_source_hash_pinned_at_execution": false
+    }
+  ],
+  "post_fix_field_observation": {
+    "source": "User message after deployed changes",
+    "quote": "잘된다",
+    "interpretation": "User observed improved real-robot operation. No claim of repeated full missions, obstacle avoidance acceptance, measured localization accuracy or success rate."
+  },
+  "shutdown": {
+    "requested_by_user": true,
+    "stop_acknowledged": true,
+    "final_command_linear": 0,
+    "final_command_angular": 0,
+    "robot_runtime_and_camera_stopped": true,
+    "robot_device_holders_after_stop": [],
+    "pc_navigation_and_web_stopped": true,
+    "listening_web_ports_after_stop": [],
+    "new_runtime_or_test_started_for_report": false
+  }
+}

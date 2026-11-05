@@ -128,3 +128,21 @@ def test_horizontal_uncertainty_interval_arc_distance_is_conservative():
                         b = dy+math.sin(angle)*cx+math.cos(angle)*cy
                         numerical.update(i for i,x,y in points if math.hypot(x-a,y-b) <= .22)
         assert numerical <= result.swept
+
+
+@pytest.mark.parametrize('v,w,horizon', [
+    (0., 0., .5), (0., .5, .5), (.22, 0., .5), (-.10, 0., .5),
+    (.15, .35, .5), (-.10, .35, .5), (.10, -.35, .5), (-.15, -.35, .5),
+    (.10, 1.e-7, .5), (-.10, -1.e-7, .5), (.10, 4., 2.), (-.10, -4., 2.)])
+def test_vector_raw_sweep_matches_frozen_scalar_including_uncertainty(v, w, horizon):
+    from scalar_sweep_reference import scalar_swept_body_decision
+    points = [(i, x/40, y/40) for i, (x, y) in enumerate(
+        ( (x, y) for x in range(-20, 21) for y in range(-20, 21) ))]
+    bounds = dict(radius=.22, horizon=horizon, longitudinal_uncertainty=.025,
+                  lateral_uncertainty=.002, yaw_uncertainty=.03)
+    actual = swept_body_decision(points, v, w, **bounds)
+    scalar = scalar_swept_body_decision(points, v, w, **bounds)
+    assert actual.inside == scalar.inside
+    assert actual.swept == scalar.swept
+    assert actual.minimum_body_clearance == pytest.approx(scalar.minimum_body_clearance, abs=1.e-12)
+    assert actual.minimum_swept_clearance == pytest.approx(scalar.minimum_swept_clearance, abs=1.e-12)

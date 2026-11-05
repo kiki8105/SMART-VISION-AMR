@@ -1,9 +1,14 @@
 from glob import glob
-from setuptools import setup
+from setuptools import Extension, setup
 
 package_name = 'smart_vision_amr'
 setup(
     name=package_name, version='0.1.0', packages=[package_name],
+    ext_modules=[Extension(
+        package_name + '._geometry_native',
+        [package_name + '/_geometry_native.cpp'], language='c++', optional=True,
+        extra_compile_args=['-O3', '-fno-fast-math', '-ffp-contract=off'],
+    )],
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),

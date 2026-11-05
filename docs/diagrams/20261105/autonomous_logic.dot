@@ -1,0 +1,20 @@
+digraph Logic {
+  graph [rankdir=LR, bgcolor="white", pad="0.28", nodesep="0.4", ranksep="0.55", splines=polyline, fontname="Noto Sans CJK KR", label="현재 자율 속도 승인 논리  |  AND · OR · NOT", labelloc=t, fontsize=22];
+  node [shape=box, style="rounded,filled", fillcolor="#F5F6F7", color="#59636D", fontname="Noto Sans CJK KR", fontsize=13, margin="0.18,0.13"];
+  edge [color="#59636D", arrowsize=0.7, fontname="Noto Sans CJK KR", fontsize=11];
+  core [label="단독 출력 제어권\n자율모드\n최신 승인 자율명령\n위치상태 허용・속도계수 > 0"];
+  allcore [shape=diamond, label="AND", color="#136B76", fillcolor="#EAF4F5"];
+  stop [label="비상정지\n해제 절차 중\n종료 중\n긴급정지 장벽"];
+  any [shape=diamond, label="OR"];
+  invert [shape=triangle, orientation=270, label="NOT", fillcolor="white"];
+  proof [label="라이다・차체・제동・시각\n검증 통과"];
+  all [shape=diamond, label="AND", color="#136B76", fillcolor="#EAF4F5", penwidth=1.5];
+  allow [label="A = 자율 속도 승인 가능\n실제 출력은 가감속・제동 제한 적용", color="#136B76", fillcolor="#EAF4F5", penwidth=1.5];
+  core -> allcore [label="각 조건"];
+  allcore -> all;
+  stop -> any [label="각 조건"];
+  any -> invert -> all;
+  proof -> all;
+  all -> allow;
+  {rank=same; core; stop; proof}
+}

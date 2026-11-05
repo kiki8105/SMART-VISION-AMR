@@ -1,4 +1,5 @@
 build/
+ros2_ws/src/smart_vision_amr/smart_vision_amr/_geometry_native*.so
 install/
 log/
 __pycache__/

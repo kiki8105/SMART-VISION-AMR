@@ -33,7 +33,7 @@ if [[ ! -f /opt/ros/humble/setup.bash ]]; then
 fi
 if "$INSTALL_DEPS"; then
   sudo apt update
-  sudo apt install -y build-essential cmake python3-colcon-common-extensions python3-setuptools \
+  sudo apt install -y build-essential cmake python3-dev python3-colcon-common-extensions python3-setuptools \
     ros-humble-nav2-bringup ros-humble-turtlebot3-navigation2 ros-humble-turtlebot3-description \
     ros-humble-robot-localization ros-humble-compressed-image-transport \
     ros-humble-diagnostic-msgs ros-humble-dwb-core ros-humble-dwb-critics \

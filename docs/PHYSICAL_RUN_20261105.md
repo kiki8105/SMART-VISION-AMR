@@ -1,8 +1,10 @@
 # 11월 5일 변경사항과 실차 실행
 
-**사용자 요청으로 시험을 중단하고 현재 소스를 저장했습니다.** 최신 수정의 Gazebo
-재시험·실차 완주 검증은 하지 않았습니다. 이전 합격 기록을 최신 수정본의 합격으로
-해석하지 마세요.
+**11월 5일 후속 실차에서 반복 정지 개선을 적용했고 사용자가 “잘된다”고 확인했습니다.**
+검사 중복 제거·명령 전달 분리·C++ 기하 계산 가속을 포함한 코드입니다.
+[성능 결과보고서](DRIVING_PERFORMANCE_REPORT_20261105.md)와
+[11월 4일 FTA](PHYSICAL_FTA_REPORT_20261104.md)에 근거를 정리했습니다.
+전체 반복 임무·장애물 시험의 합격을 의미하지 않습니다. 아래 이전 중단 기록도 보존합니다.
 
 ## 변경사항
 
@@ -39,6 +41,8 @@
 | 실패 항목 | metric connector 기능 fixture의 100ms 시간 예산 초과. 중단 후 재검사·기준 완화 없음 |
 | 수신 병목 수정 전 이동 상자 시험 | 실패·운용자 중지. 실제 후진 확인, 제거 전 우회·섹터·Home 미완료 |
 | 최종 수정 후 Gazebo / 실차 시험 | 미실행 |
+| 후속 반복 정지 개선 실차 | 수정본 적용 후 사용자 주행 개선 확인. 전체 반복 임무·장애물 합격 판정은 아님 |
+| 후속 코드 공개 전 회귀 검사 | 제동·raw scan 기하·native 계산·MUX 스케줄링 181개 통과 |
 
 [원본 기록과 소스 해시](../benchmarks/driving_parameter_tuning_20261104/recovery_runtime_fixes_20261105/README.md),
 [중단한 전체 검사](../benchmarks/driving_parameter_tuning_20261104/recovery_runtime_fixes_20261105/checks_user_interrupted.json)를
@@ -86,12 +90,24 @@ cd ~
 ```
 
 기존 소스의 미커밋 수정은 백업·stash로 보존한 뒤 GitHub 코드로 갱신했습니다.
-현재 실행 경로의 런타임 재빌드를 완료했고, 설치된 모듈이 최신 소스 파일을 읽는지
+당시 실행 경로의 런타임 재빌드를 완료했고, 설치된 모듈이 당시 최신 소스 파일을 읽는지
 확인했습니다. 기존 `turtlebot16`의 내용과 SHA256은 변경하지 않았습니다.
 보존 위치는 로봇의 `~/smart_vision_backups/before-github-4912835-20261105-092802`입니다.
 실행 파일의 원본 SHA256은
 `2ca2e70df0acad9eade5e99fcbd74f4f85d9ecb0dcfb545eea18bb3e674e393c`입니다.
-코드 갱신·빌드와 실제 브링업·주행 시험은 구분합니다. 이 설치 작업은 주행 시험을 하지 않습니다.
+코드 갱신·빌드와 실제 브링업·주행 시험은 구분합니다. 위 경로 확인 작업 자체는 주행 시험이 아닙니다.
+
+GitHub의 후속 개선을 받으려면 브링업 종료 후 로봇에서도 갱신·재빌드합니다.
+기존 `turtlebot16`은 그대로 사용합니다.
+
+```bash
+cd ~/SMART-VISION-AMR &&
+git pull --ff-only origin main &&
+./scripts/setup_robot_runtime.sh --no-install "$HOME/smart_vision_runtime_ws_live"
+```
+
+컴파일러·Python 개발 헤더 누락 시 `--no-install`을 빼고 실행합니다. PC도 아래 명령으로
+갱신·빌드한 뒤 세 터미널을 시작합니다.
 
 다른 로봇은 기존 파일이 참조하는 경로를 먼저 확인합니다. 위 경로가 없는 장치에서
 파일을 임의로 재생성하지 않습니다. 새 설치는 [팀원 퀵스타트](TEAM_QUICKSTART.md)를 따릅니다.

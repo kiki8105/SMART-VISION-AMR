@@ -1,0 +1,20 @@
+{
+  "recorded_at": "2026-11-05T10:21:43.248700+09:00",
+  "historical_git_ref": "ad9aa3a30c9f714d211f61d0a45b82b0ee89d361",
+  "current_base_git_ref": "7286c41e8c2646ad57de5d4e18b035b3deacc521",
+  "working_tree_contains_uncommitted_changes": true,
+  "source_sha256": {
+    "ros2_ws/src/smart_vision_amr/setup.py": "7d95e345b34f2c1ce4cd0f2ec5a962ac2112dc0f295266b4dfb8ad5a25b8ce6a",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/motion_mux.py": "9891bcb593813dd3836d5a2ae6533ae339b10484b9eb3ceb8dcd35525a3643a2",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/braking_envelope.py": "8c54e10ae3ab961570eb2984759a6f3f7b11146ec08d0b66fe0864b326f1ae78",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/scan_outlier_guard.py": "e604fb2f6394a75219ffb569fb863fb8b52515639107a5b5c17b523072aad70c",
+    "ros2_ws/src/smart_vision_amr/smart_vision_amr/_geometry_native.cpp": "2904b2e316226198218afa249bdc37446e3fef2adf7299caeff23f845c18315b",
+    "ros2_ws/src/smart_vision_amr/config/classroom_demo_operator_20261104.yaml": "f4dadc0f36a4a19b2c03fb66df220533bebf8de94a6344ea71bb04ba2698e103",
+    "ros2_ws/src/smart_vision_amr/config/classroom_hardware_nodes.yaml": "59f6b427b89c3a60f77b87254a3d5352e31a4fde245a241f9c6fef839ed81a1f",
+    "ros2_ws/src/smart_vision_amr/config/motion_mux_hardware.yaml": "eb36b95c3e26d9693ea33d5d05b15e1afc412fcd506bb2dd8bdf709fe6c52614",
+    "ros2_ws/src/smart_vision_amr/test/test_motion_mux_scan_scheduling.py": "3dcfd6aff0400621dc41fb3f4f9ef630329555ec9fa2a3bf307f5af932f32867",
+    "ros2_ws/src/smart_vision_amr/test/test_geometry_native.py": "514fa89c251daf2c44e6c371ea2f3080e8138b4b98462a96b6e4fd66f5b4567c",
+    "scripts/setup_robot_runtime.sh": "1f27a3be1e36ce91bf1f14d5ee9f36ee665ec77224858ac4c4ba016a6a8f7d81"
+  },
+  "note": "Report-time source identification, not a claim these hashes were pinned before the earlier test executions. Native binary is architecture-specific and is not included."
+}

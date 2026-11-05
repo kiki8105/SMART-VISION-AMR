@@ -1,0 +1,114 @@
+{
+  "scope": {
+    "failure_date": "2026-11-04",
+    "timezone": "Asia/Seoul",
+    "physical_trials_only": true,
+    "no_runtime_started": true,
+    "no_failure_probability_estimated": true
+  },
+  "path_observations": {
+    "no_path_log_count": 17,
+    "static_start_true": 8,
+    "observed_raw_zero": 3,
+    "remembered_raw_zero": 17,
+    "counts_not_mission_failure_counts": true,
+    "categories_may_overlap": true
+  },
+  "footprint_time_observations": {
+    "count": 5,
+    "ahead_ms_min": 49.410057,
+    "ahead_ms_max": 99.940742,
+    "warning_details": [
+      {
+        "source_line": 580,
+        "ahead_ms": 99.940742,
+        "message": "[path_follower-4] [WARN] [1793764352.055667864] [path_follower]: Navigation geometry validation failed at footprint timestamp and odometry history: ValueError: No continuous odometry at footprint acquisition time: requested_ns=1793764351888398431 first_ns=1793764351738418477 last_ns=1793764351788457689 count=2 epoch=1 requested_frames=('odom', 'base_footprint') first_frames=('odom', 'base_footprint') last_frames=('odom', 'base_footprint')"
+      },
+      {
+        "source_line": 617,
+        "ahead_ms": 50.850997,
+        "message": "[path_follower-4] [WARN] [1793764385.780824686] [path_follower]: Navigation geometry validation failed at footprint timestamp and odometry history: ValueError: No continuous odometry at footprint acquisition time: requested_ns=1793764385538574915 first_ns=1793764382487808837 last_ns=1793764385487723918 count=61 epoch=1 requested_frames=('odom', 'base_footprint') first_frames=('odom', 'base_footprint') last_frames=('odom', 'base_footprint')"
+      },
+      {
+        "source_line": 669,
+        "ahead_ms": 97.553969,
+        "message": "[path_follower-4] [WARN] [1793764456.173184156] [path_follower]: Navigation geometry validation failed at footprint timestamp and odometry history: ValueError: No continuous odometry at footprint acquisition time: requested_ns=1793764455936401375 first_ns=1793764452886450771 last_ns=1793764455838847406 count=59 epoch=1 requested_frames=('odom', 'base_footprint') first_frames=('odom', 'base_footprint') last_frames=('odom', 'base_footprint')"
+      },
+      {
+        "source_line": 704,
+        "ahead_ms": 49.410057,
+        "message": "[path_follower-4] [WARN] [1793764488.153114336] [path_follower]: Navigation geometry validation failed at footprint timestamp and odometry history: ValueError: No continuous odometry at footprint acquisition time: requested_ns=1793764487935784294 first_ns=1793764484936320112 last_ns=1793764487886374237 count=60 epoch=1 requested_frames=('odom', 'base_footprint') first_frames=('odom', 'base_footprint') last_frames=('odom', 'base_footprint')"
+      },
+      {
+        "source_line": 1032,
+        "ahead_ms": 52.500631,
+        "message": "[path_follower-4] [WARN] [1793764954.193784774] [path_follower]: Navigation geometry validation failed at footprint timestamp and odometry history: ValueError: No continuous odometry at footprint acquisition time: requested_ns=1793764953932650535 first_ns=1793764950880179770 last_ns=1793764953880149904 count=59 epoch=1 requested_frames=('odom', 'base_footprint') first_frames=('odom', 'base_footprint') last_frames=('odom', 'base_footprint')"
+      }
+    ]
+  },
+  "arrival_snapshot": {
+    "mission_state": "HOME_REACHED",
+    "active_mission_home": {
+      "x": 0.05556488653952715,
+      "y": -0.20214454775504498,
+      "yaw": 0.02643194966339207
+    },
+    "delivery_homepoint": {
+      "x": 0.05556488653952715,
+      "y": -0.20214454775504498,
+      "yaw": 0.02643194966339207
+    },
+    "registered_home_reference": {
+      "x": -0.188431,
+      "y": -0.220497,
+      "yaw": -0.027514
+    },
+    "later_estimated_pose": {
+      "x": -0.7288721292388936,
+      "y": 0.03809227040333735,
+      "yaw": -2.6017691368392213
+    },
+    "localization_level": "critical",
+    "localization_reasons": [
+      "scan_map_disagreement"
+    ],
+    "completion_at_epoch": 1793765043.4146647,
+    "completion_at_kst": "2026-11-04T13:04:03.414665+09:00",
+    "snapshot_at_epoch": 1793765192.2764518,
+    "snapshot_at_kst": "2026-11-04T13:06:32.276452+09:00",
+    "snapshot_delay_seconds": 148.86178708076477,
+    "difference_to_active_home": {
+      "distance_m": 0.8203993908592436,
+      "yaw_difference_deg": 150.58482996829713
+    },
+    "difference_to_registered_reference": {
+      "distance_m": 0.5991202090905804,
+      "yaw_difference_deg": 147.49395473075958
+    },
+    "interpretation": "Later critical-localization snapshot; not contemporaneous ground truth and not proof of a false arrival declaration"
+  },
+  "folded_path_replay": {
+    "physical_source_incident": "incident_20261104T084140_566449Z_ecb28e47",
+    "source_ros_time": 1793781696.5,
+    "source_time_kst": "2026-11-04T17:41:36.500000+09:00",
+    "evidence_type": "Physical source input, frozen DWB replay with reconstructed costmap; not a physical rerun",
+    "old_selected_velocity": {
+      "x": 0.0,
+      "y": 0.0,
+      "theta": -0.2727272727272727
+    },
+    "old_valid_forward_candidates": 433,
+    "new_selected_velocity": {
+      "x": 0.10421052631578946,
+      "y": 0.0,
+      "theta": -0.08974358974358962
+    },
+    "replay_not_full_mission_acceptance": true
+  },
+  "source_sha256": {
+    "navigation-reset-intent.log": "a2ed8ad071c16e7c7d4f7816d2c59485357b2382a10192dd245c935c9e990153",
+    "operator-two-roundtrips-review.json": "4720099d958485e0a31b89242badcb8447fcc3fcd4a4161490ca6115ca850513",
+    "incident_original_summary.json": "dabb4c27fd63ce9d84eecd3fb2e814fe5a31e4624dd502fecb1fea4d79bc85a6",
+    "incident_fixed_summary.json": "1fcfc2ef2873b561b2671054ab696a3ef93972216be89d2f02260bf409bf4624"
+  }
+}

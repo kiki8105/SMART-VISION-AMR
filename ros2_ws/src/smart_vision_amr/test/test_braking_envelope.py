@@ -93,6 +93,52 @@ def test_fresh_parallel_motion_is_not_a_radial_velocity_age_padding():
     assert not result.collision
 
 
+def _dense_box_reference(points, boxes, radius):
+    """Frozen original all-points/all-time-boxes calculation."""
+    import numpy as np
+    if not len(points):
+        return frozenset(), float('inf')
+    x, y = points[:, 1, None], points[:, 2, None]
+    dx = np.maximum(np.maximum(boxes[0]-x, x-boxes[1]), 0.)
+    dy = np.maximum(np.maximum(boxes[2]-y, y-boxes[3]), 0.)
+    clearance = np.sqrt(dx*dx+dy*dy)-radius
+    hits = frozenset(int(v) for v in points[np.any(clearance <= 1.e-9, axis=1), 0])
+    return hits, float(np.min(clearance))
+
+
+@pytest.mark.parametrize('v,w', [(0., 0.), (.22, 0.), (-.10, 0.),
+    (.15, .35), (-.10, .35), (.15, -.35), (-.10, -.35)])
+@pytest.mark.parametrize('near', [False, True])
+def test_feedback_broad_phase_preserves_dense_hits_and_exact_nearest(monkeypatch, v, w, near):
+    import numpy as np
+    rng = np.random.default_rng(7182)
+    cloud = np.column_stack((np.arange(720)*3+7,
+        rng.uniform(-2., 2., 720), rng.uniform(-2., 2., 720)))
+    if not near:
+        cloud[:, 2] += np.where(cloud[:, 2] >= 0., .75, -.75)
+    brake = BrakingEnvelope(reaction_seconds=.10)
+    bounds = dict(linear_delta=.03, angular_delta=.12,
+                  longitudinal_uncertainty=.025, lateral_uncertainty=.002,
+                  yaw_uncertainty=.03)
+    actual = brake.check_feedback(cloud, v, w, **bounds)
+    monkeypatch.setattr('smart_vision_amr.braking_envelope._box_clearances', _dense_box_reference)
+    expected = brake.check_feedback(cloud, v, w, **bounds)
+    assert actual == expected
+
+
+def test_feedback_broad_phase_keeps_boundary_hits_and_nearest_outside_collision():
+    import numpy as np
+    from smart_vision_amr.braking_envelope import _box_clearances
+    boxes = [np.array([0., .20]), np.array([.10, .30]),
+             np.array([0., .05]), np.array([.02, .07])]
+    # The nearest point to the enclosing box need not be the nearest point to
+    # an actual time box; retain competitors as well as all epsilon-edge hits.
+    cloud = np.array([(i, .05+i*.005, .30) for i in range(360)])
+    cloud[:5, 1:] = [[.15, .035], [.10, .02+.22+1.e-9],
+                    [.30+.22+1.e-9, .06], [1., 1.], [.1, -.22]]
+    assert _box_clearances(cloud, boxes, .22) == _dense_box_reference(cloud, boxes, .22)
+
+
 def test_current_body_intersection_is_never_cleared_by_slowing_or_moving_away():
     for v, w in [(.22, 0.), (-.10, 0.), (0., .5)]:
         scale, result = model().limit([(0, 0., .219)], v, w)
@@ -119,6 +165,7 @@ def test_independent_wheel_braking_curve_is_covered():
 
 
 def test_vector_brake_sweep_matches_independent_scalar_guard_for_all_motion_directions():
+    from scalar_sweep_reference import scalar_swept_body_decision
     brake = model()
     points = [(i, x/30, y/30) for i, (x, y) in enumerate(
         ( (x, y) for x in range(-20, 21) for y in range(-20, 21) ))]
@@ -128,7 +175,7 @@ def test_vector_brake_sweep_matches_independent_scalar_guard_for_all_motion_dire
                              lateral_uncertainty=.001, yaw_uncertainty=.02)
         effective = (brake.reaction_seconds+actual.wheel_brake_seconds/2
                      + (brake.stop_reserve/abs(v) if v else 0.))
-        scalar = swept_body_decision(points, v*effective, w*effective,
+        scalar = scalar_swept_body_decision(points, v*effective, w*effective,
             radius=.22, horizon=1., longitudinal_uncertainty=.015,
             lateral_uncertainty=.001+actual.wheel_curve_bound, yaw_uncertainty=.02)
         assert actual.collision == scalar.swept

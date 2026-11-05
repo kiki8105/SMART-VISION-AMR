@@ -1,0 +1,111 @@
+{
+  "top_event": "TE-01",
+  "failure_date": "2026-11-04",
+  "timezone": "Asia/Seoul",
+  "qualitative_only": true,
+  "gates": {
+    "TE-01": {
+      "operator": "OR",
+      "inputs": [
+        "F-01",
+        "F-02",
+        "F-03",
+        "X-01"
+      ]
+    },
+    "F-01": {
+      "operator": "AND",
+      "inputs": [
+        "I-01",
+        "R-01"
+      ]
+    },
+    "I-01": {
+      "operator": "OR",
+      "inputs": [
+        "I-11",
+        "I-12"
+      ]
+    },
+    "F-02": {
+      "operator": "AND",
+      "inputs": [
+        "P-01",
+        "R-01"
+      ]
+    },
+    "F-03": {
+      "operator": "AND",
+      "inputs": [
+        "M-01",
+        "R-01"
+      ]
+    },
+    "M-01": {
+      "operator": "OR",
+      "inputs": [
+        "M-11",
+        "M-12"
+      ]
+    },
+    "M-11": {
+      "operator": "AND",
+      "inputs": [
+        "J-01",
+        "J-02"
+      ]
+    },
+    "M-12": {
+      "operator": "AND",
+      "inputs": [
+        "H-01",
+        "H-02"
+      ]
+    }
+  },
+  "terminal_functional_events": {
+    "I-11": "TF validity unavailable; S/U",
+    "I-12": "No odometry at footprint acquisition time; O",
+    "P-01": "NoPath under the corresponding planning inputs; O/U",
+    "R-01": "Autonomous progress not restored before intervention/test end; undeveloped functional event",
+    "J-01": "Spatially folded path; physical-input replay evidence",
+    "J-02": "Local goal/scoring insufficiently preserves route order; replay mechanism",
+    "H-01": "Large heading error near Home; S",
+    "H-02": "Small velocity command and little observed motion; S",
+    "X-01": "Conditional S/U external event: power interruption while trial continuation was intended. Unexpectedness and hardware cause are not established; planned shutdown excluded."
+  },
+  "analysis_level_minimal_cut_sets": [
+    [
+      "X-01"
+    ],
+    [
+      "I-11",
+      "R-01"
+    ],
+    [
+      "I-12",
+      "R-01"
+    ],
+    [
+      "P-01",
+      "R-01"
+    ],
+    [
+      "H-01",
+      "H-02",
+      "R-01"
+    ],
+    [
+      "J-01",
+      "J-02",
+      "R-01"
+    ]
+  ],
+  "limitations": [
+    "Terminal events include undeveloped functional events, not fully resolved basic component failures.",
+    "Shared R-01 is a single reused functional event per incident; not independent across branches.",
+    "No occurrence probabilities or independence assumptions.",
+    "A combination in the model is not evidence all components occurred simultaneously in a recorded trial."
+  ],
+  "event_evaluation_scope": "Every event is evaluated within the SAME observation interval e. No cross-trial AND combinations. R-01(e) is shared only inside that interval."
+}
